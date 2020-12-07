@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 public class teleportManager {
 
     private static void teleportPlayer(Player p, TeleportationPoint teleportationPoint) {
-        if (teleportationPoint.getServer().equals(Main.server)) {
+        if (teleportationPoint.getServer().equals(Main.settings.getServerID())) {
             p.teleport(teleportationPoint.getLocation());
-            messageHandler.sendMessage(p, "teleport_success");
+            messageManager.sendMessage(p, "teleport_success");
         }
     }
 

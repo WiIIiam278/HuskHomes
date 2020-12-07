@@ -58,6 +58,10 @@ public class Home extends TeleportationPoint {
         return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

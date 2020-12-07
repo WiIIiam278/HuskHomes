@@ -1,0 +1,11 @@
+language: 'en-gb'
+bungee_options:
+  enable_bungee_mode: false
+  server_id: 'server'
+data_storage_options:
+  storage_type: 'SQLite'
+  table_names:
+    player_data: 'huskhomes_player_data'
+    locations_data: 'huskhomes_location_data'
+    homes_data: 'huskhomes_home_data'
+    warps_data: 'huskhomes_warp_data'

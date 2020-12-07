@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.William278</groupId>
-    <artifactId>HuskHomes2</artifactId>
+    <artifactId>HuskHomes</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>HuskHomes2</name>
+    <name>HuskHomes</name>
 
     <description>A powerful, intuitive and flexible teleportation suite</description>
     <properties>

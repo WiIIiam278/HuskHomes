@@ -1,4 +1,4 @@
-name: HuskHomes2
+name: HuskHomes
 version: ${project.version}
 main: me.william278.huskhomes2.Main
 api-version: 1.16

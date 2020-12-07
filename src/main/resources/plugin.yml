@@ -1,0 +1,7 @@
+name: HuskHomes2
+version: ${project.version}
+main: me.william278.huskhomes2.Main
+api-version: 1.16
+authors: [William278]
+description: A powerful, intuitive and flexible teleportation suite
+website: timetobattle.net

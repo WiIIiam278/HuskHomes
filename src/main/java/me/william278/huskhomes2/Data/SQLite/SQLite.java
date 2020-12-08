@@ -1,6 +1,7 @@
 package me.william278.huskhomes2.Data.SQLite;
 
 import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.dataManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,48 +18,6 @@ public class SQLite extends Database {
     public SQLite(Main instance) {
         super(instance);
     }
-
-    public String createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerTable() + " (" +
-            "`player_id` integer PRIMARY KEY," +
-            "`uuid` text NOT NULL UNIQUE," +
-            "`username` text NOT NULL," +
-            "`home_count` integer NOT NULL," +
-            "`home_slots` integer NOT NULL," +
-            "`rtp_cooldown` integer NOT NULL," +
-            "`home_count` integer NOT NULL" +
-            ");";
-
-    public String createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsTable() + " (" +
-            "`location_id` integer PRIMARY KEY," +
-            "`world` text NOT NULL," +
-            "`server` text NOT NULL," +
-            "`x` double NOT NULL," +
-            "`y` double NOT NULL," +
-            "`z` double NOT NULL," +
-            "`yaw` float NOT NULL," +
-            "`pitch` float NOT NULL" +
-            ");";
-
-    public String createHomesTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getHomesTable() + " (" +
-            "`player_id` integer NOT NULL," +
-            "`location_id` integer NOT NULL," +
-            "`name` text NOT NULL," +
-            "`description` double NOT NULL," +
-            "`public` boolean NOT NULL," +
-
-            "PRIMARY KEY (`player_id`, `location_id`)," +
-            "FOREIGN KEY (`player_id`) REFERENCES " + Main.settings.getPlayerTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            ");";
-
-    public String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getWarpsTable() + " (" +
-            "`location_id` integer NOT NULL," +
-            "`name` text NOT NULL," +
-            "`description` double NOT NULL," +
-
-            "PRIMARY KEY (`location_id`)," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            ");";
 
     // SQL creation stuff, You can leave the blow stuff untouched.
     public Connection getSQLConnection() {
@@ -89,10 +48,10 @@ public class SQLite extends Database {
         connection = getSQLConnection();
         try {
             Statement s = connection.createStatement();
-            s.executeUpdate(createPlayerTable);
-            s.executeUpdate(createLocationsTable);
-            s.executeUpdate(createHomesTable);
-            s.executeUpdate(createWarpsTable);
+            s.executeUpdate(dataManager.createPlayerTable);
+            s.executeUpdate(dataManager.createLocationsTable);
+            s.executeUpdate(dataManager.createHomesTable);
+            s.executeUpdate(dataManager.createWarpsTable);
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -24,6 +24,14 @@ public class Home extends TeleportationPoint {
         this.isPublic = isPublic;
     }
 
+    public Home(TeleportationPoint teleportationPoint, String ownerUsername, String ownerUUID, String name, String description, boolean isPublic) {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
+        this.ownerUsername = ownerUsername;
+        this.ownerUUID = UUID.fromString(ownerUUID);
+        this.name = name;
+        this.isPublic = isPublic;
+    }
+
     public boolean isPublic() {
         return isPublic;
     }

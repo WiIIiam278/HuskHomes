@@ -14,9 +14,7 @@ import org.bukkit.entity.Player;
 public abstract class Database {
     Main plugin;
     Connection connection;
-    // The name of the table we created back in SQLite class.
-    public String table = "table_name";
-    public int tokens = 0;
+
     public Database(Main instance){
         plugin = instance;
     }
@@ -28,31 +26,24 @@ public abstract class Database {
     public void initialize(){
         connection = getSQLConnection();
         try{
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + table + " WHERE player = ?");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE uuid = ?");
             ResultSet rs = ps.executeQuery();
             close(ps,rs);
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
+            plugin.getLogger().log(Level.SEVERE, "Unable to retrieve connection", ex);
         }
     }
 
-    // These are the methods you can use to get things out of your database. You of course can make new ones to return different things in the database.
-    // This returns the number of people the player killed.
-    public Integer getTokens(String string) {
+    public ResultSet queryDatabase(String query) {
         Connection conn = null;
         PreparedStatement ps = null;
-        ResultSet rs = null;
+        ResultSet rs;
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + table + " WHERE player = '"+string+"';");
-
+            ps = conn.prepareStatement(query);
             rs = ps.executeQuery();
-            while(rs.next()){
-                if(rs.getString("player").equalsIgnoreCase(string.toLowerCase())){ // Tell database to search for the player you sent into the method. e.g getTokens(sam) It will look for sam.
-                    return rs.getInt("kills"); // Return the players ammount of kills. If you wanted to get total (just a random number for an example for you guys) You would change this to total!
-                }
-            }
+            return rs;
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
         } finally {
@@ -65,37 +56,11 @@ public abstract class Database {
                 plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
             }
         }
-        return 0;
+        return null;
     }
-    // Exact same method here, Except as mentioned above i am looking for total!
-    public Integer getTotal(String string) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + table + " WHERE player = '"+string+"';");
 
-            rs = ps.executeQuery();
-            while(rs.next()){
-                if(rs.getString("player").equalsIgnoreCase(string.toLowerCase())){
-                    return rs.getInt("total");
-                }
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
-        }
-        return 0;
-    }
+
+
 
     // Now we need methods to save things to the database
     public void setTokens(Player player, Integer tokens, Integer total) {
@@ -133,7 +98,7 @@ public abstract class Database {
     }
 
 
-    public void close(PreparedStatement ps,ResultSet rs){
+    public void close(PreparedStatement ps, ResultSet rs){
         try {
             if (ps != null)
                 ps.close();

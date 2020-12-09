@@ -2,6 +2,8 @@ package me.william278.huskhomes2.Objects;
 
 import org.bukkit.Location;
 
+import java.util.UUID;
+
 public class Warp extends TeleportationPoint {
 
     String name;
@@ -11,6 +13,12 @@ public class Warp extends TeleportationPoint {
         super(location, server);
         this.name = name;
         this.description = "A publicly accessible warp";
+    }
+
+    public Warp(TeleportationPoint teleportationPoint, String name, String description) {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
+        this.name = name;
+        this.description = description;
     }
 
     public String getDescription() {

@@ -14,6 +14,11 @@ public final class Main extends JavaPlugin {
     }
     public static Settings settings;
 
+    private static void setupBungeeChannels(Main plugin) {
+        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -27,6 +32,11 @@ public final class Main extends JavaPlugin {
 
         // Set up data storage
         dataManager.setupStorage(settings.getStorageType());
+
+        // Set up bungee channels if bungee mode is enabled
+        if (settings.doBungee()) {
+            setupBungeeChannels(this);
+        }
     }
 
     @Override

@@ -13,7 +13,7 @@ public class configManager {
                         "|       HuskHomes Config       |\n" +
                         "|    Developed by William278   |\n" +
                         " ------------------------------ \n" +
-                        "Configuration guide: https://github.com/WiIIiam278/HuskHomesDocs/wiki/Config-File/ \n" +
+                        "Configuration guide: [tbd] \n" +
                         "To quickly setup the plugin:\n" +
                         "1. Fill in the details of your mySQL Database below\n" +
                         "2. (Optional) Change the appropriate details in the configuration\n" +

@@ -1,21 +1,24 @@
 package me.william278.huskhomes2.Data.SQLite;
 
+import me.william278.huskhomes2.Data.SQLite.Errors.Error;
+import me.william278.huskhomes2.Data.SQLite.Errors.Errors;
+import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.Objects.Home;
+import me.william278.huskhomes2.Objects.TeleportationPoint;
+import me.william278.huskhomes2.Objects.Warp;
+import org.bukkit.entity.Player;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-import me.william278.huskhomes2.Main;
-import me.william278.huskhomes2.Data.SQLite.Errors.Error;
-import me.william278.huskhomes2.Data.SQLite.Errors.Errors;
-import org.bukkit.entity.Player;
-
 public abstract class Database {
     Main plugin;
     Connection connection;
 
-    public Database(Main instance){
+    public Database(Main instance) {
         plugin = instance;
     }
 
@@ -23,12 +26,12 @@ public abstract class Database {
 
     public abstract void load();
 
-    public void initialize(){
+    public void initialize() {
         connection = getSQLConnection();
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE uuid = ?");
             ResultSet rs = ps.executeQuery();
-            close(ps,rs);
+            close(ps, rs);
 
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, "Unable to retrieve connection", ex);
@@ -59,29 +62,39 @@ public abstract class Database {
         return null;
     }
 
+    // Insert a teleportation point
+    public void addTeleportationPoint(TeleportationPoint point, Connection conn, PreparedStatement ps) {
+        try {
+            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getLocationsTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);");
 
+            ps.setString(1, point.getServer());
+            ps.setString(2, point.getWorldName());
+            ps.setDouble(3, point.getX());
+            ps.setDouble(4, point.getY());
+            ps.setDouble(5, point.getZ());
+            ps.setFloat(6, point.getYaw());
+            ps.setFloat(7, point.getPitch());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        }
+    }
 
-
-    // Now we need methods to save things to the database
-    public void setTokens(Player player, Integer tokens, Integer total) {
+    // Insert a home into the database
+    public void addHome(Home home, int playerID) {
         Connection conn = null;
         PreparedStatement ps = null;
+
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("REPLACE INTO " + table + " (player,kills,total) VALUES(?,?,?)"); // IMPORTANT. In SQLite class, We made 3 colums. player, Kills, Total.
-            ps.setString(1, player.getName().toLowerCase());                                             // YOU MUST put these into this line!! And depending on how many
-            // colums you put (say you made 5) All 5 need to be in the brackets
-            // Seperated with comma's (,) AND there needs to be the same amount of
-            // question marks in the VALUES brackets. Right now i only have 3 colums
-            // So VALUES (?,?,?) If you had 5 colums VALUES(?,?,?,?,?)
+            addTeleportationPoint(home, conn, ps);
 
-            ps.setInt(2, tokens); // This sets the value in the database. The colums go in order. Player is ID 1, kills is ID 2, Total would be 3 and so on. you can use
-            // setInt, setString and so on. tokens and total are just variables sent in, You can manually send values in as well. p.setInt(2, 10) <-
-            // This would set the players kills instantly to 10. Sorry about the variable names, It sets their kills to 10 i just have the variable called
-            // Tokens from another plugin :/
-            ps.setInt(3, total);
+            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getHomesTable() + " (player_id,location_id,name,description,public) VALUES(?,(SELECT last_insert_rowid()),?,?,?);");
+            ps.setInt(1, playerID);
+            ps.setString(2, home.getName());
+            ps.setString(3, home.getDescription());
+            ps.setBoolean(4, home.isPublic());
             ps.executeUpdate();
-            return;
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
         } finally {
@@ -94,11 +107,125 @@ public abstract class Database {
                 plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
             }
         }
-        return;
     }
 
+    // Insert a warp into the database
+    public void addWarp(Warp warp) {
+        Connection conn = null;
+        PreparedStatement ps = null;
 
-    public void close(PreparedStatement ps, ResultSet rs){
+        try {
+            conn = getSQLConnection();
+
+            // Add the teleportation point
+            addTeleportationPoint(warp, conn, ps);
+
+            // Insert the warp with the location_id of the last inserted teleport point
+            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getWarpsTable() + " (location_id,name,description) VALUES((SELECT last_insert_rowid()),?,?);");
+            ps.setString(1, warp.getName());
+            ps.setString(2, warp.getDescription());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    // Insert a player into the database
+    public void addPlayer(Player p) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getPlayerTable() + " (uuid,username,home_count,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?,?);");
+            ps.setString(1, p.getUniqueId().toString());
+            ps.setString(2, p.getName());
+            ps.setInt(3, 0);
+            ps.setInt(4, 5); //TODO: Update default home slots to be based on permission & config
+            ps.setInt(5, 0);
+            ps.setBoolean(6, false);
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    // Delete a teleportation point from SQL
+    public void deleteTeleportationPoint(int locationID) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            ps = conn.prepareStatement("DELETE FROM " + Main.settings.getPlayerTable() + " WHERE `location_id`=?;");
+            ps.setInt(1, locationID);
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    // Update a player's destination teleport point
+    public void setTeleportationLastOrDest(int playerID, TeleportationPoint point, String type) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            // Add the teleportation point
+            addTeleportationPoint(point, conn, ps);
+
+            // Set the destination location with the location_id of the last inserted teleport point
+            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerTable() + " SET `" + type + "_location_id`=(SELECT last_insert_rowid()) WHERE `player_id`=?;");
+            ps.setInt(1, playerID);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public void close(PreparedStatement ps, ResultSet rs) {
         try {
             if (ps != null)
                 ps.close();

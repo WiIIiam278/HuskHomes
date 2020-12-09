@@ -29,6 +29,7 @@ public class Home extends TeleportationPoint {
         this.ownerUsername = ownerUsername;
         this.ownerUUID = UUID.fromString(ownerUUID);
         this.name = name;
+        this.description = description;
         this.isPublic = isPublic;
     }
 

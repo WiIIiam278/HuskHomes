@@ -1,4 +1,6 @@
 language: 'en-gb'
+limits:
+  max_sethomes: 10
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'

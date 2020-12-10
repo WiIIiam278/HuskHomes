@@ -14,6 +14,8 @@ public class Settings {
     String homesTable;
     String warpsTable;
 
+    int maximumHomes;
+
     boolean doBungee;
 
     private void setSettings(FileConfiguration configFile) {
@@ -27,6 +29,8 @@ public class Settings {
         this.locationsTable = configFile.getString("data_storage_options.table_names.location_data");
         this.homesTable = configFile.getString("data_storage_options.table_names.home_data");
         this.warpsTable = configFile.getString("data_storage_options.table_names.warp_data");
+
+        this.maximumHomes = configFile.getInt("limits.max_sethomes");
 
     }
 
@@ -69,4 +73,6 @@ public class Settings {
     public String getWarpsTable() {
         return warpsTable;
     }
+
+    public int getMaximumHomes() { return maximumHomes; }
 }

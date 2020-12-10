@@ -19,12 +19,9 @@ public class dataManager {
             "`player_id` integer NOT NULL," +
             "`uuid` text NOT NULL UNIQUE," +
             "`username` text NOT NULL," +
-            "`home_count` integer NOT NULL," +
             "`home_slots` integer NOT NULL," +
             "`rtp_cooldown` integer NOT NULL," +
             "`is_teleporting` boolean NOT NULL," +
-            "`dest_type` text," + // Destination can be PLAYER or LOCATION.
-            "`dest_player` integer," + // These values below can be null if needed
             "`dest_location_id` integer," +
             "`last_location_id` integer," +
 
@@ -76,7 +73,7 @@ public class dataManager {
 
     }
 
-    public ResultSet queryDatabase(String query) {
+    public static ResultSet queryDatabase(String query) {
         if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
             return null;
         } else {
@@ -84,8 +81,85 @@ public class dataManager {
         }
     }
 
+    // Return an integer from the player table
+    public static Integer getPlayerInteger(Player p, String column) {
+        try {
+            Integer playerID = getPlayerId(p.getName());
+            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
+            if (rs.next()) {
+                return rs.getInt(column);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("An SQL exception occurred returning a value for " + p.getName());
+            return null;
+        }
+    }
+
+    // Get a string value from a player's data row
+    public static String getPlayerString(Player p, String column) {
+        return getPlayerString(getPlayerId(p.getName()), column);
+    }
+
+    // Get a string value from a player with given ID's data row
+    public static String getPlayerString(int playerID, String column) {
+        try {
+            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=" + (playerID) + ";");
+            if (rs.next()) {
+                return rs.getString(column);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("An SQL exception occurred returning a player UUID!");
+            return null;
+        }
+    }
+
+    // Return how many home slots a player has
+    public static Boolean getPlayerTeleporting(Player p) {
+        try {
+            Integer playerID = getPlayerId(p.getName());
+            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
+            if (rs.next()) {
+                return rs.getBoolean("is_teleporting");
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            Bukkit.getLogger().severe("An SQL exception occurred checking " + p.getName() + " is teleporting");
+            return null;
+        }
+    }
+
+    // Return a player's UUID
+    public static String getPlayerUUID(int playerID) {
+        return getPlayerString(playerID, "uuid");
+    }
+
+    // Return a player's username
+    public static String getPlayerUsername(int playerID) {
+        return getPlayerString(playerID, "username");
+    }
+
+    // Return how many homes the player has set
+    public static int getPlayerHomeCount(Player p) {
+        return getPlayerHomes(p.getName()).size();
+    }
+
+    // Return how many home slots a player has
+    public static Integer getPlayerHomeSlots(Player p) {
+        return getPlayerInteger(p, "home_slots");
+    }
+
+    // Return how many home slots a player has
+    public static Integer getPlayerRtpCooldown(Player p) {
+        return getPlayerInteger(p, "rtp_cooldown");
+    }
+
     // Return an array of a player's homes
-    public ArrayList<Home> getPlayerHomes(String playerName) {
+    public static ArrayList<Home> getPlayerHomes(String playerName) {
         try {
             Integer playerID = getPlayerId(playerName);
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
@@ -102,7 +176,7 @@ public class dataManager {
     }
 
     // Return an array of all the public homes
-    public ArrayList<Home> getPublicHomes() {
+    public static ArrayList<Home> getPublicHomes() {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `public`;");
             ArrayList<Home> publicHomes = new ArrayList<>();
@@ -119,7 +193,7 @@ public class dataManager {
     }
 
     // Return an array of all the warps
-    public ArrayList<Warp> getWarps() {
+    public static ArrayList<Warp> getWarps() {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getWarpsTable() + ";");
             ArrayList<Warp> warps = new ArrayList<>();
@@ -135,7 +209,7 @@ public class dataManager {
     }
 
     // Return a warp with a given name (warp names are unique)
-    public Warp getWarp(String name) {
+    public static Warp getWarp(String name) {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getWarpsTable() + " WHERE `name`=" + name + ";");
             if (rs.next()) {
@@ -151,13 +225,18 @@ public class dataManager {
     }
 
     // Return a home with a given owner username and home name
-    public Home getHome(String ownerUsername, String homeName) {
+    public static Home getHome(String ownerUsername, String homeName) {
         try {
             Integer playerID = getPlayerId(ownerUsername);
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + (playerID) + " AND `name`=" + homeName +";");
             if (rs.next()) {
                 int locationID = rs.getInt("location_id");
-                return new Home(getTeleportationPoint(locationID), ownerUsername, getPlayerUUID(playerID), rs.getString("name"), rs.getString("description"), rs.getBoolean("public"));
+                return new Home(getTeleportationPoint(locationID),
+                        ownerUsername,
+                        getPlayerUUID(playerID),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getBoolean("public"));
             } else {
                 return null;
             }
@@ -167,7 +246,7 @@ public class dataManager {
         }
     }
 
-    public boolean playerExists(Player p) {
+    public static boolean playerExists(Player p) {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `uuid`=" + p.getUniqueId().toString() + ";");
             return rs.next();
@@ -178,7 +257,7 @@ public class dataManager {
         }
     }
 
-    private Integer getPlayerId(String playerUsername) {
+    private static Integer getPlayerId(String playerUsername) {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `username`=" + (playerUsername) + ";");
             if (rs.next()) {
@@ -192,66 +271,18 @@ public class dataManager {
         }
     }
 
-    public String getPlayerUUID(int playerID) {
-        try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=" + (playerID) + ";");
-            if (rs.next()) {
-                return rs.getString("uuid");
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            Bukkit.getLogger().severe("An SQL exception occurred returning a player UUID!");
-            return null;
-        }
-    }
-
-    public void deletePlayerDestination(Player p) {
-        int destinationID = getPlayerPositionID(p, "dest");
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-        } else {
-            sqliteDatabase.deleteTeleportationPoint(destinationID);
-        }
-    }
-
-    public void deletePlayerLastPosition(Player p) {
-        int lastPositionID = getPlayerPositionID(p, "last");
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-        } else {
-            sqliteDatabase.deleteTeleportationPoint(lastPositionID);
-        }
-    }
-
-    public TeleportationPoint getPlayerDestination(Player p) {
-        int locationID = getPlayerPositionID(p, "dest");
+    public static TeleportationPoint getPlayerDestination(Player p) {
+        int locationID = getPlayerInteger(p, "dest_location_id");
         return getTeleportationPoint(locationID);
     }
 
-    public TeleportationPoint getPlayerLastPosition(Player p) {
-        int locationID = getPlayerPositionID(p, "last");
+    public static TeleportationPoint getPlayerLastPosition(Player p) {
+        int locationID = getPlayerInteger(p, "last_location_id");
         return getTeleportationPoint(locationID);
-    }
-
-    public Integer getPlayerPositionID(Player p, String type) {
-        try {
-            String playerName = p.getName();
-            Integer playerID = getPlayerId(playerName);
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=" + playerID + ";");
-            if (rs.next()) {
-                return rs.getInt(type + "_location_id");
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            Bukkit.getLogger().severe("An SQL exception occurred returning a player's destination location ID!");
-            return null;
-        }
     }
 
     // Update a player's last position location on SQL
-    public void setPlayerLastPosition(Player p, TeleportationPoint point) {
+    public static void setPlayerLastPosition(Player p, TeleportationPoint point) {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerLastPosition(p);
@@ -266,7 +297,7 @@ public class dataManager {
     }
 
     // Update a player's destination location on SQL
-    public void setPlayerDestination(Player p, TeleportationPoint point) {
+    public static void setPlayerDestinationLocation(Player p, TeleportationPoint point) {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerDestination(p);
@@ -280,25 +311,67 @@ public class dataManager {
         }
     }
 
-    public String getPlayerUsername(int playerID) {
-        try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=" + (playerID) + ";");
-            if (rs.next()) {
-                return rs.getString("username");
+    public static void setPlayerTeleporting(Player p, boolean value) {
+        Integer playerID = getPlayerId(p.getName());
+        if (playerID != null) {
+            deletePlayerDestination(p);
+            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+
             } else {
-                return null;
+                sqliteDatabase.setPlayerTeleporting(playerID, value);
             }
-        } catch (SQLException e) {
-            Bukkit.getLogger().severe("An SQL exception occurred returning a player username!");
-            return null;
+        } else {
+            Bukkit.getLogger().warning("Failed to update player destination records for " + p.getName());
         }
     }
 
-    public TeleportationPoint getTeleportationPoint(int locationID) {
+    public static void deletePlayerDestination(Player p) {
+        int destinationID = getPlayerInteger(p, "dest_location_id");
+        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+
+        } else {
+            sqliteDatabase.deleteTeleportationPoint(destinationID);
+        }
+    }
+
+    public static void deletePlayerLastPosition(Player p) {
+        int lastPositionID = getPlayerInteger(p, "last_location_id");
+        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+
+        } else {
+            sqliteDatabase.deleteTeleportationPoint(lastPositionID);
+        }
+    }
+
+    public static void addWarp(Warp warp) {
+        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+
+        } else {
+            sqliteDatabase.addWarp(warp);
+        }
+    }
+
+    public static void addHome(Home home, Player p) {
+        Integer playerID = getPlayerId(p.getName());
+        if (playerID != null) {
+            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+
+            } else {
+                sqliteDatabase.addHome(home, playerID);
+            }
+        } else {
+            Bukkit.getLogger().warning("Failed to add a home for " + p.getName());
+        }
+    }
+
+    public static TeleportationPoint getTeleportationPoint(int locationID) {
         try {
             ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getLocationsTable() + " WHERE `location_id`=" + (locationID) + ";");
             if (rs.next()) {
-                return new TeleportationPoint(rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch"), rs.getString("server"));
+                return new TeleportationPoint(rs.getString("world"),
+                        rs.getDouble("x"), rs.getDouble("y"),
+                        rs.getDouble("z"), rs.getFloat("yaw"),
+                        rs.getFloat("pitch"), rs.getString("server"));
             } else {
                 return null;
             }

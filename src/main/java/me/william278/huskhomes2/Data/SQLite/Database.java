@@ -29,7 +29,7 @@ public abstract class Database {
     public void initialize() {
         connection = getSQLConnection();
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `uuid`=?");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `user_uuid`=?");
             ResultSet rs = ps.executeQuery();
             close(ps, rs);
 
@@ -202,7 +202,7 @@ public abstract class Database {
         try {
             conn = getSQLConnection();
 
-            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getPlayerTable() + " (uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
+            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getPlayerTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, p.getName());
             ps.setInt(3, 5); //TODO: Update default home slots to be based on permission & config

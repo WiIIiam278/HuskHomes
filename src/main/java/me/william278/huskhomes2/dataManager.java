@@ -11,26 +11,26 @@ import org.bukkit.entity.Player;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 // This class handles the saving of data; whether that be through SQLite or SQL
 public class dataManager {
 
-    public static String createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerTable() + " (" +
+    public static String createPlayerTable = "CREATE TABLE IF NOT EXISTS huskhomes_player_data (" +
             "`player_id` integer NOT NULL," +
-            "`uuid` text NOT NULL UNIQUE," +
-            "`username` text NOT NULL," +
+            "`user_uuid` char(36) NOT NULL UNIQUE," +
+            "`username` varchar(16) NOT NULL," +
             "`home_slots` integer NOT NULL," +
             "`rtp_cooldown` integer NOT NULL," +
             "`is_teleporting` boolean NOT NULL," +
-            "`dest_location_id` integer," +
-            "`last_location_id` integer," +
-
+            "`dest_location_id` integer NULL," +
+            "`last_location_id` integer NULL," +
             "PRIMARY KEY (`player_id`)," +
-            "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`dest_location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+            "FOREIGN KEY (`last_location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static String createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsTable() + " (" +
+    public static String createLocationsTable = "CREATE TABLE IF NOT EXISTS huskhomes_location_data (" +
             "`location_id` integer PRIMARY KEY," +
             "`server` text NOT NULL," +
             "`world` text NOT NULL," +
@@ -41,25 +41,24 @@ public class dataManager {
             "`pitch` float NOT NULL" +
             ");";
 
-    public static String createHomesTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getHomesTable() + " (" +
+    public static String createHomesTable = "CREATE TABLE IF NOT EXISTS huskhomes_home_data (" +
             "`player_id` integer NOT NULL," +
             "`location_id` integer NOT NULL," +
-            "`name` text NOT NULL," +
-            "`description` double NOT NULL," +
+            "`name` double NOT NULL," +
+            "`description` varchar NOT NULL," +
             "`public` boolean NOT NULL," +
-
             "PRIMARY KEY (`player_id`, `location_id`)," +
-            "FOREIGN KEY (`player_id`) REFERENCES " + Main.settings.getPlayerTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`player_id`) REFERENCES huskhomes_player_data (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+            "FOREIGN KEY (`location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getWarpsTable() + " (" +
+    public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS huskhomes_warp_data (" +
             "`location_id` integer NOT NULL," +
-            "`name` text NOT NULL UNIQUE," +
-            "`description` double NOT NULL," +
+            "`name` varchar NOT NULL UNIQUE," +
+            "`description` varchar NOT NULL," +
 
             "PRIMARY KEY (`location_id`)," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
     private static Database sqliteDatabase;
@@ -85,7 +84,9 @@ public class dataManager {
     private static Integer getPlayerInteger(String playerName, String column) {
         try {
             Integer playerID = getPlayerId(playerName);
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=?;";
+            query = query.replace("?", playerID.toString());
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return rs.getInt(column);
@@ -106,7 +107,9 @@ public class dataManager {
     public static Integer getPlayerInteger(Player p, String column) {
         try {
             Integer playerID = getPlayerId(p.getName());
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=?;";
+            query = query.replace("?", playerID.toString());
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return rs.getInt(column);
@@ -145,7 +148,9 @@ public class dataManager {
     // Get a string value from a player with given ID's data row
     public static String getPlayerString(int playerID, String column) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=" + (playerID) + ";");
+            String query = "SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `player_id`=?;";
+            query = query.replace("?", Integer.toString(playerID));
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return rs.getString(column);
@@ -166,7 +171,9 @@ public class dataManager {
     public static Boolean getPlayerTeleporting(Player p) {
         try {
             Integer playerID = getPlayerId(p.getName());
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=?;";
+            query = query.replace("?", playerID.toString());
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return rs.getBoolean("is_teleporting");
@@ -184,7 +191,7 @@ public class dataManager {
 
     // Return a player's UUID
     public static String getPlayerUUID(int playerID) {
-        return getPlayerString(playerID, "uuid");
+        return getPlayerString(playerID, "user_uuid");
     }
 
     // Return a player's username
@@ -216,23 +223,27 @@ public class dataManager {
     public static ArrayList<Home> getPlayerHomes(String playerName) {
         try {
             Integer playerID = getPlayerId(playerName);
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + ";");
-            ArrayList<Home> publicHomes = new ArrayList<>();
+            if (playerID == null) {
+                Bukkit.getLogger().severe("Player ID returned null!!");
+                return new ArrayList<>();
+            }
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=?;";
+            query = query.replace("?", Integer.toString(playerID));
+            ResultSet rs = queryDatabase(query);
+            ArrayList<Home> playerHomes = new ArrayList<>();
             if (rs != null) {
                 while (rs.next()) {
                     int locationID = rs.getInt("location_id");
                     TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
-                    if (teleportationPoint != null && playerID != null) {
-                        publicHomes.add(new Home(teleportationPoint,
+                    if (teleportationPoint != null) {
+                        playerHomes.add(new Home(teleportationPoint,
                                 playerName, getPlayerUUID(playerID),
                                 rs.getString("name"),
                                 rs.getString("description"),
                                 rs.getBoolean("public")));
-                    } else {
-                        return null;
                     }
                 }
-                return publicHomes;
+                return playerHomes;
             } else {
                 return null;
             }
@@ -245,7 +256,8 @@ public class dataManager {
     // Return an array of all the public homes
     public static ArrayList<Home> getPublicHomes() {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `public`;");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `public`;";
+            ResultSet rs = queryDatabase(query);
             ArrayList<Home> publicHomes = new ArrayList<>();
             if (rs != null) {
                 while (rs.next()) {
@@ -269,7 +281,8 @@ public class dataManager {
     // Return an array of all the warps
     public static ArrayList<Warp> getWarps() {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getWarpsTable() + ";");
+            String query = "SELECT * FROM " + Main.settings.getWarpsTable() + ";";
+            ResultSet rs = queryDatabase(query);
             ArrayList<Warp> warps = new ArrayList<>();
             if (rs != null) {
                 while (rs.next()) {
@@ -292,7 +305,9 @@ public class dataManager {
     // Return a warp with a given name (warp names are unique)
     public static Warp getWarp(String name) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getWarpsTable() + " WHERE `name`=" + name + ";");
+            String query = "SELECT * FROM " + Main.settings.getWarpsTable() + " WHERE `name`=?;";
+            query = query.replace("?", "'" + name + "'");
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     int locationID = rs.getInt("location_id");
@@ -322,7 +337,9 @@ public class dataManager {
     public static Home getHome(String ownerUsername, String homeName) {
         try {
             Integer playerID = getPlayerId(ownerUsername);
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + (playerID) + " AND `name`=" + homeName +";");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=%1% AND `name`=%2%;";
+            query = query.replace("%1%", Integer.toString(playerID));
+            query = query.replace("%2%", "'" + homeName + "'");            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     int locationID = rs.getInt("location_id");
@@ -354,7 +371,9 @@ public class dataManager {
 
     public static boolean warpExists(String warpName) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getWarpsTable() + " WHERE `name`=" + warpName + ";");
+            String query = "SELECT * FROM " + Main.settings.getWarpsTable() + " WHERE `name`=?;";
+            query = query.replace("?", "'" + warpName + "'");
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 return rs.next();
             } else {
@@ -371,7 +390,10 @@ public class dataManager {
     public static boolean homeExists(Player p, String homeName) {
         Integer playerID = getPlayerId(p.getName());
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=" + playerID + " AND `name`=" + homeName +";");
+            String query = "SELECT * FROM " + Main.settings.getHomesTable() + " WHERE `player_id`=%1% AND `name`=%2%;";
+            query = query.replace("%1%", Integer.toString(playerID));
+            query = query.replace("%2%", "'" + homeName + "'");
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 return rs.next();
             } else {
@@ -387,7 +409,11 @@ public class dataManager {
 
     public static boolean playerExists(Player p) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `uuid`=" + p.getUniqueId().toString() + ";");
+            UUID uuid = p.getUniqueId();
+            String uuidString = uuid.toString();
+            String query = "SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `user_uuid`=?;";
+            query = query.replace("?", "'" + uuidString + "'");
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 return rs.next();
             } else {
@@ -403,11 +429,15 @@ public class dataManager {
 
     private static Integer getPlayerId(String playerUsername) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `username`=" + (playerUsername) + ";");
+            String query = "SELECT * FROM " + Main.settings.getPlayerTable() + " WHERE `username`=?;";
+            query = query.replace("?", "'" + playerUsername + "'");
+            Bukkit.getLogger().info(query);
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return rs.getInt("player_id");
                 } else {
+                    Bukkit.getLogger().info("Could not find player ID for " + playerUsername);
                     return null;
                 }
             } else {
@@ -572,7 +602,8 @@ public class dataManager {
 
     public static TeleportationPoint getTeleportationPoint(int locationID) {
         try {
-            ResultSet rs = queryDatabase("SELECT * FROM " + Main.settings.getLocationsTable() + " WHERE `location_id`=" + (locationID) + ";");
+            String query = "SELECT * FROM " + Main.settings.getLocationsTable() + " WHERE `location_id`=" + (locationID) + ";";
+            ResultSet rs = queryDatabase(query);
             if (rs != null) {
                 if (rs.next()) {
                     return new TeleportationPoint(rs.getString("world"),

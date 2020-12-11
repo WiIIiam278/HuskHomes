@@ -24,7 +24,9 @@ public class SQLite extends Database {
         File dataFolder = new File(plugin.getDataFolder(), databaseName + ".db");
         if (!dataFolder.exists()) {
             try {
-                dataFolder.createNewFile();
+                if (!dataFolder.createNewFile()) {
+                    plugin.getLogger().log(Level.SEVERE, "File write error: " + databaseName + ".db");
+                }
             } catch (IOException e) {
                 plugin.getLogger().log(Level.SEVERE, "File write error: " + databaseName + ".db");
             }
@@ -34,7 +36,7 @@ public class SQLite extends Database {
                 return connection;
             }
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + databaseName + ".db");
             return connection;
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the SQLite database", ex);
@@ -46,16 +48,18 @@ public class SQLite extends Database {
 
     public void load() {
         connection = getSQLConnection();
+
         try {
             Statement s = connection.createStatement();
-            s.executeUpdate(dataManager.createPlayerTable);
-            s.executeUpdate(dataManager.createLocationsTable);
-            s.executeUpdate(dataManager.createHomesTable);
-            s.executeUpdate(dataManager.createWarpsTable);
+            s.execute(dataManager.createPlayerTable);
+            s.execute(dataManager.createLocationsTable);
+            s.execute(dataManager.createHomesTable);
+            s.execute(dataManager.createWarpsTable);
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         initialize();
     }
 }

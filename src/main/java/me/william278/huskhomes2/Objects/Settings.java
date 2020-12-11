@@ -26,7 +26,7 @@ public class Settings {
         this.doBungee = configFile.getBoolean("bungee_options.enable_bungee_mode");
         this.server = configFile.getString("bungee_options.server_id");
 
-        this.storageType = configFile.getString("data_storage_option.storage_type");
+        this.storageType = configFile.getString("data_storage_options.storage_type");
 
         this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
 

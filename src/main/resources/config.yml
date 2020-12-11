@@ -1,9 +1,20 @@
 language: 'en-gb'
-limits:
+general:
   max_sethomes: 10
+  teleport_warmup_time: 5
+  teleport_request_expiry_time: 60
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'
+spawn_command:
+  enabled: true
+  position:
+    world:
+    x:
+    y:
+    z:
+    yaw:
+    pitch:
 data_storage_options:
   storage_type: 'SQLite'
   table_names:

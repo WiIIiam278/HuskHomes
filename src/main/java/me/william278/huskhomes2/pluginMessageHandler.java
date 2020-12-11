@@ -3,6 +3,8 @@ package me.william278.huskhomes2;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import me.william278.huskhomes2.Objects.TeleportRequest;
+import me.william278.huskhomes2.Objects.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -52,7 +54,7 @@ public class pluginMessageHandler implements PluginMessageListener {
 
     // When a plugin message is received
     @Override
-    public void onPluginMessageReceived(String channel, Player p, byte[] message) {
+    public void onPluginMessageReceived(String channel, Player recipient, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {
             return;
@@ -69,7 +71,7 @@ public class pluginMessageHandler implements PluginMessageListener {
         messageType = messageType.split(":")[1];
 
         // Get the message data packets
-        String messageData;
+        String messageData = "";
         short messageLength = input.readShort();
         byte[] messageBytes = new byte[messageLength];
         input.readFully(messageBytes);
@@ -83,8 +85,47 @@ public class pluginMessageHandler implements PluginMessageListener {
             e.printStackTrace();
         }
 
-        /*switch (messageType) {
+        // Used in replying to tp requests
+        String replierName;
+        boolean accepted;
 
-        }*/
+        switch (messageType) {
+            case "set_teleportation_destination":
+                setTeleportDestination(messageData, recipient);
+                break;
+            case "tpa_request":
+                teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
+                messageManager.sendMessage(recipient, "tpa_request_ask", messageData);
+                break;
+            case "tpahere_request":
+                teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
+                messageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
+                break;
+            case "tpa_request_reply":
+                replierName = messageData.split(":")[0];
+                accepted = Boolean.parseBoolean(messageData.split(":")[1]);
+                if (accepted) {
+                    messageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
+                    teleportManager.queueTimedTeleport(recipient, replierName);
+                } else {
+                    messageManager.sendMessage(recipient, "tpa_has_declined", replierName);
+                }
+                break;
+            case "tpahere_request_reply":
+                replierName = messageData.split(":")[0];
+                accepted = Boolean.parseBoolean(messageData.split(":")[1]);
+                if (accepted) {
+                    messageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
+                } else {
+                    messageManager.sendMessage(recipient, "tpa_has_declined", replierName);
+                }
+                break;
+        }
+    }
+
+    // Set the requesters' teleport destination to a teleportation point of the recipient's current location
+    public void setTeleportDestination(String requesterName, Player recipient) {
+        dataManager.setPlayerDestinationLocation(requesterName,
+                new TeleportationPoint(recipient.getLocation(), Main.settings.getServerID()));
     }
 }

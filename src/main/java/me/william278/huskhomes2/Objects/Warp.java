@@ -2,8 +2,6 @@ package me.william278.huskhomes2.Objects;
 
 import org.bukkit.Location;
 
-import java.util.UUID;
-
 public class Warp extends TeleportationPoint {
 
     String name;

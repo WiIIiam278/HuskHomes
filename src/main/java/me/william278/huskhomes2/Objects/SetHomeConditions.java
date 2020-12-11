@@ -4,15 +4,19 @@ import me.william278.huskhomes2.Main;
 import me.william278.huskhomes2.dataManager;
 import org.bukkit.entity.Player;
 
-public class HomeConditionsMet {
+public class SetHomeConditions {
 
     boolean conditionsMet;
     String conditionsNotMetReason;
 
-    public HomeConditionsMet (Player player) {
+    public SetHomeConditions(Player player, String homeName) {
+        conditionsMet = false;
         if (dataManager.getPlayerHomeCount(player) > (Main.settings.getMaximumHomes()-1)) {
-            conditionsMet = false;
             conditionsNotMetReason = "error_set_home_maximum_homes";
+            return;
+        }
+        if (dataManager.homeExists(player, homeName)) {
+            conditionsNotMetReason = "error_set_home_name_taken";
             return;
         }
         conditionsMet = true;

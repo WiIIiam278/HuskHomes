@@ -1,5 +1,6 @@
 package me.william278.huskhomes2;
 
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -111,6 +112,16 @@ public class messageManager {
 
     // Send a message with multiple placeholders
     public static void sendMessage(Player p, String messageID, String... placeholderReplacements) {
+        sendMessage(p, ChatMessageType.CHAT, messageID, placeholderReplacements);
+    }
+
+    // Send a message with multiple placeholders
+    public static void sendActionBarMessage(Player p, String messageID, String... placeholderReplacements) {
+        sendMessage(p, ChatMessageType.ACTION_BAR, messageID, placeholderReplacements);
+    }
+
+    // Send a message to the correct channel
+    private static void sendMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
         String message = messages.get(messageID);
         int replacementIndexer = 1;
 
@@ -122,7 +133,7 @@ public class messageManager {
         }
 
         // Convert to text component and send
-        p.spigot().sendMessage(TextComponent.fromLegacyText(translateHexColorCodes(message)));
+        p.spigot().sendMessage(chatMessageType, TextComponent.fromLegacyText(translateHexColorCodes(message)));
     }
 
     // Send a message with no placeholder parameters

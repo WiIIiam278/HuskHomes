@@ -19,6 +19,7 @@ public class Settings {
     int teleportWarmupTime;
 
     boolean doBungee;
+    boolean doSpawnCommand;
 
     private void setSettings(FileConfiguration configFile) {
         this.language = configFile.getString("language");
@@ -26,6 +27,8 @@ public class Settings {
         this.server = configFile.getString("bungee_options.server_id");
 
         this.storageType = configFile.getString("data_storage_option.storage_type");
+
+        this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
 
         this.playerTable = configFile.getString("data_storage_options.table_names.player_data");
         this.locationsTable = configFile.getString("data_storage_options.table_names.location_data");

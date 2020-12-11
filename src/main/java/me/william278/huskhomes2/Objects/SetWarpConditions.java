@@ -13,6 +13,14 @@ public class SetWarpConditions {
             conditionsNotMetReason = "error_set_warp_name_taken";
             return;
         }
+        if (warpName.length() > 16) {
+            conditionsNotMetReason = "error_set_warp_invalid_length";
+            return;
+        }
+        if (!warpName.matches("[A-Za-z0-9_\\-]+")) {
+            conditionsNotMetReason = "error_set_warp_invalid_characters";
+            return;
+        }
         conditionsMet = true;
     }
 

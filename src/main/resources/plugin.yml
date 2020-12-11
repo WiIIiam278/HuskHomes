@@ -5,3 +5,16 @@ api-version: 1.16
 authors: [William278]
 description: A powerful, intuitive and flexible teleportation suite
 website: timetobattle.net
+commands:
+  home:
+    usage: /home <home>
+    description: Return to a home
+  sethome:
+    usage: /sethome <home>
+    description: Set a home
+  delhome:
+    usage: /delhome <home>
+    description: Delete a home
+  homelist:
+    usage: /homelist [page no]
+    description: View a list of homes

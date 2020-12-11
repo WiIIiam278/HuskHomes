@@ -1,5 +1,9 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Commands.delHomeCommand;
+import me.william278.huskhomes2.Commands.homeCommand;
+import me.william278.huskhomes2.Commands.homeListCommand;
+import me.william278.huskhomes2.Commands.setHomeCommand;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +22,13 @@ public final class Main extends JavaPlugin {
     private static void setupBungeeChannels(Main plugin) {
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
+    }
+
+    private static void registerCommands(Main plugin) {
+        plugin.getCommand("home").setExecutor(new homeCommand());
+        plugin.getCommand("sethome").setExecutor(new setHomeCommand());
+        plugin.getCommand("delhome").setExecutor(new delHomeCommand());
+        plugin.getCommand("homelist").setExecutor(new homeListCommand());
     }
 
     private static void registerEvents(Main plugin) {
@@ -42,6 +53,9 @@ public final class Main extends JavaPlugin {
         if (settings.doBungee()) {
             setupBungeeChannels(this);
         }
+
+        // Register commands
+        registerCommands(this);
 
         // Register events
         registerEvents(this);

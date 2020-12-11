@@ -19,6 +19,14 @@ public class SetHomeConditions {
             conditionsNotMetReason = "error_set_home_name_taken";
             return;
         }
+        if (homeName.length() > 16) {
+            conditionsNotMetReason = "error_set_home_invalid_length";
+            return;
+        }
+        if (!homeName.matches("[A-Za-z0-9_\\-]+")) {
+            conditionsNotMetReason = "error_set_home_invalid_characters";
+            return;
+        }
         conditionsMet = true;
     }
 

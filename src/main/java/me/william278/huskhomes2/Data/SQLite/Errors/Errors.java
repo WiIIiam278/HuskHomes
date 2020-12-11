@@ -8,7 +8,7 @@ public class Errors {
         return "Failed to close MySQL connection: ";
     }
     public static String noSQLConnection(){
-        return "Unable to retreive MYSQL connection: ";
+        return "Unable to retrieve MYSQL connection: ";
     }
     public static String noTableFound(){
         return "Database Error: No Table Found";

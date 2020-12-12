@@ -32,7 +32,7 @@ public class homeListHandler {
         TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
         clickableHome.setColor(ChatColor.ITALIC);
         clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/edithome " + home.getName())));
-        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getOwnerUsername()).color(ChatColor.GREEN).italic(false).append(": ").append(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
         return clickableHome;
     }
 
@@ -40,7 +40,7 @@ public class homeListHandler {
         TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
         clickableHome.setColor(ChatColor.ITALIC);
         clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/phome " + home.getOwnerUsername() + "." + home.getName())));
-        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getOwnerUsername()).color(ChatColor.GREEN).italic(false).append(": ").append(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
         return clickableHome;
     }
 

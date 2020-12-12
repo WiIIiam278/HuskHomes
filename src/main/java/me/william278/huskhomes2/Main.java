@@ -46,6 +46,9 @@ public final class Main extends JavaPlugin {
         // Load the config
         configManager.loadConfig();
 
+        // Load the messages (in the right language)
+        messageManager.loadMessages(Main.settings.getLanguage());
+
         // Set up data storage
         dataManager.setupStorage(settings.getStorageType());
 

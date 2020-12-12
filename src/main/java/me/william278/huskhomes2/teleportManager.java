@@ -16,7 +16,7 @@ public class teleportManager {
         String server = teleportationPoint.getServer();
         if (!Main.settings.doBungee() || server.equals(Main.settings.getServerID())) {
             p.teleport(teleportationPoint.getLocation());
-            messageManager.sendMessage(p, "teleport_success");
+            messageManager.sendMessage(p, "teleporting_complete");
         } else if (Main.settings.doBungee()) {
             dataManager.setPlayerDestinationLocation(p, teleportationPoint);
             pluginMessageHandler.sendPlayer(p, server);
@@ -26,6 +26,7 @@ public class teleportManager {
     public static void queueTimedTeleport(Player player, String targetPlayer) {
         if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
             dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+            setPlayerDestinationFromTargetPlayer(player, targetPlayer);
             teleportPlayer(player);
             return;
         }
@@ -36,6 +37,7 @@ public class teleportManager {
     public static void queueTimedTeleport(Player player, TeleportationPoint point) {
         if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
             dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+            dataManager.setPlayerDestinationLocation(player, point);
             teleportPlayer(player);
             return;
         }

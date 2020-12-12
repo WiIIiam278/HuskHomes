@@ -80,7 +80,7 @@ public class messageManager {
                         "2. Use an ampersand symbol and hashtag (&#) followed by a 6 digit hex code to add custom colors.\n" +
                         "3. Example 1: \"§cHello!\" will display \"Hello!\" in light red.\n" +
                         "4. Example 2: \"&#32CD32Hello\" will display \"Hello!\" in a bright green color (hex: #32CD32)");
-        InputStream defaultMessageFile = plugin.getResource("Languages/" + language);
+        InputStream defaultMessageFile = plugin.getResource("Languages/" + language + ".yml");
         if (defaultMessageFile != null) {
             YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultMessageFile, StandardCharsets.UTF_8));
             config.setDefaults(yamlConfiguration);

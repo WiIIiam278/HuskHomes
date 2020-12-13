@@ -55,7 +55,7 @@ public class editingHandler {
     public static void showEditHomeOptions(Player p, Home home) {
         p.sendMessage("");
         messageManager.sendMessage(p, "edit_home_title", home.getName());
-        messageManager.sendMessage(p, "edit_home_title", home.getDescription());
+        messageManager.sendMessage(p, "edit_home_description", home.getDescription());
         messageManager.sendMessage(p, "edit_home_location",
                 Double.toString(home.getX()),
                 Double.toString(home.getY()),
@@ -77,14 +77,14 @@ public class editingHandler {
     public static void showEditWarpOptions(Player p, Warp warp) {
         p.sendMessage("");
         messageManager.sendMessage(p, "edit_warp_title", warp.getName());
-        messageManager.sendMessage(p, "edit_warp_title", warp.getDescription());
-        messageManager.sendMessage(p, "edit_warp_location",
+        messageManager.sendMessage(p, "edit_home_description", warp.getDescription());
+        messageManager.sendMessage(p, "edit_home_location",
                 Double.toString(warp.getX()),
                 Double.toString(warp.getY()),
                 Double.toString(warp.getZ()));
-        messageManager.sendMessage(p, "edit_warp_world", warp.getWorldName());
+        messageManager.sendMessage(p, "edit_home_world", warp.getWorldName());
         if (Main.settings.doBungee()) {
-            messageManager.sendMessage(p, "edit_warp_server", warp.getServer());
+            messageManager.sendMessage(p, "edit_home_server", warp.getServer());
         }
         p.sendMessage("");
         p.spigot().sendMessage(editWarpOptions(warp).create());

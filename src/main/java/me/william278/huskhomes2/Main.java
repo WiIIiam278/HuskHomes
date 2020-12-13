@@ -4,6 +4,7 @@ import me.william278.huskhomes2.Commands.delHomeCommand;
 import me.william278.huskhomes2.Commands.homeCommand;
 import me.william278.huskhomes2.Commands.homeListCommand;
 import me.william278.huskhomes2.Commands.setHomeCommand;
+import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,7 @@ public final class Main extends JavaPlugin {
 
     private static void registerEvents(Main plugin) {
         plugin.getServer().getPluginManager().registerEvents(new onPlayerJoin(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new onPlayerDeath(), plugin);
     }
 
     @Override
@@ -42,6 +44,9 @@ public final class Main extends JavaPlugin {
 
         // Set instance for easy cross-class referencing
         setInstance(this);
+
+        // Check if HuskHomes is up-to-date
+        getLogger().info(versionChecker.getVersionCheckString());
 
         // Load the config
         configManager.loadConfig();

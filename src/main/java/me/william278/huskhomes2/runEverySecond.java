@@ -69,17 +69,11 @@ public class runEverySecond {
                         } else {
                             // Execute the teleport
                             if (timedTeleport.getTargetType().equals("point")) {
-                                dataManager.setPlayerDestinationLocation(teleporter, timedTeleport.getTargetPoint());
+                                teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
                             } else {
-                                teleportManager.setPlayerDestinationFromTargetPlayer(teleporter, timedTeleport.getTargetPlayerName());
+                                teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                             }
 
-                            // Update last position
-                            dataManager.setPlayerLastPosition(teleporter,
-                                    new TeleportationPoint(teleporter.getLocation(), Main.settings.getServerID()));
-
-                            // Teleport player
-                            teleportManager.teleportPlayer(teleporter);
                             completedTeleports.add(timedTeleport);
                         }
                     } else {

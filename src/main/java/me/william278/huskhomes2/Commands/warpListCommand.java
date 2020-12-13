@@ -7,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class homeListCommand implements CommandExecutor {
+public class warpListCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -22,7 +22,7 @@ public class homeListCommand implements CommandExecutor {
                     return true;
                 }
             }
-            listHandler.displayPlayerHomeList(p, pageNo);
+            listHandler.displayWarpList(p, pageNo);
             return true;
         }
         return false;

@@ -1,6 +1,7 @@
 package me.william278.huskhomes2;
 
 import me.william278.huskhomes2.Objects.Home;
+import me.william278.huskhomes2.Objects.Warp;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
-public class homeListHandler {
+public class listHandler {
 
     private static TextComponent pageButton(String buttonText, ChatColor color, String command, String hoverMessage) {
         TextComponent button = new TextComponent(buttonText);
@@ -44,10 +45,18 @@ public class homeListHandler {
         return clickableHome;
     }
 
-    private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound) {
+    private static TextComponent clickableWarp(Warp warp) {
+        TextComponent clickableHome = new TextComponent("[" + warp.getName() + "]");
+        clickableHome.setColor(ChatColor.ITALIC);
+        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/warp " + warp.getName())));
+        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(warp.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+        return clickableHome;
+    }
+
+    private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command) {
         ComponentBuilder pageButtons = new ComponentBuilder();
-        TextComponent nextPageButton = pageButton("[Next Page →]", net.md_5.bungee.api.ChatColor.GREEN, "/homelist " + (pageNumber + 1), "Click to view next 10");
-        TextComponent previousPageButton = pageButton("[← Last Page]", net.md_5.bungee.api.ChatColor.RED, "/homelist " + (pageNumber - 1), "Click to view previous 10");
+        TextComponent nextPageButton = pageButton("[Next Page →]", net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), "Click to view next 10");
+        TextComponent previousPageButton = pageButton("[← Last Page]", net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), "Click to view previous 10");
         TextComponent divider = new TextComponent(" • ");
         divider.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
@@ -101,7 +110,7 @@ public class homeListHandler {
         player.spigot().sendMessage(homeList.create());
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound);
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/homelist");
     }
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
@@ -138,7 +147,44 @@ public class homeListHandler {
         player.spigot().sendMessage(homeList.create());
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound);
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/publichomelist");
+    }
+
+    public static void displayWarpList(Player player, int pageNumber) {
+        ComponentBuilder warpList = new ComponentBuilder();
+        ArrayList<Warp> warps = dataManager.getWarps();
+        if (warps == null || warps.isEmpty()) {
+            messageManager.sendMessage(player, "error_no_warps_set");
+            return;
+        }
+        int warpsLowerBound = (pageNumber - 1) * 10;
+        int warpsUpperBound = pageNumber * 10;
+        if (warpsUpperBound > warps.size()) {
+            warpsUpperBound = warps.size();
+        }
+
+        player.sendMessage("");
+        messageManager.sendMessage(player, "warp_list_page_top", player.getName(), Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
+
+        for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
+            try {
+                Warp warp = warps.get(i);
+                if (i != warpsLowerBound) {
+                    warpList.append(divider());
+                }
+                warpList.append(clickableWarp(warp));
+            } catch (IndexOutOfBoundsException e) {
+                if (i == warpsLowerBound) {
+                    messageManager.sendMessage(player, "warp_list_page_empty");
+                }
+                i = warpsUpperBound;
+            }
+        }
+
+        player.spigot().sendMessage(warpList.create());
+
+        // Display page buttons
+        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/warplist");
     }
 
 }

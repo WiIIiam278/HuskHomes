@@ -15,5 +15,8 @@ spawn_command:
     z:
     yaw:
     pitch:
+rtp_command:
+  enabled: true
+  range: 25000
 data_storage_options:
   storage_type: 'SQLite'

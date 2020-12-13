@@ -7,14 +7,211 @@ description: A powerful, intuitive and flexible teleportation suite
 website: timetobattle.net
 commands:
   home:
+    description: Teleport to one of your homes
     usage: /home <home>
-    description: Return to a home
+    permission: huskhomes.home
   sethome:
-    usage: /sethome <home>
-    description: Set a home
+    description: Set a new home with given name
+    usage: /sethome <name>
+    permission: huskhomes.sethome
   delhome:
-    usage: /delhome <home>
-    description: Delete a home
+    description: Delete a home you previously set
+    usage: /delhome <name>
+    permission: huskhomes.delhome
+  edithome:
+    description: Edit one of your homes
+    usage: /edithome <home> <rename/description/location/public/private> [arguments]
+    permission: huskhomes.edithome
+  warp:
+    description: Teleport to a warp
+    usage: /warp <warp>
+    permission: huskhomes.warp
+  setwarp:
+    description: Set a new warp with given name
+    usage: /setwarp <name>
+    permission: huskhomes.setwarp
+  delwarp:
+    description: Delete a warp
+    usage: /delwarp <name>
+    permission: huskhomes.delwarp
+  editwarp:
+    description: Edit a warp
+    usage: /editwarp <home> <rename/description/location> [arguments]
+    permission: huskhomes.editwarp
+  back:
+    description: Return to your previous position, or where you died
+    usage: /back
+    permission: huskhomes.back
   homelist:
-    usage: /homelist [page no]
-    description: View a list of homes
+    description: Get a list of your homes
+    usage: /homelist <page>
+    permission: huskhomes.home
+    aliases: [homes, listhomes]
+  warplist:
+    description: View the list of warps
+    usage: /warplist <page>
+    permission: huskhomes.warp
+    aliases: [warps, listwarps]
+  publichomelist:
+    description: View the list of public homes
+    usage: /publichomelist <page>
+    permission: huskhomes.publichome
+    aliases: [phomes, phomelist, listphomes, listpublichomes]
+  publichome:
+    description: Teleport to a public home
+    usage: /publichome <owner.home>
+    permission: huskhomes.publichome
+    aliases: [phome]
+  tp:
+    description: Teleport to another player or location
+    usage: /tp <player> OR /tp <x> <y> <z> [world] [server]
+    permission: huskhomes.tp
+    aliases: [tpo]
+  tphere:
+    description: Teleport another player to you
+    usage: /tphere <player>
+    permission: huskhomes.tp
+    aliases: [tpohere]
+  tpa:
+    description: Request to teleport to another player
+    usage: /tpa <player>
+    permission: huskhomes.tprequest
+    aliases: [tprequest, tpask]
+  tpahere:
+    description: Request another player to teleport to you
+    usage: /tpahere <player>
+    permission: huskhomes.tprequest
+    aliases: [tphererequest, tpaskhere]
+  tpaccept:
+    description: Accept teleport requests
+    usage: /tpaccept
+    permission: huskhomes.tprequest
+    aliases: [tpyes]
+  tpdeny:
+    description: Deny teleport requests
+    usage: /tpdeny
+    permission: huskhomes.tprequest
+    aliases: [tpno]
+
+permissions:
+  huskhomes.*:
+    description: Grants all HuskHomes permissions
+    children:
+      huskhomes.bypass_timers: true
+      huskhomes.commands: true
+  huskhomes.bypass_timers:
+    description: Bypass all timer restrictions.
+    children:
+      huskhomes.bypass_timer: true
+      huskhomes.rtp.bypass_cooldown: true
+  huskhomes.basic:
+    description: Access a basic pack of commands, good for Survival servers
+    children:
+      huskhomes.home: true
+      huskhomes.sethome: true
+      huskhomes.delhome: true
+      huskhomes.edithome: true
+      huskhomes.edithome.public: true
+      huskhomes.publichome: true
+      huskhomes.back: true
+      huskhomes.back.death: true
+      huskhomes.tprequest: true
+      huskhomes.spawn: true
+      huskhomes.warp: true
+  huskhomes.commands:
+    description: Access all HuskHomes commands
+    children:
+      huskhomes.home: true
+      huskhomes.sethome: true
+      huskhomes.delhome: true
+      huskhomes.edithome: true
+      huskhomes.edithome.public: true
+      huskhomes.publichome: true
+      huskhomes.back: true
+      huskhomes.back.death: true
+      huskhomes.tp: true
+      huskhomes.tprequest: true
+      huskhomes.spawn: true
+      huskhomes.spawn.set: true
+      huskhomes.warp: true
+      huskhomes.setwarp: true
+      huskhomes.delwarp: true
+      huskhomes.editwarp: true
+      huskhomes.rtp: true
+      huskhomes.about: true
+      huskhomes.version_checker: true
+      huskhomes.reload: true
+  huskhomes.bypass_timer:
+    description: Allows you to bypass the warmup teleportation timer
+    default: false
+  huskhomes.home:
+    description: Allows you to teleport to a home
+    default: true
+  huskhomes.sethome:
+    description: Allows you to set homes
+    default: true
+  huskhomes.delhome:
+    description: Allows you to delete a home
+    default: true
+  huskhomes.warp:
+    description: Allows you to teleport to a home
+    default: true
+  huskhomes.setwarp:
+    description: Allows you to set homes
+    default: false
+  huskhomes.delwarp:
+    description: Allows you to delete a home
+    default: false
+  huskhomes.publichome:
+    description: Allows you to teleport to public homes
+    default: true
+  huskhomes.edithome:
+    description: Allows you to edit home information
+    default: true
+  huskhomes.editwarp:
+    description: Allows you to edit home information
+    default: false
+  huskhomes.back:
+    description: Allows you to return to your last position
+    default: true
+  huskhomes.rtp:
+    description: Allows you to randomly teleport
+    default: false
+  huskhomes.rtp.bypass_cooldown:
+    description: Allows you to bypass the /rtp cooldown
+    default: false
+    children:
+      huskhomes.rtp: true
+  huskhomes.about:
+    description: View information about the plugin
+    default: true
+  huskhomes.reload:
+    description: Reload the plugin configuration
+    default: false
+  huskhomes.version_checker:
+    description: View if the plugin is up-to-date
+    default: false
+  huskhomes.tp:
+    description: Allows you to tp to another player
+    default: false
+  huskhomes.tprequest:
+    description: Allows you to tp to another player on request
+    default: true
+  huskhomes.back.death:
+    description: Allows you to return to where you died
+    default: true
+    children:
+      huskhomes.back: true
+  huskhomes.spawn:
+    description: Allows you to tp to spawn
+    default: true
+  huskhomes.spawn.set:
+    description: Allows you to set the spawn location
+    default: false
+    children:
+      huskhomes.spawn: true
+  huskhomes.edithome.public:
+    description: Allows you to make a public home
+    default: true
+    children:
+      huskhomes.edithome: true

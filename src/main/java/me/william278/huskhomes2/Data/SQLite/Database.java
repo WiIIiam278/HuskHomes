@@ -253,6 +253,34 @@ public abstract class Database {
     }
 
     // Update the location of a home
+    public void setHomePrivacy(String homeName, int ownerID, boolean isPublic) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            // Set the home location ID to the new teleport point for the given home
+            ps = conn.prepareStatement("UPDATE huskhomes_home_data SET `public`=? WHERE `name`=? AND `player_id`=?;");
+            ps.setBoolean(1, isPublic);
+            ps.setString(2, homeName);
+            ps.setInt(3, ownerID);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    // Update the location of a home
     public void setHomeTeleportPoint(String homeName, int ownerID, TeleportationPoint point) {
         Connection conn = null;
         PreparedStatement ps = null;

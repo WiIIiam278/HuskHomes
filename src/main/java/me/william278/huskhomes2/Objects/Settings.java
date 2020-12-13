@@ -12,8 +12,10 @@ public class Settings {
     int maximumHomes;
     int teleportRequestExpiryTime;
     int teleportWarmupTime;
+    int rtpRange;
 
     boolean doBungee;
+    boolean doRtpCommand;
     boolean doSpawnCommand;
 
     private void setSettings(FileConfiguration configFile) {
@@ -24,6 +26,9 @@ public class Settings {
         this.storageType = configFile.getString("data_storage_options.storage_type");
 
         this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
+
+        this.doRtpCommand = configFile.getBoolean("rtp_command.enabled");
+        this.rtpRange = configFile.getInt("rtp_command.range");
 
         this.maximumHomes = configFile.getInt("general.max_sethomes");
         this.teleportRequestExpiryTime = configFile.getInt("general.teleport_request_expiry_time");
@@ -62,5 +67,13 @@ public class Settings {
     public int getMaximumHomes() { return maximumHomes; }
 
     public int getTeleportRequestExpiryTime() { return teleportRequestExpiryTime; }
+
+    public int getRtpRange() {
+        return rtpRange;
+    }
+
+    public boolean doRtpCommand() {
+        return doRtpCommand;
+    }
 
 }

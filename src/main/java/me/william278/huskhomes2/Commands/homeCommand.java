@@ -19,10 +19,10 @@ public class homeCommand implements CommandExecutor {
                     Home home = dataManager.getHome(p.getName(), homeName);
                     teleportManager.queueTimedTeleport(p, home);
                 } else {
-                    messageManager.sendMessage(p, "error_home_invalid");
+                    messageManager.sendMessage(p, "error_home_invalid", homeName);
                 }
             } else {
-                homeListHandler.displayPlayerHomeList(p, 1);
+                listHandler.displayPlayerHomeList(p, 1);
             }
             return true;
         }

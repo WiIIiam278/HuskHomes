@@ -7,6 +7,7 @@ import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -105,8 +106,7 @@ public class dataManager {
                     return null;
                 }
             } else {
-                Bukkit.getLogger().severe("Result set for a player returned null while fetching player ID");
-                return null;
+                return null; // If the player doesn't exist, playerID will be null
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
@@ -448,6 +448,129 @@ public class dataManager {
         return null;
     }
 
+    public static void deleteHomeTeleportLocation(int ownerID, String homeName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs;
+
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `player_id`=? AND `name`=?;");
+            ps.setInt(1, ownerID);
+            ps.setString(2, homeName);
+            rs = ps.executeQuery();
+            if (rs != null) {
+                int locationID = rs.getInt("location_id");
+                sqliteDatabase.deleteTeleportationPoint(locationID);
+            } else {
+                Bukkit.getLogger().severe("Failed to delete home teleportation location");
+            }
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public static void deleteWarpTeleportLocation(String warpName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs;
+
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement("SELECT * FROM huskhomes_warp_data WHERE `name`=?;");
+            ps.setString(1, warpName);
+            rs = ps.executeQuery();
+            if (rs != null) {
+                int locationID = rs.getInt("location_id");
+                sqliteDatabase.deleteTeleportationPoint(locationID);
+            } else {
+                Bukkit.getLogger().severe("Failed to delete warp teleportation location");
+            }
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public static void updateHomePrivacy(String ownerName, String homeName, boolean isPublic) {
+        Integer playerID = getPlayerId(ownerName);
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setHomePrivacy(homeName, playerID, isPublic);
+        }
+    }
+
+    public static void updateHomeName(String ownerName, String homeName, String newName) {
+        Integer playerID = getPlayerId(ownerName);
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setHomeName(homeName, playerID, newName);
+        }
+    }
+
+    public static void updateHomeDescription(String ownerName, String homeName, String newDescription) {
+        Integer playerID = getPlayerId(ownerName);
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setHomeDescription(homeName, playerID, newDescription);
+        }
+    }
+
+    public static void updateHomeLocation(String ownerName, String homeName, Location newLocation) {
+        Integer playerID = getPlayerId(ownerName);
+        deleteHomeTeleportLocation(playerID, homeName);
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setHomeTeleportPoint(homeName, playerID, new TeleportationPoint(newLocation, Main.settings.getServerID()));
+        }
+    }
+
+    public static void updateWarpName(String warpName, String newName) {
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setWarpName(warpName, newName);
+        }
+    }
+
+    public static void updateWarpDescription(String warpName, String newDescription) {
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setWarpDescription(warpName, newDescription);
+        }
+    }
+
+    public static void updateWarpLocation(String warpName, Location newLocation) {
+        deleteWarpTeleportLocation(warpName);
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+
+        } else {
+            sqliteDatabase.setWarpTeleportPoint(warpName, new TeleportationPoint(newLocation, Main.settings.getServerID()));
+        }
+    }
+
     // Return a home with a given owner username and home name
     public static Home getHome(String ownerUsername, String homeName) {
         Connection conn = null;
@@ -526,10 +649,19 @@ public class dataManager {
     }
 
     public static Boolean homeExists(Player owner, String homeName) {
+        return homeExists(owner.getName(), homeName);
+    }
+
+    public static Boolean homeExists(String ownerName, String homeName) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs;
-        Integer playerID = getPlayerId(owner.getName());
+        Integer playerID = getPlayerId(ownerName);
+
+        // Return false if the player is invalid
+        if (playerID == null) {
+            return false;
+        }
 
         try {
             conn = getConnection();
@@ -756,17 +888,21 @@ public class dataManager {
     }
 
     public static void deleteHome(String homeName, Player p) {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+        Integer playerID = getPlayerId(p.getName());
+        if (playerID != null) {
+            deleteHomeTeleportLocation(playerID, homeName);
+            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
 
-        } else {
-            Integer playerID = getPlayerId(p.getName());
-            if (playerID != null) {
+            } else {
                 sqliteDatabase.deleteHome(homeName, playerID);
             }
+        } else {
+            Bukkit.getLogger().warning("PlayeR ID returned null when deleting a home");
         }
     }
 
     public static void deleteWarp(String warpName) {
+        deleteWarpTeleportLocation(warpName);
         if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
 
         } else {

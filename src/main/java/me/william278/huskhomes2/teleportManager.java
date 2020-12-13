@@ -11,6 +11,18 @@ public class teleportManager {
 
     public static HashSet<TimedTeleport> queuedTeleports = new HashSet<>();
 
+    public static void teleportPlayer(Player player, String targetPlayer) {
+        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+        setPlayerDestinationFromTargetPlayer(player, targetPlayer);
+        teleportPlayer(player);
+    }
+
+    public static void teleportPlayer(Player player, TeleportationPoint point) {
+        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+        dataManager.setPlayerDestinationLocation(player, point);
+        teleportPlayer(player);
+    }
+
     public static void teleportPlayer(Player p) {
         TeleportationPoint teleportationPoint = dataManager.getPlayerDestination(p);
         String server = teleportationPoint.getServer();
@@ -25,9 +37,7 @@ public class teleportManager {
 
     public static void queueTimedTeleport(Player player, String targetPlayer) {
         if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
-            dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
-            setPlayerDestinationFromTargetPlayer(player, targetPlayer);
-            teleportPlayer(player);
+            teleportPlayer(player, targetPlayer);
             return;
         }
 
@@ -36,9 +46,7 @@ public class teleportManager {
 
     public static void queueTimedTeleport(Player player, TeleportationPoint point) {
         if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
-            dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
-            dataManager.setPlayerDestinationLocation(player, point);
-            teleportPlayer(player);
+            teleportPlayer(player, point);
             return;
         }
 

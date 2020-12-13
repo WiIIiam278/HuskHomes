@@ -14,7 +14,7 @@ public class TeleportationPoint {
     float yaw;
     float pitch;
 
-    private void setLocation(Location location, String server) {
+    public void setLocation(Location location, String server) {
         worldName = location.getWorld().getName();
         x = location.getX();
         y = location.getY();

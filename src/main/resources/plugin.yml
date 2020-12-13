@@ -92,6 +92,9 @@ commands:
     usage: /tpdeny
     permission: huskhomes.tprequest
     aliases: [tpno]
+  huskhomes:
+    description: Plugin information & reload configs.
+    usage: /huskhomes <about/checkupdates/reload>
 
 permissions:
   huskhomes.*:

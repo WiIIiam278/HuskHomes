@@ -1,7 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.teleportManager;
 import me.william278.huskhomes2.teleportRequestHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

@@ -1,10 +1,12 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
 import java.util.HashSet;
 
 public class teleportManager {
@@ -25,18 +27,21 @@ public class teleportManager {
 
     public static void teleportPlayer(Player p) {
         TeleportationPoint teleportationPoint = dataManager.getPlayerDestination(p);
-        String server = teleportationPoint.getServer();
-        if (!Main.settings.doBungee() || server.equals(Main.settings.getServerID())) {
-            p.teleport(teleportationPoint.getLocation());
-            messageManager.sendMessage(p, "teleporting_complete");
-        } else if (Main.settings.doBungee()) {
-            dataManager.setPlayerDestinationLocation(p, teleportationPoint);
-            pluginMessageHandler.sendPlayer(p, server);
+        if (teleportationPoint != null) {
+            String server = teleportationPoint.getServer();
+            if (!Main.settings.doBungee() || server.equals(Main.settings.getServerID())) {
+                p.teleport(teleportationPoint.getLocation());
+                messageManager.sendMessage(p, "teleporting_complete");
+                dataManager.clearPlayerDestination(p.getName());
+            } else if (Main.settings.doBungee()) {
+                dataManager.setPlayerDestinationLocation(p, teleportationPoint);
+                pluginMessageHandler.sendPlayer(p, server);
+            }
         }
     }
 
     public static void queueTimedTeleport(Player player, String targetPlayer) {
-        if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
+        if (player.hasPermission("huskhomes.bypass_timer")) {
             teleportPlayer(player, targetPlayer);
             return;
         }
@@ -45,12 +50,32 @@ public class teleportManager {
     }
 
     public static void queueTimedTeleport(Player player, TeleportationPoint point) {
-        if (player.hasPermission("huskhomes.bypass_warmup_timers")) {
+        if (player.hasPermission("huskhomes.bypass_timer")) {
             teleportPlayer(player, point);
             return;
         }
 
         queuedTeleports.add(new TimedTeleport(player, point));
+    }
+
+    public static void queueRandomTeleport(Player player) {
+        if (!player.hasPermission("huskhomes.rtp.bypass_cooldown")) {
+            long currentTime = Instant.now().getEpochSecond();
+            long cooldownTime = dataManager.getPlayerRtpCooldown(player);
+            if (currentTime < cooldownTime) {
+                long timeRemaining = cooldownTime - currentTime;
+                long timeRemainingMinutes = timeRemaining / 60;
+                messageManager.sendMessage(player, "error_rtp_cooldown", Long.toString(timeRemainingMinutes));
+                return;
+            }
+        }
+        if (player.hasPermission("huskhomes.bypass_timer")) {
+            teleportPlayer(player, new RandomPoint(player));
+            dataManager.updateRtpCooldown(player);
+            return;
+        }
+
+        queuedTeleports.add(new TimedTeleport(player));
     }
 
     private static void setTeleportationDestinationCrossServer(Player requester, String targetPlayerName) {

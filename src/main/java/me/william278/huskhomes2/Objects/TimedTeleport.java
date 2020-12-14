@@ -3,6 +3,7 @@ package me.william278.huskhomes2.Objects;
 import me.william278.huskhomes2.Main;
 import me.william278.huskhomes2.messageManager;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class TimedTeleport {
@@ -25,6 +26,17 @@ public class TimedTeleport {
         this.initialTeleporterHealth = teleporter.getHealth();
         this.targetType = "point";
         this.targetPoint = targetPoint;
+        this.timeRemaining = warmupTime;
+
+        messageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
+        messageManager.sendMessage(teleporter, "teleporting_please_stand_still");
+    }
+
+    public TimedTeleport(Player teleporter) {
+        this.teleporter = teleporter;
+        this.initialTeleporterLocation = teleporter.getLocation();
+        this.initialTeleporterHealth = teleporter.getHealth();
+        this.targetType = "random";
         this.timeRemaining = warmupTime;
 
         messageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));

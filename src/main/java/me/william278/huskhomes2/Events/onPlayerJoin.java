@@ -18,6 +18,8 @@ public class onPlayerJoin implements Listener {
         // Create player on SQL if they don't exist already
         if (!dataManager.playerExists(p)) {
             dataManager.createPlayer(p);
+        } else {
+            dataManager.checkPlayerNameChange(p);
         }
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly

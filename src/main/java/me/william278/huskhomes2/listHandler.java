@@ -164,7 +164,7 @@ public class listHandler {
         }
 
         player.sendMessage("");
-        messageManager.sendMessage(player, "warp_list_page_top", player.getName(), Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
+        messageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
 
         for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
             try {

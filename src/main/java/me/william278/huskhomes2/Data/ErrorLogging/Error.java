@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.Data.SQLite.Errors;
+package me.william278.huskhomes2.Data.ErrorLogging;
 
 import me.william278.huskhomes2.Main;
 

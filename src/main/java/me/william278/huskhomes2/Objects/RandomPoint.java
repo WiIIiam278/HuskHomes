@@ -13,35 +13,37 @@ import java.util.Random;
 public class RandomPoint extends TeleportationPoint {
 
     //List of all the unsafe blocks
-    final static HashSet<Material> bad_blocks = new HashSet<>();
+    final static HashSet<Material> unsafeBlocks = new HashSet<>();
 
     static{
-        bad_blocks.add(Material.LAVA);
-        bad_blocks.add(Material.FIRE);
-        bad_blocks.add(Material.CACTUS);
-        bad_blocks.add(Material.WATER);
-        bad_blocks.add(Material.MAGMA_BLOCK);
-        bad_blocks.add(Material.JUNGLE_LEAVES);
-        bad_blocks.add(Material.SPRUCE_LEAVES);
+        unsafeBlocks.add(Material.LAVA);
+        unsafeBlocks.add(Material.FIRE);
+        unsafeBlocks.add(Material.CACTUS);
+        unsafeBlocks.add(Material.WATER);
+        unsafeBlocks.add(Material.MAGMA_BLOCK);
+        unsafeBlocks.add(Material.JUNGLE_LEAVES);
+        unsafeBlocks.add(Material.SPRUCE_LEAVES);
     }
 
     private Location randomLocation(World world) {
-        //Generate Random Location
+        //Generate a random location
         Random random = new Random();
 
-        int x = 0;
-        int z = 0;
-        int y = 0;
-        int negativex = 0;
-        int negativez = 0;
+        int x;
+        int z;
+        int y;
+        int negativeX;
+        int negativeZ;
+
         x = random.nextInt(Main.settings.getRtpRange());
         z = random.nextInt(Main.settings.getRtpRange());
-        negativex = random.nextInt(2);
-        negativez = random.nextInt(2);
-        if (negativex == 1) {
+        negativeX = random.nextInt(2);
+        negativeZ = random.nextInt(2);
+
+        if (negativeX == 1) {
             x = x * -1;
         }
-        if (negativez == 1)
+        if (negativeZ == 1)
             z = z * -1;
         y = 150;
 
@@ -53,17 +55,17 @@ public class RandomPoint extends TeleportationPoint {
     }
 
     private boolean isLocationSafe(Location location){
-
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
+
         //Get instances of the blocks around where the player would spawn
         Block block = location.getWorld().getBlockAt(x, y, z);
         Block below = location.getWorld().getBlockAt(x, y - 1, z);
         Block above = location.getWorld().getBlockAt(x, y + 1, z);
 
         //Check to see if the surroundings are safe or not
-        return !(bad_blocks.contains(below.getType())) || (block.getType().isSolid()) || (above.getType().isSolid());
+        return !(unsafeBlocks.contains(below.getType())) || (block.getType().isSolid()) || (above.getType().isSolid());
     }
 
     private Location getRandomLocation(World world) {

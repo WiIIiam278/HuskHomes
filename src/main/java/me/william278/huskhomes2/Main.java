@@ -4,6 +4,7 @@ import me.william278.huskhomes2.Commands.*;
 import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Objects.Settings;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -17,11 +18,19 @@ public final class Main extends JavaPlugin {
     }
     public static Settings settings;
 
+    // Disable the plugin for the given reason
+    public static void disablePlugin(String reason) {
+        getInstance().getLogger().severe("Disabling HuskHomes plugin because: " + reason);
+        Bukkit.getPluginManager().disablePlugin(getInstance());
+    }
+
+    // Initialise bungee plugin channels
     private static void setupBungeeChannels(Main plugin) {
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
     }
 
+    // Register commands
     private static void registerCommands(Main plugin) {
         plugin.getCommand("back").setExecutor(new backCommand());
         plugin.getCommand("delhome").setExecutor(new delHomeCommand());
@@ -43,8 +52,10 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("tphere").setExecutor(new tpHereCommand());
         plugin.getCommand("warp").setExecutor(new warpCommand());
         plugin.getCommand("warplist").setExecutor(new warpListCommand());
+        plugin.getCommand("rtp").setExecutor(new rtpCommand());
     }
 
+    // Register events
     private static void registerEvents(Main plugin) {
         plugin.getServer().getPluginManager().registerEvents(new onPlayerJoin(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new onPlayerDeath(), plugin);
@@ -81,7 +92,11 @@ public final class Main extends JavaPlugin {
         // Register events
         registerEvents(this);
 
+        // Start Loop
         runEverySecond.startLoop();
+
+        // bStats initialisation
+        new metricsManager(this, 8430);
     }
 
     @Override

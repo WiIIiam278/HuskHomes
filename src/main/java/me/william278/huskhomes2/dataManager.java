@@ -1,8 +1,8 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Data.SQLite.Database;
-import me.william278.huskhomes2.Data.SQLite.Errors.Errors;
-import me.william278.huskhomes2.Data.SQLite.SQLite;
+import me.william278.huskhomes2.Data.Database;
+import me.william278.huskhomes2.Data.ErrorLogging.Errors;
+import me.william278.huskhomes2.Data.SQL;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,7 +22,7 @@ import java.util.logging.Level;
 // This class handles the saving of data; whether that be through SQLite or SQL
 public class dataManager {
 
-    public static String createPlayerTable = "CREATE TABLE IF NOT EXISTS huskhomes_player_data (" +
+    public static String createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerDataTable() + " (" +
             "`player_id` integer NOT NULL," +
             "`user_uuid` char(36) NOT NULL UNIQUE," +
             "`username` varchar(16) NOT NULL," +
@@ -31,11 +32,11 @@ public class dataManager {
             "`dest_location_id` integer NULL," +
             "`last_location_id` integer NULL," +
             "PRIMARY KEY (`player_id`)," +
-            "FOREIGN KEY (`dest_location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`last_location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+            "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static String createLocationsTable = "CREATE TABLE IF NOT EXISTS huskhomes_location_data (" +
+    public static String createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsDataTable() + " (" +
             "`location_id` integer PRIMARY KEY," +
             "`server` text NOT NULL," +
             "`world` text NOT NULL," +
@@ -46,46 +47,73 @@ public class dataManager {
             "`pitch` float NOT NULL" +
             ");";
 
-    public static String createHomesTable = "CREATE TABLE IF NOT EXISTS huskhomes_home_data (" +
+    public static String createHomesTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getHomesDataTable() + " (" +
             "`player_id` integer NOT NULL," +
             "`location_id` integer NOT NULL," +
             "`name` double NOT NULL," +
             "`description` varchar NOT NULL," +
             "`public` boolean NOT NULL," +
             "PRIMARY KEY (`player_id`, `location_id`)," +
-            "FOREIGN KEY (`player_id`) REFERENCES huskhomes_player_data (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`player_id`) REFERENCES " + Main.settings.getPlayerDataTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS huskhomes_warp_data (" +
+    public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getWarpsDataTable() + " (" +
             "`location_id` integer NOT NULL," +
             "`name` varchar NOT NULL UNIQUE," +
             "`description` varchar NOT NULL," +
 
             "PRIMARY KEY (`location_id`)," +
-            "FOREIGN KEY (`location_id`) REFERENCES huskhomes_location_data (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    private static Main plugin = Main.getInstance();
+    private static final Main plugin = Main.getInstance();
 
-    private static Database sqliteDatabase;
+    private static Database database;
 
     private static Connection getConnection() {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-            return null; //TODO: Add mySQL support
-        } else {
-            initializeSQLite();
-            return sqliteDatabase.getSQLConnection();
+        initializeDatabase();
+        return database.getSQLConnection();
+    }
+
+    private static void initializeDatabase() {
+        database = new SQL(Main.getInstance());
+        database.load();
+    }
+
+    // Return a player's ID  from their UUID
+    private static Integer getPlayerId(UUID playerUUID) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs;
+
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `user_uuid`=?;");
+            ps.setString(1, playerUUID.toString());
+            rs = ps.executeQuery();
+            if (rs != null) {
+                if (rs.next()) {
+                    return rs.getInt("player_id");
+                } else {
+                    return null;
+                }
+            } else {
+                return null; // If the player doesn't exist, playerID will be null
+            }
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
         }
-    }
-
-    private static void initializeSQLite() {
-        sqliteDatabase = new SQLite(Main.getInstance());
-        sqliteDatabase.load();
-    }
-
-    private static void initializeMySQL() {
-
+        return null;
     }
 
     // Return a player's ID  from their username
@@ -96,7 +124,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_player_data WHERE `username`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `username`=?;");
             ps.setString(1, playerUsername);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -131,7 +159,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_player_data WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -177,7 +205,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_player_data WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -224,7 +252,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_player_data WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -278,8 +306,8 @@ public class dataManager {
     }
 
     // Return how many home slots a player has
-    public static Integer getPlayerRtpCooldown(Player p) {
-        return getPlayerInteger(p, "rtp_cooldown");
+    public static Long getPlayerRtpCooldown(Player p) {
+        return (long) getPlayerInteger(p, "rtp_cooldown");
     }
 
     // Return a player's homes.
@@ -291,7 +319,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getHomesDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -335,7 +363,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `public`;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getHomesDataTable() + " WHERE `public`;");
             rs = ps.executeQuery();
             if (rs != null) {
                 ArrayList<Home> publicHomes = new ArrayList<>();
@@ -375,7 +403,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_warp_data;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getWarpsDataTable() + ";");
             rs = ps.executeQuery();
             ArrayList<Warp> warps = new ArrayList<>();
             if (rs != null) {
@@ -415,7 +443,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_warp_data WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, name);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -455,13 +483,13 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, ownerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
             if (rs != null) {
                 int locationID = rs.getInt("location_id");
-                sqliteDatabase.deleteTeleportationPoint(locationID);
+                database.deleteTeleportationPoint(locationID);
             } else {
                 Bukkit.getLogger().severe("Failed to delete home teleportation location");
             }
@@ -486,12 +514,12 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_warp_data WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
                 int locationID = rs.getInt("location_id");
-                sqliteDatabase.deleteTeleportationPoint(locationID);
+                database.deleteTeleportationPoint(locationID);
             } else {
                 Bukkit.getLogger().severe("Failed to delete warp teleportation location");
             }
@@ -511,64 +539,36 @@ public class dataManager {
 
     public static void updateHomePrivacy(String ownerName, String homeName, boolean isPublic) {
         Integer playerID = getPlayerId(ownerName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setHomePrivacy(homeName, playerID, isPublic);
-        }
+        database.setHomePrivacy(homeName, playerID, isPublic);
     }
 
     public static void updateHomeName(String ownerName, String homeName, String newName) {
         Integer playerID = getPlayerId(ownerName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setHomeName(homeName, playerID, newName);
-        }
+        database.setHomeName(homeName, playerID, newName);
     }
 
     public static void updateHomeDescription(String ownerName, String homeName, String newDescription) {
         Integer playerID = getPlayerId(ownerName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setHomeDescription(homeName, playerID, newDescription);
-        }
+        database.setHomeDescription(homeName, playerID, newDescription);
     }
 
     public static void updateHomeLocation(String ownerName, String homeName, Location newLocation) {
         Integer playerID = getPlayerId(ownerName);
         deleteHomeTeleportLocation(playerID, homeName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setHomeTeleportPoint(homeName, playerID, new TeleportationPoint(newLocation, Main.settings.getServerID()));
-        }
+        database.setHomeTeleportPoint(homeName, playerID, new TeleportationPoint(newLocation, Main.settings.getServerID()));
     }
 
     public static void updateWarpName(String warpName, String newName) {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setWarpName(warpName, newName);
-        }
+        database.setWarpName(warpName, newName);
     }
 
     public static void updateWarpDescription(String warpName, String newDescription) {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setWarpDescription(warpName, newDescription);
-        }
+        database.setWarpDescription(warpName, newDescription);
     }
 
     public static void updateWarpLocation(String warpName, Location newLocation) {
         deleteWarpTeleportLocation(warpName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
-
-        } else {
-            sqliteDatabase.setWarpTeleportPoint(warpName, new TeleportationPoint(newLocation, Main.settings.getServerID()));
-        }
+        database.setWarpTeleportPoint(warpName, new TeleportationPoint(newLocation, Main.settings.getServerID()));
     }
 
     // Return a home with a given owner username and home name
@@ -580,7 +580,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, playerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -624,7 +624,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_warp_data WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -665,7 +665,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_home_data WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, playerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -698,7 +698,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_player_data WHERE `user_uuid`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + " WHERE `user_uuid`=?;");
             ps.setString(1, playerUUID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -729,7 +729,7 @@ public class dataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM huskhomes_location_data WHERE `location_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + Main.settings.getLocationsDataTable() + " WHERE `location_id`=?;");
             ps.setInt(1, locationID);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -779,11 +779,7 @@ public class dataManager {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerLastPosition(p);
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.setTeleportationLastOrDest(playerID, point, "last");
-            }
+            database.setTeleportationLastOrDest(playerID, point, "last");
         } else {
             Bukkit.getLogger().warning("Failed to update player last position records for " + p.getName());
         }
@@ -794,11 +790,7 @@ public class dataManager {
         Integer playerID = getPlayerId(playerName);
         if (playerID != null) {
             deletePlayerDestination(playerName);
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.setTeleportationLastOrDest(playerID, point, "dest");
-            }
+            database.setTeleportationLastOrDest(playerID, point, "dest");
         } else {
             Bukkit.getLogger().warning("Failed to update player destination records for " + playerName);
         }
@@ -809,11 +801,7 @@ public class dataManager {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerDestination(p);
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.setTeleportationLastOrDest(playerID, point, "dest");
-            }
+            database.setTeleportationLastOrDest(playerID, point, "dest");
         } else {
             Bukkit.getLogger().warning("Failed to update player destination records for " + p.getName());
         }
@@ -823,65 +811,58 @@ public class dataManager {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerDestination(p);
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.setPlayerTeleporting(playerID, value);
-            }
+            database.setPlayerTeleporting(playerID, value);
         } else {
             Bukkit.getLogger().warning("Failed to update player destination records for " + p.getName());
+        }
+    }
+
+    public static void clearPlayerDestination(String playerName) {
+        Integer playerID = getPlayerId(playerName);
+        if (playerID != null) {
+            deletePlayerDestination(playerName);
+            database.clearPlayerDestination(playerID);
+        }
+    }
+
+    public static void updateRtpCooldown(Player p) {
+        Integer playerID = getPlayerId(p.getName());
+        if (playerID != null) {
+            long currentTime = Instant.now().getEpochSecond();
+            int newCooldownTime = (int) currentTime + (60 * Main.settings.getRtpCooldown());
+            database.setRtpCooldown(playerID, newCooldownTime);
         }
     }
 
     public static void deletePlayerDestination(String playerName) {
         Integer destinationID = getPlayerInteger(playerName, "dest_location_id");
         if (destinationID != null) {
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.deleteTeleportationPoint(destinationID);
-            }
+            database.deleteTeleportationPoint(destinationID);
         }
     }
 
     public static void deletePlayerDestination(Player p) {
         Integer destinationID = getPlayerInteger(p, "dest_location_id");
         if (destinationID != null) {
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.deleteTeleportationPoint(destinationID);
-            }
+            database.deleteTeleportationPoint(destinationID);
         }
     }
 
     public static void deletePlayerLastPosition(Player p) {
         Integer lastPositionID = getPlayerInteger(p, "last_location_id");
         if (lastPositionID != null) {
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.deleteTeleportationPoint(lastPositionID);
-            }
+            database.deleteTeleportationPoint(lastPositionID);
         }
     }
 
     public static void addWarp(Warp warp) {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-        } else {
-            sqliteDatabase.addWarp(warp);
-        }
+        database.addWarp(warp);
     }
 
     public static void addHome(Home home, Player p) {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.addHome(home, playerID);
-            }
+            database.addHome(home, playerID);
         } else {
             Bukkit.getLogger().warning("Failed to add a home for " + p.getName());
         }
@@ -891,41 +872,29 @@ public class dataManager {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deleteHomeTeleportLocation(playerID, homeName);
-            if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-            } else {
-                sqliteDatabase.deleteHome(homeName, playerID);
-            }
+            database.deleteHome(homeName, playerID);
         } else {
-            Bukkit.getLogger().warning("PlayeR ID returned null when deleting a home");
+            Bukkit.getLogger().warning("Player ID returned null when deleting a home");
         }
     }
 
     public static void deleteWarp(String warpName) {
         deleteWarpTeleportLocation(warpName);
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-
-        } else {
-            sqliteDatabase.deleteWarp(warpName);
-        }
+        database.deleteWarp(warpName);
     }
 
     public static void setupStorage(String storageType) {
-        if (storageType.equalsIgnoreCase("sqlite")) {
-            initializeSQLite();
-        } else if (storageType.equalsIgnoreCase("mysql")) {
-            initializeMySQL();
-        } else {
-            Bukkit.getLogger().warning("Invalid storage method set in config.yml; defaulting to SQLite");
-            initializeSQLite();
-        }
+        initializeDatabase();
     }
 
     public static void createPlayer(Player p) {
-        if (Main.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+        database.addPlayer(p);
+    }
 
-        } else {
-            sqliteDatabase.addPlayer(p);
+    public static void checkPlayerNameChange(Player p) {
+        Integer playerID = getPlayerId(p.getUniqueId());
+        if (!getPlayerUsername(playerID).equals(p.getName())) {
+            database.updatePlayerUsername(playerID, p.getName());
         }
     }
 }

@@ -18,5 +18,17 @@ spawn_command:
 rtp_command:
   enabled: true
   range: 25000
+enable_warp_command:
 data_storage_options:
   storage_type: 'SQLite'
+  mysql_credentials:
+    host: localhost
+    database: database_name
+    username: root
+    password: password
+    port: 3306
+  table_names:
+    player_data: 'huskhomes_player_data'
+    locations_data: 'huskhomes_location_data'
+    homes_data: 'huskhomes_home_data'
+    warps_data: 'huskhomes_warp_data'

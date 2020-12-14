@@ -1,6 +1,6 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Objects.TeleportationPoint;
+import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -68,12 +68,19 @@ public class runEverySecond {
                             }
                         } else {
                             // Execute the teleport
-                            if (timedTeleport.getTargetType().equals("point")) {
-                                teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
-                            } else {
-                                teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
+                            String targetType = timedTeleport.getTargetType();
+                            switch (targetType) {
+                                case "point":
+                                    teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
+                                    break;
+                                case "player":
+                                    teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
+                                    break;
+                                case "random":
+                                    teleportManager.teleportPlayer(teleporter, new RandomPoint(teleporter));
+                                    dataManager.updateRtpCooldown(teleporter);
+                                    break;
                             }
-
                             completedTeleports.add(timedTeleport);
                         }
                     } else {

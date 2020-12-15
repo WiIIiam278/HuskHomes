@@ -26,7 +26,7 @@ public class teleportRequestHandler {
         if (targetPlayer != null) {
             teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
             messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
-            messageManager.sendMessage(targetPlayer, "tpa_request_ask", targetPlayerName);
+            messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
         } else {
             if (Main.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
@@ -42,7 +42,7 @@ public class teleportRequestHandler {
         if (targetPlayer != null) {
             teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpahere"));
             messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
-            messageManager.sendMessage(targetPlayer, "tpahere_request_ask", targetPlayerName);
+            messageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
         } else {
             if (Main.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");

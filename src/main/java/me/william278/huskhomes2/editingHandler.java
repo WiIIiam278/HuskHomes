@@ -43,7 +43,7 @@ public class editingHandler {
         options.append(optionButton("[Edit Description] ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/edithome " + home.getName() + " description ", "Update the description of your home"));
 
         if (p.hasPermission("huskhomes.edithome.public")) {
-            if (home.isPublic()) {
+            if (!home.isPublic()) {
                 options.append(optionButton("[Make Public] ", net.md_5.bungee.api.ChatColor.DARK_GREEN, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " public", "Open your home to the public"));
             } else {
                 options.append(optionButton("[Make Private] ", net.md_5.bungee.api.ChatColor.DARK_RED, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " private", "Make your home private"));
@@ -64,10 +64,10 @@ public class editingHandler {
         if (Main.settings.doBungee()) {
             messageManager.sendMessage(p, "edit_server", home.getServer());
         }
-        if (home.isPublic()) {
-            messageManager.sendMessage(p, "edit_home_privacy_public");
-        } else {
+        if (!home.isPublic()) {
             messageManager.sendMessage(p, "edit_home_privacy_private");
+        } else {
+            messageManager.sendMessage(p, "edit_home_privacy_public");
         }
         p.sendMessage("");
         p.spigot().sendMessage(editHomeOptions(p, home).create());

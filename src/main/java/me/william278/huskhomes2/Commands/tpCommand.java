@@ -30,7 +30,7 @@ public class tpCommand implements CommandExecutor {
                             TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, Main.settings.getServerID());
                             teleportManager.teleportPlayer(p, teleportationPoint);
                         } catch (Exception e) {
-                            messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z>");
+                            messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                         }
                         return true;
                     case 4:
@@ -40,13 +40,13 @@ public class tpCommand implements CommandExecutor {
                             double z = Double.parseDouble(args[2]);
                             String worldName = args[3];
                             if (Bukkit.getWorld(worldName) == null) {
-                                messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world>");
+                                messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                                 return true;
                             }
                             TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, Main.settings.getServerID());
                             teleportManager.teleportPlayer(p, teleportationPoint);
                         } catch (Exception e) {
-                            messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world>");
+                            messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                         }
                         return true;
                     case 5:

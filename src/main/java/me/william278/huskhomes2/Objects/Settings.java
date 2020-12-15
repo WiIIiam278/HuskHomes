@@ -43,15 +43,15 @@ public class Settings {
         if (storageType.equalsIgnoreCase("sqlite") && doBungee) {
             Bukkit.getLogger().warning("Bungee mode was set in config to be enabled but storage type was set to SQLite!");
             Bukkit.getLogger().warning("A mySQL Database is required to utilise Bungee mode, so bungee mode has been disabled.");
-            Bukkit.getLogger().warning("To use Bungee mode and cross-server teleportation, please update your data storage settings to use \"mysql\" and update the connection details accordingly.");
+            Bukkit.getLogger().warning("To use Bungee mode and cross-server teleportation, please update your data storage settings to use \"mysql\" and update the connection credentials accordingly.");
             this.doBungee = false;
         }
 
-        this.mySQLhost = configFile.getString("data_storage_options.mysql_database.host");
-        this.mySQLdatabase = configFile.getString("data_storage_options.mysql_database.database");
-        this.mySQLusername = configFile.getString("data_storage_options.mysql_database.username");
-        this.mySQLpassword = configFile.getString("data_storage_options.mysql_database.password");
-        this.mySQLport = configFile.getInt("data_storage_options.mysql_database.port");
+        this.mySQLhost = configFile.getString("data_storage_options.mysql_credentials.host");
+        this.mySQLdatabase = configFile.getString("data_storage_options.mysql_credentials.database");
+        this.mySQLusername = configFile.getString("data_storage_options.mysql_credentials.username");
+        this.mySQLpassword = configFile.getString("data_storage_options.mysql_credentials.password");
+        this.mySQLport = configFile.getInt("data_storage_options.mysql_credentials.port");
 
         this.playerDataTable = configFile.getString("data_storage_options.table_names.player_data");
         this.locationsDataTable = configFile.getString("data_storage_options.table_names.locations_data");

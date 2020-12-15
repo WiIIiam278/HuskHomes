@@ -19,50 +19,29 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
-// This class handles the saving of data; whether that be through SQLite or SQL
+// This class handles the saving of data; whether that be through SQLite or mySQL
 public class dataManager {
 
-    public static String createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerDataTable() + " (" +
-            "`player_id` integer NOT NULL," +
-            "`user_uuid` char(36) NOT NULL UNIQUE," +
-            "`username` varchar(16) NOT NULL," +
-            "`home_slots` integer NOT NULL," +
-            "`rtp_cooldown` integer NOT NULL," +
-            "`is_teleporting` boolean NOT NULL," +
-            "`dest_location_id` integer NULL," +
-            "`last_location_id` integer NULL," +
-            "PRIMARY KEY (`player_id`)," +
-            "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
-            ");";
+    // Syntax for creating tables; changes based on storage medium
+    public static String createPlayerTable = "";
 
-    public static String createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsDataTable() + " (" +
-            "`location_id` integer PRIMARY KEY," +
-            "`server` text NOT NULL," +
-            "`world` text NOT NULL," +
-            "`x` double NOT NULL," +
-            "`y` double NOT NULL," +
-            "`z` double NOT NULL," +
-            "`yaw` float NOT NULL," +
-            "`pitch` float NOT NULL" +
-            ");";
+    public static String createLocationsTable = "";
 
     public static String createHomesTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getHomesDataTable() + " (" +
             "`player_id` integer NOT NULL," +
             "`location_id` integer NOT NULL," +
-            "`name` double NOT NULL," +
-            "`description` varchar NOT NULL," +
+            "`name` varchar(16) NOT NULL," +
+            "`description` varchar(255) NOT NULL," +
             "`public` boolean NOT NULL," +
-            "PRIMARY KEY (`player_id`, `location_id`)," +
+            "PRIMARY KEY (`player_id`, `name`)," +
             "FOREIGN KEY (`player_id`) REFERENCES " + Main.settings.getPlayerDataTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
             "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
     public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getWarpsDataTable() + " (" +
             "`location_id` integer NOT NULL," +
-            "`name` varchar NOT NULL UNIQUE," +
-            "`description` varchar NOT NULL," +
-
+            "`name` varchar(16) NOT NULL UNIQUE," +
+            "`description` varchar(255) NOT NULL," +
             "PRIMARY KEY (`location_id`)," +
             "FOREIGN KEY (`location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
@@ -447,15 +426,17 @@ public class dataManager {
             ps.setString(1, name);
             rs = ps.executeQuery();
             if (rs != null) {
-                int locationID = rs.getInt("location_id");
-                TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
-                if (teleportationPoint != null) {
-                    return new Warp(teleportationPoint,
-                            rs.getString("name"),
-                            rs.getString("description"));
-                } else {
-                    Bukkit.getLogger().severe("An error occurred returning a warp from the table!");
-                    return null;
+                if (rs.next()) {
+                    int locationID = rs.getInt("location_id");
+                    TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
+                    if (teleportationPoint != null) {
+                        return new Warp(teleportationPoint,
+                                rs.getString("name"),
+                                rs.getString("description"));
+                    } else {
+                        Bukkit.getLogger().severe("An error occurred returning a warp from the table!");
+                        return null;
+                    }
                 }
             } else {
                 Bukkit.getLogger().severe("Warp returned null!");
@@ -488,8 +469,10 @@ public class dataManager {
             ps.setString(2, homeName);
             rs = ps.executeQuery();
             if (rs != null) {
-                int locationID = rs.getInt("location_id");
-                database.deleteTeleportationPoint(locationID);
+                if (rs.next()) {
+                    int locationID = rs.getInt("location_id");
+                    database.deleteTeleportationPoint(locationID);
+                }
             } else {
                 Bukkit.getLogger().severe("Failed to delete home teleportation location");
             }
@@ -518,8 +501,10 @@ public class dataManager {
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
-                int locationID = rs.getInt("location_id");
-                database.deleteTeleportationPoint(locationID);
+                if (rs.next()) {
+                    int locationID = rs.getInt("location_id");
+                    database.deleteTeleportationPoint(locationID);
+                }
             } else {
                 Bukkit.getLogger().severe("Failed to delete warp teleportation location");
             }
@@ -585,18 +570,20 @@ public class dataManager {
             ps.setString(2, homeName);
             rs = ps.executeQuery();
             if (rs != null) {
-                int locationID = rs.getInt("location_id");
-                TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
-                if (teleportationPoint != null) {
-                    return new Home(teleportationPoint,
-                            ownerUsername,
-                            getPlayerUUID(playerID),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getBoolean("public"));
-                } else {
-                    Bukkit.getLogger().severe("An error occurred retrieving a home from the table!");
-                    return null;
+                if (rs.next()) {
+                    int locationID = rs.getInt("location_id");
+                    TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
+                    if (teleportationPoint != null) {
+                        return new Home(teleportationPoint,
+                                ownerUsername,
+                                getPlayerUUID(playerID),
+                                rs.getString("name"),
+                                rs.getString("description"),
+                                rs.getBoolean("public"));
+                    } else {
+                        Bukkit.getLogger().severe("An error occurred retrieving a home from the table!");
+                        return null;
+                    }
                 }
             } else {
                 Bukkit.getLogger().severe("Home returned null; perhaps player ID was null?");
@@ -739,6 +726,8 @@ public class dataManager {
                         rs.getFloat("pitch"), rs.getString("server"));
             } else {
                 Bukkit.getLogger().severe("An SQL exception occurred in retrieving a teleportation location.");
+                Bukkit.getLogger().severe("location ID: " + locationID.toString());
+                Bukkit.getLogger().severe("SELECT * FROM " + Main.settings.getLocationsDataTable() + " WHERE `location_id`=" + locationID.toString() + ";");
                 return null;
             }
         } catch (SQLException ex) {
@@ -779,7 +768,7 @@ public class dataManager {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
             deletePlayerLastPosition(p);
-            database.setTeleportationLastOrDest(playerID, point, "last");
+            database.setTeleportationLastPosition(playerID, point);
         } else {
             Bukkit.getLogger().warning("Failed to update player last position records for " + p.getName());
         }
@@ -790,7 +779,7 @@ public class dataManager {
         Integer playerID = getPlayerId(playerName);
         if (playerID != null) {
             deletePlayerDestination(playerName);
-            database.setTeleportationLastOrDest(playerID, point, "dest");
+            database.setTeleportationDestination(playerID, point);
         } else {
             Bukkit.getLogger().warning("Failed to update player destination records for " + playerName);
         }
@@ -798,22 +787,15 @@ public class dataManager {
 
     // Update a player's destination location on SQL
     public static void setPlayerDestinationLocation(Player p, TeleportationPoint point) {
-        Integer playerID = getPlayerId(p.getName());
-        if (playerID != null) {
-            deletePlayerDestination(p);
-            database.setTeleportationLastOrDest(playerID, point, "dest");
-        } else {
-            Bukkit.getLogger().warning("Failed to update player destination records for " + p.getName());
-        }
+        setPlayerDestinationLocation(p.getName(), point);
     }
 
     public static void setPlayerTeleporting(Player p, boolean value) {
         Integer playerID = getPlayerId(p.getName());
         if (playerID != null) {
-            deletePlayerDestination(p);
             database.setPlayerTeleporting(playerID, value);
         } else {
-            Bukkit.getLogger().warning("Failed to update player destination records for " + p.getName());
+            Bukkit.getLogger().warning("Failed to set a player as teleporting (" + p.getName() + ")");
         }
     }
 
@@ -838,20 +820,19 @@ public class dataManager {
         Integer destinationID = getPlayerInteger(playerName, "dest_location_id");
         if (destinationID != null) {
             database.deleteTeleportationPoint(destinationID);
+            database.clearPlayerDestination(getPlayerId(playerName));
         }
     }
 
     public static void deletePlayerDestination(Player p) {
-        Integer destinationID = getPlayerInteger(p, "dest_location_id");
-        if (destinationID != null) {
-            database.deleteTeleportationPoint(destinationID);
-        }
+        deletePlayerDestination(p.getName());
     }
 
     public static void deletePlayerLastPosition(Player p) {
         Integer lastPositionID = getPlayerInteger(p, "last_location_id");
         if (lastPositionID != null) {
             database.deleteTeleportationPoint(lastPositionID);
+            database.clearPlayerLastPosition(getPlayerId(p.getUniqueId()));
         }
     }
 
@@ -883,7 +864,61 @@ public class dataManager {
         database.deleteWarp(warpName);
     }
 
-    public static void setupStorage(String storageType) {
+    public static void setupStorage() {
+        if (Main.settings.getStorageType().equalsIgnoreCase("mysql")) {
+            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerDataTable() + " (" +
+                    "`player_id` integer AUTO_INCREMENT," +
+                    "`user_uuid` char(36) NOT NULL UNIQUE," +
+                    "`username` varchar(16) NOT NULL," +
+                    "`home_slots` integer NOT NULL," +
+                    "`rtp_cooldown` integer NOT NULL," +
+                    "`is_teleporting` boolean NOT NULL," +
+                    "`dest_location_id` integer NULL," +
+                    "`last_location_id` integer NULL," +
+
+                    "PRIMARY KEY (`player_id`)," +
+                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    ");";
+            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsDataTable() + " (" +
+                    "`location_id` integer AUTO_INCREMENT," +
+                    "`server` text NOT NULL," +
+                    "`world` text NOT NULL," +
+                    "`x` double NOT NULL," +
+                    "`y` double NOT NULL," +
+                    "`z` double NOT NULL," +
+                    "`yaw` float NOT NULL," +
+                    "`pitch` float NOT NULL," +
+
+                    "PRIMARY KEY (`location_id`)" +
+                    ");";
+        } else {
+            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerDataTable() + " (" +
+                    "`player_id` integer PRIMARY KEY," +
+                    "`user_uuid` char(36) NOT NULL UNIQUE," +
+                    "`username` varchar(16) NOT NULL," +
+                    "`home_slots` integer NOT NULL," +
+                    "`rtp_cooldown` integer NOT NULL," +
+                    "`is_teleporting` boolean NOT NULL," +
+                    "`dest_location_id` integer NULL," +
+                    "`last_location_id` integer NULL," +
+
+                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    ");";
+            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getLocationsDataTable() + " (" +
+                    "`location_id` integer PRIMARY KEY," +
+                    "`server` text NOT NULL," +
+                    "`world` text NOT NULL," +
+                    "`x` double NOT NULL," +
+                    "`y` double NOT NULL," +
+                    "`z` double NOT NULL," +
+                    "`yaw` float NOT NULL," +
+                    "`pitch` float NOT NULL," +
+
+                    "PRIMARY KEY (`location_id`)" +
+                    ");";
+        }
         initializeDatabase();
     }
 

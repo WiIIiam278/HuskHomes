@@ -31,12 +31,12 @@ public class SQL extends Database {
         try {
             synchronized (Main.getInstance()) {
                 Class.forName("com.mysql.jdbc.Driver");
-                return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+                return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&useSSL=false", username, password);
             }
         } catch (SQLException e) {
-            Main.disablePlugin("Could not connect to the mySQL Database with the credentials provided!");
+            Main.disablePlugin("[!] Could not connect to the mySQL Database with the credentials provided!\n[!] Check that your host IP address and port are valid and that your username and password are valid and that the user has the correct access permissions on the database.");
         } catch (ClassNotFoundException e) {
-            Main.disablePlugin("A critical exception occurred when attempting to establish a mySQL connection.");
+            Main.disablePlugin("[!] A critical exception occurred when attempting to establish a connection to the mySQL database!");
             e.printStackTrace();
         }
         return null;
@@ -87,8 +87,8 @@ public class SQL extends Database {
 
         try {
             Statement s = connection.createStatement();
-            s.execute(dataManager.createPlayerTable);
             s.execute(dataManager.createLocationsTable);
+            s.execute(dataManager.createPlayerTable);
             s.execute(dataManager.createHomesTable);
             s.execute(dataManager.createWarpsTable);
             s.close();

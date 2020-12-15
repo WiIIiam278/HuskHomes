@@ -38,7 +38,7 @@ public class editHomeCommand implements CommandExecutor {
                                     String newDescriptionString = newDescription.toString();
 
                                     // Check the description is valid
-                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+")) {
+                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") && newDescriptionString.length() > 255) {
                                         messageManager.sendMessage(p, "error_edit_home_invalid_description");
                                         return true;
                                     }

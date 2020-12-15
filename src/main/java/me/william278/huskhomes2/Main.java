@@ -20,7 +20,7 @@ public final class Main extends JavaPlugin {
 
     // Disable the plugin for the given reason
     public static void disablePlugin(String reason) {
-        getInstance().getLogger().severe("Disabling HuskHomes plugin because: " + reason);
+        getInstance().getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
         Bukkit.getPluginManager().disablePlugin(getInstance());
     }
 
@@ -79,7 +79,12 @@ public final class Main extends JavaPlugin {
         messageManager.loadMessages(Main.settings.getLanguage());
 
         // Set up data storage
-        dataManager.setupStorage(settings.getStorageType());
+        dataManager.setupStorage();
+
+        // Return if the plugin is disabled
+        if (!Main.getInstance().isEnabled()) {
+            return;
+        }
 
         // Set up bungee channels if bungee mode is enabled
         if (settings.doBungee()) {

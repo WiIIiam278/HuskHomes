@@ -16,7 +16,6 @@ public class teleportManager {
     public static void teleportPlayer(Player player, String targetPlayer) {
         dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
         setPlayerDestinationFromTargetPlayer(player, targetPlayer);
-        teleportPlayer(player);
     }
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
@@ -32,9 +31,11 @@ public class teleportManager {
             if (!Main.settings.doBungee() || server.equals(Main.settings.getServerID())) {
                 p.teleport(teleportationPoint.getLocation());
                 messageManager.sendMessage(p, "teleporting_complete");
+                dataManager.setPlayerTeleporting(p, false);
                 dataManager.clearPlayerDestination(p.getName());
             } else if (Main.settings.doBungee()) {
                 dataManager.setPlayerDestinationLocation(p, teleportationPoint);
+                dataManager.setPlayerTeleporting(p, true);
                 pluginMessageHandler.sendPlayer(p, server);
             }
         }
@@ -78,8 +79,25 @@ public class teleportManager {
         queuedTeleports.add(new TimedTeleport(player));
     }
 
+    public static void teleportHere(Player requester, String targetPlayerName) {
+        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        if (targetPlayer != null) {
+            teleportPlayer(targetPlayer, requester.getName());
+        } else {
+            if (Main.settings.doBungee()) {
+                teleportHereCrossServer(requester, targetPlayerName);
+            } else {
+                messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+            }
+        }
+    }
+
+    private static void teleportHereCrossServer(Player requester, String targetPlayerName) {
+        pluginMessageHandler.sendPluginMessage(requester, targetPlayerName, "teleport_to_me", requester.getName());
+    }
+
     private static void setTeleportationDestinationCrossServer(Player requester, String targetPlayerName) {
-        pluginMessageHandler.sendPluginMessage(requester, targetPlayerName, "set_teleportation_destination", requester.getName());
+        pluginMessageHandler.sendPluginMessage(requester, targetPlayerName, "set_tp_destination", requester.getName());
     }
 
     public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName) {
@@ -87,6 +105,7 @@ public class teleportManager {
         if (targetPlayer != null) {
             dataManager.setPlayerDestinationLocation(requester,
                     new TeleportationPoint(targetPlayer.getLocation(), Main.settings.getServerID()));
+            teleportPlayer(requester);
         } else {
             if (Main.settings.doBungee()) {
                 setTeleportationDestinationCrossServer(requester, targetPlayerName);

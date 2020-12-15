@@ -89,9 +89,16 @@ public class pluginMessageHandler implements PluginMessageListener {
         String replierName;
         boolean accepted;
 
+        // Respond to different cross-server requests
         switch (messageType) {
-            case "set_teleportation_destination":
+            case "set_tp_destination":
                 setTeleportDestination(messageData, recipient);
+                pluginMessageHandler.sendPluginMessage(recipient, messageData, "confirm_destination_set", "confirmed");
+                break;
+            case "confirm_destination_set":
+                if (messageData.equals("confirmed")) {
+                    teleportManager.teleportPlayer(recipient);
+                }
                 break;
             case "tpa_request":
                 teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
@@ -119,6 +126,9 @@ public class pluginMessageHandler implements PluginMessageListener {
                 } else {
                     messageManager.sendMessage(recipient, "tpa_has_declined", replierName);
                 }
+                break;
+            case "teleport_to_me":
+                teleportManager.teleportPlayer(recipient, messageData);
                 break;
         }
     }

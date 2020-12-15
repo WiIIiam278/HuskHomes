@@ -31,16 +31,6 @@ public class huskHomesCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 1) {
             switch (args[0]) {
-                case "about":
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (!p.hasPermission("huskhomes.about")) {
-                            messageManager.sendMessage(p, "error_no_permission");
-                            return true;
-                        }
-                    }
-                    showAboutMenu(sender);
-                    return true;
                 case "update":
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
@@ -83,6 +73,16 @@ public class huskHomesCommand implements CommandExecutor {
                         messageManager.loadMessages(Main.settings.getLanguage());
                         plugin.getLogger().info("Reloaded config and message files.");
                     }
+                    return true;
+                default:
+                    if (sender instanceof Player) {
+                        Player p = (Player) sender;
+                        if (!p.hasPermission("huskhomes.about")) {
+                            messageManager.sendMessage(p, "error_no_permission");
+                            return true;
+                        }
+                    }
+                    showAboutMenu(sender);
                     return true;
             }
         } else {

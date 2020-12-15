@@ -92,6 +92,11 @@ commands:
     usage: /tpdeny
     permission: huskhomes.tprequest
     aliases: [tpno]
+  rtp:
+    description: Teleport randomly into the wild
+    usage: /rtp
+    permission: huskhomes.rtp
+    aliases: [ randomtp, randomteleport, wild ]
   huskhomes:
     description: Plugin information & reload configs.
     usage: /huskhomes <about/checkupdates/reload>

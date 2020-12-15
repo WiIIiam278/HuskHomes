@@ -13,13 +13,9 @@ public class configManager {
                         "|       HuskHomes Config       |\n" +
                         "|    Developed by William278   |\n" +
                         " ------------------------------ \n" +
-                        "Configuration guide: [tbd] \n" +
-                        "To quickly setup the plugin:\n" +
-                        "1. Fill in the details of your mySQL Database below\n" +
-                        "2. (Optional) Change the appropriate details in the configuration\n" +
-                        "3. Restart the server");
-        plugin.getConfig().options().copyHeader(true).copyDefaults(true);
-        plugin.saveConfig();
+                        "Configuration guide: [tbd] \n");
+        plugin.getConfig().options().copyHeader(true);
+        plugin.saveDefaultConfig();
         Main.settings = new Settings(plugin.getConfig());
     }
 }

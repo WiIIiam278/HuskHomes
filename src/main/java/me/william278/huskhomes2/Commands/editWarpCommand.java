@@ -1,10 +1,9 @@
 package me.william278.huskhomes2.Commands;
 
+import me.william278.huskhomes2.*;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.Warp;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.editingHandler;
-import me.william278.huskhomes2.messageManager;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,11 +21,27 @@ public class editWarpCommand implements CommandExecutor {
                     if (args.length >= 2) {
                         switch (args[1]) {
                             case "location":
+                                Location newLocation = p.getLocation();
+
+                                // Remove old marker if on dynmap
+                                Warp locationMovedWarp = dataManager.getWarp(warpName);
+                                if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                    dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                }
+
                                 dataManager.updateWarpLocation(warpName, p.getLocation());
                                 messageManager.sendMessage(p, "edit_warp_update_location", warpName);
+
+                                // Add new updated marker if using dynmap
+                                locationMovedWarp.setLocation(newLocation, Main.settings.getServerID());
+                                if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                    dynamicMapHandler.addDynamicMapMarker(locationMovedWarp);
+                                }
                                 return true;
                             case "description":
                                 if (args.length >= 3) {
+                                    Warp descriptionChangedWarp = dataManager.getWarp(warpName);
+
                                     // Get the new description
                                     StringBuilder newDescription = new StringBuilder();
                                     for (int i = 2; i < args.length; i++) {
@@ -44,8 +59,17 @@ public class editWarpCommand implements CommandExecutor {
                                         return true;
                                     }
 
+                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                        dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                    }
+
                                     // Update description
                                     dataManager.updateWarpDescription(warpName, newDescriptionString);
+
+                                    descriptionChangedWarp.setName(newDescriptionString);
+                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                        dynamicMapHandler.addDynamicMapMarker(descriptionChangedWarp);
+                                    }
 
                                     // Confirmation message
                                     messageManager.sendMessage(p, "edit_warp_update_description", warpName, newDescriptionString);
@@ -55,6 +79,7 @@ public class editWarpCommand implements CommandExecutor {
                                 return true;
                             case "rename":
                                 if (args.length >= 3) {
+                                    Warp renamedWarp = dataManager.getWarp(warpName);
                                     String newName = args[2];
                                     if (newName.length() > 16) {
                                         messageManager.sendMessage(p, "error_set_warp_invalid_length");
@@ -68,7 +93,16 @@ public class editWarpCommand implements CommandExecutor {
                                         messageManager.sendMessage(p, "error_set_warp_name_taken");
                                         return true;
                                     }
+
+                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                        dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                    }
                                     dataManager.updateWarpName(warpName, newName);
+
+                                    renamedWarp.setName(newName);
+                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
+                                        dynamicMapHandler.addDynamicMapMarker(renamedWarp);
+                                    }
                                     messageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
                                 } else {
                                     messageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");

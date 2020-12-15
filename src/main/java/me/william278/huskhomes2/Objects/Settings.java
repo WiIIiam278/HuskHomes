@@ -1,43 +1,68 @@
 package me.william278.huskhomes2.Objects;
 
+import me.william278.huskhomes2.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 public class Settings {
 
+    // Message language setting
     String language;
+
+    // Bungee settings
+    boolean doBungee;
     String server;
 
+    // Data storage settings
     String storageType;
     String playerDataTable;
     String locationsDataTable;
     String homesDataTable;
     String warpsDataTable;
 
+    // MySQL connection settings
     int mySQLport;
     String mySQLhost;
     String mySQLdatabase;
     String mySQLusername;
     String mySQLpassword;
 
+    // Dynmap Settings
+    boolean doDynmap;
+    boolean dynmapPublicHomes;
+    boolean dynmapWarps;
+    String dynmapPublicHomeMarkerIconID;
+    String dynmapWarpMarkerIconID;
+    String dynmapPublicHomeMarkerSet;
+    String dynmapWarpMarkerSet;
+
+    // Time and maximum home settings
     int maximumHomes;
     int teleportRequestExpiryTime;
     int teleportWarmupTime;
 
+    // RTP command settings
+    boolean doRtpCommand;
     int rtpRange;
     int rtpCooldown;
 
-    boolean doBungee;
-    boolean doRtpCommand;
+    // Command toggle settings
     boolean doSpawnCommand;
     boolean doWarpCommand;
 
     private void setSettings(FileConfiguration configFile) {
         this.language = configFile.getString("language");
+
         this.doBungee = configFile.getBoolean("bungee_options.enable_bungee_mode");
         this.server = configFile.getString("bungee_options.server_id");
 
         this.storageType = configFile.getString("data_storage_options.storage_type");
+        this.playerDataTable = configFile.getString("data_storage_options.table_names.player_data");
+        this.locationsDataTable = configFile.getString("data_storage_options.table_names.locations_data");
+        this.homesDataTable = configFile.getString("data_storage_options.table_names.homes_data");
+        this.warpsDataTable = configFile.getString("data_storage_options.table_names.warps_data");
 
         // Resolve conflict between storage type and bungee mode
         if (storageType.equalsIgnoreCase("sqlite") && doBungee) {
@@ -53,10 +78,24 @@ public class Settings {
         this.mySQLpassword = configFile.getString("data_storage_options.mysql_credentials.password");
         this.mySQLport = configFile.getInt("data_storage_options.mysql_credentials.port");
 
-        this.playerDataTable = configFile.getString("data_storage_options.table_names.player_data");
-        this.locationsDataTable = configFile.getString("data_storage_options.table_names.locations_data");
-        this.homesDataTable = configFile.getString("data_storage_options.table_names.homes_data");
-        this.warpsDataTable = configFile.getString("data_storage_options.table_names.warps_data");
+        this.doDynmap = configFile.getBoolean("dynmap_integration.enabled");
+
+        if (this.doDynmap) {
+            PluginManager pluginManager = Main.getInstance().getServer().getPluginManager();
+            Plugin dynmap = pluginManager.getPlugin("dynmap");
+            if (dynmap == null) {
+                Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
+                Bukkit.getLogger().warning("The Dynmap setting has been disabled. Please ensure Dynmap is installed and restart the server.");
+                this.doDynmap = false;
+            }
+        }
+
+        this.dynmapPublicHomes = configFile.getBoolean("dynmap_integration.markers.public_homes.show");
+        this.dynmapWarps = configFile.getBoolean("dynmap_integration.markers.warps.show");
+        this.dynmapPublicHomeMarkerIconID = configFile.getString("dynmap_integration.markers.public_homes.icon_id");
+        this.dynmapWarpMarkerIconID = configFile.getString("dynmap_integration.markers.warps.icon_id");
+        this.dynmapPublicHomeMarkerSet = configFile.getString("dynmap_integration.markers.public_homes.set_name");
+        this.dynmapWarpMarkerSet = configFile.getString("dynmap_integration.markers.warps.set_name");
 
         this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
         this.doWarpCommand = configFile.getBoolean("enable_warp_command");
@@ -73,6 +112,34 @@ public class Settings {
 
     public Settings(FileConfiguration configFile) {
         setSettings(configFile);
+    }
+
+    public boolean isDynmapPublicHomes() {
+        return dynmapPublicHomes;
+    }
+
+    public boolean isDynmapWarps() {
+        return dynmapWarps;
+    }
+
+    public String getDynmapPublicHomeMarkerIconID() {
+        return dynmapPublicHomeMarkerIconID;
+    }
+
+    public String getDynmapWarpMarkerIconID() {
+        return dynmapWarpMarkerIconID;
+    }
+
+    public String getDynmapPublicHomeMarkerSet() {
+        return dynmapPublicHomeMarkerSet;
+    }
+
+    public String getDynmapWarpMarkerSet() {
+        return dynmapWarpMarkerSet;
+    }
+
+    public boolean doDynmap() {
+        return doDynmap;
     }
 
     public int getTeleportWarmupTime() {
@@ -153,6 +220,14 @@ public class Settings {
 
     public String getMySQLpassword() {
         return mySQLpassword;
+    }
+
+    public boolean doSpawnCommand() {
+        return doSpawnCommand;
+    }
+
+    public boolean doWarpCommand() {
+        return doWarpCommand;
     }
 
 }

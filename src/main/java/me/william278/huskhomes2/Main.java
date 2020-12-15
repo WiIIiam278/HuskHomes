@@ -53,6 +53,8 @@ public final class Main extends JavaPlugin {
         plugin.getCommand("warp").setExecutor(new warpCommand());
         plugin.getCommand("warplist").setExecutor(new warpListCommand());
         plugin.getCommand("rtp").setExecutor(new rtpCommand());
+        plugin.getCommand("spawn").setExecutor(new spawnCommand());
+        plugin.getCommand("setspawn").setExecutor(new setSpawnCommand());
     }
 
     // Register events
@@ -77,6 +79,9 @@ public final class Main extends JavaPlugin {
 
         // Load the messages (in the right language)
         messageManager.loadMessages(Main.settings.getLanguage());
+
+        // Fetch spawn location if set
+        settingHandler.fetchSpawnLocation();
 
         // Set up data storage
         dataManager.setupStorage();

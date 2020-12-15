@@ -13,6 +13,8 @@ public class teleportManager {
 
     public static HashSet<TimedTeleport> queuedTeleports = new HashSet<>();
 
+    public static TeleportationPoint spawnLocation = null;
+
     public static void teleportPlayer(Player player, String targetPlayer) {
         dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
         setPlayerDestinationFromTargetPlayer(player, targetPlayer);

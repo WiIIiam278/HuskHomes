@@ -894,7 +894,7 @@ public class dataManager {
                     ");";
         } else {
             createPlayerTable = "CREATE TABLE IF NOT EXISTS " + Main.settings.getPlayerDataTable() + " (" +
-                    "`player_id` integer PRIMARY KEY," +
+                    "`player_id` integer NOT NULL," +
                     "`user_uuid` char(36) NOT NULL UNIQUE," +
                     "`username` varchar(16) NOT NULL," +
                     "`home_slots` integer NOT NULL," +
@@ -902,7 +902,7 @@ public class dataManager {
                     "`is_teleporting` boolean NOT NULL," +
                     "`dest_location_id` integer NULL," +
                     "`last_location_id` integer NULL," +
-
+                    "PRIMARY KEY (`player_id`)," +
                     "FOREIGN KEY (`dest_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`last_location_id`) REFERENCES " + Main.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");";
@@ -914,9 +914,7 @@ public class dataManager {
                     "`y` double NOT NULL," +
                     "`z` double NOT NULL," +
                     "`yaw` float NOT NULL," +
-                    "`pitch` float NOT NULL," +
-
-                    "PRIMARY KEY (`location_id`)" +
+                    "`pitch` float NOT NULL" +
                     ");";
         }
         initializeDatabase();

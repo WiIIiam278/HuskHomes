@@ -6,6 +6,7 @@ import me.william278.huskhomes2.Main;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
+import me.william278.huskhomes2.permissionHomeLimits;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -187,7 +188,7 @@ public abstract class Database {
             ps = conn.prepareStatement("INSERT INTO " + Main.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, p.getName());
-            ps.setInt(3, 5); //TODO: Update default home slots to be based on permission & config
+            ps.setInt(3, permissionHomeLimits.getFreeHomes(p));
             ps.setInt(4, 0);
             ps.setBoolean(5, false);
 
@@ -238,6 +239,30 @@ public abstract class Database {
             conn = getSQLConnection();
             ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `is_teleporting`=? WHERE `player_id`=?;");
             ps.setBoolean(1, value);
+            ps.setInt(2, playerID);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    public void setPlayerHomeSlots(int playerID, int newValue) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `home_slots`=? WHERE `player_id`=?;");
+            ps.setInt(1, newValue);
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {

@@ -1,13 +1,15 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.Integrations;
 
+import me.william278.huskhomes2.Main;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.Warp;
+import me.william278.huskhomes2.dataManager;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerSet;
 
-public class dynamicMapHandler {
+public class dynamicMap {
 
     private static Plugin dynmap;
     private static final Main plugin = Main.getInstance();
@@ -75,13 +77,13 @@ public class dynamicMapHandler {
         dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
 
         DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
-        if (Main.settings.isDynmapPublicHomes()) {
+        if (Main.settings.showPublicHomesOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", Main.settings.getDynmapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Home home : dataManager.getPublicHomes()) {
                 addDynamicMapMarker(home);
             }
         }
-        if (Main.settings.isDynmapWarps()) {
+        if (Main.settings.showWarpsOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", Main.settings.getDynmapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Warp warp : dataManager.getWarps()) {
                 addDynamicMapMarker(warp);

@@ -1,5 +1,6 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
 import org.bukkit.Bukkit;
@@ -77,6 +78,17 @@ public class runEverySecond {
                                     teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                                     break;
                                 case "random":
+                                    if (Main.settings.doEconomy()) {
+                                        double rtpCost = Main.settings.getRtpCost();
+                                        if (rtpCost > 0) {
+                                            if (!economy.takeMoney(teleporter, rtpCost)) {
+                                                messageManager.sendMessage(teleporter, "error_insufficient_funds", economy.format(rtpCost));
+                                                break;
+                                            } else {
+                                                messageManager.sendMessage(teleporter, "rtp_spent_money", economy.format(rtpCost));
+                                            }
+                                        }
+                                    }
                                     teleportManager.teleportPlayer(teleporter, new RandomPoint(teleporter));
                                     dataManager.updateRtpCooldown(teleporter);
                                     break;

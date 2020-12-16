@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
-import me.william278.huskhomes2.Objects.Home;
+import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -25,8 +25,8 @@ public class editWarpCommand implements CommandExecutor {
 
                                 // Remove old marker if on dynmap
                                 Warp locationMovedWarp = dataManager.getWarp(warpName);
-                                if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                    dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    dynamicMap.removeDynamicMapMarker(warpName);
                                 }
 
                                 dataManager.updateWarpLocation(warpName, p.getLocation());
@@ -34,8 +34,8 @@ public class editWarpCommand implements CommandExecutor {
 
                                 // Add new updated marker if using dynmap
                                 locationMovedWarp.setLocation(newLocation, Main.settings.getServerID());
-                                if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                    dynamicMapHandler.addDynamicMapMarker(locationMovedWarp);
+                                if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    dynamicMap.addDynamicMapMarker(locationMovedWarp);
                                 }
                                 return true;
                             case "description":
@@ -59,16 +59,16 @@ public class editWarpCommand implements CommandExecutor {
                                         return true;
                                     }
 
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                        dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                        dynamicMap.removeDynamicMapMarker(warpName);
                                     }
 
                                     // Update description
                                     dataManager.updateWarpDescription(warpName, newDescriptionString);
 
                                     descriptionChangedWarp.setName(newDescriptionString);
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                        dynamicMapHandler.addDynamicMapMarker(descriptionChangedWarp);
+                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                        dynamicMap.addDynamicMapMarker(descriptionChangedWarp);
                                     }
 
                                     // Confirmation message
@@ -94,14 +94,14 @@ public class editWarpCommand implements CommandExecutor {
                                         return true;
                                     }
 
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                        dynamicMapHandler.removeDynamicMapMarker(warpName);
+                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                        dynamicMap.removeDynamicMapMarker(warpName);
                                     }
                                     dataManager.updateWarpName(warpName, newName);
 
                                     renamedWarp.setName(newName);
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                                        dynamicMapHandler.addDynamicMapMarker(renamedWarp);
+                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                        dynamicMap.addDynamicMapMarker(renamedWarp);
                                     }
                                     messageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
                                 } else {

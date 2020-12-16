@@ -1,5 +1,6 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
@@ -72,7 +73,23 @@ public class teleportManager {
                 return;
             }
         }
+        if (Main.settings.doEconomy()) {
+            double rtpCost = Main.settings.getRtpCost();
+            if (rtpCost > 0) {
+                if (!economy.hasMoney(player, rtpCost)) {
+                    messageManager.sendMessage(player, "error_insufficient_funds", economy.format(rtpCost));
+                    return;
+                }
+            }
+        }
         if (player.hasPermission("huskhomes.bypass_timer")) {
+            if (Main.settings.doEconomy()) {
+                double rtpCost = Main.settings.getRtpCost();
+                if (rtpCost > 0) {
+                    economy.takeMoney(player, rtpCost);
+                    messageManager.sendMessage(player, "rtp_spent_money", economy.format(rtpCost));
+                }
+            }
             teleportPlayer(player, new RandomPoint(player));
             dataManager.updateRtpCooldown(player);
             return;

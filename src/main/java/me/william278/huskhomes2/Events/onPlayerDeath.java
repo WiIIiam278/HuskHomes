@@ -17,15 +17,16 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class onPlayerDeath implements Listener {
 
-    private static final Main plugin = Main.getInstance();
-
-    private static TextComponent backButton() {
-        TextComponent button = new TextComponent("→ [Go Back]");
+    private static ComponentBuilder backButton() {
+        ComponentBuilder backButton = new ComponentBuilder();
+        TextComponent button = new TextComponent("[Go Back]");
         button.setColor(ChatColor.GREEN);
 
         button.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/back")));
         button.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder("Return to your death location with /back").color(ChatColor.GRAY).italic(true).create())));
-        return button;
+        backButton.append("→ ").color(ChatColor.GRAY);
+        backButton.append(button);
+        return backButton;
     }
 
     @EventHandler
@@ -34,7 +35,7 @@ public class onPlayerDeath implements Listener {
         if (p.hasPermission("huskhomes.back.death")) {
             dataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), Main.settings.getServerID()));
             messageManager.sendMessage(p, "return_by_death");
-            p.spigot().sendMessage(new ComponentBuilder(backButton()).create());
+            p.spigot().sendMessage(backButton().create());
         }
     }
 

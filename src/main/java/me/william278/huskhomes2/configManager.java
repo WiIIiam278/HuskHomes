@@ -13,7 +13,7 @@ public class configManager {
                         "|       HuskHomes Config       |\n" +
                         "|    Developed by William278   |\n" +
                         " ------------------------------ \n" +
-                        "Configuration guide: [tbd] \n");
+                        "Configuration guide: https://github.com/WiIIiam278/HuskHomes2/wiki \n");
         plugin.getConfig().options().copyHeader(true);
         plugin.saveDefaultConfig();
         Main.settings = new Settings(plugin.getConfig());

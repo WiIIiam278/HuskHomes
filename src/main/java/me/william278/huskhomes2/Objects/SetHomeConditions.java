@@ -1,7 +1,10 @@
 package me.william278.huskhomes2.Objects;
 
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Main;
 import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.permissionHomeLimits;
 import org.bukkit.entity.Player;
 
 public class SetHomeConditions {
@@ -11,7 +14,8 @@ public class SetHomeConditions {
 
     public SetHomeConditions(Player player, String homeName) {
         conditionsMet = false;
-        if (dataManager.getPlayerHomeCount(player) > (Main.settings.getMaximumHomes()-1)) {
+        int currentHomeCount = dataManager.getPlayerHomeCount(player);
+        if (currentHomeCount > (permissionHomeLimits.getSetHomeLimit(player) - 1)) {
             conditionsNotMetReason = "error_set_home_maximum_homes";
             return;
         }
@@ -26,6 +30,23 @@ public class SetHomeConditions {
         if (!homeName.matches("[A-Za-z0-9_\\-]+")) {
             conditionsNotMetReason = "error_set_home_invalid_characters";
             return;
+        }
+        if (Main.settings.doEconomy()) {
+            double setHomeCost = Main.settings.setHomeCost;
+            if (setHomeCost > 0) {
+                int currentPlayerHomeSlots = dataManager.getPlayerHomeSlots(player);
+                if (currentHomeCount > (currentPlayerHomeSlots - 1)) {
+                    if (!economy.takeMoney(player, setHomeCost)) {
+                        conditionsNotMetReason = "error_insufficient_funds";
+                        return;
+                    } else {
+                        dataManager.incrementPlayerHomeSlots(player);
+                        messageManager.sendMessage(player, "set_home_spent_money", economy.format(setHomeCost));
+                    }
+                } else if (currentHomeCount == (currentPlayerHomeSlots - 1)) {
+                    messageManager.sendMessage(player, "set_home_used_free_slots", Integer.toString(permissionHomeLimits.getFreeHomes(player)), economy.format(setHomeCost));
+                }
+            }
         }
         conditionsMet = true;
     }

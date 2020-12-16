@@ -1,7 +1,6 @@
 package me.william278.huskhomes2.Events;
 
 import me.william278.huskhomes2.Main;
-import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.teleportManager;
 import org.bukkit.entity.Player;

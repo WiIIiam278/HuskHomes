@@ -1,5 +1,7 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Integrations.dynamicMap;
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.*;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,14 +19,19 @@ public class settingHandler {
             Home home = new Home(location, Main.settings.getServerID(), player, name, false);
             dataManager.addHome(home, player);
             messageManager.sendMessage(player, "set_home_success", name);
-            if (Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                dynamicMapHandler.addDynamicMapMarker(home);
+            if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                dynamicMap.addDynamicMapMarker(home);
             }
         } else {
-            if (setHomeConditions.getConditionsNotMetReason().equals("error_set_home_maximum_homes")) {
-                messageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Main.settings.getMaximumHomes()));
-            } else {
-                messageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
+            switch (setHomeConditions.getConditionsNotMetReason()) {
+                case "error_set_home_maximum_homes":
+                    messageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Main.settings.getMaximumHomes()));
+                    return;
+                case "error_insufficient_funds":
+                    messageManager.sendMessage(player, "error_insufficient_funds", economy.format(Main.settings.getSetHomeCost()));
+                    return;
+                default:
+                    messageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
             }
         }
     }
@@ -36,8 +43,8 @@ public class settingHandler {
             Warp warp = new Warp(location, Main.settings.getServerID(), name);
             dataManager.addWarp(warp);
             messageManager.sendMessage(player, "set_warp_success", name);
-            if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                dynamicMapHandler.addDynamicMapMarker(warp);
+            if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                dynamicMap.addDynamicMapMarker(warp);
             }
         } else {
             messageManager.sendMessage(player, setWarpConditions.getConditionsNotMetReason());
@@ -48,9 +55,9 @@ public class settingHandler {
     public static void deleteHome(Player player, String homeName) {
         if (dataManager.homeExists(player, homeName)) {
             // Delete dynmap marker if it exists & if the home is public
-            if (Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
+            if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
                 if (dataManager.getHome(player.getName(), homeName).isPublic()) {
-                    dynamicMapHandler.removeDynamicMapMarker(homeName, player.getName());
+                    dynamicMap.removeDynamicMapMarker(homeName, player.getName());
                 }
             }
             dataManager.deleteHome(homeName, player);
@@ -65,8 +72,8 @@ public class settingHandler {
         if (dataManager.warpExists(warpName)) {
             dataManager.deleteWarp(warpName);
             messageManager.sendMessage(player, "warp_deleted");
-            if (Main.settings.doDynmap() && Main.settings.isDynmapWarps()) {
-                dynamicMapHandler.removeDynamicMapMarker(warpName);
+            if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                dynamicMap.removeDynamicMapMarker(warpName);
             }
         } else {
             messageManager.sendMessage(player, "error_warp_invalid");

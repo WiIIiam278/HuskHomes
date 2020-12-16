@@ -279,6 +279,16 @@ public class dataManager {
         }
     }
 
+    // Increment the number of home slots a player has
+    public static void incrementPlayerHomeSlots(Player p) {
+        setPlayerHomeSlots(p, (getPlayerHomeSlots(p)+1));
+    }
+
+    // Set how many home slots a player has
+    private static void setPlayerHomeSlots(Player p, int slots) {
+        database.setPlayerHomeSlots(getPlayerId(p.getUniqueId()), slots);
+    }
+
     // Return how many home slots a player has
     public static Integer getPlayerHomeSlots(Player p) {
         return getPlayerInteger(p, "home_slots");

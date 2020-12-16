@@ -3,6 +3,8 @@ package me.william278.huskhomes2;
 import me.william278.huskhomes2.Commands.*;
 import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
+import me.william278.huskhomes2.Integrations.dynamicMap;
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -85,6 +87,16 @@ public final class Main extends JavaPlugin {
 
         // Set up data storage
         dataManager.setupStorage();
+
+        // Setup dynmap if it is enabled
+        if (Main.settings.doDynmap()) {
+            dynamicMap.initializeDynmap();
+        }
+
+        // Setup economy if it is enabled
+        if (Main.settings.doEconomy()) {
+            economy.initializeEconomy();
+        }
 
         // Return if the plugin is disabled
         if (!Main.getInstance().isEnabled()) {

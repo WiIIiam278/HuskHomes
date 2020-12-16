@@ -3,7 +3,9 @@ version: ${project.version}
 main: me.william278.huskhomes2.Main
 api-version: 1.16
 authors: [William278]
+softdepend: [dynmap, Vault]
 description: A powerful, intuitive and flexible teleportation suite
+
 commands:
   home:
     description: Teleport to one of your homes
@@ -157,7 +159,7 @@ permissions:
       huskhomes.version_checker: true
       huskhomes.reload: true
   huskhomes.bypass_timer:
-    description: Allows you to bypass the warmup teleportation timer
+    description: Allows you to bypass the teleportation timer
     default: false
   huskhomes.home:
     description: Allows you to teleport to a home
@@ -169,10 +171,10 @@ permissions:
     description: Allows you to delete a home
     default: true
   huskhomes.warp:
-    description: Allows you to teleport to a home
+    description: Allows you to teleport to a warp
     default: true
   huskhomes.setwarp:
-    description: Allows you to set homes
+    description: Allows you to set server warps
     default: false
   huskhomes.delwarp:
     description: Allows you to delete a home
@@ -201,16 +203,16 @@ permissions:
     description: View information about the plugin
     default: true
   huskhomes.reload:
-    description: Reload the plugin configuration
+    description: Reload the plugin configuration & messages files
     default: false
   huskhomes.version_checker:
-    description: View if the plugin is up-to-date
+    description: Check if the plugin is up-to-date
     default: false
   huskhomes.tp:
-    description: Allows you to tp to another player
+    description: Allows you to directly teleport to players or locations
     default: false
   huskhomes.tprequest:
-    description: Allows you to tp to another player on request
+    description: Allows you to request to teleport to a player
     default: true
   huskhomes.back.death:
     description: Allows you to return to where you died
@@ -218,7 +220,7 @@ permissions:
     children:
       huskhomes.back: true
   huskhomes.spawn:
-    description: Allows you to tp to spawn
+    description: Allows you to teleport to spawn
     default: true
   huskhomes.spawn.set:
     description: Allows you to set the spawn location
@@ -226,7 +228,7 @@ permissions:
     children:
       huskhomes.spawn: true
   huskhomes.edithome.public:
-    description: Allows you to make a public home
+    description: Allows you to make a home public
     default: true
     children:
       huskhomes.edithome: true

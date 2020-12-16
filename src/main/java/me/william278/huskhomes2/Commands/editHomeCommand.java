@@ -1,6 +1,8 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
+import me.william278.huskhomes2.Integrations.dynamicMap;
+import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.Home;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -24,8 +26,8 @@ public class editHomeCommand implements CommandExecutor {
 
                                 // Remove old marker if on dynmap
                                 Home locationMovedHome = dataManager.getHome(p.getName(), homeName);
-                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                    dynamicMapHandler.removeDynamicMapMarker(homeName, p.getName());
+                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    dynamicMap.removeDynamicMapMarker(homeName, p.getName());
                                 }
 
                                 dataManager.updateHomeLocation(p.getName(), homeName, newLocation);
@@ -33,8 +35,8 @@ public class editHomeCommand implements CommandExecutor {
 
                                 // Add new updated marker if using dynmap
                                 locationMovedHome.setLocation(newLocation, Main.settings.getServerID());
-                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                    dynamicMapHandler.addDynamicMapMarker(locationMovedHome);
+                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    dynamicMap.addDynamicMapMarker(locationMovedHome);
                                 }
                                 return true;
                             case "description":
@@ -58,8 +60,8 @@ public class editHomeCommand implements CommandExecutor {
 
                                     // Remove old marker if on dynmap
                                     Home descriptionChangedHome = dataManager.getHome(p.getName(), homeName);
-                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.removeDynamicMapMarker(homeName, p.getName());
+                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.removeDynamicMapMarker(homeName, p.getName());
                                     }
 
                                     // Update description
@@ -67,8 +69,8 @@ public class editHomeCommand implements CommandExecutor {
 
                                     // Add new marker if on dynmap
                                     descriptionChangedHome.setDescription(newDescriptionString);
-                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.addDynamicMapMarker(descriptionChangedHome);
+                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.addDynamicMapMarker(descriptionChangedHome);
                                     }
 
                                     // Confirmation message
@@ -93,13 +95,13 @@ public class editHomeCommand implements CommandExecutor {
                                         return true;
                                     }
                                     Home renamedHome = dataManager.getHome(p.getName(), homeName);
-                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.removeDynamicMapMarker(homeName, p.getName());
+                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.removeDynamicMapMarker(homeName, p.getName());
                                     }
                                     dataManager.updateHomeName(p.getName(), homeName, newName);
                                     renamedHome.setName(newName);
-                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.addDynamicMapMarker(renamedHome);
+                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.addDynamicMapMarker(renamedHome);
                                     }
                                     messageManager.sendMessage(p, "edit_home_update_name", homeName, newName);
                                 } else {
@@ -109,10 +111,23 @@ public class editHomeCommand implements CommandExecutor {
                             case "public":
                                 Home privateHome = dataManager.getHome(p.getName(), homeName);
                                 if (!privateHome.isPublic()) {
+                                    if (Main.settings.doEconomy()) {
+                                        double publicHomeCost = Main.settings.getPublicHomeCost();
+                                        if (publicHomeCost > 0) {
+                                            if (!economy.takeMoney(p, publicHomeCost)) {
+                                                messageManager.sendMessage(p, "error_insufficient_funds", economy.format(publicHomeCost));
+                                            } else {
+                                                messageManager.sendMessage(p, "edit_home_privacy_public_success_economy", economy.format(publicHomeCost));
+                                            }
+                                        } else {
+                                            messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
+                                        }
+                                    } else {
+                                        messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
+                                    }
                                     dataManager.updateHomePrivacy(p.getName(), homeName, true);
-                                    messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.addDynamicMapMarker(privateHome);
+                                    if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.addDynamicMapMarker(privateHome);
                                     }
                                 } else {
                                     messageManager.sendMessage(p, "error_edit_home_privacy_already_public", homeName);
@@ -123,8 +138,8 @@ public class editHomeCommand implements CommandExecutor {
                                 if (publicHome.isPublic()) {
                                     dataManager.updateHomePrivacy(p.getName(), homeName, false);
                                     messageManager.sendMessage(p, "edit_home_privacy_private_success", homeName);
-                                    if (Main.settings.doDynmap() && Main.settings.isDynmapPublicHomes()) {
-                                        dynamicMapHandler.removeDynamicMapMarker(publicHome.getName(), publicHome.getOwnerUsername());
+                                    if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                        dynamicMap.removeDynamicMapMarker(publicHome.getName(), publicHome.getOwnerUsername());
                                     }
                                 } else {
                                     messageManager.sendMessage(p, "error_edit_home_privacy_already_private", homeName);

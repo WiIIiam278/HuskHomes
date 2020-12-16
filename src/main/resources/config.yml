@@ -1,35 +1,4 @@
 language: 'en-gb'
-general:
-  max_sethomes: 10
-  teleport_warmup_time: 5
-  teleport_request_expiry_time: 60
-bungee_options:
-  enable_bungee_mode: false
-  server_id: 'server'
-spawn_command:
-  enabled: true
-  position:
-    world:
-    x:
-    y:
-    z:
-    yaw:
-    pitch:
-rtp_command:
-  enabled: true
-  range: 25000
-dynmap_integration:
-  enabled: true
-  markers:
-    public_homes:
-      show: true
-      set_name: 'Public Homes'
-      icon_id: 'house'
-    warps:
-      show: true
-      set_name: 'Warps'
-      icon_id: 'sign'
-enable_warp_command: true
 data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:
@@ -43,3 +12,41 @@ data_storage_options:
     locations_data: 'huskhomes_location_data'
     homes_data: 'huskhomes_home_data'
     warps_data: 'huskhomes_warp_data'
+general:
+  max_sethomes: 10
+  teleport_warmup_time: 5
+  teleport_request_expiry_time: 60
+bungee_options:
+  enable_bungee_mode: false
+  server_id: 'server'
+enable_warp_command: true
+spawn_command:
+  enabled: true
+  position:
+    world:
+    x:
+    y:
+    z:
+    yaw:
+    pitch:
+random_teleport_command:
+  enabled: true
+  range: 25000
+dynmap_integration:
+  enabled: true
+  markers:
+    public_homes:
+      show: true
+      set_name: 'Public Homes'
+      icon_id: 'house'
+    warps:
+      show: true
+      set_name: 'Warps'
+      icon_id: 'sign'
+economy_integration:
+  enabled: true
+  free_home_slots: 5
+  costs:
+    additional_home_slot: 100
+    make_home_public: 50
+    random_teleport: 20

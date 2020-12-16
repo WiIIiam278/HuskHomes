@@ -17,6 +17,7 @@ public class onPlayerJoin implements Listener {
         // Create player on SQL if they don't exist already
         if (!dataManager.playerExists(p)) {
             dataManager.createPlayer(p);
+            p.teleport(teleportManager.spawnLocation.getLocation());
         } else {
             dataManager.checkPlayerNameChange(p);
         }

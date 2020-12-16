@@ -53,7 +53,7 @@ public class editHomeCommand implements CommandExecutor {
                                     String newDescriptionString = newDescription.toString();
 
                                     // Check the description is valid
-                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") && newDescriptionString.length() > 255) {
+                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
                                         messageManager.sendMessage(p, "error_edit_home_invalid_description");
                                         return true;
                                     }
@@ -117,7 +117,7 @@ public class editHomeCommand implements CommandExecutor {
                                             if (!economy.takeMoney(p, publicHomeCost)) {
                                                 messageManager.sendMessage(p, "error_insufficient_funds", economy.format(publicHomeCost));
                                             } else {
-                                                messageManager.sendMessage(p, "edit_home_privacy_public_success_economy", economy.format(publicHomeCost));
+                                                messageManager.sendMessage(p, "edit_home_privacy_public_success_economy", homeName, economy.format(publicHomeCost));
                                             }
                                         } else {
                                             messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);

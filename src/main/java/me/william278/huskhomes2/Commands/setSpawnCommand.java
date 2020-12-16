@@ -16,6 +16,7 @@ public class setSpawnCommand implements CommandExecutor {
             Player p = (Player) sender;
             if (Main.settings.doSpawnCommand()) {
                 settingHandler.setSpawnLocation(p.getLocation());
+                p.getLocation().getWorld().setSpawnLocation(p.getLocation());
                 messageManager.sendMessage(p, "set_spawn_success");
             } else {
                 messageManager.sendMessage(p, "error_command_disabled");

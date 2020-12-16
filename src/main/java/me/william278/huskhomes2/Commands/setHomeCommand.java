@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
+import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.settingHandler;
 import org.bukkit.command.Command;
@@ -17,7 +18,12 @@ public class setHomeCommand implements CommandExecutor {
                 String homeName = args[0];
                 settingHandler.setHome(p.getLocation(), p, homeName);
             } else {
-                messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                if (dataManager.getPlayerHomes(p.getName()).size() == 0) {
+                    // If the player hasn't set a home yet, set one called "home"
+                    settingHandler.setHome(p.getLocation(), p, "home");
+                } else {
+                    messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                }
             }
             return true;
         }

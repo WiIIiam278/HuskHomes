@@ -40,8 +40,6 @@ public class editWarpCommand implements CommandExecutor {
                                 return true;
                             case "description":
                                 if (args.length >= 3) {
-                                    Warp descriptionChangedWarp = dataManager.getWarp(warpName);
-
                                     // Get the new description
                                     StringBuilder newDescription = new StringBuilder();
                                     for (int i = 2; i < args.length; i++) {
@@ -54,7 +52,7 @@ public class editWarpCommand implements CommandExecutor {
                                     String newDescriptionString = newDescription.toString();
 
                                     // Check the description is valid
-                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") && newDescriptionString.length() > 255) {
+                                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
                                         messageManager.sendMessage(p, "error_edit_warp_invalid_description");
                                         return true;
                                     }
@@ -66,7 +64,8 @@ public class editWarpCommand implements CommandExecutor {
                                     // Update description
                                     dataManager.updateWarpDescription(warpName, newDescriptionString);
 
-                                    descriptionChangedWarp.setName(newDescriptionString);
+                                    Warp descriptionChangedWarp = dataManager.getWarp(warpName);
+                                    descriptionChangedWarp.setDescription(newDescriptionString);
                                     if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(descriptionChangedWarp);
                                     }

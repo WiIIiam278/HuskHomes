@@ -9,6 +9,8 @@ import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerSet;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+
 public class dynamicMap {
 
     private static Plugin dynmap;
@@ -45,9 +47,9 @@ public class dynamicMap {
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.warps");
             Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(Main.settings.getDynmapWarpMarkerIconID()), false);
-            String popupWindow = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">%WARP_NAME%</span><br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
-            popupWindow = popupWindow.replace("%WARP_NAME%", warp.getName());
-            popupWindow = popupWindow.replace("%DESCRIPTION%", warp.getDescription());
+            String popupWindow = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/warp %WARP_NAME%</span><br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
+            popupWindow = popupWindow.replace("%WARP_NAME%", escapeHtml(warp.getName()));
+            popupWindow = popupWindow.replace("%DESCRIPTION%", escapeHtml(warp.getDescription()));
             m.setDescription(popupWindow);
         } catch (Exception e) {
             plugin.getLogger().severe("Error adding warp marker to the Dynamic Map (" + e.getCause() + ")");
@@ -62,10 +64,10 @@ public class dynamicMap {
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.public_homes");
             Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(Main.settings.getDynmapPublicHomeMarkerIconID()), false);
-            String popupWindow = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">%HOME_NAME%</span><br/><span style=\"font-weight:bold;\">Owner: </span>%OWNER%<br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
-            popupWindow = popupWindow.replace("%HOME_NAME%", home.getName());
-            popupWindow = popupWindow.replace("%OWNER%", home.getOwnerUsername());
-            popupWindow = popupWindow.replace("%DESCRIPTION%", home.getDescription());
+            String popupWindow = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/phome %HOME_NAME%</span><br/><span style=\"font-weight:bold;\">Owner: </span>%OWNER%<br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
+            popupWindow = popupWindow.replace("%HOME_NAME%", escapeHtml(home.getName()));
+            popupWindow = popupWindow.replace("%OWNER%", escapeHtml(home.getOwnerUsername()));
+            popupWindow = popupWindow.replace("%DESCRIPTION%", escapeHtml(home.getDescription()));
             m.setDescription(popupWindow);
         } catch (Exception e) {
             plugin.getLogger().severe("Error adding public home marker to the Dynamic Map (" + e.getCause() + ")");

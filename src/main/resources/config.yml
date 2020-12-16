@@ -33,7 +33,7 @@ random_teleport_command:
   enabled: true
   range: 25000
 dynmap_integration:
-  enabled: true
+  enabled: false
   markers:
     public_homes:
       show: true
@@ -44,7 +44,7 @@ dynmap_integration:
       set_name: 'Warps'
       icon_id: 'sign'
 economy_integration:
-  enabled: true
+  enabled: false
   free_home_slots: 5
   costs:
     additional_home_slot: 100

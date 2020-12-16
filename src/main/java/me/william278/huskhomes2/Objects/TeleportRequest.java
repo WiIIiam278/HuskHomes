@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Objects;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 
 import java.time.Instant;
 
@@ -16,7 +16,7 @@ public class TeleportRequest {
             this.requestType = requestType.toLowerCase();
         }
         long currentUnixTime = Instant.now().getEpochSecond();
-        requestExpiryTime = currentUnixTime + Main.settings.getTeleportRequestExpiryTime();
+        requestExpiryTime = currentUnixTime + HuskHomes.settings.getTeleportRequestExpiryTime();
     }
 
     public String getSenderName() {

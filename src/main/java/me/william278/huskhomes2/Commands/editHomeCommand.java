@@ -1,9 +1,13 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
+import me.william278.huskhomes2.API.*;
+import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
+import me.william278.huskhomes2.Commands.TabCompleters.publicHomeTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.Home;
+import me.william278.huskhomes2.Objects.TeleportationPoint;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,24 +27,32 @@ public class editHomeCommand implements CommandExecutor {
                         switch (args[1]) {
                             case "location":
                                 Location newLocation = p.getLocation();
+                                TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.settings.getServerID());
 
                                 // Remove old marker if on dynmap
                                 Home locationMovedHome = dataManager.getHome(p.getName(), homeName);
-                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                if (locationMovedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                     dynamicMap.removeDynamicMapMarker(homeName, p.getName());
+                                }
+
+                                PlayerRelocateHomeEvent relocateHomeEvent = new PlayerRelocateHomeEvent(p, locationMovedHome, newTeleportLocation);
+                                if (relocateHomeEvent.isCancelled()) {
+                                    return true;
                                 }
 
                                 dataManager.updateHomeLocation(p.getName(), homeName, newLocation);
                                 messageManager.sendMessage(p, "edit_home_update_location", homeName);
 
                                 // Add new updated marker if using dynmap
-                                locationMovedHome.setLocation(newLocation, Main.settings.getServerID());
-                                if (locationMovedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                locationMovedHome.setLocation(newLocation, HuskHomes.settings.getServerID());
+                                if (locationMovedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                     dynamicMap.addDynamicMapMarker(locationMovedHome);
                                 }
                                 return true;
                             case "description":
                                 if (args.length >= 3) {
+                                    Home descriptionChangedHome = dataManager.getHome(p.getName(), homeName);
+
                                     // Get the new description
                                     StringBuilder newDescription = new StringBuilder();
                                     for (int i = 2; i < args.length; i++) {
@@ -51,25 +63,27 @@ public class editHomeCommand implements CommandExecutor {
                                         }
                                     }
                                     String newDescriptionString = newDescription.toString();
-
+                                    PlayerChangeHomeDescriptionEvent changeHomeDescriptionEvent = new PlayerChangeHomeDescriptionEvent(p, descriptionChangedHome, newDescriptionString);
+                                    if (changeHomeDescriptionEvent.isCancelled()) {
+                                        return true;
+                                    }
                                     // Check the description is valid
                                     if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
                                         messageManager.sendMessage(p, "error_edit_home_invalid_description");
                                         return true;
                                     }
 
-                                    // Remove old marker if on dynmap
-                                    Home descriptionChangedHome = dataManager.getHome(p.getName(), homeName);
-                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    // Remove old marker if on the Dynmap
+                                    if (descriptionChangedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.removeDynamicMapMarker(homeName, p.getName());
                                     }
 
                                     // Update description
                                     dataManager.updateHomeDescription(p.getName(), homeName, newDescriptionString);
 
-                                    // Add new marker if on dynmap
+                                    // Add new marker if using Dynmap
                                     descriptionChangedHome.setDescription(newDescriptionString);
-                                    if (descriptionChangedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    if (descriptionChangedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(descriptionChangedHome);
                                     }
 
@@ -95,14 +109,24 @@ public class editHomeCommand implements CommandExecutor {
                                         return true;
                                     }
                                     Home renamedHome = dataManager.getHome(p.getName(), homeName);
-                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
-                                        dynamicMap.removeDynamicMapMarker(homeName, p.getName());
+                                    PlayerRenameHomeEvent renameHomeEvent = new PlayerRenameHomeEvent(p, renamedHome, newName);
+                                    if (renameHomeEvent.isCancelled()) {
+                                        return true;
                                     }
-                                    dataManager.updateHomeName(p.getName(), homeName, newName);
+                                    if (renamedHome.isPublic()) {
+                                        if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
+                                            dynamicMap.removeDynamicMapMarker(homeName, p.getName());
+                                        }
+                                        dataManager.updateHomeName(p.getName(), homeName, newName);
+                                        publicHomeTabCompleter.updatePublicHomeTabCache();
+                                    } else {
+                                        dataManager.updateHomeName(p.getName(), homeName, newName);
+                                    }
                                     renamedHome.setName(newName);
-                                    if (renamedHome.isPublic() && Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    if (renamedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(renamedHome);
                                     }
+                                    homeTabCompleter.updatePlayerHomeCache(p);
                                     messageManager.sendMessage(p, "edit_home_update_name", homeName, newName);
                                 } else {
                                     messageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> rename <new name>");
@@ -111,8 +135,8 @@ public class editHomeCommand implements CommandExecutor {
                             case "public":
                                 Home privateHome = dataManager.getHome(p.getName(), homeName);
                                 if (!privateHome.isPublic()) {
-                                    if (Main.settings.doEconomy()) {
-                                        double publicHomeCost = Main.settings.getPublicHomeCost();
+                                    if (HuskHomes.settings.doEconomy()) {
+                                        double publicHomeCost = HuskHomes.settings.getPublicHomeCost();
                                         if (publicHomeCost > 0) {
                                             if (!economy.takeMoney(p, publicHomeCost)) {
                                                 messageManager.sendMessage(p, "error_insufficient_funds", economy.format(publicHomeCost));
@@ -125,8 +149,13 @@ public class editHomeCommand implements CommandExecutor {
                                     } else {
                                         messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
                                     }
+                                    PlayerMakeHomePublicEvent makeHomePublicEvent = new PlayerMakeHomePublicEvent(p, privateHome);
+                                    if (makeHomePublicEvent.isCancelled()) {
+                                        return true;
+                                    }
                                     dataManager.updateHomePrivacy(p.getName(), homeName, true);
-                                    if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    publicHomeTabCompleter.updatePublicHomeTabCache();
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(privateHome);
                                     }
                                 } else {
@@ -136,11 +165,16 @@ public class editHomeCommand implements CommandExecutor {
                             case "private":
                                 Home publicHome = dataManager.getHome(p.getName(), homeName);
                                 if (publicHome.isPublic()) {
+                                    PlayerMakeHomePrivateEvent makeHomePrivateEvent = new PlayerMakeHomePrivateEvent(p, publicHome);
+                                    if (makeHomePrivateEvent.isCancelled()) {
+                                        return true;
+                                    }
                                     dataManager.updateHomePrivacy(p.getName(), homeName, false);
                                     messageManager.sendMessage(p, "edit_home_privacy_private_success", homeName);
-                                    if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.removeDynamicMapMarker(publicHome.getName(), publicHome.getOwnerUsername());
                                     }
+                                    publicHomeTabCompleter.updatePublicHomeTabCache();
                                 } else {
                                     messageManager.sendMessage(p, "error_edit_home_privacy_already_private", homeName);
                                 }

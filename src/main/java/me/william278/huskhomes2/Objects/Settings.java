@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Objects;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -44,6 +44,9 @@ public class Settings {
     double setHomeCost;
     double publicHomeCost;
     double rtpCost;
+
+    // Vanished player checks
+    boolean checkVanishedPlayers;
 
     // Time and maximum home settings
     int maximumHomes;
@@ -89,7 +92,7 @@ public class Settings {
             this.doDynmap = configFile.getBoolean("dynmap_integration.enabled");
 
             if (this.doDynmap) {
-                PluginManager pluginManager = Main.getInstance().getServer().getPluginManager();
+                PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                 Plugin dynmap = pluginManager.getPlugin("dynmap");
                 if (dynmap == null) {
                     Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
@@ -108,7 +111,7 @@ public class Settings {
             this.doEconomy = configFile.getBoolean("economy_integration.enabled");
 
             if (this.doEconomy) {
-                PluginManager pluginManager = Main.getInstance().getServer().getPluginManager();
+                PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                 Plugin vault = pluginManager.getPlugin("Vault");
                 if (vault == null) {
                     Bukkit.getLogger().warning("Economy integration was enabled in config, but the Vault plugin could not be found!");
@@ -122,6 +125,8 @@ public class Settings {
             this.publicHomeCost = configFile.getDouble("economy_integration.costs.make_home_public");
             this.rtpCost = configFile.getDouble("economy_integration.costs.random_teleport");
 
+            this.checkVanishedPlayers = configFile.getBoolean("handle_vanished_players");
+
             this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
             this.doWarpCommand = configFile.getBoolean("enable_warp_command");
 
@@ -134,7 +139,7 @@ public class Settings {
             this.teleportWarmupTime = configFile.getInt("general.teleport_warmup_time");
 
         } catch (Exception e) {
-            Main.disablePlugin("An error occurred loading the HuskHomes config (" + e.getCause() + ")");
+            HuskHomes.disablePlugin("An error occurred loading the HuskHomes config (" + e.getCause() + ")");
             e.printStackTrace();
         }
     }
@@ -181,6 +186,10 @@ public class Settings {
 
     public String getStorageType() {
         return storageType;
+    }
+
+    public boolean isCheckVanishedPlayers() {
+        return checkVanishedPlayers;
     }
 
     public String getLanguage() {

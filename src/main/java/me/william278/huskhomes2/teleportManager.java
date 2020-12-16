@@ -17,12 +17,12 @@ public class teleportManager {
     public static TeleportationPoint spawnLocation = null;
 
     public static void teleportPlayer(Player player, String targetPlayer) {
-        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.settings.getServerID()));
         setPlayerDestinationFromTargetPlayer(player, targetPlayer);
     }
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
-        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), Main.settings.getServerID()));
+        dataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.settings.getServerID()));
         dataManager.setPlayerDestinationLocation(player, point);
         teleportPlayer(player);
     }
@@ -31,12 +31,12 @@ public class teleportManager {
         TeleportationPoint teleportationPoint = dataManager.getPlayerDestination(p);
         if (teleportationPoint != null) {
             String server = teleportationPoint.getServer();
-            if (!Main.settings.doBungee() || server.equals(Main.settings.getServerID())) {
+            if (!HuskHomes.settings.doBungee() || server.equals(HuskHomes.settings.getServerID())) {
                 p.teleport(teleportationPoint.getLocation());
                 messageManager.sendMessage(p, "teleporting_complete");
                 dataManager.setPlayerTeleporting(p, false);
                 dataManager.clearPlayerDestination(p.getName());
-            } else if (Main.settings.doBungee()) {
+            } else if (HuskHomes.settings.doBungee()) {
                 dataManager.setPlayerDestinationLocation(p, teleportationPoint);
                 dataManager.setPlayerTeleporting(p, true);
                 pluginMessageHandler.sendPlayer(p, server);
@@ -73,8 +73,8 @@ public class teleportManager {
                 return;
             }
         }
-        if (Main.settings.doEconomy()) {
-            double rtpCost = Main.settings.getRtpCost();
+        if (HuskHomes.settings.doEconomy()) {
+            double rtpCost = HuskHomes.settings.getRtpCost();
             if (rtpCost > 0) {
                 if (!economy.hasMoney(player, rtpCost)) {
                     messageManager.sendMessage(player, "error_insufficient_funds", economy.format(rtpCost));
@@ -83,8 +83,8 @@ public class teleportManager {
             }
         }
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            if (Main.settings.doEconomy()) {
-                double rtpCost = Main.settings.getRtpCost();
+            if (HuskHomes.settings.doEconomy()) {
+                double rtpCost = HuskHomes.settings.getRtpCost();
                 if (rtpCost > 0) {
                     economy.takeMoney(player, rtpCost);
                     messageManager.sendMessage(player, "rtp_spent_money", economy.format(rtpCost));
@@ -103,7 +103,7 @@ public class teleportManager {
         if (targetPlayer != null) {
             teleportPlayer(targetPlayer, requester.getName());
         } else {
-            if (Main.settings.doBungee()) {
+            if (HuskHomes.settings.doBungee()) {
                 teleportHereCrossServer(requester, targetPlayerName);
             } else {
                 messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -123,10 +123,10 @@ public class teleportManager {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
             dataManager.setPlayerDestinationLocation(requester,
-                    new TeleportationPoint(targetPlayer.getLocation(), Main.settings.getServerID()));
+                    new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.settings.getServerID()));
             teleportPlayer(requester);
         } else {
-            if (Main.settings.doBungee()) {
+            if (HuskHomes.settings.doBungee()) {
                 setTeleportationDestinationCrossServer(requester, targetPlayerName);
             } else {
                 messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);

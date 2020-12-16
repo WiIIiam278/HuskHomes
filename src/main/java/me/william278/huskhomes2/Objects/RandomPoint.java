@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Objects;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -35,8 +35,8 @@ public class RandomPoint extends TeleportationPoint {
         int negativeX;
         int negativeZ;
 
-        x = random.nextInt(Main.settings.getRtpRange());
-        z = random.nextInt(Main.settings.getRtpRange());
+        x = random.nextInt(HuskHomes.settings.getRtpRange());
+        z = random.nextInt(HuskHomes.settings.getRtpRange());
         negativeX = random.nextInt(2);
         negativeZ = random.nextInt(2);
 
@@ -80,8 +80,8 @@ public class RandomPoint extends TeleportationPoint {
     }
 
     public RandomPoint(Player player) {
-        super(player.getLocation(), Main.settings.getServerID());
-        setLocation(getRandomLocation(player.getWorld()), Main.settings.getServerID());
+        super(player.getLocation(), HuskHomes.settings.getServerID());
+        setLocation(getRandomLocation(player.getWorld()), HuskHomes.settings.getServerID());
     }
 
 }

@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.teleportManager;
@@ -27,7 +27,7 @@ public class tpCommand implements CommandExecutor {
                             double x = Double.parseDouble(args[0]);
                             double y = Double.parseDouble(args[1]);
                             double z = Double.parseDouble(args[2]);
-                            TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, Main.settings.getServerID());
+                            TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, HuskHomes.settings.getServerID());
                             teleportManager.teleportPlayer(p, teleportationPoint);
                         } catch (Exception e) {
                             messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
@@ -43,14 +43,14 @@ public class tpCommand implements CommandExecutor {
                                 messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                                 return true;
                             }
-                            TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, Main.settings.getServerID());
+                            TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, HuskHomes.settings.getServerID());
                             teleportManager.teleportPlayer(p, teleportationPoint);
                         } catch (Exception e) {
                             messageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                         }
                         return true;
                     case 5:
-                        if (Main.settings.doBungee()) {
+                        if (HuskHomes.settings.doBungee()) {
                             try {
                                 double x = Double.parseDouble(args[0]);
                                 double y = Double.parseDouble(args[1]);

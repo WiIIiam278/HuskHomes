@@ -26,7 +26,7 @@ public class messageManager {
 
     private static HashMap<String, String> messages = new HashMap<>();
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Delete the file at the pointer specified
     private static void deleteFile(File f) {

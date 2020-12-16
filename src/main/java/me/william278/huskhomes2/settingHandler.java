@@ -1,5 +1,12 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.API.PlayerDeleteHomeEvent;
+import me.william278.huskhomes2.API.PlayerDeleteWarpEvent;
+import me.william278.huskhomes2.API.PlayerSetHomeEvent;
+import me.william278.huskhomes2.API.PlayerSetWarpEvent;
+import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
+import me.william278.huskhomes2.Commands.TabCompleters.publicHomeTabCompleter;
+import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.*;
@@ -10,25 +17,30 @@ import org.bukkit.entity.Player;
 // This class handles setting homes, warps and the spawn location.
 public class settingHandler {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Set a home at the specified position
     public static void setHome(Location location, Player player, String name) {
         SetHomeConditions setHomeConditions = new SetHomeConditions(player, name);
         if (setHomeConditions.areConditionsMet()) {
-            Home home = new Home(location, Main.settings.getServerID(), player, name, false);
+            Home home = new Home(location, HuskHomes.settings.getServerID(), player, name, false);
+            PlayerSetHomeEvent event = new PlayerSetHomeEvent(player, home);
+            if (event.isCancelled()) {
+                return;
+            }
             dataManager.addHome(home, player);
             messageManager.sendMessage(player, "set_home_success", name);
-            if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
+            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                 dynamicMap.addDynamicMapMarker(home);
             }
+            homeTabCompleter.updatePlayerHomeCache(player);
         } else {
             switch (setHomeConditions.getConditionsNotMetReason()) {
                 case "error_set_home_maximum_homes":
-                    messageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Main.settings.getMaximumHomes()));
+                    messageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(HuskHomes.settings.getMaximumHomes()));
                     return;
                 case "error_insufficient_funds":
-                    messageManager.sendMessage(player, "error_insufficient_funds", economy.format(Main.settings.getSetHomeCost()));
+                    messageManager.sendMessage(player, "error_insufficient_funds", economy.format(HuskHomes.settings.getSetHomeCost()));
                     return;
                 default:
                     messageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
@@ -40,12 +52,17 @@ public class settingHandler {
     public static void setWarp(Location location, Player player, String name) {
         SetWarpConditions setWarpConditions = new SetWarpConditions(name);
         if (setWarpConditions.areConditionsMet()) {
-            Warp warp = new Warp(location, Main.settings.getServerID(), name);
+            Warp warp = new Warp(location, HuskHomes.settings.getServerID(), name);
+            PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
+            if (event.isCancelled()) {
+                return;
+            }
             dataManager.addWarp(warp);
             messageManager.sendMessage(player, "set_warp_success", name);
-            if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                 dynamicMap.addDynamicMapMarker(warp);
             }
+            warpTabCompleter.updateWarpsTabCache();
         } else {
             messageManager.sendMessage(player, setWarpConditions.getConditionsNotMetReason());
         }
@@ -54,13 +71,22 @@ public class settingHandler {
     // Delete a home
     public static void deleteHome(Player player, String homeName) {
         if (dataManager.homeExists(player, homeName)) {
-            // Delete dynmap marker if it exists & if the home is public
-            if (Main.settings.doDynmap() && Main.settings.showPublicHomesOnDynmap()) {
-                if (dataManager.getHome(player.getName(), homeName).isPublic()) {
+            Home home = dataManager.getHome(player.getName(), homeName);
+            if (home.isPublic()) {
+                // Delete dynmap marker if it exists & if the home is public
+                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                     dynamicMap.removeDynamicMapMarker(homeName, player.getName());
                 }
+                PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
+                if (event.isCancelled()) {
+                    return;
+                }
+                dataManager.deleteHome(homeName, player);
+                publicHomeTabCompleter.updatePublicHomeTabCache();
+            } else {
+                dataManager.deleteHome(homeName, player);
             }
-            dataManager.deleteHome(homeName, player);
+            homeTabCompleter.updatePlayerHomeCache(player);
             messageManager.sendMessage(player, "home_deleted", homeName);
         } else {
             messageManager.sendMessage(player, "error_home_invalid", homeName);
@@ -70,11 +96,17 @@ public class settingHandler {
     // Delete a warp
     public static void deleteWarp(Player player, String warpName) {
         if (dataManager.warpExists(warpName)) {
+            Warp warp = dataManager.getWarp(warpName);
+            PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
+            if (event.isCancelled()) {
+                return;
+            }
             dataManager.deleteWarp(warpName);
             messageManager.sendMessage(player, "warp_deleted");
-            if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                 dynamicMap.removeDynamicMapMarker(warpName);
             }
+            warpTabCompleter.updateWarpsTabCache();
         } else {
             messageManager.sendMessage(player, "error_warp_invalid");
         }
@@ -93,7 +125,7 @@ public class settingHandler {
         plugin.saveConfig();
 
         // Update the current spawn location
-        teleportManager.spawnLocation = new TeleportationPoint(location, Main.settings.getServerID());
+        teleportManager.spawnLocation = new TeleportationPoint(location, HuskHomes.settings.getServerID());
     }
 
     // Update current spawn location from config
@@ -103,7 +135,7 @@ public class settingHandler {
 
     // Get spawn location from config
     private static TeleportationPoint getSpawnLocation() {
-        String server = Main.settings.getServerID();
+        String server = HuskHomes.settings.getServerID();
         try {
             FileConfiguration config = plugin.getConfig();
             String worldName = (config.getString("spawn_command.position.world"));

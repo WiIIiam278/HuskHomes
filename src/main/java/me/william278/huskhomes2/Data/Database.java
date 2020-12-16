@@ -2,7 +2,7 @@ package me.william278.huskhomes2.Data;
 
 import me.william278.huskhomes2.Data.ErrorLogging.Error;
 import me.william278.huskhomes2.Data.ErrorLogging.Errors;
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
@@ -10,13 +10,14 @@ import me.william278.huskhomes2.permissionHomeLimits;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public abstract class Database {
-    Main plugin;
+    HuskHomes plugin;
     Connection connection;
 
-    public Database(Main instance) {
+    public Database(HuskHomes instance) {
         plugin = instance;
     }
 
@@ -27,7 +28,7 @@ public abstract class Database {
     public void initialize() {
         connection = getSQLConnection();
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + Main.settings.getPlayerDataTable() + ";");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + ";");
             ResultSet rs = ps.executeQuery();
             close(ps, rs);
 
@@ -39,7 +40,7 @@ public abstract class Database {
     // Insert a teleportation point, returns generated id
     public Integer addTeleportationPoint(TeleportationPoint point, Connection conn) {
         try {
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO " + Main.settings.getLocationsDataTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getLocationsDataTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, point.getWorldName());
             ps.setString(2, point.getServer());
@@ -70,7 +71,7 @@ public abstract class Database {
             conn = getSQLConnection();
             Integer locationID = addTeleportationPoint(home, conn);
 
-            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getHomesDataTable() + " (player_id,location_id,name,description,public) VALUES(?,?,?,?,?);");
+            ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getHomesDataTable() + " (player_id,location_id,name,description,public) VALUES(?,?,?,?,?);");
             ps.setInt(1, playerID);
             ps.setInt(2, locationID);
             ps.setString(3, home.getName());
@@ -103,7 +104,7 @@ public abstract class Database {
             Integer locationID = addTeleportationPoint(warp, conn);
 
             // Insert the warp with the location_id of the last inserted teleport point
-            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getWarpsDataTable() + " (location_id,name,description) VALUES(?,?,?);");
+            ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getWarpsDataTable() + " (location_id,name,description) VALUES(?,?,?);");
             ps.setInt(1, locationID);
             ps.setString(2, warp.getName());
             ps.setString(3, warp.getDescription());
@@ -131,7 +132,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Delete the warp with the given name
-            ps = conn.prepareStatement("DELETE FROM " + Main.settings.getWarpsDataTable() + " WHERE `name`=?;");
+            ps = conn.prepareStatement("DELETE FROM " + HuskHomes.settings.getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             ps.executeUpdate();
 
@@ -158,7 +159,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Delete the home with the given name and player ID
-            ps = conn.prepareStatement("DELETE FROM " + Main.settings.getHomesDataTable() + " WHERE `name`=? AND `player_id`=?;");
+            ps = conn.prepareStatement("DELETE FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `name`=? AND `player_id`=?;");
             ps.setString(1, homeName);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -185,10 +186,40 @@ public abstract class Database {
         try {
             conn = getSQLConnection();
 
-            ps = conn.prepareStatement("INSERT INTO " + Main.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
+            ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, p.getName());
             ps.setInt(3, permissionHomeLimits.getFreeHomes(p));
+            ps.setInt(4, 0);
+            ps.setBoolean(5, false);
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
+    // Insert a player into the database
+    public void addPlayer(UUID playerUUID, String playerName) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, playerName);
+            ps.setInt(3, HuskHomes.settings.getFreeHomeSlots());
             ps.setInt(4, 0);
             ps.setBoolean(5, false);
 
@@ -213,7 +244,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `username`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `username`=? WHERE `player_id`=?;");
             ps.setString(1, newName);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -237,7 +268,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `is_teleporting`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `is_teleporting`=? WHERE `player_id`=?;");
             ps.setBoolean(1, value);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -261,7 +292,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `home_slots`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `home_slots`=? WHERE `player_id`=?;");
             ps.setInt(1, newValue);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -285,7 +316,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `rtp_cooldown`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `rtp_cooldown`=? WHERE `player_id`=?;");
             ps.setInt(1, newTime);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -311,7 +342,7 @@ public abstract class Database {
         try {
             conn = getSQLConnection();
 
-            ps = conn.prepareStatement("DELETE FROM " + Main.settings.getLocationsDataTable() + " WHERE `location_id`=?;");
+            ps = conn.prepareStatement("DELETE FROM " + HuskHomes.settings.getLocationsDataTable() + " WHERE `location_id`=?;");
             ps.setInt(1, locationID);
 
             ps.executeUpdate();
@@ -338,7 +369,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Set the home location ID to the new teleport point for the given home
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getHomesDataTable() + " SET `public`=? WHERE `name`=? AND `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getHomesDataTable() + " SET `public`=? WHERE `name`=? AND `player_id`=?;");
             ps.setBoolean(1, isPublic);
             ps.setString(2, homeName);
             ps.setInt(3, ownerID);
@@ -369,7 +400,7 @@ public abstract class Database {
             Integer locationID = addTeleportationPoint(point, conn);
 
             // Set the home location ID to the new teleport point for the given home
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getHomesDataTable() + " SET `location_id`=? WHERE `name`=? AND `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getHomesDataTable() + " SET `location_id`=? WHERE `name`=? AND `player_id`=?;");
             ps.setInt(1, locationID);
             ps.setString(2, homeName);
             ps.setInt(3, ownerID);
@@ -400,7 +431,7 @@ public abstract class Database {
             Integer locationID = addTeleportationPoint(point, conn);
 
             // Set the warp location ID to the new teleport point
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getWarpsDataTable() + " SET `location_id`=? WHERE `name`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getWarpsDataTable() + " SET `location_id`=? WHERE `name`=?;");
             ps.setInt(1, locationID);
             ps.setString(2, warpName);
             ps.executeUpdate();
@@ -426,7 +457,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Update the home description
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getHomesDataTable() + " SET `description`=? WHERE `name`=? AND `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getHomesDataTable() + " SET `description`=? WHERE `name`=? AND `player_id`=?;");
             ps.setString(1, newDescription);
             ps.setString(2, homeName);
             ps.setInt(3, ownerID);
@@ -454,7 +485,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Update the warp description
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getWarpsDataTable() + " SET `description`=? WHERE `name`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getWarpsDataTable() + " SET `description`=? WHERE `name`=?;");
             ps.setString(1, newDescription);
             ps.setString(2, warpName);
             ps.executeUpdate();
@@ -481,7 +512,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Update the home name
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getHomesDataTable() + " SET `name`=? WHERE `name`=? AND `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getHomesDataTable() + " SET `name`=? WHERE `name`=? AND `player_id`=?;");
             ps.setString(1, newHomeName);
             ps.setString(2, oldHomeName);
             ps.setInt(3, ownerID);
@@ -510,7 +541,7 @@ public abstract class Database {
             conn = getSQLConnection();
 
             // Update the warp name
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getWarpsDataTable() + " SET `name`=? WHERE `name`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getWarpsDataTable() + " SET `name`=? WHERE `name`=?;");
             ps.setString(1, newWarpName);
             ps.setString(2, oldWarpName);
 
@@ -541,7 +572,7 @@ public abstract class Database {
             Integer locationID = addTeleportationPoint(point, conn);
 
             // Set the destination location with the location_id of the last inserted teleport point
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `last_location_id`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `last_location_id`=? WHERE `player_id`=?;");
             ps.setInt(1, locationID);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -571,7 +602,7 @@ public abstract class Database {
             Integer locationID = addTeleportationPoint(point, conn);
 
             // Set the destination location with the location_id of the last inserted teleport point
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `dest_location_id`=? WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `dest_location_id`=? WHERE `player_id`=?;");
             ps.setInt(1, locationID);
             ps.setInt(2, playerID);
             ps.executeUpdate();
@@ -597,7 +628,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `dest_location_id`=NULL WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `dest_location_id`=NULL WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
@@ -621,7 +652,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + Main.settings.getPlayerDataTable() + " SET `last_location_id`=NULL WHERE `player_id`=?;");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.settings.getPlayerDataTable() + " SET `last_location_id`=NULL WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {

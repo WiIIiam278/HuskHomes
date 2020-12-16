@@ -1,13 +1,13 @@
 package me.william278.huskhomes2.Integrations;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class economy {
     private static Economy economy = null;
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     public static boolean initializeEconomy() {
         RegisteredServiceProvider<Economy> economyProvider =

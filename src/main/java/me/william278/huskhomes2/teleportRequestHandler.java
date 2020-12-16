@@ -1,5 +1,6 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.Integrations.vanishChecker;
 import me.william278.huskhomes2.Objects.TeleportRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,11 +25,15 @@ public class teleportRequestHandler {
     public static void sendTeleportToRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
-            teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
-            messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
-            messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
+            if (!vanishChecker.isVanished(targetPlayer)) {
+                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
+                messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
+                messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
+            } else {
+                messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+            }
         } else {
-            if (Main.settings.doBungee()) {
+            if (HuskHomes.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
                 messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
             } else {
@@ -44,7 +49,7 @@ public class teleportRequestHandler {
             messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             messageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
         } else {
-            if (Main.settings.doBungee()) {
+            if (HuskHomes.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");
                 messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             } else {
@@ -78,7 +83,7 @@ public class teleportRequestHandler {
                 messageManager.sendMessage(requester, "tpa_has_declined", p.getName());
             }
         } else {
-            if (Main.settings.doBungee()) {
+            if (HuskHomes.settings.doBungee()) {
                 if (accepted) {
                     messageManager.sendMessage(p, "tpa_you_accepted", requesterName);
 

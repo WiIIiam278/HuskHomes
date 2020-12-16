@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.Objects;
 
 import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.permissionHomeLimits;
@@ -31,8 +31,8 @@ public class SetHomeConditions {
             conditionsNotMetReason = "error_set_home_invalid_characters";
             return;
         }
-        if (Main.settings.doEconomy()) {
-            double setHomeCost = Main.settings.setHomeCost;
+        if (HuskHomes.settings.doEconomy()) {
+            double setHomeCost = HuskHomes.settings.setHomeCost;
             if (setHomeCost > 0) {
                 int currentPlayerHomeSlots = dataManager.getPlayerHomeSlots(player);
                 if (currentHomeCount > (currentPlayerHomeSlots - 1)) {

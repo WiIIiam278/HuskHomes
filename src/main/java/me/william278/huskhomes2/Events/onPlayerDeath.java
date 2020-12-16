@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Events;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.messageManager;
@@ -33,7 +33,7 @@ public class onPlayerDeath implements Listener {
     public void onPlayerDie(PlayerDeathEvent e) {
         Player p = e.getEntity();
         if (p.hasPermission("huskhomes.back.death")) {
-            dataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), Main.settings.getServerID()));
+            dataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.settings.getServerID()));
             messageManager.sendMessage(p, "return_by_death");
             p.spigot().sendMessage(backButton().create());
         }

@@ -1,9 +1,8 @@
 package me.william278.huskhomes2.Objects;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.messageManager;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class TimedTeleport {
@@ -18,7 +17,7 @@ public class TimedTeleport {
     double initialTeleporterHealth;
 
     int timeRemaining;
-    final int warmupTime = Main.settings.getTeleportWarmupTime();
+    final int warmupTime = HuskHomes.settings.getTeleportWarmupTime();
 
     public TimedTeleport(Player teleporter, TeleportationPoint targetPoint) {
         this.teleporter = teleporter;

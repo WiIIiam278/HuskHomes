@@ -1,6 +1,8 @@
 package me.william278.huskhomes2;
 
+import me.william278.huskhomes2.API.HuskHomesAPI;
 import me.william278.huskhomes2.Commands.*;
+import me.william278.huskhomes2.Commands.TabCompleters.*;
 import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Integrations.dynamicMap;
@@ -9,16 +11,25 @@ import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Main extends JavaPlugin {
+public final class HuskHomes extends JavaPlugin {
 
-    private static Main instance;
-    public static Main getInstance() {
+    private static HuskHomes instance;
+    public static HuskHomes getInstance() {
         return instance;
     }
-    private void setInstance(Main instance) {
-        Main.instance = instance;
+    private void setInstance(HuskHomes instance) {
+        HuskHomes.instance = instance;
     }
     public static Settings settings;
+
+    /**
+     * Returns the HuskHomes API
+     * @return an instance of the HuskHomes API
+     * @see HuskHomesAPI
+     */
+    public HuskHomesAPI getAPI() {
+        return new HuskHomesAPI();
+    }
 
     // Disable the plugin for the given reason
     public static void disablePlugin(String reason) {
@@ -27,13 +38,30 @@ public final class Main extends JavaPlugin {
     }
 
     // Initialise bungee plugin channels
-    private static void setupBungeeChannels(Main plugin) {
+    private static void setupBungeeChannels(HuskHomes plugin) {
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
     }
 
+    // Register tab completers
+    private static void registerTabCompleters(HuskHomes plugin) {
+        plugin.getCommand("home").setTabCompleter(new homeTabCompleter());
+        plugin.getCommand("warp").setTabCompleter(new warpTabCompleter());
+        plugin.getCommand("publichome").setTabCompleter(new publicHomeTabCompleter());
+        plugin.getCommand("tpaccept").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("tpdeny").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("warplist").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("homelist").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("rtp").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("spawn").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("setspawn").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
+        plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
+
+    }
+
     // Register commands
-    private static void registerCommands(Main plugin) {
+    private static void registerCommands(HuskHomes plugin) {
         plugin.getCommand("back").setExecutor(new backCommand());
         plugin.getCommand("delhome").setExecutor(new delHomeCommand());
         plugin.getCommand("delwarp").setExecutor(new delWarpCommand());
@@ -60,7 +88,7 @@ public final class Main extends JavaPlugin {
     }
 
     // Register events
-    private static void registerEvents(Main plugin) {
+    private static void registerEvents(HuskHomes plugin) {
         plugin.getServer().getPluginManager().registerEvents(new onPlayerJoin(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new onPlayerDeath(), plugin);
     }
@@ -80,7 +108,7 @@ public final class Main extends JavaPlugin {
         configManager.loadConfig();
 
         // Load the messages (in the right language)
-        messageManager.loadMessages(Main.settings.getLanguage());
+        messageManager.loadMessages(HuskHomes.settings.getLanguage());
 
         // Fetch spawn location if set
         settingHandler.fetchSpawnLocation();
@@ -89,17 +117,17 @@ public final class Main extends JavaPlugin {
         dataManager.setupStorage();
 
         // Setup dynmap if it is enabled
-        if (Main.settings.doDynmap()) {
+        if (HuskHomes.settings.doDynmap()) {
             dynamicMap.initializeDynmap();
         }
 
         // Setup economy if it is enabled
-        if (Main.settings.doEconomy()) {
+        if (HuskHomes.settings.doEconomy()) {
             economy.initializeEconomy();
         }
 
         // Return if the plugin is disabled
-        if (!Main.getInstance().isEnabled()) {
+        if (!HuskHomes.getInstance().isEnabled()) {
             return;
         }
 

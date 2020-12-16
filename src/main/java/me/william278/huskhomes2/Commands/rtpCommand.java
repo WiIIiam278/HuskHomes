@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.teleportManager;
 import org.bukkit.World;
@@ -15,7 +15,7 @@ public class rtpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            if (Main.settings.doRtpCommand()) {
+            if (HuskHomes.settings.doRtpCommand()) {
                 if (p.getWorld().getEnvironment() == World.Environment.NORMAL) {
                     teleportManager.queueRandomTeleport(p);
                 } else {

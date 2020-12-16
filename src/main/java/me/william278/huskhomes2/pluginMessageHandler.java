@@ -3,6 +3,7 @@ package me.william278.huskhomes2;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import me.william278.huskhomes2.Integrations.vanishChecker;
 import me.william278.huskhomes2.Objects.TeleportRequest;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import java.io.*;
 
 public class pluginMessageHandler implements PluginMessageListener {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Move a player to a different server in the bungee network
     public static void sendPlayer(Player p, String targetServer) {
@@ -101,12 +102,16 @@ public class pluginMessageHandler implements PluginMessageListener {
                 }
                 break;
             case "tpa_request":
-                teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
-                messageManager.sendMessage(recipient, "tpa_request_ask", messageData);
+                if (!vanishChecker.isVanished(recipient)) {
+                    teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
+                    messageManager.sendMessage(recipient, "tpa_request_ask", messageData);
+                }
                 break;
             case "tpahere_request":
-                teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
-                messageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
+                if (!vanishChecker.isVanished(recipient)) {
+                    teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
+                    messageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
+                }
                 break;
             case "tpa_request_reply":
                 replierName = messageData.split(":")[0];
@@ -136,6 +141,6 @@ public class pluginMessageHandler implements PluginMessageListener {
     // Set the requesters' teleport destination to a teleportation point of the recipient's current location
     public void setTeleportDestination(String requesterName, Player recipient) {
         dataManager.setPlayerDestinationLocation(requesterName,
-                new TeleportationPoint(recipient.getLocation(), Main.settings.getServerID()));
+                new TeleportationPoint(recipient.getLocation(), HuskHomes.settings.getServerID()));
     }
 }

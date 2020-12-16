@@ -50,3 +50,4 @@ economy_integration:
     additional_home_slot: 100
     make_home_public: 50
     random_teleport: 20
+handle_vanished_players: true

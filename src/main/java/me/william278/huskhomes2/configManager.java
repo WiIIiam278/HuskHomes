@@ -4,7 +4,7 @@ import me.william278.huskhomes2.Objects.Settings;
 
 public class configManager {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // (Re-)Load the config file
     public static void loadConfig() {
@@ -16,6 +16,6 @@ public class configManager {
                         "Configuration guide: https://github.com/WiIIiam278/HuskHomes2/wiki \n");
         plugin.getConfig().options().copyHeader(true);
         plugin.saveDefaultConfig();
-        Main.settings = new Settings(plugin.getConfig());
+        HuskHomes.settings = new Settings(plugin.getConfig());
     }
 }

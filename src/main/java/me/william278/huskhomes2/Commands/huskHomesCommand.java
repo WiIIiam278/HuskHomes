@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.configManager;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.versionChecker;
@@ -17,7 +17,7 @@ import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 
 public class huskHomesCommand implements CommandExecutor {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     private static void showAboutMenu(CommandSender sender) {
         sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + " " + ChatColor.GREEN + "| Version " + plugin.getDescription().getVersion());
@@ -62,7 +62,7 @@ public class huskHomesCommand implements CommandExecutor {
                         Player p = (Player) sender;
                         if (p.hasPermission("huskhomes.reload")) {
                             configManager.loadConfig();
-                            messageManager.loadMessages(Main.settings.getLanguage());
+                            messageManager.loadMessages(HuskHomes.settings.getLanguage());
                             p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | Reloaded config and message files.");
                         } else {
                             messageManager.sendMessage(p, "error_no_permission");
@@ -70,7 +70,7 @@ public class huskHomesCommand implements CommandExecutor {
                         return true;
                     } else {
                         configManager.loadConfig();
-                        messageManager.loadMessages(Main.settings.getLanguage());
+                        messageManager.loadMessages(HuskHomes.settings.getLanguage());
                         plugin.getLogger().info("Reloaded config and message files.");
                     }
                     return true;

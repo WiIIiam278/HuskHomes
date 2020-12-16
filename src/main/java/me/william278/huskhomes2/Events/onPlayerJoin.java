@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Events;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.teleportManager;
 import org.bukkit.entity.Player;
@@ -23,7 +23,7 @@ public class onPlayerJoin implements Listener {
         }
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly
-        if (Main.settings.doBungee()) {
+        if (HuskHomes.settings.doBungee()) {
             if (dataManager.getPlayerTeleporting(p)) {
                 teleportManager.teleportPlayer(p);
             }

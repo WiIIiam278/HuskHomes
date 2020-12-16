@@ -5,7 +5,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public class permissionHomeLimits {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Returns the maximum number of set homes a player can make
     public static int getSetHomeLimit(Player p) {
@@ -16,11 +16,11 @@ public class permissionHomeLimits {
                 try {
                     return Integer.parseInt(permission.split("\\.")[2]);
                 } catch(Exception e) {
-                    return Main.settings.getMaximumHomes();
+                    return HuskHomes.settings.getMaximumHomes();
                 }
             }
         }
-        return Main.settings.getMaximumHomes();
+        return HuskHomes.settings.getMaximumHomes();
     }
 
     // Returns the number of set homes a player can set for free
@@ -31,10 +31,10 @@ public class permissionHomeLimits {
                 try {
                     return Integer.parseInt(permission.split("\\.")[2]);
                 } catch(Exception e) {
-                    return Main.settings.getFreeHomeSlots();
+                    return HuskHomes.settings.getFreeHomeSlots();
                 }
             }
         }
-        return Main.settings.getFreeHomeSlots();
+        return HuskHomes.settings.getFreeHomeSlots();
     }
 }

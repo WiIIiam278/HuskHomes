@@ -14,7 +14,7 @@ import static org.bukkit.Bukkit.getServer;
 
 public class runEverySecond {
 
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Cancel expired teleport requests
     private static void clearExpiredRequests(HashSet<Player> expiredTeleportRequests) {
@@ -78,8 +78,8 @@ public class runEverySecond {
                                     teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                                     break;
                                 case "random":
-                                    if (Main.settings.doEconomy()) {
-                                        double rtpCost = Main.settings.getRtpCost();
+                                    if (HuskHomes.settings.doEconomy()) {
+                                        double rtpCost = HuskHomes.settings.getRtpCost();
                                         if (rtpCost > 0) {
                                             if (!economy.takeMoney(teleporter, rtpCost)) {
                                                 messageManager.sendMessage(teleporter, "error_insufficient_funds", economy.format(rtpCost));

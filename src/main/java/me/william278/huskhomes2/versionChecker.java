@@ -15,7 +15,7 @@ import java.net.URLConnection;
 import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 
 public class versionChecker {
-    private static final Main plugin = Main.getInstance();
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     public static void adminVersionCheck(Player p) {
         if (p.hasPermission("huskhomes.version_checker")) {

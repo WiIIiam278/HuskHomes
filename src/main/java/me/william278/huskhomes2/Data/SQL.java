@@ -1,8 +1,7 @@
 package me.william278.huskhomes2.Data;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.dataManager;
-import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,27 +15,27 @@ public class SQL extends Database {
 
     final String SQLiteDatabaseName = "HuskHomesData";
 
-    public SQL(Main instance) {
+    public SQL(HuskHomes instance) {
         super(instance);
     }
 
     // Initialise connection via mySQL
     private Connection getMySQLConnection() {
-        String host = Main.settings.getMySQLhost();
-        int port = Main.settings.getMySQLport();
-        String database = Main.settings.getMySQLdatabase();
-        String username = Main.settings.getMySQLusername();
-        String password = Main.settings.getMySQLpassword();
+        String host = HuskHomes.settings.getMySQLhost();
+        int port = HuskHomes.settings.getMySQLport();
+        String database = HuskHomes.settings.getMySQLdatabase();
+        String username = HuskHomes.settings.getMySQLusername();
+        String password = HuskHomes.settings.getMySQLpassword();
 
         try {
-            synchronized (Main.getInstance()) {
+            synchronized (HuskHomes.getInstance()) {
                 Class.forName("com.mysql.jdbc.Driver");
                 return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&useSSL=false", username, password);
             }
         } catch (SQLException e) {
-            Main.disablePlugin("[!] Could not connect to the mySQL Database with the credentials provided!\n[!] Check that your host IP address and port are valid and that your username and password are valid and that the user has the correct access permissions on the database.");
+            HuskHomes.disablePlugin("[!] Could not connect to the mySQL Database with the credentials provided!\n[!] Check that your host IP address and port are valid and that your username and password are valid and that the user has the correct access permissions on the database.");
         } catch (ClassNotFoundException e) {
-            Main.disablePlugin("[!] A critical exception occurred when attempting to establish a connection to the mySQL database!");
+            HuskHomes.disablePlugin("[!] A critical exception occurred when attempting to establish a connection to the mySQL database!");
             e.printStackTrace();
         }
         return null;
@@ -48,10 +47,10 @@ public class SQL extends Database {
         if (!dataFolder.exists()) {
             try {
                 if (!dataFolder.createNewFile()) {
-                    plugin.getLogger().log(Level.SEVERE, "File write error: " + SQLiteDatabaseName + ".db");
+                    plugin.getLogger().log(Level.SEVERE, "Failed to write new file: " + SQLiteDatabaseName + ".db (file already exists)");
                 }
             } catch (IOException e) {
-                plugin.getLogger().log(Level.SEVERE, "File write error: " + SQLiteDatabaseName + ".db");
+                plugin.getLogger().log(Level.SEVERE, "An error occurred writing a file: " + SQLiteDatabaseName + ".db (" + e.getCause() + ")");
             }
         }
         try {
@@ -70,14 +69,14 @@ public class SQL extends Database {
     }
 
     public Connection getSQLConnection() {
-        String dataStorageType = Main.settings.getStorageType().toLowerCase();
+        String dataStorageType = HuskHomes.settings.getStorageType().toLowerCase();
         switch (dataStorageType) {
             case "mysql":
                 return getMySQLConnection();
             case "sqlite":
                 return getSQLiteConnection();
             default:
-                Bukkit.getLogger().warning("An invalid data storage type was specified in config.yml; defaulting to SQLite");
+                plugin.getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
                 return getSQLiteConnection();
         }
     }

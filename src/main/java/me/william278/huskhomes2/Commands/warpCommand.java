@@ -13,7 +13,7 @@ public class warpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            if (Main.settings.doWarpCommand()) {
+            if (HuskHomes.settings.doWarpCommand()) {
                 if (args.length == 1) {
                     String warpName = args[0];
                     if (dataManager.warpExists(warpName)) {

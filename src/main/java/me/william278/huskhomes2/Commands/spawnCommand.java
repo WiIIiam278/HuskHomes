@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.Commands;
 
-import me.william278.huskhomes2.Main;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.teleportManager;
 import org.bukkit.command.Command;
@@ -14,7 +14,7 @@ public class spawnCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            if (Main.settings.doSpawnCommand()) {
+            if (HuskHomes.settings.doSpawnCommand()) {
                 if (teleportManager.spawnLocation != null) {
                     teleportManager.queueTimedTeleport(p, teleportManager.spawnLocation);
                 } else {

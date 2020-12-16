@@ -1,7 +1,12 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
+import me.william278.huskhomes2.API.PlayerChangeWarpDescriptionEvent;
+import me.william278.huskhomes2.API.PlayerRelocateWarpEvent;
+import me.william278.huskhomes2.API.PlayerRenameWarpEvent;
+import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
+import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -22,24 +27,32 @@ public class editWarpCommand implements CommandExecutor {
                         switch (args[1]) {
                             case "location":
                                 Location newLocation = p.getLocation();
+                                TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.settings.getServerID());
 
-                                // Remove old marker if on dynmap
+                                // Remove old marker if on the Dynmap
                                 Warp locationMovedWarp = dataManager.getWarp(warpName);
-                                if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                     dynamicMap.removeDynamicMapMarker(warpName);
+                                }
+
+                                PlayerRelocateWarpEvent relocateHomeEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
+                                if (relocateHomeEvent.isCancelled()) {
+                                    return true;
                                 }
 
                                 dataManager.updateWarpLocation(warpName, p.getLocation());
                                 messageManager.sendMessage(p, "edit_warp_update_location", warpName);
 
-                                // Add new updated marker if using dynmap
-                                locationMovedWarp.setLocation(newLocation, Main.settings.getServerID());
-                                if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                // Add new updated marker if using Dynmap
+                                locationMovedWarp.setLocation(newLocation, HuskHomes.settings.getServerID());
+                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                     dynamicMap.addDynamicMapMarker(locationMovedWarp);
                                 }
                                 return true;
                             case "description":
                                 if (args.length >= 3) {
+                                    Warp descriptionChangedWarp = dataManager.getWarp(warpName);
+
                                     // Get the new description
                                     StringBuilder newDescription = new StringBuilder();
                                     for (int i = 2; i < args.length; i++) {
@@ -51,22 +64,26 @@ public class editWarpCommand implements CommandExecutor {
                                     }
                                     String newDescriptionString = newDescription.toString();
 
+                                    PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
+                                    if (changeWarpDescriptionEvent.isCancelled()) {
+                                        return true;
+                                    }
+
                                     // Check the description is valid
                                     if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
                                         messageManager.sendMessage(p, "error_edit_warp_invalid_description");
                                         return true;
                                     }
 
-                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                         dynamicMap.removeDynamicMapMarker(warpName);
                                     }
 
                                     // Update description
                                     dataManager.updateWarpDescription(warpName, newDescriptionString);
 
-                                    Warp descriptionChangedWarp = dataManager.getWarp(warpName);
                                     descriptionChangedWarp.setDescription(newDescriptionString);
-                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(descriptionChangedWarp);
                                     }
 
@@ -92,16 +109,21 @@ public class editWarpCommand implements CommandExecutor {
                                         messageManager.sendMessage(p, "error_set_warp_name_taken");
                                         return true;
                                     }
+                                    PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
+                                    if (renameWarpEvent.isCancelled()) {
+                                        return true;
+                                    }
 
-                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                         dynamicMap.removeDynamicMapMarker(warpName);
                                     }
                                     dataManager.updateWarpName(warpName, newName);
 
                                     renamedWarp.setName(newName);
-                                    if (Main.settings.doDynmap() && Main.settings.showWarpsOnDynmap()) {
+                                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(renamedWarp);
                                     }
+                                    warpTabCompleter.updateWarpsTabCache();
                                     messageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
                                 } else {
                                     messageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");

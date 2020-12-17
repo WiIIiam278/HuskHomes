@@ -1,6 +1,7 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.Migrators.essentialsMigrator;
 import me.william278.huskhomes2.configManager;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.versionChecker;
@@ -61,6 +62,7 @@ public class huskHomesCommand implements CommandExecutor {
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
                         if (p.hasPermission("huskhomes.reload")) {
+                            plugin.reloadConfig();
                             configManager.loadConfig();
                             messageManager.loadMessages(HuskHomes.settings.getLanguage());
                             p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | Reloaded config and message files.");
@@ -72,6 +74,23 @@ public class huskHomesCommand implements CommandExecutor {
                         configManager.loadConfig();
                         messageManager.loadMessages(HuskHomes.settings.getLanguage());
                         plugin.getLogger().info("Reloaded config and message files.");
+                    }
+                    return true;
+                case "migrate":
+                    if (sender instanceof Player) {
+                        Player p = (Player) sender;
+                        messageManager.sendMessage(p, "error_console_only");
+                        return true;
+                    }
+                    if (args.length == 2) {
+                        if (args[1].equalsIgnoreCase("essentialsX")) {
+                            sender.sendMessage(ChatColor.GREEN + "Attempting to migrate from EssentialsX...");
+                            essentialsMigrator.migrate();
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Invalid argument! Usage: /huskhomes migrate essentialsX");
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX");
                     }
                     return true;
                 default:

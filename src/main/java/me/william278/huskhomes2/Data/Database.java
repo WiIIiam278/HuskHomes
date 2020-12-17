@@ -238,6 +238,36 @@ public abstract class Database {
         }
     }
 
+    // Insert a player into the database
+    public void addPlayer(UUID playerUUID, String playerName, int homeSlots) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = getSQLConnection();
+
+            ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, playerName);
+            ps.setInt(3, homeSlots);
+            ps.setInt(4, 0);
+            ps.setBoolean(5, false);
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
+            }
+        }
+    }
+
     public void updatePlayerUsername(int playerID, String newName) {
         Connection conn = null;
         PreparedStatement ps = null;

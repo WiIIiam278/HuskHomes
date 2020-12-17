@@ -3,10 +3,10 @@ data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:
     host: localhost
+    port: 3306
     database: database_name
     username: root
     password: password
-    port: 3306
   table_names:
     player_data: 'huskhomes_player_data'
     locations_data: 'huskhomes_location_data'
@@ -31,7 +31,7 @@ spawn_command:
     pitch:
 random_teleport_command:
   enabled: true
-  range: 25000
+  range: 5000
 dynmap_integration:
   enabled: false
   markers:
@@ -51,3 +51,4 @@ economy_integration:
     make_home_public: 50
     random_teleport: 20
 handle_vanished_players: true
+config_file_version: 1

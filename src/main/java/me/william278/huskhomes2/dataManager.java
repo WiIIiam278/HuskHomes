@@ -678,15 +678,19 @@ public class dataManager {
     }
 
     public static Boolean playerExists(Player player) {
+        return playerExists(player.getUniqueId());
+    }
+
+    public static Boolean playerExists(UUID playerUUID) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs;
-        String playerUUID = player.getUniqueId().toString();
+        String playerUUIDString = playerUUID.toString();
 
         try {
             conn = getConnection();
             ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `user_uuid`=?;");
-            ps.setString(1, playerUUID);
+            ps.setString(1, playerUUIDString);
             rs = ps.executeQuery();
             if (rs != null) {
                 return rs.next();
@@ -929,6 +933,10 @@ public class dataManager {
 
     public static void createPlayer(UUID playerUUID, String playerUsername) {
         database.addPlayer(playerUUID, playerUsername);
+    }
+
+    public static void createPlayer(UUID playerUUID, String playerUsername, int homeSlots) {
+        database.addPlayer(playerUUID, playerUsername, homeSlots);
     }
 
     public static void checkPlayerNameChange(Player p) {

@@ -97,7 +97,7 @@ commands:
     description: Teleport randomly into the wild
     usage: /rtp
     permission: huskhomes.rtp
-    aliases: [ randomtp, randomteleport, wild ]
+    aliases: [randomtp, randomteleport, wild]
   spawn:
     description: Teleport to the spawn location
     usage: /spawn
@@ -108,7 +108,7 @@ commands:
     permission: huskhomes.spawn.set
   huskhomes:
     description: Plugin information & reload configs.
-    usage: /huskhomes <about/checkupdates/reload>
+    usage: /huskhomes <about/update/reload/migrate>
 
 permissions:
   huskhomes.*:

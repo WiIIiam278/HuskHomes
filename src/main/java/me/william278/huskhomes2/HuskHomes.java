@@ -7,6 +7,7 @@ import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
+import me.william278.huskhomes2.Migrators.huskHomes1Migrator;
 import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,15 +49,24 @@ public final class HuskHomes extends JavaPlugin {
         plugin.getCommand("home").setTabCompleter(new homeTabCompleter());
         plugin.getCommand("warp").setTabCompleter(new warpTabCompleter());
         plugin.getCommand("publichome").setTabCompleter(new publicHomeTabCompleter());
+        plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
+        plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
+        plugin.getCommand("huskhomes").setTabCompleter(new huskHomesTabCompleter());
+
+        plugin.getCommand("tp").setTabCompleter(new playerTabCompleter());
+        plugin.getCommand("tpa").setTabCompleter(new playerTabCompleter());
+        plugin.getCommand("tphere").setTabCompleter(new playerTabCompleter());
+        plugin.getCommand("tpahere").setTabCompleter(new playerTabCompleter());
+
         plugin.getCommand("tpaccept").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("tpdeny").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("warplist").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("homelist").setTabCompleter(new emptyTabCompleter());
+        plugin.getCommand("publichomelist").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("rtp").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("spawn").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("setspawn").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
-        plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
+        plugin.getCommand("back").setTabCompleter(new emptyTabCompleter());
 
     }
 
@@ -104,8 +114,16 @@ public final class HuskHomes extends JavaPlugin {
         // Check if HuskHomes is up-to-date
         getLogger().info(versionChecker.getVersionCheckString());
 
+        // MIGRATION: Check if a migration needs to occur
+        huskHomes1Migrator.checkStartupMigration();
+
         // Load the config
         configManager.loadConfig();
+
+        // MIGRATION: Migrate config files
+        if (huskHomes1Migrator.startupMigrate) {
+            new huskHomes1Migrator().migrateConfig();
+        }
 
         // Load the messages (in the right language)
         messageManager.loadMessages(HuskHomes.settings.getLanguage());
@@ -116,7 +134,13 @@ public final class HuskHomes extends JavaPlugin {
         // Set up data storage
         dataManager.setupStorage();
 
-        // Setup dynmap if it is enabled
+        // MIGRATION: Migrate SQL data
+        if (huskHomes1Migrator.startupMigrate) {
+            new huskHomes1Migrator().migratePlayerData();
+            new huskHomes1Migrator().migrateHomeData();
+        }
+
+        // Setup the Dynmap integration if it is enabled
         if (HuskHomes.settings.doDynmap()) {
             dynamicMap.initializeDynmap();
         }
@@ -136,8 +160,9 @@ public final class HuskHomes extends JavaPlugin {
             setupBungeeChannels(this);
         }
 
-        // Register commands
+        // Register commands and their associated tab completers
         registerCommands(this);
+        registerTabCompleters(this);
 
         // Register events
         registerEvents(this);

@@ -61,6 +61,9 @@ public class huskHomes1Migrator {
         FileConfiguration sourceConfig = loadConfiguration(new File(plugin.getDataFolder() + File.separator + "MigratedData" + File.separator + "OLD_config.yml"));
         Bukkit.getLogger().info("- Migrating config data -");
         try {
+            plugin.getConfig().options().copyDefaults(true);
+            plugin.saveDefaultConfig();
+
             // Transfer mySQL credentials
             plugin.getConfig().set("data_storage_options.storage_type", "mySQL");
             plugin.getConfig().set("data_storage_options.mysql_credentials.host", sourceConfig.getString("host"));
@@ -69,6 +72,7 @@ public class huskHomes1Migrator {
             plugin.getConfig().set("data_storage_options.mysql_credentials.username", sourceConfig.getString("username"));
             plugin.getConfig().set("data_storage_options.mysql_credentials.password", sourceConfig.getString("password"));
 
+            // Get tables to copy from
             sourcePlayerTable = sourceConfig.getString("player_data_table");
             sourceHomeTable = sourceConfig.getString("home_data_table");
 
@@ -97,7 +101,7 @@ public class huskHomes1Migrator {
             // Transfer spawn command settings (and location if set)
             plugin.getConfig().set("spawn_command.enabled", sourceConfig.getBoolean("do_spawn_command"));
             if (sourceConfig.contains("spawn_world")) {
-                plugin.getConfig().set("spawn_command.position.world", sourceConfig.getBoolean("spawn_world"));
+                plugin.getConfig().set("spawn_command.position.world", sourceConfig.getString("spawn_world"));
                 plugin.getConfig().set("spawn_command.position.x", sourceConfig.getDouble("spawn_x"));
                 plugin.getConfig().set("spawn_command.position.y", sourceConfig.getDouble("spawn_y"));
                 plugin.getConfig().set("spawn_command.position.z", sourceConfig.getDouble("spawn_z"));
@@ -135,6 +139,7 @@ public class huskHomes1Migrator {
 
     public void migratePlayerData() {
         // Migrate player data
+        Bukkit.getLogger().info("- Migrating Player Data -");
         try {
             Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM " + sourcePlayerTable + ";");
@@ -144,6 +149,7 @@ public class huskHomes1Migrator {
                 String username = resultSet.getString("USERNAME");
                 int homeSlots = resultSet.getInt("HOME_SLOTS");
                 if (!dataManager.playerExists(uuid)) {
+                    Bukkit.getLogger().info("> Migrating player data for \"" + username + "\"");
                     dataManager.createPlayer(uuid, username, homeSlots);
                 }
             }
@@ -151,11 +157,14 @@ public class huskHomes1Migrator {
         } catch (SQLException playerSQLException) {
             Bukkit.getLogger().info("A SQL exception occurred transferring player data! " + playerSQLException.getCause());
             playerSQLException.printStackTrace();
+            return;
         }
+        Bukkit.getLogger().info("- Finished Migrating Player Data -");
     }
 
     public void migrateHomeData() {
         // Migrate player data
+        Bukkit.getLogger().info("- Migrating Set Home Data -");
         try {
             Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM " + sourceHomeTable + ";");
@@ -180,6 +189,7 @@ public class huskHomes1Migrator {
 
                 // Add the home to the database
                 if (!dataManager.homeExists(ownerUsername, name)) {
+                    Bukkit.getLogger().info("> Migrating home \"" + ownerUsername + "." + name + "\"");
                     Home home = new Home(teleportationPoint, ownerUsername, ownerUUID, name, description, isPublic);
                     dataManager.addHome(home, UUID.fromString(ownerUUID));
                 }
@@ -189,6 +199,8 @@ public class huskHomes1Migrator {
             Bukkit.getLogger().info("A SQL exception occurred transferring home data! " + homeSQLException.getCause());
             homeSQLException.printStackTrace();
         }
+        Bukkit.getLogger().info("- Finished Migrating Set Home Data -");
+        Bukkit.getLogger().info("-- Migration complete! --");
     }
 
 }

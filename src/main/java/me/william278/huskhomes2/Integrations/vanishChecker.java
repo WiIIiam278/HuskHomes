@@ -11,10 +11,8 @@ public class vanishChecker {
             for (MetadataValue meta : player.getMetadata("vanished")) {
                 if (meta.asBoolean()) return true;
             }
-            return false;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }

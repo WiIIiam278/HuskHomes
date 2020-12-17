@@ -64,8 +64,8 @@ public abstract class Database {
 
     // Insert a home into the database
     public void addHome(Home home, int playerID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -80,22 +80,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Insert a warp into the database
     public void addWarp(Warp warp) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -111,22 +102,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Delete a warp
     public void deleteWarp(String warpName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -138,22 +120,13 @@ public abstract class Database {
 
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Delete a warp
     public void deleteHome(String homeName, int playerID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -166,22 +139,13 @@ public abstract class Database {
 
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Insert a player into the database
     public void addPlayer(Player p) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -196,22 +160,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Insert a player into the database
     public void addPlayer(UUID playerUUID, String playerName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -226,22 +181,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Insert a player into the database
     public void addPlayer(UUID playerUUID, String playerName, int homeSlots) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -256,21 +202,12 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     public void updatePlayerUsername(int playerID, String newName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -280,21 +217,12 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     public void setPlayerTeleporting(int playerID, boolean value) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -304,21 +232,12 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     public void setPlayerHomeSlots(int playerID, int newValue) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -328,21 +247,12 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     public void setRtpCooldown(int playerID, int newTime) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -352,22 +262,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Delete a teleportation point from SQL
     public void deleteTeleportationPoint(int locationID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -378,22 +279,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the location of a home
     public void setHomePrivacy(String homeName, int ownerID, boolean isPublic) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -406,22 +298,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the location of a home
     public void setHomeTeleportPoint(String homeName, int ownerID, TeleportationPoint point) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -437,22 +320,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the location of a home
     public void setWarpTeleportPoint(String warpName, TeleportationPoint point) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -467,21 +341,12 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
     // Update the description of a home
     public void setHomeDescription(String homeName, int ownerID, String newDescription) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -494,22 +359,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the description of a warp
     public void setWarpDescription(String warpName, String newDescription) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -521,22 +377,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the name of a home
     public void setHomeName(String oldHomeName, int ownerID, String newHomeName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -550,22 +397,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update the name of a warp
     public void setWarpName(String oldWarpName, String newWarpName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -578,22 +416,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update a player's last position teleport point
     public void setTeleportationLastPosition(int playerID, TeleportationPoint point) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -608,22 +437,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Update a player's destination teleport point
     public void setTeleportationDestination(int playerID, TeleportationPoint point) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -639,22 +459,13 @@ public abstract class Database {
 
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Clear a player's destination
     public void clearPlayerDestination(int playerID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -663,22 +474,13 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     // Clear a player's last position
     public void clearPlayerLastPosition(int playerID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
 
         try {
             conn = getSQLConnection();
@@ -687,15 +489,6 @@ public abstract class Database {
             ps.executeUpdate();
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 

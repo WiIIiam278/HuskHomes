@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.Events;
 
+import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.teleportManager;
@@ -17,9 +18,15 @@ public class onPlayerJoin implements Listener {
         // Create player on SQL if they don't exist already
         if (!dataManager.playerExists(p)) {
             dataManager.createPlayer(p);
-            p.teleport(teleportManager.spawnLocation.getLocation());
+            if (teleportManager.spawnLocation != null) {
+                p.teleport(teleportManager.spawnLocation.getLocation());
+            }
         } else {
+            // Check if they've changed their name and update if so
             dataManager.checkPlayerNameChange(p);
+
+            // Update their TAB cache for /home command
+            homeTabCompleter.updatePlayerHomeCache(p);
         }
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly

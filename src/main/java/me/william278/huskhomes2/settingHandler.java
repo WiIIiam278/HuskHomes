@@ -139,6 +139,9 @@ public class settingHandler {
         try {
             FileConfiguration config = plugin.getConfig();
             String worldName = (config.getString("spawn_command.position.world"));
+            if (worldName == null || worldName.equals("")) {
+                return null;
+            }
             double x = (config.getDouble("spawn_command.position.x"));
             double y = (config.getDouble("spawn_command.position.y"));
             double z = (config.getDouble("spawn_command.position.z"));

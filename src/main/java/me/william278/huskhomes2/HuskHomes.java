@@ -47,7 +47,9 @@ public final class HuskHomes extends JavaPlugin {
     // Register tab completers
     private static void registerTabCompleters(HuskHomes plugin) {
         plugin.getCommand("home").setTabCompleter(new homeTabCompleter());
+        plugin.getCommand("delhome").setTabCompleter(new homeTabCompleter());
         plugin.getCommand("warp").setTabCompleter(new warpTabCompleter());
+        plugin.getCommand("delwarp").setTabCompleter(new warpTabCompleter());
         plugin.getCommand("publichome").setTabCompleter(new publicHomeTabCompleter());
         plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
         plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
@@ -68,6 +70,9 @@ public final class HuskHomes extends JavaPlugin {
         plugin.getCommand("setspawn").setTabCompleter(new emptyTabCompleter());
         plugin.getCommand("back").setTabCompleter(new emptyTabCompleter());
 
+        // Update caches
+        publicHomeTabCompleter.updatePublicHomeTabCache();
+        warpTabCompleter.updateWarpsTabCache();
     }
 
     // Register commands

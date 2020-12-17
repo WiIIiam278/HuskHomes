@@ -51,7 +51,6 @@ public class dataManager {
     private static Database database;
 
     private static Connection getConnection() {
-        initializeDatabase();
         return database.getSQLConnection();
     }
 
@@ -62,8 +61,8 @@ public class dataManager {
 
     // Return a player's ID  from their UUID
     private static Integer getPlayerId(UUID playerUUID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -82,23 +81,14 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return a player's ID  from their username
     private static Integer getPlayerId(String playerUsername) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -117,23 +107,14 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return an integer from the player table from a player ID
     public static Integer getPlayerInteger(Integer playerID, String column) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -153,15 +134,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
@@ -178,8 +150,8 @@ public class dataManager {
 
     // Return an integer from the player table from a player ID
     public static String getPlayerString(Integer playerID, String column) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -199,23 +171,14 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return an integer from the player table from a player ID
     public static Boolean getPlayerTeleporting(Player p) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         Integer playerID = getPlayerId(p.getUniqueId());
         ResultSet rs;
 
@@ -236,15 +199,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
@@ -291,8 +245,8 @@ public class dataManager {
 
     // Return a player's homes.
     public static ArrayList<Home> getPlayerHomes(String playerName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         Integer playerID = getPlayerId(playerName);
         ResultSet rs;
 
@@ -321,23 +275,14 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return all the public homes
     public static ArrayList<Home> getPublicHomes() {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -361,23 +306,14 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return an array of all the warps
     public static ArrayList<Warp> getWarps() {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -401,23 +337,14 @@ public class dataManager {
             return warps;
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     // Return a warp with a given name (warp names are unique)
     public static Warp getWarp(String name) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -444,22 +371,13 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     public static void deleteHomeTeleportLocation(int ownerID, String homeName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -478,21 +396,12 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
     public static void deleteWarpTeleportLocation(String warpName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -510,15 +419,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
     }
 
@@ -558,8 +458,8 @@ public class dataManager {
 
     // Return a home with a given owner username and home name
     public static Home getHome(String ownerUsername, String homeName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         Integer playerID = getPlayerId(ownerUsername);
         ResultSet rs;
 
@@ -591,22 +491,13 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     public static Boolean warpExists(String warpName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -622,15 +513,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
@@ -640,8 +522,8 @@ public class dataManager {
     }
 
     public static Boolean homeExists(String ownerName, String homeName) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
         Integer playerID = getPlayerId(ownerName);
 
@@ -664,15 +546,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
@@ -682,8 +555,8 @@ public class dataManager {
     }
 
     public static Boolean playerExists(UUID playerUUID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
         String playerUUIDString = playerUUID.toString();
 
@@ -700,22 +573,13 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }
 
     public static TeleportationPoint getTeleportationPoint(Integer locationID) {
-        Connection conn = null;
-        PreparedStatement ps = null;
+        Connection conn;
+        PreparedStatement ps;
         ResultSet rs;
 
         try {
@@ -736,15 +600,6 @@ public class dataManager {
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionClose(), ex);
-            }
         }
         return null;
     }

@@ -36,7 +36,12 @@ public class homeTabCompleter implements TabCompleter {
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
 
-            StringUtil.copyPartialMatches(args[0], homeTabCache.get(p.getUniqueId()), tabCompletions);
+            ArrayList<String> homes = homeTabCache.get(p.getUniqueId());
+            if (homes == null) {
+                updatePlayerHomeCache(p);
+                return new ArrayList<>();
+            }
+            StringUtil.copyPartialMatches(args[0], homes, tabCompletions);
 
             Collections.sort(tabCompletions);
 

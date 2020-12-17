@@ -105,8 +105,8 @@ public class huskHomes1Migrator {
                 plugin.getConfig().set("spawn_command.position.x", sourceConfig.getDouble("spawn_x"));
                 plugin.getConfig().set("spawn_command.position.y", sourceConfig.getDouble("spawn_y"));
                 plugin.getConfig().set("spawn_command.position.z", sourceConfig.getDouble("spawn_z"));
-                plugin.getConfig().set("spawn_command.position.yaw", sourceConfig.getDouble("spawn_yaw"));
-                plugin.getConfig().set("spawn_command.position.pitch", sourceConfig.getDouble("spawn_pitch"));
+                plugin.getConfig().set("spawn_command.position.yaw", Double.parseDouble(sourceConfig.getString("spawn_yaw")));
+                plugin.getConfig().set("spawn_command.position.pitch", Double.parseDouble(sourceConfig.getString("spawn_pitch")));
             }
             // Save the config at the end
             plugin.saveConfig();

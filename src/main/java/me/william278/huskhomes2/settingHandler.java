@@ -102,13 +102,13 @@ public class settingHandler {
                 return;
             }
             dataManager.deleteWarp(warpName);
-            messageManager.sendMessage(player, "warp_deleted");
+            messageManager.sendMessage(player, "warp_deleted", warpName);
             if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                 dynamicMap.removeDynamicMapMarker(warpName);
             }
             warpTabCompleter.updateWarpsTabCache();
         } else {
-            messageManager.sendMessage(player, "error_warp_invalid");
+            messageManager.sendMessage(player, "error_warp_invalid", warpName);
         }
     }
 

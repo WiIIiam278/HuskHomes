@@ -140,6 +140,7 @@ public class editHomeCommand implements CommandExecutor {
                                         if (publicHomeCost > 0) {
                                             if (!economy.takeMoney(p, publicHomeCost)) {
                                                 messageManager.sendMessage(p, "error_insufficient_funds", economy.format(publicHomeCost));
+                                                return true;
                                             } else {
                                                 messageManager.sendMessage(p, "edit_home_privacy_public_success_economy", homeName, economy.format(publicHomeCost));
                                             }

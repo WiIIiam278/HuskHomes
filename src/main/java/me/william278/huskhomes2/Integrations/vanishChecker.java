@@ -13,7 +13,7 @@ public class vanishChecker {
             }
             return false;
         } else {
-            return true;
+            return false;
         }
     }
 

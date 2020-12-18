@@ -21,9 +21,11 @@
 * Supports migration from EssentialsX
 
 ## Showcase
-<img src="https://i.imgur.com/LSo16N7.gif" height="240" />
-<img src="https://i.imgur.com/cNoXKcE.gif" height="240" />
-<img src="https://i.imgur.com/JDz1s2Q.gif" height="240" />
+[<img src="https://i.imgur.com/LSo16N7.gif" height="240" />](https://i.imgur.com/nDpxLgZ.mp4)
+
+[<img src="https://i.imgur.com/cNoXKcE.gif" height="240" />](https://i.imgur.com/uvqnC5q.mp4)
+
+[<img src="https://i.imgur.com/JDz1s2Q.gif" height="240" />](https://i.imgur.com/4oyTN7x.mp4)
 
 ## Commands
 * /home, /sethome, /edithome, /homelist

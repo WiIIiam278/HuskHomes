@@ -2,6 +2,11 @@ package me.william278.huskhomes2;
 
 import me.william278.huskhomes2.Integrations.vanishChecker;
 import me.william278.huskhomes2.Objects.TeleportRequest;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -22,6 +27,35 @@ public class teleportRequestHandler {
         pluginMessageHandler.sendPluginMessage(replier, requesterName, pluginMessage, replier.getName() + ":" + accepted);
     }
 
+    public static TextComponent createButton(String buttonText, net.md_5.bungee.api.ChatColor color, ClickEvent.Action actionType, String command, String hoverMessage, net.md_5.bungee.api.ChatColor hoverMessageColor, Boolean hoverMessageItalic) {
+        TextComponent button = new TextComponent(buttonText);
+        button.setColor(color);
+
+        button.setClickEvent(new ClickEvent(actionType, (command)));
+        button.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(hoverMessage).color(hoverMessageColor).italic(hoverMessageItalic).create())));
+        return button;
+    }
+
+    public static void sendTpAcceptDenyButtons(Player p) {
+        // Send the "Accept" or "Decline" response buttons to the player who has recieved a request
+        // Options text
+        TextComponent options = new TextComponent("Click an option: ");
+        options.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+
+        TextComponent separator = new TextComponent(" • ");
+        separator.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+
+        // Build the components together
+        ComponentBuilder teleportResponses = new ComponentBuilder();
+        teleportResponses.append(options);
+        teleportResponses.append(createButton("[Accept]", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/tpaccept", "Accept the teleport request (/tpaccept)", net.md_5.bungee.api.ChatColor.GRAY, false));
+        teleportResponses.append(separator);
+        teleportResponses.append(createButton("[Decline]", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/tpdeny", "Decline the teleport request (/tpdeny)", net.md_5.bungee.api.ChatColor.GRAY, false));
+
+        // Create and send the message
+        p.spigot().sendMessage(teleportResponses.create());
+    }
+
     public static void sendTeleportToRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
@@ -29,6 +63,7 @@ public class teleportRequestHandler {
                 teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
                 messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
                 messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
+                teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
             } else {
                 messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
             }
@@ -48,6 +83,7 @@ public class teleportRequestHandler {
             teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpahere"));
             messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             messageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
+            teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
         } else {
             if (HuskHomes.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");

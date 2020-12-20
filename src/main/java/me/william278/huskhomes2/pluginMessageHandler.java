@@ -105,12 +105,14 @@ public class pluginMessageHandler implements PluginMessageListener {
                 if (!vanishChecker.isVanished(recipient)) {
                     teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
                     messageManager.sendMessage(recipient, "tpa_request_ask", messageData);
+                    teleportRequestHandler.sendTpAcceptDenyButtons(recipient);
                 }
                 break;
             case "tpahere_request":
                 if (!vanishChecker.isVanished(recipient)) {
                     teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
                     messageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
+                    teleportRequestHandler.sendTpAcceptDenyButtons(recipient);
                 }
                 break;
             case "tpa_request_reply":

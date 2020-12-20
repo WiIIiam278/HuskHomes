@@ -87,6 +87,7 @@ public class huskHomes1Migrator {
             // Transfer rtp command settings
             plugin.getConfig().set("random_teleport_command.enabled", sourceConfig.getBoolean("do_rtp_command"));
             plugin.getConfig().set("random_teleport_command.range", sourceConfig.getInt("rtp_boundary"));
+            plugin.getConfig().set("random_teleport_command.cooldown", sourceConfig.getInt("rtp_cooldown_time"));
 
             // Transfer dynmap setting
             plugin.getConfig().set("dynmap_integration.enabled", sourceConfig.getBoolean("do_dynmap"));

@@ -18,7 +18,7 @@ public class publicHomeCommand implements CommandExecutor {
             Player p = (Player) sender;
             if (args.length == 1) {
                 String publicHome = args[0];
-                if (publicHome.matches("^(?!.*\\..*\\..*)[A-Za-z0-9_\\-]([A-Za-z0-9_\\-.]*[A-Za-z0-9_\\-])?$")) {
+                if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
                     String ownerName = publicHome.split("\\.")[0];
                     String homeName = publicHome.split("\\.")[1];
                     if (dataManager.homeExists(ownerName, homeName)) {

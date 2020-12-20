@@ -30,9 +30,6 @@ public class settingHandler {
             }
             dataManager.addHome(home, player);
             messageManager.sendMessage(player, "set_home_success", name);
-            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
-                dynamicMap.addDynamicMapMarker(home);
-            }
             homeTabCompleter.updatePlayerHomeCache(player);
         } else {
             switch (setHomeConditions.getConditionsNotMetReason()) {

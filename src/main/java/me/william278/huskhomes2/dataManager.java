@@ -375,7 +375,8 @@ public class dataManager {
         return null;
     }
 
-    public static void deleteHomeTeleportLocation(int ownerID, String homeName) {
+    // Obtain the teleportation location ID from a home
+    public static Integer getHomeLocationID(int ownerID, String homeName) {
         Connection conn;
         PreparedStatement ps;
         ResultSet rs;
@@ -388,18 +389,32 @@ public class dataManager {
             rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
-                    int locationID = rs.getInt("location_id");
-                    database.deleteTeleportationPoint(locationID);
+                    return rs.getInt("location_id");
                 }
             } else {
-                Bukkit.getLogger().severe("Failed to delete home teleportation location");
+                Bukkit.getLogger().severe("Failed to obtain home teleportation location ID");
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
         }
+        return null;
     }
 
-    public static void deleteWarpTeleportLocation(String warpName) {
+    // Delete a home's corresponding home teleport location
+    public static void deleteHomeTeleportLocation(int ownerID, String homeName) {
+        Integer locationID = getHomeLocationID(ownerID, homeName);
+        database.deleteTeleportationPoint(locationID);
+    }
+
+    // Update a home's teleport location (deletion of the old one is done afterward to prevent cascading deletion from wiping the home
+    public static void updateHomeTeleportLocation(int ownerID, String homeName, TeleportationPoint teleportationPoint) {
+        Integer oldLocationID = getHomeLocationID(ownerID, homeName);
+        database.setHomeTeleportPoint(homeName, ownerID, teleportationPoint);
+        database.deleteTeleportationPoint(oldLocationID);
+    }
+
+    // Get the ID of the teleportation point of the warp
+    public static Integer getWarpLocationID(String warpName) {
         Connection conn;
         PreparedStatement ps;
         ResultSet rs;
@@ -412,14 +427,27 @@ public class dataManager {
             if (rs != null) {
                 if (rs.next()) {
                     int locationID = rs.getInt("location_id");
-                    database.deleteTeleportationPoint(locationID);
+                    return locationID;
                 }
             } else {
-                Bukkit.getLogger().severe("Failed to delete warp teleportation location");
+                Bukkit.getLogger().severe("Failed to obtain warp teleportation location ID");
             }
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
         }
+        return null;
+    }
+
+    // Update a warp's teleport location (deletion of the old one is done afterward to prevent cascading deletion from wiping the warp
+    public static void updateWarpTeleportLocation(String warpName, TeleportationPoint teleportationPoint) {
+        Integer oldLocationID = getWarpLocationID(warpName);
+        database.setWarpTeleportPoint(warpName, teleportationPoint);
+        database.deleteTeleportationPoint(oldLocationID);
+    }
+
+    public static void deleteWarpTeleportLocation(String warpName) {
+        Integer locationID = getWarpLocationID(warpName);
+        database.deleteTeleportationPoint(locationID);
     }
 
     public static void updateHomePrivacy(String ownerName, String homeName, boolean isPublic) {
@@ -439,10 +467,8 @@ public class dataManager {
 
     public static void updateHomeLocation(String ownerName, String homeName, Location newLocation) {
         Integer playerID = getPlayerId(ownerName);
-        if (!HuskHomes.settings.getStorageType().equalsIgnoreCase("mySQL")) {
-            deleteHomeTeleportLocation(playerID, homeName);
-        }
-        database.setHomeTeleportPoint(homeName, playerID, new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
+        updateHomeTeleportLocation(playerID,homeName,
+                new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
     }
 
     public static void updateWarpName(String warpName, String newName) {
@@ -454,8 +480,8 @@ public class dataManager {
     }
 
     public static void updateWarpLocation(String warpName, Location newLocation) {
-        deleteWarpTeleportLocation(warpName);
-        database.setWarpTeleportPoint(warpName, new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
+        updateWarpTeleportLocation(warpName,
+                new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
     }
 
     // Return a home with a given owner username and home name

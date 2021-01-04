@@ -126,9 +126,13 @@ public class teleportManager {
     public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
-            dataManager.setPlayerDestinationLocation(requester,
-                    new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.settings.getServerID()));
-            teleportPlayer(requester);
+            if (requester.getUniqueId() != targetPlayer.getUniqueId()) {
+                dataManager.setPlayerDestinationLocation(requester,
+                        new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.settings.getServerID()));
+                teleportPlayer(requester);
+            } else {
+                messageManager.sendMessage(requester, "error_tp_self");
+            }
         } else {
             if (HuskHomes.settings.doBungee()) {
                 setTeleportationDestinationCrossServer(requester, targetPlayerName);

@@ -59,13 +59,17 @@ public class teleportRequestHandler {
     public static void sendTeleportToRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
-            if (!vanishChecker.isVanished(targetPlayer)) {
-                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
-                messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
-                messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
-                teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+            if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
+                if (!vanishChecker.isVanished(targetPlayer)) {
+                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
+                    messageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
+                    messageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
+                    teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+                } else {
+                    messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+                }
             } else {
-                messageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+                messageManager.sendMessage(requester, "error_tp_self");
             }
         } else {
             if (HuskHomes.settings.doBungee()) {
@@ -80,10 +84,14 @@ public class teleportRequestHandler {
     public static void sendTeleportHereRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
-            teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpahere"));
-            messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
-            messageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
-            teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+            if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
+                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpahere"));
+                messageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
+                messageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
+                teleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+            } else {
+                messageManager.sendMessage(requester, "error_tp_self");
+            }
         } else {
             if (HuskHomes.settings.doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");

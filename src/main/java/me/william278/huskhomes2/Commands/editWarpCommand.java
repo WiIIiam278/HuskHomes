@@ -1,9 +1,9 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
-import me.william278.huskhomes2.API.PlayerChangeWarpDescriptionEvent;
-import me.william278.huskhomes2.API.PlayerRelocateWarpEvent;
-import me.william278.huskhomes2.API.PlayerRenameWarpEvent;
+import me.william278.huskhomes2.API.Events.PlayerChangeWarpDescriptionEvent;
+import me.william278.huskhomes2.API.Events.PlayerRelocateWarpEvent;
+import me.william278.huskhomes2.API.Events.PlayerRenameWarpEvent;
 import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Objects.TeleportationPoint;

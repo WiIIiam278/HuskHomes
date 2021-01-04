@@ -1,9 +1,9 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.API.PlayerDeleteHomeEvent;
-import me.william278.huskhomes2.API.PlayerDeleteWarpEvent;
-import me.william278.huskhomes2.API.PlayerSetHomeEvent;
-import me.william278.huskhomes2.API.PlayerSetWarpEvent;
+import me.william278.huskhomes2.API.Events.PlayerDeleteHomeEvent;
+import me.william278.huskhomes2.API.Events.PlayerDeleteWarpEvent;
+import me.william278.huskhomes2.API.Events.PlayerSetHomeEvent;
+import me.william278.huskhomes2.API.Events.PlayerSetWarpEvent;
 import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
 import me.william278.huskhomes2.Commands.TabCompleters.publicHomeTabCompleter;
 import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;

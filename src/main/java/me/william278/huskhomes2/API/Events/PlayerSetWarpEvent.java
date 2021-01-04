@@ -1,29 +1,29 @@
-package me.william278.huskhomes2.API;
+package me.william278.huskhomes2.API.Events;
 
-import me.william278.huskhomes2.Objects.Home;
+import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * An event, fired when a player sets a new home
+ * An event, fired when a player sets a new warp
  */
-public class PlayerSetHomeEvent extends Event implements Cancellable {
+public class PlayerSetWarpEvent extends Event implements Cancellable {
 
-    private Player player;
-    private Home home;
+    private final Player player;
+    private final Warp warp;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
     /**
-     * An event, fired when a player sets a Home
-     * @param player the Player setting the Home
-     * @param home the Home being set
+     * An event, fired when a Player sets a Warp
+     * @param player the Player setting the warp
+     * @param warp the Warp being set
      */
-    public PlayerSetHomeEvent(Player player, Home home) {
+    public PlayerSetWarpEvent(Player player, Warp warp) {
         this.player = player;
-        this.home = home;
+        this.warp = warp;
         this.isCancelled = false;
     }
 
@@ -43,18 +43,18 @@ public class PlayerSetHomeEvent extends Event implements Cancellable {
     }
 
     /**
-     * Get the player involved in this event
-     * @return the Player who is setting the home
+     * Get the Player involved in this event
+     * @return the Player who is setting the warp
      */
     public Player getPlayer() {
         return player;
     }
 
     /**
-     * Get the Home being set
-     * @return the Home being set
+     * Get the Warp being set
+     * @return the Warp that is being set
      */
-    public Home getHome() {
-        return home;
+    public Warp getWarp() {
+        return warp;
     }
 }

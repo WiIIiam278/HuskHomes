@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.API;
+package me.william278.huskhomes2.API.Events;
 
 import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.entity.Player;
@@ -7,9 +7,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * An event, fired when a player sets a new warp
+ * An event, fired when a warp is updated
+ * Fires when a player renames a Warp, updates its' location or changes its' name.
+ * Also fires when a warp is deleted
  */
-public class PlayerSetWarpEvent extends Event implements Cancellable {
+public class PlayerWarpUpdateEvent extends Event implements Cancellable {
 
     private final Player player;
     private final Warp warp;
@@ -17,11 +19,13 @@ public class PlayerSetWarpEvent extends Event implements Cancellable {
     private boolean isCancelled;
 
     /**
-     * An event, fired when a Player sets a Warp
-     * @param player the Player setting the warp
-     * @param warp the Warp being set
+     * An event, fired when a Warp is updated.
+     * Fires when a player renames a Warp, updates its' location, changes its' name or when it is deleted.
+     * Does not fire when a player sets a Warp.
+     * @param player The Player who is updating the Warp
+     * @param warp The Warp being changed
      */
-    public PlayerSetWarpEvent(Player player, Warp warp) {
+    public PlayerWarpUpdateEvent(Player player, Warp warp) {
         this.player = player;
         this.warp = warp;
         this.isCancelled = false;
@@ -44,15 +48,15 @@ public class PlayerSetWarpEvent extends Event implements Cancellable {
 
     /**
      * Get the Player involved in this event
-     * @return the Player who is setting the warp
+     * @return the Player who updated the Warp
      */
     public Player getPlayer() {
         return player;
     }
 
     /**
-     * Get the Warp being set
-     * @return the Warp that is being set
+     * Get the Warp being updated
+     * @return the Warp being updated
      */
     public Warp getWarp() {
         return warp;

@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.Commands;
 
 import me.william278.huskhomes2.*;
-import me.william278.huskhomes2.API.*;
+import me.william278.huskhomes2.API.Events.*;
 import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
 import me.william278.huskhomes2.Commands.TabCompleters.publicHomeTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;

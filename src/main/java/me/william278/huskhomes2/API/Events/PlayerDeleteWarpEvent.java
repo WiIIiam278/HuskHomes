@@ -1,10 +1,7 @@
-package me.william278.huskhomes2.API;
+package me.william278.huskhomes2.API.Events;
 
 import me.william278.huskhomes2.Objects.Warp;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 
 /**
  * An event, fired when a player deletes a warp

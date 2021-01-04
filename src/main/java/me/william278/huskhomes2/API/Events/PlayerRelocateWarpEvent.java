@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.API;
+package me.william278.huskhomes2.API.Events;
 
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;

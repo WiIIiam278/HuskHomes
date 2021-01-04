@@ -439,7 +439,9 @@ public class dataManager {
 
     public static void updateHomeLocation(String ownerName, String homeName, Location newLocation) {
         Integer playerID = getPlayerId(ownerName);
-        deleteHomeTeleportLocation(playerID, homeName);
+        if (!HuskHomes.settings.getStorageType().equalsIgnoreCase("mySQL")) {
+            deleteHomeTeleportLocation(playerID, homeName);
+        }
         database.setHomeTeleportPoint(homeName, playerID, new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
     }
 

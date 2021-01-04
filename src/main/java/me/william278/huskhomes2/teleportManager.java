@@ -101,7 +101,11 @@ public class teleportManager {
     public static void teleportHere(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
-            teleportPlayer(targetPlayer, requester.getName());
+            if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
+                teleportPlayer(targetPlayer, requester.getName());
+            } else {
+                messageManager.sendMessage(requester, "error_tp_self");
+            }
         } else {
             if (HuskHomes.settings.doBungee()) {
                 teleportHereCrossServer(requester, targetPlayerName);

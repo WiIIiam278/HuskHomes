@@ -24,11 +24,11 @@ public class editingHandler {
     private static ComponentBuilder editWarpOptions(Warp warp) {
         ComponentBuilder options = new ComponentBuilder();
 
-        options.append(optionButton("[Teleport] ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/warp " + warp.getName(), "Teleport to this warp"));
-        options.append(optionButton("[Delete] ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/delwarp " + warp.getName(), "Delete this warp"));
-        options.append(optionButton("[Relocate]\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/editwarp " + warp.getName() + " location", "Update this warp's location"));
-        options.append(optionButton("[Rename] ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/editwarp " + warp.getName() + " rename ", "Change the name of this warp"));
-        options.append(optionButton("[Edit Description] ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/editwarp " + warp.getName() + " description ", "Update this warp's description"));
+        options.append(optionButton(messageManager.getRawMessage("edit_warp_teleport_button") + " ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/warp " + warp.getName(), messageManager.getRawMessage("edit_warp_teleport_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_warp_delete_button") + " ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/delwarp " + warp.getName(), messageManager.getRawMessage("edit_warp_delete_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_warp_relocate_button") + "\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/editwarp " + warp.getName() + " location", messageManager.getRawMessage("edit_warp_relocate_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_warp_rename_button") + " ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/editwarp " + warp.getName() + " rename ", messageManager.getRawMessage("edit_warp_rename_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_warp_description_button") + " ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/editwarp " + warp.getName() + " description ", messageManager.getRawMessage("edit_warp_description_button_tooltip")));
 
         return options;
     }
@@ -36,17 +36,17 @@ public class editingHandler {
     private static ComponentBuilder editHomeOptions(Player p, Home home) {
         ComponentBuilder options = new ComponentBuilder();
 
-        options.append(optionButton("[Teleport] ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/home " + home.getName(), "Teleport to your home"));
-        options.append(optionButton("[Delete] ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/delhome " + home.getName(), "Delete your home"));
-        options.append(optionButton("[Relocate]\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " location", "Update your home's location"));
-        options.append(optionButton("[Rename] ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/edithome " + home.getName() + " rename ", "Change the name of your home"));
-        options.append(optionButton("[Edit Description] ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/edithome " + home.getName() + " description ", "Update the description of your home"));
+        options.append(optionButton(messageManager.getRawMessage("edit_home_teleport_button") + " ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/home " + home.getName(), messageManager.getRawMessage("edit_home_teleport_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_home_delete_button") + " ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/delhome " + home.getName(), messageManager.getRawMessage("edit_home_delete_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_home_relocate_button") + "\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " location", messageManager.getRawMessage("edit_home_relocate_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_home_rename_button") + " ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/edithome " + home.getName() + " rename ", messageManager.getRawMessage("edit_home_rename_button_tooltip")));
+        options.append(optionButton(messageManager.getRawMessage("edit_home_description_button") + " ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/edithome " + home.getName() + " description ", messageManager.getRawMessage("edit_home_description_button_tooltip")));
 
         if (p.hasPermission("huskhomes.edithome.public")) {
             if (!home.isPublic()) {
-                options.append(optionButton("[Make Public] ", net.md_5.bungee.api.ChatColor.DARK_GREEN, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " public", "Open your home to the public"));
+                options.append(optionButton(messageManager.getRawMessage("edit_home_make_public_button") + " ", net.md_5.bungee.api.ChatColor.DARK_GREEN, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " public", messageManager.getRawMessage("edit_home_make_public_button_tooltip")));
             } else {
-                options.append(optionButton("[Make Private] ", net.md_5.bungee.api.ChatColor.DARK_RED, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " private", "Make your home private"));
+                options.append(optionButton(messageManager.getRawMessage("edit_home_make_private_button") + " ", net.md_5.bungee.api.ChatColor.DARK_RED, ClickEvent.Action.RUN_COMMAND, "/edithome " + home.getName() + " private", messageManager.getRawMessage("edit_home_make_private_button_tooltip")));
             }
         }
         return options;

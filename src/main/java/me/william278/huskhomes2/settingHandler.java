@@ -69,22 +69,26 @@ public class settingHandler {
     public static void deleteHome(Player player, String homeName) {
         if (dataManager.homeExists(player, homeName)) {
             Home home = dataManager.getHome(player.getName(), homeName);
-            if (home.isPublic()) {
-                // Delete dynmap marker if it exists & if the home is public
-                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
-                    dynamicMap.removeDynamicMapMarker(homeName, player.getName());
+            if (home != null) {
+                if (home.isPublic()) {
+                    // Delete Dynmap marker if it exists & if the home is public
+                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
+                        dynamicMap.removeDynamicMapMarker(homeName, player.getName());
+                    }
+                    PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                    dataManager.deleteHome(homeName, player);
+                    publicHomeTabCompleter.updatePublicHomeTabCache();
+                } else {
+                    dataManager.deleteHome(homeName, player);
                 }
-                PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
-                if (event.isCancelled()) {
-                    return;
-                }
-                dataManager.deleteHome(homeName, player);
-                publicHomeTabCompleter.updatePublicHomeTabCache();
+                homeTabCompleter.updatePlayerHomeCache(player);
+                messageManager.sendMessage(player, "home_deleted", homeName);
             } else {
-                dataManager.deleteHome(homeName, player);
+                messageManager.sendMessage(player, "error_home_invalid", homeName);
             }
-            homeTabCompleter.updatePlayerHomeCache(player);
-            messageManager.sendMessage(player, "home_deleted", homeName);
         } else {
             messageManager.sendMessage(player, "error_home_invalid", homeName);
         }

@@ -7,7 +7,7 @@ import me.william278.huskhomes2.Events.onPlayerDeath;
 import me.william278.huskhomes2.Events.onPlayerJoin;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Migrators.huskHomes1Migrator;
+import me.william278.huskhomes2.Migrators.legacyVersionMigrator;
 import me.william278.huskhomes2.Objects.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -120,14 +120,14 @@ public final class HuskHomes extends JavaPlugin {
         getLogger().info(versionChecker.getVersionCheckString());
 
         // MIGRATION: Check if a migration needs to occur
-        huskHomes1Migrator.checkStartupMigration();
+        legacyVersionMigrator.checkStartupMigration();
 
         // Load the config
         configManager.loadConfig();
 
         // MIGRATION: Migrate config files
-        if (huskHomes1Migrator.startupMigrate) {
-            new huskHomes1Migrator().migrateConfig();
+        if (legacyVersionMigrator.startupMigrate) {
+            new legacyVersionMigrator().migrateConfig();
         }
 
         // Load the messages (in the right language)
@@ -140,9 +140,9 @@ public final class HuskHomes extends JavaPlugin {
         dataManager.setupStorage();
 
         // MIGRATION: Migrate SQL data
-        if (huskHomes1Migrator.startupMigrate) {
-            new huskHomes1Migrator().migratePlayerData();
-            new huskHomes1Migrator().migrateHomeData();
+        if (legacyVersionMigrator.startupMigrate) {
+            new legacyVersionMigrator().migratePlayerData();
+            new legacyVersionMigrator().migrateHomeData();
         }
 
         // Setup the Dynmap integration if it is enabled

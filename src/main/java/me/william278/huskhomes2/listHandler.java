@@ -55,9 +55,9 @@ public class listHandler {
 
     private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command) {
         ComponentBuilder pageButtons = new ComponentBuilder();
-        TextComponent nextPageButton = pageButton("[Next Page >]", net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), "Click to view next 10");
-        TextComponent previousPageButton = pageButton("[< Last Page]", net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), "Click to view previous 10");
-        TextComponent divider = new TextComponent(" • ");
+        TextComponent nextPageButton = pageButton(messageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), messageManager.getRawMessage("list_button_next_page_tooltip"));
+        TextComponent previousPageButton = pageButton(messageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), messageManager.getRawMessage("list_button_previous_page_tooltip"));
+        TextComponent divider = new TextComponent(messageManager.getRawMessage("list_item_divider"));
         divider.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
         if (pageNumber != 1) {

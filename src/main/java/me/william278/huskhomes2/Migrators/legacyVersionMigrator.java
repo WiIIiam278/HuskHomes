@@ -15,7 +15,7 @@ import java.util.UUID;
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 // This class migrates data from HuskHomes 1.5.x to HuskHomes 2.x
-public class huskHomes1Migrator {
+public class legacyVersionMigrator {
 
     public static boolean startupMigrate;
     private static String sourcePlayerTable;

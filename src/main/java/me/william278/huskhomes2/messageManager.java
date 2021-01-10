@@ -1,7 +1,8 @@
 package me.william278.huskhomes2;
 
+import de.themoep.minedown.MineDown;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,17 +15,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static net.md_5.bungee.api.ChatColor.COLOR_CHAR;
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 public class messageManager {
 
     private static final int languageFileVersion = 1;
 
-    private static HashMap<String, String> messages = new HashMap<>();
+    private static final HashMap<String, String> messages = new HashMap<>();
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
@@ -75,11 +73,9 @@ public class messageManager {
                         "|    Developed by William278   |\n" +
                         " ------------------------------ \n" +
                         "If you'd like to use a different language, you can change it in the config.yml \n" +
-                        "Change the appearance/text of messages in the plugin using this config: \n" +
-                        "1. Use the selection symbol (§) followed by a Minecraft color code to add color to the messages.\n" +
-                        "2. Use an ampersand symbol and hashtag (&#) followed by a 6 digit hex code to add custom colors.\n" +
-                        "3. Example 1: \"§cHello!\" will display \"Hello!\" in light red.\n" +
-                        "4. Example 2: \"&#32CD32Hello\" will display \"Hello!\" in a bright green color (hex: #32CD32)");
+                        "Change the appearance/text of messages in the plugin using this config. \n" +
+                        "This config makes use of MineDown formatting, with extensive support for custom colors & formats. \n" +
+                        "For formatting help, see: https://github.com/Phoenix616/MineDown or check the HuskHomes Wiki.");
         InputStream defaultMessageFile = plugin.getResource("Languages/" + language + ".yml");
         if (defaultMessageFile != null) {
             YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultMessageFile, StandardCharsets.UTF_8));
@@ -91,23 +87,6 @@ public class messageManager {
         for (String message : config.getConfigurationSection("").getKeys(false)) {
             messages.put(message, StringEscapeUtils.unescapeJava(config.getString(message)));
         }
-    }
-
-    // Translate hexadecimal custom color codes
-    private static String translateHexColorCodes(String message) {
-        final Pattern hexPattern = Pattern.compile("&#([A-Fa-f0-9]{6})");
-
-        Matcher matcher = hexPattern.matcher(message);
-        StringBuffer buffer = new StringBuffer(message.length() + 4 * 8);
-        while (matcher.find()) {
-            String group = matcher.group(1);
-            matcher.appendReplacement(buffer, COLOR_CHAR + "x"
-                    + COLOR_CHAR + group.charAt(0) + COLOR_CHAR + group.charAt(1)
-                    + COLOR_CHAR + group.charAt(2) + COLOR_CHAR + group.charAt(3)
-                    + COLOR_CHAR + group.charAt(4) + COLOR_CHAR + group.charAt(5)
-            );
-        }
-        return matcher.appendTail(buffer).toString();
     }
 
     // Send a message with multiple placeholders
@@ -122,7 +101,7 @@ public class messageManager {
 
     // Send a message to the correct channel
     private static void sendMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
-        String message = messages.get(messageID);
+        String message = getRawMessage(messageID);
         int replacementIndexer = 1;
 
         // Replace placeholders
@@ -132,16 +111,26 @@ public class messageManager {
             replacementIndexer = replacementIndexer + 1;
         }
 
+        // Get formatted base components from MineDown
+        BaseComponent[] components = new MineDown(message).toComponent();
+
         // Convert to text component and send
-        p.spigot().sendMessage(chatMessageType, TextComponent.fromLegacyText(translateHexColorCodes(message)));
+        p.spigot().sendMessage(chatMessageType, components);
     }
 
     // Send a message with no placeholder parameters
     public static void sendMessage(Player p, String messageID) {
-        String message = messages.get(messageID);
+        String message = getRawMessage(messageID);
+
+        // Get formatted base components from MineDown
+        BaseComponent[] components = new MineDown(message).toComponent();
 
         // Convert to text component and send
-        p.spigot().sendMessage(TextComponent.fromLegacyText(translateHexColorCodes(message)));
+        p.spigot().sendMessage(components);
+    }
+
+    public static String getRawMessage(String messageID) {
+        return messages.get(messageID);
     }
 
 }

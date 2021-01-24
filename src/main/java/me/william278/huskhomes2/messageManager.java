@@ -1,9 +1,10 @@
 package me.william278.huskhomes2;
 
 import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -102,6 +103,12 @@ public class messageManager {
     // Send a message to the correct channel
     private static void sendMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
         String message = getRawMessage(messageID);
+
+        // Don't send empty messages
+        if (StringUtils.isEmpty(message)) {
+            return;
+        }
+
         int replacementIndexer = 1;
 
         // Replace placeholders
@@ -111,22 +118,21 @@ public class messageManager {
             replacementIndexer = replacementIndexer + 1;
         }
 
-        // Get formatted base components from MineDown
-        BaseComponent[] components = new MineDown(message).toComponent();
-
-        // Convert to text component and send
-        p.spigot().sendMessage(chatMessageType, components);
+        // Convert to baseComponents[] via MineDown formatting and send
+        p.spigot().sendMessage(chatMessageType, new MineDown(message).enable(MineDownParser.Option.ADVANCED_FORMATTING).enable(MineDownParser.Option.SIMPLE_FORMATTING).toComponent());
     }
 
     // Send a message with no placeholder parameters
     public static void sendMessage(Player p, String messageID) {
         String message = getRawMessage(messageID);
 
-        // Get formatted base components from MineDown
-        BaseComponent[] components = new MineDown(message).toComponent();
+        // Don't send empty messages
+        if (StringUtils.isEmpty(message)) {
+            return;
+        }
 
-        // Convert to text component and send
-        p.spigot().sendMessage(components);
+        // Convert to baseComponents[] via MineDown formatting and send
+        p.spigot().sendMessage(new MineDown(message).enable(MineDownParser.Option.ADVANCED_FORMATTING).enable(MineDownParser.Option.SIMPLE_FORMATTING).toComponent());
     }
 
     public static String getRawMessage(String messageID) {

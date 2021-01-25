@@ -53,6 +53,11 @@ public class Settings {
     int teleportRequestExpiryTime;
     int teleportWarmupTime;
 
+    // Number of items per page on lists
+    int privateHomesPerPage;
+    int publicHomesPerPage;
+    int warpsPerPage;
+
     // RTP command settings
     boolean doRtpCommand;
     int rtpRange;
@@ -133,6 +138,10 @@ public class Settings {
             this.doRtpCommand = configFile.getBoolean("random_teleport_command.enabled");
             this.rtpRange = configFile.getInt("random_teleport_command.range");
             this.rtpCooldown = configFile.getInt("random_teleport_command.cooldown");
+
+            this.privateHomesPerPage = configFile.getInt("general.lists.private_homes_per_page");
+            this.publicHomesPerPage = configFile.getInt("general.lists.public_homes_per_page");
+            this.warpsPerPage = configFile.getInt("general.lists.warps_per_page");
 
             this.maximumHomes = configFile.getInt("general.max_sethomes");
             this.teleportRequestExpiryTime = configFile.getInt("general.teleport_request_expiry_time");
@@ -286,5 +295,17 @@ public class Settings {
 
     public double getRtpCost() {
         return rtpCost;
+    }
+
+    public int getPrivateHomesPerPage() {
+        return privateHomesPerPage;
+    }
+
+    public int getPublicHomesPerPage() {
+        return publicHomesPerPage;
+    }
+
+    public int getWarpsPerPage() {
+        return warpsPerPage;
     }
 }

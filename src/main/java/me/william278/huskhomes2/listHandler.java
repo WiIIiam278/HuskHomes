@@ -83,8 +83,9 @@ public class listHandler {
             messageManager.sendMessage(player, "error_no_homes_set");
             return;
         }
-        int homeLowerBound = (pageNumber - 1) * 10;
-        int homeUpperBound = pageNumber * 10;
+        int itemsPerPage = HuskHomes.settings.getPrivateHomesPerPage();
+        int homeLowerBound = (pageNumber - 1) * itemsPerPage;
+        int homeUpperBound = pageNumber * itemsPerPage;
         if (homeUpperBound > homes.size()) {
             homeUpperBound = homes.size();
         }
@@ -126,8 +127,9 @@ public class listHandler {
             messageManager.sendMessage(player, "error_no_public_homes_set");
             return;
         }
-        int homeLowerBound = (pageNumber - 1) * 10;
-        int homeUpperBound = pageNumber * 10;
+        int itemsPerPage = HuskHomes.settings.getPublicHomesPerPage();
+        int homeLowerBound = (pageNumber - 1) * itemsPerPage;
+        int homeUpperBound = pageNumber * itemsPerPage;
         if (homeUpperBound > homes.size()) {
             homeUpperBound = homes.size();
         }
@@ -169,8 +171,9 @@ public class listHandler {
             messageManager.sendMessage(player, "error_no_warps_set");
             return;
         }
-        int warpsLowerBound = (pageNumber - 1) * 10;
-        int warpsUpperBound = pageNumber * 10;
+        int itemsPerPage = HuskHomes.settings.getWarpsPerPage();
+        int warpsLowerBound = (pageNumber - 1) * itemsPerPage;
+        int warpsUpperBound = pageNumber * itemsPerPage;
         if (warpsUpperBound > warps.size()) {
             warpsUpperBound = warps.size();
         }

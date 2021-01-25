@@ -92,6 +92,8 @@ public class listHandler {
         player.sendMessage("");
         messageManager.sendMessage(player, "private_home_list_page_top", player.getName(), Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
 
+        // Display list
+        int itemsOnPage = 0;
         for (int i = homeLowerBound; i < homeUpperBound; i++) {
             try {
                 Home home = homes.get(i);
@@ -99,6 +101,7 @@ public class listHandler {
                     homeList.append(divider());
                 }
                 homeList.append(clickablePrivateHome(home));
+                itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
                     messageManager.sendMessage(player, "home_list_page_empty");
@@ -106,8 +109,11 @@ public class listHandler {
                 i = homeUpperBound;
             }
         }
-
-        player.spigot().sendMessage(homeList.create());
+        if (itemsOnPage == 0) {
+            messageManager.sendMessage(player, "home_list_page_empty");
+        } else {
+            player.spigot().sendMessage(homeList.create());
+        }
 
         // Display page buttons
         displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:homelist");
@@ -130,6 +136,7 @@ public class listHandler {
         messageManager.sendMessage(player, "public_home_list_page_top", Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
 
         // List homes
+        int itemsOnPage = 0;
         for (int i = homeLowerBound; i < homeUpperBound; i++) {
             try {
                 Home home = homes.get(i);
@@ -137,6 +144,7 @@ public class listHandler {
                     homeList.append(divider());
                 }
                 homeList.append(clickablePublicHome(home));
+                itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
                     messageManager.sendMessage(player, "home_list_page_empty");
@@ -144,7 +152,11 @@ public class listHandler {
                 i = homeUpperBound;
             }
         }
-        player.spigot().sendMessage(homeList.create());
+        if (itemsOnPage == 0) {
+            messageManager.sendMessage(player, "warp_list_page_empty");
+        } else {
+            player.spigot().sendMessage(homeList.create());
+        }
 
         // Display page buttons
         displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:publichomelist");
@@ -166,6 +178,7 @@ public class listHandler {
         player.sendMessage("");
         messageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
 
+        int itemsOnPage = 0;
         for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
             try {
                 Warp warp = warps.get(i);
@@ -173,15 +186,20 @@ public class listHandler {
                     warpList.append(divider());
                 }
                 warpList.append(clickableWarp(warp));
+                itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == warpsLowerBound) {
                     messageManager.sendMessage(player, "warp_list_page_empty");
                 }
                 i = warpsUpperBound;
             }
-        }
 
-        player.spigot().sendMessage(warpList.create());
+        }
+        if (itemsOnPage == 0) {
+            messageManager.sendMessage(player, "warp_list_page_empty");
+        } else {
+            player.spigot().sendMessage(warpList.create());
+        }
 
         // Display page buttons
         displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/huskhomes:warplist");

@@ -119,7 +119,7 @@ public class messageManager {
         }
 
         // Convert to baseComponents[] via MineDown formatting and send
-        p.spigot().sendMessage(chatMessageType, new MineDown(message).enable(MineDownParser.Option.ADVANCED_FORMATTING).enable(MineDownParser.Option.SIMPLE_FORMATTING).toComponent());
+        p.spigot().sendMessage(chatMessageType, new MineDown(message).replace().toComponent());
     }
 
     // Send a message with no placeholder parameters
@@ -132,7 +132,7 @@ public class messageManager {
         }
 
         // Convert to baseComponents[] via MineDown formatting and send
-        p.spigot().sendMessage(new MineDown(message).enable(MineDownParser.Option.ADVANCED_FORMATTING).enable(MineDownParser.Option.SIMPLE_FORMATTING).toComponent());
+        p.spigot().sendMessage(new MineDown(message).replace().toComponent());
     }
 
     public static String getRawMessage(String messageID) {

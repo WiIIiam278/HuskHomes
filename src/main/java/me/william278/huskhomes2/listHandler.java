@@ -32,7 +32,7 @@ public class listHandler {
     private static TextComponent clickablePrivateHome(Home home) {
         TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
         clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/edithome " + home.getName())));
+        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:edithome " + home.getName())));
         clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
         return clickableHome;
     }
@@ -40,7 +40,7 @@ public class listHandler {
     private static TextComponent clickablePublicHome(Home home) {
         TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
         clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/phome " + home.getOwnerUsername() + "." + home.getName())));
+        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:phome " + home.getOwnerUsername() + "." + home.getName())));
         clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getOwnerUsername()).color(ChatColor.GREEN).italic(false).append(": ").append(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
         return clickableHome;
     }
@@ -48,7 +48,7 @@ public class listHandler {
     private static TextComponent clickableWarp(Warp warp) {
         TextComponent clickableHome = new TextComponent("[" + warp.getName() + "]");
         clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/warp " + warp.getName())));
+        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:warp " + warp.getName())));
         clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(warp.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
         return clickableHome;
     }
@@ -110,7 +110,7 @@ public class listHandler {
         player.spigot().sendMessage(homeList.create());
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/homelist");
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:homelist");
     }
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
@@ -147,7 +147,7 @@ public class listHandler {
         player.spigot().sendMessage(homeList.create());
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/publichomelist");
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:publichomelist");
     }
 
     public static void displayWarpList(Player player, int pageNumber) {
@@ -184,7 +184,7 @@ public class listHandler {
         player.spigot().sendMessage(warpList.create());
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/warplist");
+        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/huskhomes:warplist");
     }
 
 }

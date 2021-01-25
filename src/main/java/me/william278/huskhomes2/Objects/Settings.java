@@ -53,6 +53,10 @@ public class Settings {
     int teleportRequestExpiryTime;
     int teleportWarmupTime;
 
+    // Sounds
+    String teleportationCompleteSound;
+    String teleportWarmupSound;
+
     // Number of items per page on lists
     int privateHomesPerPage;
     int publicHomesPerPage;
@@ -129,6 +133,9 @@ public class Settings {
             this.setHomeCost = configFile.getDouble("economy_integration.costs.additional_home_slot");
             this.publicHomeCost = configFile.getDouble("economy_integration.costs.make_home_public");
             this.rtpCost = configFile.getDouble("economy_integration.costs.random_teleport");
+
+            this.teleportationCompleteSound = configFile.getString("general.sounds.teleportation_complete");
+            this.teleportWarmupSound = configFile.getString("general.sounds.teleportation_warmup");
 
             this.checkVanishedPlayers = configFile.getBoolean("handle_vanished_players");
 
@@ -307,5 +314,13 @@ public class Settings {
 
     public int getWarpsPerPage() {
         return warpsPerPage;
+    }
+
+    public String getTeleportationCompleteSound() {
+        return teleportationCompleteSound;
+    }
+
+    public String getTeleportWarmupSound() {
+        return teleportWarmupSound;
     }
 }

@@ -16,6 +16,9 @@ general:
   max_sethomes: 10
   teleport_warmup_time: 5
   teleport_request_expiry_time: 60
+  sounds:
+    teleportation_complete: 'ENTITY_ENDERMAN_TELEPORT'
+    teleportation_warmup: 'BLOCK_NOTE_BLOCK_BANJO'
   lists:
     private_homes_per_page: 10
     public_homes_per_page: 10

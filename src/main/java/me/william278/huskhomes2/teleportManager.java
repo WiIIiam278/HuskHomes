@@ -5,6 +5,7 @@ import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
@@ -33,6 +34,7 @@ public class teleportManager {
             String server = teleportationPoint.getServer();
             if (!HuskHomes.settings.doBungee() || server.equals(HuskHomes.settings.getServerID())) {
                 p.teleport(teleportationPoint.getLocation());
+                p.playSound(p.getLocation(), Sound.valueOf(HuskHomes.settings.getTeleportationCompleteSound()), 1, 1);
                 messageManager.sendMessage(p, "teleporting_complete");
                 dataManager.setPlayerTeleporting(p, false);
                 dataManager.clearPlayerDestination(p.getName());

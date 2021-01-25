@@ -53,27 +53,6 @@ public class legacyVersionMigrator {
                         Bukkit.getLogger().info("Moved old messages.yml --> HuskHomes/MigratedData/OLD_messages.yml");
                     }
                 }
-            } else {
-                if (config.getInt("config_file_version") == 1) {
-                    config.set("config_file_version", 2);
-                    String language = config.getString("language");
-                    if (language != null) {
-                        if (language.length() == 5) {
-                            File messagesFile = new File(plugin.getDataFolder() + File.separator + "OLD_messages_" + language + ".yml");
-                            if (messagesFile.exists()) {
-                                if (!messagesFile.renameTo(new File("messages " + language + ".yml"))) {
-                                    Bukkit.getLogger().warning("Failed to move messages file (System error)! Please delete it and regenerate it!");
-                                } else {
-                                    Bukkit.getLogger().info("The language file has been moved as it needs regenerating!");
-                                }
-                            }
-                        } else {
-                            Bukkit.getLogger().warning("Failed to move messages file (Invalid language format)! Please delete it and regenerate it!");
-                        }
-                    } else {
-                        Bukkit.getLogger().warning("Failed to move messages file (Missing language string)! Please delete it and regenerate it!");
-                    }
-                }
             }
         }
     }

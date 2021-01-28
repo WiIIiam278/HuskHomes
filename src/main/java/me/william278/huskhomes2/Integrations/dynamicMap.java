@@ -4,6 +4,7 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.Warp;
 import me.william278.huskhomes2.dataManager;
+import org.bukkit.entity.Husk;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
@@ -82,13 +83,17 @@ public class dynamicMap {
         if (HuskHomes.settings.showPublicHomesOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", HuskHomes.settings.getDynmapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Home home : dataManager.getPublicHomes()) {
-                addDynamicMapMarker(home);
+                if (!HuskHomes.settings.doBungee() || home.getServer().equals(HuskHomes.settings.getServerID())) {
+                    addDynamicMapMarker(home);
+                }
             }
         }
         if (HuskHomes.settings.showWarpsOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", HuskHomes.settings.getDynmapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Warp warp : dataManager.getWarps()) {
-                addDynamicMapMarker(warp);
+                if (!HuskHomes.settings.doBungee() || warp.getServer().equals(HuskHomes.settings.getServerID())) {
+                    addDynamicMapMarker(warp);
+                }
             }
         }
 

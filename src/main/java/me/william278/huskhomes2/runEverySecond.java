@@ -5,6 +5,7 @@ import me.william278.huskhomes2.Objects.RandomPoint;
 import me.william278.huskhomes2.Objects.TimedTeleport;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -60,11 +61,13 @@ public class runEverySecond {
                                 } else {
                                     messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
                                     messageManager.sendMessage(teleporter, "teleporting_cancelled_damage");
+                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
                                     completedTeleports.add(timedTeleport);
                                 }
                             } else {
                                 messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
                                 messageManager.sendMessage(teleporter, "teleporting_cancelled_movement");
+                                teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
                                 completedTeleports.add(timedTeleport);
                             }
                         } else {

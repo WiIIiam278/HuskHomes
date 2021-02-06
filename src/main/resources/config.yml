@@ -19,6 +19,7 @@ general:
   sounds:
     teleportation_complete: 'ENTITY_ENDERMAN_TELEPORT'
     teleportation_warmup: 'BLOCK_NOTE_BLOCK_BANJO'
+    teleportation_cancelled: 'ENTITY_ITEM_BREAK'
   lists:
     private_homes_per_page: 10
     public_homes_per_page: 10

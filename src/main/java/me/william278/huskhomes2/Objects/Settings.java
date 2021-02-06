@@ -57,6 +57,7 @@ public class Settings {
     // Sounds
     Sound teleportationCompleteSound;
     Sound teleportWarmupSound;
+    Sound teleportCancelledSound;
 
     // Number of items per page on lists
     int privateHomesPerPage;
@@ -135,8 +136,18 @@ public class Settings {
             this.publicHomeCost = configFile.getDouble("economy_integration.costs.make_home_public");
             this.rtpCost = configFile.getDouble("economy_integration.costs.random_teleport");
 
-            this.teleportationCompleteSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_complete"));
-            this.teleportWarmupSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_warmup"));
+            // Retrieve sounds used in plugin; if invalid, use defaults.
+            try {
+                this.teleportationCompleteSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_complete"));
+                this.teleportWarmupSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_warmup"));
+                this.teleportCancelledSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_cancelled"));
+            } catch (IllegalArgumentException exception) {
+                Bukkit.getLogger().severe("Invalid sound specified in config.yml; using default sounds instead.");
+                this.teleportationCompleteSound = Sound.ENTITY_ENDERMAN_TELEPORT;
+                this.teleportWarmupSound = Sound.BLOCK_NOTE_BLOCK_BANJO;
+                this.teleportCancelledSound = Sound.ENTITY_ITEM_BREAK;
+            }
+
 
             this.checkVanishedPlayers = configFile.getBoolean("handle_vanished_players");
 
@@ -323,5 +334,9 @@ public class Settings {
 
     public Sound getTeleportWarmupSound() {
         return teleportWarmupSound;
+    }
+
+    public Sound getTeleportCancelledSound() {
+        return teleportCancelledSound;
     }
 }

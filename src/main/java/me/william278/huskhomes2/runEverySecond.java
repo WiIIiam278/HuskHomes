@@ -53,7 +53,7 @@ public class runEverySecond {
                         if (timedTeleport.getTimeRemaining() > 0) {
                             if (!timedTeleport.hasMoved(teleporter)) {
                                 if (!timedTeleport.hasLostHealth(teleporter)) {
-                                    teleporter.playSound(teleporter.getLocation(), Sound.valueOf(HuskHomes.settings.getTeleportWarmupSound()), 2, 1);
+                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportWarmupSound(), 2, 1);
                                     messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_countdown",
                                             Integer.toString(timedTeleport.getTimeRemaining()));
                                     timedTeleport.decrementTimeRemaining();

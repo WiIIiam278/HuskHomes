@@ -2,6 +2,7 @@ package me.william278.huskhomes2.Objects;
 
 import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -54,8 +55,8 @@ public class Settings {
     int teleportWarmupTime;
 
     // Sounds
-    String teleportationCompleteSound;
-    String teleportWarmupSound;
+    Sound teleportationCompleteSound;
+    Sound teleportWarmupSound;
 
     // Number of items per page on lists
     int privateHomesPerPage;
@@ -134,8 +135,8 @@ public class Settings {
             this.publicHomeCost = configFile.getDouble("economy_integration.costs.make_home_public");
             this.rtpCost = configFile.getDouble("economy_integration.costs.random_teleport");
 
-            this.teleportationCompleteSound = configFile.getString("general.sounds.teleportation_complete");
-            this.teleportWarmupSound = configFile.getString("general.sounds.teleportation_warmup");
+            this.teleportationCompleteSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_complete"));
+            this.teleportWarmupSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_warmup"));
 
             this.checkVanishedPlayers = configFile.getBoolean("handle_vanished_players");
 
@@ -316,11 +317,11 @@ public class Settings {
         return warpsPerPage;
     }
 
-    public String getTeleportationCompleteSound() {
+    public Sound getTeleportationCompleteSound() {
         return teleportationCompleteSound;
     }
 
-    public String getTeleportWarmupSound() {
+    public Sound getTeleportWarmupSound() {
         return teleportWarmupSound;
     }
 }

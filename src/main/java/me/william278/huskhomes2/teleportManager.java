@@ -34,7 +34,7 @@ public class teleportManager {
             String server = teleportationPoint.getServer();
             if (!HuskHomes.settings.doBungee() || server.equals(HuskHomes.settings.getServerID())) {
                 p.teleport(teleportationPoint.getLocation());
-                p.playSound(p.getLocation(), Sound.valueOf(HuskHomes.settings.getTeleportationCompleteSound()), 1, 1);
+                p.playSound(p.getLocation(), HuskHomes.settings.getTeleportationCompleteSound(), 1, 1);
                 messageManager.sendMessage(p, "teleporting_complete");
                 dataManager.setPlayerTeleporting(p, false);
                 dataManager.clearPlayerDestination(p.getName());

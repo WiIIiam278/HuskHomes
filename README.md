@@ -13,7 +13,7 @@
 * Has a /back command to let players return to their previous position, or where they died if they have the right permissions
 * Show the location of public homes and warps on your server's Dynmap
 * Integrate your economy by setting costs to set homes, make them public and random teleporting costs
-* Fully customisable plugin messages, with multi-language and custom hexadecimal color support
+* Fully customisable plugin messages, with multi-language and custom hexadecimal color support via MineDown formatting
 * Set warps for your server with the /setwarp and /warp commands
 * Set a /spawn location per server where players will also be put when they first join
 * Configurable random teleport command allowing players to get out into the wild quickly

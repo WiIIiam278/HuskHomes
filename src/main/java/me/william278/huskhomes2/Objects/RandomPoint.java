@@ -27,6 +27,11 @@ public class RandomPoint extends TeleportationPoint {
         unsafeBlocks.add(Material.MAGMA_BLOCK);
         unsafeBlocks.add(Material.JUNGLE_LEAVES);
         unsafeBlocks.add(Material.SPRUCE_LEAVES);
+        unsafeBlocks.add(Material.OAK_LEAVES);
+        unsafeBlocks.add(Material.BIRCH_LEAVES);
+        unsafeBlocks.add(Material.ACACIA_LEAVES);
+        unsafeBlocks.add(Material.DARK_OAK_LEAVES);
+        unsafeBlocks.add(Material.OBSIDIAN);
     }
 
     private Location randomLocation(World world) {

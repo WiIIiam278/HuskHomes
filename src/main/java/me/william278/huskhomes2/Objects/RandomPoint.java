@@ -36,6 +36,8 @@ public class RandomPoint extends TeleportationPoint {
         int x;
         int y = 64;
         int z;
+        double blockCenterX = 0.5;
+        double blockCenterZ = 0.5;
         int negativeX;
         int negativeZ;
 
@@ -51,13 +53,15 @@ public class RandomPoint extends TeleportationPoint {
         negativeZ = random.nextInt(2);
         if (negativeX == 1) {
             x = x * -1;
+            blockCenterX = blockCenterX * -1;
         }
         if (negativeZ == 1)  {
             z = z * -1;
+            blockCenterZ = blockCenterZ * -1;
         }
 
         // Put together random location, get the highest block plus one to determine Y
-        Location randomLocation = new Location(world, x, y, z);
+        Location randomLocation = new Location(world, (x + blockCenterX), y, (z + blockCenterZ));
         y = world.getHighestBlockYAt(randomLocation) + 1;
         randomLocation.setY(y);
 

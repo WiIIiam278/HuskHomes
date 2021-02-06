@@ -37,20 +37,20 @@ public class teleportRequestHandler {
     }
 
     public static void sendTpAcceptDenyButtons(Player p) {
-        // Send the "Accept" or "Decline" response buttons to the player who has recieved a request
+        // Send the "Accept" or "Decline" response buttons to the player who has received a request
         // Options text
-        TextComponent options = new TextComponent("Click an option: ");
+        TextComponent options = new TextComponent(messageManager.getRawMessage("tpa_request_option_select"));
         options.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
-        TextComponent separator = new TextComponent(" • ");
+        TextComponent separator = new TextComponent(messageManager.getRawMessage("list_item_divider"));
         separator.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
         // Build the components together
         ComponentBuilder teleportResponses = new ComponentBuilder();
         teleportResponses.append(options);
-        teleportResponses.append(createButton("[Accept]", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/tpaccept", "Accept the teleport request (/tpaccept)", net.md_5.bungee.api.ChatColor.GRAY, false));
+        teleportResponses.append(createButton(messageManager.getRawMessage("tpa_accept_button"), net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/tpaccept", messageManager.getRawMessage("tpa_accept_button_tooltip"), net.md_5.bungee.api.ChatColor.GRAY, false));
         teleportResponses.append(separator);
-        teleportResponses.append(createButton("[Decline]", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/tpdeny", "Decline the teleport request (/tpdeny)", net.md_5.bungee.api.ChatColor.GRAY, false));
+        teleportResponses.append(createButton(messageManager.getRawMessage("tpa_decline_button"), net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/tpdeny", messageManager.getRawMessage("tpa_decline_button_tooltip"), net.md_5.bungee.api.ChatColor.GRAY, false));
 
         // Create and send the message
         p.spigot().sendMessage(teleportResponses.create());

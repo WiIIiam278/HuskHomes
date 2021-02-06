@@ -155,7 +155,7 @@ public class listHandler {
             }
         }
         if (itemsOnPage == 0) {
-            messageManager.sendMessage(player, "warp_list_page_empty");
+            messageManager.sendMessage(player, "home_list_page_empty");
         } else {
             player.spigot().sendMessage(homeList.create());
         }

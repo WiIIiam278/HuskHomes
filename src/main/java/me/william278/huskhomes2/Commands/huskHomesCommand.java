@@ -24,6 +24,7 @@ public class huskHomesCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + " " + ChatColor.GREEN + "| Version " + plugin.getDescription().getVersion());
         sender.sendMessage(ChatColor.GRAY + plugin.getDescription().getDescription());
         sender.sendMessage("• Author: " + ChatColor.GRAY + "William278");
+        sender.sendMessage("• Translators: " + ChatColor.GRAY + "RohFrenzy (de-de/German), 咖波 (zh-tw/Taiwanese)");
         sender.sendMessage("• Help Wiki: " + ChatColor.GRAY + "https://github.com/WiIIiam278/HuskHomes2/wiki/");
         sender.sendMessage("• Report a bug: " + ChatColor.GRAY + "https://github.com/WiIIiam278/HuskHomes2/issues");
     }

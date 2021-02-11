@@ -39,7 +39,7 @@ public class teleportRequestHandler {
     public static void sendTpAcceptDenyButtons(Player p) {
         // Send the "Accept" or "Decline" response buttons to the player who has received a request
         // Options text
-        TextComponent options = new TextComponent(messageManager.getRawMessage("tpa_request_option_select"));
+        TextComponent options = new TextComponent(messageManager.getRawMessage("tpa_request_buttons_prompt"));
         options.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
         TextComponent separator = new TextComponent(messageManager.getRawMessage("list_item_divider"));

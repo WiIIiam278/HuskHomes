@@ -28,6 +28,7 @@ general:
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'
+  cluster_id: 0
 enable_warp_command: true
 spawn_command:
   enabled: true

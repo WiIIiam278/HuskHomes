@@ -27,13 +27,14 @@ public class pluginMessageHandler implements PluginMessageListener {
     // Send a plugin message
     public static void sendPluginMessage(Player sender, String targetPlayerName, String messageType, String messageData) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        int clusterID = HuskHomes.settings.getServerClusterID();
 
         // Send a plugin message to the specified player name
         out.writeUTF("ForwardToPlayer");
         out.writeUTF(targetPlayerName);
 
         // Send the HuskHomes message with a specific type
-        out.writeUTF("HuskHomes:" + messageType);
+        out.writeUTF("HuskHomes:" + clusterID + ":" + messageType);
         ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         DataOutputStream messageOut = new DataOutputStream(messageBytes);
 
@@ -61,15 +62,32 @@ public class pluginMessageHandler implements PluginMessageListener {
             return;
         }
         ByteArrayDataInput input = ByteStreams.newDataInput(message);
+
+        // Plugin messages are formatted as such:
+        // HuskHomes:<cluster_id>:<message_type>, followed by the message arguments and data.
         String messageType = input.readUTF();
+        int clusterID;
 
         // Return if the message was not sent by HuskHomes
         if (!messageType.contains("HuskHomes:")) {
             return;
         }
 
+        // Ensure the cluster ID matches
+        try {
+            clusterID = Integer.parseInt(messageType.split(":")[1]);
+        } catch (Exception e) {
+            // In case the message is malformed or the cluster ID is invalid
+            Bukkit.getLogger().warning("Received a HuskHomes plugin message with an invalid server cluster ID! \n" +
+                    "Please ensure you are running the latest version of HuskHomes on all your servers and that the cluster ID is set to a valid integer on all of them.");
+            return;
+        }
+        if (HuskHomes.settings.getServerClusterID() != clusterID) {
+            return;
+        }
+
         // Get the HuskHomes message type
-        messageType = messageType.split(":")[1];
+        messageType = messageType.split(":")[2];
 
         // Get the message data packets
         String messageData = "";

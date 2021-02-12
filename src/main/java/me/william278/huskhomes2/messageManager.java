@@ -27,18 +27,6 @@ public class messageManager {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
-    // Delete the file at the pointer specified
-    private static void deleteFile(File f) {
-        try {
-            if (!f.delete()) {
-                Bukkit.getLogger().severe("Failed to delete messages.yml file!");
-            }
-        } catch (Exception e) {
-            Bukkit.getLogger().severe("An error occurred while deleting the messages.yml file!");
-            e.printStackTrace();
-        }
-    }
-
     // Create a new file, at the pointer specified
     private static void createFile(File f) {
         try {

@@ -17,6 +17,7 @@ public class Settings {
 
     // Bungee settings
     boolean doBungee;
+    int clusterID;
     String server;
 
     // Data storage settings
@@ -84,6 +85,7 @@ public class Settings {
 
             this.doBungee = configFile.getBoolean("bungee_options.enable_bungee_mode");
             this.server = configFile.getString("bungee_options.server_id");
+            this.clusterID = configFile.getInt("bungee_options.cluster_id");
 
             this.storageType = configFile.getString("data_storage_options.storage_type");
             this.playerDataTable = configFile.getString("data_storage_options.table_names.player_data");
@@ -232,6 +234,8 @@ public class Settings {
     public String getServerID() {
         return server;
     }
+
+    public int getServerClusterID() { return clusterID; }
 
     public boolean doBungee() {
         return doBungee;

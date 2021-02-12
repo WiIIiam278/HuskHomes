@@ -116,9 +116,6 @@ public final class HuskHomes extends JavaPlugin {
         // Set instance for easy cross-class referencing
         setInstance(this);
 
-        // Check if HuskHomes is up-to-date
-        getLogger().info(versionChecker.getVersionCheckString());
-
         // MIGRATION: Check if a migration needs to occur
         legacyVersionMigrator.checkStartupMigration();
 
@@ -132,6 +129,11 @@ public final class HuskHomes extends JavaPlugin {
 
         // Load the messages (in the right language)
         messageManager.loadMessages(HuskHomes.settings.getLanguage());
+
+        // Check for updates (if enabled)
+        if (HuskHomes.settings.doUpdateChecks()) {
+            getLogger().info(versionChecker.getVersionCheckString());
+        }
 
         // Fetch spawn location if set
         settingHandler.fetchSpawnLocation();

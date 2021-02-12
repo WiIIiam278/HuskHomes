@@ -1,4 +1,5 @@
 language: 'en-gb'
+check_for_updates: true
 data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:

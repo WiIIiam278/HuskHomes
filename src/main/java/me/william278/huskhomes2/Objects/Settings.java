@@ -12,6 +12,9 @@ public class Settings {
     // Message language setting
     String language;
 
+    // Automatically send update HuskHomes reminders
+    boolean updateReminders;
+
     // Bungee settings
     boolean doBungee;
     String server;
@@ -76,6 +79,8 @@ public class Settings {
     private void setSettings(FileConfiguration configFile) {
         try {
             this.language = configFile.getString("language");
+
+            this.updateReminders = configFile.getBoolean("check_for_updates");
 
             this.doBungee = configFile.getBoolean("bungee_options.enable_bungee_mode");
             this.server = configFile.getString("bungee_options.server_id");
@@ -338,5 +343,9 @@ public class Settings {
 
     public Sound getTeleportCancelledSound() {
         return teleportCancelledSound;
+    }
+
+    public boolean doUpdateChecks() {
+        return updateReminders;
     }
 }

@@ -8,6 +8,7 @@ import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.Home;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,6 +37,7 @@ public class editHomeCommand implements CommandExecutor {
                                 }
 
                                 PlayerRelocateHomeEvent relocateHomeEvent = new PlayerRelocateHomeEvent(p, locationMovedHome, newTeleportLocation);
+                                Bukkit.getPluginManager().callEvent(relocateHomeEvent);
                                 if (relocateHomeEvent.isCancelled()) {
                                     return true;
                                 }
@@ -64,6 +66,7 @@ public class editHomeCommand implements CommandExecutor {
                                     }
                                     String newDescriptionString = newDescription.toString();
                                     PlayerChangeHomeDescriptionEvent changeHomeDescriptionEvent = new PlayerChangeHomeDescriptionEvent(p, descriptionChangedHome, newDescriptionString);
+                                    Bukkit.getPluginManager().callEvent(changeHomeDescriptionEvent);
                                     if (changeHomeDescriptionEvent.isCancelled()) {
                                         return true;
                                     }
@@ -110,6 +113,7 @@ public class editHomeCommand implements CommandExecutor {
                                     }
                                     Home renamedHome = dataManager.getHome(p.getName(), homeName);
                                     PlayerRenameHomeEvent renameHomeEvent = new PlayerRenameHomeEvent(p, renamedHome, newName);
+                                    Bukkit.getPluginManager().callEvent(renameHomeEvent);
                                     if (renameHomeEvent.isCancelled()) {
                                         return true;
                                     }
@@ -151,6 +155,7 @@ public class editHomeCommand implements CommandExecutor {
                                         messageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
                                     }
                                     PlayerMakeHomePublicEvent makeHomePublicEvent = new PlayerMakeHomePublicEvent(p, privateHome);
+                                    Bukkit.getPluginManager().callEvent(makeHomePublicEvent);
                                     if (makeHomePublicEvent.isCancelled()) {
                                         return true;
                                     }
@@ -167,6 +172,7 @@ public class editHomeCommand implements CommandExecutor {
                                 Home publicHome = dataManager.getHome(p.getName(), homeName);
                                 if (publicHome.isPublic()) {
                                     PlayerMakeHomePrivateEvent makeHomePrivateEvent = new PlayerMakeHomePrivateEvent(p, publicHome);
+                                    Bukkit.getPluginManager().callEvent(makeHomePrivateEvent);
                                     if (makeHomePrivateEvent.isCancelled()) {
                                         return true;
                                     }

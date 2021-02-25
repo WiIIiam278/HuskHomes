@@ -8,6 +8,7 @@ import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Objects.TeleportationPoint;
 import me.william278.huskhomes2.Objects.Warp;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -35,8 +36,9 @@ public class editWarpCommand implements CommandExecutor {
                                     dynamicMap.removeDynamicMapMarker(warpName);
                                 }
 
-                                PlayerRelocateWarpEvent relocateHomeEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
-                                if (relocateHomeEvent.isCancelled()) {
+                                PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
+                                Bukkit.getPluginManager().callEvent(relocateWarpEvent);
+                                if (relocateWarpEvent.isCancelled()) {
                                     return true;
                                 }
 
@@ -65,6 +67,7 @@ public class editWarpCommand implements CommandExecutor {
                                     String newDescriptionString = newDescription.toString();
 
                                     PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
+                                    Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent);
                                     if (changeWarpDescriptionEvent.isCancelled()) {
                                         return true;
                                     }
@@ -110,6 +113,7 @@ public class editWarpCommand implements CommandExecutor {
                                         return true;
                                     }
                                     PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
+                                    Bukkit.getPluginManager().callEvent(renameWarpEvent);
                                     if (renameWarpEvent.isCancelled()) {
                                         return true;
                                     }

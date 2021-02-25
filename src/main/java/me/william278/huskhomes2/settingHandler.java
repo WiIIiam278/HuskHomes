@@ -10,6 +10,7 @@ import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
 import me.william278.huskhomes2.Integrations.dynamicMap;
 import me.william278.huskhomes2.Integrations.economy;
 import me.william278.huskhomes2.Objects.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ public class settingHandler {
         if (setHomeConditions.areConditionsMet()) {
             Home home = new Home(location, HuskHomes.settings.getServerID(), player, name, false);
             PlayerSetHomeEvent event = new PlayerSetHomeEvent(player, home);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -51,6 +53,7 @@ public class settingHandler {
         if (setWarpConditions.areConditionsMet()) {
             Warp warp = new Warp(location, HuskHomes.settings.getServerID(), name);
             PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -76,6 +79,7 @@ public class settingHandler {
                         dynamicMap.removeDynamicMapMarker(homeName, player.getName());
                     }
                     PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
+                    Bukkit.getPluginManager().callEvent(event);
                     if (event.isCancelled()) {
                         return;
                     }
@@ -99,6 +103,7 @@ public class settingHandler {
         if (dataManager.warpExists(warpName)) {
             Warp warp = dataManager.getWarp(warpName);
             PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }

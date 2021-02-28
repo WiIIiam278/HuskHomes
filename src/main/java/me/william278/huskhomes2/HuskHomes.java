@@ -3,8 +3,7 @@ package me.william278.huskhomes2;
 import me.william278.huskhomes2.api.HuskHomesAPI;
 import me.william278.huskhomes2.commands.*;
 import me.william278.huskhomes2.commands.tab.*;
-import me.william278.huskhomes2.events.onPlayerDeath;
-import me.william278.huskhomes2.events.onPlayerJoin;
+import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.integrations.dynamicMap;
 import me.william278.huskhomes2.integrations.economy;
 import me.william278.huskhomes2.migrators.legacyVersionMigrator;
@@ -104,8 +103,7 @@ public final class HuskHomes extends JavaPlugin {
 
     // Register events
     private static void registerEvents(HuskHomes plugin) {
-        plugin.getServer().getPluginManager().registerEvents(new onPlayerJoin(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new onPlayerDeath(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
     }
 
     @Override

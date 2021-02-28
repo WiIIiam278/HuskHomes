@@ -1,9 +1,11 @@
-package me.william278.huskhomes2.events;
+package me.william278.huskhomes2.listeners;
 
+import me.william278.huskhomes2.commands.tab.homeTabCompleter;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.TeleportationPoint;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.teleportManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -14,8 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class onPlayerDeath implements Listener {
+public class PlayerListener implements Listener {
 
     private static ComponentBuilder backButton() {
         ComponentBuilder backButton = new ComponentBuilder();
@@ -36,6 +39,32 @@ public class onPlayerDeath implements Listener {
             dataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.settings.getServerID()));
             messageManager.sendMessage(p, "return_by_death");
             p.spigot().sendMessage(backButton().create());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+
+        // Create player on SQL if they don't exist already
+        if (!dataManager.playerExists(p)) {
+            dataManager.createPlayer(p);
+            if (teleportManager.spawnLocation != null) {
+                p.teleport(teleportManager.spawnLocation.getLocation());
+            }
+        } else {
+            // Check if they've changed their name and update if so
+            dataManager.checkPlayerNameChange(p);
+
+            // Update their TAB cache for /home command
+            homeTabCompleter.updatePlayerHomeCache(p);
+        }
+
+        // If bungee mode, check if the player joined the server from a teleport and act accordingly
+        if (HuskHomes.settings.doBungee()) {
+            if (dataManager.getPlayerTeleporting(p)) {
+                teleportManager.teleportPlayer(p);
+            }
         }
     }
 

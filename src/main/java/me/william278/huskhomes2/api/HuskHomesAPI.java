@@ -7,7 +7,7 @@ import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The HuskHomes API
@@ -55,7 +55,7 @@ public class HuskHomesAPI {
      @return an ArrayList of Homes
      @see Home
      */
-    public ArrayList<Home> getHomes(Player player) {
+    public List<Home> getHomes(Player player) {
         return DataManager.getPlayerHomes(player.getName());
     }
 
@@ -65,7 +65,7 @@ public class HuskHomesAPI {
      @return an ArrayList of Homes
      @see Home
      */
-    public ArrayList<Home> getHomes(String ownerUsername) {
+    public List<Home> getHomes(String ownerUsername) {
         return DataManager.getPlayerHomes(ownerUsername);
     }
 
@@ -84,7 +84,7 @@ public class HuskHomesAPI {
      @return an ArrayList of Homes
      @see Home
      */
-    public ArrayList<Home> getPublicHomes() {
+    public List<Home> getPublicHomes() {
         return DataManager.getPublicHomes();
     }
 
@@ -102,7 +102,7 @@ public class HuskHomesAPI {
      @return an ArrayList of Warps
      @see Warp
      */
-    public ArrayList<Warp> getWarps() {
+    public List<Warp> getWarps() {
         return DataManager.getWarps();
     }
 

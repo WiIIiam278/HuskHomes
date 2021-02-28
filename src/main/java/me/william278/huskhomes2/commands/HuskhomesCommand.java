@@ -126,7 +126,7 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
-            ArrayList<String> tabOptions = new ArrayList<>();
+            List<String> tabOptions = new ArrayList<>();
             tabOptions.add("about");
             tabOptions.add("reload");
             tabOptions.add("update");

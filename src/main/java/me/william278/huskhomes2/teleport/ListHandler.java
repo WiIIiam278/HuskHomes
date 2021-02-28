@@ -13,7 +13,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ListHandler {
 
@@ -81,7 +81,7 @@ public class ListHandler {
 
     public static void displayPlayerHomeList(Player player, int pageNumber) {
         ComponentBuilder homeList = new ComponentBuilder();
-        ArrayList<Home> homes = DataManager.getPlayerHomes(player.getName());
+        List<Home> homes = DataManager.getPlayerHomes(player.getName());
         if (homes == null || homes.isEmpty()) {
             MessageManager.sendMessage(player, "error_no_homes_set");
             return;
@@ -125,7 +125,7 @@ public class ListHandler {
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
         ComponentBuilder homeList = new ComponentBuilder();
-        ArrayList<Home> homes = DataManager.getPublicHomes();
+        List<Home> homes = DataManager.getPublicHomes();
         if (homes == null || homes.isEmpty()) {
             MessageManager.sendMessage(player, "error_no_public_homes_set");
             return;
@@ -169,7 +169,7 @@ public class ListHandler {
 
     public static void displayWarpList(Player player, int pageNumber) {
         ComponentBuilder warpList = new ComponentBuilder();
-        ArrayList<Warp> warps = DataManager.getWarps();
+        List<Warp> warps = DataManager.getWarps();
         if (warps == null || warps.isEmpty()) {
             MessageManager.sendMessage(player, "error_no_warps_set");
             return;

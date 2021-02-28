@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class HomeCommand extends CommandBase {
@@ -32,7 +33,7 @@ public class HomeCommand extends CommandBase {
                     MessageManager.sendMessage(p, "error_home_invalid", homeName);
                 }
             } else {
-                ArrayList<Home> homes = DataManager.getPlayerHomes(p.getName());
+                List<Home> homes = DataManager.getPlayerHomes(p.getName());
                 if (homes != null) {
                     if (homes.size() == 1) {
                         // Teleport the player if they only have one home
@@ -52,13 +53,13 @@ public class HomeCommand extends CommandBase {
         // TODO Remove
         // This HashMap stores a cache of a player's homes that is displayed when a user presses TAB.
         // Owner UUID, Home Name
-        public static HashMap<UUID, ArrayList<String>> homeTabCache = new HashMap<>();
+        public static Map<UUID, List<String>> homeTabCache = new HashMap<>();
 
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
             UUID uuid = p.getUniqueId();
-            ArrayList<Home> playerHomes = DataManager.getPlayerHomes(p.getName());
-            ArrayList<String> homeNames = new ArrayList<>();
+            List<Home> playerHomes = DataManager.getPlayerHomes(p.getName());
+            List<String> homeNames = new ArrayList<>();
             for (Home home : playerHomes) {
                 homeNames.add(home.getName());
             }
@@ -74,7 +75,7 @@ public class HomeCommand extends CommandBase {
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
 
-                ArrayList<String> homes = homeTabCache.get(p.getUniqueId());
+                List<String> homes = homeTabCache.get(p.getUniqueId());
                 if (homes == null) {
                     updatePlayerHomeCache(p);
                     return new ArrayList<>();

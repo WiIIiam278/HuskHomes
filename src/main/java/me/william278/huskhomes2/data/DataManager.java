@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -214,7 +215,7 @@ public class DataManager {
 
     // Return how many homes the player has set
     public static int getPlayerHomeCount(Player p) {
-        ArrayList<Home> playerHomes = getPlayerHomes(p.getName());
+        List<Home> playerHomes = getPlayerHomes(p.getName());
         if (playerHomes != null) {
             return playerHomes.size();
         } else {
@@ -243,7 +244,7 @@ public class DataManager {
     }
 
     // Return a player's homes.
-    public static ArrayList<Home> getPlayerHomes(String playerName) {
+    public static List<Home> getPlayerHomes(String playerName) {
         Connection conn;
         PreparedStatement ps;
         Integer playerID = getPlayerId(playerName);
@@ -255,7 +256,7 @@ public class DataManager {
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
-                ArrayList<Home> playerHomes = new ArrayList<>();
+                List<Home> playerHomes = new ArrayList<>();
                 while (rs.next()) {
                     int locationID = rs.getInt("location_id");
                     TeleportationPoint teleportationPoint = getTeleportationPoint(locationID);
@@ -279,7 +280,7 @@ public class DataManager {
     }
 
     // Return all the public homes
-    public static ArrayList<Home> getPublicHomes() {
+    public static List<Home> getPublicHomes() {
         Connection conn;
         PreparedStatement ps;
         ResultSet rs;
@@ -289,7 +290,7 @@ public class DataManager {
             ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `public`;");
             rs = ps.executeQuery();
             if (rs != null) {
-                ArrayList<Home> publicHomes = new ArrayList<>();
+                List<Home> publicHomes = new ArrayList<>();
                 while (rs.next()) {
                     int playerID = rs.getInt("player_id");
                     int locationID = rs.getInt("location_id");
@@ -310,7 +311,7 @@ public class DataManager {
     }
 
     // Return an array of all the warps
-    public static ArrayList<Warp> getWarps() {
+    public static List<Warp> getWarps() {
         Connection conn;
         PreparedStatement ps;
         ResultSet rs;
@@ -319,7 +320,7 @@ public class DataManager {
             conn = getConnection();
             ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getWarpsDataTable() + ";");
             rs = ps.executeQuery();
-            ArrayList<Warp> warps = new ArrayList<>();
+            List<Warp> warps = new ArrayList<>();
             if (rs != null) {
                 while (rs.next()) {
                     int locationID = rs.getInt("location_id");

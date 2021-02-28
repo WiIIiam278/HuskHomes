@@ -15,13 +15,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PublichomeCommand extends CommandBase implements TabCompleter {
 
     // TODO Remove it
     // Cached HashMap of public homes
     // HomeName, OwnerName
-    public static final HashMap<String,String> publicHomeTabCache = new HashMap<>();
+    private static final Map<String,String> publicHomeTabCache = new HashMap<>();
 
     // Updates the public home cache
     public static void updatePublicHomeTabCache() {

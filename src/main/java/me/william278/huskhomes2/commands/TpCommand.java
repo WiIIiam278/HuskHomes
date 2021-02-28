@@ -88,7 +88,7 @@ public class TpCommand extends CommandBase {
     public static class Tab implements TabCompleter {
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-            ArrayList<String> players = new ArrayList<>();
+            List<String> players = new ArrayList<>();
             if (args.length == 0 || args.length == 1) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!VanishChecker.isVanished(p) && !(p.getName().equals(sender.getName()))) {

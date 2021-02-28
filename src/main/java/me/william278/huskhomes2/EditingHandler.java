@@ -24,11 +24,11 @@ public class EditingHandler {
     private static ComponentBuilder editWarpOptions(Warp warp) {
         ComponentBuilder options = new ComponentBuilder();
 
-        options.append(optionButton(MessageManager.getRawMessage("edit_warp_teleport_button") + " ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:warp " + warp.getName(), MessageManager.getRawMessage("edit_warp_teleport_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_warp_delete_button") + " ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:delwarp " + warp.getName(), MessageManager.getRawMessage("edit_warp_delete_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_warp_relocate_button") + "\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/huskhomes:editwarp " + warp.getName() + " location", MessageManager.getRawMessage("edit_warp_relocate_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_warp_rename_button") + " ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:editwarp " + warp.getName() + " rename ", MessageManager.getRawMessage("edit_warp_rename_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_warp_description_button") + " ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:editwarp " + warp.getName() + " description ", MessageManager.getRawMessage("edit_warp_description_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_warp_teleport_button") + " ", ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:warp " + warp.getName(), MessageManager.getRawMessage("edit_warp_teleport_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_warp_delete_button") + " ", ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:delwarp " + warp.getName(), MessageManager.getRawMessage("edit_warp_delete_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_warp_relocate_button") + "\n", ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/huskhomes:editwarp " + warp.getName() + " location", MessageManager.getRawMessage("edit_warp_relocate_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_warp_rename_button") + " ", ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:editwarp " + warp.getName() + " rename ", MessageManager.getRawMessage("edit_warp_rename_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_warp_description_button") + " ", ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:editwarp " + warp.getName() + " description ", MessageManager.getRawMessage("edit_warp_description_button_tooltip")));
 
         return options;
     }
@@ -36,17 +36,17 @@ public class EditingHandler {
     private static ComponentBuilder editHomeOptions(Player p, Home home) {
         ComponentBuilder options = new ComponentBuilder();
 
-        options.append(optionButton(MessageManager.getRawMessage("edit_home_teleport_button") + " ", net.md_5.bungee.api.ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:home " + home.getName(), MessageManager.getRawMessage("edit_home_teleport_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_home_delete_button") + " ", net.md_5.bungee.api.ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:delhome " + home.getName(), MessageManager.getRawMessage("edit_home_delete_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_home_relocate_button") + "\n", net.md_5.bungee.api.ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " location", MessageManager.getRawMessage("edit_home_relocate_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_home_rename_button") + " ", net.md_5.bungee.api.ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:edithome " + home.getName() + " rename ", MessageManager.getRawMessage("edit_home_rename_button_tooltip")));
-        options.append(optionButton(MessageManager.getRawMessage("edit_home_description_button") + " ", net.md_5.bungee.api.ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:edithome " + home.getName() + " description ", MessageManager.getRawMessage("edit_home_description_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_home_teleport_button") + " ", ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:home " + home.getName(), MessageManager.getRawMessage("edit_home_teleport_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_home_delete_button") + " ", ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:delhome " + home.getName(), MessageManager.getRawMessage("edit_home_delete_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_home_relocate_button") + "\n", ChatColor.BLUE, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " location", MessageManager.getRawMessage("edit_home_relocate_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_home_rename_button") + " ", ChatColor.YELLOW, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:edithome " + home.getName() + " rename ", MessageManager.getRawMessage("edit_home_rename_button_tooltip")));
+        options.append(optionButton(MessageManager.getRawMessage("edit_home_description_button") + " ", ChatColor.GOLD, ClickEvent.Action.SUGGEST_COMMAND, "/huskhomes:edithome " + home.getName() + " description ", MessageManager.getRawMessage("edit_home_description_button_tooltip")));
 
         if (p.hasPermission("huskhomes.edithome.public")) {
             if (!home.isPublic()) {
-                options.append(optionButton(MessageManager.getRawMessage("edit_home_make_public_button") + " ", net.md_5.bungee.api.ChatColor.DARK_GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " public", MessageManager.getRawMessage("edit_home_make_public_button_tooltip")));
+                options.append(optionButton(MessageManager.getRawMessage("edit_home_make_public_button") + " ", ChatColor.DARK_GREEN, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " public", MessageManager.getRawMessage("edit_home_make_public_button_tooltip")));
             } else {
-                options.append(optionButton(MessageManager.getRawMessage("edit_home_make_private_button") + " ", net.md_5.bungee.api.ChatColor.DARK_RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " private", MessageManager.getRawMessage("edit_home_make_private_button_tooltip")));
+                options.append(optionButton(MessageManager.getRawMessage("edit_home_make_private_button") + " ", ChatColor.DARK_RED, ClickEvent.Action.RUN_COMMAND, "/huskhomes:edithome " + home.getName() + " private", MessageManager.getRawMessage("edit_home_make_private_button_tooltip")));
             }
         }
         return options;

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
@@ -22,7 +23,7 @@ public class MessageManager {
 
     private static final int languageFileVersion = 1;
 
-    private static final HashMap<String, String> messages = new HashMap<>();
+    private static final Map<String, String> messages = new HashMap<>();
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 

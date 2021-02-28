@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.api.events;
 
-import me.william278.huskhomes2.teleport.TeleportationPoint;
-import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
 
 /**

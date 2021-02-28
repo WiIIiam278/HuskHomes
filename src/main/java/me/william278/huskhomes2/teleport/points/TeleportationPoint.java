@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.teleport;
+package me.william278.huskhomes2.teleport.points;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,13 +10,13 @@ import org.bukkit.World;
  */
 public class TeleportationPoint {
 
-    String server;
-    String worldName;
-    double x;
-    double y;
-    double z;
-    float yaw;
-    float pitch;
+    protected String server;
+    protected String worldName;
+    protected double x;
+    protected double y;
+    protected double z;
+    protected float yaw;
+    protected float pitch;
 
     /**
      * Update the location of a TeleportationPoint

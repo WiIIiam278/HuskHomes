@@ -2,6 +2,7 @@ package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

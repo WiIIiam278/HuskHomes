@@ -1,7 +1,7 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.teleport.Home;
-import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.teleport.points.Warp;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

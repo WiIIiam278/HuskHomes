@@ -1,8 +1,10 @@
-package me.william278.huskhomes2.teleport;
+package me.william278.huskhomes2.teleport.points;
 
+import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.UUID;
 
@@ -12,12 +14,12 @@ import java.util.UUID;
  */
 public class Home extends TeleportationPoint {
 
-    String name;
-    String description;
-    boolean isPublic;
+    private String name;
+    private String description;
+    private boolean isPublic;
 
-    UUID ownerUUID;
-    String ownerUsername;
+    private UUID ownerUUID;
+    private String ownerUsername;
 
     /**
      * An object representing a Player's home in-game
@@ -140,4 +142,34 @@ public class Home extends TeleportationPoint {
         this.name = description;
     }
 
+    // Returns the maximum number of set homes a player can make
+    public static int getSetHomeLimit(Player p) {
+        p.recalculatePermissions();
+        for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
+            String permission = permissionAI.getPermission();
+            if (permission.contains("huskhomes.max_sethomes.")) {
+                try {
+                    return Integer.parseInt(permission.split("\\.")[2]);
+                } catch(Exception e) {
+                    return HuskHomes.settings.getMaximumHomes();
+                }
+            }
+        }
+        return HuskHomes.settings.getMaximumHomes();
+    }
+
+    // Returns the number of set homes a player can set for free
+    public static int getFreeHomes(Player p) {
+        for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
+            String permission = permissionAI.getPermission();
+            if (permission.contains("huskhomes.free_sethomes.")) {
+                try {
+                    return Integer.parseInt(permission.split("\\.")[2]);
+                } catch(Exception e) {
+                    return HuskHomes.settings.getFreeHomeSlots();
+                }
+            }
+        }
+        return HuskHomes.settings.getFreeHomeSlots();
+    }
 }

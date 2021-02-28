@@ -1,15 +1,19 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.teleport.Home;
-import me.william278.huskhomes2.teleport.TeleportationPoint;
 import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;

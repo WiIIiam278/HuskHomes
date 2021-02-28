@@ -6,6 +6,7 @@ import me.william278.huskhomes2.PluginMessageHandler;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VanishChecker;
 import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.teleport.points.RandomPoint;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

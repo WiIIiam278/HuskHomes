@@ -62,19 +62,16 @@ public final class HuskHomes extends JavaPlugin {
         return new HuskHomesAPI();
     }
 
-    // Disable the plugin for the given reason
     public static void disablePlugin(String reason) {
         instance.getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
         Bukkit.getPluginManager().disablePlugin(instance);
     }
 
-    // Initialise bungee plugin channels
     private void setupBungeeChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageHandler());
     }
 
-    // Register tab completers
     private void registerCommands() {
         HomeCommand.Tab homeTab = new HomeCommand.Tab();
         new HomeCommand().register(getCommand("home")).setTabCompleter(homeTab);

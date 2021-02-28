@@ -1,10 +1,12 @@
 package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.PluginMessageHandler;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.teleport.points.RandomPoint;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

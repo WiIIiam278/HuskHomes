@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.api;
 
-import me.william278.huskhomes2.teleport.Home;
-import me.william278.huskhomes2.teleport.TeleportationPoint;
-import me.william278.huskhomes2.teleport.Warp;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

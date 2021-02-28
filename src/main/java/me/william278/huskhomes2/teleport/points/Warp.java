@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.teleport;
+package me.william278.huskhomes2.teleport.points;
 
 import org.bukkit.Location;
 
@@ -8,8 +8,8 @@ import org.bukkit.Location;
  */
 public class Warp extends TeleportationPoint {
 
-    String name;
-    String description;
+    private String name;
+    private String description;
 
     /**
      * An object representing an in-game warp

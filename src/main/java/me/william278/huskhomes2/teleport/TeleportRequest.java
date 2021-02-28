@@ -6,9 +6,9 @@ import java.time.Instant;
 
 public class TeleportRequest {
 
-    String senderName;
-    long requestExpiryTime;
-    String requestType;
+    private String senderName;
+    private long requestExpiryTime;
+    private String requestType;
 
     public TeleportRequest(String senderName, String requestType) {
         this.senderName = senderName;

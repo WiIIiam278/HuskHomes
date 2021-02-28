@@ -1,18 +1,18 @@
 package me.william278.huskhomes2.commands;
 
+import me.william278.huskhomes2.EditingHandler;
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerChangeHomeDescriptionEvent;
 import me.william278.huskhomes2.api.events.PlayerMakeHomePrivateEvent;
 import me.william278.huskhomes2.api.events.PlayerMakeHomePublicEvent;
 import me.william278.huskhomes2.api.events.PlayerRelocateHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerRenameHomeEvent;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.EditingHandler;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
-import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.teleport.Home;
-import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

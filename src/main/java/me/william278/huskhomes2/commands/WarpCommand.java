@@ -1,11 +1,11 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.ListHandler;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;

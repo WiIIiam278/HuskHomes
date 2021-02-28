@@ -5,15 +5,19 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VanishChecker;
-import me.william278.huskhomes2.teleport.TeleportRequest;
-import me.william278.huskhomes2.teleport.TeleportationPoint;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.TeleportRequest;
 import me.william278.huskhomes2.teleport.TeleportRequestHandler;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class PluginMessageHandler implements PluginMessageListener {
 

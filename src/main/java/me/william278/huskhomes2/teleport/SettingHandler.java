@@ -1,5 +1,7 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.teleport;
 
+import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerDeleteHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerDeleteWarpEvent;
 import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
@@ -10,12 +12,6 @@ import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
-import me.william278.huskhomes2.teleport.Home;
-import me.william278.huskhomes2.teleport.SetHomeConditions;
-import me.william278.huskhomes2.teleport.SetWarpConditions;
-import me.william278.huskhomes2.teleport.TeleportationPoint;
-import me.william278.huskhomes2.teleport.Warp;
-import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -53,7 +49,7 @@ public class SettingHandler {
         }
     }
 
-    // Set a home at the specified position
+    // Set a warp at the specified position
     public static void setWarp(Location location, Player player, String name) {
         SetWarpConditions setWarpConditions = new SetWarpConditions(name);
         if (setWarpConditions.areConditionsMet()) {

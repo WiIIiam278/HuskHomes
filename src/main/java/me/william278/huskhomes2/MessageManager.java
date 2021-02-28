@@ -1,7 +1,6 @@
 package me.william278.huskhomes2;
 
 import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
 import net.md_5.bungee.api.ChatMessageType;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +56,7 @@ public class MessageManager {
         }
         FileConfiguration config = loadConfiguration(f);
         config.options().header(
-                " ------------------------------ \n" +
+                        " ------------------------------ \n" +
                         "|      HuskHomes Messages      |\n" +
                         "|    Developed by William278   |\n" +
                         " ------------------------------ \n" +

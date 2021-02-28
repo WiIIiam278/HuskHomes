@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
  */
 public class PlayerRelocateWarpEvent extends PlayerWarpUpdateEvent {
 
-    final TeleportationPoint oldTeleportationPoint;
-    final TeleportationPoint newTeleportationPoint;
+    private final TeleportationPoint oldTeleportationPoint;
+    private final TeleportationPoint newTeleportationPoint;
 
     /**
      * An event, fired when a player relocates a warp

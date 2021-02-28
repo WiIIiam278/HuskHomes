@@ -8,16 +8,18 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomPoint extends TeleportationPoint {
 
     // List containing all unsafe blocks
-    final static HashSet<Material> unsafeBlocks = new HashSet<>();
+    private final static Set<Material> unsafeBlocks = EnumSet.noneOf(Material.class);
 
     // Maximum number of attempts to find a random location
-    final static int maxRandomAttempts = 8;
+    private final static int maxRandomAttempts = 8;
 
     static {
         unsafeBlocks.add(Material.LAVA);
@@ -36,15 +38,13 @@ public class RandomPoint extends TeleportationPoint {
 
     private Location randomLocation(World world) {
         // Generate a random location
-        Random random = new Random();
+        Random random = ThreadLocalRandom.current();
 
         int x;
         int y = 64;
         int z;
         double blockCenterX = 0.5;
         double blockCenterZ = 0.5;
-        int negativeX;
-        int negativeZ;
 
         // The furthest distance at which a player can be teleported to
         int rtpRange = HuskHomes.settings.getRtpRange();
@@ -54,15 +54,13 @@ public class RandomPoint extends TeleportationPoint {
         z = random.nextInt(rtpRange);
 
         // Determine if the plugin should teleport to positive or negative Z
-        negativeX = random.nextInt(2);
-        negativeZ = random.nextInt(2);
-        if (negativeX == 1) {
-            x = x * -1;
-            blockCenterX = blockCenterX * -1;
+        if (random.nextBoolean()) {
+            x *= -1;
+            blockCenterX *= -1;
         }
-        if (negativeZ == 1)  {
-            z = z * -1;
-            blockCenterZ = blockCenterZ * -1;
+        if (random.nextBoolean())  {
+            z *= -1;
+            blockCenterZ *= -1;
         }
 
         // Put together random location, get the highest block plus one to determine Y

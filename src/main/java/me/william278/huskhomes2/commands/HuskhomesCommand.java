@@ -1,10 +1,9 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.migrators.EssentialsMigrator;
-import me.william278.huskhomes2.VersionChecker;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -42,8 +41,8 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
                         if (p.hasPermission("huskhomes.version_checker")) {
-                            if (!VersionChecker.getVersionCheckString().contains("HuskHomes is up to date!")) {
-                                p.sendMessage(org.bukkit.ChatColor.DARK_RED + "Update: " + org.bukkit.ChatColor.RED + VersionChecker.getVersionCheckString());
+                            if (!HuskHomes.getVersionCheckString().contains("HuskHomes is up to date!")) {
+                                p.sendMessage(org.bukkit.ChatColor.DARK_RED + "Update: " + org.bukkit.ChatColor.RED + HuskHomes.getVersionCheckString());
 
                                 // Send a link to Spigot downloads page
                                 ComponentBuilder componentBuilder = new ComponentBuilder();
@@ -61,7 +60,7 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
                             MessageManager.sendMessage(p, "error_no_permission");
                         }
                     } else {
-                        plugin.getLogger().info(VersionChecker.getVersionCheckString());
+                        plugin.getLogger().info(HuskHomes.getVersionCheckString());
                     }
                     return true;
                 case "reload":

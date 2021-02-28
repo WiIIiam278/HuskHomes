@@ -4,8 +4,8 @@ import me.william278.huskhomes2.data.DataManager;
 
 public class SetWarpConditions {
 
-    boolean conditionsMet;
-    String conditionsNotMetReason;
+    private boolean conditionsMet;
+    private String conditionsNotMetReason;
 
     public SetWarpConditions(String warpName) {
         conditionsMet = false;

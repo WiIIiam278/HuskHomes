@@ -1,11 +1,11 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.teleport.TeleportationPoint;
 import me.william278.huskhomes2.teleport.Warp;
-import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.SettingHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;

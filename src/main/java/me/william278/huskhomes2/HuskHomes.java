@@ -63,9 +63,9 @@ public final class HuskHomes extends JavaPlugin {
     }
 
     // Disable the plugin for the given reason
-    public void disablePlugin(String reason) {
-        getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
-        Bukkit.getPluginManager().disablePlugin(getInstance());
+    public static void disablePlugin(String reason) {
+        instance.getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
+        Bukkit.getPluginManager().disablePlugin(instance);
     }
 
     // Initialise bungee plugin channels

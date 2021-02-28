@@ -57,22 +57,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <detectJavaApiLink>false</detectJavaApiLink>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -100,6 +84,10 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
+            <id>codemc</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+        <repository>
             <id>minebench-repo</id>
             <url>https://repo.minebench.de/</url>
         </repository>
@@ -116,6 +104,7 @@
             <groupId>us.dynmap</groupId>
             <artifactId>dynmap-api</artifactId>
             <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>

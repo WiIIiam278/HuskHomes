@@ -32,7 +32,6 @@ public class RandomPoint extends TeleportationPoint {
             setLocation(randomLocation, HuskHomes.settings.getServerID());
         } else {
             MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
-            setLocation(player.getLocation(), HuskHomes.settings.getServerID());
         }
     }
 

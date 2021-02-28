@@ -16,24 +16,24 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomPoint extends TeleportationPoint {
 
     // List containing all unsafe blocks
-    private final static Set<Material> unsafeBlocks = EnumSet.noneOf(Material.class);
+    private static final Set<Material> unsafeBlocks = EnumSet.of(
+            Material.LAVA, Material.FIRE, Material.MAGMA_BLOCK, Material.CACTUS, Material.WATER, Material.OBSIDIAN,
+            Material.JUNGLE_LEAVES, Material.SPRUCE_LEAVES, Material.OAK_LEAVES,
+            Material.BIRCH_LEAVES, Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES
+    );
 
     // Maximum number of attempts to find a random location
-    private final static int maxRandomAttempts = 8;
+    private static final int MAX_RANDOM_ATTEMPTS = 8;
 
-    static {
-        unsafeBlocks.add(Material.LAVA);
-        unsafeBlocks.add(Material.FIRE);
-        unsafeBlocks.add(Material.CACTUS);
-        unsafeBlocks.add(Material.WATER);
-        unsafeBlocks.add(Material.MAGMA_BLOCK);
-        unsafeBlocks.add(Material.JUNGLE_LEAVES);
-        unsafeBlocks.add(Material.SPRUCE_LEAVES);
-        unsafeBlocks.add(Material.OAK_LEAVES);
-        unsafeBlocks.add(Material.BIRCH_LEAVES);
-        unsafeBlocks.add(Material.ACACIA_LEAVES);
-        unsafeBlocks.add(Material.DARK_OAK_LEAVES);
-        unsafeBlocks.add(Material.OBSIDIAN);
+    public RandomPoint(Player player) {
+        super(player.getLocation(), HuskHomes.settings.getServerID());
+        Location randomLocation = getRandomLocation(player.getWorld());
+        if (randomLocation != null) {
+            setLocation(randomLocation, HuskHomes.settings.getServerID());
+        } else {
+            MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
+            setLocation(player.getLocation(), HuskHomes.settings.getServerID());
+        }
     }
 
     private Location randomLocation(World world) {
@@ -82,7 +82,7 @@ public class RandomPoint extends TeleportationPoint {
         // Failsafe check in case the world is null
         if (world != null) {
 
-            // Get instances of the blocks around where the player would spawn
+            // Get instances of the blocks around where the player would teleport
             Block block = world.getBlockAt(x, y, z);
             Block below = world.getBlockAt(x, y - 1, z);
             Block above = world.getBlockAt(x, y + 1, z);
@@ -98,32 +98,13 @@ public class RandomPoint extends TeleportationPoint {
     }
 
     private Location getRandomLocation(World world) {
-        Location randomLocation = randomLocation(world);
-
-        int attempts = 0;
-
-        // Keep looking for a random location that is safe
-        while (!isLocationSafe(randomLocation)){
-
-            // Failsafe timeout in case the plugin can't find a safe location within a number of tries.
-            if (attempts < maxRandomAttempts) {
-                randomLocation = randomLocation(world);
-            } else {
-                return null;
+        for (int i = 0; i < MAX_RANDOM_ATTEMPTS; i++) {
+            Location randomLocation = randomLocation(world);
+            if (isLocationSafe(randomLocation)) {
+                return randomLocation;
             }
-            attempts = attempts + 1;
         }
-        return randomLocation;
-    }
 
-    public RandomPoint(Player player) {
-        super(player.getLocation(), HuskHomes.settings.getServerID());
-        Location randomLocation = getRandomLocation(player.getWorld());
-        if (randomLocation != null) {
-            setLocation(randomLocation, HuskHomes.settings.getServerID());
-        } else {
-            MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
-        }
+        return null;
     }
-
 }

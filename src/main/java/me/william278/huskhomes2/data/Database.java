@@ -1,8 +1,6 @@
 package me.william278.huskhomes2.data;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.logging.Error;
-import me.william278.huskhomes2.data.logging.Errors;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
@@ -60,7 +58,7 @@ public abstract class Database {
             }
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -82,7 +80,7 @@ public abstract class Database {
             ps.setBoolean(5, home.isPublic());
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -104,7 +102,7 @@ public abstract class Database {
             ps.setString(3, warp.getDescription());
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -122,7 +120,7 @@ public abstract class Database {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -141,7 +139,7 @@ public abstract class Database {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -162,7 +160,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -183,7 +181,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -204,7 +202,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -219,7 +217,7 @@ public abstract class Database {
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -234,7 +232,7 @@ public abstract class Database {
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -249,7 +247,7 @@ public abstract class Database {
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -264,7 +262,7 @@ public abstract class Database {
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -281,7 +279,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -300,7 +298,7 @@ public abstract class Database {
             ps.setInt(3, ownerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -322,7 +320,7 @@ public abstract class Database {
             ps.setInt(3, ownerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -343,7 +341,7 @@ public abstract class Database {
             ps.setString(2, warpName);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
     // Update the description of a home
@@ -361,7 +359,7 @@ public abstract class Database {
             ps.setInt(3, ownerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -379,7 +377,7 @@ public abstract class Database {
             ps.setString(2, warpName);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -399,7 +397,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -418,7 +416,7 @@ public abstract class Database {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -439,7 +437,7 @@ public abstract class Database {
             ps.setInt(2, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -461,7 +459,7 @@ public abstract class Database {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -476,7 +474,7 @@ public abstract class Database {
             ps.setInt(1, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 
@@ -491,7 +489,7 @@ public abstract class Database {
             ps.setInt(1, playerID);
             ps.executeUpdate();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
     }
 

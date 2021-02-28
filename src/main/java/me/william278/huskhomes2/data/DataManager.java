@@ -1,7 +1,6 @@
 package me.william278.huskhomes2.data;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.logging.Errors;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
@@ -27,7 +26,7 @@ public class DataManager {
 
     public static String createLocationsTable = "";
 
-    public static String createHomesTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getHomesDataTable() + " (" +
+    public static final String createHomesTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getHomesDataTable() + " (" +
             "`player_id` integer NOT NULL," +
             "`location_id` integer NOT NULL," +
             "`name` varchar(16) NOT NULL," +
@@ -38,7 +37,7 @@ public class DataManager {
             "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getWarpsDataTable() + " (" +
+    public static final String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getWarpsDataTable() + " (" +
             "`location_id` integer NOT NULL," +
             "`name` varchar(16) NOT NULL UNIQUE," +
             "`description` varchar(255) NOT NULL," +
@@ -80,7 +79,7 @@ public class DataManager {
                 return null; // If the player doesn't exist, playerID will be null
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -106,7 +105,7 @@ public class DataManager {
                 return null; // If the player doesn't exist, playerID will be null
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -133,7 +132,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -170,7 +169,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -198,7 +197,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -274,7 +273,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -305,7 +304,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -336,7 +335,7 @@ public class DataManager {
             }
             return warps;
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -370,7 +369,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -395,7 +394,7 @@ public class DataManager {
                 Bukkit.getLogger().severe("Failed to obtain home teleportation location ID");
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -433,7 +432,7 @@ public class DataManager {
                 Bukkit.getLogger().severe("Failed to obtain warp teleportation location ID");
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -518,7 +517,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -540,7 +539,7 @@ public class DataManager {
                 return false;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -573,7 +572,7 @@ public class DataManager {
                 return false;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -600,7 +599,7 @@ public class DataManager {
                 return false;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }
@@ -627,7 +626,7 @@ public class DataManager {
                 return null;
             }
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Errors.sqlConnectionExecute(), ex);
+            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
         }
         return null;
     }

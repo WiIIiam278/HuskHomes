@@ -21,31 +21,27 @@ import java.util.UUID;
 public class HomeCommand extends CommandBase {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
-            if (args.length == 1) {
-                String homeName = args[0];
-                if (DataManager.homeExists(p, homeName)) {
-                    Home home = DataManager.getHome(p.getName(), homeName);
-                    TeleportManager.queueTimedTeleport(p, home);
-                } else {
-                    MessageManager.sendMessage(p, "error_home_invalid", homeName);
-                }
+    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+        if (args.length == 1) {
+            String homeName = args[0];
+            if (DataManager.homeExists(p, homeName)) {
+                Home home = DataManager.getHome(p.getName(), homeName);
+                TeleportManager.queueTimedTeleport(p, home);
             } else {
-                List<Home> homes = DataManager.getPlayerHomes(p.getName());
-                if (homes != null) {
-                    if (homes.size() == 1) {
-                        // Teleport the player if they only have one home
-                        TeleportManager.queueTimedTeleport(p, homes.get(0));
-                        return true;
-                    }
-                }
-                ListHandler.displayPlayerHomeList(p, 1);
+                MessageManager.sendMessage(p, "error_home_invalid", homeName);
             }
-            return true;
+        } else {
+            List<Home> homes = DataManager.getPlayerHomes(p.getName());
+            if (homes != null) {
+                if (homes.size() == 1) {
+                    // Teleport the player if they only have one home
+                    TeleportManager.queueTimedTeleport(p, homes.get(0));
+                    return true;
+                }
+            }
+            ListHandler.displayPlayerHomeList(p, 1);
         }
-        return false;
+        return true;
     }
 
     public static class Tab implements TabCompleter {

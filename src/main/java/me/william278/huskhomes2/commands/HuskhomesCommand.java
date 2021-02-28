@@ -123,6 +123,11 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
+    protected boolean onCommand(Player player, Command command, String label, String[] args) {
+        return true;
+    }
+
+    @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();

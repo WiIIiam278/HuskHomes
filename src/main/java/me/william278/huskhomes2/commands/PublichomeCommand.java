@@ -33,33 +33,29 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
-            if (args.length == 1) {
-                String publicHome = args[0];
-                if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
-                    String ownerName = publicHome.split("\\.")[0];
-                    String homeName = publicHome.split("\\.")[1];
-                    if (DataManager.homeExists(ownerName, homeName)) {
-                        Home home = DataManager.getHome(ownerName, homeName);
-                        if (home.isPublic()) {
-                            TeleportManager.queueTimedTeleport(p, home);
-                        } else {
-                            MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
-                        }
+    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+        if (args.length == 1) {
+            String publicHome = args[0];
+            if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
+                String ownerName = publicHome.split("\\.")[0];
+                String homeName = publicHome.split("\\.")[1];
+                if (DataManager.homeExists(ownerName, homeName)) {
+                    Home home = DataManager.getHome(ownerName, homeName);
+                    if (home.isPublic()) {
+                        TeleportManager.queueTimedTeleport(p, home);
                     } else {
                         MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                     }
                 } else {
-                    MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                    MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                 }
             } else {
-                ListHandler.displayPublicHomeList(p, 1);
+                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
             }
-            return true;
+        } else {
+            ListHandler.displayPublicHomeList(p, 1);
         }
-        return false;
+        return true;
     }
 
     @Override

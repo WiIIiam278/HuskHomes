@@ -20,27 +20,23 @@ import java.util.List;
 public class WarpCommand extends CommandBase {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
-            if (HuskHomes.settings.doWarpCommand()) {
-                if (args.length == 1) {
-                    String warpName = args[0];
-                    if (DataManager.warpExists(warpName)) {
-                        Warp warp = DataManager.getWarp(warpName);
-                        TeleportManager.queueTimedTeleport(p, warp);
-                    } else {
-                        MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-                    }
+    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+        if (HuskHomes.settings.doWarpCommand()) {
+            if (args.length == 1) {
+                String warpName = args[0];
+                if (DataManager.warpExists(warpName)) {
+                    Warp warp = DataManager.getWarp(warpName);
+                    TeleportManager.queueTimedTeleport(p, warp);
                 } else {
-                    ListHandler.displayWarpList(p, 1);
+                    MessageManager.sendMessage(p, "error_warp_invalid", warpName);
                 }
             } else {
-                MessageManager.sendMessage(p, "error_command_disabled");
+                ListHandler.displayWarpList(p, 1);
             }
-            return true;
+        } else {
+            MessageManager.sendMessage(p, "error_command_disabled");
         }
-        return false;
+        return true;
     }
 
     public static class Tab implements TabCompleter {

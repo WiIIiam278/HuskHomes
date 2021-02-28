@@ -5,12 +5,23 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public abstract class CommandBase implements CommandExecutor {
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            return onCommand((Player) sender, command, label, args);
+        }
+        return false;
+    }
+
+    protected abstract boolean onCommand(Player player, Command command, String label, String[] args);
+
     /**
      * Register base for bukkit command
      * @param command Command for registration

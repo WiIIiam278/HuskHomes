@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 public class SQL extends Database {
 
-    final String SQLiteDatabaseName = "HuskHomesData";
+    private final String SQLiteDatabaseName = "HuskHomesData";
 
     private Connection connection;
 

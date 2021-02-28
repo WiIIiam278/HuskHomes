@@ -24,12 +24,13 @@ import me.william278.huskhomes2.commands.TphereCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.commands.WarplistCommand;
 import me.william278.huskhomes2.config.ConfigManager;
+import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.migrators.LegacyMigrator;
-import me.william278.huskhomes2.config.Settings;
+import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -54,15 +55,15 @@ public final class HuskHomes extends JavaPlugin {
     }
 
     // Disable the plugin for the given reason
-    public static void disablePlugin(String reason) {
-        getInstance().getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
+    public void disablePlugin(String reason) {
+        getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
         Bukkit.getPluginManager().disablePlugin(getInstance());
     }
 
     // Initialise bungee plugin channels
-    private static void setupBungeeChannels(HuskHomes plugin) {
-        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new PluginMessageHandler());
+    private void setupBungeeChannels() {
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageHandler());
     }
 
     // Register tab completers
@@ -75,7 +76,6 @@ public final class HuskHomes extends JavaPlugin {
         new WarpCommand().register(getCommand("warp")).setTabCompleter(warpTab);
         new DelwarpCommand().register(getCommand("delwarp")).setTabCompleter(warpTab);
 
-        // TODO
         new PublichomeCommand().register(getCommand("publichome"));
         new EdithomeCommand().register(getCommand("edithome"));
         new EditwarpCommand().register(getCommand("editwarp"));
@@ -157,14 +157,9 @@ public final class HuskHomes extends JavaPlugin {
             VaultIntegration.initializeEconomy();
         }
 
-        // Return if the plugin is disabled
-        if (!HuskHomes.getInstance().isEnabled()) {
-            return;
-        }
-
         // Set up bungee channels if bungee mode is enabled
         if (settings.doBungee()) {
-            setupBungeeChannels(this);
+            setupBungeeChannels();
         }
 
         // Register commands and their associated tab completers
@@ -177,7 +172,7 @@ public final class HuskHomes extends JavaPlugin {
         RunEverySecond.startLoop();
 
         // bStats initialisation
-        new MetricsManager(this, 8430);
+        new MetricsLite(this, 8430);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.listHandler;
-import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.ListHandler;
+import me.william278.huskhomes2.MessageManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,11 +17,11 @@ public class HomelistCommand extends CommandBase {
                 try {
                     pageNo = Integer.parseInt(args[0]);
                 } catch (Exception e) {
-                    messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                    MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                     return true;
                 }
             }
-            listHandler.displayPlayerHomeList(p, pageNo);
+            ListHandler.displayPlayerHomeList(p, pageNo);
             return true;
         }
         return false;

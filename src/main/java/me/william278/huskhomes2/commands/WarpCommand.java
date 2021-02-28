@@ -1,11 +1,11 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.listHandler;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.objects.Warp;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.ListHandler;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -26,17 +26,17 @@ public class WarpCommand extends CommandBase {
             if (HuskHomes.settings.doWarpCommand()) {
                 if (args.length == 1) {
                     String warpName = args[0];
-                    if (dataManager.warpExists(warpName)) {
-                        Warp warp = dataManager.getWarp(warpName);
-                        teleportManager.queueTimedTeleport(p, warp);
+                    if (DataManager.warpExists(warpName)) {
+                        Warp warp = DataManager.getWarp(warpName);
+                        TeleportManager.queueTimedTeleport(p, warp);
                     } else {
-                        messageManager.sendMessage(p, "error_warp_invalid", warpName);
+                        MessageManager.sendMessage(p, "error_warp_invalid", warpName);
                     }
                 } else {
-                    listHandler.displayWarpList(p, 1);
+                    ListHandler.displayWarpList(p, 1);
                 }
             } else {
-                messageManager.sendMessage(p, "error_command_disabled");
+                MessageManager.sendMessage(p, "error_command_disabled");
             }
             return true;
         }
@@ -52,7 +52,7 @@ public class WarpCommand extends CommandBase {
         // Updates the public home cache
         public static void updateWarpsTabCache() {
             warpsTabCache.clear();
-            for (Warp warp : dataManager.getWarps()) {
+            for (Warp warp : DataManager.getWarps()) {
                 warpsTabCache.add(warp.getName());
             }
         }

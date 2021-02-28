@@ -1,11 +1,11 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.objects.Warp;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.settingHandler;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.SettingHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
-public class essentialsMigrator {
+public class EssentialsMigrator {
 
     // Migrate data from EssentialsX
     public static void migrate() {
@@ -40,7 +40,7 @@ public class essentialsMigrator {
                     Bukkit.getLogger().info("Migrating user data for " + playerName);
                     try {
                         Set<String> essentialsHomes = playerFileConfig.getConfigurationSection("homes").getKeys(false);
-                        dataManager.createPlayer(uuid, playerName);
+                        DataManager.createPlayer(uuid, playerName);
                         for (String home : essentialsHomes) {
 
                             // Get
@@ -54,7 +54,7 @@ public class essentialsMigrator {
                             Home playerHome = new Home(new TeleportationPoint(worldName, x, y, z, yaw, pitch, serverID), playerName, uuidS, home, playerName + "'s home", false);
 
                             Bukkit.getLogger().info("> Migrated home " + home);
-                            dataManager.addHome(playerHome, uuid);
+                            DataManager.addHome(playerHome, uuid);
                         }
                     } catch (NullPointerException e) {
                         Bukkit.getLogger().info("No home data found for " + playerName);
@@ -81,7 +81,7 @@ public class essentialsMigrator {
                         float pitch = (float) warpFileConfig.getDouble("pitch");
 
                         Warp warp = new Warp(new TeleportationPoint(worldName, x, y, z, yaw, pitch, serverID), warpName, "A publicly accessible warp");
-                        dataManager.addWarp(warp);
+                        DataManager.addWarp(warp);
 
                         Bukkit.getLogger().info("Migrated warp \"" + warpName + "\"");
                     } catch (NullPointerException e) {
@@ -106,7 +106,7 @@ public class essentialsMigrator {
                     float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
 
                     Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
-                    settingHandler.setSpawnLocation(spawnLocation);
+                    SettingHandler.setSpawnLocation(spawnLocation);
                     Bukkit.getLogger().info("/spawn position has been migrated!");
                 } catch (Exception e) {
                     Bukkit.getLogger().warning("Error obtaining /spawn position!");

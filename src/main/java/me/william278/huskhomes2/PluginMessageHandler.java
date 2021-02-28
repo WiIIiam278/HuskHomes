@@ -3,16 +3,19 @@ package me.william278.huskhomes2;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import me.william278.huskhomes2.integrations.vanishChecker;
-import me.william278.huskhomes2.objects.TeleportRequest;
-import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.integrations.VanishChecker;
+import me.william278.huskhomes2.teleport.TeleportRequest;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.*;
 
-public class pluginMessageHandler implements PluginMessageListener {
+public class PluginMessageHandler implements PluginMessageListener {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
@@ -112,55 +115,55 @@ public class pluginMessageHandler implements PluginMessageListener {
         switch (messageType) {
             case "set_tp_destination":
                 setTeleportDestination(messageData, recipient);
-                pluginMessageHandler.sendPluginMessage(recipient, messageData, "confirm_destination_set", "confirmed");
+                PluginMessageHandler.sendPluginMessage(recipient, messageData, "confirm_destination_set", "confirmed");
                 break;
             case "confirm_destination_set":
                 if (messageData.equals("confirmed")) {
-                    teleportManager.teleportPlayer(recipient);
+                    TeleportManager.teleportPlayer(recipient);
                 }
                 break;
             case "tpa_request":
-                if (!vanishChecker.isVanished(recipient)) {
-                    teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
-                    messageManager.sendMessage(recipient, "tpa_request_ask", messageData);
-                    teleportRequestHandler.sendTpAcceptDenyButtons(recipient);
+                if (!VanishChecker.isVanished(recipient)) {
+                    TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpa"));
+                    MessageManager.sendMessage(recipient, "tpa_request_ask", messageData);
+                    TeleportRequestHandler.sendTpAcceptDenyButtons(recipient);
                 }
                 break;
             case "tpahere_request":
-                if (!vanishChecker.isVanished(recipient)) {
-                    teleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
-                    messageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
-                    teleportRequestHandler.sendTpAcceptDenyButtons(recipient);
+                if (!VanishChecker.isVanished(recipient)) {
+                    TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(messageData, "tpahere"));
+                    MessageManager.sendMessage(recipient, "tpahere_request_ask", messageData);
+                    TeleportRequestHandler.sendTpAcceptDenyButtons(recipient);
                 }
                 break;
             case "tpa_request_reply":
                 replierName = messageData.split(":")[0];
                 accepted = Boolean.parseBoolean(messageData.split(":")[1]);
                 if (accepted) {
-                    messageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
-                    teleportManager.queueTimedTeleport(recipient, replierName);
+                    MessageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
+                    TeleportManager.queueTimedTeleport(recipient, replierName);
                 } else {
-                    messageManager.sendMessage(recipient, "tpa_has_declined", replierName);
+                    MessageManager.sendMessage(recipient, "tpa_has_declined", replierName);
                 }
                 break;
             case "tpahere_request_reply":
                 replierName = messageData.split(":")[0];
                 accepted = Boolean.parseBoolean(messageData.split(":")[1]);
                 if (accepted) {
-                    messageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
+                    MessageManager.sendMessage(recipient, "tpa_has_accepted", replierName);
                 } else {
-                    messageManager.sendMessage(recipient, "tpa_has_declined", replierName);
+                    MessageManager.sendMessage(recipient, "tpa_has_declined", replierName);
                 }
                 break;
             case "teleport_to_me":
-                teleportManager.teleportPlayer(recipient, messageData);
+                TeleportManager.teleportPlayer(recipient, messageData);
                 break;
         }
     }
 
     // Set the requesters' teleport destination to a teleportation point of the recipient's current location
     public void setTeleportDestination(String requesterName, Player recipient) {
-        dataManager.setPlayerDestinationLocation(requesterName,
+        DataManager.setPlayerDestinationLocation(requesterName,
                 new TeleportationPoint(recipient.getLocation(), HuskHomes.settings.getServerID()));
     }
 }

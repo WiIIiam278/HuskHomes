@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.teleportRequestHandler;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,9 +14,9 @@ public class TpahereCommand extends CommandBase {
             Player p = (Player) sender;
             if (args.length == 1) {
                 String targetPlayer = args[0];
-                teleportRequestHandler.sendTeleportHereRequest(p, targetPlayer);
+                TeleportRequestHandler.sendTeleportHereRequest(p, targetPlayer);
             } else {
-                messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
             }
             return true;
         }

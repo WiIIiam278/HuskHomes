@@ -1,25 +1,25 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.teleport;
 
-import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.permissionHomeLimits;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.PermissionHomeLimits;
 import org.bukkit.entity.Player;
 
 public class SetHomeConditions {
 
-    boolean conditionsMet;
-    String conditionsNotMetReason;
+    private boolean conditionsMet;
+    private String conditionsNotMetReason;
 
     public SetHomeConditions(Player player, String homeName) {
         conditionsMet = false;
-        int currentHomeCount = dataManager.getPlayerHomeCount(player);
-        if (currentHomeCount > (permissionHomeLimits.getSetHomeLimit(player) - 1)) {
+        int currentHomeCount = DataManager.getPlayerHomeCount(player);
+        if (currentHomeCount > (PermissionHomeLimits.getSetHomeLimit(player) - 1)) {
             conditionsNotMetReason = "error_set_home_maximum_homes";
             return;
         }
-        if (dataManager.homeExists(player, homeName)) {
+        if (DataManager.homeExists(player, homeName)) {
             conditionsNotMetReason = "error_set_home_name_taken";
             return;
         }
@@ -32,19 +32,19 @@ public class SetHomeConditions {
             return;
         }
         if (HuskHomes.settings.doEconomy()) {
-            double setHomeCost = HuskHomes.settings.setHomeCost;
+            double setHomeCost = HuskHomes.settings.getSetHomeCost();
             if (setHomeCost > 0) {
-                int currentPlayerHomeSlots = dataManager.getPlayerHomeSlots(player);
+                int currentPlayerHomeSlots = DataManager.getPlayerHomeSlots(player);
                 if (currentHomeCount > (currentPlayerHomeSlots - 1)) {
-                    if (!economy.takeMoney(player, setHomeCost)) {
+                    if (!VaultIntegration.takeMoney(player, setHomeCost)) {
                         conditionsNotMetReason = "error_insufficient_funds";
                         return;
                     } else {
-                        dataManager.incrementPlayerHomeSlots(player);
-                        messageManager.sendMessage(player, "set_home_spent_money", economy.format(setHomeCost));
+                        DataManager.incrementPlayerHomeSlots(player);
+                        MessageManager.sendMessage(player, "set_home_spent_money", VaultIntegration.format(setHomeCost));
                     }
                 } else if (currentHomeCount == (currentPlayerHomeSlots - 1)) {
-                    messageManager.sendMessage(player, "set_home_used_free_slots", Integer.toString(permissionHomeLimits.getFreeHomes(player)), economy.format(setHomeCost));
+                    MessageManager.sendMessage(player, "set_home_used_free_slots", Integer.toString(PermissionHomeLimits.getFreeHomes(player)), VaultIntegration.format(setHomeCost));
                 }
             }
         }

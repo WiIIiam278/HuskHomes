@@ -2,10 +2,10 @@ package me.william278.huskhomes2.listeners;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.commands.HomeCommand;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -36,8 +36,8 @@ public class PlayerListener implements Listener {
     public void onPlayerDie(PlayerDeathEvent e) {
         Player p = e.getEntity();
         if (p.hasPermission("huskhomes.back.death")) {
-            dataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.settings.getServerID()));
-            messageManager.sendMessage(p, "return_by_death");
+            DataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.settings.getServerID()));
+            MessageManager.sendMessage(p, "return_by_death");
             p.spigot().sendMessage(backButton().create());
         }
     }
@@ -47,14 +47,14 @@ public class PlayerListener implements Listener {
         Player p = e.getPlayer();
 
         // Create player on SQL if they don't exist already
-        if (!dataManager.playerExists(p)) {
-            dataManager.createPlayer(p);
-            if (teleportManager.spawnLocation != null) {
-                p.teleport(teleportManager.spawnLocation.getLocation());
+        if (!DataManager.playerExists(p)) {
+            DataManager.createPlayer(p);
+            if (TeleportManager.spawnLocation != null) {
+                p.teleport(TeleportManager.spawnLocation.getLocation());
             }
         } else {
             // Check if they've changed their name and update if so
-            dataManager.checkPlayerNameChange(p);
+            DataManager.checkPlayerNameChange(p);
 
             // Update their TAB cache for /home command
             HomeCommand.Tab.updatePlayerHomeCache(p);
@@ -62,8 +62,8 @@ public class PlayerListener implements Listener {
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly
         if (HuskHomes.settings.doBungee()) {
-            if (dataManager.getPlayerTeleporting(p)) {
-                teleportManager.teleportPlayer(p);
+            if (DataManager.getPlayerTeleporting(p)) {
+                TeleportManager.teleportPlayer(p);
             }
         }
     }

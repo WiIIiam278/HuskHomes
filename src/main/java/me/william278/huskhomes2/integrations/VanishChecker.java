@@ -4,7 +4,7 @@ import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 
-public class vanishChecker {
+public class VanishChecker {
 
     public static boolean isVanished(Player player) {
         if (HuskHomes.settings.isCheckVanishedPlayers()) {

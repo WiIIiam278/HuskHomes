@@ -1,8 +1,8 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,13 +14,13 @@ public class SpawnCommand extends CommandBase {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (HuskHomes.settings.doSpawnCommand()) {
-                if (teleportManager.spawnLocation != null) {
-                    teleportManager.queueTimedTeleport(p, teleportManager.spawnLocation);
+                if (TeleportManager.spawnLocation != null) {
+                    TeleportManager.queueTimedTeleport(p, TeleportManager.spawnLocation);
                 } else {
-                    messageManager.sendMessage(p, "error_spawn_undefined");
+                    MessageManager.sendMessage(p, "error_spawn_undefined");
                 }
             } else {
-                messageManager.sendMessage(p, "error_command_disabled");
+                MessageManager.sendMessage(p, "error_command_disabled");
             }
             return true;
         }

@@ -1,7 +1,7 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.MessageManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -124,7 +124,7 @@ public class RandomPoint extends TeleportationPoint {
         if (randomLocation != null) {
             setLocation(randomLocation, HuskHomes.settings.getServerID());
         } else {
-            messageManager.sendMessage(player, "error_rtp_randomization_timeout");
+            MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
         }
     }
 

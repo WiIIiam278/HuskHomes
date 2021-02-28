@@ -3,7 +3,7 @@ package me.william278.huskhomes2;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-public class permissionHomeLimits {
+public class PermissionHomeLimits {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 

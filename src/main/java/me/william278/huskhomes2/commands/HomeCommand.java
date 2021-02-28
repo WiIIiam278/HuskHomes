@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.listHandler;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.ListHandler;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -25,22 +25,22 @@ public class HomeCommand extends CommandBase {
             Player p = (Player) sender;
             if (args.length == 1) {
                 String homeName = args[0];
-                if (dataManager.homeExists(p, homeName)) {
-                    Home home = dataManager.getHome(p.getName(), homeName);
-                    teleportManager.queueTimedTeleport(p, home);
+                if (DataManager.homeExists(p, homeName)) {
+                    Home home = DataManager.getHome(p.getName(), homeName);
+                    TeleportManager.queueTimedTeleport(p, home);
                 } else {
-                    messageManager.sendMessage(p, "error_home_invalid", homeName);
+                    MessageManager.sendMessage(p, "error_home_invalid", homeName);
                 }
             } else {
-                ArrayList<Home> homes = dataManager.getPlayerHomes(p.getName());
+                ArrayList<Home> homes = DataManager.getPlayerHomes(p.getName());
                 if (homes != null) {
                     if (homes.size() == 1) {
                         // Teleport the player if they only have one home
-                        teleportManager.queueTimedTeleport(p, homes.get(0));
+                        TeleportManager.queueTimedTeleport(p, homes.get(0));
                         return true;
                     }
                 }
-                listHandler.displayPlayerHomeList(p, 1);
+                ListHandler.displayPlayerHomeList(p, 1);
             }
             return true;
         }
@@ -57,7 +57,7 @@ public class HomeCommand extends CommandBase {
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
             UUID uuid = p.getUniqueId();
-            ArrayList<Home> playerHomes = dataManager.getPlayerHomes(p.getName());
+            ArrayList<Home> playerHomes = DataManager.getPlayerHomes(p.getName());
             ArrayList<String> homeNames = new ArrayList<>();
             for (Home home : playerHomes) {
                 homeNames.add(home.getName());

@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.listHandler;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.ListHandler;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -26,7 +26,7 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     // Updates the public home cache
     public static void updatePublicHomeTabCache() {
         publicHomeTabCache.clear();
-        for (Home home : dataManager.getPublicHomes()) {
+        for (Home home : DataManager.getPublicHomes()) {
             publicHomeTabCache.put(home.getName(), home.getOwnerUsername());
         }
     }
@@ -40,21 +40,21 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
                 if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
                     String ownerName = publicHome.split("\\.")[0];
                     String homeName = publicHome.split("\\.")[1];
-                    if (dataManager.homeExists(ownerName, homeName)) {
-                        Home home = dataManager.getHome(ownerName, homeName);
+                    if (DataManager.homeExists(ownerName, homeName)) {
+                        Home home = DataManager.getHome(ownerName, homeName);
                         if (home.isPublic()) {
-                            teleportManager.queueTimedTeleport(p, home);
+                            TeleportManager.queueTimedTeleport(p, home);
                         } else {
-                            messageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
+                            MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                         }
                     } else {
-                        messageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
+                        MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                     }
                 } else {
-                    messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                    MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                 }
             } else {
-                listHandler.displayPublicHomeList(p, 1);
+                ListHandler.displayPublicHomeList(p, 1);
             }
             return true;
         }

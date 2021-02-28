@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class versionChecker {
+public class VersionChecker {
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
     public static String getVersionCheckString() {

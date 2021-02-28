@@ -23,11 +23,13 @@ import me.william278.huskhomes2.commands.TpdenyCommand;
 import me.william278.huskhomes2.commands.TphereCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.commands.WarplistCommand;
-import me.william278.huskhomes2.integrations.dynamicMap;
-import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.config.ConfigManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.integrations.DynMapIntegration;
+import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
-import me.william278.huskhomes2.migrators.legacyVersionMigrator;
-import me.william278.huskhomes2.objects.Settings;
+import me.william278.huskhomes2.migrators.LegacyMigrator;
+import me.william278.huskhomes2.config.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -60,7 +62,7 @@ public final class HuskHomes extends JavaPlugin {
     // Initialise bungee plugin channels
     private static void setupBungeeChannels(HuskHomes plugin) {
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
+        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new PluginMessageHandler());
     }
 
     // Register tab completers
@@ -115,44 +117,44 @@ public final class HuskHomes extends JavaPlugin {
         setInstance(this);
 
         // MIGRATION: Check if a migration needs to occur
-        legacyVersionMigrator.checkStartupMigration();
+        LegacyMigrator.checkStartupMigration();
 
         // Load the config
-        configManager.loadConfig();
+        ConfigManager.loadConfig();
 
         // MIGRATION: Migrate config files
-        if (legacyVersionMigrator.startupMigrate) {
-            new legacyVersionMigrator().migrateConfig();
+        if (LegacyMigrator.startupMigrate) {
+            new LegacyMigrator().migrateConfig();
         }
 
         // Load the messages (in the right language)
-        messageManager.loadMessages(HuskHomes.settings.getLanguage());
+        MessageManager.loadMessages(HuskHomes.settings.getLanguage());
 
         // Check for updates (if enabled)
         if (HuskHomes.settings.doUpdateChecks()) {
-            getLogger().info(versionChecker.getVersionCheckString());
+            getLogger().info(VersionChecker.getVersionCheckString());
         }
 
         // Fetch spawn location if set
-        settingHandler.fetchSpawnLocation();
+        SettingHandler.fetchSpawnLocation();
 
         // Set up data storage
-        dataManager.setupStorage();
+        DataManager.setupStorage();
 
         // MIGRATION: Migrate SQL data
-        if (legacyVersionMigrator.startupMigrate) {
-            new legacyVersionMigrator().migratePlayerData();
-            new legacyVersionMigrator().migrateHomeData();
+        if (LegacyMigrator.startupMigrate) {
+            new LegacyMigrator().migratePlayerData();
+            new LegacyMigrator().migrateHomeData();
         }
 
         // Setup the Dynmap integration if it is enabled
         if (HuskHomes.settings.doDynmap()) {
-            dynamicMap.initializeDynmap();
+            DynMapIntegration.initializeDynmap();
         }
 
         // Setup economy if it is enabled
         if (HuskHomes.settings.doEconomy()) {
-            economy.initializeEconomy();
+            VaultIntegration.initializeEconomy();
         }
 
         // Return if the plugin is disabled
@@ -172,10 +174,10 @@ public final class HuskHomes extends JavaPlugin {
         registerEvents(this);
 
         // Start Loop
-        runEverySecond.startLoop();
+        RunEverySecond.startLoop();
 
         // bStats initialisation
-        new metricsManager(this, 8430);
+        new MetricsManager(this, 8430);
     }
 
     @Override

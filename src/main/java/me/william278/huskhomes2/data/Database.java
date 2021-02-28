@@ -3,10 +3,10 @@ package me.william278.huskhomes2.data;
 import me.william278.huskhomes2.data.logging.Error;
 import me.william278.huskhomes2.data.logging.Errors;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.objects.Warp;
-import me.william278.huskhomes2.permissionHomeLimits;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.PermissionHomeLimits;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -153,7 +153,7 @@ public abstract class Database {
             ps = conn.prepareStatement("INSERT INTO " + HuskHomes.settings.getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, p.getName());
-            ps.setInt(3, permissionHomeLimits.getFreeHomes(p));
+            ps.setInt(3, PermissionHomeLimits.getFreeHomes(p));
             ps.setInt(4, 0);
             ps.setBoolean(5, false);
 

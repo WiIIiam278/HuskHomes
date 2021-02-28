@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.config;
 
 import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Bukkit;
@@ -10,72 +10,72 @@ import org.bukkit.plugin.PluginManager;
 public class Settings {
 
     // Message language setting
-    String language;
+    private String language;
 
     // Automatically send update HuskHomes reminders
-    boolean updateReminders;
+    private boolean updateReminders;
 
     // Bungee settings
-    boolean doBungee;
-    int clusterID;
-    String server;
+    private boolean doBungee;
+    private int clusterID;
+    private String server;
 
     // Data storage settings
-    String storageType;
-    String playerDataTable;
-    String locationsDataTable;
-    String homesDataTable;
-    String warpsDataTable;
+    private String storageType;
+    private String playerDataTable;
+    private String locationsDataTable;
+    private String homesDataTable;
+    private String warpsDataTable;
 
     // MySQL connection settings
-    int mySQLport;
-    String mySQLhost;
-    String mySQLdatabase;
-    String mySQLusername;
-    String mySQLpassword;
+    private int mySQLport;
+    private String mySQLhost;
+    private String mySQLdatabase;
+    private String mySQLusername;
+    private String mySQLpassword;
 
     // Dynmap integration settings
-    boolean doDynmap;
-    boolean dynmapPublicHomes;
-    boolean dynmapWarps;
-    String dynmapPublicHomeMarkerIconID;
-    String dynmapWarpMarkerIconID;
-    String dynmapPublicHomeMarkerSet;
-    String dynmapWarpMarkerSet;
+    private boolean doDynmap;
+    private boolean dynmapPublicHomes;
+    private boolean dynmapWarps;
+    private String dynmapPublicHomeMarkerIconID;
+    private String dynmapWarpMarkerIconID;
+    private String dynmapPublicHomeMarkerSet;
+    private String dynmapWarpMarkerSet;
 
     // Economy (Vault) integration settings
-    boolean doEconomy;
-    int freeHomeSlots;
-    double setHomeCost;
-    double publicHomeCost;
-    double rtpCost;
+    private boolean doEconomy;
+    private int freeHomeSlots;
+    private double setHomeCost;
+    private double publicHomeCost;
+    private double rtpCost;
 
     // Vanished player checks
-    boolean checkVanishedPlayers;
+    private boolean checkVanishedPlayers;
 
     // Time and maximum home settings
-    int maximumHomes;
-    int teleportRequestExpiryTime;
-    int teleportWarmupTime;
+    private int maximumHomes;
+    private int teleportRequestExpiryTime;
+    private int teleportWarmupTime;
 
     // Sounds
-    Sound teleportationCompleteSound;
-    Sound teleportWarmupSound;
-    Sound teleportCancelledSound;
+    private Sound teleportationCompleteSound;
+    private Sound teleportWarmupSound;
+    private Sound teleportCancelledSound;
 
     // Number of items per page on lists
-    int privateHomesPerPage;
-    int publicHomesPerPage;
-    int warpsPerPage;
+    private int privateHomesPerPage;
+    private int publicHomesPerPage;
+    private int warpsPerPage;
 
     // RTP command settings
-    boolean doRtpCommand;
-    int rtpRange;
-    int rtpCooldown;
+    private boolean doRtpCommand;
+    private int rtpRange;
+    private int rtpCooldown;
 
     // Command toggle settings
-    boolean doSpawnCommand;
-    boolean doWarpCommand;
+    private boolean doSpawnCommand;
+    private boolean doWarpCommand;
 
     private void setSettings(FileConfiguration configFile) {
         try {

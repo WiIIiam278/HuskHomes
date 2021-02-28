@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.teleportRequestHandler;
+import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,7 +11,7 @@ public class TpdenyCommand extends CommandBase {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            teleportRequestHandler.replyTpRequest(p, false);
+            TeleportRequestHandler.replyTpRequest(p, false);
             return true;
         }
         return false;

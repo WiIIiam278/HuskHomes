@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
 

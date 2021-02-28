@@ -1,8 +1,8 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,12 +16,12 @@ public class RtpCommand extends CommandBase {
             Player p = (Player) sender;
             if (HuskHomes.settings.doRtpCommand()) {
                 if (p.getWorld().getEnvironment() == World.Environment.NORMAL) {
-                    teleportManager.queueRandomTeleport(p);
+                    TeleportManager.queueRandomTeleport(p);
                 } else {
-                    messageManager.sendMessage(p, "error_rtp_invalid_dimension");
+                    MessageManager.sendMessage(p, "error_rtp_invalid_dimension");
                 }
             } else {
-                messageManager.sendMessage(p, "error_command_disabled");
+                MessageManager.sendMessage(p, "error_command_disabled");
             }
             return true;
         }

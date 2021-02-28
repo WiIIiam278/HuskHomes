@@ -1,9 +1,9 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.messageManager;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,11 +14,11 @@ public class BackCommand extends CommandBase {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            TeleportationPoint lastPosition = dataManager.getPlayerLastPosition(p);
+            TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(p);
             if (lastPosition != null) {
-                teleportManager.queueTimedTeleport(p, lastPosition);
+                TeleportManager.queueTimedTeleport(p, lastPosition);
             } else {
-                messageManager.sendMessage(p, "error_no_last_position");
+                MessageManager.sendMessage(p, "error_no_last_position");
             }
             return true;
         }

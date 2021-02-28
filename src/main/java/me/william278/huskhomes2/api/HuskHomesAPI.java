@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.api;
 
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.objects.Warp;
-import me.william278.huskhomes2.dataManager;
-import me.william278.huskhomes2.teleportManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class HuskHomesAPI {
      @see Home
      */
     public Home getHome(String ownerUsername, String homeName)  {
-        return dataManager.getHome(ownerUsername, homeName);
+        return DataManager.getHome(ownerUsername, homeName);
     }
 
     /**
@@ -46,7 +46,7 @@ public class HuskHomesAPI {
      @see Warp
      */
     public Warp getWarp(String warpName)  {
-        return dataManager.getWarp(warpName);
+        return DataManager.getWarp(warpName);
     }
 
     /**
@@ -56,7 +56,7 @@ public class HuskHomesAPI {
      @see Home
      */
     public ArrayList<Home> getHomes(Player player) {
-        return dataManager.getPlayerHomes(player.getName());
+        return DataManager.getPlayerHomes(player.getName());
     }
 
     /**
@@ -66,7 +66,7 @@ public class HuskHomesAPI {
      @see Home
      */
     public ArrayList<Home> getHomes(String ownerUsername) {
-        return dataManager.getPlayerHomes(ownerUsername);
+        return DataManager.getPlayerHomes(ownerUsername);
     }
 
     /**
@@ -85,7 +85,7 @@ public class HuskHomesAPI {
      @see Home
      */
     public ArrayList<Home> getPublicHomes() {
-        return dataManager.getPublicHomes();
+        return DataManager.getPublicHomes();
     }
 
     /**
@@ -103,7 +103,7 @@ public class HuskHomesAPI {
      @see Warp
      */
     public ArrayList<Warp> getWarps() {
-        return dataManager.getWarps();
+        return DataManager.getWarps();
     }
 
     /**
@@ -120,6 +120,6 @@ public class HuskHomesAPI {
      * @return the spawn position as a TeleportationPoint
      */
     public TeleportationPoint getSpawnPosition() {
-        return teleportManager.spawnLocation;
+        return TeleportManager.spawnLocation;
     }
 }

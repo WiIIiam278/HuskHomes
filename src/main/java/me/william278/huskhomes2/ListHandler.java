@@ -1,7 +1,8 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.Warp;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.Warp;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
-public class listHandler {
+public class ListHandler {
 
     private static TextComponent pageButton(String buttonText, ChatColor color, String command, String hoverMessage) {
         TextComponent button = new TextComponent(buttonText);
@@ -55,9 +56,9 @@ public class listHandler {
 
     private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command) {
         ComponentBuilder pageButtons = new ComponentBuilder();
-        TextComponent nextPageButton = pageButton(messageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), messageManager.getRawMessage("list_button_next_page_tooltip"));
-        TextComponent previousPageButton = pageButton(messageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), messageManager.getRawMessage("list_button_previous_page_tooltip"));
-        TextComponent divider = new TextComponent(messageManager.getRawMessage("list_item_divider"));
+        TextComponent nextPageButton = pageButton(MessageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), MessageManager.getRawMessage("list_button_next_page_tooltip"));
+        TextComponent previousPageButton = pageButton(MessageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), MessageManager.getRawMessage("list_button_previous_page_tooltip"));
+        TextComponent divider = new TextComponent(MessageManager.getRawMessage("list_item_divider"));
         divider.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
         if (pageNumber != 1) {
@@ -78,9 +79,9 @@ public class listHandler {
 
     public static void displayPlayerHomeList(Player player, int pageNumber) {
         ComponentBuilder homeList = new ComponentBuilder();
-        ArrayList<Home> homes = dataManager.getPlayerHomes(player.getName());
+        ArrayList<Home> homes = DataManager.getPlayerHomes(player.getName());
         if (homes == null || homes.isEmpty()) {
-            messageManager.sendMessage(player, "error_no_homes_set");
+            MessageManager.sendMessage(player, "error_no_homes_set");
             return;
         }
         int itemsPerPage = HuskHomes.settings.getPrivateHomesPerPage();
@@ -91,7 +92,7 @@ public class listHandler {
         }
 
         player.sendMessage("");
-        messageManager.sendMessage(player, "private_home_list_page_top", player.getName(), Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
+        MessageManager.sendMessage(player, "private_home_list_page_top", player.getName(), Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
 
         // Display list
         int itemsOnPage = 0;
@@ -105,13 +106,13 @@ public class listHandler {
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
-                    messageManager.sendMessage(player, "home_list_page_empty");
+                    MessageManager.sendMessage(player, "home_list_page_empty");
                 }
                 i = homeUpperBound;
             }
         }
         if (itemsOnPage == 0) {
-            messageManager.sendMessage(player, "home_list_page_empty");
+            MessageManager.sendMessage(player, "home_list_page_empty");
         } else {
             player.spigot().sendMessage(homeList.create());
         }
@@ -122,9 +123,9 @@ public class listHandler {
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
         ComponentBuilder homeList = new ComponentBuilder();
-        ArrayList<Home> homes = dataManager.getPublicHomes();
+        ArrayList<Home> homes = DataManager.getPublicHomes();
         if (homes == null || homes.isEmpty()) {
-            messageManager.sendMessage(player, "error_no_public_homes_set");
+            MessageManager.sendMessage(player, "error_no_public_homes_set");
             return;
         }
         int itemsPerPage = HuskHomes.settings.getPublicHomesPerPage();
@@ -135,7 +136,7 @@ public class listHandler {
         }
 
         player.sendMessage("");
-        messageManager.sendMessage(player, "public_home_list_page_top", Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
+        MessageManager.sendMessage(player, "public_home_list_page_top", Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homes.size()));
 
         // List homes
         int itemsOnPage = 0;
@@ -149,13 +150,13 @@ public class listHandler {
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
-                    messageManager.sendMessage(player, "home_list_page_empty");
+                    MessageManager.sendMessage(player, "home_list_page_empty");
                 }
                 i = homeUpperBound;
             }
         }
         if (itemsOnPage == 0) {
-            messageManager.sendMessage(player, "home_list_page_empty");
+            MessageManager.sendMessage(player, "home_list_page_empty");
         } else {
             player.spigot().sendMessage(homeList.create());
         }
@@ -166,9 +167,9 @@ public class listHandler {
 
     public static void displayWarpList(Player player, int pageNumber) {
         ComponentBuilder warpList = new ComponentBuilder();
-        ArrayList<Warp> warps = dataManager.getWarps();
+        ArrayList<Warp> warps = DataManager.getWarps();
         if (warps == null || warps.isEmpty()) {
-            messageManager.sendMessage(player, "error_no_warps_set");
+            MessageManager.sendMessage(player, "error_no_warps_set");
             return;
         }
         int itemsPerPage = HuskHomes.settings.getWarpsPerPage();
@@ -179,7 +180,7 @@ public class listHandler {
         }
 
         player.sendMessage("");
-        messageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
+        MessageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
 
         int itemsOnPage = 0;
         for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
@@ -192,14 +193,14 @@ public class listHandler {
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == warpsLowerBound) {
-                    messageManager.sendMessage(player, "warp_list_page_empty");
+                    MessageManager.sendMessage(player, "warp_list_page_empty");
                 }
                 i = warpsUpperBound;
             }
 
         }
         if (itemsOnPage == 0) {
-            messageManager.sendMessage(player, "warp_list_page_empty");
+            MessageManager.sendMessage(player, "warp_list_page_empty");
         } else {
             player.spigot().sendMessage(warpList.create());
         }

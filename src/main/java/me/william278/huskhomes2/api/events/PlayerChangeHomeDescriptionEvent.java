@@ -1,6 +1,6 @@
 package me.william278.huskhomes2.api.events;
 
-import me.william278.huskhomes2.objects.Home;
+import me.william278.huskhomes2.teleport.Home;
 import org.bukkit.entity.Player;
 
 /**

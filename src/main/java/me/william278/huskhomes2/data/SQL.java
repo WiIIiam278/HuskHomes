@@ -1,7 +1,6 @@
 package me.william278.huskhomes2.data;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.dataManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,10 +95,10 @@ public class SQL extends Database {
 
         try {
             Statement s = connection.createStatement();
-            s.execute(dataManager.createLocationsTable);
-            s.execute(dataManager.createPlayerTable);
-            s.execute(dataManager.createHomesTable);
-            s.execute(dataManager.createWarpsTable);
+            s.execute(DataManager.createLocationsTable);
+            s.execute(DataManager.createPlayerTable);
+            s.execute(DataManager.createHomesTable);
+            s.execute(DataManager.createWarpsTable);
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -29,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
  * Check out https://bStats.org/ to learn more about bStats!
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class metricsManager {
+public class MetricsManager {
 
     static {
         // You can use the property to disable the check in your test environment
@@ -39,7 +39,7 @@ public class metricsManager {
                     new byte[]{'o', 'r', 'g', '.', 'b', 's', 't', 'a', 't', 's', '.', 'b', 'u', 'k', 'k', 'i', 't'});
             final String examplePackage = new String(new byte[]{'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
             // We want to make sure nobody just copy & pastes the example and use the wrong package names
-            if (metricsManager.class.getPackage().getName().equals(defaultPackage) || metricsManager.class.getPackage().getName().equals(examplePackage)) {
+            if (MetricsManager.class.getPackage().getName().equals(defaultPackage) || MetricsManager.class.getPackage().getName().equals(examplePackage)) {
                 throw new IllegalStateException("bStats Metrics class has not been relocated correctly!");
             }
         }
@@ -79,7 +79,7 @@ public class metricsManager {
      * @param pluginId The id of the plugin.
      *                 It can be found at <a href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
      */
-    public metricsManager(Plugin plugin, int pluginId) {
+    public MetricsManager(Plugin plugin, int pluginId) {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null!");
         }
@@ -134,7 +134,7 @@ public class metricsManager {
                 } catch (NoSuchFieldException ignored) { }
             }
             // Register our service
-            Bukkit.getServicesManager().register(metricsManager.class, this, plugin, ServicePriority.Normal);
+            Bukkit.getServicesManager().register(MetricsManager.class, this, plugin, ServicePriority.Normal);
             if (!found) {
                 // We are the first!
                 startSubmitting();

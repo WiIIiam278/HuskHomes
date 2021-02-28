@@ -1,8 +1,11 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.integrations.economy;
-import me.william278.huskhomes2.objects.RandomPoint;
-import me.william278.huskhomes2.objects.TimedTeleport;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.teleport.RandomPoint;
+import me.william278.huskhomes2.teleport.TimedTeleport;
+import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -11,16 +14,16 @@ import java.util.HashSet;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class runEverySecond {
+public class RunEverySecond {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Cancel expired teleport requests
     private static void clearExpiredRequests(HashSet<Player> expiredTeleportRequests) {
         // Check if any requests have expired
-        if (!teleportRequestHandler.teleportRequests.isEmpty()) {
-            for (Player p : teleportRequestHandler.teleportRequests.keySet()) {
-                if (teleportRequestHandler.teleportRequests.get(p).getExpired()) {
+        if (!TeleportRequestHandler.teleportRequests.isEmpty()) {
+            for (Player p : TeleportRequestHandler.teleportRequests.keySet()) {
+                if (TeleportRequestHandler.teleportRequests.get(p).getExpired()) {
                     expiredTeleportRequests.add(p);
                 }
             }
@@ -29,7 +32,7 @@ public class runEverySecond {
         // Clear expired requests
         if (!expiredTeleportRequests.isEmpty()) {
             for (Player p : expiredTeleportRequests) {
-                teleportRequestHandler.teleportRequests.remove(p);
+                TeleportRequestHandler.teleportRequests.remove(p);
             }
         }
         expiredTeleportRequests.clear();
@@ -45,26 +48,26 @@ public class runEverySecond {
         scheduler.scheduleSyncRepeatingTask(plugin, () -> {
 
             // Update active timed teleports
-            if (!teleportManager.queuedTeleports.isEmpty()) {
-                for (TimedTeleport timedTeleport : teleportManager.queuedTeleports) {
+            if (!TeleportManager.queuedTeleports.isEmpty()) {
+                for (TimedTeleport timedTeleport : TeleportManager.queuedTeleports) {
                     Player teleporter = Bukkit.getPlayer(timedTeleport.getTeleporter().getUniqueId());
                     if (teleporter != null) {
                         if (timedTeleport.getTimeRemaining() > 0) {
                             if (!timedTeleport.hasMoved(teleporter)) {
                                 if (!timedTeleport.hasLostHealth(teleporter)) {
                                     teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportWarmupSound(), 2, 1);
-                                    messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_countdown",
+                                    MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_countdown",
                                             Integer.toString(timedTeleport.getTimeRemaining()));
                                     timedTeleport.decrementTimeRemaining();
                                 } else {
-                                    messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
-                                    messageManager.sendMessage(teleporter, "teleporting_cancelled_damage");
+                                    MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
+                                    MessageManager.sendMessage(teleporter, "teleporting_cancelled_damage");
                                     teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
                                     completedTeleports.add(timedTeleport);
                                 }
                             } else {
-                                messageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
-                                messageManager.sendMessage(teleporter, "teleporting_cancelled_movement");
+                                MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
+                                MessageManager.sendMessage(teleporter, "teleporting_cancelled_movement");
                                 teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
                                 completedTeleports.add(timedTeleport);
                             }
@@ -73,25 +76,25 @@ public class runEverySecond {
                             String targetType = timedTeleport.getTargetType();
                             switch (targetType) {
                                 case "point":
-                                    teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
+                                    TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
                                     break;
                                 case "player":
-                                    teleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
+                                    TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                                     break;
                                 case "random":
                                     if (HuskHomes.settings.doEconomy()) {
                                         double rtpCost = HuskHomes.settings.getRtpCost();
                                         if (rtpCost > 0) {
-                                            if (!economy.takeMoney(teleporter, rtpCost)) {
-                                                messageManager.sendMessage(teleporter, "error_insufficient_funds", economy.format(rtpCost));
+                                            if (!VaultIntegration.takeMoney(teleporter, rtpCost)) {
+                                                MessageManager.sendMessage(teleporter, "error_insufficient_funds", VaultIntegration.format(rtpCost));
                                                 break;
                                             } else {
-                                                messageManager.sendMessage(teleporter, "rtp_spent_money", economy.format(rtpCost));
+                                                MessageManager.sendMessage(teleporter, "rtp_spent_money", VaultIntegration.format(rtpCost));
                                             }
                                         }
                                     }
-                                    teleportManager.teleportPlayer(teleporter, new RandomPoint(teleporter));
-                                    dataManager.updateRtpCooldown(teleporter);
+                                    TeleportManager.teleportPlayer(teleporter, new RandomPoint(teleporter));
+                                    DataManager.updateRtpCooldown(teleporter);
                                     break;
                             }
                             completedTeleports.add(timedTeleport);
@@ -105,7 +108,7 @@ public class runEverySecond {
             // Clear completed teleports
             if (!completedTeleports.isEmpty()) {
                 for (TimedTeleport timedTeleport : completedTeleports) {
-                    teleportManager.queuedTeleports.remove(timedTeleport);
+                    TeleportManager.queuedTeleports.remove(timedTeleport);
                 }
             }
             completedTeleports.clear();

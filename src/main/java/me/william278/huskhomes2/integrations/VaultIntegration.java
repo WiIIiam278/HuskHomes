@@ -5,7 +5,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class economy {
+public class VaultIntegration {
     private static Economy economy = null;
     private static final HuskHomes plugin = HuskHomes.getInstance();
 

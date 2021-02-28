@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.configManager;
-import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.config.ConfigManager;
+import me.william278.huskhomes2.data.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 // This class migrates data from HuskHomes 1.5.x to HuskHomes 2.x
-public class legacyVersionMigrator {
+public class LegacyMigrator {
 
     public static boolean startupMigrate;
     private static String sourcePlayerTable;
@@ -114,7 +114,7 @@ public class legacyVersionMigrator {
 
             // Reload settings with new ones
             plugin.reloadConfig();
-            configManager.loadConfig();
+            ConfigManager.loadConfig();
         } catch (Exception e) {
             Bukkit.getLogger().warning("Failed to migrate data; " + e.getCause() + " when trying to migrate config data");
             startupMigrate = false;
@@ -149,9 +149,9 @@ public class legacyVersionMigrator {
                 UUID uuid = UUID.fromString(resultSet.getString("UUID"));
                 String username = resultSet.getString("USERNAME");
                 int homeSlots = resultSet.getInt("HOME_SLOTS");
-                if (!dataManager.playerExists(uuid)) {
+                if (!DataManager.playerExists(uuid)) {
                     Bukkit.getLogger().info("> Migrating player data for \"" + username + "\"");
-                    dataManager.createPlayer(uuid, username, homeSlots);
+                    DataManager.createPlayer(uuid, username, homeSlots);
                 }
             }
             connection.close();
@@ -189,10 +189,10 @@ public class legacyVersionMigrator {
                 TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, yaw, pitch, server);
 
                 // Add the home to the database
-                if (!dataManager.homeExists(ownerUsername, name)) {
+                if (!DataManager.homeExists(ownerUsername, name)) {
                     Bukkit.getLogger().info("> Migrating home \"" + ownerUsername + "." + name + "\"");
                     Home home = new Home(teleportationPoint, ownerUsername, ownerUUID, name, description, isPublic);
-                    dataManager.addHome(home, UUID.fromString(ownerUUID));
+                    DataManager.addHome(home, UUID.fromString(ownerUUID));
                 }
             }
             connection.close();

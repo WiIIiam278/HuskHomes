@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
-public class messageManager {
+public class MessageManager {
 
     private static final int languageFileVersion = 1;
 

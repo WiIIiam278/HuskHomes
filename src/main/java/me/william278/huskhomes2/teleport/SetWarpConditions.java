@@ -1,6 +1,6 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.teleport;
 
-import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.data.DataManager;
 
 public class SetWarpConditions {
 
@@ -9,7 +9,7 @@ public class SetWarpConditions {
 
     public SetWarpConditions(String warpName) {
         conditionsMet = false;
-        if (dataManager.warpExists(warpName)) {
+        if (DataManager.warpExists(warpName)) {
             conditionsNotMetReason = "error_set_warp_name_taken";
             return;
         }

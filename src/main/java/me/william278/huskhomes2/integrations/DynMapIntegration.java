@@ -1,9 +1,9 @@
 package me.william278.huskhomes2.integrations;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.Warp;
-import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.Warp;
+import me.william278.huskhomes2.data.DataManager;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
@@ -11,7 +11,7 @@ import org.dynmap.markers.MarkerSet;
 
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
-public class dynamicMap {
+public class DynMapIntegration {
 
     private static Plugin dynmap;
     private static final HuskHomes plugin = HuskHomes.getInstance();
@@ -81,7 +81,7 @@ public class dynamicMap {
         DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
         if (HuskHomes.settings.showPublicHomesOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", HuskHomes.settings.getDynmapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
-            for (Home home : dataManager.getPublicHomes()) {
+            for (Home home : DataManager.getPublicHomes()) {
                 if (!HuskHomes.settings.doBungee() || home.getServer().equals(HuskHomes.settings.getServerID())) {
                     addDynamicMapMarker(home);
                 }
@@ -89,7 +89,7 @@ public class dynamicMap {
         }
         if (HuskHomes.settings.showWarpsOnDynmap()) {
             dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", HuskHomes.settings.getDynmapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
-            for (Warp warp : dataManager.getWarps()) {
+            for (Warp warp : DataManager.getWarps()) {
                 if (!HuskHomes.settings.doBungee() || warp.getServer().equals(HuskHomes.settings.getServerID())) {
                     addDynamicMapMarker(warp);
                 }

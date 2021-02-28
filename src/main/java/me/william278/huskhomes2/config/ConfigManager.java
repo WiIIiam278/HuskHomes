@@ -1,8 +1,9 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.config;
 
-import me.william278.huskhomes2.objects.Settings;
+import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.config.Settings;
 
-public class configManager {
+public class ConfigManager {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 

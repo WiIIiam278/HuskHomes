@@ -1,11 +1,12 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.data;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.data.Database;
 import me.william278.huskhomes2.data.logging.Errors;
 import me.william278.huskhomes2.data.SQL;
-import me.william278.huskhomes2.objects.Home;
-import me.william278.huskhomes2.objects.TeleportationPoint;
-import me.william278.huskhomes2.objects.Warp;
+import me.william278.huskhomes2.teleport.Home;
+import me.william278.huskhomes2.teleport.TeleportationPoint;
+import me.william278.huskhomes2.teleport.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -20,7 +21,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 // This class handles the saving of data; whether that be through SQLite or mySQL
-public class dataManager {
+public class DataManager {
 
     // Syntax for creating tables; changes based on storage medium
     public static String createPlayerTable = "";

@@ -1,7 +1,7 @@
-package me.william278.huskhomes2.objects;
+package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.MessageManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -27,8 +27,8 @@ public class TimedTeleport {
         this.targetPoint = targetPoint;
         this.timeRemaining = warmupTime;
 
-        messageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
-        messageManager.sendMessage(teleporter, "teleporting_please_stand_still");
+        MessageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
+        MessageManager.sendMessage(teleporter, "teleporting_please_stand_still");
     }
 
     public TimedTeleport(Player teleporter) {
@@ -38,8 +38,8 @@ public class TimedTeleport {
         this.targetType = "random";
         this.timeRemaining = warmupTime;
 
-        messageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
-        messageManager.sendMessage(teleporter, "teleporting_please_stand_still");
+        MessageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
+        MessageManager.sendMessage(teleporter, "teleporting_please_stand_still");
     }
 
     public TimedTeleport(Player teleporter, String targetPlayerName) {
@@ -50,8 +50,8 @@ public class TimedTeleport {
         this.targetPlayerName = targetPlayerName;
         this.timeRemaining = warmupTime;
 
-        messageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
-        messageManager.sendMessage(teleporter, "teleporting_please_stand_still");
+        MessageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
+        MessageManager.sendMessage(teleporter, "teleporting_please_stand_still");
     }
 
     public String getTargetType() {

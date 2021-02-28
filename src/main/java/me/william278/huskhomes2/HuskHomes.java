@@ -1,11 +1,31 @@
 package me.william278.huskhomes2;
 
 import me.william278.huskhomes2.api.HuskHomesAPI;
-import me.william278.huskhomes2.commands.*;
-import me.william278.huskhomes2.commands.tab.*;
-import me.william278.huskhomes2.listeners.PlayerListener;
+import me.william278.huskhomes2.commands.BackCommand;
+import me.william278.huskhomes2.commands.CommandBase;
+import me.william278.huskhomes2.commands.DelhomeCommand;
+import me.william278.huskhomes2.commands.DelwarpCommand;
+import me.william278.huskhomes2.commands.EdithomeCommand;
+import me.william278.huskhomes2.commands.EditwarpCommand;
+import me.william278.huskhomes2.commands.HomeCommand;
+import me.william278.huskhomes2.commands.HomelistCommand;
+import me.william278.huskhomes2.commands.HuskhomesCommand;
+import me.william278.huskhomes2.commands.PublichomeCommand;
+import me.william278.huskhomes2.commands.PublichomelistCommand;
+import me.william278.huskhomes2.commands.RtpCommand;
+import me.william278.huskhomes2.commands.SetspawnCommand;
+import me.william278.huskhomes2.commands.SpawnCommand;
+import me.william278.huskhomes2.commands.TpCommand;
+import me.william278.huskhomes2.commands.TpaCommand;
+import me.william278.huskhomes2.commands.TpacceptCommand;
+import me.william278.huskhomes2.commands.TpahereCommand;
+import me.william278.huskhomes2.commands.TpdenyCommand;
+import me.william278.huskhomes2.commands.TphereCommand;
+import me.william278.huskhomes2.commands.WarpCommand;
+import me.william278.huskhomes2.commands.WarplistCommand;
 import me.william278.huskhomes2.integrations.dynamicMap;
 import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.migrators.legacyVersionMigrator;
 import me.william278.huskhomes2.objects.Settings;
 import org.bukkit.Bukkit;
@@ -44,61 +64,41 @@ public final class HuskHomes extends JavaPlugin {
     }
 
     // Register tab completers
-    private static void registerTabCompleters(HuskHomes plugin) {
-        plugin.getCommand("home").setTabCompleter(new homeTabCompleter());
-        plugin.getCommand("delhome").setTabCompleter(new homeTabCompleter());
-        plugin.getCommand("warp").setTabCompleter(new warpTabCompleter());
-        plugin.getCommand("delwarp").setTabCompleter(new warpTabCompleter());
-        plugin.getCommand("publichome").setTabCompleter(new publicHomeTabCompleter());
-        plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
-        plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
-        plugin.getCommand("huskhomes").setTabCompleter(new huskHomesTabCompleter());
+    private void registerCommands() {
+        HomeCommand.Tab homeTab = new HomeCommand.Tab();
+        new HomeCommand().register(getCommand("home")).setTabCompleter(homeTab);
+        new DelhomeCommand().register(getCommand("delhome")).setTabCompleter(homeTab);
 
-        plugin.getCommand("tp").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tpa").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tphere").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tpahere").setTabCompleter(new playerTabCompleter());
+        WarpCommand.Tab warpTab = new WarpCommand.Tab();
+        new WarpCommand().register(getCommand("warp")).setTabCompleter(warpTab);
+        new DelwarpCommand().register(getCommand("delwarp")).setTabCompleter(warpTab);
 
-        plugin.getCommand("tpaccept").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("tpdeny").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("warplist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("homelist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("publichomelist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("rtp").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("spawn").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("setspawn").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("back").setTabCompleter(new emptyTabCompleter());
+        // TODO
+        new PublichomeCommand().register(getCommand("publichome"));
+        new EdithomeCommand().register(getCommand("edithome"));
+        new EditwarpCommand().register(getCommand("editwarp"));
+        new HuskhomesCommand().register(getCommand("huskhomes"));
+
+        TpCommand.Tab tpTab = new TpCommand.Tab();
+        new TpCommand().register(getCommand("tp")).setTabCompleter(tpTab);
+        new TpaCommand().register(getCommand("tpa")).setTabCompleter(tpTab);
+        new TphereCommand().register(getCommand("tphere")).setTabCompleter(tpTab);
+        new TpahereCommand().register(getCommand("tpahere")).setTabCompleter(tpTab);
+
+        CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
+        new TpacceptCommand().register(getCommand("tpaccept")).setTabCompleter(emptyTab);
+        new TpdenyCommand().register(getCommand("tpdeny")).setTabCompleter(emptyTab);
+        new WarplistCommand().register(getCommand("warplist")).setTabCompleter(emptyTab);
+        new HomelistCommand().register(getCommand("homelist")).setTabCompleter(emptyTab);
+        new PublichomelistCommand().register(getCommand("publichomelist")).setTabCompleter(emptyTab);
+        new RtpCommand().register(getCommand("rtp")).setTabCompleter(emptyTab);
+        new SpawnCommand().register(getCommand("spawn")).setTabCompleter(emptyTab);
+        new SetspawnCommand().register(getCommand("setspawn")).setTabCompleter(emptyTab);
+        new BackCommand().register(getCommand("back")).setTabCompleter(emptyTab);
 
         // Update caches
-        publicHomeTabCompleter.updatePublicHomeTabCache();
-        warpTabCompleter.updateWarpsTabCache();
-    }
-
-    // Register commands
-    private static void registerCommands(HuskHomes plugin) {
-        plugin.getCommand("back").setExecutor(new backCommand());
-        plugin.getCommand("delhome").setExecutor(new delHomeCommand());
-        plugin.getCommand("delwarp").setExecutor(new delWarpCommand());
-        plugin.getCommand("edithome").setExecutor(new editHomeCommand());
-        plugin.getCommand("editwarp").setExecutor(new editWarpCommand());
-        plugin.getCommand("home").setExecutor(new homeCommand());
-        plugin.getCommand("homelist").setExecutor(new homeListCommand());
-        plugin.getCommand("huskhomes").setExecutor(new huskHomesCommand());
-        plugin.getCommand("publichome").setExecutor(new publicHomeCommand());
-        plugin.getCommand("publichomelist").setExecutor(new publicHomeListCommand());
-        plugin.getCommand("sethome").setExecutor(new setHomeCommand());
-        plugin.getCommand("setwarp").setExecutor(new setWarpCommand());
-        plugin.getCommand("tpaccept").setExecutor(new tpAcceptCommand());
-        plugin.getCommand("tpdeny").setExecutor(new tpDenyCommand());
-        plugin.getCommand("tpa").setExecutor(new tpaCommand());
-        plugin.getCommand("tpahere").setExecutor(new tpaHereCommand());
-        plugin.getCommand("tp").setExecutor(new tpCommand());
-        plugin.getCommand("tphere").setExecutor(new tpHereCommand());
-        plugin.getCommand("warp").setExecutor(new warpCommand());
-        plugin.getCommand("warplist").setExecutor(new warpListCommand());
-        plugin.getCommand("rtp").setExecutor(new rtpCommand());
-        plugin.getCommand("spawn").setExecutor(new spawnCommand());
-        plugin.getCommand("setspawn").setExecutor(new setSpawnCommand());
+        PublichomeCommand.updatePublicHomeTabCache();
+        WarpCommand.Tab.updateWarpsTabCache();
     }
 
     // Register events
@@ -166,8 +166,7 @@ public final class HuskHomes extends JavaPlugin {
         }
 
         // Register commands and their associated tab completers
-        registerCommands(this);
-        registerTabCompleters(this);
+        registerCommands();
 
         // Register events
         registerEvents(this);

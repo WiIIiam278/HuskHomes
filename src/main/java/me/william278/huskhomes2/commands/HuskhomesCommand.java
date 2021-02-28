@@ -1,22 +1,27 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.migrators.essentialsMigrator;
 import me.william278.huskhomes2.configManager;
 import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.migrators.essentialsMigrator;
 import me.william278.huskhomes2.versionChecker;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 
-public class huskHomesCommand implements CommandExecutor {
+public class HuskhomesCommand extends CommandBase implements TabCompleter {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
@@ -116,5 +121,24 @@ public class huskHomesCommand implements CommandExecutor {
             showAboutMenu(sender);
         }
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            final List<String> tabCompletions = new ArrayList<>();
+            ArrayList<String> tabOptions = new ArrayList<>();
+            tabOptions.add("about");
+            tabOptions.add("reload");
+            tabOptions.add("update");
+
+            StringUtil.copyPartialMatches(args[0], tabOptions, tabCompletions);
+
+            Collections.sort(tabCompletions);
+
+            return tabCompletions;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

@@ -4,12 +4,16 @@ import me.william278.huskhomes2.api.events.PlayerDeleteHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerDeleteWarpEvent;
 import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerSetWarpEvent;
-import me.william278.huskhomes2.commands.tab.homeTabCompleter;
-import me.william278.huskhomes2.commands.tab.publicHomeTabCompleter;
-import me.william278.huskhomes2.commands.tab.warpTabCompleter;
+import me.william278.huskhomes2.commands.HomeCommand;
+import me.william278.huskhomes2.commands.PublichomeCommand;
+import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.integrations.dynamicMap;
 import me.william278.huskhomes2.integrations.economy;
-import me.william278.huskhomes2.objects.*;
+import me.william278.huskhomes2.objects.Home;
+import me.william278.huskhomes2.objects.SetHomeConditions;
+import me.william278.huskhomes2.objects.SetWarpConditions;
+import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.objects.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,7 +36,7 @@ public class settingHandler {
             }
             dataManager.addHome(home, player);
             messageManager.sendMessage(player, "set_home_success", name);
-            homeTabCompleter.updatePlayerHomeCache(player);
+            HomeCommand.Tab.updatePlayerHomeCache(player);
         } else {
             switch (setHomeConditions.getConditionsNotMetReason()) {
                 case "error_set_home_maximum_homes":
@@ -62,7 +66,7 @@ public class settingHandler {
             if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                 dynamicMap.addDynamicMapMarker(warp);
             }
-            warpTabCompleter.updateWarpsTabCache();
+            WarpCommand.Tab.updateWarpsTabCache();
         } else {
             messageManager.sendMessage(player, setWarpConditions.getConditionsNotMetReason());
         }
@@ -84,11 +88,11 @@ public class settingHandler {
                         return;
                     }
                     dataManager.deleteHome(homeName, player);
-                    publicHomeTabCompleter.updatePublicHomeTabCache();
+                    PublichomeCommand.updatePublicHomeTabCache();
                 } else {
                     dataManager.deleteHome(homeName, player);
                 }
-                homeTabCompleter.updatePlayerHomeCache(player);
+                HomeCommand.Tab.updatePlayerHomeCache(player);
                 messageManager.sendMessage(player, "home_deleted", homeName);
             } else {
                 messageManager.sendMessage(player, "error_home_invalid", homeName);
@@ -112,7 +116,7 @@ public class settingHandler {
             if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                 dynamicMap.removeDynamicMapMarker(warpName);
             }
-            warpTabCompleter.updateWarpsTabCache();
+            WarpCommand.Tab.updateWarpsTabCache();
         } else {
             messageManager.sendMessage(player, "error_warp_invalid", warpName);
         }

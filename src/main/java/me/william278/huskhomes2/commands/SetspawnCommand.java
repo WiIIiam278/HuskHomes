@@ -1,27 +1,27 @@
 package me.william278.huskhomes2.commands;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.settingHandler;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class setWarpCommand implements CommandExecutor {
+public class SetspawnCommand extends CommandBase {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            if (args.length == 1) {
-                String warpName = args[0];
-                settingHandler.setWarp(p.getLocation(), p, warpName);
+            if (HuskHomes.settings.doSpawnCommand()) {
+                settingHandler.setSpawnLocation(p.getLocation());
+                p.getLocation().getWorld().setSpawnLocation(p.getLocation());
+                messageManager.sendMessage(p, "set_spawn_success");
             } else {
-                messageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                messageManager.sendMessage(p, "error_command_disabled");
             }
             return true;
         }
         return false;
     }
-
 }

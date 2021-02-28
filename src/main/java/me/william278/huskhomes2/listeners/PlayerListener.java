@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.listeners;
 
-import me.william278.huskhomes2.commands.tab.homeTabCompleter;
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.dataManager;
 import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.objects.TeleportationPoint;
@@ -57,7 +57,7 @@ public class PlayerListener implements Listener {
             dataManager.checkPlayerNameChange(p);
 
             // Update their TAB cache for /home command
-            homeTabCompleter.updatePlayerHomeCache(p);
+            HomeCommand.Tab.updatePlayerHomeCache(p);
         }
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly

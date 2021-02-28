@@ -1,21 +1,28 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.*;
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.api.events.PlayerChangeWarpDescriptionEvent;
 import me.william278.huskhomes2.api.events.PlayerRelocateWarpEvent;
 import me.william278.huskhomes2.api.events.PlayerRenameWarpEvent;
-import me.william278.huskhomes2.commands.tab.warpTabCompleter;
+import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.editingHandler;
 import me.william278.huskhomes2.integrations.dynamicMap;
+import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.objects.TeleportationPoint;
 import me.william278.huskhomes2.objects.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-public class editWarpCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class EditwarpCommand extends CommandBase implements TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -127,7 +134,7 @@ public class editWarpCommand implements CommandExecutor {
                                     if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(renamedWarp);
                                     }
-                                    warpTabCompleter.updateWarpsTabCache();
+                                    WarpCommand.Tab.updateWarpsTabCache();
                                     messageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
                                 } else {
                                     messageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");
@@ -151,5 +158,27 @@ public class editWarpCommand implements CommandExecutor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        Player p = (Player) sender;
+        if (!p.hasPermission("huskhomes.editwarp")) {
+            return new ArrayList<>();
+        }
+        if (args.length == 1) {
+            final List<String> tabCompletions = new ArrayList<>();
+            StringUtil.copyPartialMatches(args[0], WarpCommand.Tab.warpsTabCache, tabCompletions);
+            Collections.sort(tabCompletions);
+            return tabCompletions;
+        } else if (args.length == 2) {
+            List<String> editWarpOptions = new ArrayList<>();
+            editWarpOptions.add("rename");
+            editWarpOptions.add("location");
+            editWarpOptions.add("description");
+            return editWarpOptions;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

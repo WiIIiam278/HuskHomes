@@ -1,21 +1,31 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.*;
-import me.william278.huskhomes2.api.events.*;
-import me.william278.huskhomes2.commands.tab.homeTabCompleter;
-import me.william278.huskhomes2.commands.tab.publicHomeTabCompleter;
+import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.api.events.PlayerChangeHomeDescriptionEvent;
+import me.william278.huskhomes2.api.events.PlayerMakeHomePrivateEvent;
+import me.william278.huskhomes2.api.events.PlayerMakeHomePublicEvent;
+import me.william278.huskhomes2.api.events.PlayerRelocateHomeEvent;
+import me.william278.huskhomes2.api.events.PlayerRenameHomeEvent;
+import me.william278.huskhomes2.dataManager;
+import me.william278.huskhomes2.editingHandler;
 import me.william278.huskhomes2.integrations.dynamicMap;
 import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.messageManager;
 import me.william278.huskhomes2.objects.Home;
 import me.william278.huskhomes2.objects.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-public class editHomeCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class EdithomeCommand extends CommandBase implements TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -122,7 +132,7 @@ public class editHomeCommand implements CommandExecutor {
                                             dynamicMap.removeDynamicMapMarker(homeName, p.getName());
                                         }
                                         dataManager.updateHomeName(p.getName(), homeName, newName);
-                                        publicHomeTabCompleter.updatePublicHomeTabCache();
+                                        PublichomeCommand.updatePublicHomeTabCache();
                                     } else {
                                         dataManager.updateHomeName(p.getName(), homeName, newName);
                                     }
@@ -130,7 +140,7 @@ public class editHomeCommand implements CommandExecutor {
                                     if (renamedHome.isPublic() && HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(renamedHome);
                                     }
-                                    homeTabCompleter.updatePlayerHomeCache(p);
+                                    HomeCommand.Tab.updatePlayerHomeCache(p);
                                     messageManager.sendMessage(p, "edit_home_update_name", homeName, newName);
                                 } else {
                                     messageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> rename <new name>");
@@ -160,7 +170,7 @@ public class editHomeCommand implements CommandExecutor {
                                         return true;
                                     }
                                     dataManager.updateHomePrivacy(p.getName(), homeName, true);
-                                    publicHomeTabCompleter.updatePublicHomeTabCache();
+                                    PublichomeCommand.updatePublicHomeTabCache();
                                     if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.addDynamicMapMarker(privateHome);
                                     }
@@ -181,7 +191,7 @@ public class editHomeCommand implements CommandExecutor {
                                     if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
                                         dynamicMap.removeDynamicMapMarker(publicHome.getName(), publicHome.getOwnerUsername());
                                     }
-                                    publicHomeTabCompleter.updatePublicHomeTabCache();
+                                    PublichomeCommand.updatePublicHomeTabCache();
                                 } else {
                                     messageManager.sendMessage(p, "error_edit_home_privacy_already_private", homeName);
                                 }
@@ -204,5 +214,31 @@ public class editHomeCommand implements CommandExecutor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        Player p = (Player) sender;
+        if (!p.hasPermission("huskhomes.edithome")) {
+            return new ArrayList<>();
+        }
+        if (args.length == 1) {
+            final List<String> tabCompletions = new ArrayList<>();
+            StringUtil.copyPartialMatches(args[0], HomeCommand.Tab.homeTabCache.get(p.getUniqueId()), tabCompletions);
+            Collections.sort(tabCompletions);
+            return tabCompletions;
+        } else if (args.length == 2) {
+            List<String> editHomeOptions = new ArrayList<>();
+            editHomeOptions.add("rename");
+            editHomeOptions.add("location");
+            editHomeOptions.add("description");
+            if (sender.hasPermission("huskhomes.edithome.public")) {
+                editHomeOptions.add("public");
+                editHomeOptions.add("private");
+            }
+            return editHomeOptions;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

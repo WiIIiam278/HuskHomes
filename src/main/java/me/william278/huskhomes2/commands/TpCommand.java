@@ -1,16 +1,22 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.integrations.vanishChecker;
 import me.william278.huskhomes2.messageManager;
+import me.william278.huskhomes2.objects.TeleportationPoint;
 import me.william278.huskhomes2.teleportManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-public class tpCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class TpCommand extends CommandBase {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -77,5 +83,24 @@ public class tpCommand implements CommandExecutor {
             return true;
         }
         return false;
+    }
+
+    public static class Tab implements TabCompleter {
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+            ArrayList<String> players = new ArrayList<>();
+            if (args.length == 0 || args.length == 1) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (!vanishChecker.isVanished(p) && !(p.getName().equals(sender.getName()))) {
+                        players.add(p.getName());
+                    }
+                }
+            }
+            final List<String> tabCompletions = new ArrayList<>();
+            StringUtil.copyPartialMatches(args[0], players, tabCompletions);
+            Collections.sort(tabCompletions);
+            return tabCompletions;
+        }
+
     }
 }

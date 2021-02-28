@@ -3,11 +3,10 @@ package me.william278.huskhomes2.commands;
 import me.william278.huskhomes2.listHandler;
 import me.william278.huskhomes2.messageManager;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class publicHomeListCommand implements CommandExecutor {
+public class WarplistCommand extends CommandBase {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -22,7 +21,7 @@ public class publicHomeListCommand implements CommandExecutor {
                     return true;
                 }
             }
-            listHandler.displayPublicHomeList(p, pageNo);
+            listHandler.displayWarpList(p, pageNo);
             return true;
         }
         return false;

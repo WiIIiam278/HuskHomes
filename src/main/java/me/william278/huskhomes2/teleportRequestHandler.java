@@ -1,7 +1,7 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Integrations.vanishChecker;
-import me.william278.huskhomes2.Objects.TeleportRequest;
+import me.william278.huskhomes2.integrations.vanishChecker;
+import me.william278.huskhomes2.objects.TeleportRequest;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;

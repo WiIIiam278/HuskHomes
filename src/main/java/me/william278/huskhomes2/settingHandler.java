@@ -1,15 +1,15 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.API.Events.PlayerDeleteHomeEvent;
-import me.william278.huskhomes2.API.Events.PlayerDeleteWarpEvent;
-import me.william278.huskhomes2.API.Events.PlayerSetHomeEvent;
-import me.william278.huskhomes2.API.Events.PlayerSetWarpEvent;
-import me.william278.huskhomes2.Commands.TabCompleters.homeTabCompleter;
-import me.william278.huskhomes2.Commands.TabCompleters.publicHomeTabCompleter;
-import me.william278.huskhomes2.Commands.TabCompleters.warpTabCompleter;
-import me.william278.huskhomes2.Integrations.dynamicMap;
-import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Objects.*;
+import me.william278.huskhomes2.api.events.PlayerDeleteHomeEvent;
+import me.william278.huskhomes2.api.events.PlayerDeleteWarpEvent;
+import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
+import me.william278.huskhomes2.api.events.PlayerSetWarpEvent;
+import me.william278.huskhomes2.commands.tab.homeTabCompleter;
+import me.william278.huskhomes2.commands.tab.publicHomeTabCompleter;
+import me.william278.huskhomes2.commands.tab.warpTabCompleter;
+import me.william278.huskhomes2.integrations.dynamicMap;
+import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.objects.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;

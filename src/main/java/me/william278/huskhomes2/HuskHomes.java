@@ -1,14 +1,14 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.API.HuskHomesAPI;
-import me.william278.huskhomes2.Commands.*;
-import me.william278.huskhomes2.Commands.TabCompleters.*;
-import me.william278.huskhomes2.Events.onPlayerDeath;
-import me.william278.huskhomes2.Events.onPlayerJoin;
-import me.william278.huskhomes2.Integrations.dynamicMap;
-import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Migrators.legacyVersionMigrator;
-import me.william278.huskhomes2.Objects.Settings;
+import me.william278.huskhomes2.api.HuskHomesAPI;
+import me.william278.huskhomes2.commands.*;
+import me.william278.huskhomes2.commands.tab.*;
+import me.william278.huskhomes2.events.onPlayerDeath;
+import me.william278.huskhomes2.events.onPlayerJoin;
+import me.william278.huskhomes2.integrations.dynamicMap;
+import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.migrators.legacyVersionMigrator;
+import me.william278.huskhomes2.objects.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

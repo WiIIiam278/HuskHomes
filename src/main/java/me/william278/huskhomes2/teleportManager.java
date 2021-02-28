@@ -1,11 +1,10 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Objects.RandomPoint;
-import me.william278.huskhomes2.Objects.TeleportationPoint;
-import me.william278.huskhomes2.Objects.TimedTeleport;
+import me.william278.huskhomes2.integrations.economy;
+import me.william278.huskhomes2.objects.RandomPoint;
+import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.objects.TimedTeleport;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;

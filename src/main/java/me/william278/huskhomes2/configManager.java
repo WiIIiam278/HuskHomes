@@ -1,6 +1,6 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Objects.Settings;
+import me.william278.huskhomes2.objects.Settings;
 
 public class configManager {
 

@@ -1,11 +1,11 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.Data.Database;
-import me.william278.huskhomes2.Data.ErrorLogging.Errors;
-import me.william278.huskhomes2.Data.SQL;
-import me.william278.huskhomes2.Objects.Home;
-import me.william278.huskhomes2.Objects.TeleportationPoint;
-import me.william278.huskhomes2.Objects.Warp;
+import me.william278.huskhomes2.data.Database;
+import me.william278.huskhomes2.data.logging.Errors;
+import me.william278.huskhomes2.data.SQL;
+import me.william278.huskhomes2.objects.Home;
+import me.william278.huskhomes2.objects.TeleportationPoint;
+import me.william278.huskhomes2.objects.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

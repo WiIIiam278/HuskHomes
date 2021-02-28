@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Random;
 import java.util.Set;
@@ -16,11 +17,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomPoint extends TeleportationPoint {
 
     // List containing all unsafe blocks
-    private static final Set<Material> unsafeBlocks = EnumSet.of(
+    private static final Set<Material> UNSAFE_BLOCKS = Collections.unmodifiableSet(EnumSet.of(
             Material.LAVA, Material.FIRE, Material.MAGMA_BLOCK, Material.CACTUS, Material.WATER, Material.OBSIDIAN,
             Material.JUNGLE_LEAVES, Material.SPRUCE_LEAVES, Material.OAK_LEAVES,
             Material.BIRCH_LEAVES, Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES
-    );
+    ));
 
     // Maximum number of attempts to find a random location
     private static final int MAX_RANDOM_ATTEMPTS = 8;
@@ -87,9 +88,9 @@ public class RandomPoint extends TeleportationPoint {
             Block above = world.getBlockAt(x, y + 1, z);
 
             // Check to see if those blocks are safe to teleport to
-            if (!unsafeBlocks.contains(block.getType()) && block.getType().isSolid()) {
-                if (!unsafeBlocks.contains(above.getType())) {
-                    return !unsafeBlocks.contains(below.getType());
+            if (!UNSAFE_BLOCKS.contains(block.getType()) && block.getType().isSolid()) {
+                if (!UNSAFE_BLOCKS.contains(above.getType())) {
+                    return !UNSAFE_BLOCKS.contains(below.getType());
                 }
             }
         }

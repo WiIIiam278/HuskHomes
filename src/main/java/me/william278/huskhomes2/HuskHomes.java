@@ -1,28 +1,7 @@
 package me.william278.huskhomes2;
 
 import me.william278.huskhomes2.api.HuskHomesAPI;
-import me.william278.huskhomes2.commands.BackCommand;
-import me.william278.huskhomes2.commands.CommandBase;
-import me.william278.huskhomes2.commands.DelhomeCommand;
-import me.william278.huskhomes2.commands.DelwarpCommand;
-import me.william278.huskhomes2.commands.EdithomeCommand;
-import me.william278.huskhomes2.commands.EditwarpCommand;
-import me.william278.huskhomes2.commands.HomeCommand;
-import me.william278.huskhomes2.commands.HomelistCommand;
-import me.william278.huskhomes2.commands.HuskhomesCommand;
-import me.william278.huskhomes2.commands.PublichomeCommand;
-import me.william278.huskhomes2.commands.PublichomelistCommand;
-import me.william278.huskhomes2.commands.RtpCommand;
-import me.william278.huskhomes2.commands.SetspawnCommand;
-import me.william278.huskhomes2.commands.SpawnCommand;
-import me.william278.huskhomes2.commands.TpCommand;
-import me.william278.huskhomes2.commands.TpaCommand;
-import me.william278.huskhomes2.commands.TpacceptCommand;
-import me.william278.huskhomes2.commands.TpahereCommand;
-import me.william278.huskhomes2.commands.TpdenyCommand;
-import me.william278.huskhomes2.commands.TphereCommand;
-import me.william278.huskhomes2.commands.WarpCommand;
-import me.william278.huskhomes2.commands.WarplistCommand;
+import me.william278.huskhomes2.commands.*;
 import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.DataManager;
@@ -101,6 +80,8 @@ public final class HuskHomes extends JavaPlugin {
         new RtpCommand().register(getCommand("rtp")).setTabCompleter(emptyTab);
         new SpawnCommand().register(getCommand("spawn")).setTabCompleter(emptyTab);
         new SetspawnCommand().register(getCommand("setspawn")).setTabCompleter(emptyTab);
+        new SethomeCommand().register(getCommand("sethome")).setTabCompleter(emptyTab);
+        new SetwarpCommand().register(getCommand("setwarp")).setTabCompleter(emptyTab);
         new BackCommand().register(getCommand("back")).setTabCompleter(emptyTab);
 
         // Update caches

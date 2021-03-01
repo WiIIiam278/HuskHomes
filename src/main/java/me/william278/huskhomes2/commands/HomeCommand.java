@@ -66,7 +66,7 @@ public class HomeCommand extends CommandBase {
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             Player p = (Player) sender;
             if (!sender.hasPermission("huskhomes.home")) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
@@ -74,7 +74,7 @@ public class HomeCommand extends CommandBase {
                 List<String> homes = homeTabCache.get(p.getUniqueId());
                 if (homes == null) {
                     updatePlayerHomeCache(p);
-                    return new ArrayList<>();
+                    return Collections.emptyList();
                 }
                 StringUtil.copyPartialMatches(args[0], homes, tabCompletions);
 
@@ -82,7 +82,7 @@ public class HomeCommand extends CommandBase {
 
                 return tabCompletions;
             } else {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
         }
     }

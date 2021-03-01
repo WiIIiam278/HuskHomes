@@ -161,7 +161,7 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         Player p = (Player) sender;
         if (!p.hasPermission("huskhomes.editwarp")) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
@@ -175,7 +175,7 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
             editWarpOptions.add("description");
             return editWarpOptions;
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }

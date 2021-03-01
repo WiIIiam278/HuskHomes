@@ -141,7 +141,7 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
 
             return tabCompletions;
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }

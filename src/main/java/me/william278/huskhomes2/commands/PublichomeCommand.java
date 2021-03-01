@@ -61,7 +61,7 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("huskhomes.publichome")) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         if (args.length == 1) {
             final List<String> sortedHomeNames = new ArrayList<>();
@@ -75,7 +75,7 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
             return finalCompletions;
 
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }

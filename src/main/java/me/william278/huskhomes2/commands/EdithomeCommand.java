@@ -218,7 +218,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         Player p = (Player) sender;
         if (!p.hasPermission("huskhomes.edithome")) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
@@ -236,7 +236,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
             }
             return editHomeOptions;
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }

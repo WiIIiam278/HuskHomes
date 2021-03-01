@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WarpCommand extends CommandBase {
 
@@ -43,7 +44,7 @@ public class WarpCommand extends CommandBase {
 
         // TODO Remove
         // Cached HashMap of warps
-        public static final HashSet<String> warpsTabCache = new HashSet<>();
+        public static final Set<String> warpsTabCache = new HashSet<>();
 
         // Updates the public home cache
         public static void updateWarpsTabCache() {
@@ -57,7 +58,7 @@ public class WarpCommand extends CommandBase {
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             if (!sender.hasPermission("huskhomes.warp")) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
@@ -69,7 +70,7 @@ public class WarpCommand extends CommandBase {
                 return tabCompletions;
 
             } else {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
         }
 

@@ -1,16 +1,46 @@
 package me.william278.huskhomes2;
 
-import me.william278.huskhomes2.API.HuskHomesAPI;
-import me.william278.huskhomes2.Commands.*;
-import me.william278.huskhomes2.Commands.TabCompleters.*;
-import me.william278.huskhomes2.Events.onPlayerDeath;
-import me.william278.huskhomes2.Events.onPlayerJoin;
-import me.william278.huskhomes2.Integrations.dynamicMap;
-import me.william278.huskhomes2.Integrations.economy;
-import me.william278.huskhomes2.Migrators.legacyVersionMigrator;
-import me.william278.huskhomes2.Objects.Settings;
+import me.william278.huskhomes2.api.HuskHomesAPI;
+import me.william278.huskhomes2.commands.BackCommand;
+import me.william278.huskhomes2.commands.CommandBase;
+import me.william278.huskhomes2.commands.DelhomeCommand;
+import me.william278.huskhomes2.commands.DelwarpCommand;
+import me.william278.huskhomes2.commands.EdithomeCommand;
+import me.william278.huskhomes2.commands.EditwarpCommand;
+import me.william278.huskhomes2.commands.HomeCommand;
+import me.william278.huskhomes2.commands.HomelistCommand;
+import me.william278.huskhomes2.commands.HuskhomesCommand;
+import me.william278.huskhomes2.commands.PublichomeCommand;
+import me.william278.huskhomes2.commands.PublichomelistCommand;
+import me.william278.huskhomes2.commands.RtpCommand;
+import me.william278.huskhomes2.commands.SetspawnCommand;
+import me.william278.huskhomes2.commands.SpawnCommand;
+import me.william278.huskhomes2.commands.TpCommand;
+import me.william278.huskhomes2.commands.TpaCommand;
+import me.william278.huskhomes2.commands.TpacceptCommand;
+import me.william278.huskhomes2.commands.TpahereCommand;
+import me.william278.huskhomes2.commands.TpdenyCommand;
+import me.william278.huskhomes2.commands.TphereCommand;
+import me.william278.huskhomes2.commands.WarpCommand;
+import me.william278.huskhomes2.commands.WarplistCommand;
+import me.william278.huskhomes2.config.ConfigManager;
+import me.william278.huskhomes2.config.Settings;
+import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.integrations.DynMapIntegration;
+import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.listeners.PlayerListener;
+import me.william278.huskhomes2.migrators.LegacyMigrator;
+import me.william278.huskhomes2.teleport.SettingHandler;
+import me.william278.huskhomes2.teleport.TeleportRequestHandler;
+import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 
 public final class HuskHomes extends JavaPlugin {
 
@@ -32,80 +62,55 @@ public final class HuskHomes extends JavaPlugin {
         return new HuskHomesAPI();
     }
 
-    // Disable the plugin for the given reason
     public static void disablePlugin(String reason) {
-        getInstance().getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
-        Bukkit.getPluginManager().disablePlugin(getInstance());
+        instance.getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);
+        Bukkit.getPluginManager().disablePlugin(instance);
     }
 
-    // Initialise bungee plugin channels
-    private static void setupBungeeChannels(HuskHomes plugin) {
-        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-        plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", new pluginMessageHandler());
+    private void setupBungeeChannels() {
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageHandler());
     }
 
-    // Register tab completers
-    private static void registerTabCompleters(HuskHomes plugin) {
-        plugin.getCommand("home").setTabCompleter(new homeTabCompleter());
-        plugin.getCommand("delhome").setTabCompleter(new homeTabCompleter());
-        plugin.getCommand("warp").setTabCompleter(new warpTabCompleter());
-        plugin.getCommand("delwarp").setTabCompleter(new warpTabCompleter());
-        plugin.getCommand("publichome").setTabCompleter(new publicHomeTabCompleter());
-        plugin.getCommand("edithome").setTabCompleter(new editHomeTabCompleter());
-        plugin.getCommand("editwarp").setTabCompleter(new editWarpTabCompleter());
-        plugin.getCommand("huskhomes").setTabCompleter(new huskHomesTabCompleter());
+    private void registerCommands() {
+        HomeCommand.Tab homeTab = new HomeCommand.Tab();
+        new HomeCommand().register(getCommand("home")).setTabCompleter(homeTab);
+        new DelhomeCommand().register(getCommand("delhome")).setTabCompleter(homeTab);
 
-        plugin.getCommand("tp").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tpa").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tphere").setTabCompleter(new playerTabCompleter());
-        plugin.getCommand("tpahere").setTabCompleter(new playerTabCompleter());
+        WarpCommand.Tab warpTab = new WarpCommand.Tab();
+        new WarpCommand().register(getCommand("warp")).setTabCompleter(warpTab);
+        new DelwarpCommand().register(getCommand("delwarp")).setTabCompleter(warpTab);
 
-        plugin.getCommand("tpaccept").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("tpdeny").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("warplist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("homelist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("publichomelist").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("rtp").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("spawn").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("setspawn").setTabCompleter(new emptyTabCompleter());
-        plugin.getCommand("back").setTabCompleter(new emptyTabCompleter());
+        new PublichomeCommand().register(getCommand("publichome"));
+        new EdithomeCommand().register(getCommand("edithome"));
+        new EditwarpCommand().register(getCommand("editwarp"));
+        new HuskhomesCommand().register(getCommand("huskhomes"));
+
+        TpCommand.Tab tpTab = new TpCommand.Tab();
+        new TpCommand().register(getCommand("tp")).setTabCompleter(tpTab);
+        new TpaCommand().register(getCommand("tpa")).setTabCompleter(tpTab);
+        new TphereCommand().register(getCommand("tphere")).setTabCompleter(tpTab);
+        new TpahereCommand().register(getCommand("tpahere")).setTabCompleter(tpTab);
+
+        CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
+        new TpacceptCommand().register(getCommand("tpaccept")).setTabCompleter(emptyTab);
+        new TpdenyCommand().register(getCommand("tpdeny")).setTabCompleter(emptyTab);
+        new WarplistCommand().register(getCommand("warplist")).setTabCompleter(emptyTab);
+        new HomelistCommand().register(getCommand("homelist")).setTabCompleter(emptyTab);
+        new PublichomelistCommand().register(getCommand("publichomelist")).setTabCompleter(emptyTab);
+        new RtpCommand().register(getCommand("rtp")).setTabCompleter(emptyTab);
+        new SpawnCommand().register(getCommand("spawn")).setTabCompleter(emptyTab);
+        new SetspawnCommand().register(getCommand("setspawn")).setTabCompleter(emptyTab);
+        new BackCommand().register(getCommand("back")).setTabCompleter(emptyTab);
 
         // Update caches
-        publicHomeTabCompleter.updatePublicHomeTabCache();
-        warpTabCompleter.updateWarpsTabCache();
-    }
-
-    // Register commands
-    private static void registerCommands(HuskHomes plugin) {
-        plugin.getCommand("back").setExecutor(new backCommand());
-        plugin.getCommand("delhome").setExecutor(new delHomeCommand());
-        plugin.getCommand("delwarp").setExecutor(new delWarpCommand());
-        plugin.getCommand("edithome").setExecutor(new editHomeCommand());
-        plugin.getCommand("editwarp").setExecutor(new editWarpCommand());
-        plugin.getCommand("home").setExecutor(new homeCommand());
-        plugin.getCommand("homelist").setExecutor(new homeListCommand());
-        plugin.getCommand("huskhomes").setExecutor(new huskHomesCommand());
-        plugin.getCommand("publichome").setExecutor(new publicHomeCommand());
-        plugin.getCommand("publichomelist").setExecutor(new publicHomeListCommand());
-        plugin.getCommand("sethome").setExecutor(new setHomeCommand());
-        plugin.getCommand("setwarp").setExecutor(new setWarpCommand());
-        plugin.getCommand("tpaccept").setExecutor(new tpAcceptCommand());
-        plugin.getCommand("tpdeny").setExecutor(new tpDenyCommand());
-        plugin.getCommand("tpa").setExecutor(new tpaCommand());
-        plugin.getCommand("tpahere").setExecutor(new tpaHereCommand());
-        plugin.getCommand("tp").setExecutor(new tpCommand());
-        plugin.getCommand("tphere").setExecutor(new tpHereCommand());
-        plugin.getCommand("warp").setExecutor(new warpCommand());
-        plugin.getCommand("warplist").setExecutor(new warpListCommand());
-        plugin.getCommand("rtp").setExecutor(new rtpCommand());
-        plugin.getCommand("spawn").setExecutor(new spawnCommand());
-        plugin.getCommand("setspawn").setExecutor(new setSpawnCommand());
+        PublichomeCommand.updatePublicHomeTabCache();
+        WarpCommand.Tab.updateWarpsTabCache();
     }
 
     // Register events
     private static void registerEvents(HuskHomes plugin) {
-        plugin.getServer().getPluginManager().registerEvents(new onPlayerJoin(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new onPlayerDeath(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
     }
 
     @Override
@@ -117,68 +122,62 @@ public final class HuskHomes extends JavaPlugin {
         setInstance(this);
 
         // MIGRATION: Check if a migration needs to occur
-        legacyVersionMigrator.checkStartupMigration();
+        LegacyMigrator.checkStartupMigration();
 
         // Load the config
-        configManager.loadConfig();
+        ConfigManager.loadConfig();
 
         // MIGRATION: Migrate config files
-        if (legacyVersionMigrator.startupMigrate) {
-            new legacyVersionMigrator().migrateConfig();
+        if (LegacyMigrator.startupMigrate) {
+            new LegacyMigrator().migrateConfig();
         }
 
         // Load the messages (in the right language)
-        messageManager.loadMessages(HuskHomes.settings.getLanguage());
+        MessageManager.loadMessages(HuskHomes.settings.getLanguage());
 
         // Check for updates (if enabled)
         if (HuskHomes.settings.doUpdateChecks()) {
-            getLogger().info(versionChecker.getVersionCheckString());
+            getLogger().info(getVersionCheckString());
         }
 
         // Fetch spawn location if set
-        settingHandler.fetchSpawnLocation();
+        SettingHandler.fetchSpawnLocation();
 
         // Set up data storage
-        dataManager.setupStorage();
+        DataManager.setupStorage();
 
         // MIGRATION: Migrate SQL data
-        if (legacyVersionMigrator.startupMigrate) {
-            new legacyVersionMigrator().migratePlayerData();
-            new legacyVersionMigrator().migrateHomeData();
+        if (LegacyMigrator.startupMigrate) {
+            new LegacyMigrator().migratePlayerData();
+            new LegacyMigrator().migrateHomeData();
         }
 
         // Setup the Dynmap integration if it is enabled
         if (HuskHomes.settings.doDynmap()) {
-            dynamicMap.initializeDynmap();
+            DynMapIntegration.initializeDynmap();
         }
 
         // Setup economy if it is enabled
         if (HuskHomes.settings.doEconomy()) {
-            economy.initializeEconomy();
-        }
-
-        // Return if the plugin is disabled
-        if (!HuskHomes.getInstance().isEnabled()) {
-            return;
+            VaultIntegration.initializeEconomy();
         }
 
         // Set up bungee channels if bungee mode is enabled
         if (settings.doBungee()) {
-            setupBungeeChannels(this);
+            setupBungeeChannels();
         }
 
         // Register commands and their associated tab completers
-        registerCommands(this);
-        registerTabCompleters(this);
+        registerCommands();
 
         // Register events
         registerEvents(this);
 
         // Start Loop
-        runEverySecond.startLoop();
+        TeleportRequestHandler.startExpiredChecker(this);
 
         // bStats initialisation
-        new metricsManager(this, 8430);
+        new MetricsLite(this, 8430);
     }
 
     @Override
@@ -186,4 +185,21 @@ public final class HuskHomes extends JavaPlugin {
         // Plugin shutdown logic
         getLogger().info("Disabled HuskHomes version " + this.getDescription().getVersion());
     }
+
+    public static String getVersionCheckString() {
+        try {
+            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=83767"); // Numbers = Spigot Project ID!
+            URLConnection urlConnection = url.openConnection();
+            String latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
+            String pluginVersion = instance.getDescription().getVersion();
+            if (!latestVersion.equals(pluginVersion)) {
+                return "An update for HuskHomes is available; v" + latestVersion + " (Currently running v" + pluginVersion + ")";
+            } else {
+                return "HuskHomes is up to date! (Version " + pluginVersion + ")";
+            }
+        } catch (IOException e) {
+            return "Error retrieving version information!";
+        }
+    }
+
 }

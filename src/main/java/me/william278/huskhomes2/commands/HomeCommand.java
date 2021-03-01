@@ -49,7 +49,7 @@ public class HomeCommand extends CommandBase {
         // TODO Remove
         // This HashMap stores a cache of a player's homes that is displayed when a user presses TAB.
         // Owner UUID, Home Name
-        public static Map<UUID, List<String>> homeTabCache = new HashMap<>();
+        private static Map<UUID, List<String>> homeTabCache = new HashMap<>();
 
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
@@ -84,6 +84,10 @@ public class HomeCommand extends CommandBase {
             } else {
                 return Collections.emptyList();
             }
+        }
+
+        public static Map<UUID, List<String>> getHomeTabCache() {
+            return homeTabCache;
         }
     }
 }

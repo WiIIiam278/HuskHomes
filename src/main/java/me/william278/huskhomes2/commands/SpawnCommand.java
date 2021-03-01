@@ -11,8 +11,8 @@ public class SpawnCommand extends CommandBase {
     @Override
     protected boolean onCommand(Player p, Command command, String label, String[] args) {
         if (HuskHomes.getSettings().doSpawnCommand()) {
-            if (TeleportManager.spawnLocation != null) {
-                TeleportManager.queueTimedTeleport(p, TeleportManager.spawnLocation);
+            if (TeleportManager.getSpawnLocation() != null) {
+                TeleportManager.queueTimedTeleport(p, TeleportManager.getSpawnLocation());
             } else {
                 MessageManager.sendMessage(p, "error_spawn_undefined");
             }

@@ -49,8 +49,8 @@ public class PlayerListener implements Listener {
         // Create player on SQL if they don't exist already
         if (!DataManager.playerExists(p)) {
             DataManager.createPlayer(p);
-            if (TeleportManager.spawnLocation != null) {
-                p.teleport(TeleportManager.spawnLocation.getLocation());
+            if (TeleportManager.getSpawnLocation() != null) {
+                p.teleport(TeleportManager.getSpawnLocation().getLocation());
             }
         } else {
             // Check if they've changed their name and update if so

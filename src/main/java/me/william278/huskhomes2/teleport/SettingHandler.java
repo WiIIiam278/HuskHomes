@@ -136,12 +136,12 @@ public class SettingHandler {
         plugin.saveConfig();
 
         // Update the current spawn location
-        TeleportManager.spawnLocation = new TeleportationPoint(location, HuskHomes.getSettings().getServerID());
+        TeleportManager.setSpawnLocation(new TeleportationPoint(location, HuskHomes.getSettings().getServerID()));
     }
 
     // Update current spawn location from config
     public static void fetchSpawnLocation() {
-        TeleportManager.spawnLocation = getSpawnLocation();
+        TeleportManager.setSpawnLocation(getSpawnLocation());
     }
 
     // Get spawn location from config

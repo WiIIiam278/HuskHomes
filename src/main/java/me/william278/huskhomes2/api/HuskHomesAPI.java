@@ -120,6 +120,6 @@ public class HuskHomesAPI {
      * @return the spawn position as a TeleportationPoint
      */
     public TeleportationPoint getSpawnPosition() {
-        return TeleportManager.spawnLocation;
+        return TeleportManager.getSpawnLocation();
     }
 }

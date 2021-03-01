@@ -12,12 +12,13 @@ import org.bukkit.entity.Player;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Set;
 
 public class TeleportManager {
 
-    public static HashSet<TimedTeleport> queuedTeleports = new HashSet<>();
+    private static Set<TimedTeleport> queuedTeleports = new HashSet<>();
 
-    public static TeleportationPoint spawnLocation = null;
+    private static TeleportationPoint spawnLocation;
 
     public static void teleportPlayer(Player player, String targetPlayer) {
         DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.getSettings().getServerID()));
@@ -54,7 +55,7 @@ public class TeleportManager {
             return;
         }
 
-        queuedTeleports.add(new TimedTeleport(player, targetPlayer));
+        getQueuedTeleports().add(new TimedTeleport(player, targetPlayer));
     }
 
     public static void queueTimedTeleport(Player player, TeleportationPoint point) {
@@ -63,7 +64,7 @@ public class TeleportManager {
             return;
         }
 
-        queuedTeleports.add(new TimedTeleport(player, point));
+        getQueuedTeleports().add(new TimedTeleport(player, point));
     }
 
     public static void queueRandomTeleport(Player player) {
@@ -99,7 +100,7 @@ public class TeleportManager {
             return;
         }
 
-        queuedTeleports.add(new TimedTeleport(player));
+        getQueuedTeleports().add(new TimedTeleport(player));
     }
 
     public static void teleportHere(Player requester, String targetPlayerName) {
@@ -146,4 +147,15 @@ public class TeleportManager {
         }
     }
 
+    public static Set<TimedTeleport> getQueuedTeleports() {
+        return queuedTeleports;
+    }
+
+    public static TeleportationPoint getSpawnLocation() {
+        return spawnLocation;
+    }
+
+    public static void setSpawnLocation(TeleportationPoint spawnLocation) {
+        TeleportManager.spawnLocation = spawnLocation;
+    }
 }

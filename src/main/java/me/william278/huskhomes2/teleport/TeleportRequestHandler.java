@@ -166,8 +166,8 @@ public class TeleportRequestHandler {
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
             // Update active timed teleports
-            if (!TeleportManager.queuedTeleports.isEmpty()) {
-                for (TimedTeleport timedTeleport : TeleportManager.queuedTeleports) {
+            if (!TeleportManager.getQueuedTeleports().isEmpty()) {
+                for (TimedTeleport timedTeleport : TeleportManager.getQueuedTeleports()) {
                     Player teleporter = Bukkit.getPlayer(timedTeleport.getTeleporter().getUniqueId());
                     if (teleporter != null) {
                         if (timedTeleport.getTimeRemaining() > 0) {
@@ -226,7 +226,7 @@ public class TeleportRequestHandler {
             // Clear completed teleports
             if (!completedTeleports.isEmpty()) {
                 for (TimedTeleport timedTeleport : completedTeleports) {
-                    TeleportManager.queuedTeleports.remove(timedTeleport);
+                    TeleportManager.getQueuedTeleports().remove(timedTeleport);
                 }
             }
             completedTeleports.clear();

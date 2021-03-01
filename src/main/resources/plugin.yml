@@ -37,7 +37,7 @@ commands:
     permission: huskhomes.delwarp
   editwarp:
     description: Edit a warp
-    usage: /editwarp <home> <rename/description/location> [arguments]
+    usage: /editwarp <warp> <rename/description/location> [arguments]
     permission: huskhomes.editwarp
   back:
     description: Return to your previous position, or where you died

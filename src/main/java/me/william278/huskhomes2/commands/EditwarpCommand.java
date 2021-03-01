@@ -26,134 +26,135 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
 
     @Override
     protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (args.length >= 1) {
-            String warpName = args[0];
-            if (DataManager.warpExists(warpName)) {
-                if (args.length >= 2) {
-                    switch (args[1]) {
-                        case "location":
-                            Location newLocation = p.getLocation();
-                            TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
+        if (args.length == 0) {
+            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+            return true;
+        }
 
-                            // Remove old marker if on the Dynmap
-                            Warp locationMovedWarp = DataManager.getWarp(warpName);
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                DynMapIntegration.removeDynamicMapMarker(warpName);
-                            }
+        String warpName = args[0];
+        if (!DataManager.warpExists(warpName)) {
+            MessageManager.sendMessage(p, "error_warp_invalid", warpName);
+            return true;
+        }
 
-                            PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
-                            Bukkit.getPluginManager().callEvent(relocateWarpEvent);
-                            if (relocateWarpEvent.isCancelled()) {
-                                return true;
-                            }
+        if (args.length == 1) {
+            Warp warp = DataManager.getWarp(warpName);
+            EditingHandler.showEditWarpOptions(p, warp);
+            return true;
+        }
 
-                            DataManager.updateWarpLocation(warpName, p.getLocation());
-                            MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
+        switch (args[1]) {
+            case "location":
+                Location newLocation = p.getLocation();
+                TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
 
-                            // Add new updated marker if using Dynmap
-                            locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                DynMapIntegration.addDynamicMapMarker(locationMovedWarp);
-                            }
-                            return true;
-                        case "description":
-                            if (args.length >= 3) {
-                                Warp descriptionChangedWarp = DataManager.getWarp(warpName);
+                // Remove old marker if on the Dynmap
+                Warp locationMovedWarp = DataManager.getWarp(warpName);
+                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                    DynMapIntegration.removeDynamicMapMarker(warpName);
+                }
 
-                                // Get the new description
-                                StringBuilder newDescription = new StringBuilder();
-                                for (int i = 2; i < args.length; i++) {
-                                    if (i > 2) {
-                                        newDescription.append(" ").append(args[i]);
-                                    } else {
-                                        newDescription = new StringBuilder(args[i]);
-                                    }
-                                }
-                                String newDescriptionString = newDescription.toString();
-
-                                PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
-                                Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent);
-                                if (changeWarpDescriptionEvent.isCancelled()) {
-                                    return true;
-                                }
-
-                                // Check the description is valid
-                                if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
-                                    MessageManager.sendMessage(p, "error_edit_warp_invalid_description");
-                                    return true;
-                                }
-
-                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                    DynMapIntegration.removeDynamicMapMarker(warpName);
-                                }
-
-                                // Update description
-                                DataManager.updateWarpDescription(warpName, newDescriptionString);
-
-                                descriptionChangedWarp.setDescription(newDescriptionString);
-                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                    DynMapIntegration.addDynamicMapMarker(descriptionChangedWarp);
-                                }
-
-                                // Confirmation message
-                                MessageManager.sendMessage(p, "edit_warp_update_description", warpName, newDescriptionString);
-                            } else {
-                                MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> description <new description>");
-                            }
-                            return true;
-                        case "rename":
-                            if (args.length >= 3) {
-                                Warp renamedWarp = DataManager.getWarp(warpName);
-                                String newName = args[2];
-                                if (newName.length() > 16) {
-                                    MessageManager.sendMessage(p, "error_set_warp_invalid_length");
-                                    return true;
-                                }
-                                if (!newName.matches("[A-Za-z0-9_\\-]+")) {
-                                    MessageManager.sendMessage(p, "error_set_warp_invalid_characters");
-                                    return true;
-                                }
-                                if (DataManager.warpExists(newName)) {
-                                    MessageManager.sendMessage(p, "error_set_warp_name_taken");
-                                    return true;
-                                }
-                                PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
-                                Bukkit.getPluginManager().callEvent(renameWarpEvent);
-                                if (renameWarpEvent.isCancelled()) {
-                                    return true;
-                                }
-
-                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                    DynMapIntegration.removeDynamicMapMarker(warpName);
-                                }
-                                DataManager.updateWarpName(warpName, newName);
-
-                                renamedWarp.setName(newName);
-                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                                    DynMapIntegration.addDynamicMapMarker(renamedWarp);
-                                }
-                                WarpCommand.Tab.updateWarpsTabCache();
-                                MessageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
-                            } else {
-                                MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");
-                            }
-                            return true;
-                        default:
-                            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-                            return true;
-                    }
-                } else {
-                    Warp warp = DataManager.getWarp(warpName);
-                    EditingHandler.showEditWarpOptions(p, warp);
+                PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
+                Bukkit.getPluginManager().callEvent(relocateWarpEvent);
+                if (relocateWarpEvent.isCancelled()) {
                     return true;
                 }
-            } else {
-                MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-            }
-        } else {
-            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+
+                DataManager.updateWarpLocation(warpName, p.getLocation());
+                MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
+
+                // Add new updated marker if using Dynmap
+                locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
+                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                    DynMapIntegration.addDynamicMapMarker(locationMovedWarp);
+                }
+                return true;
+            case "description":
+                if (args.length >= 3) {
+                    Warp descriptionChangedWarp = DataManager.getWarp(warpName);
+
+                    // Get the new description
+                    StringBuilder newDescription = new StringBuilder();
+                    for (int i = 2; i < args.length; i++) {
+                        if (i > 2) {
+                            newDescription.append(" ").append(args[i]);
+                        } else {
+                            newDescription = new StringBuilder(args[i]);
+                        }
+                    }
+                    String newDescriptionString = newDescription.toString();
+
+                    PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
+                    Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent);
+                    if (changeWarpDescriptionEvent.isCancelled()) {
+                        return true;
+                    }
+
+                    // Check the description is valid
+                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
+                        MessageManager.sendMessage(p, "error_edit_warp_invalid_description");
+                        return true;
+                    }
+
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        DynMapIntegration.removeDynamicMapMarker(warpName);
+                    }
+
+                    // Update description
+                    DataManager.updateWarpDescription(warpName, newDescriptionString);
+
+                    descriptionChangedWarp.setDescription(newDescriptionString);
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        DynMapIntegration.addDynamicMapMarker(descriptionChangedWarp);
+                    }
+
+                    // Confirmation message
+                    MessageManager.sendMessage(p, "edit_warp_update_description", warpName, newDescriptionString);
+                } else {
+                    MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> description <new description>");
+                }
+                return true;
+            case "rename":
+                if (args.length >= 3) {
+                    Warp renamedWarp = DataManager.getWarp(warpName);
+                    String newName = args[2];
+                    if (newName.length() > 16) {
+                        MessageManager.sendMessage(p, "error_set_warp_invalid_length");
+                        return true;
+                    }
+                    if (!newName.matches("[A-Za-z0-9_\\-]+")) {
+                        MessageManager.sendMessage(p, "error_set_warp_invalid_characters");
+                        return true;
+                    }
+                    if (DataManager.warpExists(newName)) {
+                        MessageManager.sendMessage(p, "error_set_warp_name_taken");
+                        return true;
+                    }
+                    PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
+                    Bukkit.getPluginManager().callEvent(renameWarpEvent);
+                    if (renameWarpEvent.isCancelled()) {
+                        return true;
+                    }
+
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        DynMapIntegration.removeDynamicMapMarker(warpName);
+                    }
+                    DataManager.updateWarpName(warpName, newName);
+
+                    renamedWarp.setName(newName);
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        DynMapIntegration.addDynamicMapMarker(renamedWarp);
+                    }
+                    WarpCommand.Tab.updateWarpsTabCache();
+                    MessageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
+                } else {
+                    MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");
+                }
+                return true;
+            default:
+                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                return true;
         }
-        return true;
     }
 
     @Override

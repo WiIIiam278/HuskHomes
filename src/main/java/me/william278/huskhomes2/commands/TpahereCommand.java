@@ -16,5 +16,5 @@ public class TpahereCommand extends CommandBase {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }
         return true;
-}
+    }
 }

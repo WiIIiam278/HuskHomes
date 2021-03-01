@@ -35,80 +35,7 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length >= 1) {
-            switch (args[0]) {
-                case "update":
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (p.hasPermission("huskhomes.version_checker")) {
-                            if (!HuskHomes.getVersionCheckString().contains("HuskHomes is up to date!")) {
-                                p.sendMessage(org.bukkit.ChatColor.DARK_RED + "Update: " + org.bukkit.ChatColor.RED + HuskHomes.getVersionCheckString());
-
-                                // Send a link to Spigot downloads page
-                                ComponentBuilder componentBuilder = new ComponentBuilder();
-                                TextComponent projectURL = new TextComponent("[Download]");
-                                ClickEvent clickEvent = new ClickEvent(OPEN_URL, "https://www.spigotmc.org/resources/huskhomes.83767/updates");
-                                projectURL.setClickEvent(clickEvent);
-                                projectURL.setColor(net.md_5.bungee.api.ChatColor.AQUA);
-                                componentBuilder = componentBuilder.append(TextComponent.fromLegacyText("§7Get the latest version: "));
-                                componentBuilder = componentBuilder.append(projectURL);
-                                p.spigot().sendMessage(componentBuilder.create());
-                            } else {
-                                p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | HuskHomes is up-to-date! (Version " + plugin.getDescription().getVersion() + ")");
-                            }
-                        } else {
-                            MessageManager.sendMessage(p, "error_no_permission");
-                        }
-                    } else {
-                        plugin.getLogger().info(HuskHomes.getVersionCheckString());
-                    }
-                    return true;
-                case "reload":
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (p.hasPermission("huskhomes.reload")) {
-                            HuskHomes.getSettings().reload();
-                            MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
-                            p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | Reloaded config and message files.");
-                        } else {
-                            MessageManager.sendMessage(p, "error_no_permission");
-                        }
-                        return true;
-                    } else {
-                        HuskHomes.getSettings().reload();
-                        MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
-                        plugin.getLogger().info("Reloaded config and message files.");
-                    }
-                    return true;
-                case "migrate":
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        MessageManager.sendMessage(p, "error_console_only");
-                        return true;
-                    }
-                    if (args.length == 2) {
-                        if (args[1].equalsIgnoreCase("essentialsX")) {
-                            sender.sendMessage(ChatColor.GREEN + "Attempting to migrate from EssentialsX...");
-                            EssentialsMigrator.migrate();
-                        } else {
-                            sender.sendMessage(ChatColor.RED + "Invalid argument! Usage: /huskhomes migrate essentialsX");
-                        }
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX");
-                    }
-                    return true;
-                default:
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (!p.hasPermission("huskhomes.about")) {
-                            MessageManager.sendMessage(p, "error_no_permission");
-                            return true;
-                        }
-                    }
-                    showAboutMenu(sender);
-                    return true;
-            }
-        } else {
+        if (args.length == 0) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 if (!p.hasPermission("huskhomes.about")) {
@@ -117,8 +44,81 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
                 }
             }
             showAboutMenu(sender);
+            return true;
         }
-        return true;
+
+        switch (args[0]) {
+            case "update":
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    if (p.hasPermission("huskhomes.version_checker")) {
+                        if (!HuskHomes.getVersionCheckString().contains("HuskHomes is up to date!")) {
+                            p.sendMessage(org.bukkit.ChatColor.DARK_RED + "Update: " + org.bukkit.ChatColor.RED + HuskHomes.getVersionCheckString());
+
+                            // Send a link to Spigot downloads page
+                            ComponentBuilder componentBuilder = new ComponentBuilder();
+                            TextComponent projectURL = new TextComponent("[Download]");
+                            ClickEvent clickEvent = new ClickEvent(OPEN_URL, "https://www.spigotmc.org/resources/huskhomes.83767/updates");
+                            projectURL.setClickEvent(clickEvent);
+                            projectURL.setColor(net.md_5.bungee.api.ChatColor.AQUA);
+                            componentBuilder = componentBuilder.append(TextComponent.fromLegacyText("§7Get the latest version: "));
+                            componentBuilder = componentBuilder.append(projectURL);
+                            p.spigot().sendMessage(componentBuilder.create());
+                        } else {
+                            p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | HuskHomes is up-to-date! (Version " + plugin.getDescription().getVersion() + ")");
+                        }
+                    } else {
+                        MessageManager.sendMessage(p, "error_no_permission");
+                    }
+                } else {
+                    plugin.getLogger().info(HuskHomes.getVersionCheckString());
+                }
+                return true;
+            case "reload":
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    if (p.hasPermission("huskhomes.reload")) {
+                        HuskHomes.getSettings().reload();
+                        MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
+                        p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | Reloaded config and message files.");
+                    } else {
+                        MessageManager.sendMessage(p, "error_no_permission");
+                    }
+                    return true;
+                } else {
+                    HuskHomes.getSettings().reload();
+                    MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
+                    plugin.getLogger().info("Reloaded config and message files.");
+                }
+                return true;
+            case "migrate":
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    MessageManager.sendMessage(p, "error_console_only");
+                    return true;
+                }
+                if (args.length == 2) {
+                    if (args[1].equalsIgnoreCase("essentialsX")) {
+                        sender.sendMessage(ChatColor.GREEN + "Attempting to migrate from EssentialsX...");
+                        EssentialsMigrator.migrate();
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Invalid argument! Usage: /huskhomes migrate essentialsX");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX");
+                }
+                return true;
+            default:
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    if (!p.hasPermission("huskhomes.about")) {
+                        MessageManager.sendMessage(p, "error_no_permission");
+                        return true;
+                    }
+                }
+                showAboutMenu(sender);
+                return true;
+        }
     }
 
     @Override

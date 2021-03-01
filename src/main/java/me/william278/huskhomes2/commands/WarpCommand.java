@@ -21,20 +21,20 @@ public class WarpCommand extends CommandBase {
 
     @Override
     protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (HuskHomes.getSettings().doWarpCommand()) {
-            if (args.length == 1) {
-                String warpName = args[0];
-                if (DataManager.warpExists(warpName)) {
-                    Warp warp = DataManager.getWarp(warpName);
-                    TeleportManager.queueTimedTeleport(p, warp);
-                } else {
-                    MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-                }
+        if (!HuskHomes.getSettings().doWarpCommand()) {
+            MessageManager.sendMessage(p, "error_command_disabled");
+            return true;
+        }
+        if (args.length == 1) {
+            String warpName = args[0];
+            if (DataManager.warpExists(warpName)) {
+                Warp warp = DataManager.getWarp(warpName);
+                TeleportManager.queueTimedTeleport(p, warp);
             } else {
-                ListHandler.displayWarpList(p, 1);
+                MessageManager.sendMessage(p, "error_warp_invalid", warpName);
             }
         } else {
-            MessageManager.sendMessage(p, "error_command_disabled");
+            ListHandler.displayWarpList(p, 1);
         }
         return true;
     }

@@ -21,7 +21,7 @@ import java.util.UUID;
 public class HomeCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             String homeName = args[0];
             if (DataManager.homeExists(p, homeName)) {
@@ -36,12 +36,11 @@ public class HomeCommand extends CommandBase {
                 if (homes.size() == 1) {
                     // Teleport the player if they only have one home
                     TeleportManager.queueTimedTeleport(p, homes.get(0));
-                    return true;
+                    return;
                 }
             }
             ListHandler.displayPlayerHomeList(p, 1);
         }
-        return true;
     }
 
     public static class Tab implements TabCompleter {

@@ -19,15 +19,15 @@ import java.util.List;
 public class TpCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         switch (args.length) {
             default: case 0:
                 MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-                return true;
+                return;
             case 1:
                 String targetPlayer = args[0];
                 TeleportManager.teleportPlayer(p, targetPlayer);
-                return true;
+                return;
             case 3:
                 try {
                     double x = Double.parseDouble(args[0]);
@@ -38,7 +38,7 @@ public class TpCommand extends CommandBase {
                 } catch (Exception e) {
                     MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                 }
-                return true;
+                return;
             case 4:
                 try {
                     double x = Double.parseDouble(args[0]);
@@ -47,14 +47,14 @@ public class TpCommand extends CommandBase {
                     String worldName = args[3];
                     if (Bukkit.getWorld(worldName) == null) {
                         MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
-                        return true;
+                        return;
                     }
                     TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, HuskHomes.getSettings().getServerID());
                     TeleportManager.teleportPlayer(p, teleportationPoint);
                 } catch (Exception e) {
                     MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                 }
-                return true;
+                return;
             case 5:
                 if (HuskHomes.getSettings().doBungee()) {
                     try {
@@ -65,7 +65,7 @@ public class TpCommand extends CommandBase {
                         String serverName = args[4];
                         if (Bukkit.getWorld(worldName) == null) {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
-                            return true;
+                            return;
                         }
                         TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, serverName);
                         TeleportManager.teleportPlayer(p, teleportationPoint);
@@ -75,7 +75,7 @@ public class TpCommand extends CommandBase {
                 } else {
                     MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                 }
-                return true;
+                return;
         }
     }
 

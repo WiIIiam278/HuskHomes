@@ -21,10 +21,10 @@ import java.util.Set;
 public class WarpCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (!HuskHomes.getSettings().doWarpCommand()) {
             MessageManager.sendMessage(p, "error_command_disabled");
-            return true;
+            return;
         }
         if (args.length == 1) {
             String warpName = args[0];
@@ -37,7 +37,6 @@ public class WarpCommand extends CommandBase {
         } else {
             ListHandler.displayWarpList(p, 1);
         }
-        return true;
     }
 
     public static class Tab implements TabCompleter {

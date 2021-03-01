@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class SetspawnCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (HuskHomes.getSettings().doSpawnCommand()) {
             SettingHandler.setSpawnLocation(p.getLocation());
             p.getLocation().getWorld().setSpawnLocation(p.getLocation());
@@ -17,6 +17,5 @@ public class SetspawnCommand extends CommandBase {
         } else {
             MessageManager.sendMessage(p, "error_command_disabled");
         }
-        return true;
     }
 }

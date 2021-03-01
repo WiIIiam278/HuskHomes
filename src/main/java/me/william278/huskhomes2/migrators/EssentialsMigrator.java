@@ -33,7 +33,7 @@ public class EssentialsMigrator {
 
                 File[] playerFiles = essentialsPlayerDataFolder.listFiles();
                 for (File playerFile : playerFiles) {
-                    String uuidS = playerFile.getName().replaceFirst("[.][^.]+$", "");
+                    String uuidS = playerFile.getName().split("\\.")[0];
                     UUID uuid = UUID.fromString(uuidS);
                     FileConfiguration playerFileConfig = loadConfiguration(playerFile);
                     String playerName = playerFileConfig.getString("lastAccountName");

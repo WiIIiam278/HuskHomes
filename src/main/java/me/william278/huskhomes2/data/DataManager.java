@@ -18,6 +18,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
+/*
+    TODO Should not be an utility class for SQL class
+    Instead of doing everything here, all methods should be moved into corresponding classes
+
+ */
 // This class handles the saving of data; whether that be through SQLite or mySQL
 public class DataManager {
 

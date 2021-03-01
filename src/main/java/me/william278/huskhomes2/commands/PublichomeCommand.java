@@ -5,6 +5,7 @@ import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.utils.RegexUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -33,15 +34,16 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             ListHandler.displayPublicHomeList(p, 1);
-            return true;
+            return;
         }
         String publicHome = args[0];
-        if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
-            String ownerName = publicHome.split("\\.")[0];
-            String homeName = publicHome.split("\\.")[1];
+        if (RegexUtil.OWNER_NAME_PATTERN.matcher(publicHome).matches()) {
+            String[] split = publicHome.split("\\.");
+            String ownerName = split[0];
+            String homeName = split[1];
             if (DataManager.homeExists(ownerName, homeName)) {
                 Home home = DataManager.getHome(ownerName, homeName);
                 if (home.isPublic()) {
@@ -55,7 +57,6 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
         } else {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }
-        return true;
     }
 
     @Override

@@ -13,6 +13,7 @@ import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import me.william278.huskhomes2.utils.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -29,22 +30,22 @@ import java.util.Locale;
 public class EdithomeCommand extends CommandBase implements TabCompleter {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 0) {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-            return true;
+            return;
         }
 
         String homeName = args[0];
         if (!DataManager.homeExists(p.getName(), homeName)) {
             MessageManager.sendMessage(p, "error_home_invalid", homeName);
-            return true;
+            return;
         }
 
         if (args.length == 1) {
             Home home = DataManager.getHome(p.getName(), homeName);
             EditingHandler.showEditHomeOptions(p, home);
-            return true;
+            return;
         }
 
         switch (args[1].toLowerCase(Locale.ENGLISH)) {
@@ -61,7 +62,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 PlayerRelocateHomeEvent relocateHomeEvent = new PlayerRelocateHomeEvent(p, locationMovedHome, newTeleportLocation);
                 Bukkit.getPluginManager().callEvent(relocateHomeEvent);
                 if (relocateHomeEvent.isCancelled()) {
-                    return true;
+                    return;
                 }
 
                 DataManager.updateHomeLocation(p.getName(), homeName, newLocation);
@@ -72,7 +73,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 if (locationMovedHome.isPublic() && HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
                     DynMapIntegration.addDynamicMapMarker(locationMovedHome);
                 }
-                return true;
+                return;
             case "description":
                 if (args.length >= 3) {
                     Home descriptionChangedHome = DataManager.getHome(p.getName(), homeName);
@@ -90,12 +91,12 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                     PlayerChangeHomeDescriptionEvent changeHomeDescriptionEvent = new PlayerChangeHomeDescriptionEvent(p, descriptionChangedHome, newDescriptionString);
                     Bukkit.getPluginManager().callEvent(changeHomeDescriptionEvent);
                     if (changeHomeDescriptionEvent.isCancelled()) {
-                        return true;
+                        return;
                     }
                     // Check the description is valid
-                    if (!newDescriptionString.matches("[a-zA-Z0-9\\d\\-_\\s]+") || newDescriptionString.length() > 255) {
+                    if (newDescriptionString.length() > 255 || !RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
                         MessageManager.sendMessage(p, "error_edit_home_invalid_description");
-                        return true;
+                        return;
                     }
 
                     // Remove old marker if on the Dynmap
@@ -117,27 +118,27 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 } else {
                     MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> description <new description>");
                 }
-                return true;
+                return;
             case "rename":
                 if (args.length >= 3) {
                     String newName = args[2];
                     if (newName.length() > 16) {
                         MessageManager.sendMessage(p, "error_set_home_invalid_length");
-                        return true;
+                        return;
                     }
-                    if (!newName.matches("[A-Za-z0-9_\\-]+")) {
+                    if (!RegexUtil.NAME_PATTERN.matcher(newName).matches()) {
                         MessageManager.sendMessage(p, "error_set_home_invalid_characters");
-                        return true;
+                        return;
                     }
                     if (DataManager.homeExists(p.getName(), newName)) {
                         MessageManager.sendMessage(p, "error_set_home_name_taken");
-                        return true;
+                        return;
                     }
                     Home renamedHome = DataManager.getHome(p.getName(), homeName);
                     PlayerRenameHomeEvent renameHomeEvent = new PlayerRenameHomeEvent(p, renamedHome, newName);
                     Bukkit.getPluginManager().callEvent(renameHomeEvent);
                     if (renameHomeEvent.isCancelled()) {
-                        return true;
+                        return;
                     }
                     if (renamedHome.isPublic()) {
                         if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
@@ -157,7 +158,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 } else {
                     MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> rename <new name>");
                 }
-                return true;
+                return;
             case "public":
                 Home privateHome = DataManager.getHome(p.getName(), homeName);
                 if (!privateHome.isPublic()) {
@@ -166,7 +167,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                         if (publicHomeCost > 0) {
                             if (!VaultIntegration.takeMoney(p, publicHomeCost)) {
                                 MessageManager.sendMessage(p, "error_insufficient_funds", VaultIntegration.format(publicHomeCost));
-                                return true;
+                                return;
                             } else {
                                 MessageManager.sendMessage(p, "edit_home_privacy_public_success_economy", homeName, VaultIntegration.format(publicHomeCost));
                             }
@@ -179,7 +180,7 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                     PlayerMakeHomePublicEvent makeHomePublicEvent = new PlayerMakeHomePublicEvent(p, privateHome);
                     Bukkit.getPluginManager().callEvent(makeHomePublicEvent);
                     if (makeHomePublicEvent.isCancelled()) {
-                        return true;
+                        return;
                     }
                     DataManager.updateHomePrivacy(p.getName(), homeName, true);
                     PublichomeCommand.updatePublicHomeTabCache();
@@ -189,14 +190,14 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 } else {
                     MessageManager.sendMessage(p, "error_edit_home_privacy_already_public", homeName);
                 }
-                return true;
+                return;
             case "private":
                 Home publicHome = DataManager.getHome(p.getName(), homeName);
                 if (publicHome.isPublic()) {
                     PlayerMakeHomePrivateEvent makeHomePrivateEvent = new PlayerMakeHomePrivateEvent(p, publicHome);
                     Bukkit.getPluginManager().callEvent(makeHomePrivateEvent);
                     if (makeHomePrivateEvent.isCancelled()) {
-                        return true;
+                        return;
                     }
                     DataManager.updateHomePrivacy(p.getName(), homeName, false);
                     MessageManager.sendMessage(p, "edit_home_privacy_private_success", homeName);
@@ -207,10 +208,10 @@ public class EdithomeCommand extends CommandBase implements TabCompleter {
                 } else {
                     MessageManager.sendMessage(p, "error_edit_home_privacy_already_private", homeName);
                 }
-                return true;
+                return;
             default:
                 MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-                return true;
+                return;
         }
     }
 

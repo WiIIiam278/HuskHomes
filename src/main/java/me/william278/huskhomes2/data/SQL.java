@@ -10,9 +10,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 
+/*
+    TODO Split into SQLite, MySQL and abstract SQL classes
+    Even tho both are using pretty much the same syntax and stuff, their initializations are too different and should
+    not co-exist in the same class.
+ */
 public class SQL extends Database {
 
-    private final String SQLiteDatabaseName = "HuskHomesData";
+    private static final String SQLITE_DATABASE_NAME = "HuskHomesData";
 
     private Connection connection;
 
@@ -47,19 +52,19 @@ public class SQL extends Database {
 
     // Initialise connection via SQLite
     private void getSQLiteConnection() {
-        File dataFolder = new File(plugin.getDataFolder(), SQLiteDatabaseName + ".db");
+        File dataFolder = new File(plugin.getDataFolder(), SQLITE_DATABASE_NAME + ".db");
         if (!dataFolder.exists()) {
             try {
                 if (!dataFolder.createNewFile()) {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to write new file: " + SQLiteDatabaseName + ".db (file already exists)");
+                    plugin.getLogger().log(Level.SEVERE, "Failed to write new file: " + SQLITE_DATABASE_NAME + ".db (file already exists)");
                 }
             } catch (IOException e) {
-                plugin.getLogger().log(Level.SEVERE, "An error occurred writing a file: " + SQLiteDatabaseName + ".db (" + e.getCause() + ")");
+                plugin.getLogger().log(Level.SEVERE, "An error occurred writing a file: " + SQLITE_DATABASE_NAME + ".db (" + e.getCause() + ")");
             }
         }
         try {
             Class.forName("org.sqlite.JDBC");
-            setConnection(DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + SQLiteDatabaseName + ".db"));
+            setConnection(DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + SQLITE_DATABASE_NAME + ".db"));
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the SQLite database", ex);
         } catch (ClassNotFoundException ex) {

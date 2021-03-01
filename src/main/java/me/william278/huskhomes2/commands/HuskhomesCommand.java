@@ -122,8 +122,8 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    protected boolean onCommand(Player player, Command command, String label, String[] args) {
-        return true;
+    protected void onCommand(Player player, Command command, String label, String[] args) {
+        // Console is fine too
     }
 
     @Override

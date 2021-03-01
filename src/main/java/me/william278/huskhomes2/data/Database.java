@@ -14,6 +14,11 @@ import java.sql.Statement;
 import java.util.UUID;
 import java.util.logging.Level;
 
+/*
+    TODO Should not relay on SQL
+    Instead should contain abstract getters and setters etc, so some alternative way of storing data may exist
+    Current method should possibly go into the SQL class
+ */
 public abstract class Database {
     protected HuskHomes plugin;
     private Connection connection;

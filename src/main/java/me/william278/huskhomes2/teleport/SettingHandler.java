@@ -15,6 +15,7 @@ import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
+import me.william278.huskhomes2.utils.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -179,7 +180,7 @@ public class SettingHandler {
                 conditionsNotMetReason = "error_set_warp_invalid_length";
                 return;
             }
-            if (!warpName.matches("[A-Za-z0-9_\\-]+")) {
+            if (!RegexUtil.NAME_PATTERN.matcher(warpName).matches()) {
                 conditionsNotMetReason = "error_set_warp_invalid_characters";
                 return;
             }
@@ -215,7 +216,7 @@ public class SettingHandler {
                 conditionsNotMetReason = "error_set_home_invalid_length";
                 return;
             }
-            if (!homeName.matches("[A-Za-z0-9_\\-]+")) {
+            if (!RegexUtil.NAME_PATTERN.matcher(homeName).matches()) {
                 conditionsNotMetReason = "error_set_home_invalid_characters";
                 return;
             }

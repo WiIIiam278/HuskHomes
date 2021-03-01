@@ -20,12 +20,12 @@ public class TeleportManager {
     public static TeleportationPoint spawnLocation = null;
 
     public static void teleportPlayer(Player player, String targetPlayer) {
-        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.settings.getServerID()));
+        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.getSettings().getServerID()));
         setPlayerDestinationFromTargetPlayer(player, targetPlayer);
     }
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
-        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.settings.getServerID()));
+        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.getSettings().getServerID()));
         DataManager.setPlayerDestinationLocation(player, point);
         teleportPlayer(player);
     }
@@ -34,13 +34,13 @@ public class TeleportManager {
         TeleportationPoint teleportationPoint = DataManager.getPlayerDestination(p);
         if (teleportationPoint != null) {
             String server = teleportationPoint.getServer();
-            if (!HuskHomes.settings.doBungee() || server.equals(HuskHomes.settings.getServerID())) {
+            if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
                 p.teleport(teleportationPoint.getLocation());
-                p.playSound(p.getLocation(), HuskHomes.settings.getTeleportationCompleteSound(), 1, 1);
+                p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
                 MessageManager.sendMessage(p, "teleporting_complete");
                 DataManager.setPlayerTeleporting(p, false);
                 DataManager.clearPlayerDestination(p.getName());
-            } else if (HuskHomes.settings.doBungee()) {
+            } else if (HuskHomes.getSettings().doBungee()) {
                 DataManager.setPlayerDestinationLocation(p, teleportationPoint);
                 DataManager.setPlayerTeleporting(p, true);
                 PluginMessageHandler.sendPlayer(p, server);
@@ -77,8 +77,8 @@ public class TeleportManager {
                 return;
             }
         }
-        if (HuskHomes.settings.doEconomy()) {
-            double rtpCost = HuskHomes.settings.getRtpCost();
+        if (HuskHomes.getSettings().doEconomy()) {
+            double rtpCost = HuskHomes.getSettings().getRtpCost();
             if (rtpCost > 0) {
                 if (!VaultIntegration.hasMoney(player, rtpCost)) {
                     MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(rtpCost));
@@ -87,8 +87,8 @@ public class TeleportManager {
             }
         }
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            if (HuskHomes.settings.doEconomy()) {
-                double rtpCost = HuskHomes.settings.getRtpCost();
+            if (HuskHomes.getSettings().doEconomy()) {
+                double rtpCost = HuskHomes.getSettings().getRtpCost();
                 if (rtpCost > 0) {
                     VaultIntegration.takeMoney(player, rtpCost);
                     MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(rtpCost));
@@ -111,7 +111,7 @@ public class TeleportManager {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
         } else {
-            if (HuskHomes.settings.doBungee()) {
+            if (HuskHomes.getSettings().doBungee()) {
                 teleportHereCrossServer(requester, targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -132,13 +132,13 @@ public class TeleportManager {
         if (targetPlayer != null) {
             if (requester.getUniqueId() != targetPlayer.getUniqueId()) {
                 DataManager.setPlayerDestinationLocation(requester,
-                        new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.settings.getServerID()));
+                        new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.getSettings().getServerID()));
                 teleportPlayer(requester);
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
         } else {
-            if (HuskHomes.settings.doBungee()) {
+            if (HuskHomes.getSettings().doBungee()) {
                 setTeleportationDestinationCrossServer(requester, targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);

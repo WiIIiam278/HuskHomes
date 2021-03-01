@@ -33,11 +33,11 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
                     switch (args[1]) {
                         case "location":
                             Location newLocation = p.getLocation();
-                            TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.settings.getServerID());
+                            TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
 
                             // Remove old marker if on the Dynmap
                             Warp locationMovedWarp = DataManager.getWarp(warpName);
-                            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.removeDynamicMapMarker(warpName);
                             }
 
@@ -51,8 +51,8 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
                             MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
 
                             // Add new updated marker if using Dynmap
-                            locationMovedWarp.setLocation(newLocation, HuskHomes.settings.getServerID());
-                            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                            locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
+                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.addDynamicMapMarker(locationMovedWarp);
                             }
                             return true;
@@ -83,7 +83,7 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
                                     return true;
                                 }
 
-                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                     DynMapIntegration.removeDynamicMapMarker(warpName);
                                 }
 
@@ -91,7 +91,7 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
                                 DataManager.updateWarpDescription(warpName, newDescriptionString);
 
                                 descriptionChangedWarp.setDescription(newDescriptionString);
-                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                     DynMapIntegration.addDynamicMapMarker(descriptionChangedWarp);
                                 }
 
@@ -123,13 +123,13 @@ public class EditwarpCommand extends CommandBase implements TabCompleter {
                                     return true;
                                 }
 
-                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                     DynMapIntegration.removeDynamicMapMarker(warpName);
                                 }
                                 DataManager.updateWarpName(warpName, newName);
 
                                 renamedWarp.setName(newName);
-                                if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+                                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                     DynMapIntegration.addDynamicMapMarker(renamedWarp);
                                 }
                                 WarpCommand.Tab.updateWarpsTabCache();

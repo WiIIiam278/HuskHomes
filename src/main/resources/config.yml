@@ -1,3 +1,9 @@
+#  ------------------------------
+# |       HuskHomes Config       |
+# |    Developed by William278   |
+#  ------------------------------
+# Configuration guide: https://github.com/WiIIiam278/HuskHomes2/wiki
+
 language: 'en-gb'
 check_for_updates: true
 data_storage_options:

@@ -2,7 +2,6 @@ package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.migrators.EssentialsMigrator;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -68,17 +67,16 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
                         if (p.hasPermission("huskhomes.reload")) {
-                            plugin.reloadConfig();
-                            ConfigManager.loadConfig();
-                            MessageManager.loadMessages(HuskHomes.settings.getLanguage());
+                            HuskHomes.getSettings().reload();
+                            MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
                             p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "HuskHomes" + ChatColor.RESET + "" + ChatColor.GREEN + " | Reloaded config and message files.");
                         } else {
                             MessageManager.sendMessage(p, "error_no_permission");
                         }
                         return true;
                     } else {
-                        ConfigManager.loadConfig();
-                        MessageManager.loadMessages(HuskHomes.settings.getLanguage());
+                        HuskHomes.getSettings().reload();
+                        MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
                         plugin.getLogger().info("Reloaded config and message files.");
                     }
                     return true;

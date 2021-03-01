@@ -1,7 +1,6 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
@@ -21,7 +20,7 @@ import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 // This class migrates data from HuskHomes 1.5.x to HuskHomes 2.x
 public class LegacyMigrator {
 
-    public static boolean startupMigrate;
+    private static boolean canMigrate;
     private static String sourcePlayerTable;
     private static String sourceHomeTable;
     private static final HuskHomes plugin = HuskHomes.getInstance();
@@ -42,7 +41,7 @@ public class LegacyMigrator {
             if (!config.contains("config_file_version") && config.contains("host")) {
                 Bukkit.getLogger().info("Detected HuskHomes 1.0 data to migrate!");
                 Bukkit.getLogger().info("- Preparing Migration -");
-                startupMigrate = true;
+                canMigrate = true;
                 createMigrationSubdirectory();
                 if (!configFile.renameTo(new File(plugin.getDataFolder() + File.separator + "MigratedData" + File.separator + "OLD_config.yml"))) {
                     Bukkit.getLogger().warning("Failed to move old config.yml!");
@@ -117,11 +116,10 @@ public class LegacyMigrator {
             plugin.saveConfig();
 
             // Reload settings with new ones
-            plugin.reloadConfig();
-            ConfigManager.loadConfig();
+            HuskHomes.getSettings().reload();
         } catch (Exception e) {
             Bukkit.getLogger().warning("Failed to migrate data; " + e.getCause() + " when trying to migrate config data");
-            startupMigrate = false;
+            canMigrate = false;
             return;
         }
         Bukkit.getLogger().info("- Config migrations complete! -");
@@ -131,8 +129,8 @@ public class LegacyMigrator {
         try {
             synchronized (HuskHomes.getInstance()) {
                 Class.forName("com.mysql.jdbc.Driver");
-                return DriverManager.getConnection("jdbc:mysql://" + HuskHomes.settings.getMySQLhost() + ":" + HuskHomes.settings.getMySQLport()
-                        + "/" + HuskHomes.settings.getMySQLdatabase() + "?autoReconnect=true&useSSL=false", HuskHomes.settings.getMySQLusername(), HuskHomes.settings.getMySQLpassword());
+                return DriverManager.getConnection("jdbc:mysql://" + HuskHomes.getSettings().getMySQLhost() + ":" + HuskHomes.getSettings().getMySQLport()
+                        + "/" + HuskHomes.getSettings().getMySQLdatabase() + "?autoReconnect=true&useSSL=false", HuskHomes.getSettings().getMySQLusername(), HuskHomes.getSettings().getMySQLpassword());
             }
         } catch (SQLException e) {
             return null;
@@ -208,4 +206,7 @@ public class LegacyMigrator {
         Bukkit.getLogger().info("-- Migration complete! --");
     }
 
+    public static boolean isCanMigrate() {
+        return canMigrate;
+    }
 }

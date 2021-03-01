@@ -25,7 +25,6 @@ import me.william278.huskhomes2.commands.TpdenyCommand;
 import me.william278.huskhomes2.commands.TphereCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.commands.WarplistCommand;
-import me.william278.huskhomes2.config.ConfigManager;
 import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
@@ -48,11 +47,17 @@ public final class HuskHomes extends JavaPlugin {
 
     private static HuskHomes instance;
 
+    // TODO Remove
     public static HuskHomes getInstance() {
         return instance;
     }
 
-    public static Settings settings;
+    private static Settings settings;
+
+    // TODO Remove
+    public static Settings getSettings() {
+        return settings;
+    }
 
     /**
      * Returns the HuskHomes API
@@ -118,13 +123,15 @@ public final class HuskHomes extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        // TODO Remove
         // Set instance for easy cross-class referencing
         instance = this;
+        settings = new Settings(this);
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable() { //nb=
+        saveDefaultConfig();
+
         // Plugin startup logic
         getLogger().info("Enabling HuskHomes version " + this.getDescription().getVersion());
 
@@ -132,18 +139,18 @@ public final class HuskHomes extends JavaPlugin {
         LegacyMigrator.checkStartupMigration();
 
         // Load the config
-        ConfigManager.loadConfig();
+        settings.reload();
 
         // MIGRATION: Migrate config files
-        if (LegacyMigrator.startupMigrate) {
+        if (LegacyMigrator.isCanMigrate()) {
             new LegacyMigrator().migrateConfig();
         }
 
         // Load the messages (in the right language)
-        MessageManager.loadMessages(HuskHomes.settings.getLanguage());
+        MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
 
         // Check for updates (if enabled)
-        if (HuskHomes.settings.doUpdateChecks()) {
+        if (HuskHomes.getSettings().doUpdateChecks()) {
             getLogger().info(getVersionCheckString());
         }
 
@@ -154,23 +161,23 @@ public final class HuskHomes extends JavaPlugin {
         DataManager.setupStorage();
 
         // MIGRATION: Migrate SQL data
-        if (LegacyMigrator.startupMigrate) {
+        if (LegacyMigrator.isCanMigrate()) {
             new LegacyMigrator().migratePlayerData();
             new LegacyMigrator().migrateHomeData();
         }
 
         // Setup the Dynmap integration if it is enabled
-        if (HuskHomes.settings.doDynmap()) {
+        if (HuskHomes.getSettings().doDynmap()) {
             DynMapIntegration.initializeDynmap();
         }
 
         // Setup economy if it is enabled
-        if (HuskHomes.settings.doEconomy()) {
+        if (HuskHomes.getSettings().doEconomy()) {
             VaultIntegration.initializeEconomy();
         }
 
         // Set up bungee channels if bungee mode is enabled
-        if (settings.doBungee()) {
+        if (getSettings().doBungee()) {
             setupBungeeChannels();
         }
 
@@ -208,5 +215,4 @@ public final class HuskHomes extends JavaPlugin {
             return "Error retrieving version information!";
         }
     }
-
 }

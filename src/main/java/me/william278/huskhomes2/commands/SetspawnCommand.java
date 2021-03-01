@@ -10,7 +10,7 @@ public class SetspawnCommand extends CommandBase {
 
     @Override
     protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (HuskHomes.settings.doSpawnCommand()) {
+        if (HuskHomes.getSettings().doSpawnCommand()) {
             SettingHandler.setSpawnLocation(p.getLocation());
             p.getLocation().getWorld().setSpawnLocation(p.getLocation());
             MessageManager.sendMessage(p, "set_spawn_success");

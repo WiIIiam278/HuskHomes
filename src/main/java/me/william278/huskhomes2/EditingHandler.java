@@ -61,7 +61,7 @@ public class EditingHandler {
                 Integer.toString((int) home.getY()),
                 Integer.toString((int) home.getZ()));
         MessageManager.sendMessage(p, "edit_world", home.getWorldName());
-        if (HuskHomes.settings.doBungee()) {
+        if (HuskHomes.getSettings().doBungee()) {
             MessageManager.sendMessage(p, "edit_server", home.getServer());
         }
         if (!home.isPublic()) {
@@ -83,7 +83,7 @@ public class EditingHandler {
                 Integer.toString((int) warp.getY()),
                 Integer.toString((int) warp.getZ()));
         MessageManager.sendMessage(p, "edit_world", warp.getWorldName());
-        if (HuskHomes.settings.doBungee()) {
+        if (HuskHomes.getSettings().doBungee()) {
             MessageManager.sendMessage(p, "edit_server", warp.getServer());
         }
         p.sendMessage("");

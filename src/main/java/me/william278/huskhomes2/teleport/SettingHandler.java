@@ -29,7 +29,7 @@ public class SettingHandler {
     public static void setHome(Location location, Player player, String name) {
         SetHomeConditions setHomeConditions = new SetHomeConditions(player, name);
         if (setHomeConditions.areConditionsMet()) {
-            Home home = new Home(location, HuskHomes.settings.getServerID(), player, name, false);
+            Home home = new Home(location, HuskHomes.getSettings().getServerID(), player, name, false);
             PlayerSetHomeEvent event = new PlayerSetHomeEvent(player, home);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
@@ -41,10 +41,10 @@ public class SettingHandler {
         } else {
             switch (setHomeConditions.getConditionsNotMetReason()) {
                 case "error_set_home_maximum_homes":
-                    MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(HuskHomes.settings.getMaximumHomes()));
+                    MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(HuskHomes.getSettings().getMaximumHomes()));
                     return;
                 case "error_insufficient_funds":
-                    MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.settings.getSetHomeCost()));
+                    MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.getSettings().getSetHomeCost()));
                     return;
                 default:
                     MessageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
@@ -56,7 +56,7 @@ public class SettingHandler {
     public static void setWarp(Location location, Player player, String name) {
         SetWarpConditions setWarpConditions = new SetWarpConditions(name);
         if (setWarpConditions.areConditionsMet()) {
-            Warp warp = new Warp(location, HuskHomes.settings.getServerID(), name);
+            Warp warp = new Warp(location, HuskHomes.getSettings().getServerID(), name);
             PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
@@ -64,7 +64,7 @@ public class SettingHandler {
             }
             DataManager.addWarp(warp);
             MessageManager.sendMessage(player, "set_warp_success", name);
-            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                 DynMapIntegration.addDynamicMapMarker(warp);
             }
             WarpCommand.Tab.updateWarpsTabCache();
@@ -80,7 +80,7 @@ public class SettingHandler {
             if (home != null) {
                 if (home.isPublic()) {
                     // Delete Dynmap marker if it exists & if the home is public
-                    if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showPublicHomesOnDynmap()) {
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
                         DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
                     }
                     PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
@@ -114,7 +114,7 @@ public class SettingHandler {
             }
             DataManager.deleteWarp(warpName);
             MessageManager.sendMessage(player, "warp_deleted", warpName);
-            if (HuskHomes.settings.doDynmap() && HuskHomes.settings.showWarpsOnDynmap()) {
+            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                 DynMapIntegration.removeDynamicMapMarker(warpName);
             }
             WarpCommand.Tab.updateWarpsTabCache();
@@ -136,7 +136,7 @@ public class SettingHandler {
         plugin.saveConfig();
 
         // Update the current spawn location
-        TeleportManager.spawnLocation = new TeleportationPoint(location, HuskHomes.settings.getServerID());
+        TeleportManager.spawnLocation = new TeleportationPoint(location, HuskHomes.getSettings().getServerID());
     }
 
     // Update current spawn location from config
@@ -146,7 +146,7 @@ public class SettingHandler {
 
     // Get spawn location from config
     private static TeleportationPoint getSpawnLocation() {
-        String server = HuskHomes.settings.getServerID();
+        String server = HuskHomes.getSettings().getServerID();
         try {
             FileConfiguration config = plugin.getConfig();
             String worldName = (config.getString("spawn_command.position.world"));
@@ -219,8 +219,8 @@ public class SettingHandler {
                 conditionsNotMetReason = "error_set_home_invalid_characters";
                 return;
             }
-            if (HuskHomes.settings.doEconomy()) {
-                double setHomeCost = HuskHomes.settings.getSetHomeCost();
+            if (HuskHomes.getSettings().doEconomy()) {
+                double setHomeCost = HuskHomes.getSettings().getSetHomeCost();
                 if (setHomeCost > 0) {
                     int currentPlayerHomeSlots = DataManager.getPlayerHomeSlots(player);
                     if (currentHomeCount > (currentPlayerHomeSlots - 1)) {

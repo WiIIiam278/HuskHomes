@@ -26,11 +26,11 @@ public class SQL extends Database {
 
     // Initialise connection via mySQL
     private void getMySQLConnection() {
-        String host = HuskHomes.settings.getMySQLhost();
-        int port = HuskHomes.settings.getMySQLport();
-        String database = HuskHomes.settings.getMySQLdatabase();
-        String username = HuskHomes.settings.getMySQLusername();
-        String password = HuskHomes.settings.getMySQLpassword();
+        String host = HuskHomes.getSettings().getMySQLhost();
+        int port = HuskHomes.getSettings().getMySQLport();
+        String database = HuskHomes.getSettings().getMySQLdatabase();
+        String username = HuskHomes.getSettings().getMySQLusername();
+        String password = HuskHomes.getSettings().getMySQLpassword();
 
         try {
             synchronized (HuskHomes.getInstance()) {
@@ -70,7 +70,7 @@ public class SQL extends Database {
     public Connection getSQLConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                String dataStorageType = HuskHomes.settings.getStorageType().toLowerCase();
+                String dataStorageType = HuskHomes.getSettings().getStorageType().toLowerCase();
                 switch (dataStorageType) {
                     case "mysql":
                         getMySQLConnection();

@@ -16,7 +16,7 @@ public class TeleportRequest {
             this.requestType = requestType.toLowerCase();
         }
         long currentUnixTime = Instant.now().getEpochSecond();
-        requestExpiryTime = currentUnixTime + HuskHomes.settings.getTeleportRequestExpiryTime();
+        requestExpiryTime = currentUnixTime + HuskHomes.getSettings().getTeleportRequestExpiryTime();
     }
 
     public String getSenderName() {

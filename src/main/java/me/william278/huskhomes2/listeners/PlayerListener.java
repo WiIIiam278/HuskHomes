@@ -36,7 +36,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDie(PlayerDeathEvent e) {
         Player p = e.getEntity();
         if (p.hasPermission("huskhomes.back.death")) {
-            DataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.settings.getServerID()));
+            DataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.getSettings().getServerID()));
             MessageManager.sendMessage(p, "return_by_death");
             p.spigot().sendMessage(backButton().create());
         }
@@ -61,7 +61,7 @@ public class PlayerListener implements Listener {
         }
 
         // If bungee mode, check if the player joined the server from a teleport and act accordingly
-        if (HuskHomes.settings.doBungee()) {
+        if (HuskHomes.getSettings().doBungee()) {
             if (DataManager.getPlayerTeleporting(p)) {
                 TeleportManager.teleportPlayer(p);
             }

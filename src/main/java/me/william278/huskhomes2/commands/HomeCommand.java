@@ -21,7 +21,7 @@ import java.util.UUID;
 public class HomeCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             String homeName = args[0];
             if (DataManager.homeExists(p, homeName)) {
@@ -36,12 +36,11 @@ public class HomeCommand extends CommandBase {
                 if (homes.size() == 1) {
                     // Teleport the player if they only have one home
                     TeleportManager.queueTimedTeleport(p, homes.get(0));
-                    return true;
+                    return;
                 }
             }
             ListHandler.displayPlayerHomeList(p, 1);
         }
-        return true;
     }
 
     public static class Tab implements TabCompleter {
@@ -49,7 +48,7 @@ public class HomeCommand extends CommandBase {
         // TODO Remove
         // This HashMap stores a cache of a player's homes that is displayed when a user presses TAB.
         // Owner UUID, Home Name
-        public static Map<UUID, List<String>> homeTabCache = new HashMap<>();
+        private static Map<UUID, List<String>> homeTabCache = new HashMap<>();
 
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
@@ -66,7 +65,7 @@ public class HomeCommand extends CommandBase {
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             Player p = (Player) sender;
             if (!sender.hasPermission("huskhomes.home")) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
@@ -74,7 +73,7 @@ public class HomeCommand extends CommandBase {
                 List<String> homes = homeTabCache.get(p.getUniqueId());
                 if (homes == null) {
                     updatePlayerHomeCache(p);
-                    return new ArrayList<>();
+                    return Collections.emptyList();
                 }
                 StringUtil.copyPartialMatches(args[0], homes, tabCompletions);
 
@@ -82,8 +81,12 @@ public class HomeCommand extends CommandBase {
 
                 return tabCompletions;
             } else {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
+        }
+
+        public static Map<UUID, List<String>> getHomeTabCache() {
+            return homeTabCache;
         }
     }
 }

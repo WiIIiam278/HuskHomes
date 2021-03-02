@@ -27,10 +27,10 @@ public class RandomPoint extends TeleportationPoint {
     private static final int MAX_RANDOM_ATTEMPTS = 8;
 
     public RandomPoint(Player player) {
-        super(player.getLocation(), HuskHomes.settings.getServerID());
+        super(player.getLocation(), HuskHomes.getSettings().getServerID());
         Location randomLocation = getRandomLocation(player.getWorld());
         if (randomLocation != null) {
-            setLocation(randomLocation, HuskHomes.settings.getServerID());
+            setLocation(randomLocation, HuskHomes.getSettings().getServerID());
         } else {
             MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
         }
@@ -47,7 +47,7 @@ public class RandomPoint extends TeleportationPoint {
         double blockCenterZ = 0.5;
 
         // The furthest distance at which a player can be teleported to
-        int rtpRange = HuskHomes.settings.getRtpRange();
+        int rtpRange = HuskHomes.getSettings().getRtpRange();
 
         // Calculate random X and Z coords
         x = random.nextInt(rtpRange);

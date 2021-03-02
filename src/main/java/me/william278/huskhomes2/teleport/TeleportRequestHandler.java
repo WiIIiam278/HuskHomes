@@ -82,7 +82,7 @@ public class TeleportRequestHandler {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
         } else {
-            if (HuskHomes.settings.doBungee()) {
+            if (HuskHomes.getSettings().doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
                 MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
             } else {
@@ -103,7 +103,7 @@ public class TeleportRequestHandler {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
         } else {
-            if (HuskHomes.settings.doBungee()) {
+            if (HuskHomes.getSettings().doBungee()) {
                 sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             } else {
@@ -137,7 +137,7 @@ public class TeleportRequestHandler {
                 MessageManager.sendMessage(requester, "tpa_has_declined", p.getName());
             }
         } else {
-            if (HuskHomes.settings.doBungee()) {
+            if (HuskHomes.getSettings().doBungee()) {
                 if (accepted) {
                     MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
 
@@ -166,27 +166,27 @@ public class TeleportRequestHandler {
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
             // Update active timed teleports
-            if (!TeleportManager.queuedTeleports.isEmpty()) {
-                for (TimedTeleport timedTeleport : TeleportManager.queuedTeleports) {
+            if (!TeleportManager.getQueuedTeleports().isEmpty()) {
+                for (TimedTeleport timedTeleport : TeleportManager.getQueuedTeleports()) {
                     Player teleporter = Bukkit.getPlayer(timedTeleport.getTeleporter().getUniqueId());
                     if (teleporter != null) {
                         if (timedTeleport.getTimeRemaining() > 0) {
                             if (!timedTeleport.hasMoved(teleporter)) {
                                 if (!timedTeleport.hasLostHealth(teleporter)) {
-                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportWarmupSound(), 2, 1);
+                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.getSettings().getTeleportWarmupSound(), 2, 1);
                                     MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_countdown",
                                             Integer.toString(timedTeleport.getTimeRemaining()));
                                     timedTeleport.decrementTimeRemaining();
                                 } else {
                                     MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
                                     MessageManager.sendMessage(teleporter, "teleporting_cancelled_damage");
-                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
+                                    teleporter.playSound(teleporter.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                                     completedTeleports.add(timedTeleport);
                                 }
                             } else {
                                 MessageManager.sendActionBarMessage(teleporter, "teleporting_action_bar_cancelled");
                                 MessageManager.sendMessage(teleporter, "teleporting_cancelled_movement");
-                                teleporter.playSound(teleporter.getLocation(), HuskHomes.settings.getTeleportCancelledSound(), 1, 1);
+                                teleporter.playSound(teleporter.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                                 completedTeleports.add(timedTeleport);
                             }
                         } else {
@@ -200,8 +200,8 @@ public class TeleportRequestHandler {
                                     TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                                     break;
                                 case "random":
-                                    if (HuskHomes.settings.doEconomy()) {
-                                        double rtpCost = HuskHomes.settings.getRtpCost();
+                                    if (HuskHomes.getSettings().doEconomy()) {
+                                        double rtpCost = HuskHomes.getSettings().getRtpCost();
                                         if (rtpCost > 0) {
                                             if (!VaultIntegration.takeMoney(teleporter, rtpCost)) {
                                                 MessageManager.sendMessage(teleporter, "error_insufficient_funds", VaultIntegration.format(rtpCost));
@@ -226,7 +226,7 @@ public class TeleportRequestHandler {
             // Clear completed teleports
             if (!completedTeleports.isEmpty()) {
                 for (TimedTeleport timedTeleport : completedTeleports) {
-                    TeleportManager.queuedTeleports.remove(timedTeleport);
+                    TeleportManager.getQueuedTeleports().remove(timedTeleport);
                 }
             }
             completedTeleports.clear();

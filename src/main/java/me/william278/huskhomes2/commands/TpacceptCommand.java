@@ -7,8 +7,7 @@ import org.bukkit.entity.Player;
 public class TpacceptCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         TeleportRequestHandler.replyTpRequest(p, true);
-        return true;
     }
 }

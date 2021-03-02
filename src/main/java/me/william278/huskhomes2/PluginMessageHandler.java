@@ -34,7 +34,7 @@ public class PluginMessageHandler implements PluginMessageListener {
     // Send a plugin message
     public static void sendPluginMessage(Player sender, String targetPlayerName, String messageType, String messageData) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        int clusterID = HuskHomes.settings.getServerClusterID();
+        int clusterID = HuskHomes.getSettings().getServerClusterID();
 
         // Send a plugin message to the specified player name
         out.writeUTF("ForwardToPlayer");
@@ -89,7 +89,7 @@ public class PluginMessageHandler implements PluginMessageListener {
                     "Please ensure you are running the latest version of HuskHomes on all your servers and that the cluster ID is set to a valid integer on all of them.");
             return;
         }
-        if (HuskHomes.settings.getServerClusterID() != clusterID) {
+        if (HuskHomes.getSettings().getServerClusterID() != clusterID) {
             return;
         }
 
@@ -168,6 +168,6 @@ public class PluginMessageHandler implements PluginMessageListener {
     // Set the requesters' teleport destination to a teleportation point of the recipient's current location
     public void setTeleportDestination(String requesterName, Player recipient) {
         DataManager.setPlayerDestinationLocation(requesterName,
-                new TeleportationPoint(recipient.getLocation(), HuskHomes.settings.getServerID()));
+                new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()));
     }
 }

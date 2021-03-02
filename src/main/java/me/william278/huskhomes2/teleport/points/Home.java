@@ -151,11 +151,11 @@ public class Home extends TeleportationPoint {
                 try {
                     return Integer.parseInt(permission.split("\\.")[2]);
                 } catch(Exception e) {
-                    return HuskHomes.settings.getMaximumHomes();
+                    return HuskHomes.getSettings().getMaximumHomes();
                 }
             }
         }
-        return HuskHomes.settings.getMaximumHomes();
+        return HuskHomes.getSettings().getMaximumHomes();
     }
 
     // Returns the number of set homes a player can set for free
@@ -166,10 +166,10 @@ public class Home extends TeleportationPoint {
                 try {
                     return Integer.parseInt(permission.split("\\.")[2]);
                 } catch(Exception e) {
-                    return HuskHomes.settings.getFreeHomeSlots();
+                    return HuskHomes.getSettings().getFreeHomeSlots();
                 }
             }
         }
-        return HuskHomes.settings.getFreeHomeSlots();
+        return HuskHomes.getSettings().getFreeHomeSlots();
     }
 }

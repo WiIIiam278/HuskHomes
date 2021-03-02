@@ -19,66 +19,64 @@ import java.util.List;
 public class TpCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (args.length >= 1) {
-            switch (args.length) {
-                case 1:
-                    String targetPlayer = args[0];
-                    TeleportManager.teleportPlayer(p, targetPlayer);
-                    return true;
-                case 3:
-                    try {
-                        double x = Double.parseDouble(args[0]);
-                        double y = Double.parseDouble(args[1]);
-                        double z = Double.parseDouble(args[2]);
-                        TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, HuskHomes.settings.getServerID());
-                        TeleportManager.teleportPlayer(p, teleportationPoint);
-                    } catch (Exception e) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
+        switch (args.length) {
+            default: case 0:
+                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                return;
+            case 1:
+                String targetPlayer = args[0];
+                TeleportManager.teleportPlayer(p, targetPlayer);
+                return;
+            case 3:
+                try {
+                    double x = Double.parseDouble(args[0]);
+                    double y = Double.parseDouble(args[1]);
+                    double z = Double.parseDouble(args[2]);
+                    TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, HuskHomes.getSettings().getServerID());
+                    TeleportManager.teleportPlayer(p, teleportationPoint);
+                } catch (Exception e) {
+                    MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
+                }
+                return;
+            case 4:
+                try {
+                    double x = Double.parseDouble(args[0]);
+                    double y = Double.parseDouble(args[1]);
+                    double z = Double.parseDouble(args[2]);
+                    String worldName = args[3];
+                    if (Bukkit.getWorld(worldName) == null) {
                         MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
+                        return;
                     }
-                    return true;
-                case 4:
+                    TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, HuskHomes.getSettings().getServerID());
+                    TeleportManager.teleportPlayer(p, teleportationPoint);
+                } catch (Exception e) {
+                    MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
+                }
+                return;
+            case 5:
+                if (HuskHomes.getSettings().doBungee()) {
                     try {
                         double x = Double.parseDouble(args[0]);
                         double y = Double.parseDouble(args[1]);
                         double z = Double.parseDouble(args[2]);
                         String worldName = args[3];
+                        String serverName = args[4];
                         if (Bukkit.getWorld(worldName) == null) {
-                            MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
-                            return true;
+                            MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
+                            return;
                         }
-                        TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, HuskHomes.settings.getServerID());
+                        TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, serverName);
                         TeleportManager.teleportPlayer(p, teleportationPoint);
                     } catch (Exception e) {
-                        MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
+                        MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
                     }
-                    return true;
-                case 5:
-                    if (HuskHomes.settings.doBungee()) {
-                        try {
-                            double x = Double.parseDouble(args[0]);
-                            double y = Double.parseDouble(args[1]);
-                            double z = Double.parseDouble(args[2]);
-                            String worldName = args[3];
-                            String serverName = args[4];
-                            if (Bukkit.getWorld(worldName) == null) {
-                                MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
-                                return true;
-                            }
-                            TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, serverName);
-                            TeleportManager.teleportPlayer(p, teleportationPoint);
-                        } catch (Exception e) {
-                            MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-                    }
-                    return true;
-            }
-        } else {
-            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                } else {
+                    MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                }
+                return;
         }
-        return true;
     }
 
     public static class Tab implements TabCompleter {

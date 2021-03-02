@@ -9,6 +9,8 @@ import org.bukkit.plugin.PluginManager;
 
 public class Settings {
 
+    private final Plugin plugin;
+
     // Message language setting
     private String language;
 
@@ -77,21 +79,31 @@ public class Settings {
     private boolean doSpawnCommand;
     private boolean doWarpCommand;
 
-    private void setSettings(FileConfiguration configFile) {
+    public Settings(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
+    // (Re-)Load the config file
+    public void reload() {
+        plugin.reloadConfig();
+        reloadFromFile(plugin.getConfig());
+    }
+
+    public void reloadFromFile(FileConfiguration config) {
         try {
-            this.language = configFile.getString("language");
+            this.language = config.getString("language");
 
-            this.updateReminders = configFile.getBoolean("check_for_updates");
+            this.updateReminders = config.getBoolean("check_for_updates");
 
-            this.doBungee = configFile.getBoolean("bungee_options.enable_bungee_mode");
-            this.server = configFile.getString("bungee_options.server_id");
-            this.clusterID = configFile.getInt("bungee_options.cluster_id");
+            this.doBungee = config.getBoolean("bungee_options.enable_bungee_mode");
+            this.server = config.getString("bungee_options.server_id");
+            this.clusterID = config.getInt("bungee_options.cluster_id");
 
-            this.storageType = configFile.getString("data_storage_options.storage_type");
-            this.playerDataTable = configFile.getString("data_storage_options.table_names.player_data");
-            this.locationsDataTable = configFile.getString("data_storage_options.table_names.locations_data");
-            this.homesDataTable = configFile.getString("data_storage_options.table_names.homes_data");
-            this.warpsDataTable = configFile.getString("data_storage_options.table_names.warps_data");
+            this.storageType = config.getString("data_storage_options.storage_type");
+            this.playerDataTable = config.getString("data_storage_options.table_names.player_data");
+            this.locationsDataTable = config.getString("data_storage_options.table_names.locations_data");
+            this.homesDataTable = config.getString("data_storage_options.table_names.homes_data");
+            this.warpsDataTable = config.getString("data_storage_options.table_names.warps_data");
 
             // Resolve conflict between storage type and bungee mode
             if (storageType.equalsIgnoreCase("sqlite") && doBungee) {
@@ -101,13 +113,13 @@ public class Settings {
                 this.doBungee = false;
             }
 
-            this.mySQLhost = configFile.getString("data_storage_options.mysql_credentials.host");
-            this.mySQLdatabase = configFile.getString("data_storage_options.mysql_credentials.database");
-            this.mySQLusername = configFile.getString("data_storage_options.mysql_credentials.username");
-            this.mySQLpassword = configFile.getString("data_storage_options.mysql_credentials.password");
-            this.mySQLport = configFile.getInt("data_storage_options.mysql_credentials.port");
+            this.mySQLhost = config.getString("data_storage_options.mysql_credentials.host");
+            this.mySQLdatabase = config.getString("data_storage_options.mysql_credentials.database");
+            this.mySQLusername = config.getString("data_storage_options.mysql_credentials.username");
+            this.mySQLpassword = config.getString("data_storage_options.mysql_credentials.password");
+            this.mySQLport = config.getInt("data_storage_options.mysql_credentials.port");
 
-            this.doDynmap = configFile.getBoolean("dynmap_integration.enabled");
+            this.doDynmap = config.getBoolean("dynmap_integration.enabled");
 
             if (this.doDynmap) {
                 PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
@@ -119,14 +131,14 @@ public class Settings {
                 }
             }
 
-            this.dynmapPublicHomes = configFile.getBoolean("dynmap_integration.markers.public_homes.show");
-            this.dynmapWarps = configFile.getBoolean("dynmap_integration.markers.warps.show");
-            this.dynmapPublicHomeMarkerIconID = configFile.getString("dynmap_integration.markers.public_homes.icon_id");
-            this.dynmapWarpMarkerIconID = configFile.getString("dynmap_integration.markers.warps.icon_id");
-            this.dynmapPublicHomeMarkerSet = configFile.getString("dynmap_integration.markers.public_homes.set_name");
-            this.dynmapWarpMarkerSet = configFile.getString("dynmap_integration.markers.warps.set_name");
+            this.dynmapPublicHomes = config.getBoolean("dynmap_integration.markers.public_homes.show");
+            this.dynmapWarps = config.getBoolean("dynmap_integration.markers.warps.show");
+            this.dynmapPublicHomeMarkerIconID = config.getString("dynmap_integration.markers.public_homes.icon_id");
+            this.dynmapWarpMarkerIconID = config.getString("dynmap_integration.markers.warps.icon_id");
+            this.dynmapPublicHomeMarkerSet = config.getString("dynmap_integration.markers.public_homes.set_name");
+            this.dynmapWarpMarkerSet = config.getString("dynmap_integration.markers.warps.set_name");
 
-            this.doEconomy = configFile.getBoolean("economy_integration.enabled");
+            this.doEconomy = config.getBoolean("economy_integration.enabled");
 
             if (this.doEconomy) {
                 PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
@@ -138,16 +150,16 @@ public class Settings {
                 }
             }
 
-            this.freeHomeSlots = configFile.getInt("economy_integration.free_home_slots");
-            this.setHomeCost = configFile.getDouble("economy_integration.costs.additional_home_slot");
-            this.publicHomeCost = configFile.getDouble("economy_integration.costs.make_home_public");
-            this.rtpCost = configFile.getDouble("economy_integration.costs.random_teleport");
+            this.freeHomeSlots = config.getInt("economy_integration.free_home_slots");
+            this.setHomeCost = config.getDouble("economy_integration.costs.additional_home_slot");
+            this.publicHomeCost = config.getDouble("economy_integration.costs.make_home_public");
+            this.rtpCost = config.getDouble("economy_integration.costs.random_teleport");
 
             // Retrieve sounds used in plugin; if invalid, use defaults.
             try {
-                this.teleportationCompleteSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_complete"));
-                this.teleportWarmupSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_warmup"));
-                this.teleportCancelledSound = Sound.valueOf(configFile.getString("general.sounds.teleportation_cancelled"));
+                this.teleportationCompleteSound = Sound.valueOf(config.getString("general.sounds.teleportation_complete"));
+                this.teleportWarmupSound = Sound.valueOf(config.getString("general.sounds.teleportation_warmup"));
+                this.teleportCancelledSound = Sound.valueOf(config.getString("general.sounds.teleportation_cancelled"));
             } catch (IllegalArgumentException exception) {
                 Bukkit.getLogger().severe("Invalid sound specified in config.yml; using default sounds instead.");
                 this.teleportationCompleteSound = Sound.ENTITY_ENDERMAN_TELEPORT;
@@ -156,35 +168,27 @@ public class Settings {
             }
 
 
-            this.checkVanishedPlayers = configFile.getBoolean("handle_vanished_players");
+            this.checkVanishedPlayers = config.getBoolean("handle_vanished_players");
 
-            this.doSpawnCommand = configFile.getBoolean("spawn_command.enabled");
-            this.doWarpCommand = configFile.getBoolean("enable_warp_command");
+            this.doSpawnCommand = config.getBoolean("spawn_command.enabled");
+            this.doWarpCommand = config.getBoolean("enable_warp_command");
 
-            this.doRtpCommand = configFile.getBoolean("random_teleport_command.enabled");
-            this.rtpRange = configFile.getInt("random_teleport_command.range");
-            this.rtpCooldown = configFile.getInt("random_teleport_command.cooldown");
+            this.doRtpCommand = config.getBoolean("random_teleport_command.enabled");
+            this.rtpRange = config.getInt("random_teleport_command.range");
+            this.rtpCooldown = config.getInt("random_teleport_command.cooldown");
 
-            this.privateHomesPerPage = configFile.getInt("general.lists.private_homes_per_page");
-            this.publicHomesPerPage = configFile.getInt("general.lists.public_homes_per_page");
-            this.warpsPerPage = configFile.getInt("general.lists.warps_per_page");
+            this.privateHomesPerPage = config.getInt("general.lists.private_homes_per_page");
+            this.publicHomesPerPage = config.getInt("general.lists.public_homes_per_page");
+            this.warpsPerPage = config.getInt("general.lists.warps_per_page");
 
-            this.maximumHomes = configFile.getInt("general.max_sethomes");
-            this.teleportRequestExpiryTime = configFile.getInt("general.teleport_request_expiry_time");
-            this.teleportWarmupTime = configFile.getInt("general.teleport_warmup_time");
+            this.maximumHomes = config.getInt("general.max_sethomes");
+            this.teleportRequestExpiryTime = config.getInt("general.teleport_request_expiry_time");
+            this.teleportWarmupTime = config.getInt("general.teleport_warmup_time");
 
         } catch (Exception e) {
             HuskHomes.disablePlugin("An error occurred loading the HuskHomes config (" + e.getCause() + ")");
             e.printStackTrace();
         }
-    }
-
-    public void reloadSettings(FileConfiguration configFile) {
-        setSettings(configFile);
-    }
-
-    public Settings(FileConfiguration configFile) {
-        setSettings(configFile);
     }
 
     public boolean showPublicHomesOnDynmap() {

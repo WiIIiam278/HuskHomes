@@ -15,12 +15,13 @@ public abstract class CommandBase implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
-            return onCommand((Player) sender, command, label, args);
+            onCommand((Player) sender, command, label, args);
+            return true;
         }
         return false;
     }
 
-    protected abstract boolean onCommand(Player player, Command command, String label, String[] args);
+    protected abstract void onCommand(Player player, Command command, String label, String[] args);
 
     /**
      * Register base for bukkit command

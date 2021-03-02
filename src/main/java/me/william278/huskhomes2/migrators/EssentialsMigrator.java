@@ -20,7 +20,7 @@ public class EssentialsMigrator {
 
     // Migrate data from EssentialsX
     public static void migrate() {
-        String serverID = HuskHomes.settings.getServerID();
+        String serverID = HuskHomes.getSettings().getServerID();
         File essentialsDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials");
         if (essentialsDataFolder.exists()) {
             Bukkit.getLogger().info("Essentials plugin data found!");
@@ -33,7 +33,7 @@ public class EssentialsMigrator {
 
                 File[] playerFiles = essentialsPlayerDataFolder.listFiles();
                 for (File playerFile : playerFiles) {
-                    String uuidS = playerFile.getName().replaceFirst("[.][^.]+$", "");
+                    String uuidS = playerFile.getName().split("\\.")[0];
                     UUID uuid = UUID.fromString(uuidS);
                     FileConfiguration playerFileConfig = loadConfiguration(playerFile);
                     String playerName = playerFileConfig.getString("lastAccountName");

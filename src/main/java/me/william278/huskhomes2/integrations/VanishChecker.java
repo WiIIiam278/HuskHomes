@@ -7,7 +7,7 @@ import org.bukkit.metadata.MetadataValue;
 public class VanishChecker {
 
     public static boolean isVanished(Player player) {
-        if (HuskHomes.settings.isCheckVanishedPlayers()) {
+        if (HuskHomes.getSettings().isCheckVanishedPlayers()) {
             for (MetadataValue meta : player.getMetadata("vanished")) {
                 if (meta.asBoolean()) return true;
             }

@@ -46,7 +46,7 @@ public class DynMapIntegration {
             DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.warps");
-            Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.settings.getDynmapWarpMarkerIconID()), false);
+            Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getDynmapWarpMarkerIconID()), false);
             String warpPopup = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/warp %WARP_NAME%</span><br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
             warpPopup = warpPopup.replace("%WARP_NAME%", escapeHtml(warp.getName()));
             warpPopup = warpPopup.replace("%DESCRIPTION%", escapeHtml(warp.getDescription()));
@@ -63,7 +63,7 @@ public class DynMapIntegration {
             DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.public_homes");
-            Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.settings.getDynmapPublicHomeMarkerIconID()), false);
+            Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getDynmapPublicHomeMarkerIconID()), false);
             String publicHomePopup = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/phome %HOME_NAME%</span><br/><span style=\"font-weight:bold;\">Owner: </span>%OWNER%<br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
             publicHomePopup = publicHomePopup.replace("%HOME_NAME%", escapeHtml(home.getName()));
             publicHomePopup = publicHomePopup.replace("%OWNER%", escapeHtml(home.getOwnerUsername()));
@@ -79,18 +79,18 @@ public class DynMapIntegration {
         dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
 
         DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
-        if (HuskHomes.settings.showPublicHomesOnDynmap()) {
-            dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", HuskHomes.settings.getDynmapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+        if (HuskHomes.getSettings().showPublicHomesOnDynmap()) {
+            dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", HuskHomes.getSettings().getDynmapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Home home : DataManager.getPublicHomes()) {
-                if (!HuskHomes.settings.doBungee() || home.getServer().equals(HuskHomes.settings.getServerID())) {
+                if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {
                     addDynamicMapMarker(home);
                 }
             }
         }
-        if (HuskHomes.settings.showWarpsOnDynmap()) {
-            dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", HuskHomes.settings.getDynmapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+        if (HuskHomes.getSettings().showWarpsOnDynmap()) {
+            dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", HuskHomes.getSettings().getDynmapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             for (Warp warp : DataManager.getWarps()) {
-                if (!HuskHomes.settings.doBungee() || warp.getServer().equals(HuskHomes.settings.getServerID())) {
+                if (!HuskHomes.getSettings().doBungee() || warp.getServer().equals(HuskHomes.getSettings().getServerID())) {
                     addDynamicMapMarker(warp);
                 }
             }

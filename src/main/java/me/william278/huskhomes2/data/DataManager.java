@@ -18,6 +18,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
+/*
+    TODO Should not be an utility class for SQL class
+    Instead of doing everything here, all methods should be moved into corresponding classes
+
+ */
 // This class handles the saving of data; whether that be through SQLite or mySQL
 public class DataManager {
 
@@ -26,23 +31,23 @@ public class DataManager {
 
     public static String createLocationsTable = "";
 
-    public static final String createHomesTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getHomesDataTable() + " (" +
+    public static final String createHomesTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getHomesDataTable() + " (" +
             "`player_id` integer NOT NULL," +
             "`location_id` integer NOT NULL," +
             "`name` varchar(16) NOT NULL," +
             "`description` varchar(255) NOT NULL," +
             "`public` boolean NOT NULL," +
             "PRIMARY KEY (`player_id`, `name`)," +
-            "FOREIGN KEY (`player_id`) REFERENCES " + HuskHomes.settings.getPlayerDataTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`player_id`) REFERENCES " + HuskHomes.getSettings().getPlayerDataTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+            "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
-    public static final String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getWarpsDataTable() + " (" +
+    public static final String createWarpsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getWarpsDataTable() + " (" +
             "`location_id` integer NOT NULL," +
             "`name` varchar(16) NOT NULL UNIQUE," +
             "`description` varchar(255) NOT NULL," +
             "PRIMARY KEY (`location_id`)," +
-            "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+            "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
             ");";
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
@@ -66,7 +71,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `user_uuid`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
             ps.setString(1, playerUUID.toString());
             rs = ps.executeQuery();
             if (rs != null) {
@@ -92,7 +97,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `username`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?;");
             ps.setString(1, playerUsername);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -118,7 +123,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -155,7 +160,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -183,7 +188,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -251,7 +256,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `player_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=?;");
             ps.setInt(1, playerID);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -286,7 +291,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `public`;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `public`;");
             rs = ps.executeQuery();
             if (rs != null) {
                 List<Home> publicHomes = new ArrayList<>();
@@ -317,7 +322,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getWarpsDataTable() + ";");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + ";");
             rs = ps.executeQuery();
             List<Warp> warps = new ArrayList<>();
             if (rs != null) {
@@ -348,7 +353,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getWarpsDataTable() + " WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, name);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -382,7 +387,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, ownerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -420,7 +425,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getWarpsDataTable() + " WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -467,7 +472,7 @@ public class DataManager {
     public static void updateHomeLocation(String ownerName, String homeName, Location newLocation) {
         Integer playerID = getPlayerId(ownerName);
         updateHomeTeleportLocation(playerID,homeName,
-                new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
+                new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID()));
     }
 
     public static void updateWarpName(String warpName, String newName) {
@@ -480,7 +485,7 @@ public class DataManager {
 
     public static void updateWarpLocation(String warpName, Location newLocation) {
         updateWarpTeleportLocation(warpName,
-                new TeleportationPoint(newLocation, HuskHomes.settings.getServerID()));
+                new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID()));
     }
 
     // Return a home with a given owner username and home name
@@ -492,7 +497,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, playerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -529,7 +534,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getWarpsDataTable() + " WHERE `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -561,7 +566,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
             ps.setInt(1, playerID);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -589,7 +594,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getPlayerDataTable() + " WHERE `user_uuid`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
             ps.setString(1, playerUUIDString);
             rs = ps.executeQuery();
             if (rs != null) {
@@ -611,7 +616,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.settings.getLocationsDataTable() + " WHERE `location_id`=?;");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;");
             ps.setInt(1, locationID);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -622,7 +627,7 @@ public class DataManager {
             } else {
                 Bukkit.getLogger().severe("An SQL exception occurred in retrieving a teleportation location.");
                 Bukkit.getLogger().severe("location ID: " + locationID.toString());
-                Bukkit.getLogger().severe("SELECT * FROM " + HuskHomes.settings.getLocationsDataTable() + " WHERE `location_id`=" + locationID.toString() + ";");
+                Bukkit.getLogger().severe("SELECT * FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=" + locationID.toString() + ";");
                 return null;
             }
         } catch (SQLException ex) {
@@ -697,7 +702,7 @@ public class DataManager {
         Integer playerID = getPlayerId(p.getUniqueId());
         if (playerID != null) {
             long currentTime = Instant.now().getEpochSecond();
-            int newCooldownTime = (int) currentTime + (60 * HuskHomes.settings.getRtpCooldown());
+            int newCooldownTime = (int) currentTime + (60 * HuskHomes.getSettings().getRtpCooldown());
             database.setRtpCooldown(playerID, newCooldownTime);
         }
     }
@@ -754,8 +759,8 @@ public class DataManager {
     }
 
     public static void setupStorage() {
-        if (HuskHomes.settings.getStorageType().equalsIgnoreCase("mysql")) {
-            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getPlayerDataTable() + " (" +
+        if (HuskHomes.getSettings().getStorageType().equalsIgnoreCase("mysql")) {
+            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getPlayerDataTable() + " (" +
                     "`player_id` integer AUTO_INCREMENT," +
                     "`user_uuid` char(36) NOT NULL UNIQUE," +
                     "`username` varchar(16) NOT NULL," +
@@ -766,10 +771,10 @@ public class DataManager {
                     "`last_location_id` integer NULL," +
 
                     "PRIMARY KEY (`player_id`)," +
-                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");";
-            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getLocationsDataTable() + " (" +
+            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getLocationsDataTable() + " (" +
                     "`location_id` integer AUTO_INCREMENT," +
                     "`server` text NOT NULL," +
                     "`world` text NOT NULL," +
@@ -782,7 +787,7 @@ public class DataManager {
                     "PRIMARY KEY (`location_id`)" +
                     ");";
         } else {
-            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getPlayerDataTable() + " (" +
+            createPlayerTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getPlayerDataTable() + " (" +
                     "`player_id` integer NOT NULL," +
                     "`user_uuid` char(36) NOT NULL UNIQUE," +
                     "`username` varchar(16) NOT NULL," +
@@ -792,10 +797,10 @@ public class DataManager {
                     "`dest_location_id` integer NULL," +
                     "`last_location_id` integer NULL," +
                     "PRIMARY KEY (`player_id`)," +
-                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.settings.getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");";
-            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.settings.getLocationsDataTable() + " (" +
+            createLocationsTable = "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getLocationsDataTable() + " (" +
                     "`location_id` integer PRIMARY KEY," +
                     "`server` text NOT NULL," +
                     "`world` text NOT NULL," +

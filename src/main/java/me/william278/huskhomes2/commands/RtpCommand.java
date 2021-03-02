@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 public class RtpCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (HuskHomes.settings.doRtpCommand()) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
+        if (HuskHomes.getSettings().doRtpCommand()) {
             if (p.getWorld().getEnvironment() == World.Environment.NORMAL) {
                 TeleportManager.queueRandomTeleport(p);
             } else {
@@ -20,6 +20,5 @@ public class RtpCommand extends CommandBase {
         } else {
             MessageManager.sendMessage(p, "error_command_disabled");
         }
-        return true;
     }
 }

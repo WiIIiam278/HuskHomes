@@ -16,34 +16,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WarpCommand extends CommandBase {
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
-        if (HuskHomes.settings.doWarpCommand()) {
-            if (args.length == 1) {
-                String warpName = args[0];
-                if (DataManager.warpExists(warpName)) {
-                    Warp warp = DataManager.getWarp(warpName);
-                    TeleportManager.queueTimedTeleport(p, warp);
-                } else {
-                    MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-                }
+    protected void onCommand(Player p, Command command, String label, String[] args) {
+        if (!HuskHomes.getSettings().doWarpCommand()) {
+            MessageManager.sendMessage(p, "error_command_disabled");
+            return;
+        }
+        if (args.length == 1) {
+            String warpName = args[0];
+            if (DataManager.warpExists(warpName)) {
+                Warp warp = DataManager.getWarp(warpName);
+                TeleportManager.queueTimedTeleport(p, warp);
             } else {
-                ListHandler.displayWarpList(p, 1);
+                MessageManager.sendMessage(p, "error_warp_invalid", warpName);
             }
         } else {
-            MessageManager.sendMessage(p, "error_command_disabled");
+            ListHandler.displayWarpList(p, 1);
         }
-        return true;
     }
 
     public static class Tab implements TabCompleter {
 
         // TODO Remove
         // Cached HashMap of warps
-        public static final HashSet<String> warpsTabCache = new HashSet<>();
+        public static final Set<String> warpsTabCache = new HashSet<>();
 
         // Updates the public home cache
         public static void updateWarpsTabCache() {
@@ -57,7 +57,7 @@ public class WarpCommand extends CommandBase {
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             if (!sender.hasPermission("huskhomes.warp")) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
@@ -69,7 +69,7 @@ public class WarpCommand extends CommandBase {
                 return tabCompletions;
 
             } else {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
         }
 

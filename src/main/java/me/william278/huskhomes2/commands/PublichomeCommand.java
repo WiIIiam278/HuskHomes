@@ -5,6 +5,7 @@ import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.utils.RegexUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -33,35 +34,35 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    protected boolean onCommand(Player p, Command command, String label, String[] args) {
+    protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
-            String publicHome = args[0];
-            if (publicHome.matches("[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+")) {
-                String ownerName = publicHome.split("\\.")[0];
-                String homeName = publicHome.split("\\.")[1];
-                if (DataManager.homeExists(ownerName, homeName)) {
-                    Home home = DataManager.getHome(ownerName, homeName);
-                    if (home.isPublic()) {
-                        TeleportManager.queueTimedTeleport(p, home);
-                    } else {
-                        MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
-                    }
+            ListHandler.displayPublicHomeList(p, 1);
+            return;
+        }
+        String publicHome = args[0];
+        if (RegexUtil.OWNER_NAME_PATTERN.matcher(publicHome).matches()) {
+            String[] split = publicHome.split("\\.");
+            String ownerName = split[0];
+            String homeName = split[1];
+            if (DataManager.homeExists(ownerName, homeName)) {
+                Home home = DataManager.getHome(ownerName, homeName);
+                if (home.isPublic()) {
+                    TeleportManager.queueTimedTeleport(p, home);
                 } else {
                     MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                 }
             } else {
-                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
             }
         } else {
-            ListHandler.displayPublicHomeList(p, 1);
+            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }
-        return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("huskhomes.publichome")) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         if (args.length == 1) {
             final List<String> sortedHomeNames = new ArrayList<>();
@@ -75,7 +76,7 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
             return finalCompletions;
 
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }

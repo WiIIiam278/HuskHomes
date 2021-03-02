@@ -129,7 +129,7 @@ public final class HuskHomes extends JavaPlugin {
     }
 
     @Override
-    public void onEnable() { //nb=
+    public void onEnable() {
         saveDefaultConfig();
 
         // Plugin startup logic

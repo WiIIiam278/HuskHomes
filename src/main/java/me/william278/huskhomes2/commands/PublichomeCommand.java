@@ -35,7 +35,7 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
-        if (args.length == 1) {
+        if (args.length == 0) {
             ListHandler.displayPublicHomeList(p, 1);
             return;
         }

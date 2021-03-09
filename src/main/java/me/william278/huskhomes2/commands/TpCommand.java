@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.commands;
 
+import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.integrations.VanishChecker;
@@ -75,7 +76,6 @@ public class TpCommand extends CommandBase {
                 } else {
                     MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                 }
-                return;
         }
     }
 
@@ -89,6 +89,7 @@ public class TpCommand extends CommandBase {
                         players.add(p.getName());
                     }
                 }
+                players.addAll(CrossServerListHandler.getOtherServerPlayerList());
             }
             final List<String> tabCompletions = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], players, tabCompletions);

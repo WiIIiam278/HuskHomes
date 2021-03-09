@@ -2,6 +2,7 @@ package me.william278.huskhomes2.listeners;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.PluginMessageHandler;
 import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
@@ -12,11 +13,13 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
 
@@ -65,6 +68,19 @@ public class PlayerListener implements Listener {
             if (DataManager.getPlayerTeleporting(p)) {
                 TeleportManager.teleportPlayer(p);
             }
+
+            // Update player lists globally
+            if (Bukkit.getOnlinePlayers().size() == 1) {
+                PluginMessageHandler.requestPlayerLists();
+            }
+            PluginMessageHandler.sendPlayerLists();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        if (HuskHomes.getSettings().doBungee()) {
+            PluginMessageHandler.sendPlayerLists();
         }
     }
 

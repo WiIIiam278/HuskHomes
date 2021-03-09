@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.teleport;
 
+import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.PluginMessageHandler;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 public class TeleportManager {
 
-    private static Set<TimedTeleport> queuedTeleports = new HashSet<>();
+    private static final Set<TimedTeleport> queuedTeleports = new HashSet<>();
 
     private static TeleportationPoint spawnLocation;
 
@@ -113,10 +114,12 @@ public class TeleportManager {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                teleportHereCrossServer(requester, targetPlayerName);
-            } else {
-                MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
+                    teleportHereCrossServer(requester, targetPlayerName);
+                    return;
+                }
             }
+            MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
         }
     }
 
@@ -140,10 +143,12 @@ public class TeleportManager {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                setTeleportationDestinationCrossServer(requester, targetPlayerName);
-            } else {
-                MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
+                    setTeleportationDestinationCrossServer(requester, targetPlayerName);
+                    return;
+                }
             }
+            MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
         }
     }
 

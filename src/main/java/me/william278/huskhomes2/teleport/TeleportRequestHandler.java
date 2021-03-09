@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.teleport;
 
+import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.PluginMessageHandler;
@@ -83,8 +84,12 @@ public class TeleportRequestHandler {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
-                MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
+                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
+                    sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
+                    MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
+                } else {
+                    MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
+                }
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
             }

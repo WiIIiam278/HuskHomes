@@ -176,10 +176,9 @@ public final class HuskHomes extends JavaPlugin {
             VaultIntegration.initializeEconomy();
         }
 
-        // Set up bungee channels if bungee mode is enabled and update global player list
+        // Set up bungee channels if bungee mode is enabled
         if (getSettings().doBungee()) {
             setupBungeeChannels();
-            CrossServerListHandler.requestHashsetUpdate();
         }
 
         // Register commands and their associated tab completers

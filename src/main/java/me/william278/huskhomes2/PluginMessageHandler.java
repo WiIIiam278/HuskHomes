@@ -65,7 +65,7 @@ public class PluginMessageHandler implements PluginMessageListener {
     }
 
     // Sends a plugin message request asking for all the player lists on servers
-    public static void requestPlayerLists() {
+    public static void requestPlayerLists(Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         int clusterID = HuskHomes.getSettings().getServerClusterID();
 
@@ -91,18 +91,21 @@ public class PluginMessageHandler implements PluginMessageListener {
         out.write(messageBytes.toByteArray());
 
         // Send the constructed plugin message packet
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-            break;
+        if (sender == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                sender = p;
+                break;
+            }
         }
+        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
-    public static void sendPlayerLists() {
-        sendPlayerList(null);
+    public static void sendPlayerLists(Player sender) {
+        sendPlayerList(null, sender);
     }
 
     // Sends a plugin message with player list
-    public static void sendPlayerList(String returnTo) {
+    public static void sendPlayerList(String returnTo, Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         int clusterID = HuskHomes.getSettings().getServerClusterID();
 
@@ -135,10 +138,13 @@ public class PluginMessageHandler implements PluginMessageListener {
         out.write(messageBytes.toByteArray());
 
         // Send the constructed plugin message packet
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-            break;
+        if (sender == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                sender = p;
+                break;
+            }
         }
+        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
     // When a plugin message is received
@@ -244,7 +250,7 @@ public class PluginMessageHandler implements PluginMessageListener {
                 break;
             case "send_online_players":
                 if (Bukkit.getOnlinePlayers().size() > 0) {
-                    sendPlayerList(messageData);
+                    sendPlayerList(messageData, recipient);
                 }
                 break;
             case "return_online_players":

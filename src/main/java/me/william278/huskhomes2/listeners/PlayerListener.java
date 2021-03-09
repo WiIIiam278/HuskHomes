@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.listeners;
 
+import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.PluginMessageHandler;
@@ -70,17 +71,19 @@ public class PlayerListener implements Listener {
             }
 
             // Update player lists globally
-            if (Bukkit.getOnlinePlayers().size() == 1) {
-                PluginMessageHandler.requestPlayerLists();
-            }
-            PluginMessageHandler.sendPlayerLists();
+            CrossServerListHandler.requestHashsetUpdate(p);
+            PluginMessageHandler.sendPlayerLists(p);
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         if (HuskHomes.getSettings().doBungee()) {
-            PluginMessageHandler.sendPlayerLists();
+            // Update player lists globally
+            Player p = e.getPlayer();
+
+            CrossServerListHandler.requestHashsetUpdate(p);
+            PluginMessageHandler.sendPlayerLists(p);
         }
     }
 

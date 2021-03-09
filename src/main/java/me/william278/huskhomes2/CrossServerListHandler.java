@@ -33,7 +33,8 @@ public class CrossServerListHandler {
         playerList.put(server, players);
     }
 
-    public static void requestHashsetUpdate() {
-        PluginMessageHandler.requestPlayerLists();
+    public static void requestHashsetUpdate(Player player) {
+        playerList.clear();
+        PluginMessageHandler.requestPlayerLists(player);
     }
 }

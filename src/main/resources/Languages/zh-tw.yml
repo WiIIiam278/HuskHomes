@@ -65,6 +65,7 @@ error_rtp_invalid_dimension: '&4錯誤: &c你只能在目前在世界裏隨機�
 error_rtp_cooldown: '&4錯誤: &c你需要在下次隨機傳送前等待 %1% 分鐘.'
 error_rtp_randomization_timeout: '&4Error: &cFailed to find a safe random location to teleport you.'
 rtp_spent_money: '&7使用 %1% 以隨機傳送.'
+back_spent_money: '&7Spent %1% to return to your last position.'
 error_command_disabled: '&4錯誤: &c此指令已被關閉!'
 error_console_only: '&4錯誤: &c該指令只能被伺服器使用.'
 error_tp_invalid_world: '&4錯誤: &c請輸入正確的世界名稱.'

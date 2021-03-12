@@ -201,6 +201,20 @@ public class TeleportRequestHandler {
                                 case "point":
                                     TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
                                     break;
+                                case "back":
+                                    if (HuskHomes.getSettings().doEconomy()) {
+                                        double backCost = HuskHomes.getSettings().getBackCost();
+                                        if (backCost > 0) {
+                                            if (!VaultIntegration.takeMoney(teleporter, backCost)) {
+                                                MessageManager.sendMessage(teleporter, "error_insufficient_funds", VaultIntegration.format(backCost));
+                                                break;
+                                            } else {
+                                                MessageManager.sendMessage(teleporter, "back_spent_money", VaultIntegration.format(backCost));
+                                            }
+                                        }
+                                    }
+                                    TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPoint());
+                                    break;
                                 case "player":
                                     TeleportManager.teleportPlayer(teleporter, timedTeleport.getTargetPlayerName());
                                     break;

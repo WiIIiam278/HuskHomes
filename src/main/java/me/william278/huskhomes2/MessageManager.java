@@ -127,4 +127,17 @@ public class MessageManager {
         return messages.get(messageID);
     }
 
+    public static String getRawMessage(String messageID, String... placeholderReplacements) {
+        String message = messages.get(messageID);
+        int replacementIndexer = 1;
+
+        // Replace placeholders
+        for (String replacement : placeholderReplacements) {
+            String replacementString = "%" + replacementIndexer + "%";
+            message = message.replace(replacementString, replacement);
+            replacementIndexer = replacementIndexer + 1;
+        }
+        return message;
+    }
+
 }

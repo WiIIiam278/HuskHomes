@@ -56,10 +56,10 @@ public class ListHandler {
         return clickableHome;
     }
 
-    private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command) {
+    private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command, int itemsPerPage) {
         ComponentBuilder pageButtons = new ComponentBuilder();
-        TextComponent nextPageButton = pageButton(MessageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), MessageManager.getRawMessage("list_button_next_page_tooltip"));
-        TextComponent previousPageButton = pageButton(MessageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), MessageManager.getRawMessage("list_button_previous_page_tooltip"));
+        TextComponent nextPageButton = pageButton(MessageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), MessageManager.getRawMessage("list_button_next_page_tooltip", Integer.toString(itemsPerPage)));
+        TextComponent previousPageButton = pageButton(MessageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), MessageManager.getRawMessage("list_button_previous_page_tooltip", Integer.toString(itemsPerPage)));
         TextComponent divider = new TextComponent(MessageManager.getRawMessage("list_item_divider"));
         divider.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 
@@ -120,7 +120,7 @@ public class ListHandler {
         }
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:homelist");
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:homelist", itemsPerPage);
     }
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
@@ -164,7 +164,7 @@ public class ListHandler {
         }
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:publichomelist");
+        displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:publichomelist", itemsPerPage);
     }
 
     public static void displayWarpList(Player player, int pageNumber) {
@@ -208,7 +208,7 @@ public class ListHandler {
         }
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/huskhomes:warplist");
+        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/huskhomes:warplist", itemsPerPage);
     }
 
 }

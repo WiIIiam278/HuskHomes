@@ -33,8 +33,15 @@ public class CrossServerListHandler {
         playerList.put(server, players);
     }
 
-    public static void requestHashsetUpdate(Player player) {
+    public static void updatePlayerList(Player p) {
         playerList.clear();
-        PluginMessageHandler.requestPlayerLists(player);
+        if (p == null) {
+            for (Player x : Bukkit.getOnlinePlayers()) {
+                p = x;
+            }
+        }
+        if (p != null) {
+            PluginMessageHandler.requestPlayerLists(p);
+        }
     }
 }

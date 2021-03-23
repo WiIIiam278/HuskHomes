@@ -20,11 +20,11 @@ public class TimedTeleport {
     private int timeRemaining;
     private final int warmupTime = HuskHomes.getSettings().getTeleportWarmupTime();
 
-    public TimedTeleport(Player teleporter, TeleportationPoint targetPoint) {
+    public TimedTeleport(Player teleporter, TeleportationPoint targetPoint, String targetType) {
         this.teleporter = teleporter;
         this.initialTeleporterLocation = teleporter.getLocation();
         this.initialTeleporterHealth = teleporter.getHealth();
-        this.targetType = "point";
+        this.targetType = targetType;
         this.targetPoint = targetPoint;
         this.timeRemaining = warmupTime;
 

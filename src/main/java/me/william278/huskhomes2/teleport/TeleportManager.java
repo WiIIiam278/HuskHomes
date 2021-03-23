@@ -65,7 +65,37 @@ public class TeleportManager {
             return;
         }
 
-        getQueuedTeleports().add(new TimedTeleport(player, point));
+        getQueuedTeleports().add(new TimedTeleport(player, point, "point"));
+    }
+
+    public static void queueBackTeleport(Player player) {
+        TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player);
+        if (lastPosition != null) {
+            if (HuskHomes.getSettings().doEconomy()) {
+                double backCost = HuskHomes.getSettings().getBackCost();
+                if (backCost > 0) {
+                    if (!VaultIntegration.hasMoney(player, backCost)) {
+                        MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(backCost));
+                        return;
+                    }
+                }
+            }
+            if (player.hasPermission("huskhomes.bypass_timer")) {
+                if (HuskHomes.getSettings().doEconomy()) {
+                    double backCost = HuskHomes.getSettings().getRtpCost();
+                    if (backCost > 0) {
+                        VaultIntegration.takeMoney(player, backCost);
+                        MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(backCost));
+                    }
+                }
+                teleportPlayer(player, lastPosition);
+                return;
+            }
+
+            getQueuedTeleports().add(new TimedTeleport(player, lastPosition, "back"));
+        } else {
+            MessageManager.sendMessage(player, "error_no_last_position");
+        }
     }
 
     public static void queueRandomTeleport(Player player) {

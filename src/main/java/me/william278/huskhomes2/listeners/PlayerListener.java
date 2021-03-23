@@ -71,8 +71,8 @@ public class PlayerListener implements Listener {
             }
 
             // Update player lists globally
-            CrossServerListHandler.requestHashsetUpdate(p);
-            PluginMessageHandler.sendPlayerLists(p);
+            CrossServerListHandler.updatePlayerList(p);
+            PluginMessageHandler.broadcastPlayerChange(p);
         }
     }
 
@@ -82,8 +82,8 @@ public class PlayerListener implements Listener {
             // Update player lists globally
             Player p = e.getPlayer();
 
-            CrossServerListHandler.requestHashsetUpdate(p);
-            PluginMessageHandler.sendPlayerLists(p);
+            CrossServerListHandler.updatePlayerList(p);
+            PluginMessageHandler.broadcastPlayerChange(p);
         }
     }
 

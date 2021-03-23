@@ -51,6 +51,7 @@ public class Settings {
     private double setHomeCost;
     private double publicHomeCost;
     private double rtpCost;
+    private double backCost;
 
     // Vanished player checks
     private boolean checkVanishedPlayers;
@@ -154,6 +155,7 @@ public class Settings {
             this.setHomeCost = config.getDouble("economy_integration.costs.additional_home_slot");
             this.publicHomeCost = config.getDouble("economy_integration.costs.make_home_public");
             this.rtpCost = config.getDouble("economy_integration.costs.random_teleport");
+            this.backCost = config.getDouble("economy_integration.costs.back");
 
             // Retrieve sounds used in plugin; if invalid, use defaults.
             try {
@@ -319,6 +321,10 @@ public class Settings {
 
     public double getSetHomeCost() {
         return setHomeCost;
+    }
+
+    public double getBackCost() {
+        return backCost;
     }
 
     public double getPublicHomeCost() {

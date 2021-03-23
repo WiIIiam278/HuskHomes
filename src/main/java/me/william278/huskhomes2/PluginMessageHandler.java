@@ -74,7 +74,7 @@ public class PluginMessageHandler implements PluginMessageListener {
         out.writeUTF("ONLINE");
 
         // Send the HuskHomes message with a specific type
-        out.writeUTF("HuskHomes:" + clusterID + ":send_online_players");
+        out.writeUTF("HuskHomes:" + clusterID + ":get_online_players");
         ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         DataOutputStream messageOut = new DataOutputStream(messageBytes);
 
@@ -100,12 +100,44 @@ public class PluginMessageHandler implements PluginMessageListener {
         sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
-    public static void sendPlayerLists(Player sender) {
-        sendPlayerList(null, sender);
+    // Sends a plugin message informing other servers the player list needs updating
+    public static void broadcastPlayerChange(Player sender) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        int clusterID = HuskHomes.getSettings().getServerClusterID();
+
+        // Send a plugin message to the specified player name
+        out.writeUTF("Forward");
+        out.writeUTF("ONLINE");
+
+        // Send the HuskHomes message with a specific type
+        out.writeUTF("HuskHomes:" + clusterID + ":player_change");
+        ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+        DataOutputStream messageOut = new DataOutputStream(messageBytes);
+
+        // Send the message data; output an exception if there's an error
+        try {
+            messageOut.writeUTF(HuskHomes.getSettings().getServerID());
+        } catch (IOException e) {
+            Bukkit.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
+            e.printStackTrace();
+        }
+
+        // Write the messages to the output packet
+        out.writeShort(messageBytes.toByteArray().length);
+        out.write(messageBytes.toByteArray());
+
+        // Send the constructed plugin message packet
+        if (sender == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                sender = p;
+                break;
+            }
+        }
+        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
     // Sends a plugin message with player list
-    public static void sendPlayerList(String returnTo, Player sender) {
+    public static void returnPlayerList(String returnTo, Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         int clusterID = HuskHomes.getSettings().getServerClusterID();
 
@@ -248,9 +280,9 @@ public class PluginMessageHandler implements PluginMessageListener {
             case "teleport_to_me":
                 TeleportManager.teleportPlayer(recipient, messageData);
                 break;
-            case "send_online_players":
+            case "get_online_players":
                 if (Bukkit.getOnlinePlayers().size() > 0) {
-                    sendPlayerList(messageData, recipient);
+                    returnPlayerList(messageData, recipient);
                 }
                 break;
             case "return_online_players":
@@ -258,6 +290,9 @@ public class PluginMessageHandler implements PluginMessageListener {
                 String players = messageData.split("/")[1];
                 HashSet<String> playerList = new HashSet<>(Arrays.asList(players.split(",")));
                 CrossServerListHandler.updateHashset(server, playerList);
+                break;
+            case "player_change":
+                CrossServerListHandler.updatePlayerList(null);
                 break;
         }
     }

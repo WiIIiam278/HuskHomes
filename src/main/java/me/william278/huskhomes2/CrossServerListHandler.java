@@ -12,15 +12,6 @@ public class CrossServerListHandler {
     // (with the same Cluster ID) with their list of players
     private static final HashMap<String,HashSet<String>> playerList = new HashMap<>();
 
-    // Returns a HashSet of all players on the Network
-    public static HashSet<String> getGlobalPlayerList() {
-        HashSet<String> players = getOtherServerPlayerList();
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            players.add(p.getName());
-        }
-        return players;
-    }
-
     public static HashSet<String> getOtherServerPlayerList() {
         HashSet<String> players = new HashSet<>();
         for (String server : playerList.keySet()) {

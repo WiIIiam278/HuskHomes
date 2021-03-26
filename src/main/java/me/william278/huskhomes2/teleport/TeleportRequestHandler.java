@@ -15,7 +15,6 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -31,7 +30,7 @@ public class TeleportRequestHandler {
     public static Map<Player, TeleportRequest> teleportRequests = new HashMap<>();
 
     // Timestamp identifying when the global player list should be updated next;
-    private static long nextPlayerListUpdateTime = 0;
+    private static long nextPlayerListUpdateTime = Instant.now().getEpochSecond() + HuskHomes.getSettings().getCrossServerTabUpdateDelay();
 
     private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, String teleportRequestType) {
         String pluginMessage = teleportRequestType + "_request";
@@ -257,7 +256,7 @@ public class TeleportRequestHandler {
             // Update the global player list
             if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
                 final long currentTimestmap = Instant.now().getEpochSecond();
-                if (currentTimestmap >= nextPlayerListUpdateTime) {
+                if (currentTimestmap >= nextPlayerListUpdateTime & Bukkit.getOnlinePlayers().size() > 0) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         CrossServerListHandler.updatePlayerList(p);
                         break;

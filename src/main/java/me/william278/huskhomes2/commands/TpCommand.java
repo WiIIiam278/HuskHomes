@@ -93,6 +93,7 @@ public class TpCommand extends CommandBase {
                     players.addAll(CrossServerListHandler.getOtherServerPlayerList());
                 }
             }
+            players.remove(sender.getName());
             final List<String> tabCompletions = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], players, tabCompletions);
             Collections.sort(tabCompletions);

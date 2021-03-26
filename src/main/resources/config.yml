@@ -37,7 +37,7 @@ bungee_options:
   cluster_id: 0
   tab_complete_cross_server:
     enabled: true
-    delay: 45
+    delay: 60
 enable_warp_command: true
 spawn_command:
   enabled: true

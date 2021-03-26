@@ -14,6 +14,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -70,8 +71,10 @@ public class PlayerListener implements Listener {
                 }
 
                 // Update player lists globally
-                CrossServerListHandler.updatePlayerList(p);
-                PluginMessageHandler.broadcastPlayerChange(p);
+                if (HuskHomes.getSettings().doCrossServerTabCompletion()) {
+                    CrossServerListHandler.updatePlayerList(p);
+                    PluginMessageHandler.broadcastPlayerChange(p);
+                }
             }
         } catch (NullPointerException ignored) { } // Ignore NullPointerExceptions from players that execute this event and return null (e.g Citizens).
     }

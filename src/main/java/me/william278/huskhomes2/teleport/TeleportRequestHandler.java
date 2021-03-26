@@ -15,6 +15,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -88,12 +89,8 @@ public class TeleportRequestHandler {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
-                    sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
-                    MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
-                } else {
-                    MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
-                }
+                sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
+                MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
             }

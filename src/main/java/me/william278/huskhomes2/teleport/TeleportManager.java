@@ -144,10 +144,8 @@ public class TeleportManager {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
-                    teleportHereCrossServer(requester, targetPlayerName);
-                    return;
-                }
+                teleportHereCrossServer(requester, targetPlayerName);
+                return;
             }
             MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
         }
@@ -173,10 +171,8 @@ public class TeleportManager {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                if (CrossServerListHandler.getGlobalPlayerList().contains(targetPlayerName)) {
-                    setTeleportationDestinationCrossServer(requester, targetPlayerName);
-                    return;
-                }
+                setTeleportationDestinationCrossServer(requester, targetPlayerName);
+                return;
             }
             MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
         }

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Home extends TeleportationPoint {
 
     private String name;
-    private String description;
+    private final String description;
     private boolean isPublic;
 
     private UUID ownerUUID;

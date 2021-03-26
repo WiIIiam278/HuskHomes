@@ -10,7 +10,7 @@ import org.bukkit.Location;
 public class Warp extends TeleportationPoint {
 
     private String name;
-    private String description;
+    private final String description;
 
     /**
      * An object representing an in-game warp

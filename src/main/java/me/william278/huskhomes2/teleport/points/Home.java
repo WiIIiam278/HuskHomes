@@ -35,7 +35,7 @@ public class Home extends TeleportationPoint {
         this.name = name;
         this.ownerUUID = homeOwner.getUniqueId();
         this.ownerUsername = homeOwner.getName();
-        this.description = MessageManager.getRawMessage("warp_default_description", ownerUsername);
+        this.description = MessageManager.getRawMessage("home_default_description", ownerUsername);
         this.isPublic = isPublic;
     }
 

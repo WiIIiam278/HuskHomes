@@ -1,15 +1,13 @@
 package me.william278.huskhomes2.teleport;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 
@@ -32,36 +30,38 @@ public class ListHandler {
         return divider;
     }
 
-    private static TextComponent clickablePrivateHome(Home home) {
-        TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
-        clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:edithome " + home.getName())));
-        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+    private static BaseComponent[] clickablePrivateHome(Home home) {
+        BaseComponent[] clickableHome = new MineDown(MessageManager.getRawMessage("home_list_item", home.getName())).urlDetection(false).toComponent();
+        for (BaseComponent b : clickableHome) {
+            b.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:edithome " + home.getName())));
+            b.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+        }
         return clickableHome;
     }
 
-    private static TextComponent clickablePublicHome(Home home) {
-        TextComponent clickableHome = new TextComponent("[" + home.getName() + "]");
-        clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:phome " + home.getOwnerUsername() + "." + home.getName())));
-        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getOwnerUsername()).color(ChatColor.GREEN).italic(false).append(": ").append(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+    private static BaseComponent[] clickablePublicHome(Home home) {
+        BaseComponent[] clickableHome = new MineDown(MessageManager.getRawMessage("public_home_list_item", home.getName())).urlDetection(false).toComponent();
+        for (BaseComponent b : clickableHome) {
+            b.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:phome " + home.getOwnerUsername() + "." + home.getName())));
+            b.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(home.getOwnerUsername()).color(ChatColor.GREEN).italic(false).append(": ").append(home.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
+        }
         return clickableHome;
     }
 
-    private static TextComponent clickableWarp(Warp warp) {
-        TextComponent clickableHome = new TextComponent("[" + warp.getName() + "]");
-        clickableHome.setColor(ChatColor.ITALIC);
-        clickableHome.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:warp " + warp.getName())));
-        clickableHome.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(warp.getDescription()).color(net.md_5.bungee.api.ChatColor.GRAY).italic(false).create())));
-        return clickableHome;
+    private static BaseComponent[] clickableWarp(Warp warp) {
+        BaseComponent[] clickableWarp = new MineDown(MessageManager.getRawMessage("warp_list_item", warp.getName())).urlDetection(false).toComponent();
+        for (BaseComponent b : clickableWarp) {
+            b.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:warp " + warp.getName())));
+            b.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(warp.getDescription()).color(ChatColor.GRAY).italic(false).create())));
+        }
+        return clickableWarp;
     }
 
     private static void displayPageButtons(Player p, int pageNumber, int homeListSize, int homeUpperBound, String command, int itemsPerPage) {
         ComponentBuilder pageButtons = new ComponentBuilder();
         TextComponent nextPageButton = pageButton(MessageManager.getRawMessage("list_button_next_page"), net.md_5.bungee.api.ChatColor.GREEN, command + " " + (pageNumber + 1), MessageManager.getRawMessage("list_button_next_page_tooltip", Integer.toString(itemsPerPage)));
         TextComponent previousPageButton = pageButton(MessageManager.getRawMessage("list_button_previous_page"), net.md_5.bungee.api.ChatColor.RED, command + " " + (pageNumber - 1), MessageManager.getRawMessage("list_button_previous_page_tooltip", Integer.toString(itemsPerPage)));
-        TextComponent divider = new TextComponent(MessageManager.getRawMessage("list_item_divider"));
-        divider.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+        BaseComponent[] divider = new MineDown(MessageManager.getRawMessage("list_item_divider")).urlDetection(false).toComponent();
 
         if (pageNumber != 1) {
             pageButtons.append(previousPageButton);

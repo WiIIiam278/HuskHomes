@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.teleport.points;
 
+import me.william278.huskhomes2.MessageManager;
 import org.bukkit.Location;
 
 /**
@@ -20,7 +21,7 @@ public class Warp extends TeleportationPoint {
     public Warp(Location location, String server, String name) {
         super(location, server);
         this.name = name;
-        this.description = "A publicly accessible warp";
+        this.description = MessageManager.getRawMessage("warp_default_description");
     }
 
     /**

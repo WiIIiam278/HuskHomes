@@ -1,6 +1,7 @@
 package me.william278.huskhomes2.teleport.points;
 
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.MessageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -34,7 +35,7 @@ public class Home extends TeleportationPoint {
         this.name = name;
         this.ownerUUID = homeOwner.getUniqueId();
         this.ownerUsername = homeOwner.getName();
-        this.description = ownerUsername + "'s home";
+        this.description = MessageManager.getRawMessage("warp_default_description", ownerUsername);
         this.isPublic = isPublic;
     }
 

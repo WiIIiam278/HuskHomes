@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.teleport;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
@@ -9,10 +10,7 @@ import me.william278.huskhomes2.integrations.VanishChecker;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -57,15 +55,14 @@ public class TeleportRequestHandler {
         TextComponent options = new TextComponent(MessageManager.getRawMessage("tpa_request_buttons_prompt"));
         options.setColor(ChatColor.GRAY);
 
-        TextComponent separator = new TextComponent(MessageManager.getRawMessage("list_item_divider"));
-        separator.setColor(ChatColor.GRAY);
+        BaseComponent[] divider = new MineDown(MessageManager.getRawMessage("list_item_divider")).urlDetection(false).toComponent();
 
         // Build the components together
         ComponentBuilder teleportResponses = new ComponentBuilder();
-        teleportResponses.append(options);
-        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_accept_button"), ChatColor.GREEN, "/tpaccept", MessageManager.getRawMessage("tpa_accept_button_tooltip")));
-        teleportResponses.append(separator);
-        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_decline_button"), ChatColor.RED, "/tpdeny", MessageManager.getRawMessage("tpa_decline_button_tooltip")));
+        teleportResponses.append(options, ComponentBuilder.FormatRetention.NONE);
+        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_accept_button"), ChatColor.GREEN, "/tpaccept", MessageManager.getRawMessage("tpa_accept_button_tooltip")), ComponentBuilder.FormatRetention.NONE);
+        teleportResponses.append(divider, ComponentBuilder.FormatRetention.NONE);
+        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_decline_button"), ChatColor.RED, "/tpdeny", MessageManager.getRawMessage("tpa_decline_button_tooltip")), ComponentBuilder.FormatRetention.NONE);
 
         // Create and send the message
         p.spigot().sendMessage(teleportResponses.create());

@@ -66,7 +66,7 @@ public class ListHandler {
         if (pageNumber != 1) {
             pageButtons.append(previousPageButton);
             if (homeListSize > homeUpperBound) {
-                pageButtons.append(divider);
+                pageButtons.append(divider, ComponentBuilder.FormatRetention.NONE);
                 pageButtons.append(nextPageButton);
             }
             p.sendMessage("");
@@ -102,9 +102,9 @@ public class ListHandler {
             try {
                 Home home = homes.get(i);
                 if (i != homeLowerBound) {
-                    homeList.append(divider());
+                    homeList.append(divider(), ComponentBuilder.FormatRetention.NONE);
                 }
-                homeList.append(clickablePrivateHome(home));
+                homeList.append(clickablePrivateHome(home), ComponentBuilder.FormatRetention.NONE);
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
@@ -146,9 +146,9 @@ public class ListHandler {
             try {
                 Home home = homes.get(i);
                 if (i != homeLowerBound) {
-                    homeList.append(divider());
+                    homeList.append(divider(), ComponentBuilder.FormatRetention.NONE);
                 }
-                homeList.append(clickablePublicHome(home));
+                homeList.append(clickablePublicHome(home), ComponentBuilder.FormatRetention.NONE);
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == homeLowerBound) {
@@ -189,9 +189,9 @@ public class ListHandler {
             try {
                 Warp warp = warps.get(i);
                 if (i != warpsLowerBound) {
-                    warpList.append(divider());
+                    warpList.append(divider(), ComponentBuilder.FormatRetention.NONE);
                 }
-                warpList.append(clickableWarp(warp));
+                warpList.append(clickableWarp(warp), ComponentBuilder.FormatRetention.NONE);
                 itemsOnPage = itemsOnPage + 1;
             } catch (IndexOutOfBoundsException e) {
                 if (i == warpsLowerBound) {

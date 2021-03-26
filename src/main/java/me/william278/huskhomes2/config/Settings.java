@@ -21,6 +21,8 @@ public class Settings {
     private boolean doBungee;
     private int clusterID;
     private String server;
+    private boolean doCrossServerTabCompletion;
+    private int crossServerTabUpdateDelay;
 
     // Data storage settings
     private String storageType;
@@ -99,6 +101,8 @@ public class Settings {
             this.doBungee = config.getBoolean("bungee_options.enable_bungee_mode");
             this.server = config.getString("bungee_options.server_id");
             this.clusterID = config.getInt("bungee_options.cluster_id");
+            this.doCrossServerTabCompletion = config.getBoolean("bungee_options.tab_complete_cross_server.enabled");
+            this.crossServerTabUpdateDelay = config.getInt("bungee_options.tab_complete_cross_server.delay");
 
             this.storageType = config.getString("data_storage_options.storage_type");
             this.playerDataTable = config.getString("data_storage_options.table_names.player_data");
@@ -361,5 +365,13 @@ public class Settings {
 
     public boolean doUpdateChecks() {
         return updateReminders;
+    }
+
+    public boolean doCrossServerTabCompletion() {
+        return doCrossServerTabCompletion;
+    }
+
+    public int getCrossServerTabUpdateDelay() {
+        return crossServerTabUpdateDelay;
     }
 }

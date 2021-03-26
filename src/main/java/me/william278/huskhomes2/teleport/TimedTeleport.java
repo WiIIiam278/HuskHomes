@@ -8,14 +8,14 @@ import org.bukkit.entity.Player;
 
 public class TimedTeleport {
 
-    private String targetType; // "player" or "point"
+    private final String targetType; // "player" or "point"
 
     private TeleportationPoint targetPoint;
     private String targetPlayerName;
 
-    private Player teleporter;
-    private Location initialTeleporterLocation;
-    private double initialTeleporterHealth;
+    private final Player teleporter;
+    private final Location initialTeleporterLocation;
+    private final double initialTeleporterHealth;
 
     private int timeRemaining;
     private final int warmupTime = HuskHomes.getSettings().getTeleportWarmupTime();

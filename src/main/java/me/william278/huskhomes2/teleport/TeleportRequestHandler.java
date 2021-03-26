@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +28,9 @@ public class TeleportRequestHandler {
 
     // Target player and teleport request to them hashmap
     public static Map<Player, TeleportRequest> teleportRequests = new HashMap<>();
+
+    // Timestamp identifying when the global player list should be updated next;
+    private static long nextPlayerListUpdateTime = 0;
 
     private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, String teleportRequestType) {
         String pluginMessage = teleportRequestType + "_request";
@@ -38,12 +42,12 @@ public class TeleportRequestHandler {
         PluginMessageHandler.sendPluginMessage(replier, requesterName, pluginMessage, replier.getName() + ":" + accepted);
     }
 
-    private static TextComponent createButton(String buttonText, ChatColor color, ClickEvent.Action actionType, String command, String hoverMessage, ChatColor hoverMessageColor, Boolean hoverMessageItalic) {
+    private static TextComponent runCommandButton(String buttonText, ChatColor color, String command, String hoverMessage) {
         TextComponent button = new TextComponent(buttonText);
         button.setColor(color);
 
-        button.setClickEvent(new ClickEvent(actionType, (command)));
-        button.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(hoverMessage).color(hoverMessageColor).italic(hoverMessageItalic).create())));
+        button.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, (command)));
+        button.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(hoverMessage).color(ChatColor.GRAY).italic(false).create())));
         return button;
     }
 
@@ -59,9 +63,9 @@ public class TeleportRequestHandler {
         // Build the components together
         ComponentBuilder teleportResponses = new ComponentBuilder();
         teleportResponses.append(options);
-        teleportResponses.append(createButton(MessageManager.getRawMessage("tpa_accept_button"), ChatColor.GREEN, ClickEvent.Action.RUN_COMMAND, "/tpaccept", MessageManager.getRawMessage("tpa_accept_button_tooltip"), ChatColor.GRAY, false));
+        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_accept_button"), ChatColor.GREEN, "/tpaccept", MessageManager.getRawMessage("tpa_accept_button_tooltip")));
         teleportResponses.append(separator);
-        teleportResponses.append(createButton(MessageManager.getRawMessage("tpa_decline_button"), ChatColor.RED, ClickEvent.Action.RUN_COMMAND, "/tpdeny", MessageManager.getRawMessage("tpa_decline_button_tooltip"), ChatColor.GRAY, false));
+        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_decline_button"), ChatColor.RED, "/tpdeny", MessageManager.getRawMessage("tpa_decline_button_tooltip")));
 
         // Create and send the message
         p.spigot().sendMessage(teleportResponses.create());
@@ -252,6 +256,18 @@ public class TeleportRequestHandler {
 
             // Clear expired teleport requests
             clearExpiredRequests(expiredTeleportRequests);
+
+            // Update the global player list
+            if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
+                final long currentTimestmap = Instant.now().getEpochSecond();
+                if (currentTimestmap >= nextPlayerListUpdateTime) {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        CrossServerListHandler.updatePlayerList(p);
+                        break;
+                    }
+                    nextPlayerListUpdateTime = currentTimestmap + HuskHomes.getSettings().getCrossServerTabUpdateDelay();
+                }
+            }
         }, 0L, 20L);
     }
 

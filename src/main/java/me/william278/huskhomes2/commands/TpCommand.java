@@ -89,7 +89,9 @@ public class TpCommand extends CommandBase {
                         players.add(p.getName());
                     }
                 }
-                players.addAll(CrossServerListHandler.getOtherServerPlayerList());
+                if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
+                    players.addAll(CrossServerListHandler.getOtherServerPlayerList());
+                }
             }
             final List<String> tabCompletions = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], players, tabCompletions);

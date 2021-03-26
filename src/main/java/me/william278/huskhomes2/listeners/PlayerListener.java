@@ -14,13 +14,11 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
 
@@ -51,40 +49,30 @@ public class PlayerListener implements Listener {
         Player p = e.getPlayer();
 
         // Create player on SQL if they don't exist already
-        if (!DataManager.playerExists(p)) {
-            DataManager.createPlayer(p);
-            if (TeleportManager.getSpawnLocation() != null) {
-                p.teleport(TeleportManager.getSpawnLocation().getLocation());
-            }
-        } else {
-            // Check if they've changed their name and update if so
-            DataManager.checkPlayerNameChange(p);
+        try {
+            if (!DataManager.playerExists(p)) {
+                DataManager.createPlayer(p);
+                if (TeleportManager.getSpawnLocation() != null) {
+                    p.teleport(TeleportManager.getSpawnLocation().getLocation());
+                }
+            } else {
+                // Check if they've changed their name and update if so
+                DataManager.checkPlayerNameChange(p);
 
-            // Update their TAB cache for /home command
-            HomeCommand.Tab.updatePlayerHomeCache(p);
-        }
-
-        // If bungee mode, check if the player joined the server from a teleport and act accordingly
-        if (HuskHomes.getSettings().doBungee()) {
-            if (DataManager.getPlayerTeleporting(p)) {
-                TeleportManager.teleportPlayer(p);
+                // Update their TAB cache for /home command
+                HomeCommand.Tab.updatePlayerHomeCache(p);
             }
 
-            // Update player lists globally
-            CrossServerListHandler.updatePlayerList(p);
-            PluginMessageHandler.broadcastPlayerChange(p);
-        }
+            // If bungee mode, check if the player joined the server from a teleport and act accordingly
+            if (HuskHomes.getSettings().doBungee()) {
+                if (DataManager.getPlayerTeleporting(p)) {
+                    TeleportManager.teleportPlayer(p);
+                }
+
+                // Update player lists globally
+                CrossServerListHandler.updatePlayerList(p);
+                PluginMessageHandler.broadcastPlayerChange(p);
+            }
+        } catch (NullPointerException ignored) { } // Ignore NullPointerExceptions from players that execute this event and return null (e.g Citizens).
     }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        if (HuskHomes.getSettings().doBungee()) {
-            // Update player lists globally
-            Player p = e.getPlayer();
-
-            CrossServerListHandler.updatePlayerList(p);
-            PluginMessageHandler.broadcastPlayerChange(p);
-        }
-    }
-
 }

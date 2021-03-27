@@ -82,7 +82,7 @@ public class SettingHandler {
         BaseComponent[] buttonComponents = new MineDown(MessageManager.getRawMessage("delete_confirmation_button")).urlDetection(false).toComponent();
         for (BaseComponent baseComponent : buttonComponents) {
             baseComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:" + commandType + " all confirm")));
-            baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder("delete_confirmation_button_tooltip").color(ChatColor.RED).italic(false).create())));
+            baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(MessageManager.getRawMessage("delete_confirmation_button_tooltip")).color(ChatColor.RED).italic(false).create())));
         }
         return buttonComponents;
     }

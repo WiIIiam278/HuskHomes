@@ -12,9 +12,14 @@ public class DelwarpCommand extends CommandBase {
         if (args.length == 1) {
             String warpName = args[0];
             SettingHandler.deleteWarp(p, warpName);
-        } else {
-            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+            return;
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("all") && args[1].equalsIgnoreCase("confirm")) {
+                SettingHandler.deleteAllWarps(p);
+                return;
+            }
         }
+        MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
     }
 
 }

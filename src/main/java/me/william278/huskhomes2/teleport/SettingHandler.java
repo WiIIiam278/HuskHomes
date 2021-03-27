@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.teleport;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerDeleteHomeEvent;
@@ -16,6 +17,9 @@ import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import me.william278.huskhomes2.utils.RegexUtil;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -74,6 +78,55 @@ public class SettingHandler {
         }
     }
 
+    private static BaseComponent[] deletionConfirmationButton(String commandType) {
+        BaseComponent[] buttonComponents = new MineDown(MessageManager.getRawMessage("delete_confirmation_button")).urlDetection(false).toComponent();
+        for (BaseComponent baseComponent : buttonComponents) {
+            baseComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:" + commandType + " all confirm")));
+            baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder("delete_confirmation_button_tooltip").color(ChatColor.RED).italic(false).create())));
+        }
+        return buttonComponents;
+    }
+
+    private static void sendDeletionConfirmationWarning(Player player, String deletionType) {
+        // Send the delete-all confirmation warning
+        MessageManager.sendMessage(player, "delete_all_" + deletionType + "s_confirm");
+        MessageManager.sendMessage(player, "delete_all_irreversible_warning");
+
+        // Send Confirm button
+        player.spigot().sendMessage(new ComponentBuilder()
+                .append(new TextComponent(MessageManager.getRawMessage("option_selection_prompt")), ComponentBuilder.FormatRetention.NONE)
+                .append(deletionConfirmationButton("del" + deletionType), ComponentBuilder.FormatRetention.NONE).create());
+    }
+
+    // Delete all of a player's homes
+    public static void deleteAllHomes(Player player) {
+        int homesDeleted = 0;
+        for (Home home : DataManager.getPlayerHomes(player.getName())) {
+            if (home != null) {
+                String homeName = home.getName();
+                if (home.isPublic()) {
+                    // Delete Dynmap marker if it exists & if the home is public
+                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
+                        DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
+                    }
+                    PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
+                    Bukkit.getPluginManager().callEvent(event);
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                    DataManager.deleteHome(homeName, player);
+                    PublichomeCommand.updatePublicHomeTabCache();
+                } else {
+                    DataManager.deleteHome(homeName, player);
+                }
+            }
+            homesDeleted++;
+        }
+
+        HomeCommand.Tab.updatePlayerHomeCache(player);
+        MessageManager.sendMessage(player, "delete_all_homes_success", Integer.toString(homesDeleted));
+    }
+
     // Delete a home
     public static void deleteHome(Player player, String homeName) {
         if (DataManager.homeExists(player, homeName)) {
@@ -97,11 +150,39 @@ public class SettingHandler {
                 HomeCommand.Tab.updatePlayerHomeCache(player);
                 MessageManager.sendMessage(player, "home_deleted", homeName);
             } else {
+                if (homeName.equalsIgnoreCase("all")) {
+                    sendDeletionConfirmationWarning(player, "home");
+                    return;
+                }
                 MessageManager.sendMessage(player, "error_home_invalid", homeName);
             }
         } else {
             MessageManager.sendMessage(player, "error_home_invalid", homeName);
         }
+    }
+
+    // Delete all server warps
+    public static void deleteAllWarps(Player player) {
+        int warpsDeleted = 0;
+        for (Warp warp : DataManager.getWarps()) {
+            if (warp != null) {
+                String warpName = warp.getName();
+                PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled()) {
+                    return;
+                }
+                DataManager.deleteWarp(warpName);
+                if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                    DynMapIntegration.removeDynamicMapMarker(warpName);
+                }
+                WarpCommand.Tab.updateWarpsTabCache();
+            }
+            warpsDeleted++;
+        }
+
+        HomeCommand.Tab.updatePlayerHomeCache(player);
+        MessageManager.sendMessage(player, "delete_all_warps_success", Integer.toString(warpsDeleted));
     }
 
     // Delete a warp
@@ -120,6 +201,10 @@ public class SettingHandler {
             }
             WarpCommand.Tab.updateWarpsTabCache();
         } else {
+            if (warpName.equalsIgnoreCase("all")) {
+                sendDeletionConfirmationWarning(player, "warp");
+                return;
+            }
             MessageManager.sendMessage(player, "error_warp_invalid", warpName);
         }
     }

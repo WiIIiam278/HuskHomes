@@ -56,7 +56,7 @@ error_spawn_undefined: '&4Error: &cThere is no spawn location defined on this se
 error_tpa_no_pending_request: '&4Error: &cYou do not have a pending teleport request.'
 error_player_not_found: '&4Error: &cCould not find the player %1%.'
 return_by_death: '&7Return to where you died?:'
-option_selection_prompt: 'Click an option: '
+option_selection_prompt: '&7Click an option: &r'
 tpa_accept_button: '[Accept]'
 tpa_accept_button_tooltip: 'Accept the teleport request (/tpaccept)'
 tpa_decline_button: '[Decline]'

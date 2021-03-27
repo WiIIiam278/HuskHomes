@@ -47,7 +47,7 @@ error_spawn_undefined: '&4Error: &cThere is no spawn location defined on this se
 error_tpa_no_pending_request: '&4錯誤: &c你并沒有等待中的傳送請求.'
 error_player_not_found: '&4錯誤: &c找不到玩家->%1%.'
 return_by_death: '返回到你死去的地方?:'
-option_selection_prompt: '接受或拒絕: '
+option_selection_prompt: '&7接受或拒絕: &r'
 tpa_accept_button: '[Accept]'
 tpa_accept_button_tooltip: 'Accept the teleport request (/tpaccept)'
 tpa_decline_button: '[Decline]'

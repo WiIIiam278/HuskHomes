@@ -56,7 +56,7 @@ error_spawn_undefined: '&4Ошибка: &cНа этом сервере не ус
 error_tpa_no_pending_request: '&4Ошибка: &cУ Вас нет действующих запросов на телепортацию.'
 error_player_not_found: '&4Ошибка: &cНе получилось найти игрока %1%.'
 return_by_death: '&7Вернуться на место Вашей смерти?:'
-option_selection_prompt: 'Выберите действие: '
+option_selection_prompt: '&7Выберите действие: &r'
 tpa_accept_button: '[Принять]'
 tpa_accept_button_tooltip: 'Принять запрос на телепортацию (/tpaccept)'
 tpa_decline_button: '[Отклонить]'

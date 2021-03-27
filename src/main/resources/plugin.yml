@@ -17,7 +17,7 @@ commands:
     permission: huskhomes.sethome
   delhome:
     description: Delete a home you previously set
-    usage: /delhome <name>
+    usage: /delhome <name/all>
     permission: huskhomes.delhome
   edithome:
     description: Edit one of your homes
@@ -33,7 +33,7 @@ commands:
     permission: huskhomes.setwarp
   delwarp:
     description: Delete a warp
-    usage: /delwarp <name>
+    usage: /delwarp <name/all>
     permission: huskhomes.delwarp
   editwarp:
     description: Edit a warp

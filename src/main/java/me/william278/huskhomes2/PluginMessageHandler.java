@@ -96,6 +96,9 @@ public class PluginMessageHandler implements PluginMessageListener {
                 sender = p;
                 break;
             }
+            if (sender == null) {
+                return;
+            }
         }
         sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
@@ -132,6 +135,9 @@ public class PluginMessageHandler implements PluginMessageListener {
                 sender = p;
                 break;
             }
+            if (sender == null) {
+                return;
+            }
         }
         sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
@@ -157,9 +163,13 @@ public class PluginMessageHandler implements PluginMessageListener {
         try {
             StringBuilder playerList = new StringBuilder();
             for (Player p : Bukkit.getOnlinePlayers()) {
-                playerList.append(p.getName()).append(",");
+                if (!VanishChecker.isVanished(p)) {
+                    playerList.append(p.getName()).append(",");
+                }
             }
-            messageOut.writeUTF(HuskHomes.getSettings().getServerID() + "/" + StringUtils.removeEnd(playerList.toString(), ","));
+            if (!playerList.toString().isEmpty()) {
+                messageOut.writeUTF(HuskHomes.getSettings().getServerID() + "/" + StringUtils.removeEnd(playerList.toString(), ","));
+            }
         } catch (IOException e) {
             Bukkit.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
             e.printStackTrace();

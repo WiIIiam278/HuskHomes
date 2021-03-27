@@ -118,7 +118,7 @@ edit_home_make_private_button_tooltip: 'Сделать свой дом прив�
 home_default_description: '%1%''s home'
 warp_default_description: 'A publicly accessible warp'
 delete_all_homes_confirm: '&4Warning: &cAre you sure you wish to delete &lall&r&c of your homes?'
-delete_all_warps_confirm: '&4Warning: &cAre you sure you wish to delete &lall&r&c the server warps?'
+delete_all_warps_confirm: '&4Warning: &cAre you sure you wish to delete &lall&r&c server warps?'
 delete_all_irreversible_warning: '&7Once you press Confirm, it will not be possible to recover them.'
 delete_confirmation_button_tooltip: 'Click to confirm deletion. This cannot be undone.'
 delete_confirmation_button: '&4[Confirm]'

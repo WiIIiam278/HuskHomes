@@ -150,13 +150,13 @@ public class SettingHandler {
                 HomeCommand.Tab.updatePlayerHomeCache(player);
                 MessageManager.sendMessage(player, "home_deleted", homeName);
             } else {
-                if (homeName.equalsIgnoreCase("all")) {
-                    sendDeletionConfirmationWarning(player, "home");
-                    return;
-                }
                 MessageManager.sendMessage(player, "error_home_invalid", homeName);
             }
         } else {
+            if (homeName.equalsIgnoreCase("all")) {
+                sendDeletionConfirmationWarning(player, "home");
+                return;
+            }
             MessageManager.sendMessage(player, "error_home_invalid", homeName);
         }
     }

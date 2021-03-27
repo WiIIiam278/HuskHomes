@@ -94,7 +94,7 @@ public class SettingHandler {
 
         // Send Confirm button
         player.spigot().sendMessage(new ComponentBuilder()
-                .append(new TextComponent(MessageManager.getRawMessage("option_selection_prompt")), ComponentBuilder.FormatRetention.NONE)
+                .append(new MineDown(MessageManager.getRawMessage("option_selection_prompt")).toComponent(), ComponentBuilder.FormatRetention.NONE)
                 .append(deletionConfirmationButton("del" + deletionType), ComponentBuilder.FormatRetention.NONE).create());
     }
 

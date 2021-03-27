@@ -52,9 +52,7 @@ public class TeleportRequestHandler {
     public static void sendTpAcceptDenyButtons(Player p) {
         // Send the "Accept" or "Decline" response buttons to the player who has received a request
         // Options text
-        TextComponent options = new TextComponent(MessageManager.getRawMessage("option_selection_prompt"));
-        options.setColor(ChatColor.GRAY);
-
+        BaseComponent[] options = new MineDown(MessageManager.getRawMessage("option_selection_prompt")).toComponent();
         BaseComponent[] divider = new MineDown(MessageManager.getRawMessage("list_item_divider")).urlDetection(false).toComponent();
 
         // Build the components together

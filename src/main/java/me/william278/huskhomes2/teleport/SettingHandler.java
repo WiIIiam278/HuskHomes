@@ -122,6 +122,10 @@ public class SettingHandler {
             }
             homesDeleted++;
         }
+        if (homesDeleted == 0) {
+            MessageManager.sendMessage(player, "error_no_homes_set");
+            return;
+        }
 
         HomeCommand.Tab.updatePlayerHomeCache(player);
         MessageManager.sendMessage(player, "delete_all_homes_success", Integer.toString(homesDeleted));
@@ -154,6 +158,10 @@ public class SettingHandler {
             }
         } else {
             if (homeName.equalsIgnoreCase("all")) {
+                if (DataManager.getPlayerHomes(player.getName()).size() == 0) {
+                    MessageManager.sendMessage(player, "error_no_homes_set");
+                    return;
+                }
                 sendDeletionConfirmationWarning(player, "home");
                 return;
             }
@@ -180,6 +188,10 @@ public class SettingHandler {
             }
             warpsDeleted++;
         }
+        if (warpsDeleted == 0) {
+            MessageManager.sendMessage(player, "error_no_warps_set");
+            return;
+        }
 
         HomeCommand.Tab.updatePlayerHomeCache(player);
         MessageManager.sendMessage(player, "delete_all_warps_success", Integer.toString(warpsDeleted));
@@ -202,6 +214,10 @@ public class SettingHandler {
             WarpCommand.Tab.updateWarpsTabCache();
         } else {
             if (warpName.equalsIgnoreCase("all")) {
+                if (DataManager.getWarps().size() == 0) {
+                    MessageManager.sendMessage(player, "error_no_warps_set");
+                    return;
+                }
                 sendDeletionConfirmationWarning(player, "warp");
                 return;
             }

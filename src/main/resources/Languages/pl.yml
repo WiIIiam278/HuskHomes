@@ -122,5 +122,5 @@ delete_all_warps_confirm: '&4Warning: &cAre you sure you wish to delete &lall&r&
 delete_all_irreversible_warning: '&7Once you press Confirm, it will not be possible to recover them.'
 delete_confirmation_button_tooltip: 'Click to confirm deletion. This cannot be undone.'
 delete_confirmation_button: '&4[Confirm]'
-delete_all_homes_success: '&aSuccessfully deleted all &l%1%&r&a of your home(s).'
+delete_all_homes_success: '&aSuccessfully deleted your &l%1%&r&a home(s).'
 delete_all_warps_success: '&aSuccessfully deleted all &l%1%&r&a server warp(s).'

@@ -146,30 +146,38 @@ public class Home extends TeleportationPoint {
     // Returns the maximum number of set homes a player can make
     public static int getSetHomeLimit(Player p) {
         p.recalculatePermissions();
+        int maxSethomes = -1;
         for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains("huskhomes.max_sethomes.")) {
                 try {
-                    return Integer.parseInt(permission.split("\\.")[2]);
-                } catch(Exception e) {
-                    return HuskHomes.getSettings().getMaximumHomes();
-                }
+                    if (Integer.parseInt(permission.split("\\.")[2]) > maxSethomes) {
+                        maxSethomes = Integer.parseInt(permission.split("\\.")[2]);
+                    }
+                } catch (Exception ignored) { }
             }
+        }
+        if (maxSethomes != -1) {
+            return maxSethomes;
         }
         return HuskHomes.getSettings().getMaximumHomes();
     }
 
     // Returns the number of set homes a player can set for free
     public static int getFreeHomes(Player p) {
+        int freeSethomes = -1;
         for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains("huskhomes.free_sethomes.")) {
                 try {
-                    return Integer.parseInt(permission.split("\\.")[2]);
-                } catch(Exception e) {
-                    return HuskHomes.getSettings().getFreeHomeSlots();
-                }
+                    if (Integer.parseInt(permission.split("\\.")[2]) > freeSethomes) {
+                        freeSethomes = Integer.parseInt(permission.split("\\.")[2]);
+                    }
+                } catch(Exception ignored) { }
             }
+        }
+        if (freeSethomes != -1) {
+            return freeSethomes;
         }
         return HuskHomes.getSettings().getFreeHomeSlots();
     }

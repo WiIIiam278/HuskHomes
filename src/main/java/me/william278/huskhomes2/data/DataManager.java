@@ -187,7 +187,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?);");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
             ps.setString(1, p.getUniqueId().toString());
             rs = ps.executeQuery();
             if (rs != null) {

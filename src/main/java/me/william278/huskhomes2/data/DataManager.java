@@ -254,7 +254,7 @@ public class DataManager {
 
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?));");
+            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
             ps.setString(1, playerName);
             rs = ps.executeQuery();
             if (rs != null) {

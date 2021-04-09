@@ -232,7 +232,7 @@ public abstract class Database {
 
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?);");
+            ps = conn.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?;");
             ps.setBoolean(1, value);
             ps.setString(2, uuid.toString());
             ps.executeUpdate();

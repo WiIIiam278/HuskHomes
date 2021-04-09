@@ -81,6 +81,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns the maximum number of homes a player can set
+     * @param player the Player being checked
      * @return the maximum homes a player can set
      */
     public int getMaxSethomes(Player player) {
@@ -89,6 +90,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns the number of homes a player can set for free
+     * @param player the Player being checked
      * @return the number of free homes a player can set
      */
     public int getFreeSethomes(Player player) {

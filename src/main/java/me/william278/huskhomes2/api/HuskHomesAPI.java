@@ -80,6 +80,22 @@ public class HuskHomesAPI {
     }
 
     /**
+     * Returns the maximum number of homes a player can set
+     * @return the maximum homes a player can set
+     */
+    public int getMaxSethomes(Player player) {
+        return Home.getSetHomeLimit(player);
+    }
+
+    /**
+     * Returns the number of homes a player can set for free
+     * @return the number of free homes a player can set
+     */
+    public int getFreeSethomes(Player player) {
+        return Home.getFreeHomes(player);
+    }
+
+    /**
      Returns an ArrayList of all the public homes set
      @return an ArrayList of Homes
      @see Home

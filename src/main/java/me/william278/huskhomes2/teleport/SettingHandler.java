@@ -57,6 +57,35 @@ public class SettingHandler {
         }
     }
 
+    // Set a new server spawn (override existing one if exists)
+    public static boolean setCrossServerSpawnWarp(Location location, Player player) {
+        String spawnWarpName = HuskHomes.getSettings().getSpawnWarpName();
+
+        // Delete the old spawn warp
+        if (DataManager.warpExists(spawnWarpName)) {
+            DataManager.deleteWarp(spawnWarpName);
+            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                DynMapIntegration.removeDynamicMapMarker(spawnWarpName);
+            }
+        }
+
+        // Set a new warp for the spawn position
+        SetWarpConditions setWarpConditions = new SetWarpConditions(spawnWarpName);
+        if (setWarpConditions.areConditionsMet()) {
+            Warp spawnWarp = new Warp(location, HuskHomes.getSettings().getServerID(), spawnWarpName);
+            spawnWarp.setDescription(MessageManager.getRawMessage("spawn_warp_default_description"));
+            DataManager.addWarp(spawnWarp);
+            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                DynMapIntegration.addDynamicMapMarker(spawnWarp);
+            }
+            WarpCommand.Tab.updateWarpsTabCache();
+        } else {
+            MessageManager.sendMessage(player, setWarpConditions.getConditionsNotMetReason());
+            return false;
+        }
+        return true;
+    }
+
     // Set a warp at the specified position
     public static void setWarp(Location location, Player player, String name) {
         SetWarpConditions setWarpConditions = new SetWarpConditions(name);

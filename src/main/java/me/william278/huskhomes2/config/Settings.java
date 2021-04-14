@@ -80,6 +80,8 @@ public class Settings {
 
     // Spawn command settings
     private boolean doSpawnCommand;
+    private boolean doCrossServerSpawn;
+    private String crossServerSpawnWarpName;
 
     // Warp command settings
     private boolean doWarpCommand;
@@ -180,6 +182,8 @@ public class Settings {
             this.checkVanishedPlayers = config.getBoolean("handle_vanished_players");
 
             this.doSpawnCommand = config.getBoolean("spawn_command.enabled");
+            this.doCrossServerSpawn = config.getBoolean("spawn_command.bungee_network_spawn.enabled");
+            this.crossServerSpawnWarpName = config.getString("spawn_command.bungee_network_spawn.warp_name");
 
             this.doWarpCommand = config.getBoolean("warp_command.enabled");
             this.doPermissionRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.require_permission");
@@ -315,6 +319,14 @@ public class Settings {
 
     public boolean doSpawnCommand() {
         return doSpawnCommand;
+    }
+
+    public boolean doCrossServerSpawn() {
+        return doCrossServerSpawn;
+    }
+
+    public String getSpawnWarpName() {
+        return crossServerSpawnWarpName;
     }
 
     public boolean doEconomy() {

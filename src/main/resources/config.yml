@@ -45,6 +45,9 @@ warp_command:
     format: 'huskhomes.warp.'
 spawn_command:
   enabled: true
+  bungee_network_spawn:
+    enabled: false
+    warp_name: 'spawn'
   position:
     world:
     x:

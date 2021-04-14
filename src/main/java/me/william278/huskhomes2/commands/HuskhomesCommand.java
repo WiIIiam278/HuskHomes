@@ -30,7 +30,7 @@ public class HuskhomesCommand extends CommandBase implements TabCompleter {
         sender.sendMessage("• Contributors: " + ChatColor.GRAY + "imDaniX");
         sender.sendMessage("• Translators: " + ChatColor.GRAY + "RohFrenzy (de-de), 咖波 (zh-tw), imDaniX (ru), ReferTV (pl), Villag3r_ (it-it)");
         sender.sendMessage("• Help Wiki: " + ChatColor.GRAY + "https://github.com/WiIIiam278/HuskHomes2/wiki/");
-        sender.sendMessage("• Report a bug: " + ChatColor.GRAY + "https://github.com/WiIIiam278/HuskHomes2/issues");
+        sender.sendMessage("• Issue Tracker: " + ChatColor.GRAY + "https://github.com/WiIIiam278/HuskHomes2/issues");
     }
 
     @Override

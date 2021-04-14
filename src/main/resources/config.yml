@@ -47,7 +47,7 @@ spawn_command:
   enabled: true
   bungee_network_spawn:
     enabled: false
-    warp_name: 'spawn'
+    warp_name: 'Spawn'
   position:
     world:
     x:

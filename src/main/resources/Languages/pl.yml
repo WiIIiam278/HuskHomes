@@ -124,3 +124,5 @@ delete_confirmation_button_tooltip: 'Click to confirm deletion. This cannot be u
 delete_confirmation_button: '&4[Confirm]'
 delete_all_homes_success: '&aSuccessfully deleted your &l%1%&r&a home(s).'
 delete_all_warps_success: '&aSuccessfully deleted all &l%1%&r&a server warp(s).'
+error_permission_restricted_warp: '&4Error: &cYou do not have permission to warp to %1%!'
+teleporting_complete_console: '&7(Console teleported you to %1%)'

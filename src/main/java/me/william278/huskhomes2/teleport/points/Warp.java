@@ -1,7 +1,11 @@
 package me.william278.huskhomes2.teleport.points;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 /**
  * An object representing an in-game warp
@@ -66,6 +70,26 @@ public class Warp extends TeleportationPoint {
      */
     public void setDescription(String description) {
         this.name = description;
+    }
+
+    // Returns if the player has permission to access the warp
+    public static boolean getWarpCanUse(Player p, String warpName) {
+        if (!HuskHomes.getSettings().doPermissionRestrictedWarps()) {
+            return true;
+        }
+        p.recalculatePermissions();
+        String permissionFormat = HuskHomes.getSettings().getWarpRestrictionPermissionFormat();
+        for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
+            String permission = permissionAI.getPermission();
+            if (permission.contains(permissionFormat)) {
+                try {
+                    if (permission.split("\\.")[StringUtils.countMatches(permissionFormat, ".")].equalsIgnoreCase(warpName)) {
+                        return permissionAI.getValue();
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        return false;
     }
 
 }

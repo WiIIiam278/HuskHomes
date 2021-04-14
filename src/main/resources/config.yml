@@ -38,7 +38,11 @@ bungee_options:
   tab_complete_cross_server:
     enabled: true
     delay: 60
-enable_warp_command: true
+warp_command:
+  enabled: true
+  permission_restrictions:
+    require_permission: false
+    format: 'huskhomes.warp.'
 spawn_command:
   enabled: true
   position:
@@ -72,4 +76,4 @@ economy_integration:
     random_teleport: 20
     back: 0
 handle_vanished_players: true
-config_file_version: 2
+config_file_version: 3

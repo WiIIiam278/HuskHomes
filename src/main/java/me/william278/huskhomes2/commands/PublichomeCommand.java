@@ -6,6 +6,7 @@ import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.utils.RegexUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -34,10 +35,15 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    protected void onCommand(Player p, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            handleConsolePublicHomeTeleport(sender, args);
+            return true;
+        }
+        Player p = (Player) sender;
         if (args.length == 0) {
             ListHandler.displayPublicHomeList(p, 1);
-            return;
+            return true;
         }
         String publicHome = args[0];
         if (RegexUtil.OWNER_NAME_PATTERN.matcher(publicHome).matches()) {
@@ -57,6 +63,46 @@ public class PublichomeCommand extends CommandBase implements TabCompleter {
         } else {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }
+        return true;
+    }
+
+    // Handle a warp from console
+    public static void handleConsolePublicHomeTeleport(CommandSender sender, String[] args) {
+        String phomeName;
+        Player targetPlayer;
+        if (args.length == 2) {
+            phomeName = args[0];
+            targetPlayer = Bukkit.getPlayer(args[1]);
+            if (targetPlayer != null) {
+                if (RegexUtil.OWNER_NAME_PATTERN.matcher(phomeName).matches()) {
+                    String[] split = phomeName.split("\\.");
+                    String ownerName = split[0];
+                    String homeName = split[1];
+                    if (DataManager.homeExists(ownerName, homeName)) {
+                        Home home = DataManager.getHome(ownerName, homeName);
+                        if (!home.isPublic()) {
+                            sender.sendMessage("Warning: Bypassed home security (" + home.getName() + " was not set to public by " + home.getOwnerUsername() + ")");
+                        }
+                        TeleportManager.teleportPlayer(targetPlayer, home);
+                        sender.sendMessage("Successfully teleported player!");
+                        MessageManager.sendMessage(targetPlayer, "teleporting_complete_console", (home.getOwnerUsername() + "." + homeName));
+                    } else {
+                        sender.sendMessage("Error: Invalid home \"" + phomeName + "\" specified");
+                    }
+                } else {
+                    sender.sendMessage("Error: Invalid public home format: /warp <ownerUsername.homeName> <player>");
+                }
+            } else {
+                sender.sendMessage("Error: Invalid player specified (are they online?)");
+            }
+        } else {
+            sender.sendMessage("Console Public Home Usage: /phome <owner_name.home_name> <player>");
+        }
+    }
+
+    @Override
+    protected void onCommand(Player player, Command command, String label, String[] args) {
+        // Console is fine too
     }
 
     @Override

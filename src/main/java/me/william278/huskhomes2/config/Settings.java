@@ -78,9 +78,13 @@ public class Settings {
     private int rtpRange;
     private int rtpCooldown;
 
-    // Command toggle settings
+    // Spawn command settings
     private boolean doSpawnCommand;
+
+    // Warp command settings
     private boolean doWarpCommand;
+    private boolean doPermissionRestrictedWarps;
+    private String warpRestrictionPermissionFormat;
 
     public Settings(Plugin plugin) {
         this.plugin = plugin;
@@ -173,11 +177,13 @@ public class Settings {
                 this.teleportCancelledSound = Sound.ENTITY_ITEM_BREAK;
             }
 
-
             this.checkVanishedPlayers = config.getBoolean("handle_vanished_players");
 
             this.doSpawnCommand = config.getBoolean("spawn_command.enabled");
-            this.doWarpCommand = config.getBoolean("enable_warp_command");
+
+            this.doWarpCommand = config.getBoolean("warp_command.enabled");
+            this.doPermissionRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.require_permission");
+            this.warpRestrictionPermissionFormat = config.getString("warp_command.permission_restrictions.format");
 
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled");
             this.rtpRange = config.getInt("random_teleport_command.range");
@@ -311,10 +317,6 @@ public class Settings {
         return doSpawnCommand;
     }
 
-    public boolean doWarpCommand() {
-        return doWarpCommand;
-    }
-
     public boolean doEconomy() {
         return doEconomy;
     }
@@ -373,5 +375,17 @@ public class Settings {
 
     public int getCrossServerTabUpdateDelay() {
         return crossServerTabUpdateDelay;
+    }
+
+    public boolean doWarpCommand() {
+        return doWarpCommand;
+    }
+
+    public boolean doPermissionRestrictedWarps() {
+        return doPermissionRestrictedWarps;
+    }
+
+    public String getWarpRestrictionPermissionFormat() {
+        return warpRestrictionPermissionFormat;
     }
 }

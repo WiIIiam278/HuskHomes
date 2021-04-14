@@ -14,7 +14,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public class Warp extends TeleportationPoint {
 
     private String name;
-    private final String description;
+    private String description;
 
     /**
      * An object representing an in-game warp
@@ -69,7 +69,7 @@ public class Warp extends TeleportationPoint {
      * @param description the new Warp description
      */
     public void setDescription(String description) {
-        this.name = description;
+        this.description = description;
     }
 
     // Returns if the player has permission to access the warp

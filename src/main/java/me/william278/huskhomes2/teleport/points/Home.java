@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Home extends TeleportationPoint {
 
     private String name;
-    private final String description;
+    private String description;
     private boolean isPublic;
 
     private UUID ownerUUID;
@@ -140,7 +140,7 @@ public class Home extends TeleportationPoint {
      * @param description the new Home description
      */
     public void setDescription(String description) {
-        this.name = description;
+        this.description = description;
     }
 
     // Returns the maximum number of set homes a player can make

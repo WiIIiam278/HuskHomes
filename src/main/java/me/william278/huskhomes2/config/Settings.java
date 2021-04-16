@@ -86,6 +86,7 @@ public class Settings {
     // Warp command settings
     private boolean doWarpCommand;
     private boolean doPermissionRestrictedWarps;
+    private boolean hideRestrictedWarps;
     private String warpRestrictionPermissionFormat;
 
     public Settings(Plugin plugin) {
@@ -188,6 +189,7 @@ public class Settings {
             this.doWarpCommand = config.getBoolean("warp_command.enabled");
             this.doPermissionRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.require_permission");
             this.warpRestrictionPermissionFormat = config.getString("warp_command.permission_restrictions.format");
+            this.hideRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.hide_restricted_warps");
 
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled");
             this.rtpRange = config.getInt("random_teleport_command.range");
@@ -399,5 +401,9 @@ public class Settings {
 
     public String getWarpRestrictionPermissionFormat() {
         return warpRestrictionPermissionFormat;
+    }
+
+    public boolean doHideRestrictedWarps() {
+        return hideRestrictedWarps;
     }
 }

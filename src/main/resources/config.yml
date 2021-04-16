@@ -43,6 +43,7 @@ warp_command:
   permission_restrictions:
     require_permission: false
     format: 'huskhomes.warp.'
+    hide_restricted_warps: true
 spawn_command:
   enabled: true
   bungee_network_spawn:

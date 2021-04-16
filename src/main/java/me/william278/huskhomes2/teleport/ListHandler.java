@@ -188,6 +188,9 @@ public class ListHandler {
         for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
             try {
                 Warp warp = warps.get(i);
+                if (HuskHomes.getSettings().doHideRestrictedWarps()) { // Don't show inaccessible warps if hiding restricted warps is on.
+                    if (!Warp.getWarpCanUse(player, warp.getName())) { continue; }
+                }
                 if (i != warpsLowerBound) {
                     warpList.append(divider(), ComponentBuilder.FormatRetention.NONE);
                 }

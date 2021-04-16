@@ -167,6 +167,21 @@ public class ListHandler {
         displayPageButtons(player, pageNumber, homes.size(), homeUpperBound, "/huskhomes:publichomelist", itemsPerPage);
     }
 
+    // Returns the number of warps the Player can access
+    private static int getAccessibleWarpCount(Player player, List<Warp> warps) {
+        if (HuskHomes.getSettings().doPermissionRestrictedWarps() && HuskHomes.getSettings().doHideRestrictedWarps()) {
+            int count = 0;
+            for (Warp warp : warps) {
+                if (Warp.getWarpCanUse(player, warp.getName())) {
+                    count++;
+                }
+            }
+            return count;
+        } else {
+            return warps.size();
+        }
+    }
+
     public static void displayWarpList(Player player, int pageNumber) {
         ComponentBuilder warpList = new ComponentBuilder();
         List<Warp> warps = DataManager.getWarps();
@@ -177,12 +192,12 @@ public class ListHandler {
         int itemsPerPage = HuskHomes.getSettings().getWarpsPerPage();
         int warpsLowerBound = (pageNumber - 1) * itemsPerPage;
         int warpsUpperBound = pageNumber * itemsPerPage;
-        if (warpsUpperBound > warps.size()) {
-            warpsUpperBound = warps.size();
+        if (warpsUpperBound > getAccessibleWarpCount(player, warps)) {
+            warpsUpperBound = getAccessibleWarpCount(player, warps);
         }
 
         player.sendMessage("");
-        MessageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(warps.size()));
+        MessageManager.sendMessage(player, "warp_list_page_top", Integer.toString(warpsLowerBound + 1), Integer.toString(warpsUpperBound), Integer.toString(getAccessibleWarpCount(player, warps)));
 
         int itemsOnPage = 0;
         for (int i = warpsLowerBound; i < warpsUpperBound; i++) {
@@ -192,7 +207,7 @@ public class ListHandler {
                     if (!Warp.getWarpCanUse(player, warp.getName())) { continue; }
                 }
                 if (i != warpsLowerBound) {
-                    warpList.append(divider(), ComponentBuilder.FormatRetention.NONE);
+                    if (!warpList.toString().equals("")) { warpList.append(divider(), ComponentBuilder.FormatRetention.NONE); }
                 }
                 warpList.append(clickableWarp(warp), ComponentBuilder.FormatRetention.NONE);
                 itemsOnPage = itemsOnPage + 1;
@@ -211,7 +226,7 @@ public class ListHandler {
         }
 
         // Display page buttons
-        displayPageButtons(player, pageNumber, warps.size(), warpsUpperBound, "/huskhomes:warplist", itemsPerPage);
+        displayPageButtons(player, pageNumber, getAccessibleWarpCount(player, warps), warpsUpperBound, "/huskhomes:warplist", itemsPerPage);
     }
 
 }

@@ -140,4 +140,35 @@ public class HuskHomesAPI {
     public TeleportationPoint getSpawnPosition() {
         return TeleportManager.getSpawnLocation();
     }
+
+    /**
+     * Teleport a player to a specific TeleportationPoint
+     * @param player The player to be teleported
+     * @param point The target teleportationPoint
+     * @param timed Whether or not to do a warmup countdown
+     * @see TeleportationPoint
+     */
+    public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
+        if (timed) {
+            TeleportManager.queueTimedTeleport(player, point);
+        } else {
+            TeleportManager.teleportPlayer(player, point);
+        }
+    }
+
+    /**
+     * Teleport a player to a specific TeleportationPoint
+     * @param player The player to be teleported
+     * @param targetPlayerName The target player's name
+     * @param timed Whether or not to do a warmup countdown
+     * @see TeleportationPoint
+     */
+    public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
+        if (timed) {
+            TeleportManager.queueTimedTeleport(player, targetPlayerName);
+        } else {
+            TeleportManager.teleportPlayer(player, targetPlayerName);
+        }
+    }
+
 }

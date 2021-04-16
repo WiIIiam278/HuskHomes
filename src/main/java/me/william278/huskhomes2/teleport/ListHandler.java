@@ -192,8 +192,8 @@ public class ListHandler {
         int itemsPerPage = HuskHomes.getSettings().getWarpsPerPage();
         int warpsLowerBound = (pageNumber - 1) * itemsPerPage;
         int warpsUpperBound = pageNumber * itemsPerPage;
-        if (warpsUpperBound > getAccessibleWarpCount(player, warps)) {
-            warpsUpperBound = getAccessibleWarpCount(player, warps);
+        if (warpsUpperBound > warps.size()) {
+            warpsUpperBound = warps.size();
         }
 
         player.sendMessage("");

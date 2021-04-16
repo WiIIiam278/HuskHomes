@@ -79,6 +79,7 @@ public class Warp extends TeleportationPoint {
         }
         p.recalculatePermissions();
         String permissionFormat = HuskHomes.getSettings().getWarpRestrictionPermissionFormat();
+        if (p.hasPermission("huskhomes.warp.*") || p.hasPermission(permissionFormat + "*")) { return true; } // Always return true if they have the wildcard
         for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains(permissionFormat)) {

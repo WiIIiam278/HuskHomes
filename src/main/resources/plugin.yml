@@ -173,6 +173,9 @@ permissions:
   huskhomes.warp:
     description: Allows you to teleport to a warp
     default: true
+  huskhomes.warp.*:
+    description: Lets you access all warps even if permission-restricted
+    default: false
   huskhomes.setwarp:
     description: Allows you to set server warps
     default: false

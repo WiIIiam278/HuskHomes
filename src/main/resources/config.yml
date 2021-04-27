@@ -57,6 +57,7 @@ spawn_command:
     yaw:
     pitch:
 random_teleport_command:
+  addon: true
   enabled: true
   cooldown: 30
   range: 5000

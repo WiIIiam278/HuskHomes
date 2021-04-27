@@ -4,6 +4,7 @@ import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.PluginMessageHandler;
+import me.william278.huskhomes2.api.events.PlayerRtpEvent;
 import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
@@ -14,6 +15,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.World;
 import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,6 +35,21 @@ public class PlayerListener implements Listener {
         backButton.append("→ ").color(ChatColor.GRAY);
         backButton.append(button);
         return backButton;
+    }
+
+
+    @EventHandler
+    public void onRtp(PlayerRtpEvent rte){
+        if(!rte.isCancelled())
+        if (HuskHomes.getSettings().doRtpCommand()) {
+            if (rte.getPlayer().getWorld().getEnvironment() == World.Environment.NORMAL) {
+                TeleportManager.queueRandomTeleport(rte.getPlayer());
+            } else {
+                MessageManager.sendMessage(rte.getPlayer(), "error_rtp_invalid_dimension");
+            }
+        } else {
+            MessageManager.sendMessage(rte.getPlayer(), "error_command_disabled");
+        }
     }
 
     @EventHandler

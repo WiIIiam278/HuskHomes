@@ -74,6 +74,7 @@ public class Settings {
     private int warpsPerPage;
 
     // RTP command settings
+    private boolean rtpAddon;
     private boolean doRtpCommand;
     private int rtpRange;
     private int rtpCooldown;
@@ -191,6 +192,7 @@ public class Settings {
             this.warpRestrictionPermissionFormat = config.getString("warp_command.permission_restrictions.format");
             this.hideRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.hide_restricted_warps");
 
+            this.rtpAddon=config.getBoolean("random_teleport_command.addon");
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled");
             this.rtpRange = config.getInt("random_teleport_command.range");
             this.rtpCooldown = config.getInt("random_teleport_command.cooldown");
@@ -406,4 +408,6 @@ public class Settings {
     public boolean doHideRestrictedWarps() {
         return hideRestrictedWarps;
     }
+
+    public boolean isRtpAddon(){return rtpAddon;}
 }

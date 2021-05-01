@@ -5,6 +5,7 @@ import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +23,7 @@ import java.util.logging.Level;
 public abstract class Database {
     protected HuskHomes plugin;
     private Connection connection;
+    private BukkitRunnable refreshConnection10Minutes;
 
     public Database(HuskHomes instance) {
         plugin = instance;
@@ -32,15 +34,25 @@ public abstract class Database {
     public abstract void load();
 
     public void initialize() {
-        connection = getSQLConnection();
-        try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + ";");
-            ResultSet rs = ps.executeQuery();
-            close(ps, rs);
+        if(refreshConnection10Minutes==null) {
+            refreshConnection10Minutes = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    connection=null;
+                    connection = getSQLConnection();
+                    try {
+                        PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + ";");
+                        ResultSet rs = ps.executeQuery();
+                        close(ps, rs);
 
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Unable to retrieve connection", ex);
+                    } catch (SQLException ex) {
+                        plugin.getLogger().log(Level.SEVERE, "Unable to retrieve connection", ex);
+                    }
+                }
+            };
+            refreshConnection10Minutes.runTaskTimer(HuskHomes.getInstance(),0,12000);
         }
+
     }
 
     // Insert a teleportation point, returns generated id

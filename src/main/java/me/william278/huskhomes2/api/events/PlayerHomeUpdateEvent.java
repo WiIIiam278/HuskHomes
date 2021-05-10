@@ -47,6 +47,10 @@ public class PlayerHomeUpdateEvent extends Event implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     /**
      * Get the Player involved in this event
      *

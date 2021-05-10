@@ -18,8 +18,9 @@ public class PlayerSetHomeEvent extends Event implements Cancellable {
 
     /**
      * An event, fired when a player sets a Home
+     *
      * @param player the Player setting the Home
-     * @param home the Home being set
+     * @param home   the Home being set
      */
     public PlayerSetHomeEvent(Player player, Home home) {
         this.player = player;
@@ -42,8 +43,13 @@ public class PlayerSetHomeEvent extends Event implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     /**
      * Get the player involved in this event
+     *
      * @return the Player who is setting the home
      */
     public Player getPlayer() {
@@ -52,6 +58,7 @@ public class PlayerSetHomeEvent extends Event implements Cancellable {
 
     /**
      * Get the Home being set
+     *
      * @return the Home being set
      */
     public Home getHome() {

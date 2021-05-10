@@ -22,8 +22,9 @@ public class PlayerWarpUpdateEvent extends Event implements Cancellable {
      * An event, fired when a Warp is updated.
      * Fires when a player renames a Warp, updates its' location, changes its' name or when it is deleted.
      * Does not fire when a player sets a Warp.
+     *
      * @param player The Player who is updating the Warp
-     * @param warp The Warp being changed
+     * @param warp   The Warp being changed
      */
     public PlayerWarpUpdateEvent(Player player, Warp warp) {
         this.player = player;
@@ -46,8 +47,13 @@ public class PlayerWarpUpdateEvent extends Event implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     /**
      * Get the Player involved in this event
+     *
      * @return the Player who updated the Warp
      */
     public Player getPlayer() {
@@ -56,6 +62,7 @@ public class PlayerWarpUpdateEvent extends Event implements Cancellable {
 
     /**
      * Get the Warp being updated
+     *
      * @return the Warp being updated
      */
     public Warp getWarp() {

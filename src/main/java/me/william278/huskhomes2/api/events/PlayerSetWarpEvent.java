@@ -18,8 +18,9 @@ public class PlayerSetWarpEvent extends Event implements Cancellable {
 
     /**
      * An event, fired when a Player sets a Warp
+     *
      * @param player the Player setting the warp
-     * @param warp the Warp being set
+     * @param warp   the Warp being set
      */
     public PlayerSetWarpEvent(Player player, Warp warp) {
         this.player = player;
@@ -42,8 +43,13 @@ public class PlayerSetWarpEvent extends Event implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     /**
      * Get the Player involved in this event
+     *
      * @return the Player who is setting the warp
      */
     public Player getPlayer() {
@@ -52,6 +58,7 @@ public class PlayerSetWarpEvent extends Event implements Cancellable {
 
     /**
      * Get the Warp being set
+     *
      * @return the Warp that is being set
      */
     public Warp getWarp() {

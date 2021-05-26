@@ -8,13 +8,11 @@ public class TeleportRequest {
 
     private final String senderName;
     private final long requestExpiryTime;
-    private String requestType;
+    private RequestType requestType;
 
-    public TeleportRequest(String senderName, String requestType) {
+    public TeleportRequest(String senderName, RequestType requestType) {
         this.senderName = senderName;
-        if (requestType.equalsIgnoreCase("tpa") || requestType.equalsIgnoreCase("tpahere")) {
-            this.requestType = requestType.toLowerCase();
-        }
+        this.requestType = requestType;
         long currentUnixTime = Instant.now().getEpochSecond();
         requestExpiryTime = currentUnixTime + HuskHomes.getSettings().getTeleportRequestExpiryTime();
     }
@@ -23,12 +21,17 @@ public class TeleportRequest {
         return senderName;
     }
 
-    public String getRequestType() {
+    public RequestType getRequestType() {
         return requestType;
     }
 
     public boolean getExpired() {
         long currentUnixTime = Instant.now().getEpochSecond();
         return currentUnixTime > requestExpiryTime;
+    }
+
+    public enum RequestType {
+        TPA,
+        TPAHERE
     }
 }

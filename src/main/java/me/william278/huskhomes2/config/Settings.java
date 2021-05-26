@@ -37,6 +37,7 @@ public class Settings {
     private String mySQLdatabase;
     private String mySQLusername;
     private String mySQLpassword;
+    private String mySQLparams;
 
     // Dynmap integration settings
     private boolean doDynmap;
@@ -130,6 +131,7 @@ public class Settings {
             this.mySQLusername = config.getString("data_storage_options.mysql_credentials.username");
             this.mySQLpassword = config.getString("data_storage_options.mysql_credentials.password");
             this.mySQLport = config.getInt("data_storage_options.mysql_credentials.port");
+            this.mySQLparams = config.getString("data_storage_options.mysql_credentials.params");
 
             this.doDynmap = config.getBoolean("dynmap_integration.enabled");
 
@@ -241,7 +243,7 @@ public class Settings {
         return teleportWarmupTime;
     }
 
-    public String getStorageType() {
+    public String getDatabaseType() {
         return storageType;
     }
 
@@ -257,7 +259,7 @@ public class Settings {
         return server;
     }
 
-    public int getServerClusterID() { return clusterID; }
+    public int getClusterID() { return clusterID; }
 
     public boolean doBungee() {
         return doBungee;
@@ -317,6 +319,10 @@ public class Settings {
 
     public String getMySQLpassword() {
         return mySQLpassword;
+    }
+
+    public String getMySQLparams() {
+        return mySQLparams;
     }
 
     public boolean doSpawnCommand() {

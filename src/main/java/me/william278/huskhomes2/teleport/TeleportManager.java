@@ -1,10 +1,11 @@
 package me.william278.huskhomes2.teleport;
 
-import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.PluginMessageHandler;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessageHandler;
 import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
@@ -45,7 +46,7 @@ public class TeleportManager {
             } else if (HuskHomes.getSettings().doBungee()) {
                 DataManager.setPlayerDestinationLocation(p, teleportationPoint);
                 DataManager.setPlayerTeleporting(p, true);
-                PluginMessageHandler.sendPlayer(p, server);
+                PluginMessage.sendPlayer(p, server);
             }
         }
     }
@@ -152,11 +153,11 @@ public class TeleportManager {
     }
 
     private static void teleportHereCrossServer(Player requester, String targetPlayerName) {
-        PluginMessageHandler.sendPluginMessage(requester, targetPlayerName, "teleport_to_me", requester.getName());
+        new PluginMessage(targetPlayerName, PluginMessageType.TELEPORT_TO_ME, requester.getName()).send(requester);
     }
 
     private static void setTeleportationDestinationCrossServer(Player requester, String targetPlayerName) {
-        PluginMessageHandler.sendPluginMessage(requester, targetPlayerName, "set_tp_destination", requester.getName());
+        new PluginMessage(targetPlayerName, PluginMessageType.SET_TP_DESTINATION, requester.getName()).send(requester);
     }
 
     public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName) {

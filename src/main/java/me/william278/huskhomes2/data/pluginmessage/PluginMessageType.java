@@ -1,0 +1,14 @@
+package me.william278.huskhomes2.data.pluginmessage;
+
+public enum PluginMessageType {
+    SET_TP_DESTINATION,
+    CONFIRM_DESTINATION_SET,
+    TPA_REQUEST,
+    TPAHERE_REQUEST,
+    TPA_REQUEST_REPLY,
+    TPAHERE_REQUEST_REPLY,
+    TELEPORT_TO_ME,
+    GET_ONLINE_PLAYERS,
+    RETURN_ONLINE_PLAYERS,
+    PLAYER_CHANGE
+}

@@ -4,8 +4,9 @@ import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.PluginMessageHandler;
 import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
 import me.william278.huskhomes2.integrations.VanishChecker;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
@@ -30,14 +31,20 @@ public class TeleportRequestHandler {
     // Timestamp identifying when the global player list should be updated next;
     private static long nextPlayerListUpdateTime = Instant.now().getEpochSecond() + HuskHomes.getSettings().getCrossServerTabUpdateDelay();
 
-    private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, String teleportRequestType) {
-        String pluginMessage = teleportRequestType + "_request";
-        PluginMessageHandler.sendPluginMessage(requester, targetPlayerName, pluginMessage, requester.getName());
+    private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, TeleportRequest.RequestType requestType) {
+        if (requestType == TeleportRequest.RequestType.TPA) {
+            new PluginMessage(targetPlayerName, PluginMessageType.TPA_REQUEST, requester.getName()).send(requester);
+        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+            new PluginMessage(targetPlayerName, PluginMessageType.TPAHERE_REQUEST, requester.getName()).send(requester);
+        }
     }
 
-    private static void replyTeleportRequestCrossServer(Player replier, String requesterName, String teleportRequestType, boolean accepted) {
-        String pluginMessage = teleportRequestType + "_request_reply";
-        PluginMessageHandler.sendPluginMessage(replier, requesterName, pluginMessage, replier.getName() + ":" + accepted);
+    private static void replyTeleportRequestCrossServer(Player replier, String requesterName, TeleportRequest.RequestType requestType, boolean accepted) {
+        if (requestType == TeleportRequest.RequestType.TPA) {
+            new PluginMessage(requesterName,  PluginMessageType.TPA_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted));
+        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+            new PluginMessage(requesterName,  PluginMessageType.TPAHERE_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted));
+        }
     }
 
     private static TextComponent runCommandButton(String buttonText, ChatColor color, String command, String hoverMessage) {
@@ -71,7 +78,7 @@ public class TeleportRequestHandler {
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 if (!VanishChecker.isVanished(targetPlayer)) {
-                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpa"));
+                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA));
                     MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
                     MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
                     TeleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
@@ -83,7 +90,7 @@ public class TeleportRequestHandler {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                sendTeleportRequestCrossServer(requester, targetPlayerName, "tpa");
+                sendTeleportRequestCrossServer(requester, targetPlayerName, TeleportRequest.RequestType.TPA);
                 MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -95,7 +102,7 @@ public class TeleportRequestHandler {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
-                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), "tpahere"));
+                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPAHERE));
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
                 MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
                 TeleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
@@ -104,7 +111,7 @@ public class TeleportRequestHandler {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                sendTeleportRequestCrossServer(requester, targetPlayerName, "tpahere");
+                sendTeleportRequestCrossServer(requester, targetPlayerName, TeleportRequest.RequestType.TPAHERE);
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -119,7 +126,7 @@ public class TeleportRequestHandler {
         }
         TeleportRequest teleportRequest = teleportRequests.get(p);
         String requesterName = teleportRequest.getSenderName();
-        String requestType = teleportRequest.getRequestType();
+        TeleportRequest.RequestType requestType = teleportRequest.getRequestType();
         Player requester = Bukkit.getPlayer(requesterName);
 
         if (requester != null) {
@@ -127,9 +134,9 @@ public class TeleportRequestHandler {
                 MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
                 MessageManager.sendMessage(requester, "tpa_has_accepted", p.getName());
 
-                if (requestType.equals("tpa")) {
+                if (requestType == TeleportRequest.RequestType.TPA) {
                     TeleportManager.queueTimedTeleport(requester, p.getName());
-                } else if (requestType.equals("tpahere")) {
+                } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
                     TeleportManager.queueTimedTeleport(p, requesterName);
                 }
             } else {
@@ -141,10 +148,10 @@ public class TeleportRequestHandler {
                 if (accepted) {
                     MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
 
-                    if (requestType.equals("tpa")) {
-                        replyTeleportRequestCrossServer(p, requesterName, "tpa", true);
-                    } else if (requestType.equals("tpahere")) {
-                        replyTeleportRequestCrossServer(p, requesterName, "tpahere", true);
+                    if (requestType == TeleportRequest.RequestType.TPA) {
+                        replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPA, true);
+                    } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+                        replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPAHERE, true);
                         TeleportManager.queueTimedTeleport(p, requesterName);
                     }
                 } else {

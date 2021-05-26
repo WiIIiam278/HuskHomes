@@ -14,6 +14,7 @@ data_storage_options:
     database: database_name
     username: root
     password: password
+    params: '?autoReconnect=true&useSSL=false'
   table_names:
     player_data: 'huskhomes_player_data'
     locations_data: 'huskhomes_location_data'

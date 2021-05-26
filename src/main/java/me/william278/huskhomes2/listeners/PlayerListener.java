@@ -3,7 +3,7 @@ package me.william278.huskhomes2.listeners;
 import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.PluginMessageHandler;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessageHandler;
 import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
@@ -14,7 +14,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -70,11 +69,11 @@ public class PlayerListener implements Listener {
                     TeleportManager.teleportPlayer(p);
                 }
 
-                // Update player lists globally
+                /*// Update player lists globally
                 if (HuskHomes.getSettings().doCrossServerTabCompletion()) {
                     CrossServerListHandler.updatePlayerList(p);
                     PluginMessageHandler.broadcastPlayerChange(p);
-                }
+                }*/
             }
         } catch (NullPointerException ignored) { } // Ignore NullPointerExceptions from players that execute this event and return null (e.g Citizens).
     }

@@ -1,8 +1,5 @@
 package me.william278.huskhomes2;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -24,7 +21,7 @@ public class CrossServerListHandler {
         playerList.put(server, players);
     }
 
-    public static void updatePlayerList(Player p) {
+    /*public static void updatePlayerList(Player p) {
         playerList.clear();
         if (p == null) {
             for (Player x : Bukkit.getOnlinePlayers()) {
@@ -34,5 +31,5 @@ public class CrossServerListHandler {
         if (p != null) {
             PluginMessageHandler.requestPlayerLists(p);
         }
-    }
+    }*/
 }

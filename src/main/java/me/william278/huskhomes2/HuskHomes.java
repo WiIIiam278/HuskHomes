@@ -26,10 +26,13 @@ import me.william278.huskhomes2.commands.TphereCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.commands.WarplistCommand;
 import me.william278.huskhomes2.config.Settings;
-import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.data.SQL.Database;
+import me.william278.huskhomes2.data.SQL.MySQL;
+import me.william278.huskhomes2.data.SQL.SQLite;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
+import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.migrators.LegacyMigrator;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.teleport.TeleportRequestHandler;
@@ -42,22 +45,29 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Connection;
+import java.util.logging.Level;
 
 public final class HuskHomes extends JavaPlugin {
 
+    // Instance getting
     private static HuskHomes instance;
-
-    // TODO Remove
     public static HuskHomes getInstance() {
         return instance;
     }
 
-    private static Settings settings;
+    // Database handling
+    private static Database database;
+    public static Connection getConnection() {
+        return database.getConnection();
+    }
 
-    // TODO Remove
+    // Settings data
+    private static Settings settings;
     public static Settings getSettings() {
         return settings;
     }
+
 
     /**
      * Returns the HuskHomes API
@@ -73,9 +83,29 @@ public final class HuskHomes extends JavaPlugin {
         Bukkit.getPluginManager().disablePlugin(instance);
     }
 
+    // Initialise the database
+    private void initializeDatabase() {
+        String dataStorageType = HuskHomes.getSettings().getDatabaseType().toLowerCase();
+        switch (dataStorageType) {
+            case "mysql":
+                database = new MySQL(getInstance());
+                database.load();
+                break;
+            case "sqlite":
+                database = new SQLite(getInstance());
+                database.load();
+                break;
+            default:
+                getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
+                database = new SQLite(getInstance());
+                database.load();
+                break;
+        }
+    }
+
     private void setupBungeeChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageHandler());
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageListener());
     }
 
     private void registerCommands() {
@@ -157,8 +187,8 @@ public final class HuskHomes extends JavaPlugin {
         // Fetch spawn location if set
         SettingHandler.fetchSpawnLocation();
 
-        // Set up data storage
-        DataManager.setupStorage();
+        // Initialize the database
+        initializeDatabase();
 
         // MIGRATION: Migrate SQL data
         if (LegacyMigrator.isCanMigrate()) {

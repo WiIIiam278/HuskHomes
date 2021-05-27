@@ -1,14 +1,16 @@
 package me.william278.huskhomes2.teleport;
 
 import de.themoep.minedown.MineDown;
-import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
+import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
 import me.william278.huskhomes2.integrations.VanishChecker;
 import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
@@ -17,13 +19,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class TeleportRequestHandler {
+
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     // Target player and teleport request to them hashmap
     public static Map<Player, TeleportRequest> teleportRequests = new HashMap<>();
@@ -129,40 +136,47 @@ public class TeleportRequestHandler {
         TeleportRequest.RequestType requestType = teleportRequest.getRequestType();
         Player requester = Bukkit.getPlayer(requesterName);
 
-        if (requester != null) {
-            if (accepted) {
-                MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
-                MessageManager.sendMessage(requester, "tpa_has_accepted", p.getName());
+        Connection connection = HuskHomes.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (requester != null) {
+                    if (accepted) {
+                        MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
+                        MessageManager.sendMessage(requester, "tpa_has_accepted", p.getName());
 
-                if (requestType == TeleportRequest.RequestType.TPA) {
-                    TeleportManager.queueTimedTeleport(requester, p.getName());
-                } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
-                    TeleportManager.queueTimedTeleport(p, requesterName);
-                }
-            } else {
-                MessageManager.sendMessage(p, "tpa_you_declined", requesterName);
-                MessageManager.sendMessage(requester, "tpa_has_declined", p.getName());
-            }
-        } else {
-            if (HuskHomes.getSettings().doBungee()) {
-                if (accepted) {
-                    MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
-
-                    if (requestType == TeleportRequest.RequestType.TPA) {
-                        replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPA, true);
-                    } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
-                        replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPAHERE, true);
-                        TeleportManager.queueTimedTeleport(p, requesterName);
+                        if (requestType == TeleportRequest.RequestType.TPA) {
+                            TeleportManager.queueTimedTeleport(requester, p.getName(), connection);
+                        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+                            TeleportManager.queueTimedTeleport(p, requesterName, connection);
+                        }
+                    } else {
+                        MessageManager.sendMessage(p, "tpa_you_declined", requesterName);
+                        MessageManager.sendMessage(requester, "tpa_has_declined", p.getName());
                     }
                 } else {
-                    replyTeleportRequestCrossServer(p, requesterName, requestType, false);
-                    MessageManager.sendMessage(p, "tpa_you_declined", requesterName);
+                    if (HuskHomes.getSettings().doBungee()) {
+                        if (accepted) {
+                            MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
+
+                            if (requestType == TeleportRequest.RequestType.TPA) {
+                                replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPA, true);
+                            } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+                                replyTeleportRequestCrossServer(p, requesterName, TeleportRequest.RequestType.TPAHERE, true);
+                                TeleportManager.queueTimedTeleport(p, requesterName, connection);
+                            }
+                        } else {
+                            replyTeleportRequestCrossServer(p, requesterName, requestType, false);
+                            MessageManager.sendMessage(p, "tpa_you_declined", requesterName);
+                        }
+                    } else {
+                        MessageManager.sendMessage(p, "error_player_not_found", requesterName);
+                    }
                 }
-            } else {
-                MessageManager.sendMessage(p, "error_player_not_found", requesterName);
+                teleportRequests.remove(p);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
             }
-        }
-        teleportRequests.remove(p);
+        });
     }
 
     public static void startExpiredChecker(Plugin plugin) {
@@ -255,7 +269,7 @@ public class TeleportRequestHandler {
             // Clear expired teleport requests
             clearExpiredRequests(expiredTeleportRequests);
 
-            // Update the global player list
+            /*// Update the global player list
             if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
                 final long currentTimestmap = Instant.now().getEpochSecond();
                 if (currentTimestmap >= nextPlayerListUpdateTime & Bukkit.getOnlinePlayers().size() > 0) {
@@ -265,7 +279,7 @@ public class TeleportRequestHandler {
                     }
                     nextPlayerListUpdateTime = currentTimestmap + HuskHomes.getSettings().getCrossServerTabUpdateDelay();
                 }
-            }
+            }*/
         }, 0L, 20L);
     }
 

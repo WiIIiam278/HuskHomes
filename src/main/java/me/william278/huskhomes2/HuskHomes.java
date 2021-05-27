@@ -3,28 +3,28 @@ package me.william278.huskhomes2;
 import me.william278.huskhomes2.api.HuskHomesAPI;
 import me.william278.huskhomes2.commands.BackCommand;
 import me.william278.huskhomes2.commands.CommandBase;
-import me.william278.huskhomes2.commands.DelhomeCommand;
-import me.william278.huskhomes2.commands.DelwarpCommand;
-import me.william278.huskhomes2.commands.EdithomeCommand;
-import me.william278.huskhomes2.commands.EditwarpCommand;
+import me.william278.huskhomes2.commands.DelHomeCommand;
+import me.william278.huskhomes2.commands.DelWarpCommand;
+import me.william278.huskhomes2.commands.EditHomeCommand;
+import me.william278.huskhomes2.commands.EditWarpCommand;
 import me.william278.huskhomes2.commands.HomeCommand;
-import me.william278.huskhomes2.commands.HomelistCommand;
-import me.william278.huskhomes2.commands.HuskhomesCommand;
-import me.william278.huskhomes2.commands.PublichomeCommand;
-import me.william278.huskhomes2.commands.PublichomelistCommand;
+import me.william278.huskhomes2.commands.HomeListCommand;
+import me.william278.huskhomes2.commands.HuskHomesCommand;
+import me.william278.huskhomes2.commands.PublicHomeCommand;
+import me.william278.huskhomes2.commands.PublicHomeListCommand;
 import me.william278.huskhomes2.commands.RtpCommand;
-import me.william278.huskhomes2.commands.SethomeCommand;
-import me.william278.huskhomes2.commands.SetspawnCommand;
-import me.william278.huskhomes2.commands.SetwarpCommand;
+import me.william278.huskhomes2.commands.SetHomeCommand;
+import me.william278.huskhomes2.commands.SetSpawnCommand;
+import me.william278.huskhomes2.commands.SetWarpCommand;
 import me.william278.huskhomes2.commands.SpawnCommand;
 import me.william278.huskhomes2.commands.TpCommand;
 import me.william278.huskhomes2.commands.TpaCommand;
-import me.william278.huskhomes2.commands.TpacceptCommand;
-import me.william278.huskhomes2.commands.TpahereCommand;
-import me.william278.huskhomes2.commands.TpdenyCommand;
-import me.william278.huskhomes2.commands.TphereCommand;
+import me.william278.huskhomes2.commands.TpAcceptCommand;
+import me.william278.huskhomes2.commands.TpaHereCommand;
+import me.william278.huskhomes2.commands.TpDenyCommand;
+import me.william278.huskhomes2.commands.TpHereCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
-import me.william278.huskhomes2.commands.WarplistCommand;
+import me.william278.huskhomes2.commands.WarpListCommand;
 import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.SQL.Database;
 import me.william278.huskhomes2.data.SQL.MySQL;
@@ -111,38 +111,38 @@ public final class HuskHomes extends JavaPlugin {
     private void registerCommands() {
         HomeCommand.Tab homeTab = new HomeCommand.Tab();
         new HomeCommand().register(getCommand("home")).setTabCompleter(homeTab);
-        new DelhomeCommand().register(getCommand("delhome")).setTabCompleter(homeTab);
+        new DelHomeCommand().register(getCommand("delhome")).setTabCompleter(homeTab);
 
         WarpCommand.Tab warpTab = new WarpCommand.Tab();
         new WarpCommand().register(getCommand("warp")).setTabCompleter(warpTab);
-        new DelwarpCommand().register(getCommand("delwarp")).setTabCompleter(warpTab);
+        new DelWarpCommand().register(getCommand("delwarp")).setTabCompleter(warpTab);
 
-        new PublichomeCommand().register(getCommand("publichome"));
-        new EdithomeCommand().register(getCommand("edithome"));
-        new EditwarpCommand().register(getCommand("editwarp"));
-        new HuskhomesCommand().register(getCommand("huskhomes"));
+        new PublicHomeCommand().register(getCommand("publichome"));
+        new EditHomeCommand().register(getCommand("edithome"));
+        new EditWarpCommand().register(getCommand("editwarp"));
+        new HuskHomesCommand().register(getCommand("huskhomes"));
 
         TpCommand.Tab tpTab = new TpCommand.Tab();
         new TpCommand().register(getCommand("tp")).setTabCompleter(tpTab);
         new TpaCommand().register(getCommand("tpa")).setTabCompleter(tpTab);
-        new TphereCommand().register(getCommand("tphere")).setTabCompleter(tpTab);
-        new TpahereCommand().register(getCommand("tpahere")).setTabCompleter(tpTab);
+        new TpHereCommand().register(getCommand("tphere")).setTabCompleter(tpTab);
+        new TpaHereCommand().register(getCommand("tpahere")).setTabCompleter(tpTab);
 
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
-        new TpacceptCommand().register(getCommand("tpaccept")).setTabCompleter(emptyTab);
-        new TpdenyCommand().register(getCommand("tpdeny")).setTabCompleter(emptyTab);
-        new WarplistCommand().register(getCommand("warplist")).setTabCompleter(emptyTab);
-        new HomelistCommand().register(getCommand("homelist")).setTabCompleter(emptyTab);
-        new PublichomelistCommand().register(getCommand("publichomelist")).setTabCompleter(emptyTab);
+        new TpAcceptCommand().register(getCommand("tpaccept")).setTabCompleter(emptyTab);
+        new TpDenyCommand().register(getCommand("tpdeny")).setTabCompleter(emptyTab);
+        new WarpListCommand().register(getCommand("warplist")).setTabCompleter(emptyTab);
+        new HomeListCommand().register(getCommand("homelist")).setTabCompleter(emptyTab);
+        new PublicHomeListCommand().register(getCommand("publichomelist")).setTabCompleter(emptyTab);
         new RtpCommand().register(getCommand("rtp")).setTabCompleter(emptyTab);
         new SpawnCommand().register(getCommand("spawn")).setTabCompleter(emptyTab);
-        new SetspawnCommand().register(getCommand("setspawn")).setTabCompleter(emptyTab);
-        new SethomeCommand().register(getCommand("sethome")).setTabCompleter(emptyTab);
-        new SetwarpCommand().register(getCommand("setwarp")).setTabCompleter(emptyTab);
+        new SetSpawnCommand().register(getCommand("setspawn")).setTabCompleter(emptyTab);
+        new SetHomeCommand().register(getCommand("sethome")).setTabCompleter(emptyTab);
+        new SetWarpCommand().register(getCommand("setwarp")).setTabCompleter(emptyTab);
         new BackCommand().register(getCommand("back")).setTabCompleter(emptyTab);
 
         // Update caches
-        PublichomeCommand.updatePublicHomeTabCache();
+        PublicHomeCommand.updatePublicHomeTabCache();
         WarpCommand.Tab.updateWarpsTabCache();
     }
 

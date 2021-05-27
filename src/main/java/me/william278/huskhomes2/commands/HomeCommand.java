@@ -1,64 +1,83 @@
 package me.william278.huskhomes2.commands;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class HomeCommand extends CommandBase {
 
+    private static final HuskHomes plugin = HuskHomes.getInstance();
+
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
-        if (args.length == 1) {
-            String homeName = args[0];
-            if (DataManager.homeExists(p, homeName)) {
-                Home home = DataManager.getHome(p.getName(), homeName);
-                TeleportManager.queueTimedTeleport(p, home);
-            } else {
-                MessageManager.sendMessage(p, "error_home_invalid", homeName);
-            }
-        } else {
-            List<Home> homes = DataManager.getPlayerHomes(p.getName());
-            if (homes != null) {
-                if (homes.size() == 1) {
-                    // Teleport the player if they only have one home
-                    TeleportManager.queueTimedTeleport(p, homes.get(0));
-                    return;
+        Connection connection = HuskHomes.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (args.length == 1) {
+                    String homeName = args[0];
+                    if (DataManager.homeExists(p, homeName, connection)) {
+                        Home home = DataManager.getHome(p.getName(), homeName, connection);
+                        TeleportManager.queueTimedTeleport(p, home, connection);
+                    } else {
+                        MessageManager.sendMessage(p, "error_home_invalid", homeName);
+                    }
+                } else {
+                    List<Home> homes = DataManager.getPlayerHomes(p.getName(), connection);
+                    if (homes != null) {
+                        if (homes.size() == 1) {
+                            // Teleport the player if they only have one home
+                            TeleportManager.queueTimedTeleport(p, homes.get(0), connection);
+                            return;
+                        }
+                    }
+                    ListHandler.displayPlayerHomeList(p, 1);
                 }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting home.", e);
             }
-            ListHandler.displayPlayerHomeList(p, 1);
-        }
+        });
     }
 
     public static class Tab implements TabCompleter {
 
-        // TODO Remove
-        // This HashMap stores a cache of a player's homes that is displayed when a user presses TAB.
         // Owner UUID, Home Name
-        private static Map<UUID, List<String>> homeTabCache = new HashMap<>();
+        private static final Map<UUID, List<String>> homeTabCache = new HashMap<>();
 
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
             UUID uuid = p.getUniqueId();
-            List<Home> playerHomes = DataManager.getPlayerHomes(p.getName());
-            List<String> homeNames = new ArrayList<>();
-            for (Home home : playerHomes) {
-                homeNames.add(home.getName());
-            }
-            homeTabCache.put(uuid, homeNames);
+            Connection connection = HuskHomes.getConnection();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    List<Home> playerHomes = DataManager.getPlayerHomes(p.getName(), connection);
+                    List<String> homeNames = new ArrayList<>();
+                    for (Home home : playerHomes) {
+                        homeNames.add(home.getName());
+                    }
+                    homeTabCache.put(uuid, homeNames);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.WARNING, "An SQL exception occurred updating the player home cache", e);
+                }
+            });
         }
 
         @Override

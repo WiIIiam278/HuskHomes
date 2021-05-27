@@ -5,7 +5,7 @@ import me.william278.huskhomes2.teleport.SettingHandler;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-public class DelhomeCommand extends CommandBase {
+public class DelHomeCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {

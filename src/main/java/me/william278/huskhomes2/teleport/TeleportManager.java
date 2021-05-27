@@ -1,10 +1,10 @@
 package me.william278.huskhomes2.teleport;
 
+import io.papermc.lib.PaperLib;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessageHandler;
 import me.william278.huskhomes2.data.DataManager;
+import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
@@ -12,65 +12,79 @@ import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class TeleportManager {
 
     private static final Set<TimedTeleport> queuedTeleports = new HashSet<>();
 
+    private static final HuskHomes plugin = HuskHomes.getInstance();
+
     private static TeleportationPoint spawnLocation;
 
-    public static void teleportPlayer(Player player, String targetPlayer) {
-        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.getSettings().getServerID()));
-        setPlayerDestinationFromTargetPlayer(player, targetPlayer);
+    public static void teleportPlayer(Player player, String targetPlayer, Connection connection) throws SQLException {
+        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(),
+                HuskHomes.getSettings().getServerID()), connection);
+        setPlayerDestinationFromTargetPlayer(player, targetPlayer, connection);
     }
 
-    public static void teleportPlayer(Player player, TeleportationPoint point) {
-        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(), HuskHomes.getSettings().getServerID()));
-        DataManager.setPlayerDestinationLocation(player, point);
+    public static void teleportPlayer(Player player, TeleportationPoint point, Connection connection) throws SQLException {
+        DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(),
+                HuskHomes.getSettings().getServerID()), connection);
+        DataManager.setPlayerDestinationLocation(player, point, connection);
         teleportPlayer(player);
     }
 
     public static void teleportPlayer(Player p) {
-        TeleportationPoint teleportationPoint = DataManager.getPlayerDestination(p);
-        if (teleportationPoint != null) {
-            String server = teleportationPoint.getServer();
-            if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
-                p.teleport(teleportationPoint.getLocation());
-                p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
-                MessageManager.sendMessage(p, "teleporting_complete");
-                DataManager.setPlayerTeleporting(p, false);
-                DataManager.clearPlayerDestination(p.getName());
-            } else if (HuskHomes.getSettings().doBungee()) {
-                DataManager.setPlayerDestinationLocation(p, teleportationPoint);
-                DataManager.setPlayerTeleporting(p, true);
-                PluginMessage.sendPlayer(p, server);
+        Connection connection = HuskHomes.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                TeleportationPoint teleportationPoint = DataManager.getPlayerDestination(p, connection);
+                if (teleportationPoint != null) {
+                    String server = teleportationPoint.getServer();
+                    if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
+                        PaperLib.teleportAsync(p, teleportationPoint.getLocation());
+                        p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                        MessageManager.sendMessage(p, "teleporting_complete");
+                        DataManager.setPlayerTeleporting(p, false, connection);
+                        DataManager.clearPlayerDestination(p.getName(), connection);
+                    } else if (HuskHomes.getSettings().doBungee()) {
+                        DataManager.setPlayerDestinationLocation(p, teleportationPoint, connection);
+                        DataManager.setPlayerTeleporting(p, true, connection);
+                        PluginMessage.sendPlayer(p, server);
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
             }
-        }
+        });
     }
 
-    public static void queueTimedTeleport(Player player, String targetPlayer) {
+    public static void queueTimedTeleport(Player player, String targetPlayer, Connection connection) throws SQLException {
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            teleportPlayer(player, targetPlayer);
+            teleportPlayer(player, targetPlayer, connection);
             return;
         }
 
         getQueuedTeleports().add(new TimedTeleport(player, targetPlayer));
     }
 
-    public static void queueTimedTeleport(Player player, TeleportationPoint point) {
+    public static void queueTimedTeleport(Player player, TeleportationPoint point, Connection connection) throws SQLException {
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            teleportPlayer(player, point);
+            teleportPlayer(player, point, connection);
             return;
         }
 
         getQueuedTeleports().add(new TimedTeleport(player, point, "point"));
     }
 
-    public static void queueBackTeleport(Player player) {
-        TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player);
+    public static void queueBackTeleport(Player player, Connection connection) throws SQLException {
+        TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player, connection);
         if (lastPosition != null) {
             if (HuskHomes.getSettings().doEconomy()) {
                 double backCost = HuskHomes.getSettings().getBackCost();
@@ -89,7 +103,7 @@ public class TeleportManager {
                         MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(backCost));
                     }
                 }
-                teleportPlayer(player, lastPosition);
+                teleportPlayer(player, lastPosition, connection);
                 return;
             }
 
@@ -99,10 +113,10 @@ public class TeleportManager {
         }
     }
 
-    public static void queueRandomTeleport(Player player) {
+    public static void queueRandomTeleport(Player player, Connection connection) throws SQLException {
         if (!player.hasPermission("huskhomes.rtp.bypass_cooldown")) {
             long currentTime = Instant.now().getEpochSecond();
-            long cooldownTime = DataManager.getPlayerRtpCooldown(player);
+            long cooldownTime = DataManager.getPlayerRtpCooldown(player, connection);
             if (currentTime < cooldownTime) {
                 long timeRemaining = cooldownTime - currentTime;
                 long timeRemainingMinutes = timeRemaining / 60;
@@ -127,19 +141,19 @@ public class TeleportManager {
                     MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(rtpCost));
                 }
             }
-            teleportPlayer(player, new RandomPoint(player));
-            DataManager.updateRtpCooldown(player);
+            teleportPlayer(player, new RandomPoint(player), connection);
+            DataManager.updateRtpCooldown(player, connection);
             return;
         }
 
-        getQueuedTeleports().add(new TimedTeleport(player));
+        new TimedTeleport(player);
     }
 
-    public static void teleportHere(Player requester, String targetPlayerName) {
+    public static void teleportHere(Player requester, String targetPlayerName, Connection connection) throws SQLException {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
-                teleportPlayer(targetPlayer, requester.getName());
+                teleportPlayer(targetPlayer, requester.getName(), connection);
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
@@ -160,12 +174,12 @@ public class TeleportManager {
         new PluginMessage(targetPlayerName, PluginMessageType.SET_TP_DESTINATION, requester.getName()).send(requester);
     }
 
-    public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName) {
+    public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName, Connection connection) throws SQLException {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
             if (requester.getUniqueId() != targetPlayer.getUniqueId()) {
                 DataManager.setPlayerDestinationLocation(requester,
-                        new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.getSettings().getServerID()));
+                        new TeleportationPoint(targetPlayer.getLocation(), HuskHomes.getSettings().getServerID()), connection);
                 teleportPlayer(requester);
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");

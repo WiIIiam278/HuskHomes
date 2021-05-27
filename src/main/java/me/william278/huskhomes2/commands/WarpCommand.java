@@ -5,6 +5,7 @@ import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -13,13 +14,18 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class WarpCommand extends CommandBase {
+
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -34,16 +40,22 @@ public class WarpCommand extends CommandBase {
         }
         if (args.length == 1) {
             String warpName = args[0];
-            if (DataManager.warpExists(warpName)) {
-                if (Warp.getWarpCanUse(p, warpName)) {
-                    Warp warp = DataManager.getWarp(warpName);
-                    TeleportManager.queueTimedTeleport(p, warp);
-                } else {
-                    MessageManager.sendMessage(p, "error_permission_restricted_warp", warpName);
+            Connection connection = HuskHomes.getConnection();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    if (DataManager.warpExists(warpName, connection)) {
+                        if (Warp.getWarpCanUse(p, warpName)) {
+                            Warp warp = DataManager.getWarp(warpName, connection);
+                            TeleportManager.queueTimedTeleport(p, warp, connection);
+                        } else {
+                            MessageManager.sendMessage(p, "error_permission_restricted_warp", warpName);
+                        }
+                    } else {
+                        MessageManager.sendMessage(p, "error_warp_invalid", warpName);
+                    }                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
                 }
-            } else {
-                MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-            }
+            });
         } else {
             ListHandler.displayWarpList(p, 1);
         }
@@ -63,14 +75,22 @@ public class WarpCommand extends CommandBase {
             warpName = args[0];
             targetPlayer = Bukkit.getPlayer(args[1]);
             if (targetPlayer != null) {
-                if (DataManager.warpExists(warpName)) {
-                    Warp warp = DataManager.getWarp(warpName);
-                    TeleportManager.teleportPlayer(targetPlayer, warp);
-                    sender.sendMessage("Successfully warped player!");
-                    MessageManager.sendMessage(targetPlayer, "teleporting_complete_console", warpName);
-                } else {
-                    sender.sendMessage("Error: Invalid warp \"" + warpName + "\" specified");
-                }
+
+                Connection connection = HuskHomes.getConnection();
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        if (DataManager.warpExists(warpName, connection)) {
+                            Warp warp = DataManager.getWarp(warpName, connection);
+                            TeleportManager.teleportPlayer(targetPlayer, warp, connection);
+                            sender.sendMessage("Successfully warped player!");
+                            MessageManager.sendMessage(targetPlayer, "teleporting_complete_console", warpName);
+                        } else {
+                            sender.sendMessage("Error: Invalid warp \"" + warpName + "\" specified");
+                        }
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
+                    }
+                });
             } else {
                 sender.sendMessage("Error: Invalid player specified (are they online?)");
             }
@@ -88,9 +108,16 @@ public class WarpCommand extends CommandBase {
         // Updates the public home cache
         public static void updateWarpsTabCache() {
             warpsTabCache.clear();
-            for (Warp warp : DataManager.getWarps()) {
-                warpsTabCache.add(warp.getName());
-            }
+            Connection connection = HuskHomes.getConnection();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    for (Warp warp : DataManager.getWarps(connection)) {
+                        warpsTabCache.add(warp.getName());
+                    }
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.WARNING, "An SQL exception occurred updating the warp cache", e);
+                }
+            });
         }
 
 

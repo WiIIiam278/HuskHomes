@@ -8,7 +8,7 @@ public class TeleportRequest {
 
     private final String senderName;
     private final long requestExpiryTime;
-    private RequestType requestType;
+    private final RequestType requestType;
 
     public TeleportRequest(String senderName, RequestType requestType) {
         this.senderName = senderName;

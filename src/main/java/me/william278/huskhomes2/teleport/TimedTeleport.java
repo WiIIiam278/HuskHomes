@@ -3,10 +3,14 @@ package me.william278.huskhomes2.teleport;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 
 public class TimedTeleport {
+
+    private static final HuskHomes plugin = HuskHomes.getInstance();
 
     private final String targetType; // "player" or "point"
 
@@ -53,6 +57,12 @@ public class TimedTeleport {
 
         MessageManager.sendMessage(teleporter, "teleporting_countdown_start", Integer.toString(this.warmupTime));
         MessageManager.sendMessage(teleporter, "teleporting_please_stand_still");
+    }
+
+    public void begin() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+
+        });
     }
 
     public String getTargetType() {

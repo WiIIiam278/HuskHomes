@@ -5,7 +5,7 @@ import me.william278.huskhomes2.teleport.ListHandler;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-public class HomelistCommand extends CommandBase {
+public class HomeListCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {

@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class DataManager {
 
@@ -100,7 +99,9 @@ public class DataManager {
         rs = ps.executeQuery();
         if (rs != null) {
             if (rs.next()) {
-                return rs.getString(column);
+                final String player = rs.getString(column);
+                ps.close();
+                return player;
             } else {
                 return null;
             }
@@ -123,7 +124,9 @@ public class DataManager {
         rs = ps.executeQuery();
         if (rs != null) {
             if (rs.next()) {
-                return rs.getBoolean("is_teleporting");
+                final boolean isTeleporting = rs.getBoolean("is_teleporting");
+                ps.close();
+                return isTeleporting;
             } else {
                 return null;
             }
@@ -558,13 +561,11 @@ public class DataManager {
 
     // Return a home with a given owner username and home name
     public static Home getHome(String ownerUsername, String homeName, Connection connection) throws SQLException {
-        Connection conn;
         PreparedStatement ps;
         ResultSet rs;
 
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
+
+            ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
             ps.setString(1, ownerUsername);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
@@ -583,86 +584,75 @@ public class DataManager {
                 Bukkit.getLogger().severe("Home returned null; perhaps player ID was null?");
                 return null;
             }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
-        }
+
         return null;
     }
 
-    public static Boolean warpExists(String warpName) {
-        Connection conn;
+    public static Boolean warpExists(String warpName, Connection connection) throws SQLException {
         PreparedStatement ps;
         ResultSet rs;
 
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
+
+            ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
             ps.setString(1, warpName);
             rs = ps.executeQuery();
             if (rs != null) {
-                return rs.next();
+                final boolean warpExists = rs.next();
+                ps.close();
+                return warpExists;
             } else {
                 Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a warp exists from the table.");
+                ps.close();
                 return false;
             }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
-        }
-        return null;
     }
 
-    public static Boolean homeExists(Player owner, String homeName) {
-        return homeExists(owner.getName(), homeName);
+    public static Boolean homeExists(Player owner, String homeName, Connection connection) throws SQLException {
+        return homeExists(owner.getName(), homeName, connection);
     }
 
-    public static Boolean homeExists(String ownerName, String homeName) {
-        Connection conn;
+    public static Boolean homeExists(String ownerName, String homeName, Connection connection) throws SQLException {
         PreparedStatement ps;
         ResultSet rs;
 
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
+
+            ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
             ps.setString(1, ownerName);
             ps.setString(2, homeName);
             rs = ps.executeQuery();
             if (rs != null) {
-                return rs.next();
+                final boolean homeExists = rs.next();
+                ps.close();
+                return homeExists;
             } else {
                 Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a home exists from the table.");
+                ps.close();
                 return false;
             }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
-        }
-        return null;
+
     }
 
-    public static Boolean playerExists(Player player) {
-        return playerExists(player.getUniqueId());
+    public static Boolean playerExists(Player player, Connection connection) throws SQLException {
+        return playerExists(player.getUniqueId(), connection);
     }
 
-    public static Boolean playerExists(UUID playerUUID) {
-        Connection conn;
+    public static Boolean playerExists(UUID playerUUID, Connection connection) throws SQLException {
         PreparedStatement ps;
         ResultSet rs;
         String playerUUIDString = playerUUID.toString();
 
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
+
+            ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
             ps.setString(1, playerUUIDString);
             rs = ps.executeQuery();
             if (rs != null) {
-                return rs.next();
+                final boolean exists = rs.next();
+                ps.close();
+                return exists;
             } else {
                 Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a player exists from the table.");
                 return false;
             }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, Error.SQL_CONNECTION_EXECUTE, ex);
-        }
-        return null;
     }
 
     public static TeleportationPoint getTeleportationPoint(Integer locationID, Connection connection) throws SQLException, IllegalArgumentException {
@@ -718,7 +708,9 @@ public class DataManager {
 
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()) {
-            return rs.getInt(1);
+            final int pointID = rs.getInt(1);
+            ps.close();
+            return pointID;
         }
         return null;
     }
@@ -750,8 +742,8 @@ public class DataManager {
     }
 
     // Update a player's destination location on SQL
-    public static void setPlayerDestinationLocation(Player p, TeleportationPoint point, Connection connection) {
-        setPlayerDestinationLocation(p, point, connection);
+    public static void setPlayerDestinationLocation(Player p, TeleportationPoint point, Connection connection) throws SQLException {
+        setPlayerDestinationLocation(p.getName(), point, connection);
     }
 
     public static void setPlayerTeleporting(Player p, boolean value, Connection connection) throws SQLException {

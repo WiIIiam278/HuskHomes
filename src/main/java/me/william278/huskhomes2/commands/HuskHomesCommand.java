@@ -19,7 +19,7 @@ import java.util.List;
 
 import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 
-public class HuskhomesCommand extends CommandBase implements TabCompleter {
+public class HuskHomesCommand extends CommandBase implements TabCompleter {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 

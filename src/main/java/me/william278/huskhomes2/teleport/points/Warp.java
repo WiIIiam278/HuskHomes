@@ -72,6 +72,15 @@ public class Warp extends TeleportationPoint {
         this.description = description;
     }
 
+    /**
+     * Whether or not the player can use the warp
+     * @param player The player
+     * @return boolean; whether or not they can use the warp
+     */
+    public boolean canUse(Player player) {
+        return getWarpCanUse(player, name);
+    }
+
     // Returns if the player has permission to access the warp
     public static boolean getWarpCanUse(Player p, String warpName) {
         if (!HuskHomes.getSettings().doPermissionRestrictedWarps()) {

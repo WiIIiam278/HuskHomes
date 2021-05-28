@@ -33,7 +33,6 @@ import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
-import me.william278.huskhomes2.migrators.LegacyMigrator;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bstats.bukkit.MetricsLite;
@@ -165,16 +164,8 @@ public final class HuskHomes extends JavaPlugin {
         // Plugin startup logic
         getLogger().info("Enabling HuskHomes version " + this.getDescription().getVersion());
 
-        // MIGRATION: Check if a migration needs to occur
-        LegacyMigrator.checkStartupMigration();
-
         // Load the config
         settings.reload();
-
-        // MIGRATION: Migrate config files
-        if (LegacyMigrator.isCanMigrate()) {
-            new LegacyMigrator().migrateConfig();
-        }
 
         // Load the messages (in the right language)
         MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
@@ -189,12 +180,6 @@ public final class HuskHomes extends JavaPlugin {
 
         // Initialize the database
         initializeDatabase();
-
-        // MIGRATION: Migrate SQL data
-        if (LegacyMigrator.isCanMigrate()) {
-            new LegacyMigrator().migratePlayerData();
-            new LegacyMigrator().migrateHomeData();
-        }
 
         // Setup the Dynmap integration if it is enabled
         if (HuskHomes.getSettings().doDynmap()) {

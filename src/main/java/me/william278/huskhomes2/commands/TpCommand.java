@@ -1,15 +1,9 @@
 package me.william278.huskhomes2.commands;
 
-import me.william278.huskhomes2.CrossServerListHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
-import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VanishChecker;
-import me.william278.huskhomes2.integrations.VaultIntegration;
-import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
-import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -107,7 +101,7 @@ public class TpCommand extends CommandBase {
                     }
                 }
                 if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
-                    players.addAll(CrossServerListHandler.getOtherServerPlayerList());
+                    //players.addAll(CrossServerListHandler.getOtherServerPlayerList());
                 }
             }
             players.remove(sender.getName());

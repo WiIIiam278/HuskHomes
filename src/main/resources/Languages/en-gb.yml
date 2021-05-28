@@ -54,6 +54,7 @@ error_set_warp_name_taken: '&4Error: &cThere is already a warp set with that nam
 set_spawn_success: '&aUpdated /spawn command location for this server to your current position.'
 error_spawn_undefined: '&4Error: &cThere is no spawn location defined on this server.'
 error_tpa_no_pending_request: '&4Error: &cYou do not have a pending teleport request.'
+error_tpa_request_expired: '&4Error: &cYour pending teleport request has expired.'
 error_player_not_found: '&4Error: &cCould not find the player %1%.'
 return_by_death: '&7Return to where you died?:'
 option_selection_prompt: '&7Click an option: &r'

@@ -54,6 +54,7 @@ error_set_warp_name_taken: '&4Errore: &cC''è già un warp impostato con quel no
 set_spawn_success: '&aHai aggiornato il punto di /spawn per questo server.'
 error_spawn_undefined: '&4Errore: &cNon ci sono punti di /spawn definiti.'
 error_tpa_no_pending_request: '&4Errore: &cNon hai una richiesta di teletrasporto in sospeso.'
+error_tpa_request_expired: '&4Error: &cYour pending teleport request has expired.'
 error_player_not_found: '&4Errore: &cNon ho trovato il giocatore %1%.'
 return_by_death: '&7Vuoi tornare dove sei morto?:'
 option_selection_prompt: '&7Seleziona l''opzione: &r'

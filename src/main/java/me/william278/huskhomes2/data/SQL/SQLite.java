@@ -15,6 +15,17 @@ public class SQLite extends Database {
     final static String[] SQL_SETUP_STATEMENTS = {
             "PRAGMA foreign_keys = ON;",
 
+            "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getLocationsDataTable() + " (" +
+                    "`location_id` integer PRIMARY KEY," +
+                    "`server` text NOT NULL," +
+                    "`world` text NOT NULL," +
+                    "`x` double NOT NULL," +
+                    "`y` double NOT NULL," +
+                    "`z` double NOT NULL," +
+                    "`yaw` float NOT NULL," +
+                    "`pitch` float NOT NULL" +
+                    ");",
+
             "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getPlayerDataTable() + " (" +
                     "`player_id` integer NOT NULL," +
                     "`user_uuid` char(36) NOT NULL UNIQUE," +
@@ -27,17 +38,6 @@ public class SQLite extends Database {
                     "PRIMARY KEY (`player_id`)," +
                     "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
-                    ");",
-
-            "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getLocationsDataTable() + " (" +
-                    "`location_id` integer PRIMARY KEY," +
-                    "`server` text NOT NULL," +
-                    "`world` text NOT NULL," +
-                    "`x` double NOT NULL," +
-                    "`y` double NOT NULL," +
-                    "`z` double NOT NULL," +
-                    "`yaw` float NOT NULL," +
-                    "`pitch` float NOT NULL" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getHomesDataTable() + " (" +

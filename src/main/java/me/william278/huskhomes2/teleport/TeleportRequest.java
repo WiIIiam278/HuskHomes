@@ -25,7 +25,7 @@ public class TeleportRequest {
         return requestType;
     }
 
-    public boolean getExpired() {
+    public boolean isExpired() {
         long currentUnixTime = Instant.now().getEpochSecond();
         return currentUnixTime > requestExpiryTime;
     }

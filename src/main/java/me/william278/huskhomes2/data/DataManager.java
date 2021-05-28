@@ -204,8 +204,8 @@ public class DataManager {
 
         ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `public`;");
         rs = ps.executeQuery();
+        final List<Home> publicHomes = new ArrayList<>();
         if (rs != null) {
-            final List<Home> publicHomes = new ArrayList<>();
             while (rs.next()) {
                 int playerID = rs.getInt("player_id");
                 int locationID = rs.getInt("location_id");
@@ -215,10 +215,9 @@ public class DataManager {
                         rs.getString("description"), true));
             }
             ps.close();
-            return publicHomes;
         }
         ps.close();
-        return null;
+        return publicHomes;
     }
 
     // Return an array of all the warps
@@ -398,7 +397,7 @@ public class DataManager {
         ps.close();
     }
 
-    public static void setPlayerTeleporting(UUID uuid, boolean value, Connection connection) throws SQLException {
+    public static void setPlayerTeleportingData(UUID uuid, boolean value, Connection connection) throws SQLException {
         PreparedStatement ps;
         ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?;");
         ps.setBoolean(1, value);
@@ -507,7 +506,7 @@ public class DataManager {
     }
 
     // Update a player's destination teleport point
-    public static void setTeleportationDestination(String username, TeleportationPoint point, Connection connection) throws SQLException {
+    public static void setTeleportationDestinationData(String username, TeleportationPoint point, Connection connection) throws SQLException {
         PreparedStatement ps;
 
         // Add the teleportation point
@@ -716,7 +715,7 @@ public class DataManager {
     }
 
     // Update a player's last position teleport point
-    public static void setTeleportationLastPosition(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
+    public static void setTeleportationLastPositionData(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
         PreparedStatement ps;
         // Add the teleportation point
         Integer locationID = addTeleportationPoint(point, connection);
@@ -732,13 +731,13 @@ public class DataManager {
     // Update a player's last position location on SQL
     public static void setPlayerLastPosition(Player p, TeleportationPoint point, Connection connection) throws SQLException {
         deletePlayerLastPosition(p, connection);
-        setTeleportationLastPosition(p.getUniqueId(), point, connection);
+        setTeleportationLastPositionData(p.getUniqueId(), point, connection);
     }
 
     // Update a player's destination location on SQL
     public static void setPlayerDestinationLocation(String playerName, TeleportationPoint point, Connection connection) throws SQLException {
         deletePlayerDestination(playerName, connection);
-        setTeleportationDestination(playerName, point, connection);
+        setTeleportationDestinationData(playerName, point, connection);
     }
 
     // Update a player's destination location on SQL
@@ -747,12 +746,7 @@ public class DataManager {
     }
 
     public static void setPlayerTeleporting(Player p, boolean value, Connection connection) throws SQLException {
-        setPlayerTeleporting(p, value, connection);
-    }
-
-    public static void clearPlayerDestination(String playerName, Connection connection) throws SQLException {
-        deletePlayerDestination(playerName, connection);
-        clearPlayerDestData(playerName, connection);
+        setPlayerTeleportingData(p.getUniqueId(), value, connection);
     }
 
     public static void updateRtpCooldown(Player p, Connection connection) throws SQLException {
@@ -765,12 +759,8 @@ public class DataManager {
         Integer destinationID = getPlayerInteger(playerName, "dest_location_id", connection);
         if (destinationID != null) {
             deleteTeleportationPoint(destinationID, connection);
-            clearPlayerDestination(playerName, connection);
+            clearPlayerDestData(playerName, connection);
         }
-    }
-
-    public static void deletePlayerDestination(Player p, Connection connection) throws SQLException {
-        deletePlayerDestination(p.getName(), connection);
     }
 
     // Delete a teleportation point from SQL

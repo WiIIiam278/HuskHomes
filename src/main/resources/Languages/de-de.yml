@@ -54,6 +54,7 @@ error_set_warp_name_taken: '&4Fehler: &cEs gibt bereits ein Warp mit diesem Name
 set_spawn_success: '&aNeue /spawn Position für diesen Server wurde an deiner Position erstellt.'
 error_spawn_undefined: '&4Fehler: &cKeine Spawn Position auf diesem Server vorhanden.'
 error_tpa_no_pending_request: '&4Fehler: &cKeine ausstehenden Teleportanfragen.'
+error_tpa_request_expired: '&4Error: &cYour pending teleport request has expired.'
 error_player_not_found: '&4Fehler: &cKonnte Spieler %1% nicht finden.'
 return_by_death: '&7Willst zurück zu deinem Todespunkt?'
 tpa_you_accepted: '&aTeleport Anfrage von %1% akzeptiert.'

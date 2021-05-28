@@ -84,7 +84,7 @@ public class MessageManager {
     }
 
     // Send a message with multiple placeholders
-    public static void sendActionBarMessage(Player p, String messageID, String... placeholderReplacements) {
+    public static void sendActionBar(Player p, String messageID, String... placeholderReplacements) {
         sendMessage(p, ChatMessageType.ACTION_BAR, messageID, placeholderReplacements);
     }
 

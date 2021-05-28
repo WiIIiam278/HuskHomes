@@ -59,22 +59,19 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
 
                         // Remove old marker if on the Dynmap
                         Warp locationMovedWarp = DataManager.getWarp(warpName, connection);
-                        if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                             DynMapIntegration.removeDynamicMapMarker(warpName);
                         }
 
                         PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
-                        Bukkit.getPluginManager().callEvent(relocateWarpEvent);
-                        if (relocateWarpEvent.isCancelled()) {
-                            return;
-                        }
+                        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(relocateWarpEvent));
 
                         DataManager.updateWarpLocation(warpName, p.getLocation(), connection);
                         MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
 
                         // Add new updated marker if using Dynmap
                         locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
-                        if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                             DynMapIntegration.addDynamicMapMarker(locationMovedWarp);
                         }
                         return;
@@ -94,10 +91,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                             String newDescriptionString = newDescription.toString();
 
                             PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
-                            Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent);
-                            if (changeWarpDescriptionEvent.isCancelled()) {
-                                return;
-                            }
+                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent));
+
 
                             // Check the description is valid
                             if (newDescriptionString.length() > 255 || !RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
@@ -105,7 +100,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                                 return;
                             }
 
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.removeDynamicMapMarker(warpName);
                             }
 
@@ -113,7 +108,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                             DataManager.updateWarpDescription(warpName, newDescriptionString, connection);
 
                             descriptionChangedWarp.setDescription(newDescriptionString);
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.addDynamicMapMarker(descriptionChangedWarp);
                             }
 
@@ -140,18 +135,15 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                                 return;
                             }
                             PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
-                            Bukkit.getPluginManager().callEvent(renameWarpEvent);
-                            if (renameWarpEvent.isCancelled()) {
-                                return;
-                            }
+                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(renameWarpEvent));
 
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.removeDynamicMapMarker(warpName);
                             }
                             DataManager.updateWarpName(warpName, newName, connection);
 
                             renamedWarp.setName(newName);
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                                 DynMapIntegration.addDynamicMapMarker(renamedWarp);
                             }
                             WarpCommand.Tab.updateWarpsTabCache();

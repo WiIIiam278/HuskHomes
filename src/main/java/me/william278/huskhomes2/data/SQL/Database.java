@@ -1,18 +1,11 @@
 package me.william278.huskhomes2.data.SQL;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.Error;
-import me.william278.huskhomes2.teleport.points.Home;
-import me.william278.huskhomes2.teleport.points.TeleportationPoint;
-import me.william278.huskhomes2.teleport.points.Warp;
-import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
 import java.util.logging.Level;
 
 /*

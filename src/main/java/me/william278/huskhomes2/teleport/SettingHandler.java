@@ -46,10 +46,9 @@ public class SettingHandler {
                 if (setHomeConditions.areConditionsMet()) {
                     Home home = new Home(location, HuskHomes.getSettings().getServerID(), player, name, false);
                     PlayerSetHomeEvent event = new PlayerSetHomeEvent(player, home);
-                    Bukkit.getPluginManager().callEvent(event);
-                    if (event.isCancelled()) {
-                        return;
-                    }
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        Bukkit.getPluginManager().callEvent(event);
+                    });
                     DataManager.addHome(home, player, connection);
                     MessageManager.sendMessage(player, "set_home_success", name);
                     HomeCommand.Tab.updatePlayerHomeCache(player);
@@ -93,7 +92,7 @@ public class SettingHandler {
         // Delete the old spawn warp
         if (DataManager.warpExists(spawnWarpName, connection)) {
             DataManager.deleteWarp(spawnWarpName, connection);
-            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                 DynMapIntegration.removeDynamicMapMarker(spawnWarpName);
             }
         }
@@ -104,7 +103,7 @@ public class SettingHandler {
             Warp spawnWarp = new Warp(location, HuskHomes.getSettings().getServerID(), spawnWarpName);
             spawnWarp.setDescription(MessageManager.getRawMessage("spawn_warp_default_description"));
             DataManager.addWarp(spawnWarp, connection);
-            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                 DynMapIntegration.addDynamicMapMarker(spawnWarp);
             }
             WarpCommand.Tab.updateWarpsTabCache();
@@ -124,13 +123,10 @@ public class SettingHandler {
                 if (setWarpConditions.areConditionsMet()) {
                     Warp warp = new Warp(location, HuskHomes.getSettings().getServerID(), name);
                     PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
-                    Bukkit.getPluginManager().callEvent(event);
-                    if (event.isCancelled()) {
-                        return;
-                    }
+                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                     DataManager.addWarp(warp, connection);
                     MessageManager.sendMessage(player, "set_warp_success", name);
-                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                    if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                         DynMapIntegration.addDynamicMapMarker(warp);
                     }
                     WarpCommand.Tab.updateWarpsTabCache();
@@ -174,14 +170,11 @@ public class SettingHandler {
                         String homeName = home.getName();
                         if (home.isPublic()) {
                             // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
                                 DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
                             }
                             PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
-                            Bukkit.getPluginManager().callEvent(event);
-                            if (event.isCancelled()) {
-                                return;
-                            }
+                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                             DataManager.deleteHome(homeName, player, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();
                         } else {
@@ -213,14 +206,11 @@ public class SettingHandler {
                     if (home != null) {
                         if (home.isPublic()) {
                             // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
+                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
                                 DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
                             }
                             PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
-                            Bukkit.getPluginManager().callEvent(event);
-                            if (event.isCancelled()) {
-                                return;
-                            }
+                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                             DataManager.deleteHome(homeName, player, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();
                         } else {
@@ -258,12 +248,9 @@ public class SettingHandler {
                     if (warp != null) {
                         String warpName = warp.getName();
                         PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
-                        Bukkit.getPluginManager().callEvent(event);
-                        if (event.isCancelled()) {
-                            return;
-                        }
+                        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                         DataManager.deleteWarp(warpName, connection);
-                        if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                        if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                             DynMapIntegration.removeDynamicMapMarker(warpName);
                         }
                         WarpCommand.Tab.updateWarpsTabCache();
@@ -291,13 +278,10 @@ public class SettingHandler {
                 if (DataManager.warpExists(warpName, connection)) {
                     Warp warp = DataManager.getWarp(warpName, connection);
                     PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
-                    Bukkit.getPluginManager().callEvent(event);
-                    if (event.isCancelled()) {
-                        return;
-                    }
+                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                     DataManager.deleteWarp(warpName, connection);
                     MessageManager.sendMessage(player, "warp_deleted", warpName);
-                    if (HuskHomes.getSettings().doDynmap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
+                    if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
                         DynMapIntegration.removeDynamicMapMarker(warpName);
                     }
                     WarpCommand.Tab.updateWarpsTabCache();

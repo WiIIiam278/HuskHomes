@@ -34,7 +34,6 @@ import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.teleport.SettingHandler;
-import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -175,15 +174,15 @@ public final class HuskHomes extends JavaPlugin {
             getLogger().info(getVersionCheckString());
         }
 
-        // Fetch spawn location if set
-        SettingHandler.fetchSpawnLocation();
-
         // Initialize the database
         initializeDatabase();
 
-        // Setup the Dynmap integration if it is enabled
-        if (HuskHomes.getSettings().doDynmap()) {
-            DynMapIntegration.initializeDynmap();
+        // Fetch spawn location if set
+        SettingHandler.fetchSpawnLocation();
+
+        // Setup the DynMap integration if it is enabled
+        if (HuskHomes.getSettings().doDynMap()) {
+            DynMapIntegration.initialize();
         }
 
         // Setup economy if it is enabled
@@ -196,14 +195,11 @@ public final class HuskHomes extends JavaPlugin {
             setupBungeeChannels();
         }
 
-        // Register commands and their associated tab completers
+        // Register commands and tab completion handlers
         registerCommands();
 
         // Register events
         registerEvents(this);
-
-        // Start Loop
-        TeleportRequestHandler.startExpiredChecker(this);
 
         // bStats initialisation
         new MetricsLite(this, 8430);

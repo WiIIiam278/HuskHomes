@@ -18,16 +18,27 @@ import org.bukkit.entity.Player;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Level;
 
 public class PluginMessageListener implements org.bukkit.plugin.messaging.PluginMessageListener {
 
+    private static final HuskHomes plugin = HuskHomes.getInstance();
+
     private void handlePluginMessage(PluginMessage pluginMessage, Player recipient) {
+        Connection connection = HuskHomes.getConnection();
         switch (pluginMessage.getMessageType()) {
             case SET_TP_DESTINATION:
-                DataManager.setPlayerDestinationLocation(pluginMessage.getMessageData(),
-                        new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()));
-                new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        DataManager.setPlayerDestinationLocation(pluginMessage.getMessageData(),
+                                new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport destination update");
+                        new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
+                    }
+                });
                 return;
             case CONFIRM_DESTINATION_SET:
                 if (pluginMessage.getMessageData().equals("confirmed")) {
@@ -53,7 +64,13 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final boolean tpaAccepted = Boolean.parseBoolean(pluginMessage.getMessageDataItems()[1]);
                 if (tpaAccepted) {
                     MessageManager.sendMessage(recipient, "tpa_has_accepted", tpaReplierName);
-                    TeleportManager.queueTimedTeleport(recipient, tpaReplierName);
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try {
+                            TeleportManager.queueTimedTeleport(recipient, tpaReplierName, connection);
+                        } catch (SQLException e) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport request reply");
+                        }
+                    });
                 } else {
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaReplierName);
                 }
@@ -68,7 +85,13 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 }
                 return;
             case TELEPORT_TO_ME:
-                TeleportManager.teleportPlayer(recipient, pluginMessage.getMessageData());
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        TeleportManager.teleportPlayer(recipient, pluginMessage.getMessageData(), connection);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport-to-me request");
+                    }
+                });
                 return;
             case GET_ONLINE_PLAYERS:
                 /*if (Bukkit.getOnlinePlayers().size() > 0) {

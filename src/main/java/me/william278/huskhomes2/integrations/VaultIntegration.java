@@ -9,13 +9,12 @@ public class VaultIntegration {
     private static Economy economy = null;
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
-    public static boolean initializeEconomy() {
+    public static void initializeEconomy() {
         RegisteredServiceProvider<Economy> economyProvider =
                 plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (economyProvider != null) {
             economy = economyProvider.getProvider();
         }
-        return (economy != null);
     }
 
     public static String format(double monetaryValue) {

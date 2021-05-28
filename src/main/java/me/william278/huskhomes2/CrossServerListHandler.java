@@ -7,7 +7,7 @@ public class CrossServerListHandler {
 
     // A HashMap mapping all the HuskHomes servers on the Bungee Network
     // (with the same Cluster ID) with their list of players
-    private static final HashMap<String,HashSet<String>> playerList = new HashMap<>();
+    /*private static final HashMap<String,HashSet<String>> playerList = new HashMap<>();
 
     public static HashSet<String> getOtherServerPlayerList() {
         HashSet<String> players = new HashSet<>();
@@ -15,12 +15,12 @@ public class CrossServerListHandler {
             players.addAll(playerList.get(server));
         }
         return players;
-    }
+    }*/
 
-    public static void updateHashset(String server, HashSet<String> players) {
+    /*public static void updateHashset(String server, HashSet<String> players) {
         playerList.put(server, players);
     }
-
+    */
     /*public static void updatePlayerList(Player p) {
         playerList.clear();
         if (p == null) {

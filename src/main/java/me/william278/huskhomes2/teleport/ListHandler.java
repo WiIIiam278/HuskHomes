@@ -141,7 +141,7 @@ public class ListHandler {
             try {
                 ComponentBuilder homeList = new ComponentBuilder();
                 List<Home> homes = DataManager.getPublicHomes(connection);
-                if (homes == null || homes.isEmpty()) {
+                if (homes.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_public_homes_set");
                     return;
                 }

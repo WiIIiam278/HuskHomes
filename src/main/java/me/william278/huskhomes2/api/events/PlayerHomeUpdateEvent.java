@@ -11,7 +11,7 @@ import org.bukkit.event.HandlerList;
  * Fires when a player renames a Home, updates its' location, changes its' name, changes whether or not it is public/private.
  * Also fires when it is deleted
  */
-public class PlayerHomeUpdateEvent extends Event implements Cancellable {
+public class PlayerHomeUpdateEvent extends Event {
 
     private final Player player;
     private final Home home;
@@ -30,16 +30,6 @@ public class PlayerHomeUpdateEvent extends Event implements Cancellable {
         this.player = player;
         this.home = home;
         this.isCancelled = false;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.isCancelled = cancelled;
     }
 
     @Override

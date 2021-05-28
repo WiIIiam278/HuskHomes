@@ -3,6 +3,7 @@ package me.william278.huskhomes2.data.pluginmessage;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.william278.huskhomes2.HuskHomes;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -77,59 +78,63 @@ public class PluginMessage {
      * @param sender The player to send the message
      */
     public void send(Player sender) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
-        // Send a plugin message to the specified player name
-        out.writeUTF("ForwardToPlayer");
-        out.writeUTF(targetPlayerName);
+            // Send a plugin message to the specified player name
+            out.writeUTF("ForwardToPlayer");
+            out.writeUTF(targetPlayerName);
 
-        // Send the HuskHomes message with a specific type
-        out.writeUTF("HuskHomes:" + clusterID + ":" + getPluginMessageString(messageType));
-        ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-        DataOutputStream messageOut = new DataOutputStream(messageBytes);
+            // Send the HuskHomes message with a specific type
+            out.writeUTF("HuskHomes:" + clusterID + ":" + getPluginMessageString(messageType));
+            ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+            DataOutputStream messageOut = new DataOutputStream(messageBytes);
 
-        // Send the message data; output an exception if there's an error
-        try {
-            messageOut.writeUTF(messageData);
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
-            e.printStackTrace();
-        }
+            // Send the message data; output an exception if there's an error
+            try {
+                messageOut.writeUTF(messageData);
+            } catch (IOException e) {
+                plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
+                e.printStackTrace();
+            }
 
-        // Write the messages to the output packet
-        out.writeShort(messageBytes.toByteArray().length);
-        out.write(messageBytes.toByteArray());
+            // Write the messages to the output packet
+            out.writeShort(messageBytes.toByteArray().length);
+            out.write(messageBytes.toByteArray());
 
-        // Send the constructed plugin message packet
-        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+            // Send the constructed plugin message packet
+            sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        });
     }
 
     public void sendToAll(Player sender) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
-        // Send a plugin message to all players
-        out.writeUTF("Forward");
-        out.writeUTF("ALL");
+            // Send a plugin message to all players
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
 
-        // Send the HuskHomes message with a specific type
-        out.writeUTF("HuskHomes:" + clusterID + ":" + getPluginMessageString(messageType));
-        ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-        DataOutputStream messageOut = new DataOutputStream(messageBytes);
+            // Send the HuskHomes message with a specific type
+            out.writeUTF("HuskHomes:" + clusterID + ":" + getPluginMessageString(messageType));
+            ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+            DataOutputStream messageOut = new DataOutputStream(messageBytes);
 
-        // Send the message data; output an exception if there's an error
-        try {
-            messageOut.writeUTF(messageData);
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
-            e.printStackTrace();
-        }
+            // Send the message data; output an exception if there's an error
+            try {
+                messageOut.writeUTF(messageData);
+            } catch (IOException e) {
+                plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
+                e.printStackTrace();
+            }
 
-        // Write the messages to the output packet
-        out.writeShort(messageBytes.toByteArray().length);
-        out.write(messageBytes.toByteArray());
+            // Write the messages to the output packet
+            out.writeShort(messageBytes.toByteArray().length);
+            out.write(messageBytes.toByteArray());
 
-        // Send the constructed plugin message packet
-        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+            // Send the constructed plugin message packet
+            sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        });
     }
 
     public int getClusterID() {

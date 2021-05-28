@@ -235,7 +235,7 @@ public class Settings {
         return dynmapWarpMarkerSet;
     }
 
-    public boolean doDynmap() {
+    public boolean doDynMap() {
         return doDynmap;
     }
 

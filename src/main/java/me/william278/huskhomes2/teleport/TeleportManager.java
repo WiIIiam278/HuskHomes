@@ -15,18 +15,15 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 
 public class TeleportManager {
-
-    private static final Set<TimedTeleport> queuedTeleports = new HashSet<>();
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
     private static TeleportationPoint spawnLocation;
 
+    // todo this doesnt seem to work cross server
     public static void teleportPlayer(Player player, String targetPlayer, Connection connection) throws SQLException {
         DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID()), connection);
@@ -48,11 +45,13 @@ public class TeleportManager {
                 if (teleportationPoint != null) {
                     String server = teleportationPoint.getServer();
                     if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
-                        PaperLib.teleportAsync(p, teleportationPoint.getLocation());
-                        p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
-                        MessageManager.sendMessage(p, "teleporting_complete");
                         DataManager.setPlayerTeleporting(p, false, connection);
-                        DataManager.clearPlayerDestination(p.getName(), connection);
+                        DataManager.deletePlayerDestination(p.getName(), connection);
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            PaperLib.teleportAsync(p, teleportationPoint.getLocation());
+                            p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                            MessageManager.sendMessage(p, "teleporting_complete");
+                        });
                     } else if (HuskHomes.getSettings().doBungee()) {
                         DataManager.setPlayerDestinationLocation(p, teleportationPoint, connection);
                         DataManager.setPlayerTeleporting(p, true, connection);
@@ -71,7 +70,7 @@ public class TeleportManager {
             return;
         }
 
-        getQueuedTeleports().add(new TimedTeleport(player, targetPlayer));
+        new TimedTeleport(player, targetPlayer).begin();
     }
 
     public static void queueTimedTeleport(Player player, TeleportationPoint point, Connection connection) throws SQLException {
@@ -80,7 +79,7 @@ public class TeleportManager {
             return;
         }
 
-        getQueuedTeleports().add(new TimedTeleport(player, point, "point"));
+        new TimedTeleport(player, point, TimedTeleport.TargetType.POINT).begin();
     }
 
     public static void queueBackTeleport(Player player, Connection connection) throws SQLException {
@@ -107,7 +106,7 @@ public class TeleportManager {
                 return;
             }
 
-            getQueuedTeleports().add(new TimedTeleport(player, lastPosition, "back"));
+            new TimedTeleport(player, lastPosition, TimedTeleport.TargetType.BACK).begin();
         } else {
             MessageManager.sendMessage(player, "error_no_last_position");
         }
@@ -146,7 +145,7 @@ public class TeleportManager {
             return;
         }
 
-        new TimedTeleport(player);
+        new TimedTeleport(player).begin();
     }
 
     public static void teleportHere(Player requester, String targetPlayerName, Connection connection) throws SQLException {
@@ -191,10 +190,6 @@ public class TeleportManager {
             }
             MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
         }
-    }
-
-    public static Set<TimedTeleport> getQueuedTeleports() {
-        return queuedTeleports;
     }
 
     public static TeleportationPoint getSpawnLocation() {

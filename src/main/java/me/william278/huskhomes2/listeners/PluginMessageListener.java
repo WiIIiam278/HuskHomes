@@ -34,9 +34,9 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     try {
                         DataManager.setPlayerDestinationLocation(pluginMessage.getMessageData(),
                                 new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
+                        new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport destination update");
-                        new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
                     }
                 });
                 return;
@@ -49,14 +49,14 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 if (!VanishChecker.isVanished(recipient)) {
                     TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPA));
                     MessageManager.sendMessage(recipient, "tpa_request_ask", pluginMessage.getMessageData());
-                    TeleportRequestHandler.sendTpAcceptDenyButtons(recipient);
+                    MessageManager.sendMessage(recipient, "teleport_request_options");
                 }
                 return;
             case TPAHERE_REQUEST:
                 if (!VanishChecker.isVanished(recipient)) {
                     TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPAHERE));
                     MessageManager.sendMessage(recipient, "tpahere_request_ask", pluginMessage.getMessageData());
-                    TeleportRequestHandler.sendTpAcceptDenyButtons(recipient);
+                    MessageManager.sendMessage(recipient, "teleport_request_options");
                 }
                 return;
             case TPA_REQUEST_REPLY:

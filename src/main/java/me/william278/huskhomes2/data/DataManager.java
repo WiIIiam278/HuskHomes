@@ -113,13 +113,11 @@ public class DataManager {
     }
 
     // Return if the player is teleporting
-    public static Boolean getPlayerTeleporting(Player p) throws SQLException {
-        Connection conn;
+    public static Boolean getPlayerTeleporting(Player p, Connection connection) throws SQLException {
         PreparedStatement ps;
         ResultSet rs;
 
-        conn = getConnection();
-        ps = conn.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
+        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
         ps.setString(1, p.getUniqueId().toString());
         rs = ps.executeQuery();
         if (rs != null) {

@@ -1,14 +1,10 @@
 package me.william278.huskhomes2.teleport;
 
-import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
 import me.william278.huskhomes2.integrations.VanishChecker;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -41,32 +37,6 @@ public class TeleportRequestHandler {
         }
     }
 
-    private static TextComponent runCommandButton(String buttonText, ChatColor color, String command, String hoverMessage) {
-        TextComponent button = new TextComponent(buttonText);
-        button.setColor(color);
-
-        button.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, (command)));
-        button.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(hoverMessage).color(ChatColor.GRAY).italic(false).create())));
-        return button;
-    }
-
-    public static void sendTpAcceptDenyButtons(Player p) {
-        // Send the "Accept" or "Decline" response buttons to the player who has received a request
-        // Options text
-        BaseComponent[] options = new MineDown(MessageManager.getRawMessage("option_selection_prompt")).toComponent();
-        BaseComponent[] divider = new MineDown(MessageManager.getRawMessage("list_item_divider")).urlDetection(false).toComponent();
-
-        // Build the components together
-        ComponentBuilder teleportResponses = new ComponentBuilder();
-        teleportResponses.append(options, ComponentBuilder.FormatRetention.NONE);
-        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_accept_button"), ChatColor.GREEN, "/tpaccept", MessageManager.getRawMessage("tpa_accept_button_tooltip")), ComponentBuilder.FormatRetention.NONE);
-        teleportResponses.append(divider, ComponentBuilder.FormatRetention.NONE);
-        teleportResponses.append(runCommandButton(MessageManager.getRawMessage("tpa_decline_button"), ChatColor.RED, "/tpdeny", MessageManager.getRawMessage("tpa_decline_button_tooltip")), ComponentBuilder.FormatRetention.NONE);
-
-        // Create and send the message
-        p.spigot().sendMessage(teleportResponses.create());
-    }
-
     public static void sendTeleportToRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
@@ -75,7 +45,7 @@ public class TeleportRequestHandler {
                     teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA));
                     MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
                     MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
-                    TeleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+                    MessageManager.sendMessage(targetPlayer, "teleport_request_options");
                 } else {
                     MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
                 }
@@ -99,7 +69,7 @@ public class TeleportRequestHandler {
                 teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPAHERE));
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
                 MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
-                TeleportRequestHandler.sendTpAcceptDenyButtons(targetPlayer);
+                MessageManager.sendMessage(targetPlayer, "teleport_request_options");
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }

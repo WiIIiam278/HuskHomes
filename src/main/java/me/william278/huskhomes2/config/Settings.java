@@ -269,7 +269,7 @@ public class Settings {
         return maximumHomes;
     }
 
-    public int getRtpCooldown() {
+    public int getRtpCoolDown() {
         return rtpCooldown;
     }
 

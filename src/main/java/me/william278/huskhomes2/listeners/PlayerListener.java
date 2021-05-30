@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.listeners;
 
+import io.papermc.lib.PaperLib;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.commands.HomeCommand;
@@ -49,7 +50,7 @@ public class PlayerListener implements Listener {
                     if (!DataManager.playerExists(p, connection)) {
                         DataManager.createPlayer(p, connection);
                         if (TeleportManager.getSpawnLocation() != null) {
-                            p.teleport(TeleportManager.getSpawnLocation().getLocation());
+                            Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
                         }
                     } else {
                         // Check if they've changed their name and update if so
@@ -67,13 +68,6 @@ public class PlayerListener implements Listener {
                                 TeleportManager.teleportPlayer(p);
                             }
                         }
-
-
-                /*// Update player lists globally
-                if (HuskHomes.getSettings().doCrossServerTabCompletion()) {
-                    CrossServerListHandler.updatePlayerList(p);
-                    PluginMessageHandler.broadcastPlayerChange(p);
-                }*/
                     }
                 } catch (SQLException sqlException) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL error handling a joining player", sqlException);

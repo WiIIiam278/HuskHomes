@@ -57,7 +57,7 @@ error_tpa_no_pending_request: '[Error:](#ff3300) [You do not have a pending tele
 error_tpa_request_expired: '[Error:](#ff3300) [Your pending teleport request has expired.](#ff7e5e)'
 error_player_not_found: '[Error:](#ff3300) [Could not find the player %1%.](#ff7e5e)'
 return_by_death: '[Return to where you died?](gray) [/back](#00fb9a show_text=&#00fb9a&Click to return to where you died run_command=/back)'
-teleport_request_options: '[Click an option:](gray) [[Accept]](#00fb9a show_text=&#00fb9a&Accept the teleport request; /tpaccept run_command=/tpaccept) [•](gray) [[Decline]](#ff7e5e show_text=&#ff7e5e&Decline the teleport request; /tpdeny run_command=/tpaccept)'
+teleport_request_options: '[Click an option:](gray) [[Accept]](#00fb9a show_text=&#00fb9a&Accept the teleport request; /tpaccept run_command=/tpaccept) [•](gray) [[Decline]](#ff7e5e show_text=&#ff7e5e&Decline the teleport request; /tpdeny run_command=/tpdeny)'
 tpa_you_accepted: '[You accepted %1%''s teleport request](#00fb9a)'
 tpa_you_declined: '[You declined %1%''s teleport request](#ff7e5e)'
 tpa_has_accepted: '[%1% accepted your teleport request](#00fb9a)'

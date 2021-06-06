@@ -47,7 +47,10 @@ public class RandomPoint extends TeleportationPoint {
         double blockCenterZ = 0.5;
 
         // The furthest distance at which a player can be teleported to
-        int rtpRange = HuskHomes.getSettings().getRtpRange();
+        int rtpRange = Math.min(
+          HuskHomes.getSettings().getRtpRange(),
+          (int) world.getWorldBorder().getSize() - 1
+        );
 
         // Calculate random X and Z coords
         x = random.nextInt(rtpRange);
@@ -72,7 +75,7 @@ public class RandomPoint extends TeleportationPoint {
     }
 
     // Checks to see if the location is safe to teleport to
-    private boolean isLocationSafe(Location location){
+    private boolean isLocationSafe(Location location) {
         int x = location.getBlockX();
         int y = location.getBlockY()-1;
         int z = location.getBlockZ();
@@ -81,6 +84,10 @@ public class RandomPoint extends TeleportationPoint {
 
         // Failsafe check in case the world is null
         if (world != null) {
+            // Ensure we are inside of the world border.
+            if (!world.getWorldBorder().isInside(location)) {
+                return false;
+            }
 
             // Get instances of the blocks around where the player would teleport
             Block block = world.getBlockAt(x, y, z);

@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.utils;
+package me.william278.huskhomes2.util;
 
 import java.util.regex.Pattern;
 

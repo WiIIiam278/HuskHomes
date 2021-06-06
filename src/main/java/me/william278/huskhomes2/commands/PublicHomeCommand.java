@@ -3,10 +3,9 @@ package me.william278.huskhomes2.commands;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
-import me.william278.huskhomes2.utils.RegexUtil;
+import me.william278.huskhomes2.util.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -55,7 +54,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
         }
         Player p = (Player) sender;
         if (args.length == 0) {
-            ListHandler.displayPublicHomeList(p, 1);
+            PublicHomeListCommand.displayPublicHomeList(p, 1);
             return true;
         }
         String publicHome = args[0];

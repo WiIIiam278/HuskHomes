@@ -10,7 +10,7 @@ import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.DynMapIntegration;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
-import me.william278.huskhomes2.utils.RegexUtil;
+import me.william278.huskhomes2.util.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

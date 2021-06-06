@@ -3,9 +3,7 @@ package me.william278.huskhomes2.commands;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
-import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -57,7 +55,7 @@ public class WarpCommand extends CommandBase {
                 }
             });
         } else {
-            ListHandler.displayWarpList(p, 1);
+            WarpListCommand.displayWarpList(p, 1);
         }
         return true;
     }

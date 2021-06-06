@@ -3,7 +3,6 @@ package me.william278.huskhomes2.commands;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.teleport.ListHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import org.bukkit.Bukkit;
@@ -49,7 +48,7 @@ public class HomeCommand extends CommandBase {
                             return;
                         }
                     }
-                    ListHandler.displayPlayerHomeList(p, 1);
+                    HomeListCommand.displayPlayerHomeList(p, 1);
                 }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting home.", e);

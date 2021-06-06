@@ -151,13 +151,7 @@ public class SettingHandler {
     private static void sendDeletionConfirmationWarning(Player player, String deletionType) {
         // Send the delete-all confirmation warning
         MessageManager.sendMessage(player, "delete_all_" + deletionType + "s_confirm");
-        MessageManager.sendMessage(player, "delete_all_irreversible_warning");
-
-        // Send Confirm button
-        player.spigot().sendMessage(new ComponentBuilder()
-                .append(new MineDown(MessageManager.getRawMessage("option_selection_prompt")).toComponent(), ComponentBuilder.FormatRetention.NONE)
-                .append(deletionConfirmationButton("del" + deletionType), ComponentBuilder.FormatRetention.NONE).create());
-    }
+}
 
     // Delete all of a player's homes
     public static void deleteAllHomes(Player player) {

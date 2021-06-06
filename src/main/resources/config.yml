@@ -47,6 +47,7 @@ warp_command:
     hide_restricted_warps: true
 spawn_command:
   enabled: true
+  force_teleport_on_login: false
   bungee_network_spawn:
     enabled: false
     warp_name: 'Spawn'

@@ -66,6 +66,12 @@ public class PlayerListener implements Listener {
                         if (isTeleporting != null) {
                             if (isTeleporting) {
                                 TeleportManager.teleportPlayer(p);
+                            } else {
+                                if (HuskHomes.getSettings().doForceSpawnOnLogin()) {
+                                    if (TeleportManager.getSpawnLocation() != null) {
+                                        Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
+                                    }
+                                }
                             }
                         }
                     }

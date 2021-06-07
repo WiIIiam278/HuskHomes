@@ -35,8 +35,11 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
         ArrayList<String> commandDisplay = new ArrayList<>();
         for (String command : plugin.getDescription().getCommands().keySet()) {
             if (HuskHomes.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
-                if (!player.hasPermission((String) plugin.getDescription().getCommands().get(command).get("permission"))) {
-                    continue;
+                String permission = (String) plugin.getDescription().getCommands().get(command).get("permission");
+                if (permission != null) {
+                    if (!player.hasPermission(permission)) {
+                        continue;
+                    }
                 }
             }
             if (command.equals("huskhomes") && HuskHomes.getSettings().hideHuskHomesCommandFromHelpMenu()) {

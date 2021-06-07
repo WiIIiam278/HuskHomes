@@ -62,8 +62,9 @@ random_teleport_command:
   enabled: true
   cooldown: 30
   range: 5000
-dynmap_integration:
-  enabled: false
+map_integration:
+  enabled: true
+  plugin: 'dynmap'
   markers:
     public_homes:
       show: true
@@ -82,4 +83,4 @@ economy_integration:
     random_teleport: 20
     back: 0
 handle_vanished_players: true
-config_file_version: 4
+config_file_version: 5

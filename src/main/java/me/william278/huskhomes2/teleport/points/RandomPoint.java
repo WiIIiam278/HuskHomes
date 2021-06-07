@@ -25,13 +25,16 @@ public class RandomPoint extends TeleportationPoint {
 
     // Maximum number of attempts to find a random location
     private static final int MAX_RANDOM_ATTEMPTS = 8;
+    private static boolean hasFailed;
 
     public RandomPoint(Player player) {
         super(player.getLocation(), HuskHomes.getSettings().getServerID());
+        hasFailed = false;
         Location randomLocation = getRandomLocation(player.getWorld());
         if (randomLocation != null) {
             setLocation(randomLocation, HuskHomes.getSettings().getServerID());
         } else {
+            hasFailed = true;
             MessageManager.sendMessage(player, "error_rtp_randomization_timeout");
         }
     }
@@ -113,5 +116,9 @@ public class RandomPoint extends TeleportationPoint {
         }
 
         return null;
+    }
+
+    public boolean hasFailed() {
+        return hasFailed;
     }
 }

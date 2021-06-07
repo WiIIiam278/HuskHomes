@@ -7,6 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import java.util.Locale;
+
 public class Settings {
 
     private final Plugin plugin;
@@ -40,13 +42,14 @@ public class Settings {
     private String mySQLparams;
 
     // Dynmap integration settings
-    private boolean doDynmap;
-    private boolean dynmapPublicHomes;
-    private boolean dynmapWarps;
-    private String dynmapPublicHomeMarkerIconID;
-    private String dynmapWarpMarkerIconID;
-    private String dynmapPublicHomeMarkerSet;
-    private String dynmapWarpMarkerSet;
+    private boolean doMapIntegration;
+    private String mapPlugin;
+    private boolean mapPublicHomes;
+    private boolean mapWarps;
+    private String mapPublicHomeMarkerIconID;
+    private String mapWarpMarkerIconID;
+    private String mapPublicHomeMarkerSet;
+    private String mapWarpMarkerSet;
 
     // Economy (Vault) integration settings
     private boolean doEconomy;
@@ -134,24 +137,38 @@ public class Settings {
             this.mySQLport = config.getInt("data_storage_options.mysql_credentials.port");
             this.mySQLparams = config.getString("data_storage_options.mysql_credentials.params");
 
-            this.doDynmap = config.getBoolean("dynmap_integration.enabled");
+            this.doMapIntegration = config.getBoolean("map_integration.enabled");
+            this.mapPlugin = config.getString("map_integration.plugin");
 
-            if (this.doDynmap) {
-                PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
-                Plugin dynmap = pluginManager.getPlugin("dynmap");
-                if (dynmap == null) {
-                    Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
-                    Bukkit.getLogger().warning("The Dynmap setting has been disabled. Please ensure Dynmap is installed and restart the server.");
-                    this.doDynmap = false;
+            if (this.doMapIntegration) {
+                if (mapPlugin != null) {
+                    switch (mapPlugin.toLowerCase(Locale.ROOT)) {
+                        case "dynmap":
+                            PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
+                            Plugin dynMap = pluginManager.getPlugin("dynmap");
+                            if (dynMap == null) {
+                                Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
+                                Bukkit.getLogger().warning("The Dynmap setting has been disabled. Please ensure Dynmap is installed and restart the server.");
+                                this.doMapIntegration = false;
+                            }
+                            break;
+                        case "bluemap":
+                            break;
+                        default:
+                            Bukkit.getLogger().warning("Map integration was enabled in config, but the map plugin type was invalid.");
+                            this.doMapIntegration = false;
+                            break;
+                    }
                 }
+
             }
 
-            this.dynmapPublicHomes = config.getBoolean("dynmap_integration.markers.public_homes.show");
-            this.dynmapWarps = config.getBoolean("dynmap_integration.markers.warps.show");
-            this.dynmapPublicHomeMarkerIconID = config.getString("dynmap_integration.markers.public_homes.icon_id");
-            this.dynmapWarpMarkerIconID = config.getString("dynmap_integration.markers.warps.icon_id");
-            this.dynmapPublicHomeMarkerSet = config.getString("dynmap_integration.markers.public_homes.set_name");
-            this.dynmapWarpMarkerSet = config.getString("dynmap_integration.markers.warps.set_name");
+            this.mapPublicHomes = config.getBoolean("map_integration.markers.public_homes.show");
+            this.mapWarps = config.getBoolean("map_integration.markers.warps.show");
+            this.mapPublicHomeMarkerIconID = config.getString("map_integration.markers.public_homes.icon_id");
+            this.mapWarpMarkerIconID = config.getString("map_integration.markers.warps.icon_id");
+            this.mapPublicHomeMarkerSet = config.getString("map_integration.markers.public_homes.set_name");
+            this.mapWarpMarkerSet = config.getString("map_integration.markers.warps.set_name");
 
             this.doEconomy = config.getBoolean("economy_integration.enabled");
 
@@ -213,32 +230,36 @@ public class Settings {
         }
     }
 
-    public boolean showPublicHomesOnDynmap() {
-        return dynmapPublicHomes;
+    public String getMapPlugin() {
+        return mapPlugin;
     }
 
-    public boolean showWarpsOnDynmap() {
-        return dynmapWarps;
+    public boolean showPublicHomesOnMap() {
+        return mapPublicHomes;
     }
 
-    public String getDynmapPublicHomeMarkerIconID() {
-        return dynmapPublicHomeMarkerIconID;
+    public boolean showWarpsOnMap() {
+        return mapWarps;
     }
 
-    public String getDynmapWarpMarkerIconID() {
-        return dynmapWarpMarkerIconID;
+    public String getMapPublicHomeMarkerIconID() {
+        return mapPublicHomeMarkerIconID;
     }
 
-    public String getDynmapPublicHomeMarkerSet() {
-        return dynmapPublicHomeMarkerSet;
+    public String getMapWarpMarkerIconID() {
+        return mapWarpMarkerIconID;
     }
 
-    public String getDynmapWarpMarkerSet() {
-        return dynmapWarpMarkerSet;
+    public String getMapPublicHomeMarkerSet() {
+        return mapPublicHomeMarkerSet;
     }
 
-    public boolean doDynMap() {
-        return doDynmap;
+    public String getMapWarpMarkerSet() {
+        return mapWarpMarkerSet;
+    }
+
+    public boolean doMapIntegration() {
+        return doMapIntegration;
     }
 
     public int getTeleportWarmupTime() {
@@ -397,6 +418,7 @@ public class Settings {
         return doCrossServerTabCompletion;
     }
 
+    // todo re-implement
     public int getCrossServerTabUpdateDelay() {
         return crossServerTabUpdateDelay;
     }

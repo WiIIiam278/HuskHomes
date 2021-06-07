@@ -11,7 +11,7 @@ import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.commands.PublicHomeCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.integrations.DynMapIntegration;
+import me.william278.huskhomes2.integrations.Map.DynMap;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
@@ -92,8 +92,8 @@ public class SettingHandler {
         // Delete the old spawn warp
         if (DataManager.warpExists(spawnWarpName, connection)) {
             DataManager.deleteWarp(spawnWarpName, connection);
-            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                DynMapIntegration.removeDynamicMapMarker(spawnWarpName);
+            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                HuskHomes.getMap().removeWarpMarker(spawnWarpName);
             }
         }
 
@@ -103,8 +103,8 @@ public class SettingHandler {
             Warp spawnWarp = new Warp(location, HuskHomes.getSettings().getServerID(), spawnWarpName);
             spawnWarp.setDescription(MessageManager.getRawMessage("spawn_warp_default_description"));
             DataManager.addWarp(spawnWarp, connection);
-            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                DynMapIntegration.addDynamicMapMarker(spawnWarp);
+            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                HuskHomes.getMap().addWarpMarker(spawnWarp);
             }
             WarpCommand.Tab.updateWarpsTabCache();
         } else {
@@ -126,8 +126,8 @@ public class SettingHandler {
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                     DataManager.addWarp(warp, connection);
                     MessageManager.sendMessage(player, "set_warp_success", name);
-                    if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                        DynMapIntegration.addDynamicMapMarker(warp);
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().addWarpMarker(warp);
                     }
                     WarpCommand.Tab.updateWarpsTabCache();
                 } else {
@@ -164,8 +164,8 @@ public class SettingHandler {
                         String homeName = home.getName();
                         if (home.isPublic()) {
                             // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
+                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().removePublicHomeMarker(homeName, player.getName());
                             }
                             PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
                             Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
@@ -200,8 +200,8 @@ public class SettingHandler {
                     if (home != null) {
                         if (home.isPublic()) {
                             // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.removeDynamicMapMarker(homeName, player.getName());
+                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().removePublicHomeMarker(homeName, player.getName());
                             }
                             PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
                             Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
@@ -244,8 +244,8 @@ public class SettingHandler {
                         PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);
                         Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                         DataManager.deleteWarp(warpName, connection);
-                        if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                            DynMapIntegration.removeDynamicMapMarker(warpName);
+                        if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                            HuskHomes.getMap().removeWarpMarker(warpName);
                         }
                         WarpCommand.Tab.updateWarpsTabCache();
                     }
@@ -275,8 +275,8 @@ public class SettingHandler {
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
                     DataManager.deleteWarp(warpName, connection);
                     MessageManager.sendMessage(player, "warp_deleted", warpName);
-                    if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showWarpsOnDynmap()) {
-                        DynMapIntegration.removeDynamicMapMarker(warpName);
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().removeWarpMarker(warpName);
                     }
                     WarpCommand.Tab.updateWarpsTabCache();
                 } else {

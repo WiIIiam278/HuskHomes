@@ -119,6 +119,10 @@ public class TimedTeleport {
                                     TeleportManager.teleportPlayer(player, getTargetPlayerName(), connection);
                                     break;
                                 case RANDOM:
+                                    RandomPoint randomPoint = new RandomPoint(player);
+                                    if (randomPoint.hasFailed()) {
+                                        return;
+                                    }
                                     if (HuskHomes.getSettings().doEconomy()) {
                                         double rtpCost = HuskHomes.getSettings().getRtpCost();
                                         if (rtpCost > 0) {
@@ -130,7 +134,7 @@ public class TimedTeleport {
                                             }
                                         }
                                     }
-                                    TeleportManager.teleportPlayer(player, new RandomPoint(player), connection);
+                                    TeleportManager.teleportPlayer(player, randomPoint, connection);
                                     DataManager.updateRtpCooldown(player, connection);
                                     break;
                             }

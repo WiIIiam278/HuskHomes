@@ -9,7 +9,7 @@ import me.william278.huskhomes2.api.events.PlayerMakeHomePublicEvent;
 import me.william278.huskhomes2.api.events.PlayerRelocateHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerRenameHomeEvent;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.integrations.DynMapIntegration;
+import me.william278.huskhomes2.integrations.Map.DynMap;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
@@ -63,8 +63,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                         // Remove old marker if on dynmap
                         Home locationMovedHome = DataManager.getHome(p.getName(), homeName, connection);
-                        if (locationMovedHome.isPublic() && HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                            DynMapIntegration.removeDynamicMapMarker(homeName, p.getName());
+                        if (locationMovedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                            HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
                         }
 
                         PlayerRelocateHomeEvent relocateHomeEvent = new PlayerRelocateHomeEvent(p, locationMovedHome, newTeleportLocation);
@@ -76,8 +76,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                         // Add new updated marker if using dynmap
                         locationMovedHome.setLocation(newLocation, HuskHomes.getSettings().getServerID());
-                        if (locationMovedHome.isPublic() && HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                            DynMapIntegration.addDynamicMapMarker(locationMovedHome);
+                        if (locationMovedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                            HuskHomes.getMap().addPublicHomeMarker(locationMovedHome);
                         }
                         return;
                     case "description":
@@ -104,8 +104,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                             }
 
                             // Remove old marker if on the Dynmap
-                            if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.removeDynamicMapMarker(homeName, p.getName());
+                            if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
                             }
 
                             // Update description
@@ -113,8 +113,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                             // Add new marker if using Dynmap
                             descriptionChangedHome.setDescription(newDescriptionString);
-                            if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.addDynamicMapMarker(descriptionChangedHome);
+                            if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().addPublicHomeMarker(descriptionChangedHome);
                             }
 
                             // Confirmation message
@@ -143,8 +143,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                             Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(renameHomeEvent));
 
                             if (renamedHome.isPublic()) {
-                                if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                    DynMapIntegration.removeDynamicMapMarker(homeName, p.getName());
+                                if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                    HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
                                 }
                                 DataManager.updateHomeName(p.getName(), homeName, newName, connection);
                                 PublicHomeCommand.updatePublicHomeTabCache();
@@ -152,8 +152,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                                 DataManager.updateHomeName(p.getName(), homeName, newName, connection);
                             }
                             renamedHome.setName(newName);
-                            if (renamedHome.isPublic() && HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.addDynamicMapMarker(renamedHome);
+                            if (renamedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().addPublicHomeMarker(renamedHome);
                             }
                             HomeCommand.Tab.updatePlayerHomeCache(p);
                             MessageManager.sendMessage(p, "edit_home_update_name", homeName, newName);
@@ -184,8 +184,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                             DataManager.updateHomePrivacy(p.getName(), homeName, true, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();
-                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.addDynamicMapMarker(privateHome);
+                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().addPublicHomeMarker(privateHome);
                             }
                         } else {
                             MessageManager.sendMessage(p, "error_edit_home_privacy_already_public", homeName);
@@ -199,8 +199,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                             DataManager.updateHomePrivacy(p.getName(), homeName, false, connection);
                             MessageManager.sendMessage(p, "edit_home_privacy_private_success", homeName);
-                            if (HuskHomes.getSettings().doDynMap() && HuskHomes.getSettings().showPublicHomesOnDynmap()) {
-                                DynMapIntegration.removeDynamicMapMarker(publicHome.getName(), publicHome.getOwnerUsername());
+                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                                HuskHomes.getMap().removePublicHomeMarker(publicHome.getName(), publicHome.getOwnerUsername());
                             }
                             PublicHomeCommand.updatePublicHomeTabCache();
                         } else {

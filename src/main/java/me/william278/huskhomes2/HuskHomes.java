@@ -29,7 +29,8 @@ import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.SQL.Database;
 import me.william278.huskhomes2.data.SQL.MySQL;
 import me.william278.huskhomes2.data.SQL.SQLite;
-import me.william278.huskhomes2.integrations.DynMapIntegration;
+import me.william278.huskhomes2.integrations.Map.DynMap;
+import me.william278.huskhomes2.integrations.Map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
@@ -59,6 +60,10 @@ public final class HuskHomes extends JavaPlugin {
     public static Connection getConnection() {
         return database.getConnection();
     }
+
+    // Map integration handling
+    private static Map map;
+    public static Map getMap() { return map; }
 
     // Settings data
     private static Settings settings;
@@ -181,8 +186,13 @@ public final class HuskHomes extends JavaPlugin {
         SettingHandler.fetchSpawnLocation();
 
         // Setup the DynMap integration if it is enabled
-        if (HuskHomes.getSettings().doDynMap()) {
-            DynMapIntegration.initialize();
+        if (HuskHomes.getSettings().doMapIntegration()) {
+            String mapPlugin = HuskHomes.getSettings().getMapPlugin();
+            if (mapPlugin.equalsIgnoreCase("dynmap")) {
+                map = new DynMap();
+            } else if (mapPlugin.equalsIgnoreCase("bluemap")) {
+                //map = new BlueMap();
+            }
         }
 
         // Setup economy if it is enabled

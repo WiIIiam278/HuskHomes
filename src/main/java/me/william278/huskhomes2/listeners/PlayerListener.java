@@ -51,6 +51,7 @@ public class PlayerListener implements Listener {
                         DataManager.createPlayer(p, connection);
                         if (TeleportManager.getSpawnLocation() != null) {
                             Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
+                            return;
                         }
                     } else {
                         // Check if they've changed their name and update if so

@@ -133,6 +133,10 @@ public class TeleportManager {
             }
         }
         if (player.hasPermission("huskhomes.bypass_timer")) {
+            RandomPoint randomPoint = new RandomPoint(player);
+            if (randomPoint.hasFailed()) {
+                return;
+            }
             if (HuskHomes.getSettings().doEconomy()) {
                 double rtpCost = HuskHomes.getSettings().getRtpCost();
                 if (rtpCost > 0) {
@@ -140,11 +144,10 @@ public class TeleportManager {
                     MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(rtpCost));
                 }
             }
-            teleportPlayer(player, new RandomPoint(player), connection);
+            teleportPlayer(player, randomPoint, connection);
             DataManager.updateRtpCooldown(player, connection);
             return;
         }
-
         new TimedTeleport(player).begin();
     }
 

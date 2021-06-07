@@ -32,6 +32,9 @@ general:
     private_homes_per_page: 10
     public_homes_per_page: 10
     warps_per_page: 10
+  help_menu:
+    hide_commands_without_permission: true
+    hide_huskhomes_command: false
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'

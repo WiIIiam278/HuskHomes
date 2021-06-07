@@ -121,3 +121,4 @@ page_options_min: '\n[Pagina %1%/%2%](#00fb9a) [→](gray show_text=&7Pagina suc
 page_options_min_max: '\n[Pagina %1%/%2%](#00fb9a)'
 page_options_max: '\n[←](gray show_text=&7Pagina precedente run_command=%1%) [Pagina %2%/%3%](#00fb9a)'
 page_no_items: '[(Nessun oggetto visibile in questa pagina)](gray show_text=&7Prova un numero differente)'
+command_list_header: '\n[HuskHomes](#00fb9a bold) [| Command List](#00fb9a)'

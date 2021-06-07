@@ -77,6 +77,10 @@ public class Settings {
     private int publicHomesPerPage;
     private int warpsPerPage;
 
+    // Help menu options
+    private boolean hideCommandsFromHelpMenuWithoutPermission;
+    private boolean hideHuskHomesCommandFromHelpMenu;
+
     // RTP command settings
     private boolean doRtpCommand;
     private int rtpRange;
@@ -219,6 +223,9 @@ public class Settings {
             this.privateHomesPerPage = config.getInt("general.lists.private_homes_per_page");
             this.publicHomesPerPage = config.getInt("general.lists.public_homes_per_page");
             this.warpsPerPage = config.getInt("general.lists.warps_per_page");
+
+            this.hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general.help_menu.hide_commands_without_permission");
+            this.hideHuskHomesCommandFromHelpMenu = config.getBoolean("general.help_menu.hide_huskhomes_command");
 
             this.maximumHomes = config.getInt("general.max_sethomes");
             this.teleportRequestExpiryTime = config.getInt("general.teleport_request_expiry_time");
@@ -437,5 +444,13 @@ public class Settings {
 
     public boolean doHideRestrictedWarps() {
         return hideRestrictedWarps;
+    }
+
+    public boolean hideCommandsFromHelpMenuWithoutPermission() {
+        return hideCommandsFromHelpMenuWithoutPermission;
+    }
+
+    public boolean hideHuskHomesCommandFromHelpMenu() {
+        return hideHuskHomesCommandFromHelpMenu;
     }
 }

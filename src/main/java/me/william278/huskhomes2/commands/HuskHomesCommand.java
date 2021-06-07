@@ -4,6 +4,7 @@ import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.migrators.EssentialsMigrator;
+import me.william278.huskhomes2.util.ChatList;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +30,32 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/issues)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
 
+    // Show users a list of available commands
+    public static void showHelpMenu(Player player, int pageNumber) {
+        ArrayList<String> commandDisplay = new ArrayList<>();
+        for (String command : plugin.getDescription().getCommands().keySet()) {
+            if (HuskHomes.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
+                if (!player.hasPermission((String) plugin.getDescription().getCommands().get(command).get("permission"))) {
+                    continue;
+                }
+            }
+            if (command.equals("huskhomes") && HuskHomes.getSettings().hideHuskHomesCommandFromHelpMenu()) {
+                continue;
+            }
+            String description = (String) plugin.getDescription().getCommands().get(command).get("description");
+            String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
+            commandDisplay.add("[/" + command + "](#00fb9a show_text=&#00fb9a&" + commandUsage + " suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
+        }
+
+        MessageManager.sendMessage(player, "command_list_header");
+        ChatList helpList = new ChatList(commandDisplay, 10, "/huskhomes help", "\n");
+        if (helpList.doesNotContainPage(pageNumber)) {
+            MessageManager.sendMessage(player, "error_invalid_page_number");
+            return;
+        }
+        player.spigot().sendMessage(helpList.getPage(pageNumber));
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
@@ -43,6 +71,17 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
         }
 
         switch (args[0]) {
+            case "about":
+            case "info":
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    if (!p.hasPermission("huskhomes.about")) {
+                        MessageManager.sendMessage(p, "error_no_permission");
+                        return true;
+                    }
+                }
+                sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                return true;
             case "update":
                 if (sender instanceof Player) {
                     Player p = (Player) sender;
@@ -97,15 +136,27 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                     sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX");
                 }
                 return true;
-            default:
+            case "help":
                 if (sender instanceof Player) {
-                    Player p = (Player) sender;
-                    if (!p.hasPermission("huskhomes.about")) {
-                        MessageManager.sendMessage(p, "error_no_permission");
-                        return true;
+                    Player player = (Player) sender;
+                    if (args.length == 2) {
+                        try {
+                            int pageNo = Integer.parseInt(args[1]);
+                            showHelpMenu(player, pageNo);
+                        } catch (NumberFormatException ex) {
+                            MessageManager.sendMessage(player, "error_invalid_page_number");
+                        }
+                    } else {
+                        showHelpMenu(player, 1);
                     }
                 }
-                sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                return true;
+            default:
+                if (sender instanceof Player) {
+                    showHelpMenu((Player) sender, 1);
+                } else {
+                    sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                }
                 return true;
         }
     }
@@ -115,19 +166,20 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
         // Console is fine too
     }
 
+    final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload"};
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        Player p = (Player) sender;
+        if (command.getPermission() != null) {
+            if (!p.hasPermission(command.getPermission())) {
+                return Collections.emptyList();
+            }
+        }
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
-            List<String> tabOptions = new ArrayList<>();
-            tabOptions.add("about");
-            tabOptions.add("reload");
-            tabOptions.add("update");
-
-            StringUtil.copyPartialMatches(args[0], tabOptions, tabCompletions);
-
+            StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
             Collections.sort(tabCompletions);
-
             return tabCompletions;
         } else {
             return Collections.emptyList();

@@ -24,7 +24,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
             .append("[HuskHomes](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
             .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
-            .append("[• Contributors:](white) [imDaniX](gray show_text=&7Code, refactoring)\n")
+            .append("[• Contributors:](white) [imDaniX](gray show_text=&7Code, refactoring), [Log1x](gray show_text=&7Code)\n")
             .append("[• Translators:](white) [RohFrenzy](gray show_text=&7German Translation, de-de), [咖波](gray show_text=&7Chinese Translation, zh-tw), [imDaniX](gray show_text=&7Russian Translation, ru), [ReferTV](gray show_text=&7Polish Translation, pl), [Villag3r_](gray show_text=&7Italian Translation, it-it) \n")
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/wiki/)\n")
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/issues)\n")
@@ -63,13 +63,10 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             if (sender instanceof Player) {
-                Player p = (Player) sender;
-                if (!p.hasPermission("huskhomes.about")) {
-                    MessageManager.sendMessage(p, "error_no_permission");
-                    return true;
-                }
+                showHelpMenu((Player) sender, 1);
+            } else {
+                sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
             }
-            sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
             return true;
         }
 

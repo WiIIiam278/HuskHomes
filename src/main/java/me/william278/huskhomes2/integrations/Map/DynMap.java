@@ -21,7 +21,7 @@ public class DynMap extends Map {
 
     @Override
     public void removeWarpMarker(String warpName) {
-        String markerId = "huskhomes." + warpName;
+        String markerId = WARPS_MARKER_SET_ID + "." + warpName;
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.warps");
@@ -34,7 +34,7 @@ public class DynMap extends Map {
 
     @Override
     public void removePublicHomeMarker(String homeName, String ownerName) {
-        String markerId = "huskhomes." + ownerName + "." + homeName;
+        String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName;
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.public_homes");
@@ -48,10 +48,10 @@ public class DynMap extends Map {
     @Override
     public void addWarpMarker(Warp warp) {
         try {
-            String markerId = "huskhomes." + warp.getName();
+            String markerId = WARPS_MARKER_SET_ID + "." + warp.getName();
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
-            MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.warps");
+            MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID);
             Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getMapWarpMarkerIconID()), false);
 
             m.setDescription(getWarpInfoMenu(warp));
@@ -64,10 +64,10 @@ public class DynMap extends Map {
     @Override
     public void addPublicHomeMarker(Home home) {
         try {
-            String markerId = "huskhomes." + home.getOwnerUsername() + "." + home.getName();
+            String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + home.getOwnerUsername() + "." + home.getName();
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
-            MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.public_homes");
+            MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID);
             Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getMapPublicHomeMarkerIconID()), false);
 
             m.setDescription(getPublicHomeInfoMenu(home));
@@ -91,7 +91,7 @@ public class DynMap extends Map {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 if (HuskHomes.getSettings().showPublicHomesOnMap()) {
-                    dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.public_homes", HuskHomes.getSettings().getMapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+                    dynmapAPI.getMarkerAPI().createMarkerSet(PUBLIC_HOMES_MARKER_SET_ID, HuskHomes.getSettings().getMapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
                     for (Home home : DataManager.getPublicHomes(connection)) {
                         if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {
                             Bukkit.getScheduler().runTask(plugin, () -> addPublicHomeMarker(home));
@@ -99,7 +99,7 @@ public class DynMap extends Map {
                     }
                 }
                 if (HuskHomes.getSettings().showWarpsOnMap()) {
-                    dynmapAPI.getMarkerAPI().createMarkerSet("huskhomes.warps", HuskHomes.getSettings().getMapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+                    dynmapAPI.getMarkerAPI().createMarkerSet(WARPS_MARKER_SET_ID, HuskHomes.getSettings().getMapWarpMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
                     for (Warp warp : DataManager.getWarps(connection)) {
                         if (!HuskHomes.getSettings().doBungee() || warp.getServer().equals(HuskHomes.getSettings().getServerID())) {
                             Bukkit.getScheduler().runTask(plugin, () -> addWarpMarker(warp));

@@ -29,6 +29,7 @@ import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.SQL.Database;
 import me.william278.huskhomes2.data.SQL.MySQL;
 import me.william278.huskhomes2.data.SQL.SQLite;
+import me.william278.huskhomes2.integrations.Map.BlueMap;
 import me.william278.huskhomes2.integrations.Map.DynMap;
 import me.william278.huskhomes2.integrations.Map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
@@ -186,13 +187,13 @@ public final class HuskHomes extends JavaPlugin {
         // Fetch spawn location if set
         SettingHandler.fetchSpawnLocation();
 
-        // Setup the DynMap integration if it is enabled
+        // Setup the map integration with the correct plugin
         if (HuskHomes.getSettings().doMapIntegration()) {
             String mapPlugin = HuskHomes.getSettings().getMapPlugin();
             if (mapPlugin.equalsIgnoreCase("dynmap")) {
                 map = new DynMap();
             } else if (mapPlugin.equalsIgnoreCase("bluemap")) {
-                //map = new BlueMap();
+                map = new BlueMap();
             }
         }
 

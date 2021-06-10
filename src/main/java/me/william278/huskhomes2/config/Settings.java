@@ -146,21 +146,34 @@ public class Settings {
 
             if (this.doMapIntegration) {
                 if (mapPlugin != null) {
+                    PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                     switch (mapPlugin.toLowerCase(Locale.ROOT)) {
                         case "dynmap":
-                            PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                             Plugin dynMap = pluginManager.getPlugin("dynmap");
                             if (dynMap == null) {
                                 Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
-                                Bukkit.getLogger().warning("The Dynmap setting has been disabled. Please ensure Dynmap is installed and restart the server.");
+                                Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure BlueMap is installed and restart the server.");
                                 this.doMapIntegration = false;
+                                plugin.getConfig().set("map_integration.enabled", false);
+                                plugin.saveConfig();
                             }
                             break;
                         case "bluemap":
+                            Plugin blueMap = pluginManager.getPlugin("BlueMap");
+                            if (blueMap == null) {
+                                Bukkit.getLogger().warning("BlueMap integration was enabled in config, but the BlueMap plugin could not be found!");
+                                Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure BlueMap is installed and restart the server.");
+                                this.doMapIntegration = false;
+                                plugin.getConfig().set("map_integration.enabled", false);
+                                plugin.saveConfig();
+                            }
                             break;
                         default:
                             Bukkit.getLogger().warning("Map integration was enabled in config, but the map plugin type was invalid.");
+                            Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure you specify a valid map plugin type.");
                             this.doMapIntegration = false;
+                            plugin.getConfig().set("map_integration.enabled", false);
+                            plugin.saveConfig();
                             break;
                     }
                 }

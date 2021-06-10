@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.integrations.Map;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 
@@ -8,6 +9,9 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 public abstract class Map {
 
     public Map() { }
+
+    public static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes.public_homes";
+    public static final String WARPS_MARKER_SET_ID = "huskhomes.warps";
 
     public abstract void addWarpMarker(Warp warp);
     public abstract void removeWarpMarker(String warpName);

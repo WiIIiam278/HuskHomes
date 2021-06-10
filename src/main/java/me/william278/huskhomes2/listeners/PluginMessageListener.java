@@ -93,13 +93,24 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     }
                 });
                 return;
-            case GET_ONLINE_PLAYERS:
-                /*if (Bukkit.getOnlinePlayers().size() > 0) {
-                    returnPlayerList(messageData, recipient);
-                }*/
+            case GET_PLAYER_LIST:
+                final String requestingServer = pluginMessage.getMessageData();
+                StringBuilder playerList = new StringBuilder();
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    playerList.append(p.getName());
+                    playerList.append("£");
+                }
+                if (playerList.toString().equals("")) {
+                    return;
+                }
+                new PluginMessage(PluginMessageType.RETURN_PLAYER_LIST, playerList.substring(0, playerList.length()-1)).sendToServer(recipient, requestingServer);
+                return;
+            case RETURN_PLAYER_LIST:
+                final String[] returningPlayers = pluginMessage.getMessageData().split("£");
+                HuskHomes.getPlayerList().addPlayers(returningPlayers);
                 return;
             default:
-                HuskHomes.getInstance().getLogger().log(Level.WARNING, "Received a HuskHomes plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
+                HuskHomes.getInstance().getLogger().log(Level.WARNING, "Received a HuskHomes plugin message with an unrecognised type. Is your version of HuskHomes up to date?");
         }
     }
 

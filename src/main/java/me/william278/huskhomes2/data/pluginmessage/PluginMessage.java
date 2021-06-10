@@ -107,13 +107,17 @@ public class PluginMessage {
         });
     }
 
-    public void sendToAll(Player sender) {
+    public void sendToServer(Player sender) {
+        sendToServer(sender, "ALL");
+    }
+
+    public void sendToServer(Player sender, String server) {
         Bukkit.getScheduler().runTask(plugin, () -> {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
-            // Send a plugin message to all players
+            // Send a plugin message to the specified player name
             out.writeUTF("Forward");
-            out.writeUTF("ALL");
+            out.writeUTF(server);
 
             // Send the HuskHomes message with a specific type
             out.writeUTF("HuskHomes:" + clusterID + ":" + getPluginMessageString(messageType));
@@ -124,7 +128,7 @@ public class PluginMessage {
             try {
                 messageOut.writeUTF(messageData);
             } catch (IOException e) {
-                plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
+                plugin.getLogger().warning("An error occurred trying to send a plugin message to a server (" + e.getCause() + ")");
                 e.printStackTrace();
             }
 

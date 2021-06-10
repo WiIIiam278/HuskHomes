@@ -99,11 +99,11 @@ commands:
     permission: huskhomes.rtp
     aliases: [randomtp, randomteleport, wild]
   spawn:
-    description: Teleport to the spawn location
+    description: Teleport to spawn
     usage: /spawn
     permission: huskhomes.spawn
   setspawn:
-    description: Set the spawn location
+    description: Set the spawn position
     usage: /setspawn
     permission: huskhomes.spawn.set
   huskhomes:

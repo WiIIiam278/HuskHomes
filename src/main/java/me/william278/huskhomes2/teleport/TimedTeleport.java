@@ -28,7 +28,6 @@ public class TimedTeleport {
     private final Location initialLocation;
     private final double initialHealth;
 
-    private int timeRemaining;
     private final int warmupTime = HuskHomes.getSettings().getTeleportWarmupTime();
 
     public TimedTeleport(Player player, TeleportationPoint targetPoint, TargetType targetType) {
@@ -37,7 +36,6 @@ public class TimedTeleport {
         this.initialHealth = player.getHealth();
         this.targetType = targetType;
         this.targetPoint = targetPoint;
-        this.timeRemaining = warmupTime;
 
         MessageManager.sendMessage(player, "teleporting_countdown_start", Integer.toString(this.warmupTime));
         MessageManager.sendMessage(player, "teleporting_please_stand_still");
@@ -48,7 +46,6 @@ public class TimedTeleport {
         this.initialLocation = player.getLocation();
         this.initialHealth = player.getHealth();
         this.targetType = TargetType.RANDOM;
-        this.timeRemaining = warmupTime;
 
         MessageManager.sendMessage(player, "teleporting_countdown_start", Integer.toString(this.warmupTime));
         MessageManager.sendMessage(player, "teleporting_please_stand_still");
@@ -60,7 +57,6 @@ public class TimedTeleport {
         this.initialHealth = player.getHealth();
         this.targetType = TargetType.PLAYER;
         this.targetPlayerName = targetPlayerName;
-        this.timeRemaining = warmupTime;
 
         MessageManager.sendMessage(player, "teleporting_countdown_start", Integer.toString(this.warmupTime));
         MessageManager.sendMessage(player, "teleporting_please_stand_still");
@@ -190,14 +186,6 @@ public class TimedTeleport {
 
     public Player getPlayer() {
         return player;
-    }
-
-    public int getTimeRemaining() {
-        return timeRemaining;
-    }
-
-    public void decrementTimeRemaining() {
-        timeRemaining = timeRemaining - 1;
     }
 
     public enum TargetType {

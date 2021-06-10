@@ -95,14 +95,7 @@ public class TpCommand extends CommandBase {
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             List<String> players = new ArrayList<>();
             if (args.length == 0 || args.length == 1) {
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (!VanishChecker.isVanished(p) && !(p.getName().equals(sender.getName()))) {
-                        players.add(p.getName());
-                    }
-                }
-                if (HuskHomes.getSettings().doBungee() & HuskHomes.getSettings().doCrossServerTabCompletion()) {
-                    //players.addAll(CrossServerListHandler.getOtherServerPlayerList());
-                }
+                players.addAll(HuskHomes.getPlayerList().getPlayers());
             }
             players.remove(sender.getName());
             final List<String> tabCompletions = new ArrayList<>();

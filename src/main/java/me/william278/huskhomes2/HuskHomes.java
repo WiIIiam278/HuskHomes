@@ -35,6 +35,7 @@ import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.teleport.SettingHandler;
+import me.william278.huskhomes2.util.PlayerList;
 import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -70,6 +71,10 @@ public final class HuskHomes extends JavaPlugin {
     public static Settings getSettings() {
         return settings;
     }
+
+    // Player list managing
+    private static PlayerList playerList;
+    public static PlayerList getPlayerList() { return playerList; }
 
 
     /**
@@ -163,12 +168,8 @@ public final class HuskHomes extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Fetch config file
         saveDefaultConfig();
-
-        // Plugin startup logic
-        getLogger().info("Enabling HuskHomes version " + this.getDescription().getVersion());
-
-        // Load the config
         settings.reload();
 
         // Load the messages (in the right language)
@@ -213,11 +214,21 @@ public final class HuskHomes extends JavaPlugin {
 
         // bStats initialisation
         new MetricsLite(this, 8430);
+
+        // Setup player list
+        playerList = new PlayerList();
+        playerList.initialize();
+
+        // Log a message
+        getLogger().info("Enabled HuskHomes version " + this.getDescription().getVersion());
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        // Cancel remaining tasks
+        Bukkit.getServer().getScheduler().cancelTasks(this);
+
+        // Log a message
         getLogger().info("Disabled HuskHomes version " + this.getDescription().getVersion());
     }
 

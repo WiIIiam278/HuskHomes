@@ -11,7 +11,6 @@ import me.william278.huskhomes2.commands.HomeCommand;
 import me.william278.huskhomes2.commands.PublicHomeCommand;
 import me.william278.huskhomes2.commands.WarpCommand;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.integrations.Map.DynMap;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;

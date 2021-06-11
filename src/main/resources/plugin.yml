@@ -109,7 +109,8 @@ commands:
   huskhomes:
     description: Plugin information & reload configs.
     usage: /huskhomes <about/update/reload/migrate>
-
+libraries:
+  - mysql:mysql-connector-java:8.0.25
 permissions:
   huskhomes.*:
     description: Grants all HuskHomes permissions

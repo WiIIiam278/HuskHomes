@@ -10,6 +10,7 @@ import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -46,8 +47,9 @@ public class TeleportManager {
                     if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
                         DataManager.setPlayerTeleporting(p, false, connection);
                         DataManager.deletePlayerDestination(p.getName(), connection);
+                        Location targetLocation = teleportationPoint.getLocation();
                         Bukkit.getScheduler().runTask(plugin, () -> {
-                            PaperLib.teleportAsync(p, teleportationPoint.getLocation());
+                            PaperLib.teleportAsync(p, targetLocation);
                             p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
                             MessageManager.sendMessage(p, "teleporting_complete");
                         });
@@ -57,9 +59,9 @@ public class TeleportManager {
                         PluginMessage.sendPlayer(p, server);
                     }
                 }
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
-            } catch (Exception e) {
+            } catch (SQLException sqlException) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", sqlException);
+            } catch (IllegalArgumentException illegalArgumentException) {
                 MessageManager.sendMessage(p, "error_invalid_on_arrival");
             }
         });

@@ -71,10 +71,6 @@ public class TpCommand extends CommandBase {
                                 double z = Double.parseDouble(args[2]);
                                 String worldName = args[3];
                                 String serverName = args[4];
-                                if (Bukkit.getWorld(worldName) == null) {
-                                    MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
-                                    return;
-                                }
                                 TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, serverName);
                                 TeleportManager.teleportPlayer(p, teleportationPoint, connection);
                             } catch (Exception e) {

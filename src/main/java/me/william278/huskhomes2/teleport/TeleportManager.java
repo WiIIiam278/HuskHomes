@@ -23,7 +23,6 @@ public class TeleportManager {
 
     private static TeleportationPoint spawnLocation;
 
-    // todo this doesnt seem to work cross server
     public static void teleportPlayer(Player player, String targetPlayer, Connection connection) throws SQLException {
         DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID()), connection);
@@ -60,6 +59,8 @@ public class TeleportManager {
                 }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
+            } catch (Exception e) {
+                MessageManager.sendMessage(p, "error_invalid_on_arrival");
             }
         });
     }

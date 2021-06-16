@@ -220,7 +220,12 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         }
         if (args.length == 1) {
             final List<String> tabCompletions = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], HomeCommand.Tab.getHomeTabCache().get(p.getUniqueId()), tabCompletions);
+            final List<String> homes = HomeCommand.Tab.getHomeTabCache().get(p.getUniqueId());
+            if (homes == null) {
+                HomeCommand.Tab.updatePlayerHomeCache(p);
+                return Collections.emptyList();
+            }
+            StringUtil.copyPartialMatches(args[0], homes, tabCompletions);
             Collections.sort(tabCompletions);
             return tabCompletions;
         } else if (args.length == 2) {

@@ -79,12 +79,13 @@ public final class HuskHomes extends JavaPlugin {
 
 
     /**
+     * @deprecated Use HuskHomesAPI#getInstance() instead
      * Returns the HuskHomes API
      * @return an instance of the HuskHomes API
      * @see HuskHomesAPI
      */
     public HuskHomesAPI getAPI() {
-        return new HuskHomesAPI();
+        return HuskHomesAPI.getInstance();
     }
 
     public static void disablePlugin(String reason) {

@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
  * An event, fired when a player changes the description of a warp.
  */
 public class PlayerChangeWarpDescriptionEvent extends PlayerWarpUpdateEvent {
-
     private final String oldDescription;
     private final String newDescription;
 

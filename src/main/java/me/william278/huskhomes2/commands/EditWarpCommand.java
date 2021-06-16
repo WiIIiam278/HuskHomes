@@ -7,7 +7,6 @@ import me.william278.huskhomes2.api.events.PlayerChangeWarpDescriptionEvent;
 import me.william278.huskhomes2.api.events.PlayerRelocateWarpEvent;
 import me.william278.huskhomes2.api.events.PlayerRenameWarpEvent;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.integrations.Map.DynMap;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import me.william278.huskhomes2.util.RegexUtil;
@@ -53,7 +52,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                 }
 
                 switch (args[1]) {
-                    case "location":
+                    case "location" -> {
                         Location newLocation = p.getLocation();
                         TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
 
@@ -62,10 +61,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                         if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
                             HuskHomes.getMap().removeWarpMarker(warpName);
                         }
-
                         PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
                         Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(relocateWarpEvent));
-
                         DataManager.updateWarpLocation(warpName, p.getLocation(), connection);
                         MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
 
@@ -74,8 +71,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                         if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
                             HuskHomes.getMap().addWarpMarker(locationMovedWarp);
                         }
-                        return;
-                    case "description":
+                    }
+                    case "description" -> {
                         if (args.length >= 3) {
                             Warp descriptionChangedWarp = DataManager.getWarp(warpName, connection);
 
@@ -117,8 +114,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> description <new description>");
                         }
-                        return;
-                    case "rename":
+                    }
+                    case "rename" -> {
                         if (args.length >= 3) {
                             Warp renamedWarp = DataManager.getWarp(warpName, connection);
                             String newName = args[2];
@@ -151,9 +148,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");
                         }
-                        return;
-                    default:
-                        MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                    }
+                    default -> MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                 }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occured editing a warp.", e);

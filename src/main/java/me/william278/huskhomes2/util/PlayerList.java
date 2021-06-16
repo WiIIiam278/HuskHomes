@@ -21,14 +21,12 @@ public class PlayerList {
     }
 
     public void initialize() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-           Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-               for (Player p : Bukkit.getOnlinePlayers()) {
-                   updateList(p);
-                   break;
-               }
-           }, 0, playerListUpdateTime);
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                updateList(p);
+                break;
+            }
+        }, 0, playerListUpdateTime));
     }
 
     public void updateList(Player updateRequester) {

@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
  * An event, fired when a player edits a Warp to change it's location
  */
 public class PlayerRelocateHomeEvent extends PlayerHomeUpdateEvent {
-
     private final TeleportationPoint oldTeleportationPoint;
     private final TeleportationPoint newTeleportationPoint;
 

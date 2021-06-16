@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
  * An event, fired when a player renames a home
  */
 public class PlayerRenameHomeEvent extends PlayerHomeUpdateEvent {
-
     private final String oldName;
     private final String newName;
 

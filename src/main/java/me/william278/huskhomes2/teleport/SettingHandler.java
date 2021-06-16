@@ -1,6 +1,5 @@
 package me.william278.huskhomes2.teleport;
 
-import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerDeleteHomeEvent;
@@ -16,12 +15,6 @@ import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import me.william278.huskhomes2.util.RegexUtil;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -53,14 +46,13 @@ public class SettingHandler {
                     HomeCommand.Tab.updatePlayerHomeCache(player);
                 } else {
                     switch (setHomeConditions.getConditionsNotMetReason()) {
-                        case "error_set_home_maximum_homes":
+                        case "error_set_home_maximum_homes" -> {
                             MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(HuskHomes.getSettings().getMaximumHomes()));
-                            return;
-                        case "error_insufficient_funds":
+                        }
+                        case "error_insufficient_funds" -> {
                             MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.getSettings().getSetHomeCost()));
-                            return;
-                        default:
-                            MessageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
+                        }
+                        default -> MessageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
                     }
                 }
             } catch (SQLException e) {
@@ -69,7 +61,7 @@ public class SettingHandler {
         });
     }
 
-    public static void updateCrossServerSpawnWarp(Location location, Player p) {
+    public static void updateCrossServerSpawnWarp(Player p) {
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -137,20 +129,6 @@ public class SettingHandler {
             }
         });
     }
-
-    private static BaseComponent[] deletionConfirmationButton(String commandType) {
-        BaseComponent[] buttonComponents = new MineDown(MessageManager.getRawMessage("delete_confirmation_button")).urlDetection(false).toComponent();
-        for (BaseComponent baseComponent : buttonComponents) {
-            baseComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/huskhomes:" + commandType + " all confirm")));
-            baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(MessageManager.getRawMessage("delete_confirmation_button_tooltip")).color(ChatColor.RED).italic(false).create())));
-        }
-        return buttonComponents;
-    }
-
-    private static void sendDeletionConfirmationWarning(Player player, String deletionType) {
-        // Send the delete-all confirmation warning
-        MessageManager.sendMessage(player, "delete_all_" + deletionType + "s_confirm");
-}
 
     // Delete all of a player's homes
     public static void deleteAllHomes(Player player) {
@@ -220,7 +198,7 @@ public class SettingHandler {
                             MessageManager.sendMessage(player, "error_no_homes_set");
                             return;
                         }
-                        sendDeletionConfirmationWarning(player, "home");
+                        MessageManager.sendMessage(player, "delete_all_homes_confirm");
                         return;
                     }
                     MessageManager.sendMessage(player, "error_home_invalid", homeName);
@@ -284,7 +262,7 @@ public class SettingHandler {
                             MessageManager.sendMessage(player, "error_no_warps_set");
                             return;
                         }
-                        sendDeletionConfirmationWarning(player, "warp");
+                        MessageManager.sendMessage(player, "delete_all_warps_confirm");
                         return;
                     }
                     MessageManager.sendMessage(player, "error_warp_invalid", warpName);

@@ -94,10 +94,8 @@ public class TimedTeleport {
                         try {
                             // Execute the teleport
                             switch (getTargetType()) {
-                                case POINT:
-                                    TeleportManager.teleportPlayer(player, targetPoint, connection);
-                                    break;
-                                case BACK:
+                                case POINT -> TeleportManager.teleportPlayer(player, targetPoint, connection);
+                                case BACK -> {
                                     if (HuskHomes.getSettings().doEconomy()) {
                                         double backCost = HuskHomes.getSettings().getBackCost();
                                         if (backCost > 0) {
@@ -110,11 +108,9 @@ public class TimedTeleport {
                                         }
                                     }
                                     TeleportManager.teleportPlayer(player, getTargetPoint(), connection);
-                                    break;
-                                case PLAYER:
-                                    TeleportManager.teleportPlayer(player, getTargetPlayerName(), connection);
-                                    break;
-                                case RANDOM:
+                                }
+                                case PLAYER -> TeleportManager.teleportPlayer(player, getTargetPlayerName(), connection);
+                                case RANDOM -> {
                                     RandomPoint randomPoint = new RandomPoint(player);
                                     if (randomPoint.hasFailed()) {
                                         return;
@@ -132,7 +128,7 @@ public class TimedTeleport {
                                     }
                                     TeleportManager.teleportPlayer(player, randomPoint, connection);
                                     DataManager.updateRtpCooldown(player, connection);
-                                    break;
+                                }
                             }
                         } catch (SQLException e) {
                             plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred carrying out a timed teleport");

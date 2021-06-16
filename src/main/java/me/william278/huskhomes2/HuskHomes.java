@@ -96,19 +96,19 @@ public final class HuskHomes extends JavaPlugin {
     private void initializeDatabase() {
         String dataStorageType = HuskHomes.getSettings().getDatabaseType().toLowerCase();
         switch (dataStorageType) {
-            case "mysql":
+            case "mysql" -> {
                 database = new MySQL(getInstance());
                 database.load();
-                break;
-            case "sqlite":
+            }
+            case "sqlite" -> {
                 database = new SQLite(getInstance());
                 database.load();
-                break;
-            default:
+            }
+            default -> {
                 getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
                 database = new SQLite(getInstance());
                 database.load();
-                break;
+            }
         }
     }
 

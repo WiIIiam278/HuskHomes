@@ -1,6 +1,5 @@
 package me.william278.huskhomes2.integrations.Map;
 
-import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 

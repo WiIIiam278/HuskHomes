@@ -29,37 +29,35 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
     private void handlePluginMessage(PluginMessage pluginMessage, Player recipient) {
         Connection connection = HuskHomes.getConnection();
         switch (pluginMessage.getMessageType()) {
-            case SET_TP_DESTINATION:
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try {
-                        DataManager.setPlayerDestinationLocation(pluginMessage.getMessageData(),
-                                new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
-                        new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
-                    } catch (SQLException e) {
-                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport destination update");
-                    }
-                });
-                return;
-            case CONFIRM_DESTINATION_SET:
+            case SET_TP_DESTINATION -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    DataManager.setPlayerDestinationLocation(pluginMessage.getMessageData(),
+                            new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
+                    new PluginMessage(pluginMessage.getMessageData(), PluginMessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport destination update");
+                }
+            });
+            case CONFIRM_DESTINATION_SET -> {
                 if (pluginMessage.getMessageData().equals("confirmed")) {
                     TeleportManager.teleportPlayer(recipient);
                 }
-                return;
-            case TPA_REQUEST:
+            }
+            case TPA_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPA));
                     MessageManager.sendMessage(recipient, "tpa_request_ask", pluginMessage.getMessageData());
                     MessageManager.sendMessage(recipient, "teleport_request_options");
                 }
-                return;
-            case TPAHERE_REQUEST:
+            }
+            case TPAHERE_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPAHERE));
                     MessageManager.sendMessage(recipient, "tpahere_request_ask", pluginMessage.getMessageData());
                     MessageManager.sendMessage(recipient, "teleport_request_options");
                 }
-                return;
-            case TPA_REQUEST_REPLY:
+            }
+            case TPA_REQUEST_REPLY -> {
                 final String tpaReplierName = pluginMessage.getMessageDataItems()[0];
                 final boolean tpaAccepted = Boolean.parseBoolean(pluginMessage.getMessageDataItems()[1]);
                 if (tpaAccepted) {
@@ -74,8 +72,8 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 } else {
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaReplierName);
                 }
-                return;
-            case TPAHERE_REQUEST_REPLY:
+            }
+            case TPAHERE_REQUEST_REPLY -> {
                 final String tpaHereReplierName = pluginMessage.getMessageDataItems()[0];
                 final boolean tpaHereAccepted = Boolean.parseBoolean(pluginMessage.getMessageDataItems()[1]);
                 if (tpaHereAccepted) {
@@ -83,17 +81,15 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 } else {
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaHereReplierName);
                 }
-                return;
-            case TELEPORT_TO_ME:
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try {
-                        TeleportManager.teleportPlayer(recipient, pluginMessage.getMessageData(), connection);
-                    } catch (SQLException e) {
-                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport-to-me request");
-                    }
-                });
-                return;
-            case GET_PLAYER_LIST:
+            }
+            case TELEPORT_TO_ME -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    TeleportManager.teleportPlayer(recipient, pluginMessage.getMessageData(), connection);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport-to-me request");
+                }
+            });
+            case GET_PLAYER_LIST -> {
                 final String requestingServer = pluginMessage.getMessageData();
                 StringBuilder playerList = new StringBuilder();
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -103,14 +99,13 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 if (playerList.toString().equals("")) {
                     return;
                 }
-                new PluginMessage(PluginMessageType.RETURN_PLAYER_LIST, playerList.substring(0, playerList.length()-1)).sendToServer(recipient, requestingServer);
-                return;
-            case RETURN_PLAYER_LIST:
+                new PluginMessage(PluginMessageType.RETURN_PLAYER_LIST, playerList.substring(0, playerList.length() - 1)).sendToServer(recipient, requestingServer);
+            }
+            case RETURN_PLAYER_LIST -> {
                 final String[] returningPlayers = pluginMessage.getMessageData().split("£");
                 HuskHomes.getPlayerList().addPlayers(returningPlayers);
-                return;
-            default:
-                HuskHomes.getInstance().getLogger().log(Level.WARNING, "Received a HuskHomes plugin message with an unrecognised type. Is your version of HuskHomes up to date?");
+            }
+            default -> HuskHomes.getInstance().getLogger().log(Level.WARNING, "Received a HuskHomes plugin message with an unrecognised type. Is your version of HuskHomes up to date?");
         }
     }
 

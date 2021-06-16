@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
  * An event, fired when a player changes the description of a home.
  */
 public class PlayerChangeHomeDescriptionEvent extends PlayerHomeUpdateEvent {
-
     private final String oldDescription;
     private final String newDescription;
 

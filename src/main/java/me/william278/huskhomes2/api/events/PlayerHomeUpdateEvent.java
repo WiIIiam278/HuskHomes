@@ -12,7 +12,6 @@ import org.bukkit.event.HandlerList;
  * Also fires when it is deleted
  */
 public class PlayerHomeUpdateEvent extends Event {
-
     private final Player player;
     private final Home home;
     private static final HandlerList HANDLER_LIST = new HandlerList();

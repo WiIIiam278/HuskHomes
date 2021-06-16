@@ -12,7 +12,7 @@ public class SetSpawnCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (HuskHomes.getSettings().doSpawnCommand()) {
             if (HuskHomes.getSettings().doCrossServerSpawn()) {
-                SettingHandler.updateCrossServerSpawnWarp(p.getLocation(), p);
+                SettingHandler.updateCrossServerSpawnWarp(p);
                 return;
             }
             SettingHandler.setSpawnLocation(p.getLocation());

@@ -71,10 +71,8 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
         }
 
         switch (args[0]) {
-            case "about":
-            case "info":
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+            case "about", "info" -> {
+                if (sender instanceof Player p) {
                     if (!p.hasPermission("huskhomes.about")) {
                         MessageManager.sendMessage(p, "error_no_permission");
                         return true;
@@ -82,9 +80,9 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                 }
                 sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                 return true;
-            case "update":
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+            }
+            case "update" -> {
+                if (sender instanceof Player p) {
                     if (p.hasPermission("huskhomes.version_checker")) {
                         if (!HuskHomes.getVersionCheckString().contains("HuskHomes is up to date!")) {
                             String updateMessage = "[Update:](dark_red) [" +
@@ -102,9 +100,9 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                     plugin.getLogger().info(HuskHomes.getVersionCheckString());
                 }
                 return true;
-            case "reload":
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+            }
+            case "reload" -> {
+                if (sender instanceof Player p) {
                     if (p.hasPermission("huskhomes.reload")) {
                         HuskHomes.getSettings().reload();
                         MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
@@ -119,9 +117,9 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                     plugin.getLogger().info("Reloaded config and message files.");
                 }
                 return true;
-            case "migrate":
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+            }
+            case "migrate" -> {
+                if (sender instanceof Player p) {
                     MessageManager.sendMessage(p, "error_console_only");
                     return true;
                 }
@@ -136,28 +134,30 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                     sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX");
                 }
                 return true;
-            case "help":
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
+            }
+            case "help" -> {
+                if (sender instanceof Player p) {
                     if (args.length == 2) {
                         try {
                             int pageNo = Integer.parseInt(args[1]);
-                            showHelpMenu(player, pageNo);
+                            showHelpMenu(p, pageNo);
                         } catch (NumberFormatException ex) {
-                            MessageManager.sendMessage(player, "error_invalid_page_number");
+                            MessageManager.sendMessage(p, "error_invalid_page_number");
                         }
                     } else {
-                        showHelpMenu(player, 1);
+                        showHelpMenu(p, 1);
                     }
                 }
                 return true;
-            default:
+            }
+            default -> {
                 if (sender instanceof Player) {
                     showHelpMenu((Player) sender, 1);
                 } else {
                     sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                 }
                 return true;
+            }
         }
     }
 

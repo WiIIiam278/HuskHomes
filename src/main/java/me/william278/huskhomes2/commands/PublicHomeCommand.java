@@ -48,11 +48,10 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             handleConsolePublicHomeTeleport(sender, args);
             return true;
         }
-        Player p = (Player) sender;
         if (args.length == 0) {
             PublicHomeListCommand.displayPublicHomeList(p, 1);
             return true;

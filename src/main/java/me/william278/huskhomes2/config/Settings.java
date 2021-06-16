@@ -148,7 +148,7 @@ public class Settings {
                 if (mapPlugin != null) {
                     PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                     switch (mapPlugin.toLowerCase(Locale.ROOT)) {
-                        case "dynmap":
+                        case "dynmap" -> {
                             Plugin dynMap = pluginManager.getPlugin("dynmap");
                             if (dynMap == null) {
                                 Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
@@ -157,8 +157,8 @@ public class Settings {
                                 plugin.getConfig().set("map_integration.enabled", false);
                                 plugin.saveConfig();
                             }
-                            break;
-                        case "bluemap":
+                        }
+                        case "bluemap" -> {
                             Plugin blueMap = pluginManager.getPlugin("BlueMap");
                             if (blueMap == null) {
                                 Bukkit.getLogger().warning("BlueMap integration was enabled in config, but the BlueMap plugin could not be found!");
@@ -167,14 +167,14 @@ public class Settings {
                                 plugin.getConfig().set("map_integration.enabled", false);
                                 plugin.saveConfig();
                             }
-                            break;
-                        default:
+                        }
+                        default -> {
                             Bukkit.getLogger().warning("Map integration was enabled in config, but the map plugin type was invalid.");
                             Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure you specify a valid map plugin type.");
                             this.doMapIntegration = false;
                             plugin.getConfig().set("map_integration.enabled", false);
                             plugin.saveConfig();
-                            break;
+                        }
                     }
                 }
 

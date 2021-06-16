@@ -27,11 +27,10 @@ public class WarpCommand extends CommandBase {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             handleConsoleWarp(sender, args);
             return true;
         }
-        Player p = (Player) sender;
         if (!HuskHomes.getSettings().doWarpCommand()) {
             MessageManager.sendMessage(p, "error_command_disabled");
             return true;

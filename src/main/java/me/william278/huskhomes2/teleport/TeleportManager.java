@@ -86,33 +86,38 @@ public class TeleportManager {
     }
 
     public static void queueBackTeleport(Player player, Connection connection) throws SQLException {
-        TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player, connection);
-        if (lastPosition != null) {
-            if (HuskHomes.getSettings().doEconomy()) {
-                double backCost = HuskHomes.getSettings().getBackCost();
-                if (backCost > 0) {
-                    if (!VaultIntegration.hasMoney(player, backCost)) {
-                        MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(backCost));
-                        return;
-                    }
-                }
-            }
-            if (player.hasPermission("huskhomes.bypass_timer")) {
+        try {
+            TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player, connection);
+            if (lastPosition != null) {
                 if (HuskHomes.getSettings().doEconomy()) {
-                    double backCost = HuskHomes.getSettings().getRtpCost();
+                    double backCost = HuskHomes.getSettings().getBackCost();
                     if (backCost > 0) {
-                        VaultIntegration.takeMoney(player, backCost);
-                        MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(backCost));
+                        if (!VaultIntegration.hasMoney(player, backCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(backCost));
+                            return;
+                        }
                     }
                 }
-                teleportPlayer(player, lastPosition, connection);
-                return;
-            }
+                if (player.hasPermission("huskhomes.bypass_timer")) {
+                    if (HuskHomes.getSettings().doEconomy()) {
+                        double backCost = HuskHomes.getSettings().getRtpCost();
+                        if (backCost > 0) {
+                            VaultIntegration.takeMoney(player, backCost);
+                            MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(backCost));
+                        }
+                    }
+                    teleportPlayer(player, lastPosition, connection);
+                    return;
+                }
 
-            new TimedTeleport(player, lastPosition, TimedTeleport.TargetType.BACK).begin();
-        } else {
+                new TimedTeleport(player, lastPosition, TimedTeleport.TargetType.BACK).begin();
+            } else {
+                MessageManager.sendMessage(player, "error_no_last_position");
+            }
+        } catch (IllegalArgumentException e) {
             MessageManager.sendMessage(player, "error_no_last_position");
         }
+
     }
 
     public static void queueRandomTeleport(Player player, Connection connection) throws SQLException {

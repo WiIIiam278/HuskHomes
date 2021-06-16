@@ -240,7 +240,11 @@ public final class HuskHomes extends JavaPlugin {
             String latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
             String pluginVersion = instance.getDescription().getVersion();
             if (!latestVersion.equals(pluginVersion)) {
-                return "An update for HuskHomes is available; v" + latestVersion + " (Currently running v" + pluginVersion + ")";
+                if (pluginVersion.contains("dev")) {
+                    return "You are running a development build of HuskHomes. The latest stable version is " + latestVersion + ".";
+                } else {
+                    return "An update for HuskHomes is available; v" + latestVersion + " (Currently running v" + pluginVersion + ")";
+                }
             } else {
                 return "HuskHomes is up to date! (Version " + pluginVersion + ")";
             }

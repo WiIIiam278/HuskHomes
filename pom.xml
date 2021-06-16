@@ -75,6 +75,7 @@
                 <configuration>
                     <detectJavaApiLink>false</detectJavaApiLink>
                     <additionalJOption>-Xdoclint:none</additionalJOption>
+                    <staleDataPath>${project.build.directory}/javadoc-bundle-options/maven-javadoc-plugin-stale-data.txt</staleDataPath>
                 </configuration>
                 <executions>
                     <execution>

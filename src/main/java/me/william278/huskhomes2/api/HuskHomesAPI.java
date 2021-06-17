@@ -26,13 +26,13 @@ public class HuskHomesAPI {
     }
 
     private static HuskHomesAPI instance;
-    public HuskHomesAPI() { huskHomes = HuskHomes.getInstance(); }
 
     /**
      * Get the HuskHomes API
      * @return instance of the HuskHomes API
      */
     public static HuskHomesAPI getInstance() {
+        huskHomes = HuskHomes.getInstance();
         if (instance == null) {
             instance = new HuskHomesAPI();
         }

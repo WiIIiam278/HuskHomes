@@ -20,8 +20,8 @@ import java.util.logging.Level;
  */
 public class HuskHomesAPI {
 
-    private static HuskHomes huskHomes;
-    private Connection getConnection() {
+    private static final HuskHomes huskHomes = HuskHomes.getInstance();
+    private static Connection getConnection() {
         return HuskHomes.getConnection();
     }
 
@@ -32,7 +32,6 @@ public class HuskHomesAPI {
      * @return instance of the HuskHomes API
      */
     public static HuskHomesAPI getInstance() {
-        huskHomes = HuskHomes.getInstance();
         if (instance == null) {
             instance = new HuskHomesAPI();
         }

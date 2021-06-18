@@ -21,21 +21,10 @@ import java.util.logging.Level;
 public class HuskHomesAPI {
 
     private static final HuskHomes huskHomes = HuskHomes.getInstance();
-
-    private static HuskHomesAPI instance;
-
-    private HuskHomesAPI() { }
-
-    /**
-     * Get the HuskHomes API
-     * @return instance of the HuskHomes API
-     */
-    public static HuskHomesAPI getInstance() {
-        if (instance == null) {
-            instance = new HuskHomesAPI();
-        }
-        return instance;
+    private Connection getConnection() {
+        return HuskHomes.getConnection();
     }
+    public HuskHomesAPI() { }
 
     /**
      Returns a Home set by a player, or NULL if it does not exist
@@ -57,7 +46,7 @@ public class HuskHomesAPI {
      */
     public Home getHome(String ownerUsername, String homeName) {
         try {
-            return DataManager.getHome(ownerUsername, homeName, HuskHomes.getConnection());
+            return DataManager.getHome(ownerUsername, homeName, getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -72,7 +61,7 @@ public class HuskHomesAPI {
      */
     public Warp getWarp(String warpName)  {
         try {
-            return DataManager.getWarp(warpName, HuskHomes.getConnection());
+            return DataManager.getWarp(warpName, getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -97,7 +86,7 @@ public class HuskHomesAPI {
      */
     public List<Home> getHomes(String ownerUsername) {
         try {
-            return DataManager.getPlayerHomes(ownerUsername, HuskHomes.getConnection());
+            return DataManager.getPlayerHomes(ownerUsername, getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -139,7 +128,7 @@ public class HuskHomesAPI {
      */
     public List<Home> getPublicHomes() {
         try {
-            return DataManager.getPublicHomes(HuskHomes.getConnection());
+            return DataManager.getPublicHomes(getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -162,7 +151,7 @@ public class HuskHomesAPI {
      */
     public List<Warp> getWarps() {
         try {
-            return DataManager.getWarps(HuskHomes.getConnection());
+            return DataManager.getWarps(getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -194,7 +183,7 @@ public class HuskHomesAPI {
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
-        Connection connection = HuskHomes.getConnection();
+        Connection connection = getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
             try {
                 if (timed) {
@@ -216,7 +205,7 @@ public class HuskHomesAPI {
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
-        Connection connection = HuskHomes.getConnection();
+        Connection connection = getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
             try {
                 if (timed) {

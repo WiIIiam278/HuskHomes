@@ -1,4 +1,4 @@
-[![Header](https://i.imgur.com/hIc0zzr.png "Header")](https://www.spigotmc.org/resources/huskhomes.83767/)
+[![Header](https://i.imgur.com/jh0IKyM.png "Header")](https://www.spigotmc.org/resources/huskhomes.83767/)
 # HuskHomes
 [![Jitpack](https://jitpack.io/v/WiIIiam278/HuskHomes2.svg)](https://jitpack.io/#WiIIiam278/HuskHomes2)
 [![GitHub issues](https://img.shields.io/github/issues/WiIIiam278/HuskHomes2)](https://github.com/WiIIiam278/HuskHomes2/issues)

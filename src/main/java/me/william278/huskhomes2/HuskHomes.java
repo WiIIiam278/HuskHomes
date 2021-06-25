@@ -77,7 +77,6 @@ public final class HuskHomes extends JavaPlugin {
     private static PlayerList playerList;
     public static PlayerList getPlayerList() { return playerList; }
 
-
     /**
      * Returns the HuskHomes API
      * @return an instance of the HuskHomes API
@@ -86,6 +85,7 @@ public final class HuskHomes extends JavaPlugin {
     public HuskHomesAPI getAPI() {
         return new HuskHomesAPI();
     }
+
 
     public static void disablePlugin(String reason) {
         instance.getLogger().severe("Disabling HuskHomes plugin because:\n" + reason);

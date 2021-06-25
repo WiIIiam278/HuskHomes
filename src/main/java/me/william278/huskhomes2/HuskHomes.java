@@ -78,12 +78,13 @@ public final class HuskHomes extends JavaPlugin {
     public static PlayerList getPlayerList() { return playerList; }
 
     /**
+     * @deprecated Use HuskHomesAPI#getInstance() instead
      * Returns the HuskHomes API
      * @return an instance of the HuskHomes API
      * @see HuskHomesAPI
      */
     public HuskHomesAPI getAPI() {
-        return new HuskHomesAPI();
+        return HuskHomesAPI.getInstance();
     }
 
 

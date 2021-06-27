@@ -101,5 +101,5 @@ page_options_min: '\n[Pagina %1%/%2%](#00fb9a) [→](gray show_text=&7Pagina suc
 page_options_min_max: '\n[Pagina %1%/%2%](#00fb9a)'
 page_options_max: '\n[←](gray show_text=&7Pagina precedente run_command=%1%) [Pagina %2%/%3%](#00fb9a)'
 page_no_items: '[(Nessun oggetto visibile in questa pagina)](gray show_text=&7Prova un numero differente)'
-command_list_header: '\n[HuskHomes](#00fb9a bold) [| Command List](#00fb9a)'
-error_invalid_on_arrival: '[Error:](#ff3300) [Failed to finish your teleportation as the target world could not be found.](#ff7e5e)'
+command_list_header: '\n[HuskHomes](#00fb9a bold) [| Comandi](#00fb9a)'
+error_invalid_on_arrival: '[Error:](#ff3300) [Non sono riuscito a teletrasportarti perché il mondo non è caricato correttamente.](#ff7e5e)'

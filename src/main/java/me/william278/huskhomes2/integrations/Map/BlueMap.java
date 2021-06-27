@@ -85,7 +85,5 @@ public class BlueMap extends Map {
                 }
             });
         });
-
-
     }
 }

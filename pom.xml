@@ -44,7 +44,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>me.william278.huskhomes2.integrations</shadedPattern>
+                            <shadedPattern>me.william278.huskhomes2.bstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
@@ -159,8 +159,8 @@
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit-lite</artifactId>
-            <version>1.8</version>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>2.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

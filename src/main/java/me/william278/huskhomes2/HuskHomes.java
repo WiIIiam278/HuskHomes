@@ -37,7 +37,8 @@ import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.util.PlayerList;
-import org.bstats.bukkit.MetricsLite;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -76,6 +77,8 @@ public final class HuskHomes extends JavaPlugin {
     // Player list managing
     private static PlayerList playerList;
     public static PlayerList getPlayerList() { return playerList; }
+
+    private static final int METRICS_PLUGIN_ID = 8430;
 
     /**
      * Returns the HuskHomes API
@@ -215,7 +218,19 @@ public final class HuskHomes extends JavaPlugin {
         registerEvents(this);
 
         // bStats initialisation
-        new MetricsLite(this, 8430);
+        try {
+            Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType()));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapIntegration())));
+            if (getSettings().doMapIntegration()) {
+                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMapPlugin()));
+            }
+        } catch (Exception e) {
+            getLogger().warning("An exception occurred initialising metrics; skipping.");
+        }
 
         // Setup player list
         playerList = new PlayerList();

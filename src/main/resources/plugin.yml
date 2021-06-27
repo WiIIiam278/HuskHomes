@@ -67,7 +67,7 @@ commands:
     aliases: [phome]
   tp:
     description: Teleport to another player or location
-    usage: /tp <player> OR /tp <x> <y> <z> [world] [server]
+    usage: /tp <player/coordinates>
     permission: huskhomes.tp
     aliases: [tpo]
   tphere:

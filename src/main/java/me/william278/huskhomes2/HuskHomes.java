@@ -199,6 +199,7 @@ public final class HuskHomes extends JavaPlugin {
             } else if (mapPlugin.equalsIgnoreCase("bluemap")) {
                 map = new BlueMap();
             }
+            map.initialize();
         }
 
         // Setup economy if it is enabled

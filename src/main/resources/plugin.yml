@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.william278.huskhomes2.HuskHomes
 api-version: 1.16
 authors: [William278]
-softdepend: [dynmap, Vault]
+softdepend: [dynmap, Vault, BlueMap]
 description: A powerful, intuitive and flexible teleportation suite
 libraries:
   - mysql:mysql-connector-java:8.0.25

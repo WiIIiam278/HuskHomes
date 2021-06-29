@@ -47,7 +47,7 @@ public class SettingHandler {
                 } else {
                     switch (setHomeConditions.getConditionsNotMetReason()) {
                         case "error_set_home_maximum_homes" -> {
-                            MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(HuskHomes.getSettings().getMaximumHomes()));
+                            MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Home.getSetHomeLimit(player)));
                         }
                         case "error_insufficient_funds" -> {
                             MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.getSettings().getSetHomeCost()));

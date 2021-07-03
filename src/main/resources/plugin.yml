@@ -222,8 +222,6 @@ permissions:
   huskhomes.back.death:
     description: Allows you to return to where you died
     default: true
-    children:
-      huskhomes.back: true
   huskhomes.spawn:
     description: Allows you to teleport to spawn
     default: true

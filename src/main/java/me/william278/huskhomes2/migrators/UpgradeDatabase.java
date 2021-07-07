@@ -19,9 +19,9 @@ public class UpgradeDatabase {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (PreparedStatement statement = HuskHomes.getConnection().prepareStatement("ALTER TABLE " + HuskHomes.getSettings().getPlayerDataTable() + " ADD `is_ignoring_requests` boolean NOT NULL DEFAULT 0")) {
                     statement.executeUpdate();
+                    plugin.getLogger().info("Database update complete!");
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred upgrading the database format!", e);
-                    plugin.getLogger().info("Database update complete!");
                 } finally {
                     // Update the config file version
                     Bukkit.getScheduler().runTask(plugin, () -> {

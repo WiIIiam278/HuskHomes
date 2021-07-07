@@ -15,11 +15,13 @@ public class UpgradeDatabase {
     public static void upgradeDatabase() {
         plugin.reloadConfig();
         if (plugin.getConfig().getInt("config_file_version", 1) > 5) {
+            plugin.getLogger().info("Detected that the database needs updating. Running database upgrade...");
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (PreparedStatement statement = HuskHomes.getConnection().prepareStatement("ALTER TABLE " + HuskHomes.getSettings().getPlayerDataTable() + " ADD `is_ignoring_requests` boolean NOT NULL DEFAULT 0")) {
                     statement.executeUpdate();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred upgrading the database format!", e);
+                    plugin.getLogger().info("Database update complete!");
                 } finally {
                     // Update the config file version
                     Bukkit.getScheduler().runTask(plugin, () -> {

@@ -42,10 +42,12 @@ public class TeleportRequestHandler {
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 if (!VanishChecker.isVanished(targetPlayer)) {
-                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA));
                     MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
-                    MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
-                    MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                    if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
+                        teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA));
+                        MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
+                        MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                    }
                 } else {
                     MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
                 }
@@ -66,10 +68,12 @@ public class TeleportRequestHandler {
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
-                teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPAHERE));
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
-                MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
-                MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
+                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPAHERE));
+                    MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
+                    MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                }
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }
@@ -86,6 +90,10 @@ public class TeleportRequestHandler {
     public static void replyTpRequest(Player p, boolean accepted) {
         if (!teleportRequests.containsKey(p)) {
             MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        if (HuskHomes.isIgnoringTeleportRequests(p.getUniqueId())) {
+            MessageManager.sendMessage(p, "error_ignoring_teleport_requests");
             return;
         }
         TeleportRequest teleportRequest = teleportRequests.get(p);

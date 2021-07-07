@@ -120,6 +120,27 @@ public class DataManager {
         return null;
     }
 
+    // Return if the player is ignoring teleport requests
+    public static Boolean getPlayerIgnoringRequests(Player p, Connection connection) throws SQLException {
+        PreparedStatement ps;
+        ResultSet rs;
+
+        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
+        ps.setString(1, p.getUniqueId().toString());
+        rs = ps.executeQuery();
+        if (rs != null) {
+            if (rs.next()) {
+                final boolean isIgnoringRequests = rs.getBoolean("is_ignoring_requests");
+                ps.close();
+                return isIgnoringRequests;
+            }
+        } else {
+            Bukkit.getLogger().severe("Failed to retrieve if player was ignoring teleport requests");
+        }
+        ps.close();
+        return null;
+    }
+
     // Return a player's UUID
     public static String getPlayerUUID(int playerID, Connection connection) throws SQLException {
         return getPlayerString(playerID, "user_uuid", connection);
@@ -373,9 +394,18 @@ public class DataManager {
         ps.close();
     }
 
-    public static void setPlayerTeleportingData(UUID uuid, boolean value, Connection connection) throws SQLException {
+    private static void setPlayerTeleportingData(UUID uuid, boolean value, Connection connection) throws SQLException {
         PreparedStatement ps;
         ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?;");
+        ps.setBoolean(1, value);
+        ps.setString(2, uuid.toString());
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    private static void setPlayerIgnoringRequestsData(UUID uuid, boolean value, Connection connection) throws SQLException {
+        PreparedStatement ps;
+        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_ignoring_requests`=? WHERE `user_uuid`=?;");
         ps.setBoolean(1, value);
         ps.setString(2, uuid.toString());
         ps.executeUpdate();
@@ -733,6 +763,10 @@ public class DataManager {
 
     public static void setPlayerTeleporting(Player p, boolean value, Connection connection) throws SQLException {
         setPlayerTeleportingData(p.getUniqueId(), value, connection);
+    }
+
+    public static void setPlayerIgnoringRequests(Player p, boolean value, Connection connection) throws SQLException {
+        setPlayerIgnoringRequestsData(p.getUniqueId(), value, connection);
     }
 
     public static void updateRtpCooldown(Player p, Connection connection) throws SQLException {

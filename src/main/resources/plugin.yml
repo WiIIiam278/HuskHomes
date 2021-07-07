@@ -95,6 +95,11 @@ commands:
     usage: /tpdeny
     permission: huskhomes.tprequest
     aliases: [tpno]
+  tpignore:
+    description: Ignore incoming teleport requests
+    usage: /tpignore
+    permission: huskhomes.tpignore
+    aliases: [tpaignore, ignoretprequests]
   rtp:
     description: Teleport randomly into the wild
     usage: /rtp
@@ -177,13 +182,13 @@ permissions:
     default: true
   huskhomes.warp.*:
     description: Lets you access all warps even if permission-restricted
-    default: false
+    default: op
   huskhomes.setwarp:
     description: Allows you to set server warps
-    default: false
+    default: op
   huskhomes.delwarp:
     description: Allows you to delete a home
-    default: false
+    default: op
   huskhomes.publichome:
     description: Allows you to teleport to public homes
     default: true
@@ -192,13 +197,13 @@ permissions:
     default: true
   huskhomes.editwarp:
     description: Allows you to edit home information
-    default: false
+    default: op
   huskhomes.back:
     description: Allows you to return to your last position
     default: true
   huskhomes.rtp:
     description: Allows you to randomly teleport
-    default: false
+    default: true
   huskhomes.rtp.bypass_cooldown:
     description: Allows you to bypass the /rtp cooldown
     default: false
@@ -209,15 +214,18 @@ permissions:
     default: true
   huskhomes.reload:
     description: Reload the plugin configuration & messages files
-    default: false
+    default: op
   huskhomes.version_checker:
     description: Check if the plugin is up-to-date
-    default: false
+    default: op
   huskhomes.tp:
     description: Allows you to directly teleport to players or locations
     default: false
   huskhomes.tprequest:
     description: Allows you to request to teleport to a player
+    default: true
+  huskhomes.tpignore:
+    description: Allows you to ingore teleport requests
     default: true
   huskhomes.back.death:
     description: Allows you to return to where you died
@@ -227,7 +235,7 @@ permissions:
     default: true
   huskhomes.spawn.set:
     description: Allows you to set the spawn location
-    default: false
+    default: op
     children:
       huskhomes.spawn: true
   huskhomes.edithome.public:

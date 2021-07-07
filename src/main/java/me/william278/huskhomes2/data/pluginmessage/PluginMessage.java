@@ -18,12 +18,12 @@ public class PluginMessage {
     // Move a player to a different server in the bungee network
     @SuppressWarnings("UnstableApiUsage")
     public static void sendPlayer(Player p, String targetServer) {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
             out.writeUTF(targetServer);
             p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-        }, 1);
+        });
     }
 
     private static final String MESSAGE_DATA_SEPARATOR = "$";

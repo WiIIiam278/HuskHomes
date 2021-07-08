@@ -1,7 +1,8 @@
 [![Header](https://i.imgur.com/jh0IKyM.png "Header")](https://www.spigotmc.org/resources/huskhomes.83767/)
 # HuskHomes
+[![Build status](https://github.com/WiIIiam278/HuskHomes2/actions/workflows/maven.yml/badge.svg)](https://github.com/WiIIiam278/HuskHomes2/)
 [![Jitpack](https://jitpack.io/v/WiIIiam278/HuskHomes2.svg)](https://jitpack.io/#WiIIiam278/HuskHomes2)
-[![GitHub issues](https://img.shields.io/github/issues/WiIIiam278/HuskHomes2)](https://github.com/WiIIiam278/HuskHomes2/issues)
+[![Wiki](https://img.shields.io/badge/documentation-wiki-brightgreen)](https://github.com/WiIIiam278/HuskHomes2/wiki)
 [![Discord](https://img.shields.io/discord/818135932103557162?color=7289da&logo=discord)](https://discord.gg/tVYhJfyDWG)
 
 **HuskHomes** is a powerful, intuitive and flexible teleportation plugin for SpigotMC Minecraft servers. The plugin supports a wide array of features; from teleporting between players, teleport requests, public and private homes, warps, random teleporting and more. It also supports this between multiple Spigot servers on a Bungee network.

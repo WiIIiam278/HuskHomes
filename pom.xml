@@ -110,7 +110,7 @@
         </repository>
         <repository>
             <id>dynmap-repo</id>
-            <url>http://repo.mikeprimm.com/</url>
+            <url>https://repo.mikeprimm.com/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>us.dynmap</groupId>
             <artifactId>dynmap-api</artifactId>
-            <version>3.0.1</version>
+            <version>3.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -1,6 +1,6 @@
 [![Header](https://i.imgur.com/jh0IKyM.png "Header")](https://www.spigotmc.org/resources/huskhomes.83767/)
 # HuskHomes
-[![Build status](https://github.com/WiIIiam278/HuskHomes2/actions/workflows/maven.yml/badge.svg)](https://github.com/WiIIiam278/HuskHomes2/)
+[![Maven CI](https://github.com/WiIIiam278/HuskHomes2/actions/workflows/maven.yml/badge.svg)](https://github.com/WiIIiam278/HuskHomes2/actions/workflows/maven.yml)
 [![Jitpack](https://jitpack.io/v/WiIIiam278/HuskHomes2.svg)](https://jitpack.io/#WiIIiam278/HuskHomes2)
 [![Wiki](https://img.shields.io/badge/documentation-wiki-brightgreen)](https://github.com/WiIIiam278/HuskHomes2/wiki)
 [![Discord](https://img.shields.io/discord/818135932103557162?color=7289da&logo=discord)](https://discord.gg/tVYhJfyDWG)

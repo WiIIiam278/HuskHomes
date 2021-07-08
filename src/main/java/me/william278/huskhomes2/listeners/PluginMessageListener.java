@@ -45,16 +45,20 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             }
             case TPA_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
-                    TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPA));
-                    MessageManager.sendMessage(recipient, "tpa_request_ask", pluginMessage.getMessageData());
-                    MessageManager.sendMessage(recipient, "teleport_request_options");
+                    if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
+                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPA));
+                        MessageManager.sendMessage(recipient, "tpa_request_ask", pluginMessage.getMessageData());
+                        MessageManager.sendMessage(recipient, "teleport_request_options");
+                    }
                 }
             }
             case TPAHERE_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
-                    TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPAHERE));
-                    MessageManager.sendMessage(recipient, "tpahere_request_ask", pluginMessage.getMessageData());
-                    MessageManager.sendMessage(recipient, "teleport_request_options");
+                    if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
+                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPAHERE));
+                        MessageManager.sendMessage(recipient, "tpahere_request_ask", pluginMessage.getMessageData());
+                        MessageManager.sendMessage(recipient, "teleport_request_options");
+                    }
                 }
             }
             case TPA_REQUEST_REPLY -> {

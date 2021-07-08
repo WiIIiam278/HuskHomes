@@ -61,6 +61,13 @@ public class PlayerListener implements Listener {
                         HomeCommand.Tab.updatePlayerHomeCache(p);
                     }
 
+                    final Boolean isIgnoringRequests = DataManager.getPlayerIgnoringRequests(p, connection);
+                    if (isIgnoringRequests != null) {
+                        if (isIgnoringRequests) {
+                            HuskHomes.setIgnoringTeleportRequests(p.getUniqueId());
+                        }
+                    }
+
                     // If bungee mode, check if the player joined the server from a teleport and act accordingly
                     if (HuskHomes.getSettings().doBungee()) {
                         final Boolean isTeleporting = DataManager.getPlayerTeleporting(p, connection);

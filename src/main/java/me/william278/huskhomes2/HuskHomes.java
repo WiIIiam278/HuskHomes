@@ -1,30 +1,7 @@
 package me.william278.huskhomes2;
 
 import me.william278.huskhomes2.api.HuskHomesAPI;
-import me.william278.huskhomes2.commands.BackCommand;
-import me.william278.huskhomes2.commands.CommandBase;
-import me.william278.huskhomes2.commands.DelHomeCommand;
-import me.william278.huskhomes2.commands.DelWarpCommand;
-import me.william278.huskhomes2.commands.EditHomeCommand;
-import me.william278.huskhomes2.commands.EditWarpCommand;
-import me.william278.huskhomes2.commands.HomeCommand;
-import me.william278.huskhomes2.commands.HomeListCommand;
-import me.william278.huskhomes2.commands.HuskHomesCommand;
-import me.william278.huskhomes2.commands.PublicHomeCommand;
-import me.william278.huskhomes2.commands.PublicHomeListCommand;
-import me.william278.huskhomes2.commands.RtpCommand;
-import me.william278.huskhomes2.commands.SetHomeCommand;
-import me.william278.huskhomes2.commands.SetSpawnCommand;
-import me.william278.huskhomes2.commands.SetWarpCommand;
-import me.william278.huskhomes2.commands.SpawnCommand;
-import me.william278.huskhomes2.commands.TpCommand;
-import me.william278.huskhomes2.commands.TpaCommand;
-import me.william278.huskhomes2.commands.TpAcceptCommand;
-import me.william278.huskhomes2.commands.TpaHereCommand;
-import me.william278.huskhomes2.commands.TpDenyCommand;
-import me.william278.huskhomes2.commands.TpHereCommand;
-import me.william278.huskhomes2.commands.WarpCommand;
-import me.william278.huskhomes2.commands.WarpListCommand;
+import me.william278.huskhomes2.commands.*;
 import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.SQL.Database;
 import me.william278.huskhomes2.data.SQL.MySQL;
@@ -35,6 +12,7 @@ import me.william278.huskhomes2.integrations.Map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
+import me.william278.huskhomes2.migrators.UpgradeDatabase;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.util.PlayerList;
 import org.bstats.bukkit.Metrics;
@@ -48,6 +26,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
+import java.util.HashSet;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public final class HuskHomes extends JavaPlugin {
@@ -77,6 +57,16 @@ public final class HuskHomes extends JavaPlugin {
     // Player list managing
     private static PlayerList playerList;
     public static PlayerList getPlayerList() { return playerList; }
+
+    // Ignoring teleport requests handler
+    private static final HashSet<UUID> ignoringTeleportRequests = new HashSet<>();
+    public static boolean isIgnoringTeleportRequests(UUID uuid) { return ignoringTeleportRequests.contains(uuid); }
+    public static void setIgnoringTeleportRequests(UUID uuid) {
+        ignoringTeleportRequests.add(uuid);
+    }
+    public static void setNotIgnoringTeleportRequests(UUID uuid) {
+        ignoringTeleportRequests.remove(uuid);
+    }
 
     private static final int METRICS_PLUGIN_ID = 8430;
 
@@ -144,6 +134,7 @@ public final class HuskHomes extends JavaPlugin {
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
         new TpAcceptCommand().register(getCommand("tpaccept")).setTabCompleter(emptyTab);
         new TpDenyCommand().register(getCommand("tpdeny")).setTabCompleter(emptyTab);
+        new TpIgnoreCommand().register(getCommand("tpignore")).setTabCompleter(emptyTab);
         new WarpListCommand().register(getCommand("warplist")).setTabCompleter(emptyTab);
         new HomeListCommand().register(getCommand("homelist")).setTabCompleter(emptyTab);
         new PublicHomeListCommand().register(getCommand("publichomelist")).setTabCompleter(emptyTab);
@@ -217,6 +208,9 @@ public final class HuskHomes extends JavaPlugin {
 
         // Register events
         registerEvents(this);
+
+        // Upgrade Database if needed
+        UpgradeDatabase.upgradeDatabase();
 
         // bStats initialisation
         try {

@@ -103,3 +103,6 @@ page_options_max: '\n[←](gray show_text=&7Pagina precedente run_command=%1%) [
 page_no_items: '[(Nessun oggetto visibile in questa pagina)](gray show_text=&7Prova un numero differente)'
 command_list_header: '\n[HuskHomes](#00fb9a bold) [| Comandi](#00fb9a)'
 error_invalid_on_arrival: '[Errore:](#ff3300) [Non sono riuscito a teletrasportarti perché il mondo non è caricato correttamente.](#ff7e5e)'
+tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
+tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to any incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to ignore incoming teleport requests run_command=/huskhomes:tpignore)'
+error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests!](#ff7e5e) [(Click to toggle)](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'

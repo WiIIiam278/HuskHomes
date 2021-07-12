@@ -92,9 +92,15 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
 
 
                             // Check the description is valid
-                            if (newDescriptionString.length() > 255 || !RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
-                                MessageManager.sendMessage(p, "error_edit_warp_invalid_description");
+                            if (newDescriptionString.length() > 255) {
+                                MessageManager.sendMessage(p, "error_edit_warp_description_length");
                                 return;
+                            }
+                            if (!HuskHomes.getSettings().doUnicodeInDescriptions()) {
+                                if (!RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
+                                    MessageManager.sendMessage(p, "error_edit_warp_description_characters");
+                                    return;
+                                }
                             }
 
                             if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {

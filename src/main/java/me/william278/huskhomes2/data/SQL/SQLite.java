@@ -14,6 +14,7 @@ public class SQLite extends Database {
 
     final static String[] SQL_SETUP_STATEMENTS = {
             "PRAGMA foreign_keys = ON;",
+            "PRAGMA encoding = 'UTF-8';",
 
             "CREATE TABLE IF NOT EXISTS " + HuskHomes.getSettings().getLocationsDataTable() + " (" +
                     "`location_id` integer PRIMARY KEY," +

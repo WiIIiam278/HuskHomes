@@ -133,9 +133,15 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try {
                     // Check the description is valid
-                    if (newDescriptionString.length() > 255 || !RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
-                        MessageManager.sendMessage(p, "error_edit_home_invalid_description");
+                    if (newDescriptionString.length() > 255) {
+                        MessageManager.sendMessage(p, "error_edit_home_description_length");
                         return;
+                    }
+                    if (!HuskHomes.getSettings().doUnicodeInDescriptions()) {
+                        if (!RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
+                            MessageManager.sendMessage(p, "error_edit_home_description_characters");
+                            return;
+                        }
                     }
 
                     // Remove old marker if on the Dynmap

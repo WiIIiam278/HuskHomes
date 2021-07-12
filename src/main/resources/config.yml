@@ -11,9 +11,9 @@ data_storage_options:
   mysql_credentials:
     host: localhost
     port: 3306
-    database: database_name
+    database: HuskHomes
     username: root
-    password: password
+    password: pa55w0rd
     params: '?autoReconnect=true&useSSL=false'
   table_names:
     player_data: 'huskhomes_player_data'
@@ -24,6 +24,7 @@ general:
   max_sethomes: 10
   teleport_warmup_time: 5
   teleport_request_expiry_time: 60
+  allow_unicode_descriptions: true
   sounds:
     teleportation_complete: 'ENTITY_ENDERMAN_TELEPORT'
     teleportation_warmup: 'BLOCK_NOTE_BLOCK_BANJO'

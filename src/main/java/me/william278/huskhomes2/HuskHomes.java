@@ -68,6 +68,17 @@ public final class HuskHomes extends JavaPlugin {
         ignoringTeleportRequests.remove(uuid);
     }
 
+    // Ignoring teleport requests handler
+    private static final HashSet<UUID> teleportingPlayers = new HashSet<>();
+    public static boolean isTeleporting(UUID uuid) { return teleportingPlayers.contains(uuid); }
+    public static void setTeleporting(UUID uuid) {
+        teleportingPlayers.add(uuid);
+    }
+    public static void setNotTeleporting(UUID uuid) {
+        teleportingPlayers.remove(uuid);
+    }
+
+    // Metrics ID for bStats integration
     private static final int METRICS_PLUGIN_ID = 8430;
 
     /**

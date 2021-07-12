@@ -706,6 +706,15 @@ public class DataManager {
         }
     }
 
+    public static TeleportationPoint getPlayerOfflinePosition(Player p, Connection connection) throws SQLException {
+        Integer locationID = getPlayerInteger(p, "offline_location_id", connection);
+        if (locationID != null) {
+            return getTeleportationPoint(locationID, connection);
+        } else {
+            return null;
+        }
+    }
+
     // Insert a teleportation point, returns generated id
     public static Integer addTeleportationPoint(TeleportationPoint point, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getLocationsDataTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
@@ -726,6 +735,28 @@ public class DataManager {
             return pointID;
         }
         return null;
+    }
+
+    // Update a player's offline position teleport point
+    public static void setTeleportationOfflinePositionData(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
+        PreparedStatement ps;
+        // Add the teleportation point
+        Integer locationID = addTeleportationPoint(point, connection);
+
+        if (locationID != null) {
+            // Set the destination location with the location_id of the last inserted teleport point
+            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=? WHERE `user_uuid`=?;");
+            ps.setInt(1, locationID);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+            ps.close();
+        }
+    }
+
+    // Update a player's last position location on SQL
+    public static void setPlayerOfflinePosition(Player p, TeleportationPoint point, Connection connection) throws SQLException {
+        deletePlayerOfflinePosition(p, connection);
+        setTeleportationOfflinePositionData(p.getUniqueId(), point, connection);
     }
 
     // Update a player's last position teleport point
@@ -761,12 +792,17 @@ public class DataManager {
         setPlayerDestinationLocation(p.getName(), point, connection);
     }
 
-    public static void setPlayerTeleporting(Player p, boolean value, Connection connection) throws SQLException {
-        setPlayerTeleportingData(p.getUniqueId(), value, connection);
+    public static void setPlayerTeleporting(Player p, boolean teleporting, Connection connection) throws SQLException {
+        setPlayerTeleportingData(p.getUniqueId(), teleporting, connection);
+        if (teleporting) {
+            HuskHomes.setTeleporting(p.getUniqueId());
+        } else {
+            HuskHomes.setNotTeleporting(p.getUniqueId());
+        }
     }
 
-    public static void setPlayerIgnoringRequests(Player p, boolean value, Connection connection) throws SQLException {
-        setPlayerIgnoringRequestsData(p.getUniqueId(), value, connection);
+    public static void setPlayerIgnoringRequests(Player p, boolean ignoringRequests, Connection connection) throws SQLException {
+        setPlayerIgnoringRequestsData(p.getUniqueId(), ignoringRequests, connection);
     }
 
     public static void updateRtpCooldown(Player p, Connection connection) throws SQLException {
@@ -800,6 +836,14 @@ public class DataManager {
         }
     }
 
+    public static void deletePlayerOfflinePosition(Player p, Connection connection) throws SQLException {
+        Integer offlineLocationId = getPlayerInteger(p, "offline_location_id", connection);
+        if (offlineLocationId != null) {
+            deleteTeleportationPoint(offlineLocationId, connection);
+            clearPlayerOfflineData(p.getUniqueId(), connection);
+        }
+    }
+
     // Update the location of a home
     public static void setHomeTeleportPoint(String homeName, int ownerID, TeleportationPoint point, Connection connection) throws SQLException {
         PreparedStatement ps;
@@ -830,6 +874,15 @@ public class DataManager {
     public static void clearPlayerLastData(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement ps;
         ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `last_location_id`=NULL WHERE `user_uuid`=?;");
+        ps.setString(1, uuid.toString());
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    // Clear a player's last position
+    public static void clearPlayerOfflineData(UUID uuid, Connection connection) throws SQLException {
+        PreparedStatement ps;
+        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=NULL WHERE `user_uuid`=?;");
         ps.setString(1, uuid.toString());
         ps.executeUpdate();
         ps.close();

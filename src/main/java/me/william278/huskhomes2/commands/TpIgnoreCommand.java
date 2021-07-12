@@ -15,21 +15,26 @@ public class TpIgnoreCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
+        boolean ignoring;
         if (HuskHomes.isIgnoringTeleportRequests(p.getUniqueId())) {
             MessageManager.sendMessage(p, "tpignore_toggle_off");
-            HuskHomes.setNotIgnoringTeleportRequests(p.getUniqueId());
-            setIgnoringRequestsData(p, false);
+            ignoring = false;
         } else {
             MessageManager.sendMessage(p, "tpignore_toggle_on");
-            HuskHomes.setIgnoringTeleportRequests(p.getUniqueId());
-            setIgnoringRequestsData(p, true);
+            ignoring = true;
         }
+        setIgnoringRequestsData(p, ignoring);
     }
 
-    private void setIgnoringRequestsData(Player player, boolean isIgnoring) {
+    private void setIgnoringRequestsData(Player player, boolean ignoring) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                DataManager.setPlayerIgnoringRequests(player, isIgnoring, HuskHomes.getConnection());
+                DataManager.setPlayerIgnoringRequests(player, ignoring, HuskHomes.getConnection());
+                if (ignoring) {
+                    HuskHomes.setIgnoringTeleportRequests(player.getUniqueId());
+                } else {
+                    HuskHomes.setNotIgnoringTeleportRequests(player.getUniqueId());
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }

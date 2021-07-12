@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -95,6 +96,18 @@ public class PlayerListener implements Listener {
             HuskHomes.getPlayerList().updateList(p);
         } else {
             HuskHomes.getPlayerList().addPlayer(p.getName());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if (HuskHomes.isTeleporting(p.getUniqueId())) {
+            HuskHomes.setNotTeleporting(p.getUniqueId());
+            Connection connection = HuskHomes.getConnection();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                // Set player offline position
+            });
         }
     }
 }

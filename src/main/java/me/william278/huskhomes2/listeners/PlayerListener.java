@@ -68,6 +68,7 @@ public class PlayerListener implements Listener {
                     if (isIgnoringRequests != null) {
                         if (isIgnoringRequests) {
                             HuskHomes.setIgnoringTeleportRequests(p.getUniqueId());
+                            MessageManager.sendMessage(p, "tpignore_on_reminder");
                         }
                     }
 

@@ -96,6 +96,7 @@ public class TeleportManager {
             MessageManager.sendMessage(player, "error_no_offline_position", targetPlayer);
             return;
         }
+        MessageManager.sendMessage(player, "teleporting_offline_player", targetPlayer);
         teleportPlayer(player, offlinePoint, connection);
     }
 

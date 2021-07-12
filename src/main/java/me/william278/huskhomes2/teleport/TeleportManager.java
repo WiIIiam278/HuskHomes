@@ -117,7 +117,7 @@ public class TeleportManager {
                         double backCost = HuskHomes.getSettings().getRtpCost();
                         if (backCost > 0) {
                             VaultIntegration.takeMoney(player, backCost);
-                            MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(backCost));
+                            MessageManager.sendMessage(player, "back_spent_money", VaultIntegration.format(backCost));
                         }
                     }
                     teleportPlayer(player, lastPosition, connection);

@@ -707,10 +707,14 @@ public class DataManager {
     }
 
     public static TeleportationPoint getPlayerOfflinePosition(int playerID, Connection connection) throws SQLException {
-        Integer locationID = getPlayerInteger(playerID, "offline_location_id", connection);
-        if (locationID != null) {
-            return getTeleportationPoint(locationID, connection);
-        } else {
+        try {
+            Integer locationID = getPlayerInteger(playerID, "offline_location_id", connection);
+            if (locationID != null) {
+                return getTeleportationPoint(locationID, connection);
+            } else {
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

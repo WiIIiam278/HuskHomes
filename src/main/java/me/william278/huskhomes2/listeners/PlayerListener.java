@@ -105,7 +105,7 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         final UUID uuid = p.getUniqueId();
-        if (HuskHomes.isTeleporting(uuid)) {
+        if (!HuskHomes.isTeleporting(uuid)) {
             final Location logOutLocation = p.getLocation();
             HuskHomes.setNotTeleporting(uuid);
             Connection connection = HuskHomes.getConnection();

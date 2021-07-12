@@ -1,6 +1,7 @@
 error_no_permission: '[Errore:](#ff3300) [Non hai il permesso di eseguire questo comando.](#ff7e5e)'
 error_no_last_position: '[Errore:](#ff3300) [Non hai nessuna posizione precedente salvata!](#ff7e5e)'
 teleporting_last_position: '[Teletrasporto alla posizione precedente tra](#00fb9a) [%1%](#00fb9a bold) [secondi](#00fb9a)'
+teleporting_offline_player: '[Teleporting you to where %1% last logged out...](#00fb9a)'
 teleporting_countdown_start: '[Verrai teletrasportato tra](#00fb9a) [%1%](#00fb9a bold) [secondi](#00fb9a)'
 teleporting_cancelled_movement: '[Teletrasporto cancellato: ti sei mosso!](#ff7e5e)'
 teleporting_cancelled_damage: '[Teletrasporto cancellato: hai preso danno!](#ff7e5e)'
@@ -106,3 +107,4 @@ error_invalid_on_arrival: '[Errore:](#ff3300) [Non sono riuscito a teletrasporta
 tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
 tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to any incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to ignore incoming teleport requests run_command=/huskhomes:tpignore)'
 error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests!](#ff7e5e) [(Click to toggle)](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
+error_no_offline_position: '[Error:](#ff3300) [Could not find where %1% last logged out.](#ff7e5e)'

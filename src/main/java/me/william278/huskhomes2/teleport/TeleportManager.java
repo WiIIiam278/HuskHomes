@@ -85,6 +85,21 @@ public class TeleportManager {
         new TimedTeleport(player, point, TimedTeleport.TargetType.POINT).begin();
     }
 
+    public static void teleportToOfflinePlayer(Player player, String targetPlayer, Connection connection) throws SQLException {
+        final Integer playerID = DataManager.getPlayerId(targetPlayer, connection);
+        if (playerID == null) {
+            MessageManager.sendMessage(player, "error_player_not_found", targetPlayer);
+            return;
+        }
+        TeleportationPoint offlinePoint = DataManager.getPlayerOfflinePosition(playerID, connection);
+        if (offlinePoint == null) {
+            MessageManager.sendMessage(player, "error_no_offline_position", targetPlayer);
+            return;
+        }
+        MessageManager.sendMessage(player, "teleporting_offline_player", targetPlayer);
+        teleportPlayer(player, offlinePoint, connection);
+    }
+
     public static void queueBackTeleport(Player player, Connection connection) throws SQLException {
         try {
             TeleportationPoint lastPosition = DataManager.getPlayerLastPosition(player, connection);

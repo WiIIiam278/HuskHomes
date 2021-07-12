@@ -8,14 +8,17 @@ import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class PlayerListener implements Listener {
@@ -95,6 +98,27 @@ public class PlayerListener implements Listener {
             HuskHomes.getPlayerList().updateList(p);
         } else {
             HuskHomes.getPlayerList().addPlayer(p.getName());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        final UUID uuid = p.getUniqueId();
+        if (!HuskHomes.isTeleporting(uuid)) {
+            final Location logOutLocation = p.getLocation();
+            Connection connection = HuskHomes.getConnection();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    DataManager.setPlayerOfflinePosition(uuid,
+                            new TeleportationPoint(logOutLocation, HuskHomes.getSettings().getServerID()),
+                            connection);
+                } catch (SQLException ex) {
+                    Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a warp exists from the table.");
+                }
+            });
+        } else {
+            HuskHomes.setNotTeleporting(uuid);
         }
     }
 }

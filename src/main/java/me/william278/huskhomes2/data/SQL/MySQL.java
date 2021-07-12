@@ -33,9 +33,11 @@ public class MySQL extends Database {
                     "`is_teleporting` boolean NOT NULL DEFAULT 0," +
                     "`dest_location_id` integer NULL," +
                     "`last_location_id` integer NULL," +
+                    "`offline_location_id` integer NULL," +
                     "`is_ignoring_requests` boolean NOT NULL DEFAULT 0," +
 
                     "PRIMARY KEY (`player_id`)," +
+                    "FOREIGN KEY (`offline_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`dest_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`last_location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",

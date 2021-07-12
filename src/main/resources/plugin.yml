@@ -100,6 +100,10 @@ commands:
     usage: /tpignore
     permission: huskhomes.tpignore
     aliases: [tpaignore, ignoretprequests]
+  tpoffline:
+    description: Teleport to where a player was last online
+    usage: /tpoffline <player>
+    permission: huskhomes.tpoffline
   rtp:
     description: Teleport randomly into the wild
     usage: /rtp
@@ -207,8 +211,6 @@ permissions:
   huskhomes.rtp.bypass_cooldown:
     description: Allows you to bypass the /rtp cooldown
     default: false
-    children:
-      huskhomes.rtp: true
   huskhomes.about:
     description: View information about the plugin
     default: true
@@ -220,13 +222,16 @@ permissions:
     default: op
   huskhomes.tp:
     description: Allows you to directly teleport to players or locations
-    default: false
+    default: op
   huskhomes.tprequest:
     description: Allows you to request to teleport to a player
     default: true
   huskhomes.tpignore:
     description: Allows you to ingore teleport requests
     default: true
+  huskhomes.tpoffline:
+    description: Allows you to teleport to where players logged off
+    default: op
   huskhomes.back.death:
     description: Allows you to return to where you died
     default: true
@@ -236,10 +241,6 @@ permissions:
   huskhomes.spawn.set:
     description: Allows you to set the spawn location
     default: op
-    children:
-      huskhomes.spawn: true
   huskhomes.edithome.public:
     description: Allows you to make a home public
     default: true
-    children:
-      huskhomes.edithome: true

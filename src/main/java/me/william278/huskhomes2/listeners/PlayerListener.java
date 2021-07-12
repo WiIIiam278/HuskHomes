@@ -107,7 +107,6 @@ public class PlayerListener implements Listener {
         final UUID uuid = p.getUniqueId();
         if (!HuskHomes.isTeleporting(uuid)) {
             final Location logOutLocation = p.getLocation();
-            HuskHomes.setNotTeleporting(uuid);
             Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try {
@@ -118,6 +117,8 @@ public class PlayerListener implements Listener {
                     Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a warp exists from the table.");
                 }
             });
+        } else {
+            HuskHomes.setNotTeleporting(uuid);
         }
     }
 }

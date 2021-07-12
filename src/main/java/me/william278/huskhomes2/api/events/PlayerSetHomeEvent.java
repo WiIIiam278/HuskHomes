@@ -9,10 +9,10 @@ import org.bukkit.event.HandlerList;
 /**
  * An event, fired when a player sets a new home
  */
-public class PlayerSetHomeEvent extends Event {
+public class PlayerSetHomeEvent extends Event implements Cancellable {
 
-    private Player player;
-    private Home home;
+    private final Player player;
+    private final Home home;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
@@ -53,5 +53,15 @@ public class PlayerSetHomeEvent extends Event {
      */
     public Home getHome() {
         return home;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        isCancelled = cancel;
     }
 }

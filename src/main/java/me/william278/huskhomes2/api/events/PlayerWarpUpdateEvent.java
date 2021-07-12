@@ -11,7 +11,7 @@ import org.bukkit.event.HandlerList;
  * Fires when a player renames a Warp, updates its' location or changes its' name.
  * Also fires when a warp is deleted
  */
-public class PlayerWarpUpdateEvent extends Event {
+public class PlayerWarpUpdateEvent extends Event implements Cancellable {
 
     private final Player player;
     private final Warp warp;
@@ -57,5 +57,15 @@ public class PlayerWarpUpdateEvent extends Event {
      */
     public Warp getWarp() {
         return warp;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        isCancelled = cancel;
     }
 }

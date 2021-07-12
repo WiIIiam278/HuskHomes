@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.integrations.Map;
+package me.william278.huskhomes2.integrations.map;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.data.DataManager;

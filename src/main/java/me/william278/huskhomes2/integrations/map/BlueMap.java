@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.integrations.Map;
+package me.william278.huskhomes2.integrations.map;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;

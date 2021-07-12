@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
 /**
  * An event, fired when a player sets a new warp
  */
-public class PlayerSetWarpEvent extends Event {
+public class PlayerSetWarpEvent extends Event implements Cancellable {
 
     private final Player player;
     private final Warp warp;
@@ -53,5 +53,15 @@ public class PlayerSetWarpEvent extends Event {
      */
     public Warp getWarp() {
         return warp;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        isCancelled = cancel;
     }
 }

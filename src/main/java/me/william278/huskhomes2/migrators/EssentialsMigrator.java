@@ -68,7 +68,7 @@ public class EssentialsMigrator {
                                         DataManager.addHome(playerHome, uuid, connection);
                                     }
                                 } catch (SQLException e) {
-                                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurredf migrating Essentials data!", e);
+                                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred migrating Essentials home data!", e);
                                 }
                             });
 
@@ -105,7 +105,7 @@ public class EssentialsMigrator {
                                     DataManager.addWarp(warp, connection);
                                     Bukkit.getLogger().info("Migrated warp \"" + warpName + "\"");
                                 } catch (SQLException e) {
-                                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurredf migrating Essentials data!", e);
+                                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred migrating Essentials warp data!", e);
                                 }
                             } catch (NullPointerException e) {
                                 Bukkit.getLogger().warning("Error obtaining a warp's data!");

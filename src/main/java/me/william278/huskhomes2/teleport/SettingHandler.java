@@ -40,10 +40,19 @@ public class SettingHandler {
                     PlayerSetHomeEvent event = new PlayerSetHomeEvent(player, home);
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            return;
+                        }
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            try {
+                                DataManager.addHome(home, player, connection);
+                                MessageManager.sendMessage(player, "set_home_success", name);
+                                HomeCommand.Tab.updatePlayerHomeCache(player);
+                            } catch (SQLException e) {
+                                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
+                            }
+                        });
                     });
-                    DataManager.addHome(home, player, connection);
-                    MessageManager.sendMessage(player, "set_home_success", name);
-                    HomeCommand.Tab.updatePlayerHomeCache(player);
                 } else {
                     switch (setHomeConditions.getConditionsNotMetReason()) {
                         case "error_set_home_maximum_homes" -> {
@@ -113,14 +122,25 @@ public class SettingHandler {
                 SetWarpConditions setWarpConditions = new SetWarpConditions(name, connection);
                 if (setWarpConditions.areConditionsMet()) {
                     Warp warp = new Warp(location, HuskHomes.getSettings().getServerID(), name);
-                    PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
-                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
-                    DataManager.addWarp(warp, connection);
-                    MessageManager.sendMessage(player, "set_warp_success", name);
-                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                        HuskHomes.getMap().addWarpMarker(warp);
-                    }
-                    WarpCommand.Tab.updateWarpsTabCache();
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        PlayerSetWarpEvent event = new PlayerSetWarpEvent(player, warp);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            return;
+                        }
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            try {
+                                DataManager.addWarp(warp, connection);
+                                MessageManager.sendMessage(player, "set_warp_success", name);
+                                if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                                    HuskHomes.getMap().addWarpMarker(warp);
+                                }
+                                WarpCommand.Tab.updateWarpsTabCache();
+                            } catch (SQLException e) {
+                                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
+                            }
+                        });
+                    });
                 } else {
                     MessageManager.sendMessage(player, setWarpConditions.getConditionsNotMetReason());
                 }

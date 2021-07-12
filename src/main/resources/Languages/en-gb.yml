@@ -106,3 +106,4 @@ error_invalid_on_arrival: '[Error:](#ff3300) [Failed to finish your teleportatio
 tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
 tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to any incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to ignore incoming teleport requests run_command=/huskhomes:tpignore)'
 error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests!](#ff7e5e) [(Click to toggle)](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
+error_no_offline_position: '[Error:](#ff3300) [Could not find where %1% last logged out from](#ff7e5e)'

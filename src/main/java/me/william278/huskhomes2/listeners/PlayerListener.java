@@ -8,6 +8,7 @@ import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class PlayerListener implements Listener {
@@ -102,11 +104,19 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if (HuskHomes.isTeleporting(p.getUniqueId())) {
-            HuskHomes.setNotTeleporting(p.getUniqueId());
+        final UUID uuid = p.getUniqueId();
+        if (HuskHomes.isTeleporting(uuid)) {
+            final Location logOutLocation = p.getLocation();
+            HuskHomes.setNotTeleporting(uuid);
             Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                // Set player offline position
+                try {
+                    DataManager.setPlayerOfflinePosition(uuid,
+                            new TeleportationPoint(logOutLocation, HuskHomes.getSettings().getServerID()),
+                            connection);
+                } catch (SQLException ex) {
+                    Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a warp exists from the table.");
+                }
             });
         }
     }

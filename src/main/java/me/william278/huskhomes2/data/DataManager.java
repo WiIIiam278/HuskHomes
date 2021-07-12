@@ -36,7 +36,7 @@ public class DataManager {
     }
 
     // Return a player's ID  from their username
-    private static Integer getPlayerId(String playerUsername, Connection connection) throws SQLException {
+    public static Integer getPlayerId(String playerUsername, Connection connection) throws SQLException {
         PreparedStatement ps;
         ResultSet rs;
 
@@ -706,8 +706,8 @@ public class DataManager {
         }
     }
 
-    public static TeleportationPoint getPlayerOfflinePosition(Player p, Connection connection) throws SQLException {
-        Integer locationID = getPlayerInteger(p, "offline_location_id", connection);
+    public static TeleportationPoint getPlayerOfflinePosition(int playerID, Connection connection) throws SQLException {
+        Integer locationID = getPlayerInteger(playerID, "offline_location_id", connection);
         if (locationID != null) {
             return getTeleportationPoint(locationID, connection);
         } else {
@@ -754,9 +754,9 @@ public class DataManager {
     }
 
     // Update a player's last position location on SQL
-    public static void setPlayerOfflinePosition(Player p, TeleportationPoint point, Connection connection) throws SQLException {
-        deletePlayerOfflinePosition(p, connection);
-        setTeleportationOfflinePositionData(p.getUniqueId(), point, connection);
+    public static void setPlayerOfflinePosition(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
+        deletePlayerOfflinePosition(uuid, connection);
+        setTeleportationOfflinePositionData(uuid, point, connection);
     }
 
     // Update a player's last position teleport point
@@ -793,12 +793,12 @@ public class DataManager {
     }
 
     public static void setPlayerTeleporting(Player p, boolean teleporting, Connection connection) throws SQLException {
-        setPlayerTeleportingData(p.getUniqueId(), teleporting, connection);
         if (teleporting) {
             HuskHomes.setTeleporting(p.getUniqueId());
         } else {
             HuskHomes.setNotTeleporting(p.getUniqueId());
         }
+        setPlayerTeleportingData(p.getUniqueId(), teleporting, connection);
     }
 
     public static void setPlayerIgnoringRequests(Player p, boolean ignoringRequests, Connection connection) throws SQLException {
@@ -836,11 +836,11 @@ public class DataManager {
         }
     }
 
-    public static void deletePlayerOfflinePosition(Player p, Connection connection) throws SQLException {
-        Integer offlineLocationId = getPlayerInteger(p, "offline_location_id", connection);
+    public static void deletePlayerOfflinePosition(UUID uuid, Connection connection) throws SQLException {
+        Integer offlineLocationId = getPlayerInteger(getPlayerId(uuid, connection), "offline_location_id", connection);
         if (offlineLocationId != null) {
             deleteTeleportationPoint(offlineLocationId, connection);
-            clearPlayerOfflineData(p.getUniqueId(), connection);
+            clearPlayerOfflineData(uuid, connection);
         }
     }
 

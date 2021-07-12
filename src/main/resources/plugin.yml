@@ -100,6 +100,10 @@ commands:
     usage: /tpignore
     permission: huskhomes.tpignore
     aliases: [tpaignore, ignoretprequests]
+  tpoffline:
+    description: Teleport to where a player was last online
+    usage: /tpoffline <player>
+    permission: huskhomes.tpoffline
   rtp:
     description: Teleport randomly into the wild
     usage: /rtp
@@ -227,6 +231,9 @@ permissions:
   huskhomes.tpignore:
     description: Allows you to ingore teleport requests
     default: true
+  huskhomes.tpoffline:
+    description: Allows you to teleport to where players logged off
+    default: false
   huskhomes.back.death:
     description: Allows you to return to where you died
     default: true

@@ -72,7 +72,7 @@ public class MessageManager {
         }
         saveFile(config, f);
         messages.clear();
-        for (String message : config.getConfigurationSection("").getKeys(false)) {
+        for (String message : config.getKeys(false)) {
             messages.put(message, StringEscapeUtils.unescapeJava(config.getString(message)));
         }
     }

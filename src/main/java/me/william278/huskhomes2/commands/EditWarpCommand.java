@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.commands;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.EditingHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
@@ -23,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class EditWarpCommand extends CommandBase implements TabCompleter {
@@ -46,36 +48,16 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                 }
 
                 if (args.length == 1) {
-                    Warp warp = DataManager.getWarp(warpName, connection);
+                    final Warp warp = DataManager.getWarp(warpName, connection);
+                    assert warp != null;
                     EditingHandler.showEditWarpOptions(p, warp);
                     return;
                 }
 
-                switch (args[1]) {
-                    case "location" -> {
-                        Location newLocation = p.getLocation();
-                        TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
-
-                        // Remove old marker if on the Dynmap
-                        Warp locationMovedWarp = DataManager.getWarp(warpName, connection);
-                        if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                            HuskHomes.getMap().removeWarpMarker(warpName);
-                        }
-                        PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
-                        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(relocateWarpEvent));
-                        DataManager.updateWarpLocation(warpName, p.getLocation(), connection);
-                        MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
-
-                        // Add new updated marker if using Dynmap
-                        locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
-                        if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                            HuskHomes.getMap().addWarpMarker(locationMovedWarp);
-                        }
-                    }
+                switch (args[1].toLowerCase(Locale.ENGLISH)) {
+                    case "location" -> editWarpLocation(p, warpName, connection);
                     case "description" -> {
                         if (args.length >= 3) {
-                            Warp descriptionChangedWarp = DataManager.getWarp(warpName, connection);
-
                             // Get the new description
                             StringBuilder newDescription = new StringBuilder();
                             for (int i = 2; i < args.length; i++) {
@@ -86,80 +68,141 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                                 }
                             }
                             String newDescriptionString = newDescription.toString();
-
-                            PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
-                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent));
-
-
-                            // Check the description is valid
-                            if (newDescriptionString.length() > 255) {
-                                MessageManager.sendMessage(p, "error_edit_warp_description_length");
-                                return;
-                            }
-                            if (!HuskHomes.getSettings().doUnicodeInDescriptions()) {
-                                if (!RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
-                                    MessageManager.sendMessage(p, "error_edit_warp_description_characters");
-                                    return;
-                                }
-                            }
-
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                                HuskHomes.getMap().removeWarpMarker(warpName);
-                            }
-
-                            // Update description
-                            DataManager.updateWarpDescription(warpName, newDescriptionString, connection);
-
-                            descriptionChangedWarp.setDescription(newDescriptionString);
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                                HuskHomes.getMap().addWarpMarker(descriptionChangedWarp);
-                            }
-
-                            // Confirmation message
-                            MessageManager.sendMessage(p, "edit_warp_update_description", warpName, newDescriptionString);
+                            editWarpDescription(p, warpName, newDescriptionString, connection);
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> description <new description>");
                         }
                     }
                     case "rename" -> {
                         if (args.length >= 3) {
-                            Warp renamedWarp = DataManager.getWarp(warpName, connection);
-                            String newName = args[2];
-                            if (newName.length() > 16) {
-                                MessageManager.sendMessage(p, "error_set_warp_invalid_length");
-                                return;
-                            }
-                            if (!RegexUtil.NAME_PATTERN.matcher(newName).matches()) {
-                                MessageManager.sendMessage(p, "error_set_warp_invalid_characters");
-                                return;
-                            }
-                            if (DataManager.warpExists(newName, connection)) {
-                                MessageManager.sendMessage(p, "error_set_warp_name_taken");
-                                return;
-                            }
-                            PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
-                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(renameWarpEvent));
-
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                                HuskHomes.getMap().removeWarpMarker(warpName);
-                            }
-                            DataManager.updateWarpName(warpName, newName, connection);
-
-                            renamedWarp.setName(newName);
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
-                                HuskHomes.getMap().addWarpMarker(renamedWarp);
-                            }
-                            WarpCommand.Tab.updateWarpsTabCache();
-                            MessageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
+                            editWarpName(p, warpName, args[2], connection);
                         } else {
-                            MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new warp>");
+                            MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> rename <new name>");
                         }
                     }
                     default -> MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, "An SQL exception occured editing a warp.", e);
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a warp.");
             }
+        });
+    }
+
+    private void editWarpLocation(Player p, String warpName, Connection connection) throws SQLException {
+        Location newLocation = p.getLocation();
+        TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
+
+        Warp locationMovedWarp = DataManager.getWarp(warpName, connection);
+        assert locationMovedWarp != null;
+        PlayerRelocateWarpEvent relocateWarpEvent = new PlayerRelocateWarpEvent(p, locationMovedWarp, newTeleportLocation);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getPluginManager().callEvent(relocateWarpEvent);
+            if (relocateWarpEvent.isCancelled()) {
+                return;
+            }
+            try {
+                // Remove old marker on map
+                if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                    HuskHomes.getMap().removeWarpMarker(warpName);
+                }
+
+                DataManager.updateWarpLocation(warpName, newLocation, connection);
+                MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
+
+                // Add new updated marker on map
+                locationMovedWarp.setLocation(newLocation, HuskHomes.getSettings().getServerID());
+                if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                    HuskHomes.getMap().addWarpMarker(locationMovedWarp);
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred updating a warp's location.");
+            }
+        });
+    }
+
+    private void editWarpDescription(Player p, String warpName, String newDescriptionString, Connection connection) throws SQLException {
+        Warp descriptionChangedWarp = DataManager.getWarp(warpName, connection);
+        assert descriptionChangedWarp != null;
+        PlayerChangeWarpDescriptionEvent changeWarpDescriptionEvent = new PlayerChangeWarpDescriptionEvent(p, descriptionChangedWarp, newDescriptionString);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getPluginManager().callEvent(changeWarpDescriptionEvent);
+            if (changeWarpDescriptionEvent.isCancelled()) {
+                return;
+            }
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    // Check the description is valid
+                    if (newDescriptionString.length() > 255) {
+                        MessageManager.sendMessage(p, "error_edit_warp_description_length");
+                        return;
+                    }
+                    if (!HuskHomes.getSettings().doUnicodeInDescriptions()) {
+                        if (!RegexUtil.DESCRIPTION_PATTERN.matcher(newDescriptionString).matches()) {
+                            MessageManager.sendMessage(p, "error_edit_warp_description_characters");
+                            return;
+                        }
+                    }
+
+                    // Remove old marker if on map
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().removeWarpMarker(warpName);
+                    }
+
+                    // Update description
+                    DataManager.updateWarpDescription(warpName, newDescriptionString, connection);
+
+                    // Add new marker to map if applicable
+                    descriptionChangedWarp.setDescription(newDescriptionString);
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().addWarpMarker(descriptionChangedWarp);
+                    }
+
+                    // Confirmation message
+                    MessageManager.sendMessage(p, "edit_warp_update_description", warpName, MineDown.escape(newDescriptionString));
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a warp's description.");
+                }
+            });
+        });
+    }
+
+    private void editWarpName(Player p, String warpName, String newName, Connection connection) throws SQLException {
+        if (newName.length() > 16) {
+            MessageManager.sendMessage(p, "error_set_warp_invalid_length");
+            return;
+        }
+        if (!RegexUtil.NAME_PATTERN.matcher(newName).matches()) {
+            MessageManager.sendMessage(p, "error_set_warp_invalid_characters");
+            return;
+        }
+        if (DataManager.warpExists(newName, connection)) {
+            MessageManager.sendMessage(p, "error_set_warp_name_taken");
+            return;
+        }
+        Warp renamedWarp = DataManager.getWarp(warpName, connection);
+        assert renamedWarp != null;
+        PlayerRenameWarpEvent renameWarpEvent = new PlayerRenameWarpEvent(p, renamedWarp, newName);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getPluginManager().callEvent(renameWarpEvent);
+            if (renameWarpEvent.isCancelled()) {
+                return;
+            }
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().removeWarpMarker(warpName);
+                    }
+                    DataManager.updateWarpName(warpName, newName, connection);
+                    WarpCommand.Tab.updateWarpsTabCache();
+                    renamedWarp.setName(newName);
+                    if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
+                        HuskHomes.getMap().addWarpMarker(renamedWarp);
+                    }
+                    MessageManager.sendMessage(p, "edit_warp_update_name", warpName, newName);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a warp name.");
+                }
+            });
         });
     }
 

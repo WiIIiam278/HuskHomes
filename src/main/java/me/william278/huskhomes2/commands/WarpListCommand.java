@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.commands;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
@@ -47,7 +48,7 @@ public class WarpListCommand extends CommandBase {
                             }
                         }
                     }
-                    warpList.add(MessageManager.getRawMessage("warp_list_item", warp.getName(), warp.getDescription()));
+                    warpList.add(MessageManager.getRawMessage("warp_list_item", warp.getName(), MineDown.escape(warp.getDescription()))); //todo escape formatting on warp desc
                 }
                 if (warpList.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_warps_set");

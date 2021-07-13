@@ -1,5 +1,6 @@
 package me.william278.huskhomes2;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
@@ -8,7 +9,7 @@ public class EditingHandler {
 
     public static void showEditHomeOptions(Player p, Home home) {
         MessageManager.sendMessage(p, "edit_home_title", home.getName());
-        MessageManager.sendMessage(p, "edit_description", home.getDescription());
+        p.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("edit_description")).replaceFirst(false).replace("%1%", home.getDescription()).toComponent());
         MessageManager.sendMessage(p, "edit_location",
                 Integer.toString((int) home.getX()),
                 Integer.toString((int) home.getY()),
@@ -36,7 +37,7 @@ public class EditingHandler {
 
     public static void showEditWarpOptions(Player p, Warp warp) {
         MessageManager.sendMessage(p, "edit_warp_title", warp.getName());
-        MessageManager.sendMessage(p, "edit_description", warp.getDescription());
+        p.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("edit_description")).replaceFirst(false).replace("%1%", warp.getDescription()).toComponent());
         MessageManager.sendMessage(p, "edit_location",
                 Integer.toString((int) warp.getX()),
                 Integer.toString((int) warp.getY()),

@@ -41,7 +41,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
                     publicHomeTabCache.put(home.getName(), home.getOwnerUsername());
                 }
             } catch (SQLException exception) {
-                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred upading the public home tab cache");
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred updating the public home tab cache");
             }
         });
     }
@@ -75,7 +75,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
                         MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                     }
                 } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An exception ocurred teleporting to a public home.");
+                    plugin.getLogger().log(Level.SEVERE, "An exception occurred teleporting to a public home.");
                 }
             });
         } else {

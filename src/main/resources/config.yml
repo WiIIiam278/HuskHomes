@@ -2,7 +2,7 @@
 # |       HuskHomes Config       |
 # |    Developed by William278   |
 #  ------------------------------
-# Configuration guide: https://github.com/WiIIiam278/HuskHomes2/wiki
+# Configuration guide: https://github.com/WiIIiam278/HuskHomes2/wiki/Config-File
 
 language: 'en-gb'
 check_for_updates: true

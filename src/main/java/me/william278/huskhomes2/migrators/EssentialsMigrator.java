@@ -31,13 +31,16 @@ public class EssentialsMigrator {
     }
 
     // Migrate data from EssentialsX
-    public static void migrate(String targetWorld, String targetServer) {
-        final String serverID = targetServer;
+    public static void migrate(final String worldFilter, final String targetServer) {
         final File essentialsDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials");
 
         if (essentialsDataFolder.exists()) {
             plugin.getLogger().info("Essentials plugin data found!");
-            plugin.getLogger().info("Started Migration from EssentialsX...\n");
+            if (worldFilter != null) {
+                plugin.getLogger().info("Started Filtered Migration from EssentialsX:\n• World to migrate from: " + worldFilter + "\n• Target server: " + targetServer);
+            } else {
+                plugin.getLogger().info("Started Migration from EssentialsX...\n");
+            }
 
             // Migrate user data
             File essentialsPlayerDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "userdata");
@@ -66,8 +69,8 @@ public class EssentialsMigrator {
                                         for (String homeName : essentialsHomes) {
                                             try {
                                                 final String worldName = playerFileConfig.getString("homes." + homeName + ".world");
-                                                if (targetWorld != null) {
-                                                    if (!targetWorld.equalsIgnoreCase(worldName)) {
+                                                if (worldFilter != null) {
+                                                    if (!worldFilter.equalsIgnoreCase(worldName)) {
                                                         continue;
                                                     }
                                                 }
@@ -78,7 +81,7 @@ public class EssentialsMigrator {
                                                 final float yaw = (float) playerFileConfig.getDouble("homes." + homeName + ".yaw");
                                                 final String homeDescription = MessageManager.getRawMessage("home_default_description", playerName);
 
-                                                DataManager.addHome(new Home(new TeleportationPoint(worldName, x, y, z, yaw, pitch, serverID),
+                                                DataManager.addHome(new Home(new TeleportationPoint(worldName, x, y, z, yaw, pitch, targetServer),
                                                         playerName, uuidS, homeName, homeDescription, false), uuid, connection);
 
                                                 plugin.getLogger().info("→ Migrated home " + homeName);
@@ -114,8 +117,8 @@ public class EssentialsMigrator {
                                 final FileConfiguration warpFileConfig = loadConfiguration(warpFile);
                                 final String warpName = warpFileConfig.getString("name");
                                 final String worldName = warpFileConfig.getString("world");
-                                if (targetWorld != null) {
-                                    if (!targetWorld.equalsIgnoreCase(worldName)) {
+                                if (worldFilter != null) {
+                                    if (!worldFilter.equalsIgnoreCase(worldName)) {
                                         continue;
                                     }
                                 }
@@ -125,7 +128,7 @@ public class EssentialsMigrator {
                                 final float yaw = (float) warpFileConfig.getDouble("yaw");
                                 final float pitch = (float) warpFileConfig.getDouble("pitch");
 
-                                DataManager.addWarp(new Warp(new TeleportationPoint(worldName, x, y, z, yaw, pitch, serverID),
+                                DataManager.addWarp(new Warp(new TeleportationPoint(worldName, x, y, z, yaw, pitch, targetServer),
                                         warpName, MessageManager.getRawMessage("warp_default_description")), connection);
                                 plugin.getLogger().info("→ Migrated warp " + warpName);
                             } catch (NullPointerException | IllegalArgumentException e) {
@@ -155,9 +158,19 @@ public class EssentialsMigrator {
                         final float yaw = (float) spawnConfig.getDouble("spawns.all.yaw");
                         final float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
 
-                        Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
-                        SettingHandler.setSpawnLocation(spawnLocation);
-                        plugin.getLogger().info("→ /spawn position has been migrated!\n");
+                        if (worldFilter != null) {
+                            if (worldFilter.equalsIgnoreCase(worldName)) {
+                                Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
+                                SettingHandler.setSpawnLocation(spawnLocation);
+                                plugin.getLogger().info("→ /spawn position has been migrated!\n");
+                            } else {
+                                plugin.getLogger().info("✖ /spawn position was not migrated as the world filter did not match.\n");
+                            }
+                        } else {
+                            Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
+                            SettingHandler.setSpawnLocation(spawnLocation);
+                            plugin.getLogger().info("→ /spawn position has been migrated!\n");
+                        }
                     } catch (NullPointerException | IllegalArgumentException e) {
                         plugin.getLogger().warning("✖ Failed to migrate the /spawn position.\n");
                     }

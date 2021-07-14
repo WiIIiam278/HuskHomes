@@ -131,7 +131,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                         } else if (args.length == 2) {
                             EssentialsMigrator.migrate();
                         } else {
-                            sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX [world] [target server]");
+                            sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX [world filter] [target server]");
                         }
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid argument! Usage: /huskhomes migrate essentialsX");

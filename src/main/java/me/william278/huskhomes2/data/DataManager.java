@@ -142,8 +142,13 @@ public class DataManager {
     }
 
     // Return a player's UUID
-    public static String getPlayerUUID(int playerID, Connection connection) throws SQLException {
-        return getPlayerString(playerID, "user_uuid", connection);
+    public static UUID getPlayerUUID(int playerID, Connection connection) throws SQLException {
+        String uuidString = getPlayerString(playerID, "user_uuid", connection);
+        if (uuidString != null) {
+           return UUID.fromString(uuidString);
+        } else {
+            return null;
+        }
     }
 
     // Return a player's username

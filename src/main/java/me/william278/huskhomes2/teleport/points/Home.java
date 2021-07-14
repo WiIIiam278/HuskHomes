@@ -24,7 +24,7 @@ public class Home extends TeleportationPoint {
 
     /**
      * An object representing a Player's home in-game
-     * @param location The Bukkit location of the home
+     * @param location The Bukkit {@link Location} of the home
      * @param server The Bungee server ID of the home
      * @param homeOwner The Player who owns the home
      * @param name The name of the home
@@ -41,17 +41,36 @@ public class Home extends TeleportationPoint {
 
     /**
      * An object representing a Player's home in-game
-     * @param teleportationPoint The position of the home
+     * @deprecated Use other method that accepts UUID instead of UUID-string
+     * @param teleportationPoint The {@link TeleportationPoint} position of the home
      * @param ownerUsername The username of the owner
-     * @param ownerUUID The UUID of the owner
+     * @param ownerUUID The UUID string of the owner
      * @param name The name of the home
      * @param description The description of the home
      * @param isPublic Whether or not the home is public
      */
-    public Home(TeleportationPoint teleportationPoint, String ownerUsername, String ownerUUID, String name, String description, boolean isPublic) {
+    public Home(TeleportationPoint teleportationPoint, String ownerUsername, String ownerUUID, String name, String description, boolean isPublic) throws IllegalArgumentException {
         super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
         this.ownerUsername = ownerUsername;
         this.ownerUUID = UUID.fromString(ownerUUID);
+        this.name = name;
+        this.description = description;
+        this.isPublic = isPublic;
+    }
+
+    /**
+     * An object representing a Player's home in-game
+     * @param teleportationPoint The {@link TeleportationPoint} position of the home
+     * @param ownerUsername The username of the owner
+     * @param ownerUUID The {@link UUID} of the owner
+     * @param name The name of the home
+     * @param description The description of the home
+     * @param isPublic Whether or not the home is public
+     */
+    public Home(TeleportationPoint teleportationPoint, String ownerUsername, UUID ownerUUID, String name, String description, boolean isPublic) {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
+        this.ownerUsername = ownerUsername;
+        this.ownerUUID = ownerUUID;
         this.name = name;
         this.description = description;
         this.isPublic = isPublic;

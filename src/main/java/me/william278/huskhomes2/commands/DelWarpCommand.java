@@ -15,7 +15,11 @@ public class DelWarpCommand extends CommandBase {
             return;
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("all") && args[1].equalsIgnoreCase("confirm")) {
-                SettingHandler.deleteAllWarps(p);
+                if (p.hasPermission("huskhomes.delwarp.all")) {
+                    SettingHandler.deleteAllWarps(p);
+                } else {
+                    MessageManager.sendMessage(p, "error_no_permission");
+                }
                 return;
             }
         }

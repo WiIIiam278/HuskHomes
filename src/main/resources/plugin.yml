@@ -180,6 +180,9 @@ permissions:
   huskhomes.delhome:
     description: Allows you to delete a home
     default: true
+  huskhomes.delhome.all:
+    description: Allows you to delete all your homes
+    default: true
   huskhomes.warp:
     description: Allows you to teleport to a warp
     default: true
@@ -190,7 +193,10 @@ permissions:
     description: Allows you to set server warps
     default: op
   huskhomes.delwarp:
-    description: Allows you to delete a home
+    description: Allows you to delete a server warp
+    default: op
+  huskhomes.delwarp.all:
+    description: Allows you to delete all server warps
     default: op
   huskhomes.publichome:
     description: Allows you to teleport to public homes

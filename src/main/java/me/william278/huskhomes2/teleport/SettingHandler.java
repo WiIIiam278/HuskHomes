@@ -214,6 +214,10 @@ public class SettingHandler {
                     }
                 } else {
                     if (homeName.equalsIgnoreCase("all")) {
+                        if (!player.hasPermission("huskhomes.delhome.all")) {
+                            MessageManager.sendMessage(player, "error_no_permission");
+                            return;
+                        }
                         if (DataManager.getPlayerHomes(player.getName(), connection).size() == 0) {
                             MessageManager.sendMessage(player, "error_no_homes_set");
                             return;
@@ -278,6 +282,10 @@ public class SettingHandler {
                     WarpCommand.Tab.updateWarpsTabCache();
                 } else {
                     if (warpName.equalsIgnoreCase("all")) {
+                        if (!player.hasPermission("huskhomes.delwarp.all")) {
+                            MessageManager.sendMessage(player, "error_no_permission");
+                            return;
+                        }
                         if (DataManager.getWarps(connection).size() == 0) {
                             MessageManager.sendMessage(player, "error_no_warps_set");
                             return;

@@ -15,7 +15,11 @@ public class DelHomeCommand extends CommandBase {
             return;
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("all") && args[1].equalsIgnoreCase("confirm")) {
-                SettingHandler.deleteAllHomes(p);
+                if (p.hasPermission("huskhomes.delhome.all")) {
+                    SettingHandler.deleteAllHomes(p);
+                } else {
+                    MessageManager.sendMessage(p, "error_no_permission");
+                }
                 return;
             }
         }

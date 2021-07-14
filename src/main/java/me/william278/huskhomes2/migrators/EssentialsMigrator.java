@@ -4,6 +4,7 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.SettingHandler;
+import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
@@ -25,9 +26,13 @@ public class EssentialsMigrator {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
-    // Migrate data from EssentialsX
     public static void migrate() {
-        final String serverID = HuskHomes.getSettings().getServerID();
+        migrate(null, HuskHomes.getSettings().getServerID());
+    }
+
+    // Migrate data from EssentialsX
+    public static void migrate(String targetWorld, String targetServer) {
+        final String serverID = targetServer;
         final File essentialsDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials");
 
         if (essentialsDataFolder.exists()) {
@@ -61,6 +66,11 @@ public class EssentialsMigrator {
                                         for (String homeName : essentialsHomes) {
                                             try {
                                                 final String worldName = playerFileConfig.getString("homes." + homeName + ".world");
+                                                if (targetWorld != null) {
+                                                    if (!targetWorld.equalsIgnoreCase(worldName)) {
+                                                        continue;
+                                                    }
+                                                }
                                                 final double x = playerFileConfig.getDouble("homes." + homeName + ".x");
                                                 final double y = playerFileConfig.getDouble("homes." + homeName + ".y");
                                                 final double z = playerFileConfig.getDouble("homes." + homeName + ".z");
@@ -104,6 +114,11 @@ public class EssentialsMigrator {
                                 final FileConfiguration warpFileConfig = loadConfiguration(warpFile);
                                 final String warpName = warpFileConfig.getString("name");
                                 final String worldName = warpFileConfig.getString("world");
+                                if (targetWorld != null) {
+                                    if (!targetWorld.equalsIgnoreCase(worldName)) {
+                                        continue;
+                                    }
+                                }
                                 final double x = warpFileConfig.getDouble("x");
                                 final double y = warpFileConfig.getDouble("y");
                                 final double z = warpFileConfig.getDouble("z");
@@ -126,25 +141,29 @@ public class EssentialsMigrator {
             }
 
             // Migrate /spawn position
-            File essentialsSpawnData = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "spawn.yml");
-            if (essentialsSpawnData.exists()) {
-                plugin.getLogger().info("Migrating /spawn position from Essentials...");
+            if (TeleportManager.getSpawnLocation() == null && HuskHomes.getSettings().doCrossServerSpawn()) {
+                File essentialsSpawnData = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "spawn.yml");
+                if (essentialsSpawnData.exists()) {
+                    plugin.getLogger().info("Migrating /spawn position from Essentials...");
 
-                FileConfiguration spawnConfig = loadConfiguration(essentialsSpawnData);
-                try {
-                    final String worldName = spawnConfig.getString("spawns.all.world");
-                    final double x = spawnConfig.getDouble("spawns.all.x");
-                    final double y = spawnConfig.getDouble("spawns.all.y");
-                    final double z = spawnConfig.getDouble("spawns.all.z");
-                    final float yaw = (float) spawnConfig.getDouble("spawns.all.yaw");
-                    final float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
+                    FileConfiguration spawnConfig = loadConfiguration(essentialsSpawnData);
+                    try {
+                        final String worldName = spawnConfig.getString("spawns.all.world");
+                        final double x = spawnConfig.getDouble("spawns.all.x");
+                        final double y = spawnConfig.getDouble("spawns.all.y");
+                        final double z = spawnConfig.getDouble("spawns.all.z");
+                        final float yaw = (float) spawnConfig.getDouble("spawns.all.yaw");
+                        final float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
 
-                    Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
-                    SettingHandler.setSpawnLocation(spawnLocation);
-                    plugin.getLogger().info("→ /spawn position has been migrated!\n");
-                } catch (NullPointerException | IllegalArgumentException e) {
-                    plugin.getLogger().warning("✖ Failed to migrate the /spawn position.\n");
+                        Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
+                        SettingHandler.setSpawnLocation(spawnLocation);
+                        plugin.getLogger().info("→ /spawn position has been migrated!\n");
+                    } catch (NullPointerException | IllegalArgumentException e) {
+                        plugin.getLogger().warning("✖ Failed to migrate the /spawn position.\n");
+                    }
                 }
+            } else {
+                plugin.getLogger().info("/spawn position migration from EssentialsX has been skipped as it has already been set or Cross Server Spawn has been enabled. Please re-set it again manually if you want.");
             }
 
             plugin.getLogger().info("Finished migrating data from Essentials!\n");

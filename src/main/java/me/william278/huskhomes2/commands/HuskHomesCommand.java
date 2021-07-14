@@ -123,10 +123,16 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
                     MessageManager.sendMessage(p, "error_console_only");
                     return true;
                 }
-                if (args.length == 2) {
-                    if (args[1].equalsIgnoreCase("essentialsX")) {
+                if (args.length >= 2) {
+                    if (args[1].equalsIgnoreCase("essentialsx")) {
                         sender.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Starting data migration from EssentialsX...").toComponent());
-                        EssentialsMigrator.migrate();
+                        if (args.length == 4) {
+                            EssentialsMigrator.migrate(args[2].toLowerCase(), args[3].toLowerCase());
+                        } else if (args.length == 2) {
+                            EssentialsMigrator.migrate();
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Invalid syntax! Usage: /huskhomes migrate essentialsX [world] [target server]");
+                        }
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid argument! Usage: /huskhomes migrate essentialsX");
                     }

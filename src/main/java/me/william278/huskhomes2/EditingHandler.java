@@ -9,7 +9,7 @@ public class EditingHandler {
 
     public static void showEditHomeOptions(Player p, Home home) {
         MessageManager.sendMessage(p, "edit_home_title", home.getName());
-        p.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("edit_description")).replaceFirst(false).replace("%1%", home.getDescription()).toComponent());
+        MessageManager.sendMessage(p, "edit_description", MineDown.escape(home.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
         MessageManager.sendMessage(p, "edit_location",
                 Integer.toString((int) home.getX()),
                 Integer.toString((int) home.getY()),
@@ -37,7 +37,7 @@ public class EditingHandler {
 
     public static void showEditWarpOptions(Player p, Warp warp) {
         MessageManager.sendMessage(p, "edit_warp_title", warp.getName());
-        p.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("edit_description")).replaceFirst(false).replace("%1%", warp.getDescription()).toComponent());
+        MessageManager.sendMessage(p, "edit_description", MineDown.escape(warp.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
         MessageManager.sendMessage(p, "edit_location",
                 Integer.toString((int) warp.getX()),
                 Integer.toString((int) warp.getY()),

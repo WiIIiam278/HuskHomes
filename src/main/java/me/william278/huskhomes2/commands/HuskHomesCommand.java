@@ -45,9 +45,9 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
             if (command.equals("huskhomes") && HuskHomes.getSettings().hideHuskHomesCommandFromHelpMenu()) {
                 continue;
             }
-            String description = (String) plugin.getDescription().getCommands().get(command).get("description");
+            String commandDescription = (String) plugin.getDescription().getCommands().get(command).get("description");
             String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
-            commandDisplay.add("[/" + command + "](#00fb9a show_text=&#00fb9a&" + commandUsage + " suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
+            commandDisplay.add(MessageManager.getRawMessage("command_list_item", command, commandUsage, commandDescription));
         }
 
         MessageManager.sendMessage(player, "command_list_header");

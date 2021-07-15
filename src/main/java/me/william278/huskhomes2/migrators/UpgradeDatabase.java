@@ -25,7 +25,7 @@ public class UpgradeDatabase {
                     tableUpdateStatement.executeUpdate();
                     plugin.getLogger().info("Database update complete!");
                 } catch (SQLException e) {
-                    plugin.getLogger().warning("Failed to perform the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
+                    plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
                 } finally {
                     // Update the config file version
                     Bukkit.getScheduler().runTask(plugin, () -> {

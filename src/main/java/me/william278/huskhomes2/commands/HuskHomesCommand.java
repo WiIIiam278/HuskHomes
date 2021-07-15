@@ -25,7 +25,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
             .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
             .append("[• Contributors:](white) [imDaniX](gray show_text=&7Code, refactoring), [Log1x](gray show_text=&7Code)\n")
-            .append("[• Translators:](white) [SnivyJ](gray show_text=&7Simplified Chinese, zh-cn), [Villag3r_](gray show_text=&7Italian, it-it) \n")
+            .append("[• Translators:](white) [SnivyJ](gray show_text=&7Simplified Chinese, zh-cn), [Villag3r_](gray show_text=&7Italian, it-it), [ReferTV](gray show_text=&7Polish, pl) \n")
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/wiki/)\n")
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/issues)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");

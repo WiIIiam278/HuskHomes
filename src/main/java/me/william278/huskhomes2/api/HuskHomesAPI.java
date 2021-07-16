@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -184,6 +185,21 @@ public class HuskHomesAPI {
     }
 
     /**
+     * Updates a player's last position on the server
+     * @param player The {@link Player} who's last position you wish to update
+     * @param point the {@link TeleportationPoint} to set as their new last position
+     */
+    public void updatePlayerLastPosition(Player player, TeleportationPoint point) {
+        Bukkit.getScheduler().runTaskAsynchronously(huskHomes, () -> {
+           try {
+               DataManager.setPlayerLastPosition(player, point, HuskHomes.getConnection());
+           } catch (SQLException e) {
+               huskHomes.getLogger().severe("An SQL exception occurred updating a player's last position via the API.");
+           }
+        });
+    }
+
+    /**
      * Teleport a player to a specific TeleportationPoint
      * @param player The player to be teleported
      * @param point The target teleportationPoint
@@ -191,7 +207,7 @@ public class HuskHomesAPI {
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
-        Connection connection = huskHomes.getInstance().getConnection();
+        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
             try {
                 if (timed) {
@@ -200,7 +216,7 @@ public class HuskHomesAPI {
                     TeleportManager.teleportPlayer(player, point, connection);
                 }
             } catch (SQLException e) {
-                huskHomes.getLogger().log(Level.WARNING, "An SQLException occurred timed-teleporting a player via API");
+                huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred timed-teleporting a player via the API.");
             }
         });
     }

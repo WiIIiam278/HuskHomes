@@ -42,7 +42,7 @@ public class TpCommand extends CommandBase {
                             double z = Double.parseDouble(args[2]);
                             TeleportationPoint teleportationPoint = new TeleportationPoint(p.getWorld().getName(), x, y, z, 0F, 0F, HuskHomes.getSettings().getServerID());
                             TeleportManager.teleportPlayer(p, teleportationPoint, connection);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                         }
                         return;
@@ -58,7 +58,7 @@ public class TpCommand extends CommandBase {
                             }
                             TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, HuskHomes.getSettings().getServerID());
                             TeleportManager.teleportPlayer(p, teleportationPoint, connection);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> [world] [server]");
                         }
                         return;
@@ -72,7 +72,7 @@ public class TpCommand extends CommandBase {
                                 String serverName = args[4];
                                 TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, 0F, 0F, serverName);
                                 TeleportManager.teleportPlayer(p, teleportationPoint, connection);
-                            } catch (Exception e) {
+                            } catch (NumberFormatException e) {
                                 MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
                             }
                         } else {

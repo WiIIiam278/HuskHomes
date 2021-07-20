@@ -930,7 +930,7 @@ public class DataManager {
                 ps.close();
             }
         } else {
-            Bukkit.getLogger().warning("Failed to add a home for a player!");
+            Bukkit.getLogger().warning("Player ID was null; failed to add a home for a player!");
         }
     }
 

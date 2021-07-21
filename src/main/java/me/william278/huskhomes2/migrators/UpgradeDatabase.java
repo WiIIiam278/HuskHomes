@@ -14,8 +14,8 @@ public class UpgradeDatabase {
     // Upgrade the database system if the config file version is not high enough
     public static void upgradeDatabase() {
         plugin.reloadConfig();
-        if (plugin.getConfig().getInt("config_file_version", 1) <= 5) {
-            plugin.getLogger().info("Detected that the database needs updating. Running database upgrade...");
+        if (plugin.getConfig().getInt("config_file_version", 1) <= 6) {
+            plugin.getLogger().info("Detected that the database might need updating. Running database upgrade...");
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
                         "ALTER TABLE " + HuskHomes.getSettings().getPlayerDataTable()
@@ -29,7 +29,7 @@ public class UpgradeDatabase {
                 } finally {
                     // Update the config file version
                     Bukkit.getScheduler().runTask(plugin, () -> {
-                        plugin.getConfig().set("config_file_version", 6);
+                        plugin.getConfig().set("config_file_version", 7);
                         plugin.saveConfig();
                     });
                 }

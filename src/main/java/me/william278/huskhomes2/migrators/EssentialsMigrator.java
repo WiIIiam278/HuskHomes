@@ -33,30 +33,30 @@ public class EssentialsMigrator {
 
     // Migrate data from EssentialsX
     public static void migrate(final String worldFilter, final String targetServer) {
-        final File essentialsDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials");
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            final File essentialsDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials");
 
-        if (essentialsDataFolder.exists()) {
-            plugin.getLogger().info("Essentials plugin data found!");
-            if (worldFilter != null) {
-                plugin.getLogger().info("Started Filtered Migration from EssentialsX:\n• World to migrate from: " + worldFilter + "\n• Target server: " + targetServer);
-            } else {
-                plugin.getLogger().info("Started Migration from EssentialsX...\n");
-            }
+            if (essentialsDataFolder.exists()) {
+                plugin.getLogger().info("Essentials plugin data found!");
+                if (worldFilter != null) {
+                    plugin.getLogger().info("Started Filtered Migration from EssentialsX:\n• World to migrate from: " + worldFilter + "\n• Target server: " + targetServer);
+                } else {
+                    plugin.getLogger().info("Started Migration from EssentialsX...\n");
+                }
 
-            // Migrate user data
-            File essentialsPlayerDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "userdata");
-            if (essentialsPlayerDataFolder.exists()) {
-                File[] playerFiles = essentialsPlayerDataFolder.listFiles();
-                if (playerFiles != null) {
-                    for (File playerFile : playerFiles) {
-                        try {
-                            final String fileName = playerFile.getName();
-                            final UUID playerUUID = UUID.fromString(fileName.substring(0, fileName.lastIndexOf(".")));
-                            FileConfiguration playerFileConfig = loadConfiguration(playerFile);
-                            final String playerName = playerFileConfig.getString("last-account-name", playerFileConfig.getString("lastAccountName"));
+                // Migrate user data
+                File essentialsPlayerDataFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "userdata");
+                if (essentialsPlayerDataFolder.exists()) {
+                    File[] playerFiles = essentialsPlayerDataFolder.listFiles();
+                    if (playerFiles != null) {
+                        for (File playerFile : playerFiles) {
                             try {
-                                Connection connection = HuskHomes.getConnection();
-                                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                                final String fileName = playerFile.getName();
+                                final UUID playerUUID = UUID.fromString(fileName.substring(0, fileName.lastIndexOf(".")));
+                                FileConfiguration playerFileConfig = loadConfiguration(playerFile);
+                                final String playerName = playerFileConfig.getString("last-account-name", playerFileConfig.getString("lastAccountName"));
+                                try {
+                                    Connection connection = HuskHomes.getConnection();
                                     try {
                                         if (!DataManager.playerExists(playerUUID, connection)) {
                                             DataManager.createPlayer(playerUUID, playerName, connection);
@@ -106,22 +106,20 @@ public class EssentialsMigrator {
                                     } catch (SQLException e) {
                                         plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred migrating Essentials home data.", e);
                                     }
-                                });
 
-                            } catch (NullPointerException ignored) { }
-                        } catch (IllegalArgumentException ignored) { }
+                                } catch (NullPointerException ignored) { }
+                            } catch (IllegalArgumentException ignored) { }
+                        }
                     }
                 }
-            }
 
-            // Migrate warps
-            File essentialsWarpsFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "warps");
-            if (essentialsWarpsFolder.exists()) {
-                final File[] warpFiles = essentialsWarpsFolder.listFiles();
+                // Migrate warps
+                File essentialsWarpsFolder = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "warps");
+                if (essentialsWarpsFolder.exists()) {
+                    final File[] warpFiles = essentialsWarpsFolder.listFiles();
 
-                if (warpFiles != null) {
-                    Connection connection = HuskHomes.getConnection();
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    if (warpFiles != null) {
+                        Connection connection = HuskHomes.getConnection();
                         for (File warpFile : warpFiles) {
                             try {
                                 final FileConfiguration warpFileConfig = loadConfiguration(warpFile);
@@ -163,54 +161,54 @@ public class EssentialsMigrator {
                                 return;
                             }
                         }
-                    });
-                }
-            }
-
-            // Migrate /spawn position
-            if (TeleportManager.getSpawnLocation() == null && HuskHomes.getSettings().doCrossServerSpawn()) {
-                File essentialsSpawnData = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "spawn.yml");
-                if (essentialsSpawnData.exists()) {
-                    plugin.getLogger().info("Migrating /spawn position from Essentials...");
-
-                    FileConfiguration spawnConfig = loadConfiguration(essentialsSpawnData);
-                    try {
-                        String worldID = spawnConfig.getString("spawns.all.world");
-                        try {
-                            final UUID worldUUID = UUID.fromString(worldID);
-                            final World world = Bukkit.getWorld(worldUUID);
-                            if (world != null) {
-                                worldID = world.getName();
-                            } else {
-                                plugin.getLogger().warning("✖ Could not migrate the spawn position as the world value was a UUID and is not loaded on this server.");
-                                return;
-                            }
-                        } catch (IllegalArgumentException ignored) { }
-                        if (worldFilter != null) {
-                            if (!worldFilter.equalsIgnoreCase(worldID)) {
-                                plugin.getLogger().warning("✖ Did not migrate the /spawn position as the world filter did not match.");
-                                return;
-                            }
-                        }
-                        final double x = spawnConfig.getDouble("spawns.all.x");
-                        final double y = spawnConfig.getDouble("spawns.all.y");
-                        final double z = spawnConfig.getDouble("spawns.all.z");
-                        final float yaw = (float) spawnConfig.getDouble("spawns.all.yaw");
-                        final float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
-
-                        Location spawnLocation = new Location(Bukkit.getWorld(worldID), x, y, z, yaw, pitch);
-                        SettingHandler.setSpawnLocation(spawnLocation);
-                        plugin.getLogger().info("→ /spawn position has been migrated!\n");
-                    } catch (NullPointerException | IllegalArgumentException e) {
-                        plugin.getLogger().warning("✖ Failed to migrate the /spawn position.\n");
                     }
                 }
+
+                // Migrate /spawn position
+                if (TeleportManager.getSpawnLocation() == null && HuskHomes.getSettings().doCrossServerSpawn()) {
+                    File essentialsSpawnData = new File(Bukkit.getWorldContainer() + File.separator + "plugins" + File.separator + "Essentials" + File.separator + "spawn.yml");
+                    if (essentialsSpawnData.exists()) {
+                        plugin.getLogger().info("Migrating /spawn position from Essentials...");
+
+                        FileConfiguration spawnConfig = loadConfiguration(essentialsSpawnData);
+                        try {
+                            String worldID = spawnConfig.getString("spawns.all.world");
+                            try {
+                                final UUID worldUUID = UUID.fromString(worldID);
+                                final World world = Bukkit.getWorld(worldUUID);
+                                if (world != null) {
+                                    worldID = world.getName();
+                                } else {
+                                    plugin.getLogger().warning("✖ Could not migrate the spawn position as the world value was a UUID and is not loaded on this server.");
+                                    return;
+                                }
+                            } catch (IllegalArgumentException ignored) { }
+                            if (worldFilter != null) {
+                                if (!worldFilter.equalsIgnoreCase(worldID)) {
+                                    plugin.getLogger().warning("✖ Did not migrate the /spawn position as the world filter did not match.");
+                                    return;
+                                }
+                            }
+                            final double x = spawnConfig.getDouble("spawns.all.x");
+                            final double y = spawnConfig.getDouble("spawns.all.y");
+                            final double z = spawnConfig.getDouble("spawns.all.z");
+                            final float yaw = (float) spawnConfig.getDouble("spawns.all.yaw");
+                            final float pitch = (float) spawnConfig.getDouble("spawns.all.pitch");
+
+                            Location spawnLocation = new Location(Bukkit.getWorld(worldID), x, y, z, yaw, pitch);
+                            SettingHandler.setSpawnLocation(spawnLocation);
+                            plugin.getLogger().info("→ /spawn position has been migrated!\n");
+                        } catch (NullPointerException | IllegalArgumentException e) {
+                            plugin.getLogger().warning("✖ Failed to migrate the /spawn position.\n");
+                        }
+                    }
+                } else {
+                    plugin.getLogger().info("✖ /spawn position migration from EssentialsX has been skipped as it has already been set or Cross Server Spawn has been enabled. Please re-set it again manually if you want.");
+                }
             } else {
-                plugin.getLogger().info("✖ /spawn position migration from EssentialsX has been skipped as it has already been set or Cross Server Spawn has been enabled. Please re-set it again manually if you want.");
+                plugin.getLogger().warning("Failed to Migrate from Essentials!");
+                Bukkit.getLogger().warning("Could not find Essentials plugin data to migrate!");
             }
-        } else {
-            plugin.getLogger().warning("Failed to Migrate from Essentials!");
-            Bukkit.getLogger().warning("Could not find Essentials plugin data to migrate!");
-        }
+        });
     }
 }

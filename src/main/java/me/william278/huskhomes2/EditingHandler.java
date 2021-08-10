@@ -2,6 +2,7 @@ package me.william278.huskhomes2;
 
 import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.teleport.points.SetPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
 import org.bukkit.entity.Player;
 
@@ -9,15 +10,7 @@ public class EditingHandler {
 
     public static void showEditHomeOptions(Player p, Home home) {
         MessageManager.sendMessage(p, "edit_home_title", home.getName());
-        MessageManager.sendMessage(p, "edit_description", MineDown.escape(home.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
-        MessageManager.sendMessage(p, "edit_location",
-                Integer.toString((int) home.getX()),
-                Integer.toString((int) home.getY()),
-                Integer.toString((int) home.getZ()));
-        MessageManager.sendMessage(p, "edit_world", home.getWorldName());
-        if (HuskHomes.getSettings().doBungee()) {
-            MessageManager.sendMessage(p, "edit_server", home.getServer());
-        }
+        showPointDetails(p, home);
         if (!home.isPublic()) {
             MessageManager.sendMessage(p, "edit_home_privacy_private");
         } else {
@@ -37,17 +30,22 @@ public class EditingHandler {
 
     public static void showEditWarpOptions(Player p, Warp warp) {
         MessageManager.sendMessage(p, "edit_warp_title", warp.getName());
-        MessageManager.sendMessage(p, "edit_description", MineDown.escape(warp.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
-        MessageManager.sendMessage(p, "edit_location",
-                Integer.toString((int) warp.getX()),
-                Integer.toString((int) warp.getY()),
-                Integer.toString((int) warp.getZ()));
-        MessageManager.sendMessage(p, "edit_world", warp.getWorldName());
-        if (HuskHomes.getSettings().doBungee()) {
-            MessageManager.sendMessage(p, "edit_server", warp.getServer());
-        }
+        showPointDetails(p, warp);
 
         MessageManager.sendMessage(p, "edit_warp_options", warp.getName());
+    }
+
+    private static void showPointDetails(Player p, SetPoint point) {
+        MessageManager.sendMessage(p, "edit_description", MineDown.escape(point.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
+        MessageManager.sendMessage(p, "edit_timestamp", point.getFormattedCreationTime());
+        MessageManager.sendMessage(p, "edit_location",
+                Integer.toString((int) point.getX()),
+                Integer.toString((int) point.getY()),
+                Integer.toString((int) point.getZ()));
+        MessageManager.sendMessage(p, "edit_world", point.getWorldName());
+        if (HuskHomes.getSettings().doBungee()) {
+            MessageManager.sendMessage(p, "edit_server", point.getServer());
+        }
     }
 
 }

@@ -5,7 +5,8 @@ import org.bukkit.Bukkit;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class UpgradeDatabase {
 
@@ -32,6 +33,36 @@ public class UpgradeDatabase {
                         plugin.getConfig().set("config_file_version", 7);
                         plugin.saveConfig();
                     });
+                }
+            });
+        }
+        if (plugin.getConfig().getInt("config_file_version", 1) <= 6) {
+            plugin.getLogger().info("Detected that the database might need updating. Running database upgrade...");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
+                        "ALTER TABLE " + HuskHomes.getSettings().getHomesDataTable()
+                                + " ADD `creation_time` timestamp NOT NULL DEFAULT ?;")) {
+                    tableUpdateStatement.setTimestamp(1, new Timestamp(Instant.now().getEpochSecond()));
+                    tableUpdateStatement.executeUpdate();
+                    plugin.getLogger().info("Database update complete!");
+                } catch (SQLException e) {
+                    plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
+                } finally {
+                    try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
+                            "ALTER TABLE " + HuskHomes.getSettings().getWarpsDataTable()
+                                    + " ADD `creation_time` timestamp NOT NULL DEFAULT ?;")) {
+                        tableUpdateStatement.setTimestamp(1, new Timestamp(Instant.now().getEpochSecond()));
+                        tableUpdateStatement.executeUpdate();
+                        plugin.getLogger().info("Database update complete!");
+                    } catch (SQLException e) {
+                        plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
+                    } finally {
+                        // Update the config file version
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            plugin.getConfig().set("config_file_version", 8);
+                            plugin.saveConfig();
+                        });
+                    }
                 }
             });
         }

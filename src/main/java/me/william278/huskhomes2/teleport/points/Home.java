@@ -13,12 +13,9 @@ import java.util.UUID;
  * An object representing a Player's home in-game
  * @author William
  */
-public class Home extends TeleportationPoint {
+public class Home extends SetPoint {
 
-    private String name;
-    private String description;
     private boolean isPublic;
-
     private UUID ownerUUID;
     private String ownerUsername;
 
@@ -28,14 +25,12 @@ public class Home extends TeleportationPoint {
      * @param server The Bungee server ID of the home
      * @param homeOwner The Player who owns the home
      * @param name The name of the home
-     * @param isPublic Whether or not the home is public
+     * @param isPublic Whether the home is public
      */
     public Home(Location location, String server, Player homeOwner, String name, boolean isPublic) {
-        super(location, server);
-        this.name = name;
+        super(location, server, name, MessageManager.getRawMessage("home_default_description", homeOwner.getName()));
         this.ownerUUID = homeOwner.getUniqueId();
         this.ownerUsername = homeOwner.getName();
-        this.description = MessageManager.getRawMessage("home_default_description", ownerUsername);
         this.isPublic = isPublic;
     }
 
@@ -47,14 +42,12 @@ public class Home extends TeleportationPoint {
      * @param ownerUUID The UUID string of the owner
      * @param name The name of the home
      * @param description The description of the home
-     * @param isPublic Whether or not the home is public
+     * @param isPublic Whether the home is public
      */
-    public Home(TeleportationPoint teleportationPoint, String ownerUsername, String ownerUUID, String name, String description, boolean isPublic) throws IllegalArgumentException {
-        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
+    public Home(TeleportationPoint teleportationPoint, String ownerUsername, String ownerUUID, String name, String description, boolean isPublic, long creationTime) throws IllegalArgumentException {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server, name, description, creationTime);
         this.ownerUsername = ownerUsername;
         this.ownerUUID = UUID.fromString(ownerUUID);
-        this.name = name;
-        this.description = description;
         this.isPublic = isPublic;
     }
 
@@ -65,19 +58,17 @@ public class Home extends TeleportationPoint {
      * @param ownerUUID The {@link UUID} of the owner
      * @param name The name of the home
      * @param description The description of the home
-     * @param isPublic Whether or not the home is public
+     * @param isPublic Whether the home is public
      */
-    public Home(TeleportationPoint teleportationPoint, String ownerUsername, UUID ownerUUID, String name, String description, boolean isPublic) {
-        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
+    public Home(TeleportationPoint teleportationPoint, String ownerUsername, UUID ownerUUID, String name, String description, boolean isPublic, long creationTime) {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server, name, description, creationTime);
         this.ownerUsername = ownerUsername;
         this.ownerUUID = ownerUUID;
-        this.name = name;
-        this.description = description;
         this.isPublic = isPublic;
     }
 
     /**
-     * Returns whether or not the Home is public
+     * Returns whether the Home is public
      * @return if the Home is public
      */
     public boolean isPublic() {
@@ -130,73 +121,41 @@ public class Home extends TeleportationPoint {
         this.ownerUsername = player.getName();
     }
 
-    /**
-     * Returns the name of the home
-     * @return the Home name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns the description of the home
-     * @return the Home description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Set the name of the home
-     * @param name the new Home name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Set the description of the home
-     * @param description the new Home description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     // Returns the maximum number of set homes a player can make
     public static int getSetHomeLimit(Player p) {
         p.recalculatePermissions();
-        int maxSethomes = -1;
+        int maxSetHomes = -1;
         for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains("huskhomes.max_sethomes.")) {
                 try {
-                    if (Integer.parseInt(permission.split("\\.")[2]) > maxSethomes) {
-                        maxSethomes = Integer.parseInt(permission.split("\\.")[2]);
+                    if (Integer.parseInt(permission.split("\\.")[2]) > maxSetHomes) {
+                        maxSetHomes = Integer.parseInt(permission.split("\\.")[2]);
                     }
                 } catch (Exception ignored) { }
             }
         }
-        if (maxSethomes != -1) {
-            return maxSethomes;
+        if (maxSetHomes != -1) {
+            return maxSetHomes;
         }
         return HuskHomes.getSettings().getMaximumHomes();
     }
 
     // Returns the number of set homes a player can set for free
     public static int getFreeHomes(Player p) {
-        int freeSethomes = -1;
+        int freeSetHomes = -1;
         for (PermissionAttachmentInfo permissionAI : p.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains("huskhomes.free_sethomes.")) {
                 try {
-                    if (Integer.parseInt(permission.split("\\.")[2]) > freeSethomes) {
-                        freeSethomes = Integer.parseInt(permission.split("\\.")[2]);
+                    if (Integer.parseInt(permission.split("\\.")[2]) > freeSetHomes) {
+                        freeSetHomes = Integer.parseInt(permission.split("\\.")[2]);
                     }
                 } catch(Exception ignored) { }
             }
         }
-        if (freeSethomes != -1) {
-            return freeSethomes;
+        if (freeSetHomes != -1) {
+            return freeSetHomes;
         }
         return HuskHomes.getSettings().getFreeHomeSlots();
     }

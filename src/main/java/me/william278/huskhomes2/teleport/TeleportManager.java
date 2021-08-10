@@ -138,7 +138,7 @@ public class TeleportManager {
     public static void queueRandomTeleport(Player player, Connection connection) throws SQLException {
         if (!player.hasPermission("huskhomes.rtp.bypass_cooldown")) {
             long currentTime = Instant.now().getEpochSecond();
-            long coolDownTime = DataManager.getPlayerRtpCooldown(player, connection);
+            long coolDownTime = DataManager.getPlayerRtpCoolDown(player, connection);
             if (currentTime < coolDownTime) {
                 long timeRemaining = coolDownTime - currentTime;
                 long timeRemainingMinutes = timeRemaining / 60;
@@ -168,7 +168,7 @@ public class TeleportManager {
                 }
             }
             teleportPlayer(player, randomPoint, connection);
-            DataManager.updateRtpCooldown(player, connection);
+            DataManager.updateRtpCoolDown(player, connection);
             return;
         }
         new TimedTeleport(player).begin();

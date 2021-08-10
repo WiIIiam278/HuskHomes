@@ -41,12 +41,10 @@ public class HomeCommand extends CommandBase {
                     }
                 } else {
                     List<Home> homes = DataManager.getPlayerHomes(p.getName(), connection);
-                    if (homes != null) {
-                        if (homes.size() == 1) {
-                            // Teleport the player if they only have one home
-                            TeleportManager.queueTimedTeleport(p, homes.get(0), connection);
-                            return;
-                        }
+                    if (homes.size() == 1) {
+                        // Teleport the player if they only have one home
+                        TeleportManager.queueTimedTeleport(p, homes.get(0), connection);
+                        return;
                     }
                     HomeListCommand.displayPlayerHomeList(p, 1);
                 }

@@ -59,16 +59,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                     case "description" -> {
                         if (args.length >= 3) {
                             // Get the new description
-                            StringBuilder newDescription = new StringBuilder();
-                            for (int i = 2; i < args.length; i++) {
-                                if (i > 2) {
-                                    newDescription.append(" ").append(args[i]);
-                                } else {
-                                    newDescription = new StringBuilder(args[i]);
-                                }
-                            }
-                            String newDescriptionString = newDescription.toString();
-                            editWarpDescription(p, warpName, newDescriptionString, connection);
+                            editWarpDescription(p, warpName, EditHomeCommand.buildDescription(args), connection);
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/editwarp <warp> description <new description>");
                         }

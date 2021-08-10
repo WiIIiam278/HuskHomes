@@ -64,16 +64,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     case "description" -> {
                         if (args.length >= 3) {
                             // Get the new description
-                            StringBuilder newDescription = new StringBuilder();
-                            for (int i = 2; i < args.length; i++) {
-                                if (i > 2) {
-                                    newDescription.append(" ").append(args[i]);
-                                } else {
-                                    newDescription = new StringBuilder(args[i]);
-                                }
-                            }
-                            String newDescriptionString = newDescription.toString();
-                            editHomeDescription(p, homeName, newDescriptionString, connection);
+                            editHomeDescription(p, homeName, buildDescription(args), connection);
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> description <new description>");
                         }
@@ -91,6 +82,18 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a home.");
             }
         });
+    }
+
+    public static String buildDescription(String[] args) {
+        StringBuilder newDescription = new StringBuilder();
+        for (int i = 2; i < args.length; i++) {
+            if (i > 2) {
+                newDescription.append(" ").append(args[i]);
+            } else {
+                newDescription = new StringBuilder(args[i]);
+            }
+        }
+        return newDescription.toString();
     }
 
     private void editHomeLocation(Player p, String homeName, Connection connection) throws SQLException {

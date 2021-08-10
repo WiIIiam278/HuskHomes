@@ -48,6 +48,7 @@ public class MySQL extends Database {
                     "`name` varchar(16) NOT NULL," +
                     "`description` varchar(255) NOT NULL," +
                     "`public` boolean NOT NULL," +
+                    "`creation_time` timestamp NOT NULL," +
                     "PRIMARY KEY (`player_id`, `name`)," +
                     "FOREIGN KEY (`player_id`) REFERENCES " + HuskHomes.getSettings().getPlayerDataTable() + " (`player_id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
@@ -57,6 +58,7 @@ public class MySQL extends Database {
                     "`location_id` integer NOT NULL," +
                     "`name` varchar(16) NOT NULL UNIQUE," +
                     "`description` varchar(255) NOT NULL," +
+                    "`creation_time` timestamp NOT NULL," +
                     "PRIMARY KEY (`location_id`)," +
                     "FOREIGN KEY (`location_id`) REFERENCES " + HuskHomes.getSettings().getLocationsDataTable() + " (`location_id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
                     ");"

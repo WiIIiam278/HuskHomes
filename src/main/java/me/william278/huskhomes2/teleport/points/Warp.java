@@ -11,10 +11,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
  * An object representing an in-game warp
  * @author William
  */
-public class Warp extends TeleportationPoint {
-
-    private String name;
-    private String description;
+public class Warp extends SetPoint {
 
     /**
      * An object representing an in-game warp
@@ -23,9 +20,7 @@ public class Warp extends TeleportationPoint {
      * @param name The name of the Warp
      */
     public Warp(Location location, String server, String name) {
-        super(location, server);
-        this.name = name;
-        this.description = MessageManager.getRawMessage("warp_default_description");
+        super(location, server, name, MessageManager.getRawMessage("warp_default_description"));
     }
 
     /**
@@ -34,51 +29,17 @@ public class Warp extends TeleportationPoint {
      * @param name The name of the Warp
      * @param description The description of the Warp
      */
-    public Warp(TeleportationPoint teleportationPoint, String name, String description) {
-        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server);
-        this.name = name;
-        this.description = description;
+    public Warp(TeleportationPoint teleportationPoint, String name, String description, long creationTime) {
+        super(teleportationPoint.worldName, teleportationPoint.x, teleportationPoint.y, teleportationPoint.z, teleportationPoint.yaw, teleportationPoint.pitch, teleportationPoint.server, name, description, creationTime);
     }
 
     /**
-     * Returns the description of the Warp
-     * @return the Warp's description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Returns the name of the Warp
-     * @return the Warp's name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Set the name of the Warp
-     * @param name the new Warp name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Set the description of the Warp
-     * @param description the new Warp description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Whether or not the player can use the warp
+     * Whether the player can use the warp
      * @param player The player
-     * @return boolean; whether or not they can use the warp
+     * @return boolean; whether they can use the warp
      */
     public boolean canUse(Player player) {
-        return getWarpCanUse(player, name);
+        return getWarpCanUse(player, getName());
     }
 
     // Returns if the player has permission to access the warp

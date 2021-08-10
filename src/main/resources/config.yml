@@ -87,4 +87,4 @@ economy_integration:
     random_teleport: 20
     back: 0
 handle_vanished_players: true
-config_file_version: 7
+config_file_version: 8

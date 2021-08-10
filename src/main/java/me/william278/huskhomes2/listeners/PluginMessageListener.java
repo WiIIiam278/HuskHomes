@@ -113,7 +113,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
         }
     }
 
-    @Override
+    @Override @SuppressWarnings("UnstableApiUsage")
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {

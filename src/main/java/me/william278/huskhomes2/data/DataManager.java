@@ -18,58 +18,50 @@ public class DataManager {
 
     // Return a player's ID  from their UUID
     private static Integer getPlayerId(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
 
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
-        ps.setString(1, uuid.toString());
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int playerID = rs.getInt("player_id");
-                ps.close();
+            if (resultSet.next()) {
+                final int playerID = resultSet.getInt("player_id");
+                statement.close();
                 return playerID;
             }
+
         }
-        ps.close();
         return null;
     }
 
-    // Return a player's ID  from their username
+    // Return a player's ID  from their UUID
     public static Integer getPlayerId(String playerUsername, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?;");
-        ps.setString(1, playerUsername);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int returnable = rs.getInt("player_id");
-                ps.close();
-                return returnable;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?;")) {
+            statement.setString(1, playerUsername);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final int playerID = resultSet.getInt("player_id");
+                statement.close();
+                return playerID;
             }
+
         }
-        ps.close();
         return null;
     }
 
     // Return an integer from the player table from a player ID
     private static Integer getPlayerInteger(Integer playerID, String column, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;");
-        ps.setInt(1, playerID);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int returnable = rs.getInt(column);
-                ps.close();
-                return returnable;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;")) {
+            statement.setInt(1, playerID);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final int playerInteger = resultSet.getInt(column);
+                statement.close();
+                return playerInteger;
             }
+
         }
-        ps.close();
         return null;
     }
 
@@ -78,66 +70,51 @@ public class DataManager {
         return getPlayerInteger(getPlayerId(p.getUniqueId(), connection), column, connection);
     }
 
-    // Return an integer from the player table from a player ID
+    // Return a string from the player table from a player ID
     private static String getPlayerString(Integer playerID, String column, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;");
-        ps.setInt(1, playerID);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final String player = rs.getString(column);
-                ps.close();
-                return player;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `player_id`=?;")) {
+            statement.setInt(1, playerID);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final String playerString = resultSet.getString(column);
+                statement.close();
+                return playerString;
             }
-        } else {
-            Bukkit.getLogger().severe("Result set for a player returned null; perhaps player ID was null");
+
         }
-        ps.close();
         return null;
     }
 
     // Return if the player is teleporting
-    public static Boolean getPlayerTeleporting(Player p, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
-        ps.setString(1, p.getUniqueId().toString());
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final boolean isTeleporting = rs.getBoolean("is_teleporting");
-                ps.close();
+    public static Boolean isPlayerTeleporting(UUID uuid, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final boolean isTeleporting = resultSet.getBoolean("is_teleporting");
+                statement.close();
                 return isTeleporting;
             }
-        } else {
-            Bukkit.getLogger().severe("Failed to retrieve if player was teleporting");
+
         }
-        ps.close();
         return null;
     }
 
     // Return if the player is ignoring teleport requests
-    public static Boolean getPlayerIgnoringRequests(Player p, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
-        ps.setString(1, p.getUniqueId().toString());
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final boolean isIgnoringRequests = rs.getBoolean("is_ignoring_requests");
-                ps.close();
+    public static Boolean isPlayerIgnoringRequests(UUID uuid, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;")) {
+            statement.setString(1, uuid.toString());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final boolean isIgnoringRequests = resultSet.getBoolean("is_ignoring_requests");
+                statement.close();
                 return isIgnoringRequests;
             }
-        } else {
-            Bukkit.getLogger().severe("Failed to retrieve if player was ignoring teleport requests");
+
         }
-        ps.close();
         return null;
     }
 
@@ -145,7 +122,7 @@ public class DataManager {
     public static UUID getPlayerUUID(int playerID, Connection connection) throws SQLException {
         String uuidString = getPlayerString(playerID, "user_uuid", connection);
         if (uuidString != null) {
-           return UUID.fromString(uuidString);
+            return UUID.fromString(uuidString);
         } else {
             return null;
         }
@@ -158,12 +135,7 @@ public class DataManager {
 
     // Return how many homes the player has set
     public static int getPlayerHomeCount(Player p, Connection connection) throws SQLException {
-        List<Home> playerHomes = getPlayerHomes(p.getName(), connection);
-        if (playerHomes != null) {
-            return playerHomes.size();
-        } else {
-            return 0;
-        }
+        return getPlayerHomes(p.getName(), connection).size();
     }
 
     // Increment the number of home slots a player has
@@ -177,122 +149,111 @@ public class DataManager {
     }
 
     // Return how many home slots a player has
-    public static Long getPlayerRtpCooldown(Player p, Connection connection) throws SQLException {
+    public static Long getPlayerRtpCoolDown(Player p, Connection connection) throws SQLException {
         return (long) getPlayerInteger(p, "rtp_cooldown", connection);
     }
 
-    // Return a player's homes.
+    // Returns a list of a player's homes
     public static List<Home> getPlayerHomes(String playerName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
-        ps.setString(1, playerName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            final List<Home> playerHomes = new ArrayList<>();
-            while (rs.next()) {
-                int locationID = rs.getInt("location_id");
+        final List<Home> playerHomes = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);")) {
+            statement.setString(1, playerName);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
                 playerHomes.add(new Home(teleportationPoint,
-                        playerName, getPlayerUUID(rs.getInt("player_id"), connection),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getBoolean("public")));
+                        playerName,
+                        getPlayerUUID(resultSet.getInt("player_id"), connection),
+                        resultSet.getString("name"),
+                        resultSet.getString("description"),
+                        resultSet.getBoolean("public"),
+                        resultSet.getTimestamp("creation_time").getTime()));
             }
-            ps.close();
-            return playerHomes;
+
         }
-        ps.close();
-        return null;
+        return playerHomes;
     }
 
     // Return all the public homes
     public static List<Home> getPublicHomes(Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `public`;");
-        rs = ps.executeQuery();
         final List<Home> publicHomes = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                int playerID = rs.getInt("player_id");
-                int locationID = rs.getInt("location_id");
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `public`;")) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int playerID = resultSet.getInt("player_id");
+                int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
-                publicHomes.add(new Home(teleportationPoint, getPlayerUsername(playerID, connection),
-                        getPlayerUUID(playerID, connection), rs.getString("name"),
-                        rs.getString("description"), true));
+                publicHomes.add(new Home(teleportationPoint,
+                        getPlayerUsername(playerID, connection),
+                        getPlayerUUID(playerID, connection),
+                        resultSet.getString("name"),
+                        resultSet.getString("description"), true,
+                        resultSet.getTimestamp("creation_time").getTime()));
             }
-            ps.close();
+
         }
-        ps.close();
         return publicHomes;
     }
 
     // Return an array of all the warps
     public static List<Warp> getWarps(Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + ";");
-        rs = ps.executeQuery();
         final List<Warp> warps = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                int locationID = rs.getInt("location_id");
-                TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
-                warps.add(new Warp(teleportationPoint,
-                        rs.getString("name"),
-                        rs.getString("description")));
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " ORDER BY `name` ASC;")) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    int locationID = resultSet.getInt("location_id");
+                    TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                    warps.add(new Warp(teleportationPoint,
+                            resultSet.getString("name"),
+                            resultSet.getString("description"),
+                            resultSet.getTimestamp("creation_time").getTime()));
+                }
+            } else {
+                Bukkit.getLogger().severe("Result set of warps returned null!");
             }
-        } else {
-            Bukkit.getLogger().severe("Result set of warps returned null!");
         }
-        ps.close();
         return warps;
     }
 
     // Return a warp with a given name (warp names are unique)
     public static Warp getWarp(String name, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
-        ps.setString(1, name);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                int locationID = rs.getInt("location_id");
+        try (PreparedStatement statement = (connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;"))) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
                 return new Warp(teleportationPoint,
-                        rs.getString("name"),
-                        rs.getString("description"));
+                        resultSet.getString("name"),
+                        resultSet.getString("description"),
+                        resultSet.getTimestamp("creation_time").getTime());
             }
         }
-        ps.close();
         return null;
     }
 
     // Obtain the teleportation location ID from a home
     public static Integer getHomeLocationID(int ownerID, String homeName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;");
-        ps.setInt(1, ownerID);
-        ps.setString(2, homeName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int locationID = rs.getInt("location_id");
-                ps.close();
-                return locationID;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=? AND `name`=?;")) {
+            statement.setInt(1, ownerID);
+            statement.setString(2, homeName);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final int locationID = resultSet.getInt("location_id");
+                    statement.close();
+                    return locationID;
+                }
+            } else {
+                Bukkit.getLogger().severe("Failed to obtain home teleportation location ID");
             }
-        } else {
-            Bukkit.getLogger().severe("Failed to obtain home teleportation location ID");
         }
-        ps.close();
         return null;
     }
 
@@ -315,22 +276,18 @@ public class DataManager {
 
     // Get the ID of the teleportation point of the warp
     public static Integer getWarpLocationID(String warpName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
-        ps.setString(1, warpName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int locationID = rs.getInt("location_id");
-                ps.close();
-                return locationID;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;")) {
+            statement.setString(1, warpName);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final int locationID = resultSet.getInt("location_id");
+                    statement.close();
+                    return locationID;
+                }
             }
-        } else {
-            Bukkit.getLogger().severe("Failed to obtain warp teleportation location ID");
         }
-        ps.close();
         return null;
     }
 
@@ -340,199 +297,157 @@ public class DataManager {
         if (warpLocationID != null) {
             deleteTeleportationPoint(warpLocationID, connection);
 
-            PreparedStatement ps;
             // Delete the warp with the given name
-            ps = connection.prepareStatement("DELETE FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
-            ps.setString(1, warpName);
-            ps.executeUpdate();
-            ps.close();
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "DELETE FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;")) {
+                statement.setString(1, warpName);
+                statement.executeUpdate();
+            }
         }
     }
 
 
+    // Delete the home with the given name and player ID
     public static void deleteHome(String homeName, String ownerUsername, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Delete the home with the given name and player ID
-        ps = connection.prepareStatement("DELETE FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
-        ps.setString(1, homeName);
-        ps.setString(2, ownerUsername);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);")) {
+            statement.setString(1, homeName);
+            statement.setString(2, ownerUsername);
+            statement.executeUpdate();
+        }
     }
 
     public static void addPlayer(Player p, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
-        ps.setString(1, p.getUniqueId().toString());
-        ps.setString(2, p.getName());
-        ps.setInt(3, Home.getFreeHomes(p));
-        ps.setInt(4, 0);
-        ps.setBoolean(5, false);
-
-        ps.executeUpdate();
-        ps.close();
+        addPlayer(p.getUniqueId(), p.getName(), connection);
     }
 
     // Insert a player into the database
     public static void addPlayer(UUID playerUUID, String playerName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,?,?);");
-        ps.setString(1, playerUUID.toString());
-        ps.setString(2, playerName);
-        ps.setInt(3, HuskHomes.getSettings().getFreeHomeSlots());
-        ps.setInt(4, 0);
-        ps.setBoolean(5, false);
-
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO " + HuskHomes.getSettings().getPlayerDataTable() + " (user_uuid,username,home_slots,rtp_cooldown,is_teleporting) VALUES(?,?,?,0,?);")) {
+            statement.setString(1, playerUUID.toString());
+            statement.setString(2, playerName);
+            statement.setInt(3, HuskHomes.getSettings().getFreeHomeSlots());
+            statement.setBoolean(4, false);
+            statement.executeUpdate();
+        }
     }
 
     public static void updatePlayerUsername(UUID uuid, String newName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `username`=? WHERE `user_uuid`=?;");
-        ps.setString(1, newName);
-        ps.setString(2, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `username`=? WHERE `user_uuid`=?;")) {
+            statement.setString(1, newName);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
     private static void setPlayerTeleportingData(UUID uuid, boolean value, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?;");
-        ps.setBoolean(1, value);
-        ps.setString(2, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_teleporting`=? WHERE `user_uuid`=?;")) {
+            statement.setBoolean(1, value);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
     private static void setPlayerIgnoringRequestsData(UUID uuid, boolean value, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_ignoring_requests`=? WHERE `user_uuid`=?;");
-        ps.setBoolean(1, value);
-        ps.setString(2, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `is_ignoring_requests`=? WHERE `user_uuid`=?;")) {
+            statement.setBoolean(1, value);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
     public static void setPlayerHomeSlots(UUID uuid, int newValue, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `home_slots`=? WHERE `user_uuid`=?;");
-        ps.setInt(1, newValue);
-        ps.setString(2, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `home_slots`=? WHERE `user_uuid`=?;")) {
+            statement.setInt(1, newValue);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
     public static void setRtpCoolDown(UUID uuid, int newTime, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `rtp_cooldown`=? WHERE `user_uuid`=?;");
-        ps.setInt(1, newTime);
-        ps.setString(2, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `rtp_cooldown`=? WHERE `user_uuid`=?;")) {
+            statement.setInt(1, newTime);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
 
-    // Update the location of a home
+    // Update the privacy of a home
     public static void setHomePrivacy(String homeName, String ownerName, boolean isPublic, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Set the home location ID to the new teleport point for the given home
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `public`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
-        ps.setBoolean(1, isPublic);
-        ps.setString(2, homeName);
-        ps.setString(3, ownerName);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `public`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);")) {
+            statement.setBoolean(1, isPublic);
+            statement.setString(2, homeName);
+            statement.setString(3, ownerName);
+            statement.executeUpdate();
+        }
     }
 
 
     // Update the location of a home
     public static void setWarpTeleportPoint(String warpName, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(point, connection);
-
-        if (locationID != null) {
-            // Set the warp location ID to the new teleport point
-            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `location_id`=? WHERE `name`=?;");
-            ps.setInt(1, locationID);
-            ps.setString(2, warpName);
-            ps.executeUpdate();
-            ps.close();
+        // Set the warp location ID to a new teleport point
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `location_id`=? WHERE `name`=?;")) {
+            statement.setInt(1, addTeleportationPoint(point, connection));
+            statement.setString(2, warpName);
+            statement.executeUpdate();
         }
     }
 
     // Update the description of a home
     public static void setHomeDescription(String homeName, String ownerName, String newDescription, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Update the home description
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `description`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
-        ps.setString(1, newDescription);
-        ps.setString(2, homeName);
-        ps.setString(3, ownerName);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `description`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);")) {
+            statement.setString(1, newDescription);
+            statement.setString(2, homeName);
+            statement.setString(3, ownerName);
+            statement.executeUpdate();
+        }
     }
 
     // Update the description of a warp
     public static void setWarpDescription(String warpName, String newDescription, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Update the warp description
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `description`=? WHERE `name`=?;");
-        ps.setString(1, newDescription);
-        ps.setString(2, warpName);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `description`=? WHERE `name`=?;")) {
+            statement.setString(1, newDescription);
+            statement.setString(2, warpName);
+            statement.executeUpdate();
+        }
     }
 
     // Update the name of a home
     public static void setHomeName(String oldHomeName, String ownerName, String newHomeName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Update the home name
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `name`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);");
-        ps.setString(1, newHomeName);
-        ps.setString(2, oldHomeName);
-        ps.setString(3, ownerName);
-
-        ps.executeUpdate();
-
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `name`=? WHERE `name`=? AND `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?);")) {
+            statement.setString(1, newHomeName);
+            statement.setString(2, oldHomeName);
+            statement.setString(3, ownerName);
+            statement.executeUpdate();
+        }
     }
 
     // Update the name of a warp
     public static void setWarpName(String oldWarpName, String newWarpName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Update the warp name
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `name`=? WHERE `name`=?;");
-        ps.setString(1, newWarpName);
-        ps.setString(2, oldWarpName);
-
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `name`=? WHERE `name`=?;")) {
+            statement.setString(1, newWarpName);
+            statement.setString(2, oldWarpName);
+            statement.executeUpdate();
+        }
     }
 
     // Update a player's destination teleport point
     public static void setTeleportationDestinationData(String username, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps;
-
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(point, connection);
-
-        if (locationID != null) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `dest_location_id`=? WHERE `username`=?;")) {
             // Set the destination location with the location_id of the last inserted teleport point
-            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `dest_location_id`=? WHERE `username`=?;");
-            ps.setInt(1, locationID);
-            ps.setString(2, username);
-            ps.executeUpdate();
-            ps.close();
+            statement.setInt(1, addTeleportationPoint(point, connection));
+            statement.setString(2, username);
+            statement.executeUpdate();
         }
     }
 
@@ -580,48 +495,38 @@ public class DataManager {
 
     // Return a home with a given owner username and home name
     public static Home getHome(String ownerUsername, String homeName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
-        ps.setString(1, ownerUsername);
-        ps.setString(2, homeName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            if (rs.next()) {
-                final int locationID = rs.getInt("location_id");
-                final TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
-                final Home home = new Home(teleportationPoint,
-                        ownerUsername,
-                        getPlayerUUID(rs.getInt("player_id"), connection),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getBoolean("public"));
-                ps.close();
-                return home;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;")) {
+            statement.setString(1, ownerUsername);
+            statement.setString(2, homeName);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final int locationID = resultSet.getInt("location_id");
+                    final TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                    final Home home = new Home(teleportationPoint,
+                            ownerUsername,
+                            getPlayerUUID(resultSet.getInt("player_id"), connection),
+                            resultSet.getString("name"),
+                            resultSet.getString("description"),
+                            resultSet.getBoolean("public"),
+                            resultSet.getTimestamp("creation_time").getTime());
+                    statement.close();
+                    return home;
+                }
             }
-        } else {
-            Bukkit.getLogger().severe("Home returned null; perhaps player ID was null?");
         }
-        ps.close();
         return null;
     }
 
     public static boolean warpExists(String warpName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;");
-        ps.setString(1, warpName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            final boolean warpExists = rs.next();
-            ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getWarpsDataTable() + " WHERE `name`=?;")) {
+            statement.setString(1, warpName);
+            ResultSet resultSet = statement.executeQuery();
+            final boolean warpExists = resultSet.next();
+            statement.close();
             return warpExists;
-        } else {
-            Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a warp exists from the table.");
-            ps.close();
-            return false;
         }
     }
 
@@ -630,24 +535,15 @@ public class DataManager {
     }
 
     public static Boolean homeExists(String ownerName, String homeName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;");
-        ps.setString(1, ownerName);
-        ps.setString(2, homeName);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            final boolean homeExists = rs.next();
-            ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getHomesDataTable() + " WHERE `player_id`=(SELECT `player_id` FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?) AND `name`=?;")) {
+            statement.setString(1, ownerName);
+            statement.setString(2, homeName);
+            ResultSet resultSet = statement.executeQuery();
+            final boolean homeExists = resultSet.next();
+            statement.close();
             return homeExists;
-        } else {
-            Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a home exists from the table.");
-            ps.close();
-            return false;
         }
-
     }
 
     public static Boolean playerExists(Player player, Connection connection) throws SQLException {
@@ -655,41 +551,36 @@ public class DataManager {
     }
 
     public static Boolean playerExists(UUID playerUUID, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ResultSet rs;
-        String playerUUIDString = playerUUID.toString();
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;");
-        ps.setString(1, playerUUIDString);
-        rs = ps.executeQuery();
-        if (rs != null) {
-            final boolean exists = rs.next();
-            ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `user_uuid`=?;")) {
+            statement.setString(1, playerUUID.toString());
+            ResultSet resultSet = statement.executeQuery();
+            final boolean exists = resultSet.next();
+            statement.close();
             return exists;
-        } else {
-            Bukkit.getLogger().severe("An SQL exception occurred in retrieving if a player exists from the table.");
-            ps.close();
-            return false;
         }
     }
 
     public static TeleportationPoint getTeleportationPoint(Integer locationID, Connection connection) throws SQLException, IllegalArgumentException {
-        PreparedStatement ps;
-        ResultSet rs;
-
-        ps = connection.prepareStatement("SELECT * FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;");
-        ps.setInt(1, locationID);
-        rs = ps.executeQuery();
-        if (rs.next()) {
-            final TeleportationPoint point = new TeleportationPoint(rs.getString("world"),
-                    rs.getDouble("x"), rs.getDouble("y"),
-                    rs.getDouble("z"), rs.getFloat("yaw"),
-                    rs.getFloat("pitch"), rs.getString("server"));
-            ps.close();
-            return point;
-        } else {
-            ps.close();
-            throw new IllegalArgumentException("Could not return a teleportationPoint from the locations data table at (ID#" + locationID + ")");
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;")) {
+            statement.setInt(1, locationID);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final TeleportationPoint point = new TeleportationPoint(
+                        resultSet.getString("world"),
+                        resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        resultSet.getString("server"));
+                statement.close();
+                return point;
+            } else {
+                statement.close();
+                throw new IllegalArgumentException("Could not return a teleportationPoint from the locations data table at (ID#" + locationID + ")");
+            }
         }
     }
 
@@ -726,39 +617,32 @@ public class DataManager {
 
     // Insert a teleportation point, returns generated id
     public static Integer addTeleportationPoint(TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getLocationsDataTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
-
-        ps.setString(1, point.getWorldName());
-        ps.setString(2, point.getServer());
-        ps.setDouble(3, point.getX());
-        ps.setDouble(4, point.getY());
-        ps.setDouble(5, point.getZ());
-        ps.setFloat(6, point.getYaw());
-        ps.setFloat(7, point.getPitch());
-        ps.executeUpdate();
-
-        ResultSet rs = ps.getGeneratedKeys();
-        if (rs.next()) {
-            final int pointID = rs.getInt(1);
-            ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO " + HuskHomes.getSettings().getLocationsDataTable() + " (world,server,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, point.getWorldName());
+            statement.setString(2, point.getServer());
+            statement.setDouble(3, point.getX());
+            statement.setDouble(4, point.getY());
+            statement.setDouble(5, point.getZ());
+            statement.setFloat(6, point.getYaw());
+            statement.setFloat(7, point.getPitch());
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            resultSet.next();
+            final int pointID = resultSet.getInt(1);
+            statement.close();
             return pointID;
         }
-        return null;
     }
 
     // Update a player's offline position teleport point
     public static void setTeleportationOfflinePositionData(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(point, connection);
-
-        if (locationID != null) {
-            // Set the destination location with the location_id of the last inserted teleport point
-            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=? WHERE `user_uuid`=?;");
-            ps.setInt(1, locationID);
-            ps.setString(2, uuid.toString());
-            ps.executeUpdate();
-            ps.close();
+        // Set the destination location with the location_id of the newly inserted teleport point
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=? WHERE `user_uuid`=?;")) {
+            statement.setInt(1, addTeleportationPoint(point, connection));
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
         }
     }
 
@@ -770,17 +654,12 @@ public class DataManager {
 
     // Update a player's last position teleport point
     public static void setTeleportationLastPositionData(UUID uuid, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(point, connection);
-
-        if (locationID != null) {
-            // Set the destination location with the location_id of the last inserted teleport point
-            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `last_location_id`=? WHERE `user_uuid`=?;");
-            ps.setInt(1, locationID);
-            ps.setString(2, uuid.toString());
-            ps.executeUpdate();
-            ps.close();
+        // Set the destination location with the location_id of the last inserted teleport point
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `last_location_id`=? WHERE `user_uuid`=?;")) {
+            statement.setInt(1, addTeleportationPoint(point, connection));
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
         }
     }
 
@@ -814,7 +693,7 @@ public class DataManager {
         setPlayerIgnoringRequestsData(p.getUniqueId(), ignoringRequests, connection);
     }
 
-    public static void updateRtpCooldown(Player p, Connection connection) throws SQLException {
+    public static void updateRtpCoolDown(Player p, Connection connection) throws SQLException {
         long currentTime = Instant.now().getEpochSecond();
         int newCoolDownTime = (int) currentTime + (60 * HuskHomes.getSettings().getRtpCoolDown());
         setRtpCoolDown(p.getUniqueId(), newCoolDownTime, connection);
@@ -830,11 +709,11 @@ public class DataManager {
 
     // Delete a teleportation point from SQL
     public static void deleteTeleportationPoint(int locationID, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("DELETE FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;");
-        ps.setInt(1, locationID);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;")) {
+            statement.setInt(1, locationID);
+            statement.executeUpdate();
+        }
     }
 
     public static void deletePlayerLastPosition(Player p, Connection connection) throws SQLException {
@@ -855,82 +734,67 @@ public class DataManager {
 
     // Update the location of a home
     public static void setHomeTeleportPoint(String homeName, int ownerID, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(point, connection);
-
-        if (locationID != null) {
-            // Set the home location ID to the new teleport point for the given home
-            ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `location_id`=? WHERE `name`=? AND `player_id`=?;");
-            ps.setInt(1, locationID);
-            ps.setString(2, homeName);
-            ps.setInt(3, ownerID);
-            ps.executeUpdate();
-            ps.close();
+        // Set the home location ID to the new teleport point for the given home
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `location_id`=? WHERE `name`=? AND `player_id`=?;")) {
+            statement.setInt(1, addTeleportationPoint(point, connection));
+            statement.setString(2, homeName);
+            statement.setInt(3, ownerID);
+            statement.executeUpdate();
         }
     }
 
     // Clear a player's destination
     public static void clearPlayerDestData(String playerName, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `dest_location_id`=NULL WHERE `username`=?;");
-        ps.setString(1, playerName);
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = (connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `dest_location_id`=NULL WHERE `username`=?;"))) {
+            statement.setString(1, playerName);
+            statement.executeUpdate();
+        }
     }
 
     // Clear a player's last position
     public static void clearPlayerLastData(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `last_location_id`=NULL WHERE `user_uuid`=?;");
-        ps.setString(1, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `last_location_id`=NULL WHERE `user_uuid`=?;")) {
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
     // Clear a player's last position
     public static void clearPlayerOfflineData(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        ps = connection.prepareStatement("UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=NULL WHERE `user_uuid`=?;");
-        ps.setString(1, uuid.toString());
-        ps.executeUpdate();
-        ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "UPDATE " + HuskHomes.getSettings().getPlayerDataTable() + " SET `offline_location_id`=NULL WHERE `user_uuid`=?;")) {
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
+        }
     }
 
+    // Insert the warp with the location_id of the last inserted teleport point
     public static void addWarp(Warp warp, Connection connection) throws SQLException {
-        PreparedStatement ps;
-        // Add the teleportation point
-        Integer locationID = addTeleportationPoint(warp, connection);
-
-        if (locationID != null) {
-            // Insert the warp with the location_id of the last inserted teleport point
-            ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getWarpsDataTable() + " (location_id,name,description) VALUES(?,?,?);");
-            ps.setInt(1, locationID);
-            ps.setString(2, warp.getName());
-            ps.setString(3, warp.getDescription());
-            ps.executeUpdate();
-            ps.close();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO " + HuskHomes.getSettings().getWarpsDataTable() + " (location_id,name,description,creation_time) VALUES(?,?,?,?);")) {
+            statement.setInt(1, addTeleportationPoint(warp, connection));
+            statement.setString(2, warp.getName());
+            statement.setString(3, warp.getDescription());
+            statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            statement.executeUpdate();
         }
     }
 
     public static void addHome(Home home, UUID playerUUID, Connection connection) throws SQLException {
         Integer playerID = getPlayerId(playerUUID, connection);
         if (playerID != null) {
-            PreparedStatement ps;
-            Integer locationID = addTeleportationPoint(home, connection);
-
-            if (locationID != null) {
-                ps = connection.prepareStatement("INSERT INTO " + HuskHomes.getSettings().getHomesDataTable() + " (player_id,location_id,name,description,public) VALUES(?,?,?,?,?);");
-                ps.setInt(1, playerID);
-                ps.setInt(2, locationID);
-                ps.setString(3, home.getName());
-                ps.setString(4, home.getDescription());
-                ps.setBoolean(5, home.isPublic());
-                ps.executeUpdate();
-                ps.close();
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO " + HuskHomes.getSettings().getHomesDataTable() + " (player_id,location_id,name,description,public,creation_time) VALUES(?,?,?,?,?,?);")) {
+                statement.setInt(1, playerID);
+                statement.setInt(2, addTeleportationPoint(home, connection));
+                statement.setString(3, home.getName());
+                statement.setString(4, home.getDescription());
+                statement.setBoolean(5, home.isPublic());
+                statement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
             }
-        } else {
-            Bukkit.getLogger().warning("Player ID was null; failed to add a home for a player!");
         }
     }
 

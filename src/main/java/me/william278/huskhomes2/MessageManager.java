@@ -64,7 +64,7 @@ public class MessageManager {
                         Change the appearance/text of messages in the plugin using this config.\s
                         This config makes use of MineDown formatting, with extensive support for custom colors & formats.\s
                         For formatting help, see: https://github.com/Phoenix616/MineDown or check the HuskHomes Wiki.""");
-        InputStream defaultMessageFile = plugin.getResource("Languages/" + language + ".yml");
+        InputStream defaultMessageFile = plugin.getResource("languages/" + language + ".yml");
         if (defaultMessageFile != null) {
             YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultMessageFile, StandardCharsets.UTF_8));
             config.setDefaults(yamlConfiguration);

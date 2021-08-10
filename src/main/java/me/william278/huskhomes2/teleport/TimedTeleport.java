@@ -127,7 +127,7 @@ public class TimedTeleport {
                                         }
                                     }
                                     TeleportManager.teleportPlayer(player, randomPoint, connection);
-                                    DataManager.updateRtpCooldown(player, connection);
+                                    DataManager.updateRtpCoolDown(player, connection);
                                 }
                             }
                         } catch (SQLException e) {

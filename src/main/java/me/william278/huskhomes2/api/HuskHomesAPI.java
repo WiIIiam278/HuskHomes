@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -55,7 +54,7 @@ public class HuskHomesAPI {
      */
     public Home getHome(String ownerUsername, String homeName) {
         try {
-            return DataManager.getHome(ownerUsername, homeName, huskHomes.getInstance().getConnection());
+            return DataManager.getHome(ownerUsername, homeName, HuskHomes.getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -70,7 +69,7 @@ public class HuskHomesAPI {
      */
     public Warp getWarp(String warpName)  {
         try {
-            return DataManager.getWarp(warpName, huskHomes.getInstance().getConnection());
+            return DataManager.getWarp(warpName, HuskHomes.getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -95,7 +94,7 @@ public class HuskHomesAPI {
      */
     public List<Home> getHomes(String ownerUsername) {
         try {
-            return DataManager.getPlayerHomes(ownerUsername, huskHomes.getInstance().getConnection());
+            return DataManager.getPlayerHomes(ownerUsername, HuskHomes.getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -137,7 +136,7 @@ public class HuskHomesAPI {
      */
     public List<Home> getPublicHomes() {
         try {
-            return DataManager.getPublicHomes(huskHomes.getInstance().getConnection());
+            return DataManager.getPublicHomes(HuskHomes.getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -160,7 +159,7 @@ public class HuskHomesAPI {
      */
     public List<Warp> getWarps() {
         try {
-            return DataManager.getWarps(huskHomes.getInstance().getConnection());
+            return DataManager.getWarps(HuskHomes.getConnection());
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -229,7 +228,7 @@ public class HuskHomesAPI {
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
-        Connection connection = huskHomes.getInstance().getConnection();
+        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
             try {
                 if (timed) {

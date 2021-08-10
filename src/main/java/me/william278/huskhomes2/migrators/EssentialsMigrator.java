@@ -17,6 +17,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -94,7 +95,7 @@ public class EssentialsMigrator {
                                                         continue;
                                                     }
                                                     DataManager.addHome(new Home(new TeleportationPoint(worldID, x, y, z, yaw, pitch, targetServer),
-                                                            playerName, playerUUID, homeName, homeDescription, false), playerUUID, connection);
+                                                            playerName, playerUUID, homeName, homeDescription, false, Instant.now().getEpochSecond()), playerUUID, connection);
 
                                                     plugin.getLogger().info("→ Migrated home " + homeName);
                                                 } catch (NullPointerException | IllegalArgumentException e) {
@@ -152,7 +153,7 @@ public class EssentialsMigrator {
                                 }
 
                                 DataManager.addWarp(new Warp(new TeleportationPoint(worldID, x, y, z, yaw, pitch, targetServer),
-                                        warpName, MessageManager.getRawMessage("warp_default_description")), connection);
+                                        warpName, MessageManager.getRawMessage("warp_default_description"), Instant.now().getEpochSecond()), connection);
                                 plugin.getLogger().info("→ Migrated warp " + warpName);
                             } catch (NullPointerException | IllegalArgumentException e) {
                                 plugin.getLogger().warning("✖ Failed to migrate warp " + warpFile.getName());

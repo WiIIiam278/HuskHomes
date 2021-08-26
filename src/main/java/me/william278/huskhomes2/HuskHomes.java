@@ -10,6 +10,7 @@ import me.william278.huskhomes2.integrations.map.BlueMap;
 import me.william278.huskhomes2.integrations.map.DynMap;
 import me.william278.huskhomes2.integrations.map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
+import me.william278.huskhomes2.integrations.map.Pl3xMap;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.migrators.UpgradeDatabase;
@@ -191,16 +192,19 @@ public final class HuskHomes extends JavaPlugin {
         // Initialize the database
         initializeDatabase();
 
+        // Upgrade Database if needed
+        UpgradeDatabase.upgradeDatabase();
+
         // Fetch spawn location if set
         SettingHandler.fetchSpawnLocation();
 
         // Setup the map integration with the correct plugin
         if (HuskHomes.getSettings().doMapIntegration()) {
             String mapPlugin = HuskHomes.getSettings().getMapPlugin();
-            if (mapPlugin.equalsIgnoreCase("dynmap")) {
-                map = new DynMap();
-            } else if (mapPlugin.equalsIgnoreCase("bluemap")) {
-                map = new BlueMap();
+            switch (mapPlugin) {
+                case "dynmap" -> map = new DynMap();
+                case "bluemap" -> map = new BlueMap();
+                case "pl3xmap" -> map = new Pl3xMap();
             }
             map.initialize();
         }
@@ -220,9 +224,6 @@ public final class HuskHomes extends JavaPlugin {
 
         // Register events
         registerEvents(this);
-
-        // Upgrade Database if needed
-        UpgradeDatabase.upgradeDatabase();
 
         // bStats initialisation
         try {

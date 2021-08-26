@@ -109,7 +109,7 @@ public class BlueMap extends Map {
             try {
                 MarkerAPI markerAPI = api.getMarkerAPI();
                 markerAPI.getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).ifPresent(markerSet -> api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
-                    String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + home.getName();
+                    String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + home.getOwnerUsername() + "." + home.getName();
                     for (BlueMapMap map : blueMapWorld.getMaps()) {
                         POIMarker marker = markerSet.createPOIMarker(markerId, map, home.getX(), home.getY(), home.getZ());
                         marker.setLabel(getPublicHomeInfoMenu(home));
@@ -130,8 +130,8 @@ public class BlueMap extends Map {
             BlueMapAPI.getInstance().ifPresentOrElse(api -> {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
-                    markerAPI.getMarkerSet(WARPS_MARKER_SET_ID).ifPresent(markerSet -> {
-                        String markerId = WARPS_MARKER_SET_ID + "." + homeName;
+                    markerAPI.getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).ifPresent(markerSet -> {
+                        String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName;
                         markerSet.removeMarker(markerId);
                         try {
                             markerAPI.save();

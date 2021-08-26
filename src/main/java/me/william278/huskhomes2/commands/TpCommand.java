@@ -28,7 +28,8 @@ public class TpCommand extends CommandBase {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 switch (args.length) {
-                    default: case 0:
+                    default:
+                    case 0:
                         MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
                         return;
                     case 1:
@@ -74,6 +75,38 @@ public class TpCommand extends CommandBase {
                                 TeleportManager.teleportPlayer(p, teleportationPoint, connection);
                             } catch (NumberFormatException e) {
                                 MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server>");
+                            }
+                        } else {
+                            MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                        }
+                        return;
+                    case 6:
+                        try {
+                            double x = Double.parseDouble(args[0]);
+                            double y = Double.parseDouble(args[1]);
+                            double z = Double.parseDouble(args[2]);
+                            String worldName = args[3];
+                            float yaw = Float.parseFloat(args[4]);
+                            float pitch = Float.parseFloat(args[5]);
+                            TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, yaw, pitch, HuskHomes.getSettings().getServerID());
+                            TeleportManager.teleportPlayer(p, teleportationPoint, connection);
+                        } catch (NumberFormatException e) {
+                            MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <yaw> <pitch>");
+                        }
+                    case 7:
+                        if (HuskHomes.getSettings().doBungee()) {
+                            try {
+                                double x = Double.parseDouble(args[0]);
+                                double y = Double.parseDouble(args[1]);
+                                double z = Double.parseDouble(args[2]);
+                                String worldName = args[3];
+                                String serverName = args[4];
+                                float yaw = Float.parseFloat(args[5]);
+                                float pitch = Float.parseFloat(args[6]);
+                                TeleportationPoint teleportationPoint = new TeleportationPoint(worldName, x, y, z, yaw, pitch, serverName);
+                                TeleportManager.teleportPlayer(p, teleportationPoint, connection);
+                            } catch (NumberFormatException e) {
+                                MessageManager.sendMessage(p, "error_invalid_syntax", "/tp <x> <y> <z> <world> <server> <yaw> <pitch>");
                             }
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());

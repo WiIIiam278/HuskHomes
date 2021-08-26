@@ -777,7 +777,7 @@ public class DataManager {
             statement.setInt(1, addTeleportationPoint(warp, connection));
             statement.setString(2, warp.getName());
             statement.setString(3, warp.getDescription());
-            statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            statement.setTimestamp(4, new Timestamp(warp.getCreationTime()));
             statement.executeUpdate();
         }
     }
@@ -792,7 +792,7 @@ public class DataManager {
                 statement.setString(3, home.getName());
                 statement.setString(4, home.getDescription());
                 statement.setBoolean(5, home.isPublic());
-                statement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+                statement.setTimestamp(6, new Timestamp(home.getCreationTime()));
                 statement.executeUpdate();
             }
         }

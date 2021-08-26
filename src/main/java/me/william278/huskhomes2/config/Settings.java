@@ -149,22 +149,12 @@ public class Settings {
 
             if (this.doMapIntegration) {
                 PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
-                switch (mapPlugin.toLowerCase(Locale.ROOT)) {
-                    case "dynmap" -> {
-                        Plugin dynMap = pluginManager.getPlugin("dynmap");
-                        if (dynMap == null) {
-                            Bukkit.getLogger().warning("Dynmap integration was enabled in config, but the Dynmap plugin could not be found!");
-                            Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure BlueMap is installed and restart the server.");
-                            this.doMapIntegration = false;
-                            plugin.getConfig().set("map_integration.enabled", false);
-                            plugin.saveConfig();
-                        }
-                    }
-                    case "bluemap" -> {
-                        Plugin blueMap = pluginManager.getPlugin("BlueMap");
-                        if (blueMap == null) {
-                            Bukkit.getLogger().warning("BlueMap integration was enabled in config, but the BlueMap plugin could not be found!");
-                            Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure BlueMap is installed and restart the server.");
+                switch (mapPlugin.toLowerCase()) {
+                    case "dynmap", "bluemap", "pl3xmap" -> {
+                        Plugin mapSpigotPlugin = pluginManager.getPlugin(mapPlugin.toLowerCase());
+                        if (mapSpigotPlugin == null) {
+                            Bukkit.getLogger().warning(mapPlugin + " integration was enabled in config, but the " + mapPlugin + " plugin could not be found!");
+                            Bukkit.getLogger().warning("The map integration setting has been disabled. Please ensure " + mapPlugin + " is installed and restart the server.");
                             this.doMapIntegration = false;
                             plugin.getConfig().set("map_integration.enabled", false);
                             plugin.saveConfig();
@@ -178,7 +168,6 @@ public class Settings {
                         plugin.saveConfig();
                     }
                 }
-
             }
 
             this.mapPublicHomes = config.getBoolean("map_integration.markers.public_homes.show", true);
@@ -305,7 +294,9 @@ public class Settings {
         return server;
     }
 
-    public int getClusterID() { return clusterID; }
+    public int getClusterID() {
+        return clusterID;
+    }
 
     public boolean doBungee() {
         return doBungee;
@@ -383,7 +374,9 @@ public class Settings {
         return crossServerSpawnWarpName;
     }
 
-    public boolean doForceSpawnOnLogin() { return forceSpawnOnLogin; }
+    public boolean doForceSpawnOnLogin() {
+        return forceSpawnOnLogin;
+    }
 
     public boolean doEconomy() {
         return doEconomy;

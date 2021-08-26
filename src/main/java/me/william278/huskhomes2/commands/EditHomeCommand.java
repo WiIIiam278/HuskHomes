@@ -152,7 +152,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                         }
                     }
 
-                    // Remove old marker if on the Dynmap
+                    // Remove old marker if using a map integration
                     if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                         HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
                     }
@@ -160,7 +160,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     // Update description
                     DataManager.updateHomeDescription(p.getName(), homeName, newDescriptionString, connection);
 
-                    // Add new marker if using Dynmap
+                    // Add new marker if using a map integration
                     descriptionChangedHome.setDescription(newDescriptionString);
                     if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                         HuskHomes.getMap().addPublicHomeMarker(descriptionChangedHome);

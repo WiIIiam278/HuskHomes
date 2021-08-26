@@ -200,7 +200,7 @@ public class TeleportManager {
     }
 
     public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName, Connection connection) throws SQLException {
-        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {
             if (requester.getUniqueId() != targetPlayer.getUniqueId()) {
                 DataManager.setPlayerDestinationLocation(requester,

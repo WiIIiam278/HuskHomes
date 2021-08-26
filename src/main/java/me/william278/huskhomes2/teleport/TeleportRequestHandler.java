@@ -38,7 +38,7 @@ public class TeleportRequestHandler {
     }
 
     public static void sendTeleportToRequest(Player requester, String targetPlayerName) {
-        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 if (!VanishChecker.isVanished(targetPlayer)) {
@@ -65,7 +65,7 @@ public class TeleportRequestHandler {
     }
 
     public static void sendTeleportHereRequest(Player requester, String targetPlayerName) {
-        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+        Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);

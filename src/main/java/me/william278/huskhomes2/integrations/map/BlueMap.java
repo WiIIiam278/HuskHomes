@@ -19,8 +19,8 @@ import java.util.logging.Level;
 public class BlueMap extends Map {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
-    private static final HashMap<String,Boolean> queuedWarps = new HashMap<>();
-    private static final HashMap<String,Boolean> queuedPublicHomes = new HashMap<>();
+    private static final HashMap<String, Boolean> queuedWarps = new HashMap<>();
+    private static final HashMap<String, Boolean> queuedPublicHomes = new HashMap<>();
 
     private void executeQueuedOperations() {
         try {
@@ -49,8 +49,7 @@ public class BlueMap extends Map {
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.WARNING,
-                    "An SQL exception occurred retrieving warp and home data when updating the BlueMap.", e);
+            plugin.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving warp and home data when updating the BlueMap.", e);
         }
     }
 
@@ -64,7 +63,7 @@ public class BlueMap extends Map {
             try {
                 MarkerAPI markerAPI = api.getMarkerAPI();
                 markerAPI.getMarkerSet(WARPS_MARKER_SET_ID).ifPresent(markerSet -> api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
-                    String markerId = WARPS_MARKER_SET_ID + "." + warp.getName();
+                    String markerId = getWarpMarkerName(warp.getName());
                     for (BlueMapMap map : blueMapWorld.getMaps()) {
                         POIMarker marker = markerSet.createPOIMarker(markerId, map, warp.getX(), warp.getY(), warp.getZ());
                         marker.setLabel(getWarpInfoMenu(warp));
@@ -74,7 +73,8 @@ public class BlueMap extends Map {
                     } catch (IOException ignored) {
                     }
                 }));
-            } catch (IOException ignored) { }
+            } catch (IOException ignored) {
+            }
         }, () -> queuedWarps.put(warp.getName(), true)));
     }
 
@@ -86,7 +86,7 @@ public class BlueMap extends Map {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
                     markerAPI.getMarkerSet(WARPS_MARKER_SET_ID).ifPresent(markerSet -> {
-                        String markerId = WARPS_MARKER_SET_ID + "." + warpName;
+                        String markerId = getWarpMarkerName(warpName);
                         markerSet.removeMarker(markerId);
                         try {
                             markerAPI.save();
@@ -109,7 +109,7 @@ public class BlueMap extends Map {
             try {
                 MarkerAPI markerAPI = api.getMarkerAPI();
                 markerAPI.getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).ifPresent(markerSet -> api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
-                    String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + home.getOwnerUsername() + "." + home.getName();
+                    String markerId = getPublicHomeMarkerName(home.getOwnerUsername(), home.getName());
                     for (BlueMapMap map : blueMapWorld.getMaps()) {
                         POIMarker marker = markerSet.createPOIMarker(markerId, map, home.getX(), home.getY(), home.getZ());
                         marker.setLabel(getPublicHomeInfoMenu(home));
@@ -119,7 +119,8 @@ public class BlueMap extends Map {
                     } catch (IOException ignored) {
                     }
                 }));
-            } catch (IOException ignored) { }
+            } catch (IOException ignored) {
+            }
         }, () -> queuedPublicHomes.put(home.getOwnerUsername() + "." + home.getName(), true)));
     }
 
@@ -131,7 +132,7 @@ public class BlueMap extends Map {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
                     markerAPI.getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).ifPresent(markerSet -> {
-                        String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName;
+                        String markerId = getPublicHomeMarkerName(ownerName, homeName);
                         markerSet.removeMarker(markerId);
                         try {
                             markerAPI.save();

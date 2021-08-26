@@ -33,7 +33,7 @@ public class Pl3xMap extends Map {
                         .hoverTooltip(warp.getName())
                         .clickTooltip(getWarpInfoMenu(warp))
                         .build());
-                warpProviders.get(world.getName()).addMarker(Key.of(WARPS_MARKER_SET_ID + "." + warp.getName()), marker);
+                warpProviders.get(world.getName()).addMarker(Key.of(getWarpMarkerName(warp.getName())), marker);
             }
         }
     }
@@ -41,7 +41,7 @@ public class Pl3xMap extends Map {
     @Override
     public void removeWarpMarker(String warpName) {
         String warpMarkerWorld = null;
-        final Key warpMarkerKey = Key.of(WARPS_MARKER_SET_ID + "." + warpName);
+        final Key warpMarkerKey = Key.of(getWarpMarkerName(warpName));
         for (String worldName : warpProviders.keySet()) {
             SimpleLayerProvider warpProvider = warpProviders.get(worldName);
             if (warpProvider.hasMarker(warpMarkerKey)) {
@@ -68,7 +68,7 @@ public class Pl3xMap extends Map {
                         .clickTooltip(getPublicHomeInfoMenu(home))
                         .build());
                 publicHomeProviders.get(world.getName()).addMarker(
-                        Key.of(PUBLIC_HOMES_MARKER_SET_ID + "." + home.getOwnerUsername() + "." + home.getName()), marker);
+                        Key.of(getPublicHomeMarkerName(home.getOwnerUsername(), home.getName())), marker);
             }
         }
     }
@@ -76,7 +76,7 @@ public class Pl3xMap extends Map {
     @Override
     public void removePublicHomeMarker(String homeName, String ownerName) {
         String publicHomeMarkerWorld = null;
-        final Key publicHomeMarkerKey = Key.of(PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName);
+        final Key publicHomeMarkerKey = Key.of(getPublicHomeMarkerName(ownerName, homeName));
         for (String worldName : publicHomeProviders.keySet()) {
             SimpleLayerProvider warpProvider = publicHomeProviders.get(worldName);
             if (warpProvider.hasMarker(publicHomeMarkerKey)) {

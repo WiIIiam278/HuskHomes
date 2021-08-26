@@ -16,7 +16,7 @@ public class SetSpawnCommand extends CommandBase {
                 return;
             }
             SettingHandler.setSpawnLocation(p.getLocation());
-            p.getLocation().getWorld().setSpawnLocation(p.getLocation());
+            p.getWorld().setSpawnLocation(p.getLocation());
             MessageManager.sendMessage(p, "set_spawn_success");
         } else {
             MessageManager.sendMessage(p, "error_command_disabled");

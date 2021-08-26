@@ -39,7 +39,7 @@ public class HomeListCommand extends CommandBase {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 List<Home> homes = DataManager.getPlayerHomes(player.getName(), connection);
-                if (homes == null || homes.isEmpty()) {
+                if (homes.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_homes_set");
                     return;
                 }

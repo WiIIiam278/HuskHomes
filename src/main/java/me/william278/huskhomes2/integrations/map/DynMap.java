@@ -21,7 +21,7 @@ public class DynMap extends Map {
 
     @Override
     public void removeWarpMarker(String warpName) {
-        String markerId = WARPS_MARKER_SET_ID + "." + warpName;
+        String markerId = getWarpMarkerName(warpName);
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.warps");
@@ -34,7 +34,7 @@ public class DynMap extends Map {
 
     @Override
     public void removePublicHomeMarker(String homeName, String ownerName) {
-        String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName;
+        String markerId = getPublicHomeMarkerName(ownerName, homeName);
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("huskhomes.public_homes");
@@ -48,7 +48,7 @@ public class DynMap extends Map {
     @Override
     public void addWarpMarker(Warp warp) {
         try {
-            String markerId = WARPS_MARKER_SET_ID + "." + warp.getName();
+            String markerId = getWarpMarkerName(warp.getName());
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID);
@@ -64,7 +64,7 @@ public class DynMap extends Map {
     @Override
     public void addPublicHomeMarker(Home home) {
         try {
-            String markerId = PUBLIC_HOMES_MARKER_SET_ID + "." + home.getOwnerUsername() + "." + home.getName();
+            String markerId = getPublicHomeMarkerName(home.getOwnerUsername(), home.getName());
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID);

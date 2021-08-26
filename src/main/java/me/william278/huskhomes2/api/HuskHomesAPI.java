@@ -115,17 +115,35 @@ public class HuskHomesAPI {
      * Returns the maximum number of homes a player can set
      * @param player the Player being checked
      * @return the maximum homes a player can set
+     * @deprecated Use getMaxSetHomes instead (capitalized H)
      */
-    public int getMaxSethomes(Player player) {
+    @Deprecated
+    public int getMaxSethomes(Player player) { return getMaxSetHomes(player); }
+
+    /**
+     * Returns the maximum number of homes a player can set
+     * @param player the Player being checked
+     * @return the maximum homes a player can set
+     */
+    public int getMaxSetHomes(Player player) {
         return Home.getSetHomeLimit(player);
     }
+
+    /**
+     * Returns the maximum number of homes a player can set
+     * @param player the Player being checked
+     * @return the maximum homes a player can set
+     * @deprecated Use getFreeSetHomes instead (capitalized H)
+     */
+    @Deprecated
+    public int getFreeSethomes(Player player) { return getFreeSetHomes(player); }
 
     /**
      * Returns the number of homes a player can set for free
      * @param player the Player being checked
      * @return the number of free homes a player can set
      */
-    public int getFreeSethomes(Player player) {
+    public int getFreeSetHomes(Player player) {
         return Home.getFreeHomes(player);
     }
 
@@ -202,7 +220,7 @@ public class HuskHomesAPI {
      * Teleport a player to a specific TeleportationPoint
      * @param player The player to be teleported
      * @param point The target teleportationPoint
-     * @param timed Whether or not to do a warmup countdown
+     * @param timed Whether to do a warmup countdown
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
@@ -224,7 +242,7 @@ public class HuskHomesAPI {
      * Teleport a player to a specific TeleportationPoint
      * @param player The player to be teleported
      * @param targetPlayerName The target player's name
-     * @param timed Whether or not to do a warmup countdown
+     * @param timed Whether to do a warmup countdown
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {

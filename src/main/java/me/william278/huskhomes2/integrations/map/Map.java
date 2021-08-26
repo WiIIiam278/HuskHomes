@@ -7,18 +7,29 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 public abstract class Map {
 
-    public Map() { }
+    public Map() {
+    }
 
     public static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes.public_homes";
     public static final String WARPS_MARKER_SET_ID = "huskhomes.warps";
 
     public abstract void addWarpMarker(Warp warp);
+
     public abstract void removeWarpMarker(String warpName);
 
     public abstract void addPublicHomeMarker(Home home);
+
     public abstract void removePublicHomeMarker(String homeName, String ownerName);
 
     public abstract void initialize();
+
+    public String getPublicHomeMarkerName(String ownerName, String homeName) {
+        return PUBLIC_HOMES_MARKER_SET_ID + "." + ownerName + "." + homeName;
+    }
+
+    public String getWarpMarkerName(String warpName) {
+        return WARPS_MARKER_SET_ID + "." + warpName;
+    }
 
     public String getWarpInfoMenu(Warp warp) {
         String warpPopup = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/warp %WARP_NAME%</span><br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";

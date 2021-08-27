@@ -42,37 +42,49 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             return;
         }
 
-        String homeName = args[0];
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            String homeName = args[0];
+            String ownerName = p.getName();
+            if (RegexUtil.OWNER_NAME_PATTERN.matcher(args[0]).matches()) {
+                ownerName = args[0].split("\\.")[0];
+                homeName = args[0].split("\\.")[1];
+            }
+            if (!ownerName.equalsIgnoreCase(p.getName())) {
+                if (!p.hasPermission("huskhomes.edithome.other")) {
+                    MessageManager.sendMessage(p, "error_no_permission");
+                    return;
+                }
+            }
+
             try {
-                if (!DataManager.homeExists(p.getName(), homeName, connection)) {
+                if (!DataManager.homeExists(ownerName, homeName, connection)) {
                     MessageManager.sendMessage(p, "error_home_invalid", homeName);
                     return;
                 }
+                Home home = DataManager.getHome(ownerName, homeName, connection);
+                assert home != null;
 
                 if (args.length == 1) {
-                    Home home = DataManager.getHome(p.getName(), homeName, connection);
-                    assert home != null;
                     EditingHandler.showEditHomeOptions(p, home);
                     return;
                 }
 
                 switch (args[1].toLowerCase(Locale.ENGLISH)) {
-                    case "location" -> editHomeLocation(p, homeName, connection);
-                    case "public" -> editHomePrivacy(p, homeName, true, connection);
-                    case "private" -> editHomePrivacy(p, homeName, false, connection);
+                    case "location" -> editHomeLocation(p, home, connection);
+                    case "public" -> editHomePrivacy(p, home, true, connection);
+                    case "private" -> editHomePrivacy(p, home, false, connection);
                     case "description" -> {
                         if (args.length >= 3) {
                             // Get the new description
-                            editHomeDescription(p, homeName, buildDescription(args), connection);
+                            editHomeDescription(p, home, buildDescription(args), connection);
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> description <new description>");
                         }
                     }
                     case "rename" -> {
                         if (args.length >= 3) {
-                            editHomeName(p, homeName, args[2], connection);
+                            editHomeName(p, home, args[2], connection);
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> rename <new name>");
                         }
@@ -97,11 +109,10 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         return newDescription.toString();
     }
 
-    private void editHomeLocation(Player p, String homeName, Connection connection) throws SQLException {
+    private void editHomeLocation(Player p, Home locationMovedHome, Connection connection) throws SQLException {
         Location newLocation = p.getLocation();
         TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
 
-        Home locationMovedHome = DataManager.getHome(p.getName(), homeName, connection);
         assert locationMovedHome != null;
         PlayerRelocateHomeEvent relocateHomeEvent = new PlayerRelocateHomeEvent(p, locationMovedHome, newTeleportLocation);
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -112,11 +123,11 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             try {
                 // Remove old marker on map
                 if (locationMovedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
-                    HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
+                    HuskHomes.getMap().removePublicHomeMarker(locationMovedHome.getName(), locationMovedHome.getOwnerUsername());
                 }
 
-                DataManager.updateHomeLocation(p.getName(), homeName, newLocation, connection);
-                MessageManager.sendMessage(p, "edit_home_update_location", homeName);
+                DataManager.updateHomeLocation(locationMovedHome.getOwnerUsername(), locationMovedHome.getName(), newLocation, connection);
+                MessageManager.sendMessage(p, "edit_home_update_location", locationMovedHome.getName());
 
                 // Add new updated marker on map
                 locationMovedHome.setLocation(newLocation, HuskHomes.getSettings().getServerID());
@@ -129,8 +140,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
-    private void editHomeDescription(Player p, String homeName, String newDescriptionString, Connection connection) throws SQLException {
-        Home descriptionChangedHome = DataManager.getHome(p.getName(), homeName, connection);
+    private void editHomeDescription(Player p, Home descriptionChangedHome, String newDescriptionString, Connection connection) throws SQLException {
         assert descriptionChangedHome != null;
         PlayerChangeHomeDescriptionEvent changeHomeDescriptionEvent = new PlayerChangeHomeDescriptionEvent(p, descriptionChangedHome, newDescriptionString);
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -154,11 +164,11 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
                     // Remove old marker if using a map integration
                     if (descriptionChangedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
-                        HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
+                        HuskHomes.getMap().removePublicHomeMarker(descriptionChangedHome.getName(), descriptionChangedHome.getOwnerUsername());
                     }
 
                     // Update description
-                    DataManager.updateHomeDescription(p.getName(), homeName, newDescriptionString, connection);
+                    DataManager.updateHomeDescription(descriptionChangedHome.getOwnerUsername(), descriptionChangedHome.getName(), newDescriptionString, connection);
 
                     // Add new marker if using a map integration
                     descriptionChangedHome.setDescription(newDescriptionString);
@@ -167,7 +177,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     }
 
                     // Confirmation message
-                    MessageManager.sendMessage(p, "edit_home_update_description", homeName, MineDown.escape(newDescriptionString.replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
+                    MessageManager.sendMessage(p, "edit_home_update_description", descriptionChangedHome.getName(), MineDown.escape(newDescriptionString.replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a home description.");
                 }
@@ -175,7 +185,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
-    private void editHomeName(Player p, String homeName, String newName, Connection connection) throws SQLException {
+    private void editHomeName(Player p, Home renamedHome, String newName, Connection connection) throws SQLException {
         if (newName.length() > 16) {
             MessageManager.sendMessage(p, "error_set_home_invalid_length");
             return;
@@ -184,12 +194,11 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             MessageManager.sendMessage(p, "error_set_home_invalid_characters");
             return;
         }
-        if (DataManager.homeExists(p.getName(), newName, connection)) {
+        if (DataManager.homeExists(renamedHome.getOwnerUsername(), newName, connection)) {
             MessageManager.sendMessage(p, "error_set_home_name_taken");
             return;
         }
-        Home renamedHome = DataManager.getHome(p.getName(), homeName, connection);
-        assert renamedHome != null;
+        final String oldHomeName = renamedHome.getName();
         PlayerRenameHomeEvent renameHomeEvent = new PlayerRenameHomeEvent(p, renamedHome, newName);
         Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(renameHomeEvent);
@@ -200,19 +209,19 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 try {
                     if (renamedHome.isPublic()) {
                         if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
-                            HuskHomes.getMap().removePublicHomeMarker(homeName, p.getName());
+                            HuskHomes.getMap().removePublicHomeMarker(oldHomeName, renamedHome.getOwnerUsername());
                         }
-                        DataManager.updateHomeName(p.getName(), homeName, newName, connection);
+                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection);
                         PublicHomeCommand.updatePublicHomeTabCache();
                     } else {
-                        DataManager.updateHomeName(p.getName(), homeName, newName, connection);
+                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection);
                     }
                     renamedHome.setName(newName);
                     if (renamedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                         HuskHomes.getMap().addPublicHomeMarker(renamedHome);
                     }
                     HomeCommand.Tab.updatePlayerHomeCache(p);
-                    MessageManager.sendMessage(p, "edit_home_update_name", homeName, newName);
+                    MessageManager.sendMessage(p, "edit_home_update_name", oldHomeName, newName);
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a home name.");
                 }
@@ -220,8 +229,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
-    private void editHomePrivacy(Player p, String homeName, boolean makingHomePublic, Connection connection) throws SQLException {
-        Home privacyUpdatingHome = DataManager.getHome(p.getName(), homeName, connection);
+    private void editHomePrivacy(Player p, Home privacyUpdatingHome, boolean makingHomePublic, Connection connection) throws SQLException {
         assert privacyUpdatingHome != null;
         if (makingHomePublic) {
             // Making a private home
@@ -233,13 +241,13 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                             MessageManager.sendMessage(p, "error_insufficient_funds", VaultIntegration.format(publicHomeCost));
                             return;
                         } else {
-                            MessageManager.sendMessage(p, "edit_home_privacy_public_success_economy", homeName, VaultIntegration.format(publicHomeCost));
+                            MessageManager.sendMessage(p, "edit_home_privacy_public_success_economy", privacyUpdatingHome.getName(), VaultIntegration.format(publicHomeCost));
                         }
                     } else {
-                        MessageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
+                        MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
                     }
                 } else {
-                    MessageManager.sendMessage(p, "edit_home_privacy_public_success", homeName);
+                    MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
                 }
                 PlayerMakeHomePublicEvent makeHomePublicEvent = new PlayerMakeHomePublicEvent(p, privacyUpdatingHome);
                 Bukkit.getScheduler().runTask(plugin, () -> {
@@ -249,7 +257,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         try {
-                            DataManager.updateHomePrivacy(p.getName(), homeName, true, connection);
+                            DataManager.updateHomePrivacy(privacyUpdatingHome.getOwnerUsername(), privacyUpdatingHome.getName(), true, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();
                             if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                                 HuskHomes.getMap().addPublicHomeMarker(privacyUpdatingHome);
@@ -260,7 +268,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     });
                 });
             } else {
-                MessageManager.sendMessage(p, "error_edit_home_privacy_already_public", homeName);
+                MessageManager.sendMessage(p, "error_edit_home_privacy_already_public", privacyUpdatingHome.getName());
             }
         } else {
             if (privacyUpdatingHome.isPublic()) {
@@ -272,8 +280,8 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         try {
-                            DataManager.updateHomePrivacy(p.getName(), homeName, false, connection);
-                            MessageManager.sendMessage(p, "edit_home_privacy_private_success", homeName);
+                            DataManager.updateHomePrivacy(privacyUpdatingHome.getOwnerUsername(), privacyUpdatingHome.getName(), false, connection);
+                            MessageManager.sendMessage(p, "edit_home_privacy_private_success", privacyUpdatingHome.getName());
                             if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                                 HuskHomes.getMap().removePublicHomeMarker(privacyUpdatingHome.getName(), privacyUpdatingHome.getOwnerUsername());
                             }
@@ -284,7 +292,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     });
                 });
             } else {
-                MessageManager.sendMessage(p, "error_edit_home_privacy_already_private", homeName);
+                MessageManager.sendMessage(p, "error_edit_home_privacy_already_private", privacyUpdatingHome.getName());
             }
         }
     }

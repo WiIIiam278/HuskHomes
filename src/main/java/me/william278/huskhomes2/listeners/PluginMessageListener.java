@@ -14,6 +14,7 @@ import me.william278.huskhomes2.teleport.TeleportRequestHandler;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -52,10 +53,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     }
                 }
             }
-            case TPAHERE_REQUEST -> {
+            case TPA_HERE_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
-                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPAHERE));
+                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(pluginMessage.getMessageData(), TeleportRequest.RequestType.TPA_HERE));
                         MessageManager.sendMessage(recipient, "tpahere_request_ask", pluginMessage.getMessageData());
                         MessageManager.sendMessage(recipient, "teleport_request_options");
                     }
@@ -77,7 +78,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaReplierName);
                 }
             }
-            case TPAHERE_REQUEST_REPLY -> {
+            case TPA_HERE_REQUEST_REPLY -> {
                 final String tpaHereReplierName = pluginMessage.getMessageDataItems()[0];
                 final boolean tpaHereAccepted = Boolean.parseBoolean(pluginMessage.getMessageDataItems()[1]);
                 if (tpaHereAccepted) {
@@ -114,7 +115,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
     }
 
     @Override @SuppressWarnings("UnstableApiUsage")
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {
             return;

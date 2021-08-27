@@ -23,22 +23,40 @@ public class HomeListCommand extends CommandBase {
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
         int pageNo = 1;
-        if (args.length == 1) {
+        String homeOwnerName = p.getName();
+        if (args.length == 1 || args.length == 2) {
             try {
                 pageNo = Integer.parseInt(args[0]);
-            } catch (Exception e) {
-                MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
-                return;
+            } catch (NumberFormatException numberFormatException) {
+                homeOwnerName = args[0];
+                if (args.length == 2) {
+                    try {
+                        pageNo = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException numberFormatException2) {
+                        MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
+                        return;
+                    }
+                }
             }
         }
-        displayPlayerHomeList(p, pageNo);
+        displayPlayerHomeList(p, homeOwnerName, pageNo);
     }
 
-    public static void displayPlayerHomeList(Player player, int pageNumber) {
+    public static void displayPlayerHomeList(Player player, String homeOwnerName, int pageNumber) {
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (!player.getName().equalsIgnoreCase(homeOwnerName)) {
+                if (!player.hasPermission("huskhomes.home.other")) {
+                    MessageManager.sendMessage(player, "error_no_permission");
+                    return;
+                }
+            }
             try {
-                List<Home> homes = DataManager.getPlayerHomes(player.getName(), connection);
+                if (!DataManager.playerExists(homeOwnerName, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_player");
+                    return;
+                }
+                List<Home> homes = DataManager.getPlayerHomes(homeOwnerName, connection);
                 if (homes.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_homes_set");
                     return;
@@ -46,7 +64,11 @@ public class HomeListCommand extends CommandBase {
 
                 ArrayList<String> homeList = new ArrayList<>();
                 for (Home home : homes) {
-                    homeList.add(MessageManager.getRawMessage("home_list_item", home.getName(), MineDown.escape(home.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳"))));
+                    homeList.add(MessageManager.getRawMessage("home_list_item", home.getName(), home.getOwnerUsername(), MineDown.escape(home.getDescription()
+                            .replace("]", "\\]")
+                            .replace("[", "\\[")
+                            .replace("(", "\\(")
+                            .replace(")", "\\)"))));
                 }
 
                 final int itemsPerPage = HuskHomes.getSettings().getPrivateHomesPerPage();
@@ -56,13 +78,13 @@ public class HomeListCommand extends CommandBase {
                     homeUpperBound = homeList.size();
                 }
 
-                ChatList homeChatList = new ChatList(homeList, itemsPerPage, "/huskhomes:homelist", MessageManager.getRawMessage("list_item_divider"));
+                ChatList homeChatList = new ChatList(homeList, itemsPerPage, "/huskhomes:homelist " + homeOwnerName, MessageManager.getRawMessage("list_item_divider"), true);
                 if (homeChatList.doesNotContainPage(pageNumber)) {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                     return;
                 }
 
-                MessageManager.sendMessage(player, "private_home_list_page_top", player.getName(), Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homeList.size()));
+                MessageManager.sendMessage(player, "private_home_list_page_top", homeOwnerName, Integer.toString(homeLowerBound + 1), Integer.toString(homeUpperBound), Integer.toString(homeList.size()));
                 player.spigot().sendMessage(homeChatList.getPage(pageNumber));
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);

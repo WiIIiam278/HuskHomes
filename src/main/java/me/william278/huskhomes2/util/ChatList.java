@@ -13,14 +13,16 @@ public class ChatList {
     private final int itemsPerPage;
     private final int maxPage;
     private final String itemSeparator;
+    private final boolean spacePageOptions;
 
-    public ChatList(ArrayList<String> items, int itemsPerPage, String pageChangeCommand, String itemSeparator) {
+    public ChatList(ArrayList<String> items, int itemsPerPage, String pageChangeCommand, String itemSeparator, boolean spacePageOptions) {
         this.pageChangeCommand = pageChangeCommand;
         this.items = new ArrayList<>();
         this.itemsPerPage = itemsPerPage;
         this.items.addAll(items);
         this.maxPage = (int) Math.ceil(((double) items.size()) / itemsPerPage);
         this.itemSeparator = itemSeparator;
+        this.spacePageOptions = spacePageOptions;
     }
 
     public boolean doesNotContainPage(int pageNo) {
@@ -45,6 +47,9 @@ public class ChatList {
             builder.append(MessageManager.getRawMessage("page_no_items"));
         }
         builder.append("\n");
+        if (spacePageOptions) {
+            builder.append("\n");
+        }
 
         if (pageNo == 1) {
             if (pageNo == maxPage) {

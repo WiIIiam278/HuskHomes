@@ -52,7 +52,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
         }
 
         MessageManager.sendMessage(player, "command_list_header");
-        ChatList helpList = new ChatList(commandDisplay, 10, "/huskhomes help", "\n");
+        ChatList helpList = new ChatList(commandDisplay, 10, "/huskhomes help", "\n", false);
         if (helpList.doesNotContainPage(pageNumber)) {
             MessageManager.sendMessage(player, "error_invalid_page_number");
             return;
@@ -176,7 +176,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
     final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload"};
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
         Player p = (Player) sender;
         if (command.getPermission() != null) {
             if (!p.hasPermission(command.getPermission())) {

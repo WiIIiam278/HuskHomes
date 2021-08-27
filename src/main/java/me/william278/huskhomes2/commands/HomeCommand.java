@@ -5,6 +5,7 @@ import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.Home;
+import me.william278.huskhomes2.util.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -33,12 +34,14 @@ public class HomeCommand extends CommandBase {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 if (args.length == 1) {
-                    String homeName = args[0];
-                    if (DataManager.homeExists(p, homeName, connection)) {
-                        Home home = DataManager.getHome(p.getName(), homeName, connection);
+                    String homeArgument = args[0];
+                    if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeArgument).matches()) {
+                        PublicHomeCommand.queueHomeTeleport(p, homeArgument);
+                    } else if (DataManager.homeExists(p, homeArgument, connection)) {
+                        Home home = DataManager.getHome(p.getName(), homeArgument, connection);
                         TeleportManager.queueTimedTeleport(p, home, connection);
                     } else {
-                        MessageManager.sendMessage(p, "error_home_invalid", homeName);
+                        MessageManager.sendMessage(p, "error_home_invalid", homeArgument);
                     }
                 } else {
                     List<Home> homes = DataManager.getPlayerHomes(p.getName(), connection);
@@ -47,7 +50,7 @@ public class HomeCommand extends CommandBase {
                         TeleportManager.queueTimedTeleport(p, homes.get(0), connection);
                         return;
                     }
-                    HomeListCommand.displayPlayerHomeList(p, 1);
+                    HomeListCommand.displayPlayerHomeList(p, p.getName(), 1);
                 }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting home.", e);

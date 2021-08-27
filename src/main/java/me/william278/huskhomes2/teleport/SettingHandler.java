@@ -55,12 +55,8 @@ public class SettingHandler {
                     });
                 } else {
                     switch (setHomeConditions.getConditionsNotMetReason()) {
-                        case "error_set_home_maximum_homes" -> {
-                            MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Home.getSetHomeLimit(player)));
-                        }
-                        case "error_insufficient_funds" -> {
-                            MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.getSettings().getSetHomeCost()));
-                        }
+                        case "error_set_home_maximum_homes" -> MessageManager.sendMessage(player, "error_set_home_maximum_homes", Integer.toString(Home.getSetHomeLimit(player)));
+                        case "error_insufficient_funds" -> MessageManager.sendMessage(player, "error_insufficient_funds", VaultIntegration.format(HuskHomes.getSettings().getSetHomeCost()));
                         default -> MessageManager.sendMessage(player, setHomeConditions.getConditionsNotMetReason());
                     }
                 }
@@ -76,7 +72,7 @@ public class SettingHandler {
             try {
                 if (SettingHandler.setCrossServerSpawnWarp(p.getLocation(), p, connection)) {
                     SettingHandler.setSpawnLocation(p.getLocation());
-                    p.getLocation().getWorld().setSpawnLocation(p.getLocation());
+                    p.getWorld().setSpawnLocation(p.getLocation());
                     MessageManager.sendMessage(p, "set_spawn_success");
                 }
             } catch (SQLException e) {
@@ -158,19 +154,7 @@ public class SettingHandler {
                 int homesDeleted = 0;
                 for (Home home : DataManager.getPlayerHomes(player.getName(), connection)) {
                     if (home != null) {
-                        String homeName = home.getName();
-                        if (home.isPublic()) {
-                            // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
-                                HuskHomes.getMap().removePublicHomeMarker(homeName, player.getName());
-                            }
-                            PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
-                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
-                            DataManager.deleteHome(homeName, player, connection);
-                            PublicHomeCommand.updatePublicHomeTabCache();
-                        } else {
-                            DataManager.deleteHome(homeName, player, connection);
-                        }
+                        deleteHomeData(player, home, connection);
                     }
                     homesDeleted++;
                 }
@@ -187,28 +171,35 @@ public class SettingHandler {
         });
     }
 
-    // Delete a home
     public static void deleteHome(Player player, String homeName) {
+        deleteHome(player, player.getName(), homeName);
+    }
+
+    // Delete a home
+    public static void deleteHome(Player player, String ownerName, String homeName) {
+        if (ownerName.equalsIgnoreCase(player.getName())) {
+            if (!player.hasPermission("huskhomes.delhome.other")) {
+                MessageManager.sendMessage(player, "error_no_permission");
+                return;
+            }
+        }
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (DataManager.homeExists(player, homeName, connection)) {
-                    Home home = DataManager.getHome(player.getName(), homeName, connection);
+                if (DataManager.homeExists(ownerName, homeName, connection)) {
+                    Home home = DataManager.getHome(ownerName, homeName, connection);
                     if (home != null) {
-                        if (home.isPublic()) {
-                            // Delete Dynmap marker if it exists & if the home is public
-                            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
-                                HuskHomes.getMap().removePublicHomeMarker(homeName, player.getName());
-                            }
-                            PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
-                            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
-                            DataManager.deleteHome(homeName, player, connection);
-                            PublicHomeCommand.updatePublicHomeTabCache();
+                        deleteHomeData(player, home, connection);
+                        if (home.getOwnerUsername().equalsIgnoreCase(player.getName())) {
+                            HomeCommand.Tab.updatePlayerHomeCache(player);
+                            MessageManager.sendMessage(player, "home_deleted", homeName);
                         } else {
-                            DataManager.deleteHome(homeName, player, connection);
+                            Player homeOwner = Bukkit.getPlayerExact(ownerName);
+                            if (homeOwner != null) {
+                                HomeCommand.Tab.updatePlayerHomeCache(homeOwner);
+                            }
+                            MessageManager.sendMessage(player, "home_deleted_other", ownerName, homeName);
                         }
-                        HomeCommand.Tab.updatePlayerHomeCache(player);
-                        MessageManager.sendMessage(player, "home_deleted", homeName);
                     } else {
                         MessageManager.sendMessage(player, "error_home_invalid", homeName);
                     }
@@ -218,7 +209,7 @@ public class SettingHandler {
                             MessageManager.sendMessage(player, "error_no_permission");
                             return;
                         }
-                        if (DataManager.getPlayerHomes(player.getName(), connection).size() == 0) {
+                        if (DataManager.getPlayerHomes(ownerName, connection).size() == 0) {
                             MessageManager.sendMessage(player, "error_no_homes_set");
                             return;
                         }
@@ -231,6 +222,21 @@ public class SettingHandler {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
             }
         });
+    }
+
+    private static void deleteHomeData(Player player, Home home, Connection connection) throws SQLException {
+        if (home.isPublic()) {
+            // Delete Map marker if needed & if the home is public
+            if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
+                HuskHomes.getMap().removePublicHomeMarker(home.getName(), home.getOwnerUsername());
+            }
+            PlayerDeleteHomeEvent event = new PlayerDeleteHomeEvent(player, home);
+            Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
+            DataManager.deleteHome(player, home.getOwnerUsername(), home.getName(), connection);
+            PublicHomeCommand.updatePublicHomeTabCache();
+        } else {
+            DataManager.deleteHome(player, home.getOwnerUsername(), home.getName(), connection);
+        }
     }
 
     // Delete all server warps
@@ -303,6 +309,10 @@ public class SettingHandler {
 
     // Set spawn location
     public static void setSpawnLocation(Location location) {
+        // Don't set the spawn location in an invalid world
+        if (location.getWorld() == null) {
+            return;
+        }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             // Write the new location to config
             FileConfiguration config = plugin.getConfig();
@@ -321,10 +331,7 @@ public class SettingHandler {
 
     // Update current spawn location from config
     public static void fetchSpawnLocation() {
-        Connection connection = HuskHomes.getConnection();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            TeleportManager.setSpawnLocation(getSpawnLocation());
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> TeleportManager.setSpawnLocation(getSpawnLocation()));
     }
 
     // Get spawn location from config

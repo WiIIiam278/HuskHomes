@@ -24,16 +24,16 @@ public class TeleportRequestHandler {
     private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, TeleportRequest.RequestType requestType) {
         if (requestType == TeleportRequest.RequestType.TPA) {
             new PluginMessage(targetPlayerName, PluginMessageType.TPA_REQUEST, requester.getName()).send(requester);
-        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
-            new PluginMessage(targetPlayerName, PluginMessageType.TPAHERE_REQUEST, requester.getName()).send(requester);
+        } else if (requestType == TeleportRequest.RequestType.TPA_HERE) {
+            new PluginMessage(targetPlayerName, PluginMessageType.TPA_HERE_REQUEST, requester.getName()).send(requester);
         }
     }
 
     private static void replyTeleportRequestCrossServer(Player replier, String requesterName, TeleportRequest.RequestType requestType, boolean accepted) {
         if (requestType == TeleportRequest.RequestType.TPA) {
             new PluginMessage(requesterName, PluginMessageType.TPA_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
-        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
-            new PluginMessage(requesterName, PluginMessageType.TPAHERE_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
+        } else if (requestType == TeleportRequest.RequestType.TPA_HERE) {
+            new PluginMessage(requesterName, PluginMessageType.TPA_HERE_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
         }
     }
 
@@ -70,7 +70,7 @@ public class TeleportRequestHandler {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
                 if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPAHERE));
+                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA_HERE));
                     MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
                     MessageManager.sendMessage(targetPlayer, "teleport_request_options");
                 }
@@ -79,7 +79,7 @@ public class TeleportRequestHandler {
             }
         } else {
             if (HuskHomes.getSettings().doBungee()) {
-                sendTeleportRequestCrossServer(requester, targetPlayerName, TeleportRequest.RequestType.TPAHERE);
+                sendTeleportRequestCrossServer(requester, targetPlayerName, TeleportRequest.RequestType.TPA_HERE);
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
             } else {
                 MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -116,7 +116,7 @@ public class TeleportRequestHandler {
 
                         if (requestType == TeleportRequest.RequestType.TPA) {
                             TeleportManager.queueTimedTeleport(requester, p.getName(), connection);
-                        } else if (requestType == TeleportRequest.RequestType.TPAHERE) {
+                        } else if (requestType == TeleportRequest.RequestType.TPA_HERE) {
                             TeleportManager.queueTimedTeleport(p, requesterName, connection);
                         }
                     } else {
@@ -128,7 +128,7 @@ public class TeleportRequestHandler {
                         if (accepted) {
                             MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);
                             replyTeleportRequestCrossServer(p, requesterName, requestType, true);
-                            if (requestType == TeleportRequest.RequestType.TPAHERE) {
+                            if (requestType == TeleportRequest.RequestType.TPA_HERE) {
                                 TeleportManager.queueTimedTeleport(p, requesterName, connection);
                             }
                         } else {

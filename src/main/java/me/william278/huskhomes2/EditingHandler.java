@@ -9,22 +9,30 @@ import org.bukkit.entity.Player;
 public class EditingHandler {
 
     public static void showEditHomeOptions(Player p, Home home) {
-        MessageManager.sendMessage(p, "edit_home_title", home.getName());
+        if (home.getOwnerUsername().equalsIgnoreCase(p.getName())) {
+            MessageManager.sendMessage(p, "edit_home_title", home.getName());
+        } else {
+            MessageManager.sendMessage(p, "edit_home_title_other", home.getOwnerUsername(), home.getName());
+        }
         showPointDetails(p, home);
         if (!home.isPublic()) {
-            MessageManager.sendMessage(p, "edit_home_privacy_private");
+            if (home.getOwnerUsername().equalsIgnoreCase(p.getName())) {
+                MessageManager.sendMessage(p, "edit_home_privacy_private");
+            } else {
+                MessageManager.sendMessage(p, "edit_home_privacy_private_other", home.getOwnerUsername());
+            }
         } else {
             MessageManager.sendMessage(p, "edit_home_privacy_public");
         }
 
         if (p.hasPermission("huskhomes.edithome.public")) {
             if (home.isPublic()) {
-                MessageManager.sendMessage(p, "edit_home_options_make_private", home.getName());
+                MessageManager.sendMessage(p, "edit_home_options_make_private", home.getOwnerUsername(), home.getName());
             } else {
-                MessageManager.sendMessage(p, "edit_home_options_make_public", home.getName());
+                MessageManager.sendMessage(p, "edit_home_options_make_public", home.getOwnerUsername(), home.getName());
             }
         } else {
-            MessageManager.sendMessage(p, "edit_home_options", home.getName());
+            MessageManager.sendMessage(p, "edit_home_options", home.getOwnerUsername(), home.getName());
         }
     }
 
@@ -36,7 +44,11 @@ public class EditingHandler {
     }
 
     private static void showPointDetails(Player p, SetPoint point) {
-        MessageManager.sendMessage(p, "edit_description", MineDown.escape(point.getDescription().replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
+        MessageManager.sendMessage(p, "edit_description", MineDown.escape(point.getDescription()
+                .replace("]", "\\]")
+                .replace("[", "\\[")
+                .replace("(", "\\(")
+                .replace(")", "\\)")));
         MessageManager.sendMessage(p, "edit_timestamp", point.getFormattedCreationTime());
         MessageManager.sendMessage(p, "edit_location",
                 Integer.toString((int) point.getX()),

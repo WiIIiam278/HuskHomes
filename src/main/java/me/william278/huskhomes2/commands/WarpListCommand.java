@@ -62,7 +62,7 @@ public class WarpListCommand extends CommandBase {
                     warpsUpperBound = warpList.size();
                 }
 
-                ChatList homeChatList = new ChatList(warpList, itemsPerPage, "/huskhomes:warplist", MessageManager.getRawMessage("list_item_divider"));
+                ChatList homeChatList = new ChatList(warpList, itemsPerPage, "/huskhomes:warplist", MessageManager.getRawMessage("list_item_divider"), true);
                 if (homeChatList.doesNotContainPage(pageNumber)) {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                     return;

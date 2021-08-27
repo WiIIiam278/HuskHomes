@@ -47,6 +47,30 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
+    public static void queueHomeTeleport(Player p, String publicHome) {
+        Connection connection = HuskHomes.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                String[] split = publicHome.split("\\.");
+                String ownerName = split[0];
+                String homeName = split[1];
+                if (DataManager.homeExists(ownerName, homeName, connection)) {
+                    Home home = DataManager.getHome(ownerName, homeName, connection);
+                    assert home != null;
+                    if (home.isPublic() || p.getName().equalsIgnoreCase(ownerName) || p.hasPermission("huskhomes.home.other")) {
+                        TeleportManager.queueTimedTeleport(p, home, connection);
+                    } else {
+                        MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
+                    }
+                } else {
+                    MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An exception occurred teleporting to a public home.");
+            }
+        });
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player p)) {
@@ -59,27 +83,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
         }
         String publicHome = args[0];
         if (RegexUtil.OWNER_NAME_PATTERN.matcher(publicHome).matches()) {
-            Connection connection = HuskHomes.getConnection();
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    String[] split = publicHome.split("\\.");
-                    String ownerName = split[0];
-                    String homeName = split[1];
-                    if (DataManager.homeExists(ownerName, homeName, connection)) {
-                        Home home = DataManager.getHome(ownerName, homeName, connection);
-                        assert home != null;
-                        if (home.isPublic()) {
-                            TeleportManager.queueTimedTeleport(p, home, connection);
-                        } else {
-                            MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
-                        }
-                    } else {
-                        MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
-                    }
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An exception occurred teleporting to a public home.");
-                }
-            });
+            queueHomeTeleport(p, publicHome);
         } else {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }

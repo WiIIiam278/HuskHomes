@@ -54,7 +54,7 @@ public class PublicHomeListCommand extends CommandBase {
                     homeUpperBound = publicHomeList.size();
                 }
 
-                ChatList homeChatList = new ChatList(publicHomeList, itemsPerPage, "/huskhomes:publichomelist", MessageManager.getRawMessage("list_item_divider"));
+                ChatList homeChatList = new ChatList(publicHomeList, itemsPerPage, "/huskhomes:publichomelist", MessageManager.getRawMessage("list_item_divider"), true);
                 if (homeChatList.doesNotContainPage(pageNumber)) {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                     return;

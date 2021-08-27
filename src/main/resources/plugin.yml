@@ -126,6 +126,13 @@ permissions:
     children:
       huskhomes.bypass_timers: true
       huskhomes.commands: true
+      huskhomes.private_home_admin: true
+  huskhomes.private_home_admin:
+    description: Lets you access and edit private homes
+    children:
+      huskhomes.home.other: true
+      huskhomes.edithome.other: true
+      huskhomes.delhome.other: true
   huskhomes.bypass_timers:
     description: Bypass all timer restrictions.
     children:
@@ -174,12 +181,18 @@ permissions:
   huskhomes.home:
     description: Allows you to teleport to a home
     default: true
+  huskhomes.home.other:
+    description: Allows you to teleport to all player homes
+    default: op
   huskhomes.sethome:
     description: Allows you to set homes
     default: true
   huskhomes.delhome:
     description: Allows you to delete a home
     default: true
+  huskhomes.delhome.other:
+    description: Allows you to delete any player home
+    default: op
   huskhomes.delhome.all:
     description: Allows you to delete all your homes
     default: true
@@ -202,8 +215,11 @@ permissions:
     description: Allows you to teleport to public homes
     default: true
   huskhomes.edithome:
-    description: Allows you to edit home information
+    description: Allows you to edit home settings
     default: true
+  huskhomes.edithome.other:
+    description: Allows you to edit home settings for any home
+    default: op
   huskhomes.editwarp:
     description: Allows you to edit home information
     default: op

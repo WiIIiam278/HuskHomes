@@ -1,6 +1,7 @@
 package me.william278.huskhomes2.data;
 
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import me.william278.huskhomes2.teleport.points.Warp;
@@ -561,6 +562,17 @@ public class DataManager {
         }
     }
 
+    public static Boolean playerExists(String username, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM " + HuskHomes.getSettings().getPlayerDataTable() + " WHERE `username`=?;")) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            final boolean exists = resultSet.next();
+            statement.close();
+            return exists;
+        }
+    }
+
     public static TeleportationPoint getTeleportationPoint(Integer locationID, Connection connection) throws SQLException, IllegalArgumentException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT * FROM " + HuskHomes.getSettings().getLocationsDataTable() + " WHERE `location_id`=?;")) {
@@ -802,16 +814,23 @@ public class DataManager {
         addHome(home, p.getUniqueId(), connection);
     }
 
-    public static void deleteHome(String homeName, Player p, Connection connection) throws SQLException {
-        Integer playerID = getPlayerId(p.getUniqueId(), connection);
-        if (playerID != null) {
-            deleteHomeTeleportLocation(playerID, homeName, connection);
-            deleteHome(homeName, p.getName(), connection);
-        } else {
-            Bukkit.getLogger().warning("Player ID returned null when deleting a home");
-        }
+    public static void deleteHome(Player p, String homeName, Connection connection) throws SQLException {
+        deleteHome(p, p.getName(), homeName, connection);
     }
 
+    public static void deleteHome(Player deleter, String ownerName, String homeName, Connection connection) throws SQLException {
+        if (!homeExists(ownerName, homeName, connection)) {
+            MessageManager.sendMessage(deleter, "error_invalid_home");
+            return;
+        }
+        Integer playerID = getPlayerId(ownerName, connection);
+        if (playerID != null) {
+            deleteHomeTeleportLocation(playerID, homeName, connection);
+            deleteHome(homeName, ownerName, connection);
+        } else {
+            MessageManager.sendMessage(deleter, "error_invalid_player");
+        }
+    }
 
     public static void createPlayer(Player p, Connection connection) throws SQLException {
         addPlayer(p, connection);

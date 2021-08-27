@@ -32,6 +32,6 @@ public class TeleportRequest {
 
     public enum RequestType {
         TPA,
-        TPAHERE
+        TPA_HERE
     }
 }

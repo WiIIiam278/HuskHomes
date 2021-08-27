@@ -7,8 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
-import java.util.Locale;
-
 public class Settings {
 
     private final Plugin plugin;

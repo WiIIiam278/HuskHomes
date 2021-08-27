@@ -1,7 +1,14 @@
 package me.william278.huskhomes2.integrations.map;
 
+import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
@@ -10,8 +17,36 @@ public abstract class Map {
     public Map() {
     }
 
+    private static final HuskHomes plugin = HuskHomes.getInstance();
+
     public static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes.public_homes";
     public static final String WARPS_MARKER_SET_ID = "huskhomes.warps";
+
+    public static final String PUBLIC_HOME_MARKER_IMAGE_NAME = "public_home";
+    public static final String WARP_MARKER_IMAGE_NAME = "warp";
+
+    public BufferedImage getWarpIcon() {
+        return getMarkerIcon(WARP_MARKER_IMAGE_NAME);
+    }
+
+    public BufferedImage getPublicHomeIcon() {
+        return getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME);
+    }
+
+    private BufferedImage getMarkerIcon(String name) {
+        final String filePath = "marker-icons" + File.separator + name + ".png";
+        File file = new File(plugin.getDataFolder(), filePath);
+        if (!file.exists()) {
+            plugin.saveResource(filePath, false);
+        }
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to load " + name + " marker icon image!", e);
+        }
+        return image;
+    }
 
     public abstract void addWarpMarker(Warp warp);
 

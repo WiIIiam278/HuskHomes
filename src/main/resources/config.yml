@@ -73,11 +73,9 @@ map_integration:
     public_homes:
       show: true
       set_name: 'Public Homes'
-      icon_id: 'house'
     warps:
       show: true
       set_name: 'Warps'
-      icon_id: 'sign'
 economy_integration:
   enabled: false
   free_home_slots: 5

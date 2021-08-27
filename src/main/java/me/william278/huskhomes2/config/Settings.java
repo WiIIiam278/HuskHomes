@@ -44,8 +44,6 @@ public class Settings {
     private String mapPlugin;
     private boolean mapPublicHomes;
     private boolean mapWarps;
-    private String mapPublicHomeMarkerIconID;
-    private String mapWarpMarkerIconID;
     private String mapPublicHomeMarkerSet;
     private String mapWarpMarkerSet;
 
@@ -170,8 +168,6 @@ public class Settings {
 
             this.mapPublicHomes = config.getBoolean("map_integration.markers.public_homes.show", true);
             this.mapWarps = config.getBoolean("map_integration.markers.warps.show", true);
-            this.mapPublicHomeMarkerIconID = config.getString("map_integration.markers.public_homes.icon_id", "house");
-            this.mapWarpMarkerIconID = config.getString("map_integration.markers.warps.icon_id", "sign");
             this.mapPublicHomeMarkerSet = config.getString("map_integration.markers.public_homes.set_name", "Public Homes");
             this.mapWarpMarkerSet = config.getString("map_integration.markers.warps.set_name", "Warps");
 
@@ -250,14 +246,6 @@ public class Settings {
 
     public boolean showWarpsOnMap() {
         return mapWarps;
-    }
-
-    public String getMapPublicHomeMarkerIconID() {
-        return mapPublicHomeMarkerIconID;
-    }
-
-    public String getMapWarpMarkerIconID() {
-        return mapWarpMarkerIconID;
     }
 
     public String getMapPublicHomeMarkerSet() {

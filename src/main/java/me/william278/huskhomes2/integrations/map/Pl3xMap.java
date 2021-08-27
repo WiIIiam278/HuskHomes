@@ -1,6 +1,7 @@
 package me.william278.huskhomes2.integrations.map;
 
 import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
 import net.pl3x.map.api.Key;
@@ -13,12 +14,17 @@ import net.pl3x.map.api.marker.MarkerOptions;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class Pl3xMap extends Map {
 
     private final HashMap<String,SimpleLayerProvider> publicHomeProviders = new HashMap<>();
     private final HashMap<String,SimpleLayerProvider> warpProviders = new HashMap<>();
+    private final static int MARKER_SIZE = 20;
+    private final static HuskHomes plugin = HuskHomes.getInstance();
 
     @Override
     public void addWarpMarker(Warp warp) {
@@ -27,8 +33,8 @@ public class Pl3xMap extends Map {
             if (warpProviders.containsKey(world.getName())) {
                 Icon marker = Marker.icon(
                         Point.of(warp.getX(), warp.getZ()),
-                        Key.of(HuskHomes.getSettings().getMapWarpMarkerIconID()),
-                        10);
+                        Key.of(WARP_MARKER_IMAGE_NAME),
+                        MARKER_SIZE);
                 marker.markerOptions(MarkerOptions.builder()
                         .hoverTooltip(warp.getName())
                         .clickTooltip(getWarpInfoMenu(warp))
@@ -61,8 +67,8 @@ public class Pl3xMap extends Map {
             if (publicHomeProviders.containsKey(world.getName())) {
                 Icon marker = Marker.icon(
                         Point.of(home.getX(), home.getZ()),
-                        Key.of(HuskHomes.getSettings().getMapPublicHomeMarkerIconID()),
-                        10);
+                        Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME),
+                        MARKER_SIZE);
                 marker.markerOptions(MarkerOptions.builder()
                         .hoverTooltip(home.getName())
                         .clickTooltip(getPublicHomeInfoMenu(home))
@@ -92,6 +98,15 @@ public class Pl3xMap extends Map {
     @Override
     public void initialize() {
         net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
+
+        // Register map icons
+        if (!Pl3xMapProvider.get().iconRegistry().hasEntry(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME))) {
+            Pl3xMapProvider.get().iconRegistry().register(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME), getPublicHomeIcon());
+        }
+        if (!Pl3xMapProvider.get().iconRegistry().hasEntry(Key.of(WARP_MARKER_IMAGE_NAME))) {
+            Pl3xMapProvider.get().iconRegistry().register(Key.of(WARP_MARKER_IMAGE_NAME), getWarpIcon());
+        }
+
         for (net.pl3x.map.api.MapWorld world : mapAPI.mapWorlds()) {
             // Register public home map layer
             SimpleLayerProvider publicHomeProvider =
@@ -106,7 +121,7 @@ public class Pl3xMap extends Map {
 
             // Register warps map layer
             SimpleLayerProvider warpProvider =
-                    SimpleLayerProvider.builder(HuskHomes.getSettings().getMapPublicHomeMarkerSet())
+                    SimpleLayerProvider.builder(HuskHomes.getSettings().getMapWarpMarkerSet())
                             .showControls(true)
                             .defaultHidden(false)
                             .layerPriority(7)
@@ -115,6 +130,29 @@ public class Pl3xMap extends Map {
             world.layerRegistry().register(Key.of(WARPS_MARKER_SET_ID), warpProvider);
             warpProviders.put(world.name(), warpProvider);
         }
+
+        // Populate map with markers
+        Connection connection = HuskHomes.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (HuskHomes.getSettings().showPublicHomesOnMap()) {
+                    for (Home home : DataManager.getPublicHomes(connection)) {
+                        if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {
+                            Bukkit.getScheduler().runTask(plugin, () -> addPublicHomeMarker(home));
+                        }
+                    }
+                }
+                if (HuskHomes.getSettings().showWarpsOnMap()) {
+                    for (Warp warp : DataManager.getWarps(connection)) {
+                        if (!HuskHomes.getSettings().doBungee() || warp.getServer().equals(HuskHomes.getSettings().getServerID())) {
+                            Bukkit.getScheduler().runTask(plugin, () -> addWarpMarker(warp));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the DynMap");
+            }
+        });
     }
 
 }

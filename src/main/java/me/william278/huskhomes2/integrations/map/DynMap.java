@@ -10,6 +10,14 @@ import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerSet;
 
+import javax.imageio.ImageIO;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -18,6 +26,23 @@ public class DynMap extends Map {
 
     private static Plugin dynMap;
     private static final HuskHomes plugin = HuskHomes.getInstance();
+    private static final double MARKER_ICON_SCALE = 0.75;
+
+    // Returns the marker icons from the plugin resources in the correct format and scaled to look good with Dynmap
+    private InputStream getScaledMarkerIconStream(BufferedImage image) {
+        try {
+            BufferedImage scaledImage = new BufferedImage((int)(32 * MARKER_ICON_SCALE), (int)(32 * MARKER_ICON_SCALE), image.getType());
+            AffineTransform scaleInstance = AffineTransform.getScaleInstance(MARKER_ICON_SCALE, MARKER_ICON_SCALE);
+            AffineTransformOp scaleOp = new AffineTransformOp(scaleInstance, AffineTransformOp.TYPE_BILINEAR);
+            scaleOp.filter(image, scaledImage);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(scaledImage, "png", outputStream);
+            return new ByteArrayInputStream(outputStream.toByteArray());
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "An exception occurred converting marker icon image data!", e);
+            return null;
+        }
+    }
 
     @Override
     public void removeWarpMarker(String warpName) {
@@ -52,7 +77,7 @@ public class DynMap extends Map {
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID);
-            Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getMapWarpMarkerIconID()), false);
+            Marker m = markerSet.createMarker(markerId, warp.getName(), warp.getWorldName(), warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false);
 
             m.setDescription(getWarpInfoMenu(warp));
         } catch (Exception e) {
@@ -68,7 +93,7 @@ public class DynMap extends Map {
             DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
             MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID);
-            Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(HuskHomes.getSettings().getMapPublicHomeMarkerIconID()), false);
+            Marker m = markerSet.createMarker(markerId, home.getName(), home.getWorldName(), home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false);
 
             m.setDescription(getPublicHomeInfoMenu(home));
         } catch (Exception e) {
@@ -86,6 +111,9 @@ public class DynMap extends Map {
         if (dynmapAPI == null) {
             return;
         }
+
+        dynmapAPI.getMarkerAPI().createMarkerIcon(WARP_MARKER_IMAGE_NAME, "Warp", getScaledMarkerIconStream(getWarpIcon()));
+        dynmapAPI.getMarkerAPI().createMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME, "Public Home", getScaledMarkerIconStream(getPublicHomeIcon()));
 
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {

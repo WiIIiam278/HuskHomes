@@ -21,6 +21,8 @@ public class BlueMap extends Map {
     private static final HuskHomes plugin = HuskHomes.getInstance();
     private static final HashMap<String, Boolean> queuedWarps = new HashMap<>();
     private static final HashMap<String, Boolean> queuedPublicHomes = new HashMap<>();
+    private static String warpMarkerImageAddress;
+    private static String publicHomeMarkerImageAddress;
 
     private void executeQueuedOperations() {
         try {
@@ -67,6 +69,9 @@ public class BlueMap extends Map {
                     for (BlueMapMap map : blueMapWorld.getMaps()) {
                         POIMarker marker = markerSet.createPOIMarker(markerId, map, warp.getX(), warp.getY(), warp.getZ());
                         marker.setLabel(getWarpInfoMenu(warp));
+                        if (warpMarkerImageAddress != null) {
+                            marker.setIcon(warpMarkerImageAddress, marker.getAnchor());
+                        }
                     }
                     try {
                         markerAPI.save();
@@ -113,6 +118,9 @@ public class BlueMap extends Map {
                     for (BlueMapMap map : blueMapWorld.getMaps()) {
                         POIMarker marker = markerSet.createPOIMarker(markerId, map, home.getX(), home.getY(), home.getZ());
                         marker.setLabel(getPublicHomeInfoMenu(home));
+                        if (publicHomeMarkerImageAddress != null) {
+                            marker.setIcon(publicHomeMarkerImageAddress, marker.getAnchor());
+                        }
                     }
                     try {
                         markerAPI.save();
@@ -167,6 +175,9 @@ public class BlueMap extends Map {
             // Create Marker Set
             BlueMapAPI.onEnable(api -> {
                 try {
+                    publicHomeMarkerImageAddress = api.createImage(getPublicHomeIcon(), "huskhomes/" + PUBLIC_HOME_MARKER_IMAGE_NAME);
+                    warpMarkerImageAddress = api.createImage(getWarpIcon(), "huskhomes/" + WARP_MARKER_IMAGE_NAME);
+
                     MarkerAPI markerAPI = api.getMarkerAPI();
 
                     MarkerSet publicHomeMarkerSet = markerAPI.getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).orElse(markerAPI.createMarkerSet(PUBLIC_HOMES_MARKER_SET_ID));

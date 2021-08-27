@@ -71,6 +71,9 @@ public class SetPoint extends TeleportationPoint {
      * @return The formatted creation time string
      */
     public String getFormattedCreationTime() {
+        if (creationTime == 0) {
+            return "N/A";
+        }
         return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())

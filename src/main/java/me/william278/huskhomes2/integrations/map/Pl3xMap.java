@@ -100,12 +100,10 @@ public class Pl3xMap extends Map {
         net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
 
         // Register map icons
-        if (!Pl3xMapProvider.get().iconRegistry().hasEntry(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME))) {
-            Pl3xMapProvider.get().iconRegistry().register(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME), getPublicHomeIcon());
-        }
-        if (!Pl3xMapProvider.get().iconRegistry().hasEntry(Key.of(WARP_MARKER_IMAGE_NAME))) {
-            Pl3xMapProvider.get().iconRegistry().register(Key.of(WARP_MARKER_IMAGE_NAME), getWarpIcon());
-        }
+        Pl3xMapProvider.get().iconRegistry().unregister(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME));
+        Pl3xMapProvider.get().iconRegistry().register(Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME), getPublicHomeIcon());
+        Pl3xMapProvider.get().iconRegistry().unregister(Key.of(WARP_MARKER_IMAGE_NAME));
+        Pl3xMapProvider.get().iconRegistry().register(Key.of(WARP_MARKER_IMAGE_NAME), getWarpIcon());
 
         for (net.pl3x.map.api.MapWorld world : mapAPI.mapWorlds()) {
             // Register public home map layer

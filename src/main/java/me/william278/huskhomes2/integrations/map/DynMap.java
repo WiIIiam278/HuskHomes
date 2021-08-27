@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
+import org.dynmap.markers.MarkerIcon;
 import org.dynmap.markers.MarkerSet;
 
 import javax.imageio.ImageIO;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class DynMap extends Map {
@@ -105,13 +107,18 @@ public class DynMap extends Map {
     @Override
     public void initialize() {
         dynMap = plugin.getServer().getPluginManager().getPlugin("dynmap");
-
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         if (dynmapAPI == null) {
             return;
         }
 
+        final Set<MarkerIcon> markerIconSet = dynmapAPI.getMarkerAPI().getMarkerIcons();
+        for (MarkerIcon icon : markerIconSet) {
+            if (icon.getMarkerIconID().equals(WARP_MARKER_IMAGE_NAME) || icon.getMarkerIconID().equalsIgnoreCase(PUBLIC_HOME_MARKER_IMAGE_NAME)) {
+                dynmapAPI.getMarkerAPI().getMarkerIcons().remove(icon);
+            }
+        }
         dynmapAPI.getMarkerAPI().createMarkerIcon(WARP_MARKER_IMAGE_NAME, "Warp", getScaledMarkerIconStream(getWarpIcon()));
         dynmapAPI.getMarkerAPI().createMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME, "Public Home", getScaledMarkerIconStream(getPublicHomeIcon()));
 

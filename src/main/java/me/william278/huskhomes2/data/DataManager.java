@@ -164,13 +164,18 @@ public class DataManager {
             while (resultSet.next()) {
                 int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                long epochTime = 0;
+                final Timestamp timestamp = resultSet.getTimestamp("creation_time");
+                if (timestamp != null) {
+                    epochTime = timestamp.getTime();
+                }
                 playerHomes.add(new Home(teleportationPoint,
                         playerName,
                         getPlayerUUID(resultSet.getInt("player_id"), connection),
                         resultSet.getString("name"),
                         resultSet.getString("description"),
                         resultSet.getBoolean("public"),
-                        resultSet.getTimestamp("creation_time").getTime()));
+                        epochTime));
             }
 
         }
@@ -187,12 +192,17 @@ public class DataManager {
                 int playerID = resultSet.getInt("player_id");
                 int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                long epochTime = 0;
+                final Timestamp timestamp = resultSet.getTimestamp("creation_time");
+                if (timestamp != null) {
+                    epochTime = timestamp.getTime();
+                }
                 publicHomes.add(new Home(teleportationPoint,
                         getPlayerUsername(playerID, connection),
                         getPlayerUUID(playerID, connection),
                         resultSet.getString("name"),
                         resultSet.getString("description"), true,
-                        resultSet.getTimestamp("creation_time").getTime()));
+                        epochTime));
             }
 
         }
@@ -208,10 +218,15 @@ public class DataManager {
                 while (resultSet.next()) {
                     int locationID = resultSet.getInt("location_id");
                     TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                    long epochTime = 0;
+                    final Timestamp timestamp = resultSet.getTimestamp("creation_time");
+                    if (timestamp != null) {
+                        epochTime = timestamp.getTime();
+                    }
                     warps.add(new Warp(teleportationPoint,
                             resultSet.getString("name"),
                             resultSet.getString("description"),
-                            resultSet.getTimestamp("creation_time").getTime()));
+                            epochTime));
                 }
             } else {
                 Bukkit.getLogger().severe("Result set of warps returned null!");
@@ -229,10 +244,15 @@ public class DataManager {
             if (resultSet.next()) {
                 int locationID = resultSet.getInt("location_id");
                 TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                long epochTime = 0;
+                final Timestamp timestamp = resultSet.getTimestamp("creation_time");
+                if (timestamp != null) {
+                    epochTime = timestamp.getTime();
+                }
                 return new Warp(teleportationPoint,
                         resultSet.getString("name"),
                         resultSet.getString("description"),
-                        resultSet.getTimestamp("creation_time").getTime());
+                        epochTime);
             }
         }
         return null;
@@ -505,13 +525,18 @@ public class DataManager {
                 if (resultSet.next()) {
                     final int locationID = resultSet.getInt("location_id");
                     final TeleportationPoint teleportationPoint = getTeleportationPoint(locationID, connection);
+                    long epochTime = 0;
+                    final Timestamp timestamp = resultSet.getTimestamp("creation_time");
+                    if (timestamp != null) {
+                        epochTime = timestamp.getTime();
+                    }
                     final Home home = new Home(teleportationPoint,
                             ownerUsername,
                             getPlayerUUID(resultSet.getInt("player_id"), connection),
                             resultSet.getString("name"),
                             resultSet.getString("description"),
                             resultSet.getBoolean("public"),
-                            resultSet.getTimestamp("creation_time").getTime());
+                            epochTime);
                     statement.close();
                     return home;
                 }

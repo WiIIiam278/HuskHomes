@@ -74,12 +74,8 @@ public class UpgradeDatabase {
             plugin.getLogger().info("Database upgrade needed: Adding creation timestamps to homes and warps...");
             try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
                     "ALTER TABLE " + HuskHomes.getSettings().getHomesDataTable()
-                            + " ADD `creation_time` timestamp NOT NULL DEFAULT 0;")) {
+                            + " ADD `creation_time` timestamp NULL DEFAULT NULL;")) {
                 tableUpdateStatement.execute();
-                try (PreparedStatement timeSettingStatement = HuskHomes.getConnection().prepareStatement(
-                        "UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `creation_time`=CURRENT_TIMESTAMP;")) {
-                    timeSettingStatement.executeUpdate();
-                }
                 plugin.getLogger().info("Database upgrade in progress... (1/2)");
             } catch (SQLException e) {
                 plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
@@ -87,12 +83,8 @@ public class UpgradeDatabase {
             }
             try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
                     "ALTER TABLE " + HuskHomes.getSettings().getWarpsDataTable()
-                            + " ADD `creation_time` timestamp NOT NULL DEFAULT 0;")) {
+                            + " ADD `creation_time` timestamp NULL DEFAULT NULL;")) {
                 tableUpdateStatement.execute();
-                try (PreparedStatement timeSettingStatement = HuskHomes.getConnection().prepareStatement(
-                        "UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `creation_time`=CURRENT_TIMESTAMP;")) {
-                    timeSettingStatement.executeUpdate();
-                }
                 plugin.getLogger().info("Database upgrade in progress... (2/2)");
             } catch (SQLException e) {
                 plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");

@@ -90,7 +90,7 @@ public class UpgradeDatabase {
                             + " ADD `creation_time` timestamp NOT NULL DEFAULT 0;")) {
                 tableUpdateStatement.execute();
                 try (PreparedStatement timeSettingStatement = HuskHomes.getConnection().prepareStatement(
-                        "UPDATE " + HuskHomes.getSettings().getHomesDataTable() + " SET `creation_time`=CURRENT_TIMESTAMP;")) {
+                        "UPDATE " + HuskHomes.getSettings().getWarpsDataTable() + " SET `creation_time`=CURRENT_TIMESTAMP;")) {
                     timeSettingStatement.executeUpdate();
                 }
                 plugin.getLogger().info("Database upgrade in progress... (2/2)");

@@ -28,14 +28,14 @@ public class DynMap extends Map {
 
     private static Plugin dynMap;
     private static final HuskHomes plugin = HuskHomes.getInstance();
-    private static final double MARKER_ICON_SCALE = 0.75;
+    private static final double MARKER_ICON_SCALE = 0.5;
 
-    // Returns the marker icons from the plugin resources in the correct format and scaled to look good with Dynmap
+    // Returns the marker icons from the plugin resources in the correct format and scaled to look good with DynMap
     private InputStream getScaledMarkerIconStream(BufferedImage image) {
         try {
-            BufferedImage scaledImage = new BufferedImage((int)(32 * MARKER_ICON_SCALE), (int)(32 * MARKER_ICON_SCALE), image.getType());
+            BufferedImage scaledImage = new BufferedImage((int)(32 * MARKER_ICON_SCALE), (int)(32 * MARKER_ICON_SCALE), BufferedImage.TYPE_INT_ARGB);
             AffineTransform scaleInstance = AffineTransform.getScaleInstance(MARKER_ICON_SCALE, MARKER_ICON_SCALE);
-            AffineTransformOp scaleOp = new AffineTransformOp(scaleInstance, AffineTransformOp.TYPE_BILINEAR);
+            AffineTransformOp scaleOp = new AffineTransformOp(scaleInstance, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
             scaleOp.filter(image, scaledImage);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ImageIO.write(scaledImage, "png", outputStream);
@@ -142,7 +142,7 @@ public class DynMap extends Map {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the DynMap");
+                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the DynMap", e);
             }
         });
 

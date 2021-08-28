@@ -19,6 +19,8 @@ public abstract class Database {
 
     public abstract void load();
 
+    public abstract void backup();
+
     public void initialize() {
         Connection connection = getConnection();
 

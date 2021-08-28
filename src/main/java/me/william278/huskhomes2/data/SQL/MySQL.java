@@ -114,4 +114,9 @@ public class MySQL extends Database {
 
         initialize();
     }
+
+    @Override
+    public void backup() {
+        plugin.getLogger().info("Remember to make backups of your HuskHomes Database before updating HuskHomes!");
+    }
 }

@@ -48,6 +48,7 @@ public class UpgradeDatabase {
         plugin.reloadConfig();
         if (plugin.getConfig().getInt("config_file_version", 1) <= 6) {
             plugin.getLogger().info("Database upgrade needed: Adding logout position tracking and ignoring request data...");
+            HuskHomes.backupDatabase(); // Backup database before upgrades are carried out!
             String[] statements = SQLiteUpgradeStatements;
             if (HuskHomes.getSettings().getDatabaseType().equalsIgnoreCase("mysql")) {
                 statements = mySQLUpgradeStatements;
@@ -72,6 +73,7 @@ public class UpgradeDatabase {
 
         if (plugin.getConfig().getInt("config_file_version", 1) <= 7) {
             plugin.getLogger().info("Database upgrade needed: Adding creation timestamps to homes and warps...");
+            HuskHomes.backupDatabase(); // Backup database before upgrades are carried out!
             try (PreparedStatement tableUpdateStatement = HuskHomes.getConnection().prepareStatement(
                     "ALTER TABLE " + HuskHomes.getSettings().getHomesDataTable()
                             + " ADD `creation_time` timestamp NULL DEFAULT NULL;")) {

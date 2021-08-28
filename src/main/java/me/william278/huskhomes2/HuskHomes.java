@@ -44,6 +44,7 @@ public final class HuskHomes extends JavaPlugin {
     public static Connection getConnection() {
         return database.getConnection();
     }
+    public static void backupDatabase() { database.backup(); }
 
     // Map integration handling
     private static Map map;

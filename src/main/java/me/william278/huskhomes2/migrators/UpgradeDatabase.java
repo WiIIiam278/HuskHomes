@@ -38,15 +38,19 @@ public class UpgradeDatabase {
 
             "INSERT INTO " + HuskHomes.getSettings().getPlayerDataTable() + "_dg_tmp(player_id, user_uuid, username, home_slots, rtp_cooldown, is_teleporting, dest_location_id, last_location_id, offline_location_id, is_ignoring_requests) select player_id, user_uuid, username, home_slots, rtp_cooldown, is_teleporting, dest_location_id, last_location_id, offline_location_id, is_ignoring_requests FROM " + HuskHomes.getSettings().getPlayerDataTable() + ";",
 
+            "PRAGMA foreign_keys = OFF;",
+
             "DROP TABLE " + HuskHomes.getSettings().getPlayerDataTable() + ";",
 
-            "ALTER TABLE " + HuskHomes.getSettings().getPlayerDataTable() + "_dg_tmp RENAME TO " + HuskHomes.getSettings().getPlayerDataTable() + ";"
+            "ALTER TABLE " + HuskHomes.getSettings().getPlayerDataTable() + "_dg_tmp RENAME TO " + HuskHomes.getSettings().getPlayerDataTable() + ";",
+
+            "PRAGMA foreign_keys = ON;"
     };
 
     // Upgrade the database system if the config file version is not high enough
     public static void upgradeDatabase() {
-        plugin.reloadConfig();
-        if (plugin.getConfig().getInt("config_file_version", 1) <= 6) {
+        plugin.reloadConfig(); //todo fix broken upgrade from v2.7 (config version 6)
+        if (plugin.getConfig().getInt("config_file_version", 1) <= 5) {
             plugin.getLogger().info("Database upgrade needed: Adding logout position tracking and ignoring request data...");
             HuskHomes.backupDatabase(); // Backup database before upgrades are carried out!
             String[] statements = SQLiteUpgradeStatements;
@@ -62,6 +66,7 @@ public class UpgradeDatabase {
                 } catch (SQLException e) {
                     plugin.getLogger().info("Skipped performing the database upgrade: " + e.getCause() + ". This might be because another server on your HuskHomes network already carried out the upgrade - in which case you can safely ignore this warning.");
                     e.printStackTrace();
+                    break;
                 }
             }
 

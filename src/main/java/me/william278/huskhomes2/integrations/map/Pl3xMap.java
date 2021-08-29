@@ -148,7 +148,7 @@ public class Pl3xMap extends Map {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the DynMap");
+                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Pl3xMap");
             }
         });
     }

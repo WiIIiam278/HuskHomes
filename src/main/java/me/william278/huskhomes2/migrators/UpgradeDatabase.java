@@ -1,12 +1,9 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import org.bukkit.Bukkit;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 
 public class UpgradeDatabase {
 

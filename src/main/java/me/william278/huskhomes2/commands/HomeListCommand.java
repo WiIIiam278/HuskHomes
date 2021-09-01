@@ -58,7 +58,11 @@ public class HomeListCommand extends CommandBase {
                 }
                 List<Home> homes = DataManager.getPlayerHomes(homeOwnerName, connection);
                 if (homes.isEmpty()) {
-                    MessageManager.sendMessage(player, "error_no_homes_set");
+                    if (!player.getName().equalsIgnoreCase(homeOwnerName)) {
+                        MessageManager.sendMessage(player, "error_no_homes_set_other", homeOwnerName);
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_homes_set");
+                    }
                     return;
                 }
 

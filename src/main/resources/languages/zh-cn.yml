@@ -115,3 +115,4 @@ tpignore_on_reminder: '[您当前正在忽略接受传送请求!](gray) [(点击
 error_ignoring_teleport_requests: '[错误:](#ff3300) [你当前正在忽略传送请求！](#ff7e5e) [(点击来切换)](#ff7e5e show_text=&#ff7e5e&单击以开启接受传送请求 run_command=/huskhomes:tpignore)'
 error_no_offline_position: '[错误:](#ff3300) [找不到 %1% 上次离线的位置.](#ff7e5e)'
 error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid player!](#ff7e5e)'
+error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'

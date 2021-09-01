@@ -117,3 +117,4 @@ tpignore_on_reminder: '[You are currently ignoring incoming teleport requests!](
 error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests!](#ff7e5e) [(Click to toggle)](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
 error_no_offline_position: '[Error:](#ff3300) [Could not find where %1% last logged out.](#ff7e5e)'
 error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid player!](#ff7e5e)'
+error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'

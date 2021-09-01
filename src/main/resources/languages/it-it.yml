@@ -115,3 +115,4 @@ tpignore_on_reminder: '[Le richieste di teletrasporto sono disabilitate!](gray) 
 error_ignoring_teleport_requests: '[Errore:](#ff3300) [Le richieste di teletrasporto sono disabilitate!](#ff7e5e) [(Clicca per abilitarle)](#ff7e5e show_text=&#ff7e5e&Clicca per abilitare le richieste di teletrasporto run_command=/huskhomes:tpignore)'
 error_no_offline_position: '[Errore:](#ff3300) [Non trovo la posizione in cui %1% è sloggato l''ultima volta.](#ff7e5e)'
 error_invalid_player: '[Errore:](#ff3300) [Specifica un nome valido!](#ff7e5e)'
+error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'

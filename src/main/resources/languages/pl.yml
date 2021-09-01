@@ -116,3 +116,6 @@ error_ignoring_teleport_requests: '[error:](#ff3300) [Obecnie ignorujesz prośby
 error_no_offline_position: '[error:](#ff3300) [Nie mogę znaleźć, gdzie ostatnio wylogował się%1%.](#ff7e5e)'
 error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid player!](#ff7e5e)'
 error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'
+error_home_invalid_other: '[Error:](#ff3300) [%1% doesn''t have a home set named "%2%"](#ff7e5e)'
+home_deleted_other: '[Successfully deleted %1%''s home,](#00fb9a) [%2%](#00fb9a bold)'
+edit_home_privacy_private_other: '• Access: &#ff7e5e&Private &7(Only %1% can use it)'

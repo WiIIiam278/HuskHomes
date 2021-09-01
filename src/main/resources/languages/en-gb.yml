@@ -118,3 +118,4 @@ error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring
 error_no_offline_position: '[Error:](#ff3300) [Could not find where %1% last logged out.](#ff7e5e)'
 error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid player!](#ff7e5e)'
 error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'
+error_home_invalid_other: '[Error:](#ff3300) [%1% doesn''t have a home set named "%2%"](#ff7e5e)'

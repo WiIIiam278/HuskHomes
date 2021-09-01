@@ -201,7 +201,11 @@ public class SettingHandler {
                             MessageManager.sendMessage(player, "home_deleted_other", ownerName, homeName);
                         }
                     } else {
-                        MessageManager.sendMessage(player, "error_home_invalid", homeName);
+                        if (!ownerName.equalsIgnoreCase(player.getName())) {
+                            MessageManager.sendMessage(player, "error_home_invalid_other", ownerName, homeName);
+                        } else {
+                            MessageManager.sendMessage(player, "error_home_invalid", homeName);
+                        }
                     }
                 } else {
                     if (homeName.equalsIgnoreCase("all")) {

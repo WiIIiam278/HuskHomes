@@ -59,7 +59,11 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
 
             try {
                 if (!DataManager.homeExists(ownerName, homeName, connection)) {
-                    MessageManager.sendMessage(p, "error_home_invalid", homeName);
+                    if (!ownerName.equalsIgnoreCase(p.getName())) {
+                        MessageManager.sendMessage(p, "error_home_invalid_other", ownerName, homeName);
+                    } else {
+                        MessageManager.sendMessage(p, "error_home_invalid", homeName);
+                    }
                     return;
                 }
                 Home home = DataManager.getHome(ownerName, homeName, connection);

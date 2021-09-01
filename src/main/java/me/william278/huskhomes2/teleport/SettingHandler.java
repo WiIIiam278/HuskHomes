@@ -177,7 +177,7 @@ public class SettingHandler {
 
     // Delete a home
     public static void deleteHome(Player player, String ownerName, String homeName) {
-        if (ownerName.equalsIgnoreCase(player.getName())) {
+        if (!ownerName.equalsIgnoreCase(player.getName())) {
             if (!player.hasPermission("huskhomes.delhome.other")) {
                 MessageManager.sendMessage(player, "error_no_permission");
                 return;

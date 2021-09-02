@@ -112,17 +112,13 @@ public class SQLite extends Database {
     @Override
     public void load() {
         connection = getConnection();
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                 statement.execute(tableCreationStatement);
             }
-            statement.close();
-        } catch (SQLException exception) {
-            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables: ", exception);
-            exception.printStackTrace();
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables: ", e);
         }
-
         initialize();
     }
 

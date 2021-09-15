@@ -14,7 +14,7 @@ data_storage_options:
     database: HuskHomes
     username: root
     password: pa55w0rd
-    params: '?autoReconnect=true&useSSL=false'
+    params: '?autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull'
   table_names:
     player_data: 'huskhomes_player_data'
     locations_data: 'huskhomes_location_data'

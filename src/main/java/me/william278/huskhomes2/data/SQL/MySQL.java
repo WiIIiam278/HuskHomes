@@ -64,12 +64,12 @@ public class MySQL extends Database {
                     ");"
     };
 
-    final String host = HuskHomes.getSettings().getMySQLhost();
-    final int port = HuskHomes.getSettings().getMySQLport();
-    final String database = HuskHomes.getSettings().getMySQLdatabase();
-    final String username = HuskHomes.getSettings().getMySQLusername();
-    final String password = HuskHomes.getSettings().getMySQLpassword();
-    final String params = HuskHomes.getSettings().getMySQLparams();
+    final String host = HuskHomes.getSettings().getMySQLHost();
+    final int port = HuskHomes.getSettings().getMySQLPort();
+    final String database = HuskHomes.getSettings().getMySQLDatabase();
+    final String username = HuskHomes.getSettings().getMySQLUsername();
+    final String password = HuskHomes.getSettings().getMySQLPassword();
+    final String params = HuskHomes.getSettings().getMySQLParams();
 
     private Connection connection;
 

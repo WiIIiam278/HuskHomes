@@ -32,12 +32,12 @@ public class Settings {
     private String warpsDataTable;
 
     // Connection settings for MySQL
-    private int mySQLport;
-    private String mySQLhost;
-    private String mySQLdatabase;
-    private String mySQLusername;
-    private String mySQLpassword;
-    private String mySQLparams;
+    private int mySQLPort;
+    private String mySQLHost;
+    private String mySQLDatabase;
+    private String mySQLUsername;
+    private String mySQLPassword;
+    private String mySQLParams;
 
     // Dynmap integration settings
     private boolean doMapIntegration;
@@ -83,7 +83,7 @@ public class Settings {
     // RTP command settings
     private boolean doRtpCommand;
     private int rtpRange;
-    private int rtpCooldown;
+    private int rtpCoolDown;
 
     // Spawn command settings
     private boolean doSpawnCommand;
@@ -133,12 +133,12 @@ public class Settings {
                 this.doBungee = false;
             }
 
-            this.mySQLhost = config.getString("data_storage_options.mysql_credentials.host", "localhost");
-            this.mySQLdatabase = config.getString("data_storage_options.mysql_credentials.database", "HuskHomes");
-            this.mySQLusername = config.getString("data_storage_options.mysql_credentials.username", "root");
-            this.mySQLpassword = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
-            this.mySQLport = config.getInt("data_storage_options.mysql_credentials.port", 3306);
-            this.mySQLparams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+            this.mySQLHost = config.getString("data_storage_options.mysql_credentials.host", "localhost");
+            this.mySQLDatabase = config.getString("data_storage_options.mysql_credentials.database", "HuskHomes");
+            this.mySQLUsername = config.getString("data_storage_options.mysql_credentials.username", "root");
+            this.mySQLPassword = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
+            this.mySQLPort = config.getInt("data_storage_options.mysql_credentials.port", 3306);
+            this.mySQLParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
 
             this.doMapIntegration = config.getBoolean("map_integration.enabled", false);
             this.mapPlugin = config.getString("map_integration.plugin", "dynmap");
@@ -217,7 +217,7 @@ public class Settings {
 
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled", true);
             this.rtpRange = config.getInt("random_teleport_command.range", 5000);
-            this.rtpCooldown = config.getInt("random_teleport_command.cooldown", 30);
+            this.rtpCoolDown = config.getInt("random_teleport_command.cooldown", 30);
 
             this.privateHomesPerPage = config.getInt("general.lists.private_homes_per_page", 10);
             this.publicHomesPerPage = config.getInt("general.lists.public_homes_per_page", 10);
@@ -293,7 +293,7 @@ public class Settings {
     }
 
     public int getRtpCoolDown() {
-        return rtpCooldown;
+        return rtpCoolDown;
     }
 
     public int getTeleportRequestExpiryTime() {
@@ -324,28 +324,28 @@ public class Settings {
         return warpsDataTable;
     }
 
-    public int getMySQLport() {
-        return mySQLport;
+    public int getMySQLPort() {
+        return mySQLPort;
     }
 
-    public String getMySQLhost() {
-        return mySQLhost;
+    public String getMySQLHost() {
+        return mySQLHost;
     }
 
-    public String getMySQLdatabase() {
-        return mySQLdatabase;
+    public String getMySQLDatabase() {
+        return mySQLDatabase;
     }
 
-    public String getMySQLusername() {
-        return mySQLusername;
+    public String getMySQLUsername() {
+        return mySQLUsername;
     }
 
-    public String getMySQLpassword() {
-        return mySQLpassword;
+    public String getMySQLPassword() {
+        return mySQLPassword;
     }
 
-    public String getMySQLparams() {
-        return mySQLparams;
+    public String getMySQLParams() {
+        return mySQLParams;
     }
 
     public boolean doSpawnCommand() {

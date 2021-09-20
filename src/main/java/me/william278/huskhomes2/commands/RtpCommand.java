@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 
 public class RtpCommand extends CommandBase {
@@ -31,8 +32,16 @@ public class RtpCommand extends CommandBase {
             } else {
                 MessageManager.sendMessage(p, "error_rtp_invalid_dimension");
             }
+        } else if (Bukkit.getPluginManager().getPlugin("HuskBungeeRTP") != null) {
+            StringJoiner commandForward = new StringJoiner(" ").add("huskbungeertp:rtp");
+            for (String argument : args) {
+                commandForward.add(argument);
+            }
+            p.performCommand(commandForward.toString());
         } else {
             MessageManager.sendMessage(p, "error_command_disabled");
         }
     }
 }
+
+

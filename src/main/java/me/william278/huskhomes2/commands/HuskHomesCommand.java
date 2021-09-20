@@ -5,7 +5,9 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.migrators.EssentialsMigrator;
 import me.william278.huskhomes2.util.ChatList;
+import me.william278.huskhomes2.util.UpdateChecker;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -24,7 +26,7 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
     private static final StringBuilder PLUGIN_INFORMATION = new StringBuilder()
             .append("[HuskHomes](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
-            .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
+            .append("[• Author:](white) [William278](gray show_text=&7Click to donate open_url=https://www.buymeacoffee.com/william278)\n")
             .append("[• Contributors:](white) [imDaniX](gray show_text=&7Code, refactoring), [Log1x](gray show_text=&7Code)\n")
             .append("[• Translators:](white) [SnivyJ](gray show_text=&7Simplified Chinese, zh-cn), [TonyPak](gray show_text=&7Traditional Chinese, zh-tw), [Villag3r_](gray show_text=&7Italian, it-it), [ReferTV](gray show_text=&7Polish, pl) \n")
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskHomes2/wiki/)\n")
@@ -73,32 +75,29 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
 
         switch (args[0]) {
             case "about", "info" -> {
-                if (sender instanceof Player p) {
-                    if (!p.hasPermission("huskhomes.about")) {
-                        MessageManager.sendMessage(p, "error_no_permission");
-                        return true;
-                    }
+                if (sender.hasPermission("huskhomes.about")) {
+                    sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                } else {
+                    sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_no_permission")).toComponent());
                 }
-                sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                 return true;
             }
             case "update" -> {
-                if (sender instanceof Player p) {
-                    if (p.hasPermission("huskhomes.version_checker")) {
-                        if (!HuskHomes.getVersionCheckString().contains("HuskHomes is up to date!")) {
-                            String updateMessage = "[Update:](dark_red) [" +
-                                    HuskHomes.getVersionCheckString() + "](red)\n" + "[Get the latest version:](gray) " +
-                                    "[[Download]](#00fb9a show_text=&7Click to visit webpage open_url=https://www.spigotmc.org/resources/huskhomes.83767/updates)";
-                            sender.spigot().sendMessage(new MineDown(updateMessage).toComponent());
-
+                if (sender.hasPermission("huskhomes.version_checker")) {
+                    sender.spigot().sendMessage(new MineDown("[Checking for HuskHomes updates...](gray)").toComponent());
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        UpdateChecker updateChecker = new UpdateChecker(plugin);
+                        if (updateChecker.isUpToDate()) {
+                            sender.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date, running Version " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                         } else {
-                            sender.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| HuskHomes is up-to-date! (Version " + plugin.getDescription().getVersion() + ")").toComponent());
+                            sender.spigot().sendMessage(
+                                    new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskHomes " + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
+                                            "\n[•](white) [Currently running:](#00fb9a) [Version " + updateChecker.getCurrentVersion() + "](gray)" +
+                                            "\n[•](white) [Download links:](#00fb9a) [[⏩ Spigot]](gray open_url=https://www.spigotmc.org/resources/huskhomes.83767/updates) [•](#262626) [[⏩ Polymart]](gray open_url=https://polymart.org/resource/huskhomes.284/updates)").toComponent());
                         }
-                    } else {
-                        MessageManager.sendMessage(p, "error_no_permission");
-                    }
+                    });
                 } else {
-                    plugin.getLogger().info(HuskHomes.getVersionCheckString());
+                    sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_no_permission")).toComponent());
                 }
                 return true;
             }

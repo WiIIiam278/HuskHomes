@@ -14,8 +14,8 @@ public class Settings {
     // Message language setting
     private String language;
 
-    // Automatically send update HuskHomes reminders
-    private boolean updateReminders;
+    // Automatically check for updates on startup
+    private boolean doStartupUpdateChecks;
 
     // Bungee settings
     private boolean doBungee;
@@ -31,7 +31,7 @@ public class Settings {
     private String homesDataTable;
     private String warpsDataTable;
 
-    // MySQL connection settings
+    // Connection settings for MySQL
     private int mySQLport;
     private String mySQLhost;
     private String mySQLdatabase;
@@ -111,7 +111,7 @@ public class Settings {
         try {
             this.language = config.getString("language", "en-gb");
 
-            this.updateReminders = config.getBoolean("check_for_updates", true);
+            this.doStartupUpdateChecks = config.getBoolean("check_for_updates", true);
 
             this.doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
             this.server = config.getString("bungee_options.server_id", "server");
@@ -412,8 +412,8 @@ public class Settings {
         return teleportCancelledSound;
     }
 
-    public boolean doUpdateChecks() {
-        return updateReminders;
+    public boolean doStartupUpdateChecks() {
+        return doStartupUpdateChecks;
     }
 
     public boolean doCrossServerTabCompletion() {

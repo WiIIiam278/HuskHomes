@@ -16,6 +16,7 @@ import me.william278.huskhomes2.listeners.PluginMessageListener;
 import me.william278.huskhomes2.migrators.UpgradeDatabase;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.util.PlayerList;
+import me.william278.huskhomes2.util.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -185,9 +186,9 @@ public final class HuskHomes extends JavaPlugin {
         // Load the messages (in the right language)
         MessageManager.loadMessages(HuskHomes.getSettings().getLanguage());
 
-        // Check for updates (if enabled)
-        if (HuskHomes.getSettings().doUpdateChecks()) {
-            getLogger().info(getVersionCheckString());
+        // Check for updates via console
+        if (HuskHomes.getSettings().doStartupUpdateChecks()) {
+            new UpdateChecker(this).logToConsole();
         }
 
         // Initialize the database

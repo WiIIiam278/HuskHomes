@@ -260,6 +260,9 @@ public final class HuskHomes extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Terminate the Hikari data source
+        database.close();
+
         // Cancel remaining tasks
         Bukkit.getServer().getScheduler().cancelTasks(this);
 

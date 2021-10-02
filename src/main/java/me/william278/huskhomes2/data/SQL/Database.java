@@ -18,6 +18,8 @@ public abstract class Database {
 
     public abstract void backup();
 
+    public abstract void close();
+
     public final int hikariMaximumPoolSize = HuskHomes.getSettings().getHikariMaximumPoolSize();
     public final int hikariMinimumIdle = HuskHomes.getSettings().getHikariMinimumIdle();
     public final long hikariMaximumLifetime = HuskHomes.getSettings().getHikariMaximumLifetime();

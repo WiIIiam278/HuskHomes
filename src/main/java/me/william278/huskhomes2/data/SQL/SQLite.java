@@ -130,6 +130,13 @@ public class SQLite extends Database {
     }
 
     @Override
+    public void close() {
+        if (dataSource != null) {
+            dataSource.close();
+        }
+    }
+
+    @Override
     public void backup() {
         final String BACKUPS_FOLDER_NAME = "database-backups";
         final String backupFileName = DATABASE_NAME + "Backup_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SS")

@@ -113,6 +113,13 @@ public class MySQL extends Database {
     }
 
     @Override
+    public void close() {
+        if (dataSource != null) {
+            dataSource.close();
+        }
+    }
+
+    @Override
     public void backup() {
         plugin.getLogger().info("Remember to make backups of your HuskHomes Database before updating HuskHomes!");
     }

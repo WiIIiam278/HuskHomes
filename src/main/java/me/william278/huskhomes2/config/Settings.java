@@ -40,6 +40,13 @@ public class Settings {
     private String mySQLPassword;
     private String mySQLParams;
 
+    // Hikari connection pool options
+    private int hikariMaximumPoolSize;
+    private int hikariMinimumIdle;
+    private long hikariMaximumLifetime;
+    private long hikariKeepAliveTime;
+    private long hikariConnectionTimeOut;
+
     // Redis connection settings
     private int redisPort;
     private String redisHost;
@@ -146,6 +153,12 @@ public class Settings {
             this.mySQLPassword = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
             this.mySQLPort = config.getInt("data_storage_options.mysql_credentials.port", 3306);
             this.mySQLParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+
+            this.hikariMaximumPoolSize = config.getInt("data_storage_options.connection_pool_options.maximum_pool_size", 10);
+            this.hikariMinimumIdle = config.getInt("data_storage_options.connection_pool_options.minimum_idle", 10);
+            this.hikariMaximumLifetime = config.getLong("data_storage_options.connection_pool_options.maximum_lifetime", 1800000);
+            this.hikariKeepAliveTime = config.getLong("data_storage_options.connection_pool_options.keepalive_time", 0);
+            this.hikariConnectionTimeOut = config.getLong("data_storage_options.connection_pool_options.connection_timeout", 5000);
 
             this.redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
             this.redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
@@ -477,5 +490,25 @@ public class Settings {
 
     public String getRedisPassword() {
         return redisPassword;
+    }
+
+    public int getHikariMaximumPoolSize() {
+        return hikariMaximumPoolSize;
+    }
+
+    public int getHikariMinimumIdle() {
+        return hikariMinimumIdle;
+    }
+
+    public long getHikariMaximumLifetime() {
+        return hikariMaximumLifetime;
+    }
+
+    public long getHikariKeepAliveTime() {
+        return hikariKeepAliveTime;
+    }
+
+    public long getHikariConnectionTimeOut() {
+        return hikariConnectionTimeOut;
     }
 }

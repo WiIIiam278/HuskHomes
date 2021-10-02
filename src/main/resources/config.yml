@@ -15,6 +15,12 @@ data_storage_options:
     username: root
     password: pa55w0rd
     params: '?autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull'
+  connection_pool_options:
+    maximum_pool_size: 10
+    minimum_idle: 10
+    maximum_lifetime: 1800000
+    keepalive_time: 0
+    connection_timeout: 5000
   table_names:
     player_data: 'huskhomes_player_data'
     locations_data: 'huskhomes_location_data'

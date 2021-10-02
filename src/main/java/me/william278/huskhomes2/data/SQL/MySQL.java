@@ -1,9 +1,9 @@
 package me.william278.huskhomes2.data.SQL;
 
+import com.zaxxer.hikari.HikariDataSource;
 import me.william278.huskhomes2.HuskHomes;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -71,7 +71,7 @@ public class MySQL extends Database {
     final String password = HuskHomes.getSettings().getMySQLPassword();
     final String params = HuskHomes.getSettings().getMySQLParams();
 
-    private Connection connection;
+    private HikariDataSource dataSource;
 
     public MySQL(HuskHomes instance) {
         super(instance);
@@ -79,34 +79,47 @@ public class MySQL extends Database {
 
     @Override
     public Connection getConnection() {
+        Connection connection = null;
         try {
-            if (connection == null || connection.isClosed()) {
+            if (dataSource == null || dataSource.isClosed()) {
                 try {
-                    synchronized (HuskHomes.getInstance()) {
-                        Class.forName("com.mysql.cj.jdbc.Driver");
-                        connection = (DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + params, username, password));
-                    }
-                } catch (SQLException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the mySQL database: ", ex);
-                } catch (ClassNotFoundException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "The mySQL JBDC library is missing! Please download and place this in the /lib folder.");
+                    // Create new HikariCP data source
+                    final String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database + params;
+                    HikariDataSource hikariDataSource = new HikariDataSource();
+                    hikariDataSource.setJdbcUrl(jdbcUrl);
+
+                    hikariDataSource.setUsername(username);
+                    hikariDataSource.setPassword(password);
+
+                    hikariDataSource.setMaximumPoolSize(hikariMaximumPoolSize);
+                    hikariDataSource.setMinimumIdle(hikariMinimumIdle);
+                    hikariDataSource.setMaxLifetime(hikariMaximumLifetime);
+                    hikariDataSource.setKeepaliveTime(hikariKeepAliveTime);
+                    hikariDataSource.setConnectionTimeout(hikariConnectionTimeOut);
+
+                    this.dataSource = hikariDataSource;
+                    connection = dataSource.getConnection();
+                } catch (SQLException e ) {
+                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred initialising a new connection via HikariCP", e);
                 }
+            } else {
+                connection = dataSource.getConnection();
             }
-        } catch (SQLException exception) {
-            plugin.getLogger().log(Level.WARNING, "An error occurred checking the status of the SQL connection: ", exception);
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred getting the mySQL connection via the existing Hikari pool", e);
         }
         return connection;
     }
 
     @Override
     public void load() {
-        connection = getConnection();
+        Connection connection = getConnection();
         try(Statement statement = connection.createStatement()) {
             for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                 statement.execute(tableCreationStatement);
             }
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables: ", e);
+            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
         }
         initialize();
     }

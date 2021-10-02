@@ -51,6 +51,10 @@
                             <pattern>redis.clients.jedis</pattern>
                             <shadedPattern>me.william278.huskhomes2.libraries.jedis</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.hikaricp</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -181,6 +185,12 @@
             <artifactId>jedis</artifactId>
             <version>2.7.2</version>
             <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

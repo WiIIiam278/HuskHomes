@@ -107,9 +107,8 @@ public class TeleportRequestHandler {
         TeleportRequest.RequestType requestType = teleportRequest.getRequestType();
         Player requester = Bukkit.getPlayer(requesterName);
 
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (requester != null) {
                     if (accepted) {
                         MessageManager.sendMessage(p, "tpa_you_accepted", requesterName);

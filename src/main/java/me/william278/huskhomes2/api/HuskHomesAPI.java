@@ -35,26 +35,28 @@ public class HuskHomesAPI {
     }
 
     /**
-     Returns a Home set by a player, or NULL if it does not exist
-     @param player A player
-     @param homeName Name of the player's home you wish to retrieve
-     @return the player's Home, or NULL if it does not exist
-     @see Home
+     * Returns a Home set by a player, or NULL if it does not exist
+     *
+     * @param player   A player
+     * @param homeName Name of the player's home you wish to retrieve
+     * @return the player's Home, or NULL if it does not exist
+     * @see Home
      */
     public Home getHome(Player player, String homeName) {
         return getHome(player.getName(), homeName);
     }
 
     /**
-     Returns a Home set by a player, or NULL if it does not exist
-     @param ownerUsername Username of the player
-     @param homeName Name of the player's home you wish to retrieve
-     @return the player's Home, or NULL if it does not exist
-     @see Home
+     * Returns a Home set by a player, or NULL if it does not exist
+     *
+     * @param ownerUsername Username of the player
+     * @param homeName      Name of the player's home you wish to retrieve
+     * @return the player's Home, or NULL if it does not exist
+     * @see Home
      */
     public Home getHome(String ownerUsername, String homeName) {
-        try {
-            return DataManager.getHome(ownerUsername, homeName, HuskHomes.getConnection());
+        try (Connection connection = HuskHomes.getConnection()) {
+            return DataManager.getHome(ownerUsername, homeName, connection);
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -62,14 +64,15 @@ public class HuskHomesAPI {
     }
 
     /**
-     Returns a Warp set on the server, or NULL if it does not exist
-     @param warpName Name of the warp
-     @return a Warp, or NULL if it does not exist
-     @see Warp
+     * Returns a Warp set on the server, or NULL if it does not exist
+     *
+     * @param warpName Name of the warp
+     * @return a Warp, or NULL if it does not exist
+     * @see Warp
      */
-    public Warp getWarp(String warpName)  {
-        try {
-            return DataManager.getWarp(warpName, HuskHomes.getConnection());
+    public Warp getWarp(String warpName) {
+        try (Connection connection = HuskHomes.getConnection()) {
+            return DataManager.getWarp(warpName, connection);
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -77,24 +80,26 @@ public class HuskHomesAPI {
     }
 
     /**
-     Returns an ArrayList of homes set by a Player
-     @param player A Player
-     @return an ArrayList of Homes
-     @see Home
+     * Returns an ArrayList of homes set by a Player
+     *
+     * @param player A Player
+     * @return an ArrayList of Homes
+     * @see Home
      */
     public List<Home> getHomes(Player player) {
         return getHomes(player.getName());
     }
 
     /**
-     Returns an ArrayList of homes set by a player
-     @param ownerUsername Username of the player who's homes you want to get
-     @return an ArrayList of Homes
-     @see Home
+     * Returns an ArrayList of homes set by a player
+     *
+     * @param ownerUsername Username of the player who's homes you want to get
+     * @return an ArrayList of Homes
+     * @see Home
      */
     public List<Home> getHomes(String ownerUsername) {
-        try {
-            return DataManager.getPlayerHomes(ownerUsername, HuskHomes.getConnection());
+        try (Connection connection = HuskHomes.getConnection()) {
+            return DataManager.getPlayerHomes(ownerUsername, connection);
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -103,6 +108,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns how many Homes a given Player has set
+     *
      * @param player the Player being checked
      * @return an integer of how many homes a player has set
      * @see Home
@@ -113,15 +119,19 @@ public class HuskHomesAPI {
 
     /**
      * Returns the maximum number of homes a player can set
+     *
      * @param player the Player being checked
      * @return the maximum homes a player can set
      * @deprecated Use getMaxSetHomes instead (capitalized H)
      */
     @Deprecated
-    public int getMaxSethomes(Player player) { return getMaxSetHomes(player); }
+    public int getMaxSethomes(Player player) {
+        return getMaxSetHomes(player);
+    }
 
     /**
      * Returns the maximum number of homes a player can set
+     *
      * @param player the Player being checked
      * @return the maximum homes a player can set
      */
@@ -131,15 +141,19 @@ public class HuskHomesAPI {
 
     /**
      * Returns the maximum number of homes a player can set
+     *
      * @param player the Player being checked
      * @return the maximum homes a player can set
      * @deprecated Use getFreeSetHomes instead (capitalized H)
      */
     @Deprecated
-    public int getFreeSethomes(Player player) { return getFreeSetHomes(player); }
+    public int getFreeSethomes(Player player) {
+        return getFreeSetHomes(player);
+    }
 
     /**
      * Returns the number of homes a player can set for free
+     *
      * @param player the Player being checked
      * @return the number of free homes a player can set
      */
@@ -148,13 +162,14 @@ public class HuskHomesAPI {
     }
 
     /**
-     Returns an ArrayList of all the public homes set
-     @return an ArrayList of Homes
-     @see Home
+     * Returns an ArrayList of all the public homes set
+     *
+     * @return an ArrayList of Homes
+     * @see Home
      */
     public List<Home> getPublicHomes() {
-        try {
-            return DataManager.getPublicHomes(HuskHomes.getConnection());
+        try (Connection connection = HuskHomes.getConnection()) {
+            return DataManager.getPublicHomes(connection);
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -163,6 +178,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns how many public Homes there are
+     *
      * @return an integer of how many public homes there are
      * @see Home
      */
@@ -171,13 +187,14 @@ public class HuskHomesAPI {
     }
 
     /**
-     Returns an ArrayList of all the warps set
-     @return an ArrayList of Warps
-     @see Warp
+     * Returns an ArrayList of all the warps set
+     *
+     * @return an ArrayList of Warps
+     * @see Warp
      */
     public List<Warp> getWarps() {
-        try {
-            return DataManager.getWarps(HuskHomes.getConnection());
+        try (Connection connection = HuskHomes.getConnection()) {
+            return DataManager.getWarps(connection);
         } catch (SQLException e) {
             huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred retrieving data for API access", e);
             return null;
@@ -186,6 +203,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns how many Warps have been set
+     *
      * @return an integer of how many warps have been set
      * @see Warp
      */
@@ -195,6 +213,7 @@ public class HuskHomesAPI {
 
     /**
      * Returns the current spawn position as a TeleportationPoint
+     *
      * @return the spawn position as a TeleportationPoint
      */
     public TeleportationPoint getSpawnPosition() {
@@ -203,30 +222,31 @@ public class HuskHomesAPI {
 
     /**
      * Updates a player's last position on the server
+     *
      * @param player The {@link Player} who's last position you wish to update
-     * @param point the {@link TeleportationPoint} to set as their new last position
+     * @param point  the {@link TeleportationPoint} to set as their new last position
      */
     public void updatePlayerLastPosition(Player player, TeleportationPoint point) {
         Bukkit.getScheduler().runTaskAsynchronously(huskHomes, () -> {
-           try {
-               DataManager.setPlayerLastPosition(player, point, HuskHomes.getConnection());
-           } catch (SQLException e) {
-               huskHomes.getLogger().severe("An SQL exception occurred updating a player's last position via the API.");
-           }
+            try (Connection connection = HuskHomes.getConnection()) {
+                DataManager.setPlayerLastPosition(player, point, connection);
+            } catch (SQLException e) {
+                huskHomes.getLogger().severe("An SQL exception occurred updating a player's last position via the API.");
+            }
         });
     }
 
     /**
      * Teleport a player to a specific TeleportationPoint
+     *
      * @param player The player to be teleported
-     * @param point The target teleportationPoint
-     * @param timed Whether to do a warmup countdown
+     * @param point  The target teleportationPoint
+     * @param timed  Whether to do a warmup countdown
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (timed) {
                     TeleportManager.queueTimedTeleport(player, point, connection);
                 } else {
@@ -240,15 +260,15 @@ public class HuskHomesAPI {
 
     /**
      * Teleport a player to a specific TeleportationPoint
-     * @param player The player to be teleported
+     *
+     * @param player           The player to be teleported
      * @param targetPlayerName The target player's name
-     * @param timed Whether to do a warmup countdown
+     * @param timed            Whether to do a warmup countdown
      * @see TeleportationPoint
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTask(huskHomes, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (timed) {
                     TeleportManager.queueTimedTeleport(player, targetPlayerName, connection);
                 } else {

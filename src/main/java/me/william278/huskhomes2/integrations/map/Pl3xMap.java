@@ -130,9 +130,8 @@ public class Pl3xMap extends Map {
         }
 
         // Populate map with markers
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (HuskHomes.getSettings().showPublicHomesOnMap()) {
                     for (Home home : DataManager.getPublicHomes(connection)) {
                         if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {

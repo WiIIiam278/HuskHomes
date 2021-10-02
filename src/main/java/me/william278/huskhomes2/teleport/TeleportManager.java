@@ -51,9 +51,8 @@ public class TeleportManager {
     }
 
     public static void teleportPlayer(Player p) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 TeleportationPoint teleportationPoint = DataManager.getPlayerDestination(p, connection);
                 if (teleportationPoint != null) {
                     String server = teleportationPoint.getServer();

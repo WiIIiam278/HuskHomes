@@ -25,9 +25,8 @@ public class TpCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 switch (args.length) {
                     default:
                     case 0:

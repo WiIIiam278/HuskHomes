@@ -42,7 +42,6 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             return;
         }
 
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             String homeName = args[0];
             String ownerName = p.getName();
@@ -57,7 +56,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 }
             }
 
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (!DataManager.homeExists(ownerName, homeName, connection)) {
                     if (!ownerName.equalsIgnoreCase(p.getName())) {
                         MessageManager.sendMessage(p, "error_home_invalid_other", ownerName, homeName);

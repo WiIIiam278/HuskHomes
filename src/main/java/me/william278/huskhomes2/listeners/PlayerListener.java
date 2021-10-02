@@ -29,9 +29,8 @@ public class PlayerListener implements Listener {
     public void onPlayerDie(PlayerDeathEvent e) {
         Player p = e.getEntity();
         if (p.hasPermission("huskhomes.back.death")) {
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerLastPosition(p, new TeleportationPoint(p.getLocation(), HuskHomes.getSettings().getServerID()), connection);
                     MessageManager.sendMessage(p, "return_by_death");
                 } catch (SQLException sqlException) {
@@ -47,9 +46,8 @@ public class PlayerListener implements Listener {
 
         // Create player on SQL if they don't exist already
         try {
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     if (!DataManager.playerExists(p, connection)) {
                         DataManager.createPlayer(p, connection);
                         if (TeleportManager.getSpawnLocation() != null) {
@@ -108,9 +106,8 @@ public class PlayerListener implements Listener {
         final UUID uuid = p.getUniqueId();
         if (!HuskHomes.isTeleporting(uuid)) {
             final Location logOutLocation = p.getLocation();
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerOfflinePosition(uuid,
                             new TeleportationPoint(logOutLocation, HuskHomes.getSettings().getServerID()),
                             connection);

@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class TpIgnoreCommand extends CommandBase {
@@ -28,8 +29,8 @@ public class TpIgnoreCommand extends CommandBase {
 
     private void setIgnoringRequestsData(Player player, boolean ignoring) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                DataManager.setPlayerIgnoringRequests(player, ignoring, HuskHomes.getConnection());
+            try (Connection connection = HuskHomes.getConnection()) {
+                DataManager.setPlayerIgnoringRequests(player, ignoring, connection);
                 if (ignoring) {
                     HuskHomes.setIgnoringTeleportRequests(player.getUniqueId());
                 } else {

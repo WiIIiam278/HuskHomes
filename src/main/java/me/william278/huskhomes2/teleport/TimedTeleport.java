@@ -89,9 +89,8 @@ public class TimedTeleport {
                 i[0] = i[0] -1;
                 if (i[0] == 0) {
                     cancel();
-                    Connection connection = HuskHomes.getConnection();
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try {
+                        try (Connection connection = HuskHomes.getConnection()) {
                             // Execute the teleport
                             switch (getTargetType()) {
                                 case POINT -> TeleportManager.teleportPlayer(player, targetPoint, connection);

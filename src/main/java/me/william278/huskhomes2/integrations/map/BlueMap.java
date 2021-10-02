@@ -25,11 +25,11 @@ public class BlueMap extends Map {
     private static String publicHomeMarkerImageAddress;
 
     private void executeQueuedOperations() {
-        try {
+        try (Connection connection = HuskHomes.getConnection()) {
             for (String warpName : queuedWarps.keySet()) {
                 boolean add = queuedWarps.get(warpName);
                 if (add) {
-                    Warp warpToAdd = DataManager.getWarp(warpName, HuskHomes.getConnection());
+                    Warp warpToAdd = DataManager.getWarp(warpName, connection);
                     if (warpToAdd != null) {
                         addWarpMarker(warpToAdd);
                     }
@@ -42,7 +42,7 @@ public class BlueMap extends Map {
                 String ownerName = fullHomeName.split("\\.")[0];
                 String homeName = fullHomeName.split("\\.")[1];
                 if (add) {
-                    Home homeToAdd = DataManager.getHome(ownerName, homeName, HuskHomes.getConnection());
+                    Home homeToAdd = DataManager.getHome(ownerName, homeName, connection);
                     if (homeToAdd != null) {
                         addPublicHomeMarker(homeToAdd);
                     }
@@ -156,8 +156,7 @@ public class BlueMap extends Map {
     @Override
     public void initialize() {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Connection connection = HuskHomes.getConnection();
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 for (Home home : DataManager.getPublicHomes(connection)) {
                     if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {
                         addPublicHomeMarker(home);

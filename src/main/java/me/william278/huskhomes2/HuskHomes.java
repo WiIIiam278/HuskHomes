@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -42,7 +43,7 @@ public final class HuskHomes extends JavaPlugin {
 
     // Database handling
     private static Database database;
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
         return database.getConnection();
     }
     public static void backupDatabase() { database.backup(); }

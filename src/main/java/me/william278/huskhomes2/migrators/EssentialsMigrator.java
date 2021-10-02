@@ -58,8 +58,7 @@ public class EssentialsMigrator {
                                 FileConfiguration playerFileConfig = loadConfiguration(playerFile);
                                 final String playerName = playerFileConfig.getString("last-account-name", playerFileConfig.getString("lastAccountName"));
                                 try {
-                                    Connection connection = HuskHomes.getConnection();
-                                    try {
+                                    try (Connection connection = HuskHomes.getConnection()) {
                                         if (!DataManager.playerExists(playerUUID, connection)) {
                                             DataManager.createPlayer(playerUUID, playerName, connection);
                                         }
@@ -121,9 +120,8 @@ public class EssentialsMigrator {
                     final File[] warpFiles = essentialsWarpsFolder.listFiles();
 
                     if (warpFiles != null) {
-                        Connection connection = HuskHomes.getConnection();
                         for (File warpFile : warpFiles) {
-                            try {
+                            try (Connection connection = HuskHomes.getConnection()) {
                                 final FileConfiguration warpFileConfig = loadConfiguration(warpFile);
                                 final String warpName = warpFileConfig.getString("name");
                                 String worldID = warpFileConfig.getString("world");

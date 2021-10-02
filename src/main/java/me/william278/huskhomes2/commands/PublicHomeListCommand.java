@@ -34,9 +34,8 @@ public class PublicHomeListCommand extends CommandBase {
     }
 
     public static void displayPublicHomeList(Player player, int pageNumber) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 List<Home> homes = DataManager.getPublicHomes(connection);
                 if (homes.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_public_homes_set");

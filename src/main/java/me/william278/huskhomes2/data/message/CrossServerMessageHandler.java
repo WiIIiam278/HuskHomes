@@ -23,10 +23,9 @@ public class CrossServerMessageHandler {
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
     public static void handlePluginMessage(Message receivedMessage, Player recipient) {
-        Connection connection = HuskHomes.getConnection();
         switch (receivedMessage.getMessageType()) {
             case SET_TP_DESTINATION -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerDestinationLocation(receivedMessage.getMessageData(),
                             new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
                     new PluginMessage(receivedMessage.getMessageData(), Message.MessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
@@ -63,7 +62,7 @@ public class CrossServerMessageHandler {
                 if (tpaAccepted) {
                     MessageManager.sendMessage(recipient, "tpa_has_accepted", tpaReplierName);
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try {
+                        try (Connection connection = HuskHomes.getConnection()) {
                             TeleportManager.queueTimedTeleport(recipient, tpaReplierName, connection);
                         } catch (SQLException e) {
                             plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport request reply");
@@ -83,7 +82,7 @@ public class CrossServerMessageHandler {
                 }
             }
             case TELEPORT_TO_ME -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     TeleportManager.teleportPlayer(recipient, receivedMessage.getMessageData(), connection);
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport-to-me request");

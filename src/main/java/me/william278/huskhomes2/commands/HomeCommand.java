@@ -30,9 +30,8 @@ public class HomeCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try(Connection connection = HuskHomes.getConnection()) {
                 if (args.length == 1) {
                     String homeArgument = args[0];
                     if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeArgument).matches()) {
@@ -66,9 +65,8 @@ public class HomeCommand extends CommandBase {
         // This method updates a player's home cache.
         public static void updatePlayerHomeCache(Player p) {
             UUID uuid = p.getUniqueId();
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try(Connection connection = HuskHomes.getConnection()) {
                     List<Home> playerHomes = DataManager.getPlayerHomes(p.getName(), connection);
                     List<String> homeNames = new ArrayList<>();
                     for (Home home : playerHomes) {

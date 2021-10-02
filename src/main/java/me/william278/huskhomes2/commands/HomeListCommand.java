@@ -43,7 +43,6 @@ public class HomeListCommand extends CommandBase {
     }
 
     public static void displayPlayerHomeList(Player player, String homeOwnerName, int pageNumber) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (!player.getName().equalsIgnoreCase(homeOwnerName)) {
                 if (!player.hasPermission("huskhomes.home.other")) {
@@ -51,7 +50,7 @@ public class HomeListCommand extends CommandBase {
                     return;
                 }
             }
-            try {
+            try(Connection connection = HuskHomes.getConnection()) {
                 if (!DataManager.playerExists(homeOwnerName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;

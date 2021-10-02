@@ -40,9 +40,8 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
         }
 
         String warpName = args[0];
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try(Connection connection = HuskHomes.getConnection()) {
                 if (!DataManager.warpExists(warpName, connection)) {
                     MessageManager.sendMessage(p, "error_warp_invalid", warpName);
                     return;

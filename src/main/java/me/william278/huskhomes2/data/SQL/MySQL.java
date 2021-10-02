@@ -78,50 +78,38 @@ public class MySQL extends Database {
     }
 
     @Override
-    public Connection getConnection() {
-        Connection connection = null;
-        try {
-            if (dataSource == null || dataSource.isClosed()) {
-                try {
-                    // Create new HikariCP data source
-                    final String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database + params;
-                    HikariDataSource hikariDataSource = new HikariDataSource();
-                    hikariDataSource.setJdbcUrl(jdbcUrl);
-
-                    hikariDataSource.setUsername(username);
-                    hikariDataSource.setPassword(password);
-
-                    hikariDataSource.setMaximumPoolSize(hikariMaximumPoolSize);
-                    hikariDataSource.setMinimumIdle(hikariMinimumIdle);
-                    hikariDataSource.setMaxLifetime(hikariMaximumLifetime);
-                    hikariDataSource.setKeepaliveTime(hikariKeepAliveTime);
-                    hikariDataSource.setConnectionTimeout(hikariConnectionTimeOut);
-
-                    this.dataSource = hikariDataSource;
-                    connection = dataSource.getConnection();
-                } catch (SQLException e ) {
-                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred initialising a new connection via HikariCP", e);
-                }
-            } else {
-                connection = dataSource.getConnection();
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred getting the mySQL connection via the existing Hikari pool", e);
-        }
-        return connection;
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 
     @Override
     public void load() {
-        Connection connection = getConnection();
-        try(Statement statement = connection.createStatement()) {
-            for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
-                statement.execute(tableCreationStatement);
+        // Create new HikariCP data source
+        final String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database + params;
+        dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(jdbcUrl);
+
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+
+        // Set various additional parameters
+        dataSource.setMaximumPoolSize(hikariMaximumPoolSize);
+        dataSource.setMinimumIdle(hikariMinimumIdle);
+        dataSource.setMaxLifetime(hikariMaximumLifetime);
+        dataSource.setKeepaliveTime(hikariKeepAliveTime);
+        dataSource.setConnectionTimeout(hikariConnectionTimeOut);
+        dataSource.setPoolName("HuskHomesHikariPool");
+
+        // Create tables
+        try(Connection connection = dataSource.getConnection()) {
+            try(Statement statement = connection.createStatement()) {
+                for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
+                    statement.execute(tableCreationStatement);
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
         }
-        initialize();
     }
 
     @Override

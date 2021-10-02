@@ -38,9 +38,8 @@ public class WarpCommand extends CommandBase {
         }
         if (args.length == 1) {
             String warpName = args[0];
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     if (DataManager.warpExists(warpName, connection)) {
                         if (Warp.getWarpCanUse(p, warpName)) {
                             Warp warp = DataManager.getWarp(warpName, connection);
@@ -74,9 +73,8 @@ public class WarpCommand extends CommandBase {
             targetPlayer = Bukkit.getPlayer(args[1]);
             if (targetPlayer != null) {
 
-                Connection connection = HuskHomes.getConnection();
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try {
+                    try (Connection connection = HuskHomes.getConnection()) {
                         if (DataManager.warpExists(warpName, connection)) {
                             Warp warp = DataManager.getWarp(warpName, connection);
                             TeleportManager.teleportPlayer(targetPlayer, warp, connection);
@@ -106,9 +104,8 @@ public class WarpCommand extends CommandBase {
         // Updates the public home cache
         public static void updateWarpsTabCache() {
             warpsTabCache.clear();
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     for (Warp warp : DataManager.getWarps(connection)) {
                         warpsTabCache.add(warp.getName());
                     }

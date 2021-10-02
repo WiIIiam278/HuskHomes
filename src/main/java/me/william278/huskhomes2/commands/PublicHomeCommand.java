@@ -35,9 +35,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
     // Updates the public home cache
     public static void updatePublicHomeTabCache() {
         publicHomeTabCache.clear();
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 for (Home home : DataManager.getPublicHomes(connection)) {
                     publicHomeTabCache.put(home.getName(), home.getOwnerUsername());
                 }
@@ -48,9 +47,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
     }
 
     public static void queueHomeTeleport(Player p, String publicHome) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 String[] split = publicHome.split("\\.");
                 String ownerName = split[0];
                 String homeName = split[1];
@@ -102,9 +100,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
                     String[] split = publicHomeName.split("\\.");
                     String ownerName = split[0];
                     String homeName = split[1];
-                    Connection connection = HuskHomes.getConnection();
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try {
+                        try (Connection connection = HuskHomes.getConnection()) {
                             if (DataManager.homeExists(ownerName, homeName, connection)) {
                                 Home home = DataManager.getHome(ownerName, homeName, connection);
                                 assert home != null;

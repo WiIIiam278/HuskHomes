@@ -22,9 +22,8 @@ public class SetHomeCommand extends CommandBase {
             String homeName = args[0];
             SettingHandler.setHome(p.getLocation(), p, homeName);
         } else {
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-               try {
+               try (Connection connection = HuskHomes.getConnection()) {
                    if (DataManager.getPlayerHomes(p.getName(), connection).size() == 0) {
                        // If the player hasn't set a home yet, set one called "home"
                        SettingHandler.setHome(p.getLocation(), p, "home");

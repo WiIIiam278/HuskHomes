@@ -20,9 +20,8 @@ public class SpawnCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (HuskHomes.getSettings().doSpawnCommand()) {
             String spawnWarpName = HuskHomes.getSettings().getSpawnWarpName();
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     // Cross server spawn teleport
                     if (HuskHomes.getSettings().doCrossServerSpawn()) {
                         if (DataManager.warpExists(spawnWarpName, connection)) {

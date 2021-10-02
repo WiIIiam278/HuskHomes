@@ -21,9 +21,8 @@ public class RtpCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (HuskHomes.getSettings().doRtpCommand()) {
             if (p.getWorld().getEnvironment() == World.Environment.NORMAL) {
-                Connection connection = HuskHomes.getConnection();
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try {
+                    try (Connection connection = HuskHomes.getConnection()) {
                         TeleportManager.queueRandomTeleport(p, connection);
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred queuing a Random teleport", e);

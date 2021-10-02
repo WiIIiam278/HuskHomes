@@ -16,9 +16,8 @@ public class BackCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player p, Command command, String label, String[] args) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 TeleportManager.queueBackTeleport(p, connection);
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting you back");

@@ -19,9 +19,8 @@ public class TpHereCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             String targetPlayer = args[0];
-            Connection connection = HuskHomes.getConnection();
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     TeleportManager.teleportHere(p, targetPlayer, connection);
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");

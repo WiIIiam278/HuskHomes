@@ -31,9 +31,8 @@ public class SettingHandler {
 
     // Set a home at the specified position
     public static void setHome(Location location, Player player, String name) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 SetHomeConditions setHomeConditions = new SetHomeConditions(player, name, connection);
                 if (setHomeConditions.areConditionsMet()) {
                     Home home = new Home(location, HuskHomes.getSettings().getServerID(), player, name, false);
@@ -67,9 +66,8 @@ public class SettingHandler {
     }
 
     public static void updateCrossServerSpawnWarp(Player p) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (SettingHandler.setCrossServerSpawnWarp(p.getLocation(), p, connection)) {
                     SettingHandler.setSpawnLocation(p.getLocation());
                     p.getWorld().setSpawnLocation(p.getLocation());
@@ -112,9 +110,8 @@ public class SettingHandler {
 
     // Set a warp at the specified position
     public static void setWarp(Location location, Player player, String name) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 SetWarpConditions setWarpConditions = new SetWarpConditions(name, connection);
                 if (setWarpConditions.areConditionsMet()) {
                     Warp warp = new Warp(location, HuskHomes.getSettings().getServerID(), name);
@@ -148,9 +145,8 @@ public class SettingHandler {
 
     // Delete all of a player's homes
     public static void deleteAllHomes(Player player) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 int homesDeleted = 0;
                 for (Home home : DataManager.getPlayerHomes(player.getName(), connection)) {
                     if (home != null) {
@@ -183,9 +179,8 @@ public class SettingHandler {
                 return;
             }
         }
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (DataManager.homeExists(ownerName, homeName, connection)) {
                     Home home = DataManager.getHome(ownerName, homeName, connection);
                     if (home != null) {
@@ -245,9 +240,8 @@ public class SettingHandler {
 
     // Delete all server warps
     public static void deleteAllWarps(Player player) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 int warpsDeleted = 0;
                 for (Warp warp : DataManager.getWarps(connection)) {
                     if (warp != null) {
@@ -277,9 +271,8 @@ public class SettingHandler {
 
     // Delete a warp
     public static void deleteWarp(Player player, String warpName) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (DataManager.warpExists(warpName, connection)) {
                     Warp warp = DataManager.getWarp(warpName, connection);
                     PlayerDeleteWarpEvent event = new PlayerDeleteWarpEvent(player, warp);

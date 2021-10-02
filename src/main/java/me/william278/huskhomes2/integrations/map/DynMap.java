@@ -122,9 +122,8 @@ public class DynMap extends Map {
         dynmapAPI.getMarkerAPI().createMarkerIcon(WARP_MARKER_IMAGE_NAME, "Warp", getScaledMarkerIconStream(getWarpIcon()));
         dynmapAPI.getMarkerAPI().createMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME, "Public Home", getScaledMarkerIconStream(getPublicHomeIcon()));
 
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (HuskHomes.getSettings().showPublicHomesOnMap()) {
                     dynmapAPI.getMarkerAPI().createMarkerSet(PUBLIC_HOMES_MARKER_SET_ID, HuskHomes.getSettings().getMapPublicHomeMarkerSet(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
                     for (Home home : DataManager.getPublicHomes(connection)) {

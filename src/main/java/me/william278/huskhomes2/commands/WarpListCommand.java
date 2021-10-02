@@ -35,9 +35,8 @@ public class WarpListCommand extends CommandBase {
     }
 
     public static void displayWarpList(Player player, int pageNumber) {
-        Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 List<Warp> warps = DataManager.getWarps(connection);
                 ArrayList<String> warpList = new ArrayList<>();
                 for (Warp warp : warps) {

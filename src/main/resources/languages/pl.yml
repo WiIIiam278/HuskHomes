@@ -88,7 +88,7 @@ error_console_only: '[error:](#ff3300) [To polecenie możesz wykonać tylko z ko
 error_tp_invalid_world: '[error:](#ff3300) [Podałeś niepoprwawny świat.](#ff7e5e)'
 error_rtp_randomization_timeout: '[error:](#ff3300) [Nie mogę znaleśc bezpiecznej lokalizacji dla Ciebie.](#ff7e5e)'
 list_item_divider: ' [•](gray) '
-home_list_item: '[[%1%]](show_text=&7%2% run_command=/huskhomes:edithome %2%.%1%)'
+home_list_item: '[[%1%]](show_text=&7%3% run_command=/huskhomes:edithome %2%.%1%)'
 public_home_list_item: '[[%1%]](show_text=&#00fb9a&%2%: &7%3% run_command=/huskhomes:phome %2%.%1%)'
 warp_list_item: '[[%1%]](show_text=&7%2% run_command=/huskhomes:warp %1%)'
 home_default_description: 'Dom %1%'

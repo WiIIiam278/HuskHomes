@@ -10,20 +10,13 @@
     <packaging>jar</packaging>
 
     <name>HuskHomes</name>
-
     <description>A powerful, intuitive and flexible teleportation suite</description>
+    <url>https://timetobattle.net</url>
+
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <url>https://timetobattle.net</url>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>apache.snapshots</id>
-            <url>https://repository.apache.org/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <build>
         <plugins>
@@ -44,15 +37,19 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>me.william278.huskhomes2.bstats</shadedPattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.bstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
-                            <shadedPattern>me.william278.huskhomes2.minedown</shadedPattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.minedown</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.papermc.lib</pattern>
-                            <shadedPattern>me.william278.huskhomes2.paperlib</shadedPattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.paperlib</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>redis.clients.jedis</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.jedis</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -177,6 +174,13 @@
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.7.2</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
     </dependencies>

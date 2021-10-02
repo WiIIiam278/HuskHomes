@@ -19,10 +19,11 @@ public class Settings {
 
     // Bungee settings
     private boolean doBungee;
-    private int clusterID;
+    private int clusterId;
     private String server;
     private boolean doCrossServerTabCompletion;
     private int crossServerTabUpdateDelay;
+    private String messengerType;
 
     // Data storage settings
     private String storageType;
@@ -38,6 +39,11 @@ public class Settings {
     private String mySQLUsername;
     private String mySQLPassword;
     private String mySQLParams;
+
+    // Redis connection settings
+    private int redisPort;
+    private String redisHost;
+    private String redisPassword;
 
     // Dynmap integration settings
     private boolean doMapIntegration;
@@ -115,9 +121,10 @@ public class Settings {
 
             this.doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
             this.server = config.getString("bungee_options.server_id", "server");
-            this.clusterID = config.getInt("bungee_options.cluster_id", 0);
+            this.clusterId = config.getInt("bungee_options.cluster_id", 0);
             this.doCrossServerTabCompletion = config.getBoolean("bungee_options.tab_complete_cross_server.enabled", true);
             this.crossServerTabUpdateDelay = config.getInt("bungee_options.tab_complete_cross_server.delay", 60);
+            this.messengerType = config.getString("bungee_options.messenger_type", "pluginmessage");
 
             this.storageType = config.getString("data_storage_options.storage_type", "SQLite");
             this.playerDataTable = config.getString("data_storage_options.table_names.player_data", "huskhomes_player_data");
@@ -139,6 +146,10 @@ public class Settings {
             this.mySQLPassword = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
             this.mySQLPort = config.getInt("data_storage_options.mysql_credentials.port", 3306);
             this.mySQLParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+
+            this.redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
+            this.redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
+            this.redisPassword = config.getString("bungee_options.redis_credentials.password", "");
 
             this.doMapIntegration = config.getBoolean("map_integration.enabled", false);
             this.mapPlugin = config.getString("map_integration.plugin", "dynmap");
@@ -280,8 +291,8 @@ public class Settings {
         return server;
     }
 
-    public int getClusterID() {
-        return clusterID;
+    public int getClusterId() {
+        return clusterId;
     }
 
     public boolean doBungee() {
@@ -450,5 +461,21 @@ public class Settings {
 
     public boolean doUnicodeInDescriptions() {
         return allowUnicodeInDescriptions;
+    }
+
+    public String getMessengerType() {
+        return messengerType;
+    }
+
+    public int getRedisPort() {
+        return redisPort;
+    }
+
+    public String getRedisHost() {
+        return redisHost;
+    }
+
+    public String getRedisPassword() {
+        return redisPassword;
     }
 }

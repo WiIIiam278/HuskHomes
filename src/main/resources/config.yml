@@ -40,6 +40,11 @@ bungee_options:
   enable_bungee_mode: false
   server_id: 'server'
   cluster_id: 0
+  messenger_type: 'pluginmessage'
+  redis_credentials:
+    host: localhost
+    port: 6379
+    password: ''
   tab_complete_cross_server:
     enabled: true
     delay: 60

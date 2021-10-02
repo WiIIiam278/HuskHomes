@@ -12,7 +12,7 @@ import me.william278.huskhomes2.integrations.map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.integrations.map.Pl3xMap;
 import me.william278.huskhomes2.listeners.PlayerListener;
-import me.william278.huskhomes2.listeners.PluginMessageListener;
+import me.william278.huskhomes2.data.message.pluginmessage.PluginMessageReceiver;
 import me.william278.huskhomes2.migrators.UpgradeDatabase;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.util.PlayerList;
@@ -122,7 +122,7 @@ public final class HuskHomes extends JavaPlugin {
 
     private void setupBungeeChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageListener());
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
     }
 
     private void registerCommands() {

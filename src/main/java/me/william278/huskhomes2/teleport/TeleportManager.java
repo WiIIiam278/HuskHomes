@@ -1,11 +1,13 @@
 package me.william278.huskhomes2.teleport;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import io.papermc.lib.PaperLib;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
+import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
+import me.william278.huskhomes2.data.message.Message;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
@@ -37,6 +39,17 @@ public class TeleportManager {
         teleportPlayer(player);
     }
 
+    // Move a player to a different server in the bungee network
+    @SuppressWarnings("UnstableApiUsage")
+    private static void movePlayerServer(Player p, String targetServer) {
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(targetServer);
+            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        });
+    }
+
     public static void teleportPlayer(Player p) {
         Connection connection = HuskHomes.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -56,7 +69,7 @@ public class TeleportManager {
                     } else if (HuskHomes.getSettings().doBungee()) {
                         DataManager.setPlayerDestinationLocation(p, teleportationPoint, connection);
                         DataManager.setPlayerTeleporting(p, true, connection);
-                        PluginMessage.sendPlayer(p, server);
+                        movePlayerServer(p, server);
                     }
                 }
             } catch (SQLException sqlException) {
@@ -192,11 +205,11 @@ public class TeleportManager {
     }
 
     private static void teleportHereCrossServer(Player requester, String targetPlayerName) {
-        new PluginMessage(targetPlayerName, PluginMessageType.TELEPORT_TO_ME, requester.getName()).send(requester);
+        CrossServerMessageHandler.getMessage(targetPlayerName, Message.MessageType.TELEPORT_TO_ME, requester.getName()).send(requester);
     }
 
     private static void setTeleportationDestinationCrossServer(Player requester, String targetPlayerName) {
-        new PluginMessage(targetPlayerName, PluginMessageType.SET_TP_DESTINATION, requester.getName()).send(requester);
+        CrossServerMessageHandler.getMessage(targetPlayerName, Message.MessageType.SET_TP_DESTINATION, requester.getName()).send(requester);
     }
 
     public static void setPlayerDestinationFromTargetPlayer(Player requester, String targetPlayerName, Connection connection) throws SQLException {

@@ -1,8 +1,9 @@
 package me.william278.huskhomes2.util;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
+import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
+import me.william278.huskhomes2.data.message.Message;
+import me.william278.huskhomes2.data.message.pluginmessage.PluginMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -33,7 +34,7 @@ public class PlayerList {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             players.clear();
             if (HuskHomes.getSettings().doBungee() && HuskHomes.getSettings().doCrossServerTabCompletion()) {
-                Bukkit.getScheduler().runTask(plugin, () -> new PluginMessage(PluginMessageType.GET_PLAYER_LIST, HuskHomes.getSettings().getServerID()).sendToServer(updateRequester));
+                Bukkit.getScheduler().runTask(plugin, () -> CrossServerMessageHandler.getMessage(Message.MessageType.GET_PLAYER_LIST, HuskHomes.getSettings().getServerID()).sendToAllServers(updateRequester));
             }
             for (Player player : Bukkit.getOnlinePlayers()) {
                 players.add(player.getName());

@@ -25,12 +25,17 @@ public class UpdateChecker {
             this.latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
         } catch (IOException e) {
             this.plugin.getLogger().log(Level.WARNING, "An IOException occurred when trying to check for updates.");
+            this.latestVersion = "Unknown";
         } catch (Exception e) {
             this.plugin.getLogger().log(Level.WARNING, "An exception occurred when trying to check for updates.");
+            this.latestVersion = "Unknown";
         }
     }
 
     public boolean isUpToDate() {
+        if (latestVersion.equalsIgnoreCase("Unknown")) {
+            return true;
+        }
         return latestVersion.equals(currentVersion);
     }
 

@@ -2,8 +2,9 @@ package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessage;
-import me.william278.huskhomes2.data.pluginmessage.PluginMessageType;
+import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
+import me.william278.huskhomes2.data.message.Message;
+import me.william278.huskhomes2.data.message.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.integrations.VanishChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,17 +24,17 @@ public class TeleportRequestHandler {
 
     private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, TeleportRequest.RequestType requestType) {
         if (requestType == TeleportRequest.RequestType.TPA) {
-            new PluginMessage(targetPlayerName, PluginMessageType.TPA_REQUEST, requester.getName()).send(requester);
+            CrossServerMessageHandler.getMessage(targetPlayerName, Message.MessageType.TPA_REQUEST, requester.getName()).send(requester);
         } else if (requestType == TeleportRequest.RequestType.TPA_HERE) {
-            new PluginMessage(targetPlayerName, PluginMessageType.TPA_HERE_REQUEST, requester.getName()).send(requester);
+            CrossServerMessageHandler.getMessage(targetPlayerName, Message.MessageType.TPA_HERE_REQUEST, requester.getName()).send(requester);
         }
     }
 
     private static void replyTeleportRequestCrossServer(Player replier, String requesterName, TeleportRequest.RequestType requestType, boolean accepted) {
         if (requestType == TeleportRequest.RequestType.TPA) {
-            new PluginMessage(requesterName, PluginMessageType.TPA_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
+            CrossServerMessageHandler.getMessage(requesterName, Message.MessageType.TPA_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
         } else if (requestType == TeleportRequest.RequestType.TPA_HERE) {
-            new PluginMessage(requesterName, PluginMessageType.TPA_HERE_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
+            CrossServerMessageHandler.getMessage(requesterName, Message.MessageType.TPA_HERE_REQUEST_REPLY, replier.getName(), Boolean.toString(accepted)).send(replier);
         }
     }
 

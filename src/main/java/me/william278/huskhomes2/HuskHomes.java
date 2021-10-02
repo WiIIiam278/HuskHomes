@@ -187,6 +187,8 @@ public final class HuskHomes extends JavaPlugin {
     public void onEnable() {
         // Fetch config file
         saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         settings.reload();
 
         // Load the messages (in the right language)

@@ -40,7 +40,7 @@ public class RedisReceiver {
 
                 /* HuskHomes Redis messages have a header formatted as such:
                  * <cluster_id>:<message_type>:<target_player>£ followed by the message arguments and data. */
-                final String[] splitMessage = message.split("£");
+                final String[] splitMessage = message.split(RedisMessage.REDIS_MESSAGE_HEADER_SEPARATOR);
                 final String messageHeader = splitMessage[0];
                 int clusterID;
 

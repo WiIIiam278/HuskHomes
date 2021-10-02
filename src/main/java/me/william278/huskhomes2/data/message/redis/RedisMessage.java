@@ -8,6 +8,7 @@ import redis.clients.jedis.Jedis;
 
 public class RedisMessage extends Message {
 
+    public static final String REDIS_MESSAGE_HEADER_SEPARATOR = "£";
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
     public RedisMessage(String targetPlayerName, MessageType pluginMessageType, String... messageData) {
@@ -30,7 +31,7 @@ public class RedisMessage extends Message {
                     publisher.auth(jedisPassword);
                 }
                 publisher.connect();
-                publisher.publish(RedisReceiver.REDIS_CHANNEL, getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":" + target);
+                publisher.publish(RedisReceiver.REDIS_CHANNEL, getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":" + target + REDIS_MESSAGE_HEADER_SEPARATOR + getMessageData());
             }
         });
     }

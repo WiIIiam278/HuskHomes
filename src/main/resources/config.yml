@@ -66,13 +66,6 @@ spawn_command:
   bungee_network_spawn:
     enabled: false
     warp_name: 'Spawn'
-  position:
-    world:
-    x:
-    y:
-    z:
-    yaw:
-    pitch:
 random_teleport_command:
   enabled: true
   cooldown: 30

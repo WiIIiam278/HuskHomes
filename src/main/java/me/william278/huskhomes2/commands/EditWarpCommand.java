@@ -149,7 +149,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                     }
 
                     // Confirmation message
-                    MessageManager.sendMessage(p, "edit_warp_update_description", warpName, MineDown.escape(newDescriptionString.replace("]", "\\]").replace("[", "\\[").replace("(", "\\(").replace(")", "\\)")));
+                    MessageManager.sendMessage(p, "edit_warp_update_description", warpName, MineDown.escape(newDescriptionString).replace("]", "\\]").replace("[", "\\[").replace("(", "\\(").replace(")", "\\)"));
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a warp's description.");
                 }

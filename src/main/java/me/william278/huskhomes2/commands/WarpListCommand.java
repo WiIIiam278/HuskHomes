@@ -48,10 +48,10 @@ public class WarpListCommand extends CommandBase {
                         }
                     }
                     warpList.add(MessageManager.getRawMessage("warp_list_item", warp.getName(),
-                            MineDown.escape(warp.getDescription().replace("]", "\\]")
+                            MineDown.escape(warp.getDescription()).replace("]", "\\]")
                             .replace("[", "\\[")
                             .replace("(", "\\(")
-                            .replace(")", "\\)"))));
+                            .replace(")", "\\)")));
                 }
                 if (warpList.isEmpty()) {
                     MessageManager.sendMessage(player, "error_no_warps_set");

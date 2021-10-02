@@ -67,10 +67,11 @@ public class HomeListCommand extends CommandBase {
 
                 ArrayList<String> homeList = new ArrayList<>();
                 for (Home home : homes) {
-                    homeList.add(MessageManager.getRawMessage("home_list_item", home.getName(), MineDown.escape(home.getDescription().replace("]", "\\]")
+                    homeList.add(MessageManager.getRawMessage("home_list_item", home.getName(), MineDown.escape(home.getDescription())
+                            .replace("]", "\\]")
                             .replace("[", "\\[")
                             .replace("(", "\\(")
-                            .replace(")", "\\)"))));
+                            .replace(")", "\\)")));
                 }
 
                 final int itemsPerPage = HuskHomes.getSettings().getPrivateHomesPerPage();

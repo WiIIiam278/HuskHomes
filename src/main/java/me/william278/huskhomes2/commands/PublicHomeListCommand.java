@@ -1,5 +1,6 @@
 package me.william278.huskhomes2.commands;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
@@ -43,7 +44,10 @@ public class PublicHomeListCommand extends CommandBase {
                 }
                 ArrayList<String> publicHomeList = new ArrayList<>();
                 for (Home home : homes) {
-                    publicHomeList.add(MessageManager.getRawMessage("public_home_list_item", home.getName(), home.getOwnerUsername(), home.getDescription()));
+                    publicHomeList.add(MessageManager.getRawMessage("public_home_list_item", home.getName(), home.getOwnerUsername(), MineDown.escape(home.getDescription().replace("]", "\\]")
+                            .replace("[", "\\[")
+                            .replace("(", "\\(")
+                            .replace(")", "\\)"))));
                 }
 
                 final int itemsPerPage = HuskHomes.getSettings().getPublicHomesPerPage();

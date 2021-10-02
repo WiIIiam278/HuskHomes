@@ -74,13 +74,13 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 }
 
                 switch (args[1].toLowerCase(Locale.ENGLISH)) {
-                    case "location" -> editHomeLocation(p, home, connection);
-                    case "public" -> editHomePrivacy(p, home, true, connection);
-                    case "private" -> editHomePrivacy(p, home, false, connection);
+                    case "location" -> editHomeLocation(p, home);
+                    case "public" -> editHomePrivacy(p, home, true);
+                    case "private" -> editHomePrivacy(p, home, false);
                     case "description" -> {
                         if (args.length >= 3) {
                             // Get the new description
-                            editHomeDescription(p, home, buildDescription(args), connection);
+                            editHomeDescription(p, home, buildDescription(args));
                         } else {
                             MessageManager.sendMessage(p, "error_invalid_syntax", "/edithome <home> description <new description>");
                         }
@@ -112,7 +112,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         return newDescription.toString();
     }
 
-    private void editHomeLocation(Player p, Home locationMovedHome, Connection connection) throws SQLException {
+    private void editHomeLocation(Player p, Home locationMovedHome) throws SQLException {
         Location newLocation = p.getLocation();
         TeleportationPoint newTeleportLocation = new TeleportationPoint(newLocation, HuskHomes.getSettings().getServerID());
 
@@ -123,7 +123,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
             if (relocateHomeEvent.isCancelled()) {
                 return;
             }
-            try {
+            try (Connection connection = HuskHomes.getConnection()) {
                 // Remove old marker on map
                 if (locationMovedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                     HuskHomes.getMap().removePublicHomeMarker(locationMovedHome.getName(), locationMovedHome.getOwnerUsername());
@@ -143,7 +143,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
-    private void editHomeDescription(Player p, Home descriptionChangedHome, String newDescriptionString, Connection connection) throws SQLException {
+    private void editHomeDescription(Player p, Home descriptionChangedHome, String newDescriptionString) throws SQLException {
         assert descriptionChangedHome != null;
         PlayerChangeHomeDescriptionEvent changeHomeDescriptionEvent = new PlayerChangeHomeDescriptionEvent(p, descriptionChangedHome, newDescriptionString);
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -152,7 +152,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     // Check the description is valid
                     if (newDescriptionString.length() > 255) {
                         MessageManager.sendMessage(p, "error_edit_home_description_length");
@@ -209,15 +209,15 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection1 = HuskHomes.getConnection()) {
                     if (renamedHome.isPublic()) {
                         if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
                             HuskHomes.getMap().removePublicHomeMarker(oldHomeName, renamedHome.getOwnerUsername());
                         }
-                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection);
+                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection1);
                         PublicHomeCommand.updatePublicHomeTabCache();
                     } else {
-                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection);
+                        DataManager.updateHomeName(renamedHome.getOwnerUsername(), oldHomeName, newName, connection1);
                     }
                     renamedHome.setName(newName);
                     if (renamedHome.isPublic() && HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
@@ -232,7 +232,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         });
     }
 
-    private void editHomePrivacy(Player p, Home privacyUpdatingHome, boolean makingHomePublic, Connection connection) throws SQLException {
+    private void editHomePrivacy(Player p, Home privacyUpdatingHome, boolean makingHomePublic) throws SQLException {
         assert privacyUpdatingHome != null;
         if (makingHomePublic) {
             // Making a private home
@@ -259,7 +259,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try {
+                        try (Connection connection = HuskHomes.getConnection()) {
                             DataManager.updateHomePrivacy(privacyUpdatingHome.getOwnerUsername(), privacyUpdatingHome.getName(), true, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();
                             if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {
@@ -282,7 +282,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try {
+                        try (Connection connection = HuskHomes.getConnection()) {
                             DataManager.updateHomePrivacy(privacyUpdatingHome.getOwnerUsername(), privacyUpdatingHome.getName(), false, connection);
                             MessageManager.sendMessage(p, "edit_home_privacy_private_success", privacyUpdatingHome.getName());
                             if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showPublicHomesOnMap()) {

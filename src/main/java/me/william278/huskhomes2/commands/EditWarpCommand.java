@@ -41,7 +41,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
 
         String warpName = args[0];
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try(Connection connection = HuskHomes.getConnection()) {
+            try (Connection connection = HuskHomes.getConnection()) {
                 if (!DataManager.warpExists(warpName, connection)) {
                     MessageManager.sendMessage(p, "error_warp_invalid", warpName);
                     return;
@@ -91,13 +91,13 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
             if (relocateWarpEvent.isCancelled()) {
                 return;
             }
-            try {
+            try (Connection connection1 = HuskHomes.getConnection()) {
                 // Remove old marker on map
                 if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
                     HuskHomes.getMap().removeWarpMarker(warpName);
                 }
 
-                DataManager.updateWarpLocation(warpName, newLocation, connection);
+                DataManager.updateWarpLocation(warpName, newLocation, connection1);
                 MessageManager.sendMessage(p, "edit_warp_update_location", warpName);
 
                 // Add new updated marker on map
@@ -121,7 +121,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection1 = HuskHomes.getConnection()) {
                     // Check the description is valid
                     if (newDescriptionString.length() > 255) {
                         MessageManager.sendMessage(p, "error_edit_warp_description_length");
@@ -140,7 +140,7 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                     }
 
                     // Update description
-                    DataManager.updateWarpDescription(warpName, newDescriptionString, connection);
+                    DataManager.updateWarpDescription(warpName, newDescriptionString, connection1);
 
                     // Add new marker to map if applicable
                     descriptionChangedWarp.setDescription(newDescriptionString);
@@ -179,11 +179,11 @@ public class EditWarpCommand extends CommandBase implements TabCompleter {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection1 = HuskHomes.getConnection()) {
                     if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {
                         HuskHomes.getMap().removeWarpMarker(warpName);
                     }
-                    DataManager.updateWarpName(warpName, newName, connection);
+                    DataManager.updateWarpName(warpName, newName, connection1);
                     WarpCommand.Tab.updateWarpsTabCache();
                     renamedWarp.setName(newName);
                     if (HuskHomes.getSettings().doMapIntegration() && HuskHomes.getSettings().showWarpsOnMap()) {

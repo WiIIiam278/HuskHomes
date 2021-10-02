@@ -180,7 +180,7 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                     }
 
                     // Confirmation message
-                    MessageManager.sendMessage(p, "edit_home_update_description", descriptionChangedHome.getName(), MineDown.escape(newDescriptionString.replace("]", "］").replace("[", "［").replace("(", "❲").replace(")", "❳")));
+                    MessageManager.sendMessage(p, "edit_home_update_description", descriptionChangedHome.getName(), MineDown.escape(newDescriptionString.replace("]", "\\]").replace("[", "\\[").replace("(", "\\(").replace(")", "\\)")));
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a home description.");
                 }

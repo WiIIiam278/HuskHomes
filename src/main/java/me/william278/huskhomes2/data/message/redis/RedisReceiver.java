@@ -15,7 +15,7 @@ public class RedisReceiver {
 
     public static final String REDIS_CHANNEL = "HuskHomes";
 
-    public static Player getRandomReceiver() {
+    private static Player getRandomReceiver() {
         ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         if (players.isEmpty()) {
             return null;

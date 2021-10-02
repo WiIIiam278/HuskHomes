@@ -6,6 +6,7 @@ import me.william278.huskhomes2.config.Settings;
 import me.william278.huskhomes2.data.SQL.Database;
 import me.william278.huskhomes2.data.SQL.MySQL;
 import me.william278.huskhomes2.data.SQL.SQLite;
+import me.william278.huskhomes2.data.message.redis.RedisReceiver;
 import me.william278.huskhomes2.integrations.map.BlueMap;
 import me.william278.huskhomes2.integrations.map.DynMap;
 import me.william278.huskhomes2.integrations.map.Map;
@@ -121,9 +122,13 @@ public final class HuskHomes extends JavaPlugin {
         }
     }
 
-    private void setupBungeeChannels() {
+    private void setupMessagingChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
+        if (getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
+            Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
+        } else {
+            RedisReceiver.listen();
+        }
     }
 
     private void registerCommands() {
@@ -219,7 +224,7 @@ public final class HuskHomes extends JavaPlugin {
 
         // Set up bungee channels if bungee mode is enabled
         if (getSettings().doBungee()) {
-            setupBungeeChannels();
+            setupMessagingChannels();
         }
 
         // Register commands and tab completion handlers

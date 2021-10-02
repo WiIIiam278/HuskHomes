@@ -30,7 +30,7 @@ public class RedisMessage extends Message {
                     publisher.auth(jedisPassword);
                 }
                 publisher.connect();
-                publisher.publish(RedisReceiver.REDIS_CHANNEL, "HuskHomes:" + getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":" + target);
+                publisher.publish(RedisReceiver.REDIS_CHANNEL, getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":" + target);
             }
         });
     }

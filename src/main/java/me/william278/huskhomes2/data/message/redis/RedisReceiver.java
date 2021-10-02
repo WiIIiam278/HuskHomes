@@ -38,23 +38,18 @@ public class RedisReceiver {
                     return;
                 }
 
-                // Redis messages are formatted as such:
-                // HuskHomes:<cluster_id>:<message_type>:<target_player>£ followed by the message arguments and data.
+                /* HuskHomes Redis messages have a header formatted as such:
+                 * <cluster_id>:<message_type>:<target_player>£ followed by the message arguments and data. */
                 final String[] splitMessage = message.split("£");
-                final String messageType = splitMessage[0];
+                final String messageHeader = splitMessage[0];
                 int clusterID;
-
-                // Return if the message was not sent by HuskHomes
-                if (!messageType.contains("HuskHomes:")) {
-                    return;
-                }
 
                 // Ensure the cluster ID matches
                 try {
-                    clusterID = Integer.parseInt(messageType.split(":")[1]);
+                    clusterID = Integer.parseInt(messageHeader.split(":")[0]);
                 } catch (Exception e) {
                     // In case the message is malformed or the cluster ID is invalid
-                    HuskHomes.getInstance().getLogger().warning("Received a HuskHomes redis message with an invalid server Cluster ID! \n" +
+                    HuskHomes.getInstance().getLogger().warning("Received a Redis message on the HuskHomes channel with an invalid server Cluster ID! \n" +
                             "Please ensure that the cluster ID is set to a valid integer on all servers.");
                     return;
                 }
@@ -62,8 +57,11 @@ public class RedisReceiver {
                     return;
                 }
 
+                // Get the type of redis message
+                final String messageType = messageHeader.split(":")[1];
+
                 // Get the player targeted by the message and make sure they are online
-                final String target = messageType.split(":")[3];
+                final String target = messageHeader.split(":")[2];
                 Player receiver = Bukkit.getPlayerExact(target);
 
                 // If the redis message was targeting this server
@@ -86,7 +84,7 @@ public class RedisReceiver {
                 }
 
                 final String messageData = splitMessage[1];
-                CrossServerMessageHandler.handlePluginMessage(new PluginMessage(clusterID, receiver.getName(), messageType.split(":")[2], messageData), receiver);
+                CrossServerMessageHandler.handlePluginMessage(new RedisMessage(clusterID, receiver.getName(), messageType, messageData), receiver);
             }
         }, REDIS_CHANNEL), "Redis Subscriber").start();
     }

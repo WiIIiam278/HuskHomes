@@ -6,7 +6,7 @@
 
     <groupId>me.William278</groupId>
     <artifactId>HuskHomes</artifactId>
-    <version>2.9-dev</version>
+    <version>2.9-dev2</version>
     <packaging>jar</packaging>
 
     <name>HuskHomes</name>
@@ -46,6 +46,10 @@
                         <relocation>
                             <pattern>io.papermc.lib</pattern>
                             <shadedPattern>me.william278.huskhomes2.libraries.paperlib</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.hikari</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -190,7 +194,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>5.0.0</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

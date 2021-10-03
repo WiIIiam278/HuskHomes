@@ -6,121 +6,120 @@ authors: [William278]
 softdepend: [dynmap, Vault, BlueMap, Pl3xMap]
 description: A powerful, intuitive and flexible teleportation suite
 libraries:
-  - com.zaxxer:HikariCP:5.0.0
   - redis.clients:jedis:2.7.2
 
 commands:
   home:
     description: Teleport to one of your homes
-    usage: /home <home>
+    usage: /<command> <home>
     permission: huskhomes.home
   sethome:
     description: Set a new home with given name
-    usage: /sethome <name>
+    usage: /<command> <name>
     permission: huskhomes.sethome
   delhome:
     description: Delete a home you previously set
-    usage: /delhome <name/all>
+    usage: /<command> <name/all>
     permission: huskhomes.delhome
   edithome:
     description: Edit one of your homes
-    usage: /edithome <home> <rename/description/location/public/private> [arguments]
+    usage: /<command> <home> <rename/description/location/public/private> [arguments]
     permission: huskhomes.edithome
   warp:
     description: Teleport to a warp
-    usage: /warp <warp>
+    usage: /<command> <warp>
     permission: huskhomes.warp
   setwarp:
     description: Set a new warp with given name
-    usage: /setwarp <name>
+    usage: /<command> <name>
     permission: huskhomes.setwarp
   delwarp:
     description: Delete a warp
-    usage: /delwarp <name/all>
+    usage: /<command> <name/all>
     permission: huskhomes.delwarp
   editwarp:
     description: Edit a warp
-    usage: /editwarp <warp> <rename/description/location> [arguments]
+    usage: /<command> <warp> <rename/description/location> [arguments]
     permission: huskhomes.editwarp
   back:
     description: Return to your previous position, or where you died
-    usage: /back
+    usage: /<command>
     permission: huskhomes.back
   homelist:
     description: Get a list of your homes
-    usage: /homelist <page>
+    usage: /<command> <page>
     permission: huskhomes.home
     aliases: [homes, listhomes]
   warplist:
     description: View the list of warps
-    usage: /warplist <page>
+    usage: /<command> <page>
     permission: huskhomes.warp
     aliases: [warps, listwarps]
   publichomelist:
     description: View the list of public homes
-    usage: /publichomelist <page>
+    usage: /<command> <page>
     permission: huskhomes.publichome
     aliases: [phomes, phomelist, listphomes, listpublichomes]
   publichome:
     description: Teleport to a public home
-    usage: /publichome <owner.home>
+    usage: /<command> <owner.home>
     permission: huskhomes.publichome
     aliases: [phome]
   tp:
     description: Teleport to another player or location
-    usage: /tp <player/coordinates>
+    usage: /<command> <player/coordinates>
     permission: huskhomes.tp
     aliases: [tpo]
   tphere:
     description: Teleport another player to you
-    usage: /tphere <player>
+    usage: /<command> <player>
     permission: huskhomes.tp
     aliases: [tpohere]
   tpa:
     description: Request to teleport to another player
-    usage: /tpa <player>
+    usage: /<command> <player>
     permission: huskhomes.tprequest
     aliases: [tprequest, tpask]
   tpahere:
     description: Request another player to teleport to you
-    usage: /tpahere <player>
+    usage: /<command> <player>
     permission: huskhomes.tprequest
     aliases: [tphererequest, tpaskhere]
   tpaccept:
     description: Accept teleport requests
-    usage: /tpaccept
+    usage: /<command>
     permission: huskhomes.tprequest
     aliases: [tpyes]
   tpdeny:
     description: Deny teleport requests
-    usage: /tpdeny
+    usage: /<command>
     permission: huskhomes.tprequest
     aliases: [tpno]
   tpignore:
     description: Ignore incoming teleport requests
-    usage: /tpignore
+    usage: /<command>
     permission: huskhomes.tpignore
     aliases: [tpaignore, ignoretprequests]
   tpoffline:
     description: Teleport to where a player was last online
-    usage: /tpoffline <player>
+    usage: /<command> <player>
     permission: huskhomes.tpoffline
   rtp:
     description: Teleport randomly into the wild
-    usage: /rtp
+    usage: /<command>
     permission: huskhomes.rtp
     aliases: [randomtp, randomteleport, wild]
   spawn:
     description: Teleport to spawn
-    usage: /spawn
+    usage: /<command>
     permission: huskhomes.spawn
   setspawn:
     description: Set the spawn position
-    usage: /setspawn
+    usage: /<command>
     permission: huskhomes.spawn.set
   huskhomes:
     description: Plugin information & reload configs.
-    usage: /huskhomes <about/update/reload/migrate>
+    usage: /<command> <about/update/reload/migrate>
 
 permissions:
   huskhomes.*:

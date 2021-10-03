@@ -4,7 +4,6 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
 import me.william278.huskhomes2.data.message.Message;
-import me.william278.huskhomes2.data.message.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.integrations.VanishChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

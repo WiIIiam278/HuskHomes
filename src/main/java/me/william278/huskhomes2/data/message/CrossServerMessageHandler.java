@@ -28,7 +28,7 @@ public class CrossServerMessageHandler {
                 try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerDestinationLocation(receivedMessage.getMessageData(),
                             new TeleportationPoint(recipient.getLocation(), HuskHomes.getSettings().getServerID()), connection);
-                    new PluginMessage(receivedMessage.getMessageData(), Message.MessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
+                    CrossServerMessageHandler.getMessage(receivedMessage.getMessageData(), Message.MessageType.CONFIRM_DESTINATION_SET, "confirmed").send(recipient);
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport destination update");
                 }

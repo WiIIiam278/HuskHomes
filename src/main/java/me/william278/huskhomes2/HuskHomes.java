@@ -239,6 +239,9 @@ public final class HuskHomes extends JavaPlugin {
         try {
             Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
+            if (getSettings().doBungee()) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getMessengerType().toLowerCase()));
+            }
             metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage()));
             metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toLowerCase()));
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));

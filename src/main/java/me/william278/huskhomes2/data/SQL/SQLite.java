@@ -115,11 +115,11 @@ public class SQLite extends Database {
         dataSource.setMaxLifetime(hikariMaximumLifetime);
         dataSource.setKeepaliveTime(hikariKeepAliveTime);
         dataSource.setConnectionTimeout(hikariConnectionTimeOut);
-        dataSource.setPoolName("HuskHomesHikariPool");
+        dataSource.setPoolName(DATA_POOL_NAME);
 
         // Create tables
-        try(Connection connection = dataSource.getConnection()) {
-            try(Statement statement = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                     statement.execute(tableCreationStatement);
                 }

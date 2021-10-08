@@ -8,6 +8,8 @@ import java.sql.SQLException;
 public abstract class Database {
     protected HuskHomes plugin;
 
+    public final static String DATA_POOL_NAME = "HuskHomesHikariPool";
+
     public Database(HuskHomes instance) {
         plugin = instance;
     }

@@ -98,11 +98,11 @@ public class MySQL extends Database {
         dataSource.setMaxLifetime(hikariMaximumLifetime);
         dataSource.setKeepaliveTime(hikariKeepAliveTime);
         dataSource.setConnectionTimeout(hikariConnectionTimeOut);
-        dataSource.setPoolName("HuskHomesHikariPool");
+        dataSource.setPoolName(DATA_POOL_NAME);
 
         // Create tables
-        try(Connection connection = dataSource.getConnection()) {
-            try(Statement statement = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                     statement.execute(tableCreationStatement);
                 }
@@ -121,6 +121,6 @@ public class MySQL extends Database {
 
     @Override
     public void backup() {
-        plugin.getLogger().info("Remember to make backups of your HuskHomes Database before updating HuskHomes!");
+        plugin.getLogger().info("Remember to make backups of your HuskHomes Database before updating the plugin!");
     }
 }

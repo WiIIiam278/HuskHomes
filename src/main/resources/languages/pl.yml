@@ -1,3 +1,4 @@
+---
 error_no_permission: '[error:](#ff3300) [Nie masz uprawnień do tego polecenia.](#ff7e5e)'
 error_no_last_position: '[error:](#ff3300) [Nie masz żadnej wcześniejszej lokalizacji aby powrócić!](#ff7e5e)'
 teleporting_last_position: '[Powrót do ostatniej pozycji nastąpi w ciągu](#00fb9a) [%1%](#00fb9a bold) [sekund](#00fb9a)'
@@ -10,16 +11,18 @@ teleporting_action_bar_countdown: '[Teleportacja w](#00fb9a) [%1%](#00fb9a bold)
 teleporting_action_bar_cancelled: '[Teleportacja anulowana!](#ff7e5e)'
 teleporting_please_stand_still: 'Teleportacja zanuluje się gdy się ruszysz.](gray)'
 home_deleted: '[Pomyślnie usunięto dom,](#00fb9a) [%1%](#00fb9a bold)'
+home_deleted_other: '[Pomyślnie usunięto dom %1%,](#00fb9a) [%2%](#00fb9a bold)'
 warp_deleted: '[Pomyślnie usunięto warp,](#00fb9a) [%1%](#00fb9a bold)'
 error_home_invalid: '[error:](#ff3300) [Nie masz domu o nazwie "%1%"](#ff7e5e)'
 error_warp_invalid: '[error:](#ff3300) [Nie ma warpu o nazwie "%1%"](#ff7e5e)'
 error_invalid_syntax: '[error:](#ff3300) [Niepoprawna składnia. Wpisz: %1%](#ff7e5e)'
-edit_home_title: '\n[Edytuj właściwości domu](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
-edit_home_title_other: '\n[Edit home details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
-edit_home_options: '\n[[Teleportuj]](green show_text=&Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[ Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description )\n'
-edit_home_options_make_public: '\n[[Teleport]](green show_text=&7Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description ) [[Ustaw jako publiczny]](dark_green show_text=&7Ustaw swój d0m jako publiczny run_command=/huskhomes:edithome %1%.%2% public)\n'
-edit_home_options_make_private: '\n[[Teleport]](green show_text=&7Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description ) [[Ustaw jako prywatny]](dark_red show_text=&7Ustaw swój dom jako prywatny run_command=/huskhomes:edithome %1%.%2% private)\n'
+edit_home_title: "\n[Edytuj właściwości domu](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)"
+edit_home_title_other: "\n[Edit home details for %1%'s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)"
+edit_home_options: "\n[[Teleportuj]](green show_text=&Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[ Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description )\n"
+edit_home_options_make_public: "\n[[Teleport]](green show_text=&7Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description ) [[Ustaw jako publiczny]](dark_green show_text=&7Ustaw swój d0m jako publiczny run_command=/huskhomes:edithome %1%.%2% public)\n"
+edit_home_options_make_private: "\n[[Teleport]](green show_text=&7Przeteleportuj się do swojego domu run_command=/huskhomes:home %1%.%2%) [[Usuń]](red show_text=&7Usuń swój dom run_command=/huskhomes:delhome %1%.%2%) [[Relocate]](blue show_text=&7Zaktualizuj lokalizację domu run_command=/huskhomes:edithome %1%.%2% location)\n[[Zmień nazwę]](yellow show_text=&7Zmień nazwe domu suggest_command=/huskhomes:edithome %1%.%2% rename ) [[Edytuj opis]](gold show_text=&7Zaktualizuj opis domu suggest_command=/huskhomes:edithome %1%.%2% description ) [[Ustaw jako prywatny]](dark_red show_text=&7Ustaw swój dom jako prywatny run_command=/huskhomes:edithome %1%.%2% private)\n"
 edit_home_privacy_private: '• Dostęp: &#ff7e5e&Prywatny &7(Tylko ty możesz go użyć)'
+edit_home_privacy_private_other: '• Dostęp: &#ff7e5e&Prywatny &7(Tylko %1% może to użyć)'
 edit_home_privacy_public: '• Dostęp: &aPubliczny &7(Każdy może go użyć)'
 edit_home_privacy_public_success: '[Pomyślnie utworzono dom,](#00fb9a) [%1%](#00fb9a bold)[, otwórz jako publiczny.](#00fb9a)'
 edit_home_privacy_public_success_economy: '[Pomyślnie utworzono twój dom,](#00fb9a) [%1%](#00fb9a bold)[, otwórz go jako publiczny za %2%.](#00fb9a)'
@@ -32,8 +35,8 @@ error_edit_home_description_characters: '[error:](#ff3300) [Opisy domu mogą tyl
 edit_home_update_location: '[Przemieszczenie](#00fb9a) [%1%](#00fb9a bold) [do twojej aktualnej pozycji.](#00fb9a)'
 edit_home_update_description: '[Zmieniono opis na](#00fb9a) [%1%](#00fb9a bold) [to "%2%"](#00fb9a)'
 edit_home_update_name: '[Pomyślnie zmieniono nazwę domu na: %1% →](#00fb9a) [%2%](#00fb9a bold)'
-edit_warp_title: '\n[Edyuj właściwości warpu](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
-edit_warp_options: '\n[[Teleport]](green show_text=&7Teleportuj się na ten warp run_command=/huskhomes:warp %1%) [[Usuń]](red show_text=&7Usuń ten warp run_command=/huskhomes:delwarp %1%) [[Relocate]](blue show_text=&7Update this warp''s location run_command=/huskhomes:editwarp %1% location)\n[[Rename]](yellow show_text=&7Change the name of this warp suggest_command=/huskhomes:editwarp %1% rename ) [[Edit Description]](gold show_text=&7Update this warp''s description suggest_command=/huskhomes:editwarp %1% description )\n'
+edit_warp_title: "\n[Edyuj właściwości warpu](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)"
+edit_warp_options: "\n[[Teleport]](green show_text=&7Teleportuj się na ten warp run_command=/huskhomes:warp %1%) [[Usuń]](red show_text=&7Usuń ten warp run_command=/huskhomes:delwarp %1%) [[Relocate]](blue show_text=&7Update this warp's location run_command=/huskhomes:editwarp %1% location)\n[[Rename]](yellow show_text=&7Change the name of this warp suggest_command=/huskhomes:editwarp %1% rename ) [[Edit Description]](gold show_text=&7Update this warp's description suggest_command=/huskhomes:editwarp %1% description )\n"
 error_edit_warp_description_length: '[error:](#ff3300) [Opis warpu nie może przekroczyć 255 znaków.](#ff7e5e)'
 error_edit_warp_description_characters: '[error:](#ff3300) [Warp descriptions may only contain alphanumeric (A-Z, 0-9) characters, hyphens (-) and underscores (_)](#ff7e5e)'
 edit_warp_update_location: '[Przemieszczono](#00fb9a) [%1%](#00fb9a bold) [do twojej obecnej pozycji.](#00fb9a)'
@@ -47,9 +50,9 @@ edit_timestamp: '• Created: &7%1%'
 error_no_homes_set: '[error:](#ff3300) [Nie masz żadnych domów!](#ff7e5e)'
 error_no_public_homes_set: '[error:](#ff3300) [Nie ma żadnych publicznych domów](#ff7e5e)'
 error_no_warps_set: '[error:](#ff3300) [Nie ma żadnych warpów!](#ff7e5e)'
-private_home_list_page_top: '\n[Domy %1%:](#00fb9a) [(](#00fb9a)[%2%-%3%](#00fb9a bold) [z](#00fb9a) [%4%](#00fb9a bold)[)](#00fb9a)\n'
-public_home_list_page_top: '\n[Public Homes:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a bold) [of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n'
-warp_list_page_top: '\n[Warpy:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a bold) [z](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n'
+private_home_list_page_top: "\n[Domy %1%:](#00fb9a) [(](#00fb9a)[%2%-%3%](#00fb9a bold) [z](#00fb9a) [%4%](#00fb9a bold)[)](#00fb9a)\n"
+public_home_list_page_top: "\n[Public Homes:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a bold) [of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n"
+warp_list_page_top: "\n[Warpy:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a bold) [z](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n"
 error_public_home_invalid: '[error:](#ff3300) [Nie mogę znaleśc domu publicznego zajętego przez %1% o nazwie %2%.](#ff7e5e)'
 error_set_home_invalid_characters: '[error:](#ff3300) [Nazwy domów muszą zawierać litery lub cyfry (A-Z, 0-9, -_)](#ff7e5e)'
 error_set_home_invalid_length: '[error:](#ff3300) [Nazwy domów mogą mieć maksymalnie 16 znaków!](#ff7e5e)'
@@ -93,8 +96,8 @@ public_home_list_item: '[[%1%]](show_text=&#00fb9a&%2%: &7%3% run_command=/huskh
 warp_list_item: '[[%1%]](show_text=&7%2% run_command=/huskhomes:warp %1%)'
 home_default_description: 'Dom %1%'
 warp_default_description: 'Publiczny warp'
-delete_all_homes_confirm: '[Ostrzeżenie:](#ff3300) [Czy chcesz skasować wszystkie domy?](#ff7e5e)\n[Jest to nie odwracalna zmiana.](gray)\n[→](gray) [[Potwierdź]](#ff3300 show_text=&#ff3300&Potwierdź usunięcie, nie da się tego przywrócić. run_command=/delhome all confirm)'
-delete_all_warps_confirm: '[Ostrzeżenie:](#ff3300) [Czy chcesz skasować wszystkie warpy?](#ff7e5e)\n[Jest to nie odwracalna zmiana.](gray)\n[→](gray) [[Potwierdź]](#ff3300 show_text=&#ff3300&Potwierdź usunięcie, nie da się tego przywrócić. run_command=/delwarp all confirm)'
+delete_all_homes_confirm: "[Ostrzeżenie:](#ff3300) [Czy chcesz skasować wszystkie domy?](#ff7e5e)\n[Jest to nie odwracalna zmiana.](gray)\n[→](gray) [[Potwierdź]](#ff3300 show_text=&#ff3300&Potwierdź usunięcie, nie da się tego przywrócić. run_command=/delhome all confirm)"
+delete_all_warps_confirm: "[Ostrzeżenie:](#ff3300) [Czy chcesz skasować wszystkie warpy?](#ff7e5e)\n[Jest to nie odwracalna zmiana.](gray)\n[→](gray) [[Potwierdź]](#ff3300 show_text=&#ff3300&Potwierdź usunięcie, nie da się tego przywrócić. run_command=/delwarp all confirm)"
 delete_all_homes_success: '[Pomyślnie usunąłem twoje](#00fb9a) [%1%](#00fb9a bold) [domy.](#00fb9a)'
 delete_all_warps_success: '[Pomyślnie usunąłem wszyskie](#00fb9a) [%1%](#00fb9a bold) [warpów.](#00fb9a)'
 error_permission_restricted_warp: '[error:](#ff3300) [Nie masz uprawnień do warpu %1%!](#ff7e5e)'
@@ -106,7 +109,7 @@ page_options_min: '[Przeglądanie strony %1%/%2%](#00fb9a) [→](gray show_text=
 page_options_min_max: '[Przeglądanie strony %1%/%2%](#00fb9a)'
 page_options_max: '[←](gray show_text=&7Zobacz poprzednią stronę run_command=%1%) [Oglądasz stronę %2%/%3%](#00fb9a)'
 page_no_items: '[(Brak rzeczy do wyświetlenia)](gray show_text=&7Spróboj podać numer innej strony)'
-command_list_header: '\n[HuskHomes](#00fb9a bold) [| Lista poleceń](#00fb9a)'
+command_list_header: "\n[HuskHomes](#00fb9a bold) [| Lista poleceń](#00fb9a)"
 command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
 error_invalid_on_arrival: '[error:](#ff3300) [Nie udało się zakończyć teleportacji, ponieważ nie można znaleźć świata docelowego.](#ff7e5e)'
 tpignore_toggle_on: '[Jesteś teraz](#00fb9a) [ignoring](#00fb9a bold) [przychodzące żądania teleportu.](#00fb9a) [(Kliknij aby zmienić)](gray show_text=&7Kliknij, aby nasłuchiwać przychodzących żądań teleportu run_command=/huskhomes:tpignore)'
@@ -117,5 +120,3 @@ error_no_offline_position: '[error:](#ff3300) [Nie mogę znaleźć, gdzie ostatn
 error_invalid_player: '[Error:](#ff3300) [Proszę uwzględnić prawdziwą nazwę użytkownika!](#ff7e5e)'
 error_no_homes_set_other: '[Error:](#ff3300) [%1% nie ma żadnych domów!](#ff7e5e)'
 error_home_invalid_other: '[Error:](#ff3300) [%1% nie ma domu nazwanego "%2%"](#ff7e5e)'
-home_deleted_other: '[Pomyślnie usunięto dom %1%,](#00fb9a) [%2%](#00fb9a bold)'
-edit_home_privacy_private_other: '• Dostęp: &#ff7e5e&Prywatny &7(Tylko %1% może to użyć)'

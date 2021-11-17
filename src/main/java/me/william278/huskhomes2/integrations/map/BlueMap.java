@@ -155,6 +155,7 @@ public class BlueMap extends Map {
 
     @Override
     public void initialize() {
+        plugin.getLogger().info("Initializing BlueMap integration");
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try (Connection connection = HuskHomes.getConnection()) {
                 for (Home home : DataManager.getPublicHomes(connection)) {

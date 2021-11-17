@@ -52,7 +52,7 @@ public class Settings {
     private String redisHost;
     private String redisPassword;
 
-    // Dynmap integration settings
+    // Map plugin integration settings
     private boolean doMapIntegration;
     private String mapPlugin;
     private boolean mapPublicHomes;

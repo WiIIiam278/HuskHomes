@@ -4,15 +4,15 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
-import net.pl3x.map.api.Key;
-import net.pl3x.map.api.Pl3xMapProvider;
-import net.pl3x.map.api.Point;
-import net.pl3x.map.api.SimpleLayerProvider;
+import net.pl3x.map.api.*;
 import net.pl3x.map.api.marker.Icon;
 import net.pl3x.map.api.marker.Marker;
 import net.pl3x.map.api.marker.MarkerOptions;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -46,18 +46,8 @@ public class Pl3xMap extends Map {
 
     @Override
     public void removeWarpMarker(String warpName) {
-        String warpMarkerWorld = null;
         final Key warpMarkerKey = Key.of(getWarpMarkerName(warpName));
-        for (String worldName : warpProviders.keySet()) {
-            SimpleLayerProvider warpProvider = warpProviders.get(worldName);
-            if (warpProvider.hasMarker(warpMarkerKey)) {
-                warpMarkerWorld = worldName;
-                break;
-            }
-        }
-        if (warpMarkerWorld != null) {
-            warpProviders.get(warpMarkerWorld).removeMarker(warpMarkerKey);
-        }
+        removeMarker(warpMarkerKey, warpProviders);
     }
 
     @Override
@@ -81,23 +71,15 @@ public class Pl3xMap extends Map {
 
     @Override
     public void removePublicHomeMarker(String homeName, String ownerName) {
-        String publicHomeMarkerWorld = null;
         final Key publicHomeMarkerKey = Key.of(getPublicHomeMarkerName(ownerName, homeName));
-        for (String worldName : publicHomeProviders.keySet()) {
-            SimpleLayerProvider warpProvider = publicHomeProviders.get(worldName);
-            if (warpProvider.hasMarker(publicHomeMarkerKey)) {
-                publicHomeMarkerWorld = worldName;
-                break;
-            }
-        }
-        if (publicHomeMarkerWorld != null) {
-            publicHomeProviders.get(publicHomeMarkerWorld).removeMarker(publicHomeMarkerKey);
-        }
+        removeMarker(publicHomeMarkerKey, publicHomeProviders);
     }
 
     @Override
     public void initialize() {
         net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
+        plugin.getServer().getPluginManager().registerEvents(new Pl3xMapWorldLoadListener(), plugin);
+        plugin.getLogger().info("Initializing Pl3xMap integration");
 
         final Key publicHomeMarkerIconKey = Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME);
         final Key warpMarkerIconKey = Key.of(WARP_MARKER_IMAGE_NAME);
@@ -113,27 +95,7 @@ public class Pl3xMap extends Map {
         Pl3xMapProvider.get().iconRegistry().register(warpMarkerIconKey, getWarpIcon());
 
         for (net.pl3x.map.api.MapWorld world : mapAPI.mapWorlds()) {
-            // Register public home map layer
-            SimpleLayerProvider publicHomeProvider =
-                    SimpleLayerProvider.builder(HuskHomes.getSettings().getMapPublicHomeMarkerSet())
-                            .showControls(true)
-                            .defaultHidden(false)
-                            .layerPriority(6)
-                            .zIndex(250)
-                            .build();
-            world.layerRegistry().register(Key.of(PUBLIC_HOMES_MARKER_SET_ID), publicHomeProvider);
-            publicHomeProviders.put(world.name(), publicHomeProvider);
-
-            // Register warps map layer
-            SimpleLayerProvider warpProvider =
-                    SimpleLayerProvider.builder(HuskHomes.getSettings().getMapWarpMarkerSet())
-                            .showControls(true)
-                            .defaultHidden(false)
-                            .layerPriority(7)
-                            .zIndex(250)
-                            .build();
-            world.layerRegistry().register(Key.of(WARPS_MARKER_SET_ID), warpProvider);
-            warpProviders.put(world.name(), warpProvider);
+            loadWorld(world);
         }
 
         // Populate map with markers
@@ -157,6 +119,82 @@ public class Pl3xMap extends Map {
                 plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Pl3xMap");
             }
         });
+    }
+
+    // Removes a marker from the Pl3xMap Marker API
+    private void removeMarker(Key markerKey, HashMap<String, SimpleLayerProvider> layerProviders) {
+        String markerWorld = null;
+        for (String worldName : layerProviders.keySet()) {
+            SimpleLayerProvider warpProvider = layerProviders.get(worldName);
+            if (warpProvider.hasMarker(markerKey)) {
+                markerWorld = worldName;
+                break;
+            }
+        }
+        if (markerWorld != null) {
+            layerProviders.get(markerWorld).removeMarker(markerKey);
+        }
+    }
+
+    // Loads the world
+    private void loadWorld(MapWorld world) {
+        // Register public home map layer
+        SimpleLayerProvider publicHomeProvider =
+                SimpleLayerProvider.builder(HuskHomes.getSettings().getMapPublicHomeMarkerSet())
+                        .showControls(true)
+                        .defaultHidden(false)
+                        .layerPriority(6)
+                        .zIndex(250)
+                        .build();
+        world.layerRegistry().register(Key.of(PUBLIC_HOMES_MARKER_SET_ID), publicHomeProvider);
+        publicHomeProviders.put(world.name(), publicHomeProvider);
+
+        // Register warps map layer
+        SimpleLayerProvider warpProvider =
+                SimpleLayerProvider.builder(HuskHomes.getSettings().getMapWarpMarkerSet())
+                        .showControls(true)
+                        .defaultHidden(false)
+                        .layerPriority(7)
+                        .zIndex(250)
+                        .build();
+        world.layerRegistry().register(Key.of(WARPS_MARKER_SET_ID), warpProvider);
+        warpProviders.put(world.name(), warpProvider);
+
+    }
+
+    public class Pl3xMapWorldLoadListener implements Listener {
+
+        @EventHandler
+        public void onWorldLoad(WorldLoadEvent e) {
+            net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
+            mapAPI.getWorldIfEnabled(e.getWorld()).ifPresent(Pl3xMap.this::loadWorld);
+            // Populate map with markers
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try (Connection connection = HuskHomes.getConnection()) {
+                    if (HuskHomes.getSettings().showPublicHomesOnMap()) {
+                        for (Home home : DataManager.getPublicHomes(connection)) {
+                            if (home.getWorldName().equals(e.getWorld().getName())) {
+                                if (!HuskHomes.getSettings().doBungee() || home.getServer().equals(HuskHomes.getSettings().getServerID())) {
+                                    Bukkit.getScheduler().runTask(plugin, () -> addPublicHomeMarker(home));
+                                }
+                            }
+                        }
+                    }
+                    if (HuskHomes.getSettings().showWarpsOnMap()) {
+                        for (Warp warp : DataManager.getWarps(connection)) {
+                            if (warp.getWorldName().equals(e.getWorld().getName())) {
+                                if (!HuskHomes.getSettings().doBungee() || warp.getServer().equals(HuskHomes.getSettings().getServerID())) {
+                                    Bukkit.getScheduler().runTask(plugin, () -> addWarpMarker(warp));
+                                }
+                            }
+                        }
+                    }
+                } catch (SQLException exception) {
+                    plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Pl3xMap");
+                }
+            });
+        }
+
     }
 
 }

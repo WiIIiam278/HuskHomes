@@ -1,4 +1,4 @@
-package me.william278.huskhomes2.data.SQL;
+package me.william278.huskhomes2.data.sql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.william278.huskhomes2.HuskHomes;

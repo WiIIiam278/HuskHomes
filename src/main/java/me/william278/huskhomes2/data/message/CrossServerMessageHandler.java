@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 
@@ -42,12 +41,7 @@ public class CrossServerMessageHandler {
             case TPA_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
-                        if (TeleportRequestHandler.teleportRequests.containsKey(recipient)) {
-                            if (TeleportRequestHandler.teleportRequests.get(recipient).containsKey(receivedMessage.getMessageData())) {
-                                return; // Prevent request spam
-                            }
-                            TeleportRequestHandler.teleportRequests.put(recipient, new HashMap<>());
-                        }
+                        if (TeleportRequestHandler.isDuplicateRequest(receivedMessage.getMessageData(), recipient)) return; // Prevent request spam
                         TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA));
                         MessageManager.sendMessage(recipient, "tpa_request_ask", receivedMessage.getMessageData());
                         MessageManager.sendMessage(recipient, "teleport_request_options", receivedMessage.getMessageData());
@@ -57,12 +51,7 @@ public class CrossServerMessageHandler {
             case TPA_HERE_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
-                        if (TeleportRequestHandler.teleportRequests.containsKey(recipient)) {
-                            if (TeleportRequestHandler.teleportRequests.get(recipient).containsKey(receivedMessage.getMessageData())) {
-                                return; // Prevent request spam
-                            }
-                            TeleportRequestHandler.teleportRequests.put(recipient, new HashMap<>());
-                        }
+                        if (TeleportRequestHandler.isDuplicateRequest(receivedMessage.getMessageData(), recipient)) return;
                         TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA_HERE));
                         MessageManager.sendMessage(recipient, "tpahere_request_ask", receivedMessage.getMessageData());
                         MessageManager.sendMessage(recipient, "teleport_request_options", receivedMessage.getMessageData());
@@ -74,13 +63,7 @@ public class CrossServerMessageHandler {
                 final boolean tpaAccepted = Boolean.parseBoolean(receivedMessage.getMessageDataItems()[1]);
                 if (tpaAccepted) {
                     MessageManager.sendMessage(recipient, "tpa_has_accepted", tpaReplierName);
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                        try (Connection connection = HuskHomes.getConnection()) {
-                            TeleportManager.queueTimedTeleport(recipient, tpaReplierName);
-                        } catch (SQLException e) {
-                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport request reply");
-                        }
-                    });
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> TeleportManager.queueTimedTeleport(recipient, tpaReplierName));
                 } else {
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaReplierName);
                 }

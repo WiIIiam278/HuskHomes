@@ -43,8 +43,8 @@ public class TeleportRequestHandler {
                 if (!VanishChecker.isVanished(targetPlayer)) {
                     MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
                     if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                        if (teleportRequests.containsKey(targetPlayer)) {
-                            teleportRequests.put(targetPlayer, new HashMap<>());
+                        if (isDuplicateRequest(targetPlayerName, targetPlayer)) {
+                            return;
                         }
                         teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
                                 TeleportRequest.RequestType.TPA));
@@ -73,8 +73,8 @@ public class TeleportRequestHandler {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
                 if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                    if (teleportRequests.containsKey(targetPlayer)) {
-                        teleportRequests.put(targetPlayer, new HashMap<>());
+                    if (isDuplicateRequest(targetPlayerName, targetPlayer)) {
+                        return;
                     }
                     teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
                             TeleportRequest.RequestType.TPA_HERE));
@@ -202,5 +202,25 @@ public class TeleportRequestHandler {
             return;
         }
         handleRequestReply(p, targetRequest, accepted);
+    }
+
+    // Handle an incoming request; if it's a duplicate, return true, otherwise allow the new request (return false)
+    public static boolean isDuplicateRequest(String senderName, Player recipient) {
+        if (teleportRequests.containsKey(recipient)) {
+            if (teleportRequests.get(recipient).containsKey(senderName)) {
+                TeleportRequest request = teleportRequests.get(recipient).get(senderName);
+                if (!request.isExpired()) {
+                    return true;
+                } else {
+                    teleportRequests.get(recipient).remove(senderName);
+                    if (teleportRequests.get(recipient).isEmpty()) {
+                        teleportRequests.remove(recipient);
+                    }
+                }
+            }
+        } else {
+            teleportRequests.put(recipient, new HashMap<>());
+        }
+        return false;
     }
 }

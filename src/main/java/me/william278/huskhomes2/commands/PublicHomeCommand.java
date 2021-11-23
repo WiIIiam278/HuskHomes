@@ -56,7 +56,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
                     Home home = DataManager.getHome(ownerName, homeName, connection);
                     assert home != null;
                     if (home.isPublic() || p.getName().equalsIgnoreCase(ownerName) || p.hasPermission("huskhomes.home.other")) {
-                        TeleportManager.queueTimedTeleport(p, home, connection);
+                        TeleportManager.queueTimedTeleport(p, home);
                     } else {
                         MessageManager.sendMessage(p, "error_public_home_invalid", ownerName, homeName);
                     }
@@ -108,7 +108,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
                                 if (!home.isPublic()) {
                                     sender.sendMessage("Warning: Bypassed home security (" + home.getName() + " was not set to public by " + home.getOwnerUsername() + ")");
                                 }
-                                TeleportManager.teleportPlayer(targetPlayer, home, connection);
+                                TeleportManager.teleportPlayer(targetPlayer, home);
                                 sender.sendMessage("Successfully teleported player!");
                                 MessageManager.sendMessage(targetPlayer, "teleporting_complete_console", (home.getOwnerUsername() + "." + homeName));
                             } else {

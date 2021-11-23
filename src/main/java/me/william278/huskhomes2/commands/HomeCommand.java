@@ -38,7 +38,7 @@ public class HomeCommand extends CommandBase {
                         PublicHomeCommand.queueHomeTeleport(p, homeArgument);
                     } else if (DataManager.homeExists(p, homeArgument, connection)) {
                         Home home = DataManager.getHome(p.getName(), homeArgument, connection);
-                        TeleportManager.queueTimedTeleport(p, home, connection);
+                        TeleportManager.queueTimedTeleport(p, home);
                     } else {
                         MessageManager.sendMessage(p, "error_home_invalid", homeArgument);
                     }
@@ -46,7 +46,7 @@ public class HomeCommand extends CommandBase {
                     List<Home> homes = DataManager.getPlayerHomes(p.getName(), connection);
                     if (homes.size() == 1) {
                         // Teleport the player if they only have one home
-                        TeleportManager.queueTimedTeleport(p, homes.get(0), connection);
+                        TeleportManager.queueTimedTeleport(p, homes.get(0));
                         return;
                     }
                     HomeListCommand.displayPlayerHomeList(p, p.getName(), 1);

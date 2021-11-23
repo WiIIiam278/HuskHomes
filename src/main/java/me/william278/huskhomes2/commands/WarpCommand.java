@@ -43,7 +43,7 @@ public class WarpCommand extends CommandBase {
                     if (DataManager.warpExists(warpName, connection)) {
                         if (Warp.getWarpCanUse(p, warpName)) {
                             Warp warp = DataManager.getWarp(warpName, connection);
-                            TeleportManager.queueTimedTeleport(p, warp, connection);
+                            TeleportManager.queueTimedTeleport(p, warp);
                         } else {
                             MessageManager.sendMessage(p, "error_permission_restricted_warp", warpName);
                         }
@@ -77,7 +77,7 @@ public class WarpCommand extends CommandBase {
                     try (Connection connection = HuskHomes.getConnection()) {
                         if (DataManager.warpExists(warpName, connection)) {
                             Warp warp = DataManager.getWarp(warpName, connection);
-                            TeleportManager.teleportPlayer(targetPlayer, warp, connection);
+                            TeleportManager.teleportPlayer(targetPlayer, warp);
                             sender.sendMessage("Successfully warped player!");
                             MessageManager.sendMessage(targetPlayer, "teleporting_complete_console", warpName);
                         } else {

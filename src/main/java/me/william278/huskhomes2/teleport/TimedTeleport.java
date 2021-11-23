@@ -65,7 +65,7 @@ public class TimedTeleport {
     }
 
     public void begin() {
-        final int[] i = {HuskHomes.getSettings().getTeleportWarmupTime()+1};
+        final int[] i = {HuskHomes.getSettings().getTeleportWarmupTime() + 1};
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -88,14 +88,14 @@ public class TimedTeleport {
                     sendWarmupMessage(player, "teleporting_action_bar_cancelled");
                     return;
                 }
-                i[0] = i[0] -1;
+                i[0] = i[0] - 1;
                 if (i[0] == 0) {
                     cancel();
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         try (Connection connection = HuskHomes.getConnection()) {
                             // Execute the teleport
                             switch (getTargetType()) {
-                                case POINT -> TeleportManager.teleportPlayer(player, targetPoint, connection);
+                                case POINT -> TeleportManager.teleportPlayer(player, targetPoint);
                                 case BACK -> {
                                     if (HuskHomes.getSettings().doEconomy()) {
                                         double backCost = HuskHomes.getSettings().getBackCost();
@@ -108,9 +108,9 @@ public class TimedTeleport {
                                             }
                                         }
                                     }
-                                    TeleportManager.teleportPlayer(player, getTargetPoint(), connection);
+                                    TeleportManager.teleportPlayer(player, getTargetPoint());
                                 }
-                                case PLAYER -> TeleportManager.teleportPlayer(player, getTargetPlayerName(), connection);
+                                case PLAYER -> TeleportManager.teleportPlayer(player, getTargetPlayerName());
                                 case RANDOM -> {
                                     RandomPoint randomPoint = new RandomPoint(player);
                                     if (randomPoint.hasFailed()) {
@@ -127,7 +127,7 @@ public class TimedTeleport {
                                             }
                                         }
                                     }
-                                    TeleportManager.teleportPlayer(player, randomPoint, connection);
+                                    TeleportManager.teleportPlayer(player, randomPoint);
                                     DataManager.updateRtpCoolDown(player, connection);
                                 }
                             }

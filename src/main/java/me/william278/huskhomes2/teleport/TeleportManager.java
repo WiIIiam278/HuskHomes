@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class TeleportManager {
@@ -35,13 +34,14 @@ public class TeleportManager {
         return preTeleportEvent.isCancelled();
     }
 
-    public static void teleportPlayer(Player player, String targetPlayer, Connection connection) {
+    // Teleport a player to a player by name
+    public static void teleportPlayer(Player player, String targetPlayer) {
         final TeleportationPoint destination = new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID());
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (isEventCancelled(player, destination)) return;
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerLastPosition(player, destination, connection);
                     setPlayerDestinationFromTargetPlayer(player, targetPlayer, connection);
                 } catch (SQLException e) {
@@ -51,13 +51,14 @@ public class TeleportManager {
         });
     }
 
-    public static void teleportPlayer(Player player, TeleportationPoint point, Connection connection) {
+    // Teleport a player to a location on the server or proxy server network
+    public static void teleportPlayer(Player player, TeleportationPoint point) {
         final TeleportationPoint destination = new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID());
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (isEventCancelled(player, destination)) return;
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
+                try (Connection connection = HuskHomes.getConnection()) {
                     DataManager.setPlayerLastPosition(player, destination, connection);
                     DataManager.setPlayerDestinationLocation(player, point, connection);
                     teleportPlayer(player);
@@ -107,18 +108,18 @@ public class TeleportManager {
         });
     }
 
-    public static void queueTimedTeleport(Player player, String targetPlayer, Connection connection) throws SQLException {
+    public static void queueTimedTeleport(Player player, String targetPlayer) {
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            teleportPlayer(player, targetPlayer, connection);
+            teleportPlayer(player, targetPlayer);
             return;
         }
 
         new TimedTeleport(player, targetPlayer).begin();
     }
 
-    public static void queueTimedTeleport(Player player, TeleportationPoint point, Connection connection) throws SQLException {
+    public static void queueTimedTeleport(Player player, TeleportationPoint point) {
         if (player.hasPermission("huskhomes.bypass_timer")) {
-            teleportPlayer(player, point, connection);
+            teleportPlayer(player, point);
             return;
         }
 
@@ -137,7 +138,7 @@ public class TeleportManager {
             return;
         }
         MessageManager.sendMessage(player, "teleporting_offline_player", targetPlayer);
-        teleportPlayer(player, offlinePoint, connection);
+        teleportPlayer(player, offlinePoint);
     }
 
     public static void queueBackTeleport(Player player, Connection connection) throws SQLException {
@@ -161,7 +162,7 @@ public class TeleportManager {
                             MessageManager.sendMessage(player, "back_spent_money", VaultIntegration.format(backCost));
                         }
                     }
-                    teleportPlayer(player, lastPosition, connection);
+                    teleportPlayer(player, lastPosition);
                     return;
                 }
 
@@ -207,18 +208,18 @@ public class TeleportManager {
                     MessageManager.sendMessage(player, "rtp_spent_money", VaultIntegration.format(rtpCost));
                 }
             }
-            teleportPlayer(player, randomPoint, connection);
+            teleportPlayer(player, randomPoint);
             DataManager.updateRtpCoolDown(player, connection);
             return;
         }
         new TimedTeleport(player).begin();
     }
 
-    public static void teleportHere(Player requester, String targetPlayerName, Connection connection) throws SQLException {
+    public static void teleportHere(Player requester, String targetPlayerName) throws SQLException {
         Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
-                teleportPlayer(targetPlayer, requester.getName(), connection);
+                teleportPlayer(targetPlayer, requester.getName());
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }

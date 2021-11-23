@@ -25,7 +25,7 @@ public class SpawnCommand extends CommandBase {
                     // Cross server spawn teleport
                     if (HuskHomes.getSettings().doCrossServerSpawn()) {
                         if (DataManager.warpExists(spawnWarpName, connection)) {
-                            TeleportManager.queueTimedTeleport(p, DataManager.getWarp(spawnWarpName, connection), connection);
+                            TeleportManager.queueTimedTeleport(p, DataManager.getWarp(spawnWarpName, connection));
                         } else {
                             MessageManager.sendMessage(p, "error_spawn_undefined");
                         }
@@ -34,7 +34,7 @@ public class SpawnCommand extends CommandBase {
 
                     // Server-based spawn teleport
                     if (TeleportManager.getSpawnLocation() != null) {
-                        TeleportManager.queueTimedTeleport(p, TeleportManager.getSpawnLocation(), connection);
+                        TeleportManager.queueTimedTeleport(p, TeleportManager.getSpawnLocation());
                     } else {
                         MessageManager.sendMessage(p, "error_spawn_undefined");
                     }

@@ -76,7 +76,7 @@ public class CrossServerMessageHandler {
                     MessageManager.sendMessage(recipient, "tpa_has_accepted", tpaReplierName);
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         try (Connection connection = HuskHomes.getConnection()) {
-                            TeleportManager.queueTimedTeleport(recipient, tpaReplierName, connection);
+                            TeleportManager.queueTimedTeleport(recipient, tpaReplierName);
                         } catch (SQLException e) {
                             plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport request reply");
                         }
@@ -94,13 +94,7 @@ public class CrossServerMessageHandler {
                     MessageManager.sendMessage(recipient, "tpa_has_declined", tpaHereReplierName);
                 }
             }
-            case TELEPORT_TO_ME -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try (Connection connection = HuskHomes.getConnection()) {
-                    TeleportManager.teleportPlayer(recipient, receivedMessage.getMessageData(), connection);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred responding to a plugin message teleport-to-me request");
-                }
-            });
+            case TELEPORT_TO_ME -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> TeleportManager.teleportPlayer(recipient, receivedMessage.getMessageData()));
             case GET_PLAYER_LIST -> {
                 final String requestingServer = receivedMessage.getMessageData();
                 StringJoiner playerList = new StringJoiner("£");

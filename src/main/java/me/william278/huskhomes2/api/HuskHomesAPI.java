@@ -246,14 +246,10 @@ public class HuskHomesAPI {
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
         Bukkit.getScheduler().runTask(huskHomes, () -> {
-            try (Connection connection = HuskHomes.getConnection()) {
-                if (timed) {
-                    TeleportManager.queueTimedTeleport(player, point, connection);
-                } else {
-                    TeleportManager.teleportPlayer(player, point, connection);
-                }
-            } catch (SQLException e) {
-                huskHomes.getLogger().log(Level.WARNING, "An SQL exception occurred timed-teleporting a player via the API.");
+            if (timed) {
+                TeleportManager.queueTimedTeleport(player, point);
+            } else {
+                TeleportManager.teleportPlayer(player, point);
             }
         });
     }
@@ -268,14 +264,10 @@ public class HuskHomesAPI {
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
         Bukkit.getScheduler().runTask(huskHomes, () -> {
-            try (Connection connection = HuskHomes.getConnection()) {
-                if (timed) {
-                    TeleportManager.queueTimedTeleport(player, targetPlayerName, connection);
-                } else {
-                    TeleportManager.teleportPlayer(player, targetPlayerName, connection);
-                }
-            } catch (SQLException e) {
-                huskHomes.getLogger().log(Level.WARNING, "An SQLException occurred teleporting a player via API");
+            if (timed) {
+                TeleportManager.queueTimedTeleport(player, targetPlayerName);
+            } else {
+                TeleportManager.teleportPlayer(player, targetPlayerName);
             }
         });
     }

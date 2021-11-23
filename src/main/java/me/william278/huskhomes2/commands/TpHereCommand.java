@@ -3,6 +3,7 @@ package me.william278.huskhomes2.commands;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.util.NameAutoCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public class TpHereCommand extends CommandBase {
             String targetPlayer = args[0];
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (Connection connection = HuskHomes.getConnection()) {
-                    TeleportManager.teleportHere(p, targetPlayer, connection);
+                    TeleportManager.teleportHere(p, NameAutoCompleter.getAutoCompletedName(targetPlayer), connection);
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
                 }

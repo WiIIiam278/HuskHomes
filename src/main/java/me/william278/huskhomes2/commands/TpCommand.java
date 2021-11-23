@@ -4,6 +4,7 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import me.william278.huskhomes2.util.NameAutoCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,7 +35,7 @@ public class TpCommand extends CommandBase {
                         return;
                     case 1:
                         String targetPlayer = args[0];
-                        TeleportManager.teleportPlayer(p, targetPlayer, connection);
+                        TeleportManager.teleportPlayer(p, NameAutoCompleter.getAutoCompletedName(targetPlayer), connection);
                         return;
                     case 3:
                         try {

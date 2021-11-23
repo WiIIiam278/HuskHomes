@@ -93,6 +93,9 @@ public class Settings {
     private boolean hideCommandsFromHelpMenuWithoutPermission;
     private boolean hideHuskHomesCommandFromHelpMenu;
 
+    // Whether to autocomplete player names for tpa (e.g /tpa William will assume you mean /tpa William278)
+    private boolean autoCompletePlayerNames;
+
     // RTP command settings
     private boolean doRtpCommand;
     private int rtpRange;
@@ -238,6 +241,8 @@ public class Settings {
             this.doPermissionRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.require_permission", false);
             this.warpRestrictionPermissionFormat = config.getString("warp_command.permission_restrictions.format", "huskhomes.warp.");
             this.hideRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.hide_restricted_warps", true);
+
+            this.autoCompletePlayerNames = config.getBoolean("general.auto_complete_player_names", false);
 
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled", true);
             this.rtpRange = config.getInt("random_teleport_command.range", 5000);
@@ -510,5 +515,9 @@ public class Settings {
 
     public long getHikariConnectionTimeOut() {
         return hikariConnectionTimeOut;
+    }
+
+    public boolean doAutoCompletePlayerNames() {
+        return autoCompletePlayerNames;
     }
 }

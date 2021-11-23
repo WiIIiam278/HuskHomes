@@ -28,45 +28,34 @@ public class TeleportManager {
     private static TeleportationPoint spawnLocation;
 
     // Fires the PreTeleportEvent; returns true if the event is cancelled
-    private static boolean isEventCancelled(Player player, TeleportationPoint targetPoint) {
+    private static PlayerPreTeleportEvent getPreTeleportEvent(Player player, TeleportationPoint targetPoint) {
         PlayerPreTeleportEvent preTeleportEvent = new PlayerPreTeleportEvent(player, targetPoint);
         Bukkit.getPluginManager().callEvent(preTeleportEvent);
-        return preTeleportEvent.isCancelled();
+        return preTeleportEvent;
     }
 
     // Teleport a player to a player by name
     public static void teleportPlayer(Player player, String targetPlayer) {
-        final TeleportationPoint destination = new TeleportationPoint(player.getLocation(),
-                HuskHomes.getSettings().getServerID());
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (isEventCancelled(player, destination)) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try (Connection connection = HuskHomes.getConnection()) {
-                    DataManager.setPlayerLastPosition(player, destination, connection);
-                    setPlayerDestinationFromTargetPlayer(player, targetPlayer, connection);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player.", e);
-                }
-            });
-        });
+        try (Connection connection = HuskHomes.getConnection()) {
+            DataManager.setPlayerLastPosition(player, new TeleportationPoint(player.getLocation(),
+                    HuskHomes.getSettings().getServerID()), connection);
+            setPlayerDestinationFromTargetPlayer(player, targetPlayer, connection);
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player.", e);
+        }
     }
 
     // Teleport a player to a location on the server or proxy server network
     public static void teleportPlayer(Player player, TeleportationPoint point) {
         final TeleportationPoint destination = new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID());
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (isEventCancelled(player, destination)) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try (Connection connection = HuskHomes.getConnection()) {
-                    DataManager.setPlayerLastPosition(player, destination, connection);
-                    DataManager.setPlayerDestinationLocation(player, point, connection);
-                    teleportPlayer(player);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player.", e);
-                }
-            });
-        });
+        try (Connection connection = HuskHomes.getConnection()) {
+            DataManager.setPlayerLastPosition(player, destination, connection);
+            DataManager.setPlayerDestinationLocation(player, point, connection);
+            teleportPlayer(player);
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player.", e);
+        }
     }
 
     // Move a player to a different server in the bungee network
@@ -80,30 +69,45 @@ public class TeleportManager {
         });
     }
 
-    public static void teleportPlayer(Player p) {
+    public static void teleportPlayer(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            TeleportationPoint teleportationPoint = null;
             try (Connection connection = HuskHomes.getConnection()) {
-                TeleportationPoint teleportationPoint = DataManager.getPlayerDestination(p, connection);
-                if (teleportationPoint != null) {
-                    String server = teleportationPoint.getServer();
-                    if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
-                        DataManager.setPlayerTeleporting(p, false, connection);
-                        DataManager.deletePlayerDestination(p.getName(), connection);
-                        Location targetLocation = teleportationPoint.getLocation();
-                        Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, targetLocation).thenRun(() -> {
-                            p.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
-                            MessageManager.sendMessage(p, "teleporting_complete");
-                        }));
-                    } else if (HuskHomes.getSettings().doBungee()) {
-                        DataManager.setPlayerDestinationLocation(p, teleportationPoint, connection);
-                        DataManager.setPlayerTeleporting(p, true, connection);
-                        movePlayerServer(p, server);
-                    }
-                }
+                teleportationPoint = DataManager.getPlayerDestination(player, connection);
             } catch (SQLException sqlException) {
-                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", sqlException);
-            } catch (IllegalArgumentException illegalArgumentException) {
-                MessageManager.sendMessage(p, "error_invalid_on_arrival");
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred fetching a player's destination", sqlException);
+            }
+            if (teleportationPoint != null) {
+                final TeleportationPoint[] targetPoint = {teleportationPoint};
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    PlayerPreTeleportEvent preTeleportEvent = getPreTeleportEvent(player, targetPoint[0]);
+                    if (preTeleportEvent.isCancelled()) {
+                        return;
+                    }
+                    targetPoint[0] = preTeleportEvent.getTargetPoint();
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try (Connection connection = HuskHomes.getConnection()) {
+                            String server = targetPoint[0].getServer();
+                            if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
+                                DataManager.setPlayerTeleporting(player, false, connection);
+                                DataManager.deletePlayerDestination(player.getName(), connection);
+                                Location targetLocation = targetPoint[0].getLocation();
+                                Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(player, targetLocation).thenRun(() -> {
+                                    player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                                    MessageManager.sendMessage(player, "teleporting_complete");
+                                }));
+                            } else if (HuskHomes.getSettings().doBungee()) {
+                                DataManager.setPlayerDestinationLocation(player, targetPoint[0], connection);
+                                DataManager.setPlayerTeleporting(player, true, connection);
+                                movePlayerServer(player, server);
+                            }
+                        } catch (SQLException sqlException) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player", sqlException);
+                        } catch (IllegalArgumentException illegalArgumentException) {
+                            MessageManager.sendMessage(player, "error_invalid_on_arrival");
+                        }
+                    });
+                });
             }
         });
     }

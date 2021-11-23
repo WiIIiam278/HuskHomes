@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerPreTeleportEvent extends PlayerEvent implements Cancellable {
 
-    private final TeleportationPoint targetPoint;
+    private TeleportationPoint targetPoint;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
@@ -41,6 +41,15 @@ public class PlayerPreTeleportEvent extends PlayerEvent implements Cancellable {
      */
     public TeleportationPoint getTargetPoint() {
         return targetPoint;
+    }
+
+    /**
+     * Set's the Player's teleportation destination {@link TeleportationPoint}
+     *
+     * @param targetPoint Where the player will be teleported to as a {@link TeleportationPoint}
+     */
+    public void setTargetPoint(TeleportationPoint targetPoint) {
+        this.targetPoint = targetPoint;
     }
 
     @Override

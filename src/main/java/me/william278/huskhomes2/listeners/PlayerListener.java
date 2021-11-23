@@ -84,6 +84,12 @@ public class PlayerListener implements Listener {
                                 }
                             }
                         }
+                    } else {
+                        if (HuskHomes.getSettings().doForceSpawnOnLogin()) {
+                            if (TeleportManager.getSpawnLocation() != null) {
+                                Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
+                            }
+                        }
                     }
                 } catch (SQLException sqlException) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL error handling a joining player", sqlException);

@@ -107,6 +107,7 @@ public class DynMap extends Map {
     @Override
     public void initialize() {
         dynMap = plugin.getServer().getPluginManager().getPlugin("dynmap");
+        plugin.getLogger().info("Initializing Dynmap integration");
         DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         if (dynmapAPI == null) {

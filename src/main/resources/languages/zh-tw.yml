@@ -68,7 +68,7 @@ error_tpa_no_pending_request: '[錯誤:](#ff3300) [你沒有需要處理的傳�
 error_tpa_request_expired: '[錯誤:](#ff3300) [你的傳送請求已經過期.](#ff7e5e)'
 error_player_not_found: '[錯誤:](#ff3300) [沒有找到玩家 %1%.](#ff7e5e)'
 return_by_death: '[回到上一個死亡點?](gray) [/back](#00fb9a show_text=&#00fb9a&點擊來回到上一次死亡的地點 run_command=/back)'
-teleport_request_options: '[傳送請求:](gray) [[同意傳送]](#00fb9a show_text=&#00fb9a&同意這次傳送 request; /tpaccept run_command=/tpaccept) [•](gray) [[殘忍拒絕]](#ff7e5e show_text=&#ff7e5e&拒絕本次傳送 request; /tpdeny run_command=/tpdeny)'
+teleport_request_options: '[傳送請求:](gray) [[同意傳送]](#00fb9a show_text=&#00fb9a&同意這次傳送 request; /tpaccept %1% run_command=/tpaccept %1%) [•](gray) [[殘忍拒絕]](#ff7e5e show_text=&#ff7e5e&拒絕本次傳送 request; /tpdeny %1% run_command=/tpdeny %1%)'
 tpa_you_accepted: '[你接受了 %1% 的傳送請求](#00fb9a)'
 tpa_you_declined: '[你拒絕了 %1% 的傳送請求](#ff7e5e)'
 tpa_has_accepted: '[%1% 接受了你的傳送請求](#00fb9a)'

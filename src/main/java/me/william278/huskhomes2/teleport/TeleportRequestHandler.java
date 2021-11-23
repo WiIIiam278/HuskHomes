@@ -11,15 +11,14 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class TeleportRequestHandler {
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
 
-    // Target player and teleport request to them hashmap
-    public static Map<Player, TeleportRequest> teleportRequests = new HashMap<>();
+    // Target player and teleport request(s) to them hashmap
+    public static HashMap<Player, HashMap<String,TeleportRequest>> teleportRequests = new HashMap<>();
 
     private static void sendTeleportRequestCrossServer(Player requester, String targetPlayerName, TeleportRequest.RequestType requestType) {
         if (requestType == TeleportRequest.RequestType.TPA) {
@@ -44,7 +43,11 @@ public class TeleportRequestHandler {
                 if (!VanishChecker.isVanished(targetPlayer)) {
                     MessageManager.sendMessage(requester, "tpa_request_sent", targetPlayerName);
                     if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                        teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA));
+                        if (teleportRequests.containsKey(targetPlayer)) {
+                            teleportRequests.put(targetPlayer, new HashMap<>());
+                        }
+                        teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
+                                TeleportRequest.RequestType.TPA));
                         MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
                         MessageManager.sendMessage(targetPlayer, "teleport_request_options");
                     }
@@ -70,7 +73,11 @@ public class TeleportRequestHandler {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
                 if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                    teleportRequests.put(targetPlayer, new TeleportRequest(requester.getName(), TeleportRequest.RequestType.TPA_HERE));
+                    if (teleportRequests.containsKey(targetPlayer)) {
+                        teleportRequests.put(targetPlayer, new HashMap<>());
+                    }
+                    teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
+                            TeleportRequest.RequestType.TPA_HERE));
                     MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
                     MessageManager.sendMessage(targetPlayer, "teleport_request_options");
                 }
@@ -87,18 +94,12 @@ public class TeleportRequestHandler {
         }
     }
 
-    public static void replyTpRequest(Player p, boolean accepted) {
-        if (!teleportRequests.containsKey(p)) {
-            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
-            return;
-        }
-        if (HuskHomes.isIgnoringTeleportRequests(p.getUniqueId())) {
-            MessageManager.sendMessage(p, "error_ignoring_teleport_requests");
-            return;
-        }
-        TeleportRequest teleportRequest = teleportRequests.get(p);
+    private static void handleRequestReply(Player p, TeleportRequest teleportRequest, boolean accepted) {
         if (teleportRequest.isExpired()) {
-            teleportRequests.remove(p);
+            teleportRequests.get(p).remove(teleportRequest.getSenderName());
+            if (teleportRequests.get(p).isEmpty()) {
+                teleportRequests.remove(p);
+            }
             MessageManager.sendMessage(p, "error_tp_request_expired");
             return;
         }
@@ -138,10 +139,72 @@ public class TeleportRequestHandler {
                         MessageManager.sendMessage(p, "error_player_not_found", requesterName);
                     }
                 }
-                teleportRequests.remove(p);
+                teleportRequests.get(p).remove(teleportRequest.getSenderName());
+                if (teleportRequests.get(p).isEmpty()) {
+                    teleportRequests.remove(p);
+                }
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred!", e);
             }
         });
+    }
+
+    public static void replyTpRequest(Player p, boolean accepted) {
+        if (!teleportRequests.containsKey(p)) {
+            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        if (teleportRequests.get(p).isEmpty()) {
+            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        if (HuskHomes.isIgnoringTeleportRequests(p.getUniqueId())) {
+            MessageManager.sendMessage(p, "error_ignoring_teleport_requests");
+            return;
+        }
+        HashMap<String,TeleportRequest> playerRequests = teleportRequests.get(p);
+        long firstRequestTime = Long.MAX_VALUE;
+        TeleportRequest targetRequest = null;
+        for (String playerName : playerRequests.keySet()) {
+            TeleportRequest request = playerRequests.get(playerName);
+            if (request.getRequestTime() < firstRequestTime) {
+                targetRequest = request;
+                firstRequestTime = targetRequest.getRequestTime();
+            }
+        }
+        if (targetRequest == null) {
+            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        handleRequestReply(p, targetRequest, accepted);
+    }
+
+    public static void replyTpRequest(Player p, String requesterName, boolean accepted) {
+        if (!teleportRequests.containsKey(p)) {
+            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        if (teleportRequests.get(p).isEmpty()) {
+            MessageManager.sendMessage(p, "error_tpa_no_pending_request");
+            return;
+        }
+        if (HuskHomes.isIgnoringTeleportRequests(p.getUniqueId())) {
+            MessageManager.sendMessage(p, "error_ignoring_teleport_requests");
+            return;
+        }
+        HashMap<String,TeleportRequest> playerRequests = teleportRequests.get(p);
+        TeleportRequest targetRequest = null;
+        for (String playerName : playerRequests.keySet()) {
+            TeleportRequest request = playerRequests.get(playerName);
+            if (request.getSenderName().equalsIgnoreCase(requesterName)) {
+                targetRequest = request;
+                break;
+            }
+        }
+        if (targetRequest == null) {
+            MessageManager.sendMessage(p, "error_invalid_player");
+            return;
+        }
+        handleRequestReply(p, targetRequest, accepted);
     }
 }

@@ -69,7 +69,7 @@ error_tpa_no_pending_request: '[错误:](#ff3300) [你没有需要处理的传�
 error_tpa_request_expired: '[错误:](#ff3300) [你的传送请求已经过期.](#ff7e5e)'
 error_player_not_found: '[错误:](#ff3300) [没有找到玩家 %1%.](#ff7e5e)'
 return_by_death: '[回到上一个死亡点?](gray) [/back](#00fb9a show_text=&#00fb9a&点击来回到上一次死亡的地点 run_command=/back)'
-teleport_request_options: '[传送请求:](gray) [[同意传送]](#00fb9a show_text=&#00fb9a&同意这次传送; /tpaccept run_command=/tpaccept) [•](gray) [[残忍拒绝]](#ff7e5e show_text=&#ff7e5e&拒绝本次传送; /tpdeny run_command=/tpdeny)'
+teleport_request_options: '[传送请求:](gray) [[同意传送]](#00fb9a show_text=&#00fb9a&同意这次传送; /tpaccept %1% run_command=/tpaccept %1%) [•](gray) [[残忍拒绝]](#ff7e5e show_text=&#ff7e5e&拒绝本次传送; /tpdeny %1% run_command=/tpdeny %1%)'
 tpa_you_accepted: '[你接受了 %1% 的传送请求](#00fb9a)'
 tpa_you_declined: '[你拒绝了 %1% 的传送请求](#ff7e5e)'
 tpa_has_accepted: '[%1% 接受了你的传送请求](#00fb9a)'

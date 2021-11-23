@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 
@@ -41,7 +42,13 @@ public class CrossServerMessageHandler {
             case TPA_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
-                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA));
+                        if (TeleportRequestHandler.teleportRequests.containsKey(recipient)) {
+                            if (TeleportRequestHandler.teleportRequests.get(recipient).containsKey(receivedMessage.getMessageData())) {
+                                return; // Prevent request spam
+                            }
+                            TeleportRequestHandler.teleportRequests.put(recipient, new HashMap<>());
+                        }
+                        TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA));
                         MessageManager.sendMessage(recipient, "tpa_request_ask", receivedMessage.getMessageData());
                         MessageManager.sendMessage(recipient, "teleport_request_options");
                     }
@@ -50,7 +57,13 @@ public class CrossServerMessageHandler {
             case TPA_HERE_REQUEST -> {
                 if (!VanishChecker.isVanished(recipient)) {
                     if (!HuskHomes.isIgnoringTeleportRequests(recipient.getUniqueId())) {
-                        TeleportRequestHandler.teleportRequests.put(recipient, new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA_HERE));
+                        if (TeleportRequestHandler.teleportRequests.containsKey(recipient)) {
+                            if (TeleportRequestHandler.teleportRequests.get(recipient).containsKey(receivedMessage.getMessageData())) {
+                                return; // Prevent request spam
+                            }
+                            TeleportRequestHandler.teleportRequests.put(recipient, new HashMap<>());
+                        }
+                        TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA_HERE));
                         MessageManager.sendMessage(recipient, "tpahere_request_ask", receivedMessage.getMessageData());
                         MessageManager.sendMessage(recipient, "teleport_request_options");
                     }

@@ -69,7 +69,7 @@ error_tpa_no_pending_request: '[Errore:](#ff3300) [Non hai una richiesta di tele
 error_tpa_request_expired: '[Errore:](#ff3300) [La tua richiesta di teletrasporto è scaduta.](#ff7e5e)'
 error_player_not_found: '[Errore:](#ff3300) [Non trovo il giocatore: %1%.](#ff7e5e)'
 return_by_death: '[Torna dove sei morto.](gray) [/back](#00fb9a show_text=&#00fb9a&Clicca per tornare al tuo punto di morte run_command=/back)'
-teleport_request_options: '[Scegli se:](gray) [[Accettare]](#00fb9a show_text=&#00fb9a&Accetta la richiesta; /tpaccept run_command=/tpaccept) [•](gray) [[Rifiutare]](#ff7e5e show_text=&#ff7e5e&Declina la richiesta; /tpdeny run_command=/tpdeny)'
+teleport_request_options: '[Scegli se:](gray) [[Accettare]](#00fb9a show_text=&#00fb9a&Accetta la richiesta; /tpaccept %1% run_command=/tpaccept %1%) [•](gray) [[Rifiutare]](#ff7e5e show_text=&#ff7e5e&Declina la richiesta; /tpdeny %1% run_command=/tpdeny %1%)'
 tpa_you_accepted: '[Hai accettato la richiesta di teletrasporto di %1%](#00fb9a)'
 tpa_you_declined: '[Hai rifiutato la richiesta di teletrasporto di %1%](#ff7e5e)'
 tpa_has_accepted: '[%1% ha accettato la tua richiesta di teletrasporto.](#00fb9a)'

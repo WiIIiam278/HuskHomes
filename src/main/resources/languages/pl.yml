@@ -69,7 +69,7 @@ error_tpa_no_pending_request: '[error:](#ff3300) [Nie masz oczekujących próśb
 error_tpa_request_expired: '[error:](#ff3300) [Twoja prośba o teleporacje wygasła.](#ff7e5e)'
 error_player_not_found: '[error:](#ff3300) [Nie odnalazłem gracza %1%.](#ff7e5e)'
 return_by_death: '[Powrót w miejsce śmierci?](gray) [/back](#00fb9a show_text=&#00fb9a&Kliknij aby wrócić do ostatniej pozycji smierci. run_command=/back)'
-teleport_request_options: '[Wybierz opcję:](gray) [[Zaakceptuj]](#00fb9a show_text=&#00fb9a&Zaakceptuj prośbę o teleporacje; /tpaccept run_command=/tpaccept) [•](gray) [[Decline]](#ff7e5e show_text=&#ff7e5e&Odrzuć prośbę o teleportacje; /tpdeny run_command=/tpdeny)'
+teleport_request_options: '[Wybierz opcję:](gray) [[Zaakceptuj]](#00fb9a show_text=&#00fb9a&Zaakceptuj prośbę o teleporacje; /tpaccept %1% run_command=/tpaccept %1%) [•](gray) [[Decline]](#ff7e5e show_text=&#ff7e5e&Odrzuć prośbę o teleportacje; /tpdeny %1% run_command=/tpdeny %1%)'
 tpa_you_accepted: '[Zaakceptowałeś prośbę o teleportacje od %1%](#00fb9a)'
 tpa_you_declined: '[Odrzuciłeś prośbę o teleporacje od %1%''](#ff7e5e)'
 tpa_has_accepted: '[%1% zaakceptował twoją prośbę o teleportacje](#00fb9a)'

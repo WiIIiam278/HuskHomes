@@ -8,13 +8,14 @@ public class TeleportRequest {
 
     private final String senderName;
     private final long requestExpiryTime;
+    private final long requestTime;
     private final RequestType requestType;
 
     public TeleportRequest(String senderName, RequestType requestType) {
         this.senderName = senderName;
         this.requestType = requestType;
-        long currentUnixTime = Instant.now().getEpochSecond();
-        requestExpiryTime = currentUnixTime + HuskHomes.getSettings().getTeleportRequestExpiryTime();
+        this.requestTime = Instant.now().getEpochSecond();
+        requestExpiryTime = requestTime + HuskHomes.getSettings().getTeleportRequestExpiryTime();
     }
 
     public String getSenderName() {
@@ -24,6 +25,8 @@ public class TeleportRequest {
     public RequestType getRequestType() {
         return requestType;
     }
+
+    public long getRequestTime() { return requestTime; }
 
     public boolean isExpired() {
         long currentUnixTime = Instant.now().getEpochSecond();

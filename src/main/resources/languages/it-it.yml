@@ -119,3 +119,4 @@ error_no_homes_set_other: '[Errore:](#ff3300) [%1% non ha nessuna home!](#ff7e5e
 error_home_invalid_other: '[Errore:](#ff3300) [%1% non ha una home chiamata "%2%"](#ff7e5e)'
 home_deleted_other: '[Hai cancellato la home](#00fb9a)[%2%](#00fb9a bold)[di %1%](#00fb9a) '
 edit_home_privacy_private_other: '• Accesso: &#ff7e5e&Privato &7(Solo %1% può usarla)'
+error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'

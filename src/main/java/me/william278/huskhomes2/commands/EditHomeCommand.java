@@ -4,11 +4,7 @@ import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.EditingHandler;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
-import me.william278.huskhomes2.api.events.PlayerChangeHomeDescriptionEvent;
-import me.william278.huskhomes2.api.events.PlayerMakeHomePrivateEvent;
-import me.william278.huskhomes2.api.events.PlayerMakeHomePublicEvent;
-import me.william278.huskhomes2.api.events.PlayerRelocateHomeEvent;
-import me.william278.huskhomes2.api.events.PlayerRenameHomeEvent;
+import me.william278.huskhomes2.api.events.*;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.Home;
@@ -30,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class EditHomeCommand extends CommandBase implements TabCompleter {
 
@@ -237,21 +234,6 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
         if (makingHomePublic) {
             // Making a private home
             if (!privacyUpdatingHome.isPublic()) {
-                if (HuskHomes.getSettings().doEconomy()) {
-                    double publicHomeCost = HuskHomes.getSettings().getPublicHomeCost();
-                    if (publicHomeCost > 0) {
-                        if (!VaultIntegration.takeMoney(p, publicHomeCost)) {
-                            MessageManager.sendMessage(p, "error_insufficient_funds", VaultIntegration.format(publicHomeCost));
-                            return;
-                        } else {
-                            MessageManager.sendMessage(p, "edit_home_privacy_public_success_economy", privacyUpdatingHome.getName(), VaultIntegration.format(publicHomeCost));
-                        }
-                    } else {
-                        MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
-                    }
-                } else {
-                    MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
-                }
                 PlayerMakeHomePublicEvent makeHomePublicEvent = new PlayerMakeHomePublicEvent(p, privacyUpdatingHome);
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     Bukkit.getPluginManager().callEvent(makeHomePublicEvent);
@@ -259,6 +241,35 @@ public class EditHomeCommand extends CommandBase implements TabCompleter {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        // Check the player is allowed to set an additional public home
+                        try (Connection connection = HuskHomes.getConnection()) {
+                            final Stream<Home> playerHomes = DataManager.getPlayerHomes(p.getName(), connection).stream().filter(Home::isPublic);
+                            final int publicHomeLimit = Home.getPublicHomeLimit(p);
+                            if ((playerHomes.count() + 1) > publicHomeLimit) {
+                                MessageManager.sendMessage(p, "error_edit_home_maximum_public_homes", Integer.toString(publicHomeLimit));
+                                return;
+                            }
+                        } catch (SQLException e) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred editing a home's privacy.");
+                            return;
+                        }
+
+                        // Check the player has enough money to make the home public
+                        if (HuskHomes.getSettings().doEconomy()) {
+                            double publicHomeCost = HuskHomes.getSettings().getPublicHomeCost();
+                            if (publicHomeCost > 0) {
+                                if (!VaultIntegration.takeMoney(p, publicHomeCost)) {
+                                    MessageManager.sendMessage(p, "error_insufficient_funds", VaultIntegration.format(publicHomeCost));
+                                    return;
+                                } else {
+                                    MessageManager.sendMessage(p, "edit_home_privacy_public_success_economy", privacyUpdatingHome.getName(), VaultIntegration.format(publicHomeCost));
+                                }
+                            } else {
+                                MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
+                            }
+                        } else {
+                            MessageManager.sendMessage(p, "edit_home_privacy_public_success", privacyUpdatingHome.getName());
+                        }
                         try (Connection connection = HuskHomes.getConnection()) {
                             DataManager.updateHomePrivacy(privacyUpdatingHome.getOwnerUsername(), privacyUpdatingHome.getName(), true, connection);
                             PublicHomeCommand.updatePublicHomeTabCache();

@@ -119,3 +119,4 @@ home_deleted_other: '[Successfully deleted %1%''s home,](#00fb9a) [%2%](#00fb9a 
 edit_home_privacy_private_other: '• Access: &#ff7e5e&Private &7(Only %1% can use it)'
 edit_home_title_other: '\n[Edit home details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
 command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
+error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'

@@ -12,8 +12,9 @@ public class PlayerRenameHomeEvent extends PlayerHomeUpdateEvent {
 
     /**
      * An event, fired when a player changes the name of a home
-     * @param player The Player who is changing the Home's name
-     * @param home The Home being changed
+     *
+     * @param player  The Player who is changing the Home's name
+     * @param home    The Home being changed
      * @param newName The new name of the home
      * @see PlayerHomeUpdateEvent
      */
@@ -25,6 +26,7 @@ public class PlayerRenameHomeEvent extends PlayerHomeUpdateEvent {
 
     /**
      * Get the name of the Home pre-update
+     *
      * @return the name of the Home before it is updated
      */
     public String getOldName() {
@@ -33,6 +35,7 @@ public class PlayerRenameHomeEvent extends PlayerHomeUpdateEvent {
 
     /**
      * Get the changed name of the Home
+     *
      * @return the new name of the Home
      */
     public String getNewName() {

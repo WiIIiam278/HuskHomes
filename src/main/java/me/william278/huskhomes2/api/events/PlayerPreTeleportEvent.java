@@ -1,31 +1,27 @@
 package me.william278.huskhomes2.api.events;
 
-import me.william278.huskhomes2.teleport.points.Warp;
+import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * An event, fired when a player sets a new warp
- */
-public class PlayerSetWarpEvent extends PlayerEvent implements Cancellable {
+public class PlayerPreTeleportEvent extends PlayerEvent implements Cancellable {
 
-    private final Warp warp;
+    private final TeleportationPoint targetPoint;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
     /**
-     * An event, fired when a Player sets a Warp
+     * An event, fired before a player is teleported by HuskHomes for any reason
      *
-     * @param player the {@link Player} setting the warp
-     * @param warp   the {@link Warp} being set
+     * @param player      The Player who is updating the Home
+     * @param targetPoint The Player's teleport destination
      */
-    public PlayerSetWarpEvent(Player player, Warp warp) {
+    public PlayerPreTeleportEvent(Player player, TeleportationPoint targetPoint) {
         super(player);
-        this.warp = warp;
+        this.targetPoint = targetPoint;
         this.isCancelled = false;
     }
 
@@ -39,12 +35,12 @@ public class PlayerSetWarpEvent extends PlayerEvent implements Cancellable {
     }
 
     /**
-     * Get the Warp being set
+     * Get the Player's teleportation destination {@link TeleportationPoint}
      *
-     * @return the {@link Warp}
+     * @return the {@link TeleportationPoint}
      */
-    public Warp getWarp() {
-        return warp;
+    public TeleportationPoint getTargetPoint() {
+        return targetPoint;
     }
 
     @Override

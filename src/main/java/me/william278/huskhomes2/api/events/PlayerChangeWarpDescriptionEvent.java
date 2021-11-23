@@ -12,8 +12,9 @@ public class PlayerChangeWarpDescriptionEvent extends PlayerWarpUpdateEvent {
 
     /**
      * An event, fired when a player changes the description of a warp.
-     * @param player The Player who is changing the warp's description
-     * @param warp The Warp being changed
+     *
+     * @param player         The Player who is changing the warp's description
+     * @param warp           The Warp being changed
      * @param newDescription The new description being set
      * @see PlayerWarpUpdateEvent
      */
@@ -25,6 +26,7 @@ public class PlayerChangeWarpDescriptionEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Returns the old description of the home
+     *
      * @return the old description String
      */
     public String getOldDescription() {
@@ -33,8 +35,10 @@ public class PlayerChangeWarpDescriptionEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Returns the new description being set to the home
+     *
      * @return the new description String
      */
     public String getNewDescription() {
         return newDescription;
-    }}
+    }
+}

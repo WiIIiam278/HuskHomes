@@ -5,26 +5,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * An event, fired when a player sets a new home
  */
-public class PlayerSetHomeEvent extends Event implements Cancellable {
+public class PlayerSetHomeEvent extends PlayerEvent implements Cancellable {
 
-    private final Player player;
     private final Home home;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
     /**
-     * An event, fired when a player sets a Home
+     * An event, fired when a player sets a {@link Home}
      *
-     * @param player the Player setting the Home
-     * @param home   the Home being set
+     * @param player the {@link Player} setting the Home
+     * @param home   the {@link Home} being set
      */
     public PlayerSetHomeEvent(Player player, Home home) {
-        this.player = player;
+        super(player);
         this.home = home;
         this.isCancelled = false;
     }
@@ -39,18 +39,9 @@ public class PlayerSetHomeEvent extends Event implements Cancellable {
     }
 
     /**
-     * Get the player involved in this event
-     *
-     * @return the Player who is setting the home
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
      * Get the Home being set
      *
-     * @return the Home being set
+     * @return the {@link Home}
      */
     public Home getHome() {
         return home;

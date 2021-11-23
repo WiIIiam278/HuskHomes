@@ -12,8 +12,9 @@ public class PlayerChangeHomeDescriptionEvent extends PlayerHomeUpdateEvent {
 
     /**
      * An event, fired when a player changes the description of a home.
-     * @param player The Player who is changing the home's description
-     * @param home The Home being changed
+     *
+     * @param player         The Player who is changing the home's description
+     * @param home           The Home being changed
      * @param newDescription The new description being set
      * @see PlayerHomeUpdateEvent
      */
@@ -25,6 +26,7 @@ public class PlayerChangeHomeDescriptionEvent extends PlayerHomeUpdateEvent {
 
     /**
      * Returns the old description of the home
+     *
      * @return the old description String
      */
     public String getOldDescription() {
@@ -33,6 +35,7 @@ public class PlayerChangeHomeDescriptionEvent extends PlayerHomeUpdateEvent {
 
     /**
      * Returns the new description being set to the home
+     *
      * @return the new description String
      */
     public String getNewDescription() {

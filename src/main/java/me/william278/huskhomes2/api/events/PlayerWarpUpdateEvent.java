@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,15 +13,14 @@ import org.jetbrains.annotations.NotNull;
  * Fires when a player renames a Warp, updates its' location or changes its' name.
  * Also fires when a warp is deleted
  */
-public class PlayerWarpUpdateEvent extends Event implements Cancellable {
+public class PlayerWarpUpdateEvent extends PlayerEvent implements Cancellable {
 
-    private final Player player;
     private final Warp warp;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
 
     /**
-     * An event, fired when a Warp is updated.
+     * An event, fired when a {@link Warp} is updated.
      * Fires when a player renames a Warp, updates its' location, changes its' name or when it is deleted.
      * Does not fire when a player sets a Warp.
      *
@@ -28,7 +28,7 @@ public class PlayerWarpUpdateEvent extends Event implements Cancellable {
      * @param warp   The Warp being changed
      */
     public PlayerWarpUpdateEvent(Player player, Warp warp) {
-        this.player = player;
+        super(player);
         this.warp = warp;
         this.isCancelled = false;
     }
@@ -43,18 +43,9 @@ public class PlayerWarpUpdateEvent extends Event implements Cancellable {
     }
 
     /**
-     * Get the Player involved in this event
+     * Get the {@link Warp} being updated
      *
-     * @return the Player who updated the Warp
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Get the Warp being updated
-     *
-     * @return the Warp being updated
+     * @return the {@link Warp}
      */
     public Warp getWarp() {
         return warp;

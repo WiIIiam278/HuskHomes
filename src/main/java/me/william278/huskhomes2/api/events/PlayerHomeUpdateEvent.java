@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * Fires when a player renames a Home, updates its' location, changes its' name, changes whether or not it is public/private.
  * Also fires when it is deleted
  */
-public class PlayerHomeUpdateEvent extends Event implements Cancellable {
-    private final Player player;
+public class PlayerHomeUpdateEvent extends PlayerEvent implements Cancellable {
     private final Home home;
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled;
@@ -27,7 +27,7 @@ public class PlayerHomeUpdateEvent extends Event implements Cancellable {
      * @param home   The Home being changed
      */
     public PlayerHomeUpdateEvent(Player player, Home home) {
-        this.player = player;
+        super(player);
         this.home = home;
         this.isCancelled = false;
     }
@@ -42,18 +42,9 @@ public class PlayerHomeUpdateEvent extends Event implements Cancellable {
     }
 
     /**
-     * Get the Player involved in this event
+     * Gets the {@link Home} being updated
      *
-     * @return the Player who updated the home
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Get the Player involved in this event
-     *
-     * @return the Home being updated
+     * @return the {@link Home}
      */
     public Home getHome() {
         return home;

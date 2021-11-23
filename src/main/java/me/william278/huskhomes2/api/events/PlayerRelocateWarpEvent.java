@@ -13,8 +13,9 @@ public class PlayerRelocateWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * An event, fired when a player relocates a warp
-     * @param player The Player who is relocating the Warp
-     * @param warp The Warp being moved
+     *
+     * @param player                The Player who is relocating the Warp
+     * @param warp                  The Warp being moved
      * @param newTeleportationPoint The new teleportation position of the Warp
      * @see PlayerWarpUpdateEvent
      */
@@ -26,6 +27,7 @@ public class PlayerRelocateWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Returns the teleportation position of the Warp before it is updated
+     *
      * @return the pre-update teleportation position
      */
     public TeleportationPoint getOldTeleportationPoint() {
@@ -34,6 +36,7 @@ public class PlayerRelocateWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Returns the updated teleportation position of the Warp
+     *
      * @return the updated teleportation position
      */
     public TeleportationPoint getNewTeleportationPoint() {

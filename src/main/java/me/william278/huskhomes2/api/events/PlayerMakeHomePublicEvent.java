@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 public class PlayerMakeHomePublicEvent extends PlayerHomeUpdateEvent {
     /**
      * An event, fired when a player makes a home public
+     *
      * @param player The Player who is making the Home public
-     * @param home The Home being changed
+     * @param home   The Home being changed
      * @see PlayerHomeUpdateEvent
      */
     public PlayerMakeHomePublicEvent(Player player, Home home) {

@@ -12,8 +12,9 @@ public class PlayerRenameWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * An event, fired when a player changes the name of a warp
-     * @param player The Player who is changing the Warp's name
-     * @param warp The Warp being changed
+     *
+     * @param player  The Player who is changing the Warp's name
+     * @param warp    The Warp being changed
      * @param newName The new name of the warp
      * @see PlayerWarpUpdateEvent
      */
@@ -25,6 +26,7 @@ public class PlayerRenameWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Get the name of the Warp pre-update
+     *
      * @return the name of the Warp before it is updated
      */
     public String getOldName() {
@@ -33,8 +35,10 @@ public class PlayerRenameWarpEvent extends PlayerWarpUpdateEvent {
 
     /**
      * Get the changed name of the Warp
+     *
      * @return the new name of the Warp
      */
     public String getNewName() {
         return newName;
-    }}
+    }
+}

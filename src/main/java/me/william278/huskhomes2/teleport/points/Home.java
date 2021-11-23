@@ -138,7 +138,7 @@ public class Home extends SetPoint {
 
     // Returns the maximum number of set homes a player can make
     public static int getSetHomeLimit(Player player) {
-        int maxSetHomes = getCountFromPermissions(player, "huskhomes.max_sethomes.");
+        int maxSetHomes = getLimitFromPermissions(player, "huskhomes.max_sethomes.");
         if (maxSetHomes != -1) {
             return maxSetHomes;
         }
@@ -147,32 +147,44 @@ public class Home extends SetPoint {
 
     // Returns the number of set homes a player can set for free
     public static int getFreeHomes(Player player) {
-        int freeSetHomes = getCountFromPermissions(player, "huskhomes.free_sethomes.");
+        int freeSetHomes = getLimitFromPermissions(player, "huskhomes.free_sethomes.");
         if (freeSetHomes != -1) {
             return freeSetHomes;
         }
         return HuskHomes.getSettings().getFreeHomeSlots();
     }
 
+    // Returns the number of homes a player can make public; unlimited if not set
+    public static int getPublicHomeLimit(Player player) {
+        int maxPublicHomes = getLimitFromPermissions(player, "huskhomes.max_public_homes.");
+        if (maxPublicHomes != -1) {
+            return maxPublicHomes;
+        }
+        return Integer.MAX_VALUE;
+    }
+
     // Return the value from the player's permissions
-    private static int getCountFromPermissions(Player player, String permissionPrefix) {
+    private static int getLimitFromPermissions(Player player, String permissionPrefix) {
         player.recalculatePermissions();
-        int count = -1 + (HuskHomes.getSettings().doHomeLimitPermissionStacking() ? 1 : 0);
+        int limit = -1;
         for (PermissionAttachmentInfo permissionAI : player.getEffectivePermissions()) {
             String permission = permissionAI.getPermission();
             if (permission.contains(permissionPrefix)) {
                 try {
                     int value = Integer.parseInt(permission.split("\\.")[2]);
                     if (HuskHomes.getSettings().doHomeLimitPermissionStacking()) {
-                        count += value;
+                        if (limit == -1) {
+                            limit++;
+                        }
+                        limit += value;
                     } else {
-                        if (value > count) {
-                            count = value;
+                        if (value > limit) {
+                            limit = value;
                         }
                     }
                 } catch (NumberFormatException | PatternSyntaxException ignored) {}
             }
         }
-        return count;
+        return limit;
     }
 }

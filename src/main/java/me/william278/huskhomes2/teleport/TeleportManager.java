@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class TeleportManager {
@@ -88,11 +89,10 @@ public class TeleportManager {
                         DataManager.setPlayerTeleporting(p, false, connection);
                         DataManager.deletePlayerDestination(p.getName(), connection);
                         Location targetLocation = teleportationPoint.getLocation();
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            PaperLib.teleportAsync(p, targetLocation);
-                            p.playSound(p.getLocation(), HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                        Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, targetLocation).thenRun(() -> {
+                            p.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
                             MessageManager.sendMessage(p, "teleporting_complete");
-                        });
+                        }));
                     } else if (HuskHomes.getSettings().doBungee()) {
                         DataManager.setPlayerDestinationLocation(p, teleportationPoint, connection);
                         DataManager.setPlayerTeleporting(p, true, connection);

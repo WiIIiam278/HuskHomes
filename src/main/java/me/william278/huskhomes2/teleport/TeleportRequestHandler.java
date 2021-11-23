@@ -49,7 +49,7 @@ public class TeleportRequestHandler {
                         teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
                                 TeleportRequest.RequestType.TPA));
                         MessageManager.sendMessage(targetPlayer, "tpa_request_ask", requester.getName());
-                        MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                        MessageManager.sendMessage(targetPlayer, "teleport_request_options", requester.getName());
                     }
                 } else {
                     MessageManager.sendMessage(requester, "error_player_not_found", targetPlayerName);
@@ -79,7 +79,7 @@ public class TeleportRequestHandler {
                     teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
                             TeleportRequest.RequestType.TPA_HERE));
                     MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
-                    MessageManager.sendMessage(targetPlayer, "teleport_request_options");
+                    MessageManager.sendMessage(targetPlayer, "teleport_request_options", requester.getName());
                 }
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");

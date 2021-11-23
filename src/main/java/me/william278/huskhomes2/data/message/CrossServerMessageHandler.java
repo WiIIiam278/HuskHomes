@@ -50,7 +50,7 @@ public class CrossServerMessageHandler {
                         }
                         TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA));
                         MessageManager.sendMessage(recipient, "tpa_request_ask", receivedMessage.getMessageData());
-                        MessageManager.sendMessage(recipient, "teleport_request_options");
+                        MessageManager.sendMessage(recipient, "teleport_request_options", receivedMessage.getMessageData());
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class CrossServerMessageHandler {
                         }
                         TeleportRequestHandler.teleportRequests.get(recipient).put(receivedMessage.getMessageData(), new TeleportRequest(receivedMessage.getMessageData(), TeleportRequest.RequestType.TPA_HERE));
                         MessageManager.sendMessage(recipient, "tpahere_request_ask", receivedMessage.getMessageData());
-                        MessageManager.sendMessage(recipient, "teleport_request_options");
+                        MessageManager.sendMessage(recipient, "teleport_request_options", receivedMessage.getMessageData());
                     }
                 }
             }

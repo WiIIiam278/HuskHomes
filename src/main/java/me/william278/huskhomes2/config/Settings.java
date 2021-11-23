@@ -78,6 +78,7 @@ public class Settings {
     private int maximumHomes;
     private int teleportRequestExpiryTime;
     private int teleportWarmupTime;
+    private DisplayStyle teleportWarmupDisplayStyle;
 
     // Sounds
     private Sound teleportationCompleteSound;
@@ -263,6 +264,7 @@ public class Settings {
             this.maximumHomes = config.getInt("general.max_sethomes", 10);
             this.teleportRequestExpiryTime = config.getInt("general.teleport_request_expiry_time", 60);
             this.teleportWarmupTime = config.getInt("general.teleport_warmup_time", 5);
+            this.teleportWarmupDisplayStyle = DisplayStyle.valueOf(config.getString("general.teleport_warmup_display", "ACTION_BAR"));
 
         } catch (Exception e) {
             HuskHomes.disablePlugin("An error occurred loading the HuskHomes config (" + e.getCause() + ")");
@@ -528,5 +530,16 @@ public class Settings {
 
     public boolean doHomeLimitPermissionStacking() {
         return homeLimitPermissionStacking;
+    }
+
+    public DisplayStyle getWarmupDisplayStyle() {
+        return teleportWarmupDisplayStyle;
+    }
+
+    public enum DisplayStyle {
+        ACTION_BAR,
+        TITLE,
+        SUBTITLE,
+        CHAT
     }
 }

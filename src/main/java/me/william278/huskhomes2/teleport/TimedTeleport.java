@@ -1,11 +1,13 @@
 package me.william278.huskhomes2.teleport;
 
+import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -76,14 +78,14 @@ public class TimedTeleport {
                     cancel();
                     executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                     MessageManager.sendMessage(player, "teleporting_cancelled_movement");
-                    MessageManager.sendActionBar(player, "teleporting_action_bar_cancelled");
+                    sendWarmupMessage(player, "teleporting_action_bar_cancelled");
                     return;
                 }
                 if (hasLostHealth(executablePlayer)) {
                     cancel();
                     executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                     MessageManager.sendMessage(player, "teleporting_cancelled_damage");
-                    MessageManager.sendActionBar(player, "teleporting_action_bar_cancelled");
+                    sendWarmupMessage(player, "teleporting_action_bar_cancelled");
                     return;
                 }
                 i[0] = i[0] -1;
@@ -135,7 +137,7 @@ public class TimedTeleport {
                     });
                     return;
                 }
-                MessageManager.sendActionBar(executablePlayer, "teleporting_action_bar_countdown", Integer.toString(i[0]));
+                sendWarmupMessage(executablePlayer, "teleporting_action_bar_countdown", Integer.toString(i[0]));
                 executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportWarmupSound(), 1, 1);
             }
         }.runTaskTimer(plugin, 0, 20L);
@@ -151,6 +153,15 @@ public class TimedTeleport {
 
     public String getTargetPlayerName() {
         return targetPlayerName;
+    }
+
+    private static void sendWarmupMessage(Player player, String messageID, String... replacements) {
+        switch (HuskHomes.getSettings().getWarmupDisplayStyle()) {
+            case ACTION_BAR -> MessageManager.sendActionBar(player, messageID, replacements);
+            case TITLE -> player.sendTitle(TextComponent.toLegacyText(new MineDown(MessageManager.getRawMessage(messageID, replacements)).toComponent()), "", 20, 60, 20);
+            case SUBTITLE -> player.sendTitle("", TextComponent.toLegacyText(new MineDown(MessageManager.getRawMessage(messageID, replacements)).toComponent()), 20, 60, 20);
+            case CHAT -> MessageManager.sendMessage(player, messageID, replacements);
+        }
     }
 
     // This converts a negative to a positive double, used in checking if a player has moved

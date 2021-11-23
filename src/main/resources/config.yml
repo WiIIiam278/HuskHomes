@@ -31,6 +31,7 @@ general:
   auto_complete_player_names: true
   home_limit_permission_stacking: false
   teleport_warmup_time: 5
+  teleport_warmup_display: ACTION_BAR
   teleport_request_expiry_time: 60
   allow_unicode_descriptions: true
   sounds:

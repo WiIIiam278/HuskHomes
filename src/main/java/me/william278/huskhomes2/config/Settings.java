@@ -96,6 +96,9 @@ public class Settings {
     // Whether to autocomplete player names for tpa (e.g /tpa William will assume you mean /tpa William278)
     private boolean autoCompletePlayerNames;
 
+    // Whether to stack limit permissions (add them) if a user has multiple. By default, the highest one will be returned
+    private boolean homeLimitPermissionStacking;
+
     // RTP command settings
     private boolean doRtpCommand;
     private int rtpRange;
@@ -242,7 +245,9 @@ public class Settings {
             this.warpRestrictionPermissionFormat = config.getString("warp_command.permission_restrictions.format", "huskhomes.warp.");
             this.hideRestrictedWarps = config.getBoolean("warp_command.permission_restrictions.hide_restricted_warps", true);
 
-            this.autoCompletePlayerNames = config.getBoolean("general.auto_complete_player_names", false);
+            this.autoCompletePlayerNames = config.getBoolean("general.auto_complete_player_names", true);
+
+            this.homeLimitPermissionStacking = config.getBoolean("general.home_limit_permission_stacking", false);
 
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled", true);
             this.rtpRange = config.getInt("random_teleport_command.range", 5000);
@@ -519,5 +524,9 @@ public class Settings {
 
     public boolean doAutoCompletePlayerNames() {
         return autoCompletePlayerNames;
+    }
+
+    public boolean doHomeLimitPermissionStacking() {
+        return homeLimitPermissionStacking;
     }
 }

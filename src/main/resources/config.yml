@@ -28,7 +28,8 @@ data_storage_options:
     warps_data: 'huskhomes_warp_data'
 general:
   max_sethomes: 10
-  auto_complete_player_names: false
+  auto_complete_player_names: true
+  home_limit_permission_stacking: false
   teleport_warmup_time: 5
   teleport_request_expiry_time: 60
   allow_unicode_descriptions: true

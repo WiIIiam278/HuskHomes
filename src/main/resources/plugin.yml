@@ -86,13 +86,13 @@ commands:
     permission: huskhomes.tprequest
     aliases: [tphererequest, tpaskhere]
   tpaccept:
-    description: Accept teleport requests
-    usage: /<command>
+    description: Accept a teleport request
+    usage: /<command> [player]
     permission: huskhomes.tprequest
     aliases: [tpyes]
   tpdeny:
-    description: Deny teleport requests
-    usage: /<command>
+    description: Deny a teleport request
+    usage: /<command> [player]
     permission: huskhomes.tprequest
     aliases: [tpno]
   tpignore:

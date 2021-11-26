@@ -1,5 +1,5 @@
 name: HuskHomes
-version: ${project.version}
+version: '${project.version}'
 main: me.william278.huskhomes2.HuskHomes
 api-version: 1.16
 authors: [William278]

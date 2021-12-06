@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
                     if (!DataManager.playerExists(p, connection)) {
                         DataManager.createPlayer(p, connection);
                         if (TeleportManager.getSpawnLocation() != null) {
-                            Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
+                            teleportToSpawn(p);
                             return;
                         }
                     } else {
@@ -78,16 +78,14 @@ public class PlayerListener implements Listener {
                                 TeleportManager.teleportPlayer(p);
                             } else {
                                 if (HuskHomes.getSettings().doForceSpawnOnLogin()) {
-                                    if (TeleportManager.getSpawnLocation() != null) {
-                                        Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
-                                    }
+                                    teleportToSpawn(p);
                                 }
                             }
                         }
                     } else {
                         if (HuskHomes.getSettings().doForceSpawnOnLogin()) {
                             if (TeleportManager.getSpawnLocation() != null) {
-                                Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(p, TeleportManager.getSpawnLocation().getLocation()));
+                                teleportToSpawn(p);
                             }
                         }
                     }
@@ -103,6 +101,15 @@ public class PlayerListener implements Listener {
             HuskHomes.getPlayerList().updateList(p);
         } else {
             HuskHomes.getPlayerList().addPlayer(p.getName());
+        }
+    }
+
+    private void teleportToSpawn(Player player) {
+        if (TeleportManager.getSpawnLocation() != null) {
+            if (!player.isEmpty()) {
+                player.eject(); // Eject passengers before teleporting
+            }
+            Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(player, TeleportManager.getSpawnLocation().getLocation()));
         }
     }
 

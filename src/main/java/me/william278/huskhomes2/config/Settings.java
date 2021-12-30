@@ -177,7 +177,7 @@ public class Settings {
             if (this.doMapIntegration) {
                 PluginManager pluginManager = HuskHomes.getInstance().getServer().getPluginManager();
                 switch (mapPlugin.toLowerCase()) {
-                    case "dynmap", "bluemap", "pl3xmap" -> {
+                    case "dynmap", "bluemap", "squaremap" -> {
                         Plugin mapSpigotPlugin = pluginManager.getPlugin(mapPlugin.toLowerCase());
                         if (mapSpigotPlugin == null) {
                             Bukkit.getLogger().warning(mapPlugin + " integration was enabled in config, but the " + mapPlugin + " plugin could not be found!");

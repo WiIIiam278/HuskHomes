@@ -11,7 +11,7 @@ import me.william278.huskhomes2.integrations.map.BlueMap;
 import me.william278.huskhomes2.integrations.map.DynMap;
 import me.william278.huskhomes2.integrations.map.Map;
 import me.william278.huskhomes2.integrations.VaultIntegration;
-import me.william278.huskhomes2.integrations.map.Pl3xMap;
+import me.william278.huskhomes2.integrations.map.SquareMap;
 import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.data.message.pluginmessage.PluginMessageReceiver;
 import me.william278.huskhomes2.migrators.UpgradeDatabase;
@@ -214,7 +214,7 @@ public final class HuskHomes extends JavaPlugin {
             switch (mapPlugin) {
                 case "dynmap" -> map = new DynMap();
                 case "bluemap" -> map = new BlueMap();
-                case "pl3xmap" -> map = new Pl3xMap();
+                case "pl3xmap" -> map = new SquareMap();
             }
             map.initialize();
         }

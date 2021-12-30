@@ -4,24 +4,24 @@ import me.william278.huskhomes2.HuskHomes;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.Warp;
-import net.pl3x.map.api.*;
-import net.pl3x.map.api.marker.Icon;
-import net.pl3x.map.api.marker.Marker;
-import net.pl3x.map.api.marker.MarkerOptions;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
+import xyz.jpenilla.squaremap.api.*;
+import xyz.jpenilla.squaremap.api.marker.Icon;
+import xyz.jpenilla.squaremap.api.marker.Marker;
+import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public class Pl3xMap extends Map {
+public class SquareMap extends Map {
 
-    private final HashMap<String,SimpleLayerProvider> publicHomeProviders = new HashMap<>();
+    private final HashMap<String, SimpleLayerProvider> publicHomeProviders = new HashMap<>();
     private final HashMap<String,SimpleLayerProvider> warpProviders = new HashMap<>();
     private final static int MARKER_SIZE = 20;
     private final static HuskHomes plugin = HuskHomes.getInstance();
@@ -77,24 +77,24 @@ public class Pl3xMap extends Map {
 
     @Override
     public void initialize() {
-        net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
-        plugin.getServer().getPluginManager().registerEvents(new Pl3xMapWorldLoadListener(), plugin);
-        plugin.getLogger().info("Initializing Pl3xMap integration");
+        Squaremap mapAPI = SquaremapProvider.get();
+        plugin.getServer().getPluginManager().registerEvents(new SquareMapWorldLoadListener(), plugin);
+        plugin.getLogger().info("Initializing Squaremap integration");
 
         final Key publicHomeMarkerIconKey = Key.of(PUBLIC_HOME_MARKER_IMAGE_NAME);
         final Key warpMarkerIconKey = Key.of(WARP_MARKER_IMAGE_NAME);
 
         // Make sure markers are unregistered, then register marker icon keys
-        if (Pl3xMapProvider.get().iconRegistry().hasEntry(publicHomeMarkerIconKey)) {
-            Pl3xMapProvider.get().iconRegistry().unregister(publicHomeMarkerIconKey);
+        if (SquaremapProvider.get().iconRegistry().hasEntry(publicHomeMarkerIconKey)) {
+            SquaremapProvider.get().iconRegistry().unregister(publicHomeMarkerIconKey);
         }
-        Pl3xMapProvider.get().iconRegistry().register(publicHomeMarkerIconKey, getPublicHomeIcon());
-        if (Pl3xMapProvider.get().iconRegistry().hasEntry(warpMarkerIconKey)) {
-            Pl3xMapProvider.get().iconRegistry().unregister(warpMarkerIconKey);
+        SquaremapProvider.get().iconRegistry().register(publicHomeMarkerIconKey, getPublicHomeIcon());
+        if (SquaremapProvider.get().iconRegistry().hasEntry(warpMarkerIconKey)) {
+            SquaremapProvider.get().iconRegistry().unregister(warpMarkerIconKey);
         }
-        Pl3xMapProvider.get().iconRegistry().register(warpMarkerIconKey, getWarpIcon());
+        SquaremapProvider.get().iconRegistry().register(warpMarkerIconKey, getWarpIcon());
 
-        for (net.pl3x.map.api.MapWorld world : mapAPI.mapWorlds()) {
+        for (MapWorld world : mapAPI.mapWorlds()) {
             loadWorld(world);
         }
 
@@ -116,12 +116,12 @@ public class Pl3xMap extends Map {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Pl3xMap");
+                plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Squaremap");
             }
         });
     }
 
-    // Removes a marker from the Pl3xMap Marker API
+    // Removes a marker from the Squaremap Marker API
     private void removeMarker(Key markerKey, HashMap<String, SimpleLayerProvider> layerProviders) {
         String markerWorld = null;
         for (String worldName : layerProviders.keySet()) {
@@ -162,12 +162,13 @@ public class Pl3xMap extends Map {
 
     }
 
-    public class Pl3xMapWorldLoadListener implements Listener {
+    public class SquareMapWorldLoadListener implements Listener {
 
         @EventHandler
         public void onWorldLoad(WorldLoadEvent e) {
-            net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
-            mapAPI.getWorldIfEnabled(e.getWorld()).ifPresent(Pl3xMap.this::loadWorld);
+            Squaremap mapAPI = SquaremapProvider.get();
+            mapAPI.getWorldIfEnabled(BukkitAdapter.worldIdentifier(e.getWorld())).ifPresent(SquareMap.this::loadWorld);
+
             // Populate map with markers
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try (Connection connection = HuskHomes.getConnection()) {
@@ -190,7 +191,7 @@ public class Pl3xMap extends Map {
                         }
                     }
                 } catch (SQLException exception) {
-                    plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Pl3xMap");
+                    plugin.getLogger().log(Level.WARNING, "An SQL exception occurred adding homes and warps to the Squaremap");
                 }
             });
         }

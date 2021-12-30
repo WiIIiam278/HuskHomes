@@ -13,7 +13,7 @@
 * Supports teleporting to homes and players across multiple servers on a Bungee network.
 * Teleport requests (/tpa; /tpahere; /tpaccept; /tpdeny), supported through multiple servers.
 * Has a /back command to let players return to their previous position, or where they died if they have the right permissions
-* Show the location of public homes and warps on your server's Dynmap, BlueMap or Pl3xMap
+* Show the location of public homes and warps on your server's Dynmap, BlueMap or Squaremap
 * Integrate your economy by setting costs to set homes, make them public and random teleporting costs
 * Fully customisable plugin messages, with multi-language and custom hexadecimal color support via MineDown formatting
 * Set warps for your server with the /setwarp and /warp commands

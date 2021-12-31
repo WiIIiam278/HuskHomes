@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -70,7 +69,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player p)) {
             handleConsolePublicHomeTeleport(sender, args);
             return true;
@@ -135,7 +134,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("huskhomes.publichome")) {
             return Collections.emptyList();
         }

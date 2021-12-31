@@ -11,7 +11,8 @@ public class TpDenyCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             String targetPlayer = args[0];
-            TeleportRequestHandler.replyTpRequest(p, NameAutoCompleter.getAutoCompletedName(targetPlayer), false);
+            TeleportRequestHandler.replyTpRequest(p,
+                    NameAutoCompleter.getAutoCompletedName(targetPlayer), false);
         } else {
             TeleportRequestHandler.replyTpRequest(p, false);
         }

@@ -11,14 +11,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
-import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 public class TpCommand extends CommandBase {
 
@@ -117,7 +113,7 @@ public class TpCommand extends CommandBase {
 
     public static class Tab implements TabCompleter {
         @Override
-        public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
             List<String> players = new ArrayList<>();
             if (args.length == 0 || args.length == 1) {
                 players.addAll(HuskHomes.getPlayerList().getPlayers());

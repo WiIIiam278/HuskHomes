@@ -3,10 +3,8 @@ package me.william278.huskhomes2.api.events;
 import me.william278.huskhomes2.teleport.points.Home;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * An event, fired when a player sets a new home
@@ -30,7 +28,7 @@ public class PlayerSetHomeEvent extends PlayerEvent implements Cancellable {
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 

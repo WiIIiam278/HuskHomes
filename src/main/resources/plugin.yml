@@ -88,12 +88,12 @@ commands:
   tpaccept:
     description: Accept a teleport request
     usage: /<command> [player]
-    permission: huskhomes.tprequest
+    permission: huskhomes.tpaccept
     aliases: [tpyes]
   tpdeny:
     description: Deny a teleport request
     usage: /<command> [player]
-    permission: huskhomes.tprequest
+    permission: huskhomes.tpdeny
     aliases: [tpno]
   tpignore:
     description: Ignore incoming teleport requests
@@ -257,6 +257,14 @@ permissions:
     children:
       - huskhomes.tpa
       - huskhomes.tpahere
+      - huskhomes.tpaccept
+      - huskhomes.tpdeny
+  huskhomes.tpaccept:
+    description: Allows you to accept teleport requests
+    default: true
+  huskhomes.tpdeny:
+    description: Allows you to decline teleport requests
+    default: true
   huskhomes.tpa:
     description: Allows you to request to teleport to a player
     default: true

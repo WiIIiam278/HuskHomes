@@ -80,6 +80,9 @@ public class Settings {
     private int teleportWarmupTime;
     private DisplayStyle teleportWarmupDisplayStyle;
 
+    // Back command
+    private boolean doBackCommand;
+
     // Sounds
     private Sound teleportationCompleteSound;
     private Sound teleportWarmupSound;
@@ -253,6 +256,8 @@ public class Settings {
             this.doRtpCommand = config.getBoolean("random_teleport_command.enabled", true);
             this.rtpRange = config.getInt("random_teleport_command.range", 5000);
             this.rtpCoolDown = config.getInt("random_teleport_command.cooldown", 30);
+
+            this.doBackCommand = config.getBoolean("general.enable_back_command", true);
 
             this.privateHomesPerPage = config.getInt("general.lists.private_homes_per_page", 10);
             this.publicHomesPerPage = config.getInt("general.lists.public_homes_per_page", 10);
@@ -503,6 +508,8 @@ public class Settings {
     public String getRedisPassword() {
         return redisPassword;
     }
+
+    public boolean getDoBackCommand() { return doBackCommand; }
 
     public int getHikariMaximumPoolSize() {
         return hikariMaximumPoolSize;

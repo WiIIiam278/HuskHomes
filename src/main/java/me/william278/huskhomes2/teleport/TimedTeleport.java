@@ -10,6 +10,8 @@ import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Statistic;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,6 +31,7 @@ public class TimedTeleport {
     private final Player player;
     private final Location initialLocation;
     private final double initialHealth;
+    private final int initialPlayerDamageDealt;
 
     private final int warmupTime = HuskHomes.getSettings().getTeleportWarmupTime();
 
@@ -36,6 +39,7 @@ public class TimedTeleport {
         this.player = player;
         this.initialLocation = player.getLocation();
         this.initialHealth = player.getHealth();
+        this.initialPlayerDamageDealt = player.getStatistic(Statistic.DAMAGE_DEALT, EntityType.PLAYER);
         this.targetType = targetType;
         this.targetPoint = targetPoint;
 
@@ -47,6 +51,7 @@ public class TimedTeleport {
         this.player = player;
         this.initialLocation = player.getLocation();
         this.initialHealth = player.getHealth();
+        this.initialPlayerDamageDealt = player.getStatistic(Statistic.DAMAGE_DEALT, EntityType.PLAYER);
         this.targetType = TargetType.RANDOM;
 
         MessageManager.sendMessage(player, "teleporting_countdown_start", Integer.toString(this.warmupTime));
@@ -57,6 +62,7 @@ public class TimedTeleport {
         this.player = player;
         this.initialLocation = player.getLocation();
         this.initialHealth = player.getHealth();
+        this.initialPlayerDamageDealt = player.getStatistic(Statistic.DAMAGE_DEALT, EntityType.PLAYER);
         this.targetType = TargetType.PLAYER;
         this.targetPlayerName = targetPlayerName;
 
@@ -85,6 +91,13 @@ public class TimedTeleport {
                     cancel();
                     executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                     MessageManager.sendMessage(player, "teleporting_cancelled_damage");
+                    sendWarmupMessage(player, "teleporting_action_bar_cancelled");
+                    return;
+                }
+                if (hasDamagedPlayers(executablePlayer)) {
+                    cancel();
+                    executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
+                    MessageManager.sendMessage(player, "teleporting_cancelled_pvp");
                     sendWarmupMessage(player, "teleporting_action_bar_cancelled");
                     return;
                 }
@@ -188,6 +201,12 @@ public class TimedTeleport {
         double totalDiff = xDiff + yDiff + zDiff;
 
         return totalDiff > movementThreshold;
+    }
+
+    // This returns if the player has damaged other players
+    public boolean hasDamagedPlayers(Player p) {
+        final int playerDamageDealt = p.getStatistic(Statistic.DAMAGE_DEALT, EntityType.PLAYER);
+        return playerDamageDealt > initialPlayerDamageDealt;
     }
 
     public Player getPlayer() {

@@ -214,7 +214,7 @@ public final class HuskHomes extends JavaPlugin {
             switch (mapPlugin) {
                 case "dynmap" -> map = new DynMap();
                 case "bluemap" -> map = new BlueMap();
-                case "pl3xmap" -> map = new SquareMap();
+                case "squaremap" -> map = new SquareMap();
             }
             map.initialize();
         }

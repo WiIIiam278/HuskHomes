@@ -36,21 +36,24 @@ public class HuskHomesCommand extends CommandBase implements TabCompleter {
     // Show users a list of available commands
     public static void showHelpMenu(Player player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
-        for (String command : plugin.getDescription().getCommands().keySet()) {
+        for (String commandName : plugin.getDescription().getCommands().keySet()) {
+            Command command = plugin.getCommand(commandName);
+            if (command == null) {
+                continue;
+            }
+            if (commandName.equals("huskhomes") && HuskHomes.getSettings().hideHuskHomesCommandFromHelpMenu()) {
+                continue;
+            }
             if (HuskHomes.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
-                String permission = (String) plugin.getDescription().getCommands().get(command).get("permission");
+                String permission = command.getPermission();
                 if (permission != null) {
                     if (!player.hasPermission(permission)) {
                         continue;
                     }
                 }
             }
-            if (command.equals("huskhomes") && HuskHomes.getSettings().hideHuskHomesCommandFromHelpMenu()) {
-                continue;
-            }
-            String commandDescription = (String) plugin.getDescription().getCommands().get(command).get("description");
-            String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
-            commandDisplay.add(MessageManager.getRawMessage("command_list_item", command, commandUsage, commandDescription));
+            commandDisplay.add(MessageManager.getRawMessage("command_list_item", commandName,
+                    command.getUsage(), command.getDescription()));
         }
 
         MessageManager.sendMessage(player, "command_list_header");

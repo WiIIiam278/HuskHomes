@@ -93,7 +93,7 @@ public class TimedTeleport {
                     sendWarmupMessage(player, "teleporting_action_bar_cancelled");
                     return;
                 }
-                if (hasDamagedPlayers(executablePlayer)) {
+                if (hasDealtDamage(executablePlayer)) {
                     cancel();
                     executablePlayer.playSound(executablePlayer.getLocation(), HuskHomes.getSettings().getTeleportCancelledSound(), 1, 1);
                     MessageManager.sendMessage(player, "teleporting_cancelled_pvp");
@@ -202,8 +202,8 @@ public class TimedTeleport {
         return totalDiff > movementThreshold;
     }
 
-    // This returns if the player has damaged other players
-    public boolean hasDamagedPlayers(Player p) {
+    // This returns if the player has dealt damage
+    public boolean hasDealtDamage(Player p) {
         final int damageDealt = p.getStatistic(Statistic.DAMAGE_DEALT);
         return damageDealt > initialDamageDealt;
     }

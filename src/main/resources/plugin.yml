@@ -11,115 +11,90 @@ libraries:
 
 commands:
   home:
-    description: Teleport to one of your homes
     usage: /<command> <home>
     permission: huskhomes.home
   sethome:
-    description: Set a new home with given name
     usage: /<command> <name>
     permission: huskhomes.sethome
   delhome:
-    description: Delete a home you previously set
     usage: /<command> <name/all>
     permission: huskhomes.delhome
   edithome:
-    description: Edit one of your homes
     usage: /<command> <home> <rename/description/location/public/private> [arguments]
     permission: huskhomes.edithome
   warp:
-    description: Teleport to a warp
     usage: /<command> <warp>
     permission: huskhomes.warp
   setwarp:
-    description: Set a new warp with given name
     usage: /<command> <name>
     permission: huskhomes.setwarp
   delwarp:
-    description: Delete a warp
     usage: /<command> <name/all>
     permission: huskhomes.delwarp
   editwarp:
-    description: Edit a warp
     usage: /<command> <warp> <rename/description/location> [arguments]
     permission: huskhomes.editwarp
   back:
-    description: Return to your previous position, or where you died
     usage: /<command>
     permission: huskhomes.back
   homelist:
-    description: Get a list of your homes
     usage: /<command> <page>
     permission: huskhomes.home
     aliases: [homes, listhomes]
   warplist:
-    description: View the list of warps
     usage: /<command> <page>
     permission: huskhomes.warp
     aliases: [warps, listwarps]
   publichomelist:
-    description: View the list of public homes
     usage: /<command> <page>
     permission: huskhomes.publichome
     aliases: [phomes, phomelist, listphomes, listpublichomes]
   publichome:
-    description: Teleport to a public home
     usage: /<command> <owner.home>
     permission: huskhomes.publichome
     aliases: [phome]
   tp:
-    description: Teleport to another player or location
     usage: /<command> <player/coordinates>
     permission: huskhomes.tp
     aliases: [tpo]
   tphere:
-    description: Teleport another player to you
     usage: /<command> <player>
     permission: huskhomes.tphere
     aliases: [tpohere]
   tpa:
-    description: Request to teleport to another player
     usage: /<command> <player>
     permission: huskhomes.tpa
     aliases: [tprequest, tpask]
   tpahere:
-    description: Request another player to teleport to you
     usage: /<command> <player>
     permission: huskhomes.tpahere
     aliases: [tphererequest, tpaskhere]
   tpaccept:
-    description: Accept a teleport request
     usage: /<command> [player]
     permission: huskhomes.tpaccept
     aliases: [tpyes]
   tpdeny:
-    description: Deny a teleport request
     usage: /<command> [player]
     permission: huskhomes.tpdeny
     aliases: [tpno]
   tpignore:
-    description: Ignore incoming teleport requests
     usage: /<command>
     permission: huskhomes.tpignore
     aliases: [tpaignore, ignoretprequests]
   tpoffline:
-    description: Teleport to where a player was last online
     usage: /<command> <player>
     permission: huskhomes.tpoffline
   rtp:
-    description: Teleport randomly into the wild
     usage: /<command>
     permission: huskhomes.rtp
     aliases: [randomtp, randomteleport, wild]
   spawn:
-    description: Teleport to spawn
     usage: /<command>
     permission: huskhomes.spawn
   setspawn:
-    description: Set the spawn position
     usage: /<command>
     permission: huskhomes.spawn.set
   huskhomes:
-    description: Plugin information & reload configs.
     usage: /<command> <about/update/reload/migrate>
 
 permissions:

@@ -7,6 +7,7 @@ import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -15,7 +16,7 @@ import java.io.IOException;
 public class PluginMessageReceiver implements PluginMessageListener {
 
     @Override @SuppressWarnings("UnstableApiUsage")
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {
             return;

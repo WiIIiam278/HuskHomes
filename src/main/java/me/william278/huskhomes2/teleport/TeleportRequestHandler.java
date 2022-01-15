@@ -8,10 +8,7 @@ import me.william278.huskhomes2.integrations.VanishChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 public class TeleportRequestHandler {
 

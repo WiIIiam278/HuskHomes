@@ -25,7 +25,7 @@ public class RedisMessage extends Message {
 
     private void dispatchRedisMessage(String target) {
         Bukkit.getScheduler().runTask(plugin, () -> {
-            try (Jedis publisher = new Jedis(HuskHomes.getSettings().getRedisHost(), HuskHomes.getSettings().getRedisPort())) {
+            try (Jedis publisher = RedisReceiver.getJedis()) {
                 final String jedisPassword = HuskHomes.getSettings().getRedisPassword();
                 if (!jedisPassword.equals("")) {
                     publisher.auth(jedisPassword);
@@ -48,6 +48,6 @@ public class RedisMessage extends Message {
 
     @Override
     public void sendToServer(Player sender, String server) {
-        dispatchRedisMessage("server-"  + server + "");
+        dispatchRedisMessage("server-" + server + "");
     }
 }

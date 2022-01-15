@@ -127,6 +127,7 @@ public final class HuskHomes extends JavaPlugin {
         if (getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
             Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
         } else {
+            RedisReceiver.initialize();
             RedisReceiver.listen();
         }
     }

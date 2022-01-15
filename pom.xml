@@ -58,6 +58,10 @@
                             <pattern>com.zaxxer.hikari</pattern>
                             <shadedPattern>me.william278.huskhomes2.libraries.hikari</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>redis.clients</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.jedis</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -188,7 +192,7 @@
             <artifactId>jedis</artifactId>
             <version>4.0.1</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

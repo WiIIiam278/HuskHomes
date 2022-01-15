@@ -6,9 +6,6 @@ authors: [William278]
 softdepend: [dynmap, Vault, BlueMap, Squaremap]
 description: A powerful, intuitive and flexible teleportation suite
 website: 'https://william278.net'
-libraries:
-  - redis.clients:jedis:2.7.2
-
 commands:
   home:
     usage: /<command> <home>

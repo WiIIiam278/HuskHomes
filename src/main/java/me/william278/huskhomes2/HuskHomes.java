@@ -266,6 +266,12 @@ public final class HuskHomes extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (HuskHomes.getSettings().doBungee()) {
+            if (!HuskHomes.getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
+                RedisReceiver.terminate();
+            }
+        }
+
         // Terminate the Hikari data source
         database.close();
 

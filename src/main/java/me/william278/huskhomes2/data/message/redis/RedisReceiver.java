@@ -11,6 +11,7 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
 
 public class RedisReceiver {
 
@@ -20,12 +21,17 @@ public class RedisReceiver {
         return jedisPool.getResource();
     }
 
+    // Initialize Jedis. Note that due to the shading on DefaultEvictionPool we have to change the contextual ClassLoader here
     public static void initialize() {
         jedisPool = new JedisPool(new JedisPoolConfig(),
                 HuskHomes.getSettings().getRedisHost(),
                 HuskHomes.getSettings().getRedisPort());
     }
 
+    // Close the connection
+    public static void terminate() {
+        jedisPool.close();
+    }
 
     private static final HuskHomes plugin = HuskHomes.getInstance();
     public static final String REDIS_CHANNEL = "HuskHomes";
@@ -41,14 +47,12 @@ public class RedisReceiver {
 
     public static void listen() {
         final String jedisPassword = HuskHomes.getSettings().getRedisPassword();
-        try (Jedis jedis = getJedis()) {
-            if (!jedisPassword.equals("")) {
-                jedis.auth(jedisPassword);
-            }
-            jedis.connect();
-            if (jedis.isConnected()) {
-                plugin.getLogger().info("Enabled Redis listener successfully!");
-                new Thread(() -> jedis.subscribe(new JedisPubSub() {
+        new Thread(() -> {
+            try (Jedis jedis = getJedis()) {
+                if (!jedisPassword.equals("")) {
+                    jedis.auth(jedisPassword);
+                }
+                jedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onMessage(String channel, String message) {
                         if (!channel.equals(REDIS_CHANNEL)) {
@@ -103,10 +107,10 @@ public class RedisReceiver {
                         final String messageData = splitMessage[1];
                         CrossServerMessageHandler.handlePluginMessage(new RedisMessage(clusterID, receiver.getName(), messageType, messageData), receiver);
                     }
-                }, REDIS_CHANNEL), "Redis Subscriber").start();
-            } else {
-                plugin.getLogger().severe("Failed to initialize the redis listener!");
+                }, REDIS_CHANNEL);
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "An exception occurred in the Jedis subscriber", e);
             }
-        }
+        }, "Redis Subscriber").start();
     }
 }

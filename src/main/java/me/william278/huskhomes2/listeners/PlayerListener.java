@@ -106,10 +106,12 @@ public class PlayerListener implements Listener {
 
     private void teleportToSpawn(Player player) {
         if (TeleportManager.getSpawnLocation() != null) {
-            if (!player.isEmpty()) {
-                player.eject(); // Eject passengers before teleporting
-            }
-            Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(player, TeleportManager.getSpawnLocation().getLocation()));
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isEmpty()) {
+                    player.eject(); // Eject passengers before teleporting
+                }
+                PaperLib.teleportAsync(player, TeleportManager.getSpawnLocation().getLocation());
+            });
         }
     }
 

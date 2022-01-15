@@ -92,13 +92,15 @@ public class TeleportManager {
                                 DataManager.setPlayerTeleporting(player, false, connection);
                                 DataManager.deletePlayerDestination(player.getName(), connection);
                                 Location targetLocation = targetPoint[0].getLocation();
-                                if (!player.isEmpty()) {
-                                    player.eject(); // Eject passengers before  teleporting
-                                }
-                                Bukkit.getScheduler().runTask(plugin, () -> PaperLib.teleportAsync(player, targetLocation).thenRun(() -> {
-                                    player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
-                                    MessageManager.sendMessage(player, "teleporting_complete");
-                                }));
+                                Bukkit.getScheduler().runTask(plugin, () -> {
+                                    if (!player.isEmpty()) {
+                                        player.eject(); // Eject passengers before  teleporting
+                                    }
+                                    PaperLib.teleportAsync(player, targetLocation).thenRun(() -> {
+                                        player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                                        MessageManager.sendMessage(player, "teleporting_complete");
+                                    });
+                                });
                             } else if (HuskHomes.getSettings().doBungee()) {
                                 DataManager.setPlayerDestinationLocation(player, targetPoint[0], connection);
                                 DataManager.setPlayerTeleporting(player, true, connection);

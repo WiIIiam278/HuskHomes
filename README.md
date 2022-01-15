@@ -35,7 +35,7 @@
 * /publichome, /publichomelist
 * /warp, /setwarp, /editwarp, /warplist
 * /tpa, /tpahere, /tpaccept, /tpdeny
-* /tp, /tphere
+* /tp, /tphere, /tpall, /tpaall
 * /spawn, /rtp
 * And more...
 

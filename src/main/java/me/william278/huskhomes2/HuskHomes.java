@@ -165,6 +165,8 @@ public final class HuskHomes extends JavaPlugin {
         new SetWarpCommand().register(getCommand("setwarp")).setTabCompleter(emptyTab);
         new BackCommand().register(getCommand("back")).setTabCompleter(emptyTab);
         new TpOfflineCommand().register(getCommand("tpoffline")).setTabCompleter(emptyTab);
+        new TpaAllCommand().register(getCommand("tpaall")).setTabCompleter(emptyTab);
+        new TpAllCommand().register(getCommand("tpall")).setTabCompleter(emptyTab);
 
         // Update caches
         PublicHomeCommand.updatePublicHomeTabCache();

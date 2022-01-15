@@ -64,20 +64,46 @@ public class TeleportRequestHandler {
         }
     }
 
+    public static void sendTeleportAllHereRequest(Player requester) {
+        if (HuskHomes.getPlayerList().getPlayers().size() <= 1) {
+            MessageManager.sendMessage(requester, "error_no_other_online_players");
+            return;
+        }
+        for (String playerName : HuskHomes.getPlayerList().getPlayers()) {
+            if (playerName.equals(requester.getName())) {
+                continue;
+            }
+            final Player targetPlayer = Bukkit.getPlayerExact(playerName);
+            if (targetPlayer != null) {
+                sendLocalTpaHereRequest(requester, playerName, targetPlayer);
+            } else {
+                if (HuskHomes.getSettings().doBungee()) {
+                    sendTeleportRequestCrossServer(requester, playerName, TeleportRequest.RequestType.TPA_HERE);
+                }
+            }
+        }
+        MessageManager.sendMessage(requester, "tpaall_request_sent");
+    }
+
+    // Send the local tpa here request, provided the user is not ignoring requests
+    private static void sendLocalTpaHereRequest(Player requester, String playerName, Player targetPlayer) {
+        if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
+            if (isDuplicateRequest(playerName, targetPlayer)) {
+                return;
+            }
+            teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
+                    TeleportRequest.RequestType.TPA_HERE));
+            MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
+            MessageManager.sendMessage(targetPlayer, "teleport_request_options", requester.getName());
+        }
+    }
+
     public static void sendTeleportHereRequest(Player requester, String targetPlayerName) {
         Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {
             if (targetPlayer.getUniqueId() != requester.getUniqueId()) {
+                sendLocalTpaHereRequest(requester, targetPlayerName, targetPlayer);
                 MessageManager.sendMessage(requester, "tpahere_request_sent", targetPlayerName);
-                if (!HuskHomes.isIgnoringTeleportRequests(targetPlayer.getUniqueId())) {
-                    if (isDuplicateRequest(targetPlayerName, targetPlayer)) {
-                        return;
-                    }
-                    teleportRequests.get(targetPlayer).put(requester.getName(), new TeleportRequest(requester.getName(),
-                            TeleportRequest.RequestType.TPA_HERE));
-                    MessageManager.sendMessage(targetPlayer, "tpahere_request_ask", requester.getName());
-                    MessageManager.sendMessage(targetPlayer, "teleport_request_options", requester.getName());
-                }
             } else {
                 MessageManager.sendMessage(requester, "error_tp_self");
             }

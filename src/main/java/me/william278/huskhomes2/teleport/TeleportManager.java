@@ -222,6 +222,22 @@ public class TeleportManager {
         new TimedTeleport(player).begin();
     }
 
+    public static void teleportAllHere(Player requester) {
+        for (String playerName : HuskHomes.getPlayerList().getPlayers()) {
+            if (playerName.equals(requester.getName())) {
+                continue;
+            }
+            Player targetPlayer = Bukkit.getPlayerExact(playerName);
+            if (targetPlayer != null) {
+                teleportPlayer(targetPlayer, requester.getName());
+            } else {
+                if (HuskHomes.getSettings().doBungee()) {
+                    teleportHereCrossServer(requester, playerName);
+                }
+            }
+        }
+    }
+
     public static void teleportHere(Player requester, String targetPlayerName) throws SQLException {
         Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
         if (targetPlayer != null) {

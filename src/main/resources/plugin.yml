@@ -94,6 +94,14 @@ commands:
   setspawn:
     usage: /<command>
     permission: huskhomes.spawn.set
+  tpaall:
+    usage: /<command>
+    aliases: [tpaallhere, tpahereall, tprequestall]
+    permission: huskhomes.tpaall
+  tpall:
+    usage: /<command>
+    aliases: [tphereall, tpallhere]
+    permission: huskhomes.tpall
   huskhomes:
     usage: /<command> <about/update/reload/migrate>
 
@@ -265,3 +273,9 @@ permissions:
   huskhomes.edithome.public:
     description: Allows you to make a home public
     default: true
+  huskhomes.tpaall:
+    description: Allows you to request everyone to teleport to you
+    default: op
+  huskhomes.tpall:
+    description: Allows you to teleport everyone to you
+    default: op

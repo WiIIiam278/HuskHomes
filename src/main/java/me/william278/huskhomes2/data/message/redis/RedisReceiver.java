@@ -21,7 +21,7 @@ public class RedisReceiver {
         return jedisPool.getResource();
     }
 
-    // Initialize Jedis. Note that due to the shading on DefaultEvictionPool we have to change the contextual ClassLoader here
+    // Initialize a JedisPool that can be drawn from on demand
     public static void initialize() {
         jedisPool = new JedisPool(new JedisPoolConfig(),
                 HuskHomes.getSettings().getRedisHost(),
@@ -36,6 +36,7 @@ public class RedisReceiver {
     private static final HuskHomes plugin = HuskHomes.getInstance();
     public static final String REDIS_CHANNEL = "HuskHomes";
 
+    // Get a player to act as the "target" (ensure compatability with Plugin Messaging)
     private static Player getRandomReceiver() {
         ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         if (players.isEmpty()) {

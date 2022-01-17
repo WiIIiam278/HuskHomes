@@ -120,7 +120,6 @@ error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid pla
 error_no_homes_set_other: '[Error:](#ff3300) [%1% hasn''t set any homes!](#ff7e5e)'
 error_home_invalid_other: '[Error:](#ff3300) [%1% doesn''t have a home set named "%2%"](#ff7e5e)'
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'
-teleporting_cancelled_pvp: '[Teleportation cancelled; you engaged in combat!](#ff7e5e)'
 tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you!](#00fb9a)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
 teleporting_all_players: '[Teleporting all players to your position...](#00fb9a)'

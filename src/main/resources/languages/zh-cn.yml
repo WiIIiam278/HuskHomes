@@ -120,7 +120,6 @@ error_home_invalid_other: '[错误:](#ff3300) [%1% 没有叫做 "%2%" 的家](#f
 home_deleted_other: '[成功删除了 %1% 的名字叫](#00fb9a) [%2%](#00fb9a bold) [的家](#00fb9a)'
 edit_home_privacy_private_other: '• 隐私性: &#ff7e5e&私有的 &7(只有 %1% 可以使用该家)'
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'
-teleporting_cancelled_pvp: '[Teleportation cancelled; you engaged in combat!](#ff7e5e)'
 tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you!](#00fb9a)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
 teleporting_all_players: '[Teleporting all players to your position...](#00fb9a)'

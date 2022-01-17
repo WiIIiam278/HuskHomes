@@ -120,7 +120,6 @@ error_home_invalid_other: '[Errore:](#ff3300) [%1% non ha una home chiamata "%2%
 home_deleted_other: '[Hai cancellato la home](#00fb9a)[%2%](#00fb9a bold)[di %1%](#00fb9a) '
 edit_home_privacy_private_other: '• Accesso: &#ff7e5e&Privato &7(Solo %1% può usarla)'
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'
-teleporting_cancelled_pvp: '[Teleportation cancelled; you engaged in combat!](#ff7e5e)'
 tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you!](#00fb9a)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
 teleporting_all_players: '[Teleporting all players to your position...](#00fb9a)'

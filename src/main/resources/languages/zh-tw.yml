@@ -120,7 +120,6 @@ edit_home_privacy_private_other: '• Access: &#ff7e5e&Private &7(Only %1% can u
 edit_home_title_other: '\n[Edit home details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
 command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'
-teleporting_cancelled_pvp: '[Teleportation cancelled; you engaged in combat!](#ff7e5e)'
 tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you!](#00fb9a)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
 teleporting_all_players: '[Teleporting all players to your position...](#00fb9a)'

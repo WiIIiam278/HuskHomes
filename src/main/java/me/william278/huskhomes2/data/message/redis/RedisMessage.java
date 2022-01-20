@@ -26,12 +26,9 @@ public class RedisMessage extends Message {
     private void dispatchRedisMessage(String target) {
         Bukkit.getScheduler().runTask(plugin, () -> {
             try (Jedis publisher = RedisReceiver.getJedis()) {
-                final String jedisPassword = HuskHomes.getSettings().getRedisPassword();
-                if (!jedisPassword.equals("")) {
-                    publisher.auth(jedisPassword);
-                }
-                publisher.connect();
-                publisher.publish(RedisReceiver.REDIS_CHANNEL, getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":" + target + REDIS_MESSAGE_HEADER_SEPARATOR + getMessageData());
+                publisher.publish(RedisReceiver.REDIS_CHANNEL,
+                        getClusterId() + ":" + getPluginMessageString(getMessageType()) + ":"
+                                + target + REDIS_MESSAGE_HEADER_SEPARATOR + getMessageData());
             }
         });
     }

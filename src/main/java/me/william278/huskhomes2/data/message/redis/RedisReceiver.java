@@ -23,9 +23,18 @@ public class RedisReceiver {
 
     // Initialize a JedisPool that can be drawn from on demand
     public static void initialize() {
-        jedisPool = new JedisPool(new JedisPoolConfig(),
-                HuskHomes.getSettings().getRedisHost(),
-                HuskHomes.getSettings().getRedisPort());
+        if (HuskHomes.getSettings().getRedisPassword().isEmpty()) {
+            jedisPool = new JedisPool(new JedisPoolConfig(),
+                    HuskHomes.getSettings().getRedisHost(),
+                    HuskHomes.getSettings().getRedisPort(),
+                    0);
+        } else {
+            jedisPool = new JedisPool(new JedisPoolConfig(),
+                    HuskHomes.getSettings().getRedisHost(),
+                    HuskHomes.getSettings().getRedisPort(),
+                    0,
+                    HuskHomes.getSettings().getRedisPassword());
+        }
     }
 
     // Close the connection
@@ -47,12 +56,8 @@ public class RedisReceiver {
     }
 
     public static void listen() {
-        final String jedisPassword = HuskHomes.getSettings().getRedisPassword();
         new Thread(() -> {
             try (Jedis jedis = getJedis()) {
-                if (!jedisPassword.equals("")) {
-                    jedis.auth(jedisPassword);
-                }
                 jedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onMessage(String channel, String message) {

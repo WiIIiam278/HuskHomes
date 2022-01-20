@@ -1,6 +1,8 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.util;
 
 import de.themoep.minedown.MineDown;
+import me.william278.huskhomes2.HuskHomes;
+import me.william278.huskhomes2.MessageManager;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.huskhomes2.teleport.points.SetPoint;
 import me.william278.huskhomes2.teleport.points.Warp;

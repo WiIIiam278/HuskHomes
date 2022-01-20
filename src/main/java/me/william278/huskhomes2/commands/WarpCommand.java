@@ -49,7 +49,8 @@ public class WarpCommand extends CommandBase {
                         }
                     } else {
                         MessageManager.sendMessage(p, "error_warp_invalid", warpName);
-                    }                } catch (SQLException e) {
+                    }
+                } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
                 }
             });
@@ -124,10 +125,24 @@ public class WarpCommand extends CommandBase {
             if (args.length == 1) {
                 final List<String> tabCompletions = new ArrayList<>();
 
-                StringUtil.copyPartialMatches(args[0], warpsTabCache, tabCompletions);
+                // Filter warps if they are permission restricted
+                final HashSet<String> cachedWarps = new HashSet<>(warpsTabCache);
+                if (sender instanceof Player player) {
+                    if (HuskHomes.getSettings().doPermissionRestrictedWarps()) {
+                        if (HuskHomes.getSettings().doHideRestrictedWarps()) {
+                            cachedWarps.clear();
+                            for (String warp : warpsTabCache) {
+                                if (Warp.getWarpCanUse(player, warp)) {
+                                    cachedWarps.add(warp);
+                                }
+                            }
+                        }
+                    }
+                }
 
+                // Sort warps based on tab arguments
+                StringUtil.copyPartialMatches(args[0], cachedWarps, tabCompletions);
                 Collections.sort(tabCompletions);
-
                 return tabCompletions;
 
             } else {

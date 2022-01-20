@@ -16,6 +16,7 @@ import me.william278.huskhomes2.listeners.PlayerListener;
 import me.william278.huskhomes2.data.message.pluginmessage.PluginMessageReceiver;
 import me.william278.huskhomes2.migrators.UpgradeDatabase;
 import me.william278.huskhomes2.teleport.SettingHandler;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.util.PlayerList;
 import me.william278.huskhomes2.util.UpdateChecker;
 import org.bstats.bukkit.Metrics;

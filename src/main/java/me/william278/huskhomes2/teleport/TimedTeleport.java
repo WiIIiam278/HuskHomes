@@ -2,7 +2,7 @@ package me.william278.huskhomes2.teleport;
 
 import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
@@ -10,7 +10,6 @@ import me.william278.huskhomes2.teleport.points.TeleportationPoint;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 

@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.migrators;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.SettingHandler;
 import me.william278.huskhomes2.teleport.TeleportManager;
@@ -67,7 +67,7 @@ public class EssentialsMigrator {
                                             Set<String> essentialsHomes = homesSection.getKeys(false);
                                             for (String homeName : essentialsHomes) {
                                                 try {
-                                                    String worldID = playerFileConfig.getString("homes." + homeName + ".world");
+                                                    String worldID = playerFileConfig.getString("homes." + homeName + ".world", "world");
                                                     try {
                                                         final UUID worldUUID = UUID.fromString(worldID);
                                                         final World world = Bukkit.getWorld(worldUUID);
@@ -124,7 +124,7 @@ public class EssentialsMigrator {
                             try (Connection connection = HuskHomes.getConnection()) {
                                 final FileConfiguration warpFileConfig = loadConfiguration(warpFile);
                                 final String warpName = warpFileConfig.getString("name");
-                                String worldID = warpFileConfig.getString("world");
+                                String worldID = warpFileConfig.getString("world", "world");
                                 try {
                                     final UUID worldUUID = UUID.fromString(worldID);
                                     final World world = Bukkit.getWorld(worldUUID);
@@ -172,7 +172,7 @@ public class EssentialsMigrator {
 
                         FileConfiguration spawnConfig = loadConfiguration(essentialsSpawnData);
                         try {
-                            String worldID = spawnConfig.getString("spawns.all.world");
+                            String worldID = spawnConfig.getString("spawns.all.world", "world");
                             try {
                                 final UUID worldUUID = UUID.fromString(worldID);
                                 final World world = Bukkit.getWorld(worldUUID);

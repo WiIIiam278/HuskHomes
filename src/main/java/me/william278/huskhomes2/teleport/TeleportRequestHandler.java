@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.teleport;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
 import me.william278.huskhomes2.data.message.Message;
 import me.william278.huskhomes2.integrations.VanishChecker;

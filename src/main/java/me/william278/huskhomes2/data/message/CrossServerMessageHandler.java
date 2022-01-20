@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.data.message;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.data.message.pluginmessage.PluginMessage;
 import me.william278.huskhomes2.data.message.redis.RedisMessage;

@@ -1,7 +1,7 @@
 package me.william278.huskhomes2.teleport.points;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

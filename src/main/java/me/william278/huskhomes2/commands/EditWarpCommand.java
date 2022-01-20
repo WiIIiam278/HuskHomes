@@ -3,7 +3,7 @@ package me.william278.huskhomes2.commands;
 import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.util.EditingHandler;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerChangeWarpDescriptionEvent;
 import me.william278.huskhomes2.api.events.PlayerRelocateWarpEvent;
 import me.william278.huskhomes2.api.events.PlayerRenameWarpEvent;

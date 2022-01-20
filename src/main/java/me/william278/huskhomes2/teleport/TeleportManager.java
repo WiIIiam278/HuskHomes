@@ -4,7 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.papermc.lib.PaperLib;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerPreTeleportEvent;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.data.message.CrossServerMessageHandler;

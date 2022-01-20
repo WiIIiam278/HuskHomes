@@ -2,7 +2,7 @@ package me.william278.huskhomes2.commands;
 
 import de.themoep.minedown.MineDown;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.points.Warp;
 import me.william278.huskhomes2.util.ChatList;

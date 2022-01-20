@@ -1,14 +1,13 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.MessageManager;
+import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.huskhomes2.util.NameAutoCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 

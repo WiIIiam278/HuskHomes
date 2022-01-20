@@ -1,6 +1,7 @@
-package me.william278.huskhomes2;
+package me.william278.huskhomes2.util;
 
 import de.themoep.minedown.MineDown;
+import me.william278.huskhomes2.HuskHomes;
 import net.md_5.bungee.api.ChatMessageType;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;

@@ -97,10 +97,14 @@ public class PlayerListener implements Listener {
         } // Ignore NullPointerExceptions from players that execute this event and return null (e.g Citizens).
 
         // Update the player list
-        if (Bukkit.getOnlinePlayers().size() == 1) {
+        if (HuskHomes.getSettings().doBungee()) {
             HuskHomes.getPlayerList().updateList(p);
         } else {
-            HuskHomes.getPlayerList().addPlayer(p.getName());
+            if (Bukkit.getOnlinePlayers().size() == 1) {
+                HuskHomes.getPlayerList().updateList(p);
+            } else {
+                HuskHomes.getPlayerList().addPlayer(p.getName());
+            }
         }
     }
 

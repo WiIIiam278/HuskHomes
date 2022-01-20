@@ -236,9 +236,6 @@ public class TeleportRequestHandler {
                     return true;
                 } else {
                     teleportRequests.get(recipient).remove(senderName);
-                    if (teleportRequests.get(recipient).isEmpty()) {
-                        teleportRequests.remove(recipient);
-                    }
                 }
             }
         } else {

@@ -27,13 +27,15 @@ public class RedisReceiver {
             jedisPool = new JedisPool(new JedisPoolConfig(),
                     HuskHomes.getSettings().getRedisHost(),
                     HuskHomes.getSettings().getRedisPort(),
-                    0);
+                    0,
+                    HuskHomes.getSettings().getRedisSSL());
         } else {
             jedisPool = new JedisPool(new JedisPoolConfig(),
                     HuskHomes.getSettings().getRedisHost(),
                     HuskHomes.getSettings().getRedisPort(),
                     0,
-                    HuskHomes.getSettings().getRedisPassword());
+                    HuskHomes.getSettings().getRedisPassword(),
+                    HuskHomes.getSettings().getRedisSSL());
         }
     }
 

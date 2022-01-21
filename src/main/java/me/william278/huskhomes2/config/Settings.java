@@ -51,6 +51,7 @@ public class Settings {
     private int redisPort;
     private String redisHost;
     private String redisPassword;
+    private boolean redisSSL;
 
     // Map plugin integration settings
     private boolean doMapIntegration;
@@ -173,6 +174,7 @@ public class Settings {
             this.redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
             this.redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
             this.redisPassword = config.getString("bungee_options.redis_credentials.password", "");
+            this.redisSSL = config.getBoolean("bungee_options.redis_credentials.use_ssl", false);
 
             this.doMapIntegration = config.getBoolean("map_integration.enabled", false);
             this.mapPlugin = config.getString("map_integration.plugin", "dynmap");
@@ -508,6 +510,8 @@ public class Settings {
     public String getRedisPassword() {
         return redisPassword;
     }
+
+    public boolean getRedisSSL() { return redisSSL; }
 
     public boolean getDoBackCommand() { return doBackCommand; }
 

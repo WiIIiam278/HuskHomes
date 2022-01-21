@@ -55,6 +55,7 @@ bungee_options:
     host: localhost
     port: 6379
     password: ''
+    use_ssl: false
   tab_complete_cross_server:
     enabled: true
     delay: 60

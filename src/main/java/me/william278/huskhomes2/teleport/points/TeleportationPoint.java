@@ -82,7 +82,7 @@ public class TeleportationPoint {
         if (world != null) {
             return new Location(world, x, y, z, yaw, pitch);
         } else {
-            throw new IllegalStateException("The world \"" + worldName + "\" could not be found on the server; could not return location");
+            throw new IllegalStateException(worldName + " is not a valid world on the server; failed to return location");
         }
     }
 

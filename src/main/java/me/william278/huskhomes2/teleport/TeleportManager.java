@@ -46,12 +46,20 @@ public class TeleportManager {
     }
 
     // Teleport a player to a location on the server or proxy server network
-    public static void teleportPlayer(Player player, TeleportationPoint point) {
-        final TeleportationPoint destination = new TeleportationPoint(player.getLocation(),
+    public static void teleportPlayer(Player player, TeleportationPoint targetPoint) {
+        final TeleportationPoint currentPosition = new TeleportationPoint(player.getLocation(),
                 HuskHomes.getSettings().getServerID());
+
+        // Safety checks
+        if (Math.abs(targetPoint.getX()) > 30000000 || Math.abs(targetPoint.getZ()) > 30000000 || Math.abs(targetPoint.getY()) > 30000000) {
+            MessageManager.sendMessage(player, "error_invalid_coordinates");
+            return;
+        }
+
+        // Execute teleport
         try (Connection connection = HuskHomes.getConnection()) {
-            DataManager.setPlayerLastPosition(player, destination, connection);
-            DataManager.setPlayerDestinationLocation(player, point, connection);
+            DataManager.setPlayerLastPosition(player, currentPosition, connection);
+            DataManager.setPlayerDestinationLocation(player, targetPoint, connection);
             teleportPlayer(player);
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player.", e);
@@ -108,7 +116,7 @@ public class TeleportManager {
                             }
                         } catch (SQLException sqlException) {
                             plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred teleporting a player", sqlException);
-                        } catch (IllegalArgumentException illegalArgumentException) {
+                        } catch (IllegalStateException illegalStateException) {
                             MessageManager.sendMessage(player, "error_invalid_on_arrival");
                         }
                     });

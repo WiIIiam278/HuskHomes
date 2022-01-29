@@ -123,6 +123,7 @@ error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a ma
 tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you!](#00fb9a)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
 teleporting_all_players: '[Teleporting all players to your position...](#00fb9a)'
+error_illegal_target_coordinates: '[Error:](#ff3300) [Aborted teleport as it exceeds the possible game world limits.](#ff7e5e)'
 home_command_description: 'Teleport to one of your homes'
 sethome_command_description: 'Set a new home with given name'
 delhome_command_description: 'Delete a home you previously set'

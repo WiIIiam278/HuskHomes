@@ -233,6 +233,7 @@ public class TpCommand extends CommandBase {
                     (yaw != null ? yaw : player.getLocation().getYaw()),
                     (pitch != null ? pitch : player.getLocation().getPitch()),
                     serverId != null || HuskHomes.getSettings().doBungee() ? serverId : HuskHomes.getSettings().getServerID());
+
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 TeleportManager.teleportPlayer(player, teleportationPoint);
                 if (sender instanceof Player sendingPlayer) {

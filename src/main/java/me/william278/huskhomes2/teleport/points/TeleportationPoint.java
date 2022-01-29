@@ -1,8 +1,11 @@
 package me.william278.huskhomes2.teleport.points;
 
+import me.william278.huskhomes2.HuskHomes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+
+import java.util.StringJoiner;
 
 /**
  * @author William
@@ -20,8 +23,9 @@ public class TeleportationPoint {
 
     /**
      * Update the location of a TeleportationPoint
+     *
      * @param location a new Bukkit location
-     * @param server a new Bungee server ID
+     * @param server   a new Bungee server ID
      */
     public void setLocation(Location location, String server) {
         worldName = location.getWorld().getName();
@@ -35,8 +39,9 @@ public class TeleportationPoint {
 
     /**
      * HuskHomes' position representation object; represents an in-game location on a server
+     *
      * @param location The Bukkit location
-     * @param server The Bungee server ID which the location is on
+     * @param server   The Bungee server ID which the location is on
      */
     public TeleportationPoint(Location location, String server) {
         if (location.getWorld() == null) {
@@ -47,13 +52,14 @@ public class TeleportationPoint {
 
     /**
      * HuskHomes' position representation object; represents an in-game location on a server
+     *
      * @param worldName The name of the location's world
-     * @param x The location's x-coordinate
-     * @param y The location's y-coordinate
-     * @param z The location's z-coordinate
-     * @param yaw The location's yaw angle
-     * @param pitch The location's pitch angle
-     * @param server The Bungee server ID which the location is on
+     * @param x         The location's x-coordinate
+     * @param y         The location's y-coordinate
+     * @param z         The location's z-coordinate
+     * @param yaw       The location's yaw angle
+     * @param pitch     The location's pitch angle
+     * @param server    The Bungee server ID which the location is on
      */
     public TeleportationPoint(String worldName, double x, double y, double z, float yaw, float pitch, String server) {
         this.server = server;
@@ -67,6 +73,7 @@ public class TeleportationPoint {
 
     /**
      * Get the Bukkit location from a TeleportationPoint
+     *
      * @return the Bukkit location on the server from a TeleportationPoint
      * @throws IllegalStateException if the location is not valid on the server
      */
@@ -81,6 +88,7 @@ public class TeleportationPoint {
 
     /**
      * Get the name of the world from a TeleportationPoint
+     *
      * @return the name of the world the position is on from a TeleportationPoint
      */
     public String getWorldName() {
@@ -89,6 +97,7 @@ public class TeleportationPoint {
 
     /**
      * Get the Bungee server ID from a TeleportationPoint
+     *
      * @return the TeleportationPoint's Bungee server ID
      */
     public String getServer() {
@@ -97,6 +106,7 @@ public class TeleportationPoint {
 
     /**
      * Get the x-coordinate of a TeleportationPoint
+     *
      * @return the x-coordinate
      */
     public double getX() {
@@ -105,6 +115,7 @@ public class TeleportationPoint {
 
     /**
      * Get the y-coordinate of a TeleportationPoint
+     *
      * @return the y-coordinate
      */
     public double getY() {
@@ -113,6 +124,7 @@ public class TeleportationPoint {
 
     /**
      * Get the z-coordinate of a TeleportationPoint
+     *
      * @return the z-coordinate
      */
     public double getZ() {
@@ -121,6 +133,7 @@ public class TeleportationPoint {
 
     /**
      * Get the yaw angle of a TeleportationPoint
+     *
      * @return the yaw angle
      */
     public float getYaw() {
@@ -129,9 +142,20 @@ public class TeleportationPoint {
 
     /**
      * Get the pitch angle of a TeleportationPoint
+     *
      * @return the pitch angle
      */
     public float getPitch() {
         return pitch;
+    }
+
+    /**
+     * Returns the TeleportationPoint as a formatted string
+     *
+     * @return the TeleportationPoint
+     */
+    @Override
+    public String toString() {
+        return x + ", " + y + ", " + z + " (" + worldName + (HuskHomes.getSettings().getServerID().equalsIgnoreCase(server) ? "/" + server : "") + ")";
     }
 }

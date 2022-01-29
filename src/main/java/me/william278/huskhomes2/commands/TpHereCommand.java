@@ -19,15 +19,20 @@ public class TpHereCommand extends CommandBase {
     protected void onCommand(Player p, Command command, String label, String[] args) {
         if (args.length == 1) {
             String targetPlayer = args[0];
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    TeleportManager.teleportHere(p, NameAutoCompleter.getAutoCompletedName(targetPlayer));
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
-                }
-            });
+            executeTpHere(p, targetPlayer);
         } else {
             MessageManager.sendMessage(p, "error_invalid_syntax", command.getUsage());
         }
+    }
+
+    // Execute the tp here operation
+    public static void executeTpHere(Player player, String targetPlayer) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                TeleportManager.teleportHere(player, NameAutoCompleter.getAutoCompletedName(targetPlayer));
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred using /tphere");
+            }
+        });
     }
 }

@@ -86,7 +86,7 @@ public class TpCommand extends CommandBase {
     public static class Tab implements TabCompleter {
         @Override
         public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
-            String[] closestArgs = getClosestArgs(false, sender, args);
+            String[] closestArgs = getClosestArgs(false, args);
             final int currentArgIndex = Math.max(args.length - 1, 0);
             if (currentArgIndex >= closestArgs.length) {
                 return Collections.emptyList();
@@ -130,14 +130,14 @@ public class TpCommand extends CommandBase {
 
     public static String getClosestUsage(boolean filterOnlyConsoleExecutable, CommandSender sender, String... inputArgs) {
         StringJoiner joiner = new StringJoiner(" ");
-        for (String argument : getClosestArgs(filterOnlyConsoleExecutable, sender, inputArgs)) {
+        for (String argument : getClosestArgs(filterOnlyConsoleExecutable, inputArgs)) {
             joiner.add(argument);
         }
         return joiner.toString();
     }
 
-    public static String[] getClosestArgs(boolean filterOnlyConsoleExecutable, CommandSender sender, String... inputArgs) {
-        String[] closestArgs = new String[]{"<target/coordinates>"};
+    public static String[] getClosestArgs(boolean filterOnlyConsoleExecutable, String... inputArgs) {
+        String[] closestArgs = new String[]{"[player] [<x>|<target>] [<y>] [<z>] [yaw] [pitch] [world] [server]"};
         int difference = Integer.MAX_VALUE;
         for (TpCommandInputHandler handler : inputHandlers) {
             if (filterOnlyConsoleExecutable) {

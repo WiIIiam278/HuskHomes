@@ -54,7 +54,7 @@ commands:
     permission: huskhomes.publichome
     aliases: [phome]
   tp:
-    usage: /<command> <player/coordinates>
+    usage: /<command> [player] [<x>|<target>] [<y>] [<z>] [yaw] [pitch] [world] [server]
     permission: huskhomes.tp
     aliases: [tpo]
   tphere:

@@ -256,6 +256,7 @@ public class TpCommand extends CommandBase {
                                     case "<x>" -> player.getLocation().getX();
                                     case "<y>" -> player.getLocation().getY();
                                     case "<z>" -> player.getLocation().getZ();
+                                    default -> 0;
                                 };
                             } else {
                                 return HandlerResponse.CANNOT_HANDLE_BY_CONSOLE;
@@ -285,6 +286,7 @@ public class TpCommand extends CommandBase {
                                 value = switch (expectedArgument) {
                                     case "<yaw>" -> player.getLocation().getYaw();
                                     case "<pitch>" -> player.getLocation().getPitch();
+                                    default -> 0;
                                 };
                             } else {
                                 return HandlerResponse.CANNOT_HANDLE_BY_CONSOLE;

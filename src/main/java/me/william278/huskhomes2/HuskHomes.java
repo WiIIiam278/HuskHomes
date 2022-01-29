@@ -212,7 +212,7 @@ public final class HuskHomes extends JavaPlugin {
         // Fetch spawn location if set
         SettingHandler.fetchSpawnLocation();
 
-        // Setup the map integration with the correct plugin
+        // Set up the map integration with the correct plugin
         if (HuskHomes.getSettings().doMapIntegration()) {
             String mapPlugin = HuskHomes.getSettings().getMapPlugin();
             switch (mapPlugin) {

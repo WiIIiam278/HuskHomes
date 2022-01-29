@@ -156,6 +156,6 @@ public class TeleportationPoint {
      */
     @Override
     public String toString() {
-        return x + ", " + y + ", " + z + " (" + worldName + (HuskHomes.getSettings().getServerID().equalsIgnoreCase(server) ? "/" + server : "") + ")";
+        return x + ", " + y + ", " + z + " (" + worldName + (HuskHomes.getSettings().doBungee() ? "/" + server : "") + ")";
     }
 }

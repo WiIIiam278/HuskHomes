@@ -44,23 +44,12 @@ public class TpCommand extends CommandBase {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        TpCommandInputHandler.HandlerResponse response = null;
         for (TpCommandInputHandler inputHandler : inputHandlers) {
-            switch (inputHandler.handleInput(args, sender)) {
+            response = inputHandler.handleInput(args, sender);
+            switch (response) {
                 case CAN_HANDLE -> {
                     inputHandler.executeTeleport(sender);
-                    return true;
-                }
-                case CANNOT_HANDLE_BY_CONSOLE -> {
-                    sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_syntax",
-                            getClosestUsage(true, args))).toComponent());
-                    return true;
-                }
-                case CANNOT_HANDLE_INVALID_WORLD -> {
-                    sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_world")).toComponent());
-                    return true;
-                }
-                case CANNOT_HANDLE_INVALID_PLAYER -> {
-                    sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_player")).toComponent());
                     return true;
                 }
                 case CANNOT_HANDLE_HANDLED_BY_TP_HERE -> {
@@ -68,8 +57,24 @@ public class TpCommand extends CommandBase {
                 }
             }
         }
+        assert response != null;
+        switch (response) {
+            case CANNOT_HANDLE_BY_CONSOLE -> {
+                sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_syntax",
+                        "/tp " + getClosestUsage(true, sender, args))).toComponent());
+                return true;
+            }
+            case CANNOT_HANDLE_INVALID_WORLD -> {
+                sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_tp_invalid_world")).toComponent());
+                return true;
+            }
+            case CANNOT_HANDLE_INVALID_PLAYER -> {
+                sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_player")).toComponent());
+                return true;
+            }
+        }
         sender.spigot().sendMessage(new MineDown(MessageManager.getRawMessage("error_invalid_syntax",
-                getClosestUsage((!(sender instanceof Player)), args))).toComponent());
+                "/tp " + getClosestUsage((!(sender instanceof Player)), sender, args))).toComponent());
         return true;
     }
 
@@ -81,7 +86,7 @@ public class TpCommand extends CommandBase {
     public static class Tab implements TabCompleter {
         @Override
         public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
-            String[] closestArgs = getClosestArgs(false, args);
+            String[] closestArgs = getClosestArgs(false, sender, args);
             final int currentArgIndex = Math.max(args.length - 1, 0);
             if (currentArgIndex >= closestArgs.length) {
                 return Collections.emptyList();
@@ -123,25 +128,28 @@ public class TpCommand extends CommandBase {
         }
     }
 
-    public static String getClosestUsage(boolean filterOnlyConsoleExecutable, String... inputArgs) {
+    public static String getClosestUsage(boolean filterOnlyConsoleExecutable, CommandSender sender, String... inputArgs) {
         StringJoiner joiner = new StringJoiner(" ");
-        for (String argument : getClosestArgs(filterOnlyConsoleExecutable, inputArgs)) {
+        for (String argument : getClosestArgs(filterOnlyConsoleExecutable, sender, inputArgs)) {
             joiner.add(argument);
         }
         return joiner.toString();
     }
 
-    public static String[] getClosestArgs(boolean filterOnlyConsoleExecutable, String... inputArgs) {
+    public static String[] getClosestArgs(boolean filterOnlyConsoleExecutable, CommandSender sender, String... inputArgs) {
         String[] closestArgs = new String[]{"<target/coordinates>"};
-        int lengthDifference = Integer.MAX_VALUE;
+        int difference = Integer.MAX_VALUE;
         for (TpCommandInputHandler handler : inputHandlers) {
             if (filterOnlyConsoleExecutable) {
                 if (!handler.consoleExecutable) {
                     continue;
                 }
             }
-            int argLengthDifference = inputArgs.length - handler.arguments.length;
-            if (argLengthDifference < lengthDifference) {
+            int argLengthDifference = handler.arguments.length - inputArgs.length;
+            if (argLengthDifference < 0) {
+                continue;
+            }
+            if (argLengthDifference < difference) {
                 closestArgs = handler.arguments;
             }
         }
@@ -175,24 +183,29 @@ public class TpCommand extends CommandBase {
                 return HandlerResponse.CANNOT_HANDLE_BY_CONSOLE;
             }
             if (inputArguments.length == arguments.length) {
-                int argumentIndex = 0;
-                for (String inputArgument : inputArguments) {
-                    final HandlerResponse argumentResponse = handleArg(inputArgument, argumentIndex, inputExecutor);
-                    if (argumentResponse != HandlerResponse.CAN_HANDLE) {
-                        return argumentResponse;
-                    }
-                    argumentIndex++;
-                }
-                if (player == null) {
-                    if (inputExecutor instanceof Player commandDispatcher) {
-                        player = commandDispatcher;
-                    } else {
-                        return HandlerResponse.CANNOT_HANDLE_BY_CONSOLE;
-                    }
-                }
-                return HandlerResponse.CAN_HANDLE;
+                return getHandleable(inputArguments, inputExecutor);
             }
             return HandlerResponse.CANNOT_HANDLE_SYNTAX_LENGTH_MISMATCH;
+        }
+
+        private HandlerResponse getHandleable(String[] inputArguments, CommandSender inputExecutor) {
+            int argumentIndex = 0;
+            for (String inputArgument : inputArguments) {
+                if (argumentIndex >= arguments.length) break;
+                final HandlerResponse argumentResponse = handleArg(inputArgument, argumentIndex, inputExecutor);
+                if (argumentResponse != HandlerResponse.CAN_HANDLE) {
+                    return argumentResponse;
+                }
+                argumentIndex++;
+            }
+            if (player == null) {
+                if (inputExecutor instanceof Player commandDispatcher) {
+                    player = commandDispatcher;
+                } else {
+                    return HandlerResponse.CANNOT_HANDLE_BY_CONSOLE;
+                }
+            }
+            return HandlerResponse.CAN_HANDLE;
         }
 
         public void executeTeleport(CommandSender sender) {
@@ -219,7 +232,7 @@ public class TpCommand extends CommandBase {
                     (z != null ? z : player.getLocation().getZ()),
                     (yaw != null ? yaw : player.getLocation().getYaw()),
                     (pitch != null ? pitch : player.getLocation().getPitch()),
-                    serverId != null || !HuskHomes.getSettings().doBungee() ? serverId : HuskHomes.getSettings().getServerID());
+                    serverId != null || HuskHomes.getSettings().doBungee() ? serverId : HuskHomes.getSettings().getServerID());
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 TeleportManager.teleportPlayer(player, teleportationPoint);
                 if (sender instanceof Player sendingPlayer) {

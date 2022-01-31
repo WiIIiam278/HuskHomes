@@ -7,6 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import javax.annotation.Nullable;
+
 public class Settings {
 
     private final Plugin plugin;
@@ -452,15 +454,15 @@ public class Settings {
     public int getWarpsPerPage() {
         return warpsPerPage;
     }
-
+    @Nullable
     public Sound getTeleportationCompleteSound() {
         return teleportationCompleteSound;
     }
-
+    @Nullable
     public Sound getTeleportWarmupSound() {
         return teleportWarmupSound;
     }
-
+    @Nullable
     public Sound getTeleportCancelledSound() {
         return teleportCancelledSound;
     }

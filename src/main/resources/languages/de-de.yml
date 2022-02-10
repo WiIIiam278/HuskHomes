@@ -87,7 +87,7 @@ rtp_spent_money: '[Du hast %1% ausgegeben, um zufällig zu teleportieren.](gray)
 back_spent_money: '[Du hast %1% ausgegeben, um zu deiner letzten Position zurückzukehren.](gray)'
 error_command_disabled: '[Fehler:](#ff3300) [Dieser befehl ist deaktiviert!](#ff7e5e)'
 error_console_only: '[Fehler:](#ff3300) [Dieser Befehl kann nur über die Serverkonsole ausgeführt werden.](#ff7e5e)'
-error_tp_invalid_world: '[Fehler:](#ff3300) [Bitte geben Sie eine gültige Welt auf diesem Server an.](#ff7e5e)'
+error_tp_invalid_world: '[Fehler:](#ff3300) [Bitte gib eine gültige Welt auf diesem Server an.](#ff7e5e)'
 error_rtp_randomization_timeout: '[Fehler:](#ff3300) [Es ist nicht gelungen, einen sicheren zufälligen Ort zu finden, um dich zu teleportieren.](#ff7e5e)'
 list_item_divider: ' [•](gray) '
 home_list_item: '[[%1%]](show_text=&7%3% run_command=/huskhomes:edithome %2%.%1%)'

@@ -105,7 +105,9 @@ public class TeleportManager {
                                         player.eject(); // Eject passengers before  teleporting
                                     }
                                     PaperLib.teleportAsync(player, targetLocation).thenRun(() -> {
-                                        player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                                        if (HuskHomes.getSettings().getTeleportationCompleteSound() != null) {
+                                            player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                                        }
                                         MessageManager.sendMessage(player, "teleporting_complete");
                                     });
                                 });

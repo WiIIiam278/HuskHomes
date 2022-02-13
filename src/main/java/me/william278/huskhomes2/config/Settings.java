@@ -7,6 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import javax.annotation.Nullable;
+
 public class Settings {
 
     private final Plugin plugin;
@@ -228,13 +230,23 @@ public class Settings {
             // Retrieve sounds used in plugin; if invalid, use defaults.
             try {
                 this.teleportationCompleteSound = Sound.valueOf(config.getString("general.sounds.teleportation_complete", "ENTITY_ENDERMAN_TELEPORT"));
+            } catch (IllegalArgumentException exception) {
+                Bukkit.getLogger().severe("Invalid sound specified for teleportation_complete, using no sound instead");
+                this.teleportationCompleteSound = null;
+            }
+
+            try {
                 this.teleportWarmupSound = Sound.valueOf(config.getString("general.sounds.teleportation_warmup", "BLOCK_NOTE_BLOCK_BANJO"));
+            } catch (IllegalArgumentException exception) {
+                Bukkit.getLogger().severe("Invalid sound specified for teleportation_warmup, using no sound instead");
+                this.teleportWarmupSound = null;
+            }
+
+            try {
                 this.teleportCancelledSound = Sound.valueOf(config.getString("general.sounds.teleportation_cancelled", "ENTITY_ITEM_BREAK"));
             } catch (IllegalArgumentException exception) {
-                Bukkit.getLogger().severe("Invalid sound specified in config.yml; using default sounds instead.");
-                this.teleportationCompleteSound = Sound.ENTITY_ENDERMAN_TELEPORT;
-                this.teleportWarmupSound = Sound.BLOCK_NOTE_BLOCK_BANJO;
-                this.teleportCancelledSound = Sound.ENTITY_ITEM_BREAK;
+                Bukkit.getLogger().severe("Invalid sound specified for teleportation_cancelled, using no sound instead");
+                this.teleportCancelledSound = null;
             }
 
             this.allowUnicodeInDescriptions = config.getBoolean("allow_unicode_descriptions", true);
@@ -442,15 +454,15 @@ public class Settings {
     public int getWarpsPerPage() {
         return warpsPerPage;
     }
-
+    @Nullable
     public Sound getTeleportationCompleteSound() {
         return teleportationCompleteSound;
     }
-
+    @Nullable
     public Sound getTeleportWarmupSound() {
         return teleportWarmupSound;
     }
-
+    @Nullable
     public Sound getTeleportCancelledSound() {
         return teleportCancelledSound;
     }

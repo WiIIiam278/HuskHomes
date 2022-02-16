@@ -1,9 +1,9 @@
 package me.william278.huskhomes2.commands;
 
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.teleport.TeleportManager;
+import me.william278.huskhomes2.util.MessageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -32,12 +32,9 @@ public class SpawnCommand extends CommandBase {
                         return;
                     }
 
-                    // Server-based spawn teleport
-                    if (TeleportManager.getSpawnLocation() != null) {
-                        TeleportManager.queueTimedTeleport(p, TeleportManager.getSpawnLocation());
-                    } else {
-                        MessageManager.sendMessage(p, "error_spawn_undefined");
-                    }
+                    // Teleport the player to spawn if it has been set
+                    TeleportManager.getSpawnLocation().ifPresentOrElse(teleportationPoint -> TeleportManager.queueTimedTeleport(p, teleportationPoint),
+                            () -> MessageManager.sendMessage(p, "error_spawn_undefined"));
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An exception occurred returning back to spawn");
                 }

@@ -77,6 +77,9 @@ public class Settings {
     // Vanished player checks
     private boolean checkVanishedPlayers;
 
+    // Use PaperLib if available
+    private boolean usePaperLibIfAvailable;
+
     // Time and maximum home settings
     private int maximumHomes;
     private int teleportRequestExpiryTime;
@@ -252,6 +255,8 @@ public class Settings {
             this.allowUnicodeInDescriptions = config.getBoolean("allow_unicode_descriptions", true);
 
             this.checkVanishedPlayers = config.getBoolean("handle_vanished_players", true);
+
+            this.usePaperLibIfAvailable = config.getBoolean("general.use_paperlib_if_available", true);
 
             this.doSpawnCommand = config.getBoolean("spawn_command.enabled", true);
             this.doCrossServerSpawn = config.getBoolean("spawn_command.bungee_network_spawn.enabled", false);
@@ -454,14 +459,17 @@ public class Settings {
     public int getWarpsPerPage() {
         return warpsPerPage;
     }
+
     @Nullable
     public Sound getTeleportationCompleteSound() {
         return teleportationCompleteSound;
     }
+
     @Nullable
     public Sound getTeleportWarmupSound() {
         return teleportWarmupSound;
     }
+
     @Nullable
     public Sound getTeleportCancelledSound() {
         return teleportCancelledSound;
@@ -523,9 +531,13 @@ public class Settings {
         return redisPassword;
     }
 
-    public boolean getRedisSSL() { return redisSSL; }
+    public boolean getRedisSSL() {
+        return redisSSL;
+    }
 
-    public boolean getDoBackCommand() { return doBackCommand; }
+    public boolean getDoBackCommand() {
+        return doBackCommand;
+    }
 
     public int getHikariMaximumPoolSize() {
         return hikariMaximumPoolSize;
@@ -555,14 +567,33 @@ public class Settings {
         return homeLimitPermissionStacking;
     }
 
+    public boolean doUsePaperLibIfAvailable() {
+        return usePaperLibIfAvailable;
+    }
+
     public DisplayStyle getWarmupDisplayStyle() {
         return teleportWarmupDisplayStyle;
     }
 
+    /**
+     * Used to define where messages should appear
+     */
     public enum DisplayStyle {
+        /**
+         * In the action bar (above the hotbar)
+         */
         ACTION_BAR,
+        /**
+         * In the title slot in the middle of the player's screen
+         */
         TITLE,
+        /**
+         * In the subtitle slot, just below the title
+         */
         SUBTITLE,
+        /**
+         * In chat
+         */
         CHAT
     }
 }

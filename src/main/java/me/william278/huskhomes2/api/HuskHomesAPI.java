@@ -1,4 +1,3 @@
-
 package me.william278.huskhomes2.api;
 
 import me.william278.huskhomes2.HuskHomes;
@@ -13,6 +12,7 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -122,33 +122,9 @@ public class HuskHomesAPI {
      *
      * @param player the Player being checked
      * @return the maximum homes a player can set
-     * @deprecated Use getMaxSetHomes instead (capitalized H)
-     */
-    @Deprecated
-    public int getMaxSethomes(Player player) {
-        return getMaxSetHomes(player);
-    }
-
-    /**
-     * Returns the maximum number of homes a player can set
-     *
-     * @param player the Player being checked
-     * @return the maximum homes a player can set
      */
     public int getMaxSetHomes(Player player) {
         return Home.getSetHomeLimit(player);
-    }
-
-    /**
-     * Returns the maximum number of homes a player can set
-     *
-     * @param player the Player being checked
-     * @return the maximum homes a player can set
-     * @deprecated Use getFreeSetHomes instead (capitalized H)
-     */
-    @Deprecated
-    public int getFreeSethomes(Player player) {
-        return getFreeSetHomes(player);
     }
 
     /**
@@ -212,12 +188,29 @@ public class HuskHomesAPI {
     }
 
     /**
+     * Returns an {@link Optional} that will contain the spawn position set on the server, as a {@link TeleportationPoint}.
+     * <p>
+     * <ul>
+     *      <li>To check if the spawn position is present: {@code #getServerSpawnPosition().isPresent()}</li>
+     *      <li>To get the spawn position, if it is present: {@code #getServerSpawnPosition().get()}</li>
+     *      <li>To get a runnable, if it is present: {@code #getServerSpawnPosition().get()}</li>
+     * </ul>
+     *
+     * @return an {@link Optional} that will contain the server's {@link TeleportationPoint} spawn position if it has been set (empty otherwise)
+     */
+    public Optional<TeleportationPoint> getServerSpawnPosition() {
+        return TeleportManager.getSpawnLocation();
+    }
+
+    /**
      * Returns the current spawn position as a TeleportationPoint
      *
-     * @return the spawn position as a TeleportationPoint
+     * @return the spawn position as a {@link TeleportationPoint}; {@code null otherwise}
+     * @deprecated Use {@link #getServerSpawnPosition()} that returns an {@code Optional<TeleportationPoint>} instead
      */
+    @Deprecated
     public TeleportationPoint getSpawnPosition() {
-        return TeleportManager.getSpawnLocation();
+        return TeleportManager.getSpawnLocation().isPresent() ? TeleportManager.getSpawnLocation().get() : null;
     }
 
     /**
@@ -237,12 +230,11 @@ public class HuskHomesAPI {
     }
 
     /**
-     * Teleport a player to a specific TeleportationPoint
+     * Teleport a {@link Player} to a specific {@link TeleportationPoint}
      *
-     * @param player The player to be teleported
-     * @param point  The target teleportationPoint
-     * @param timed  Whether to do a warmup countdown
-     * @see TeleportationPoint
+     * @param player The {@link Player} to be teleported
+     * @param point  The target {@link TeleportationPoint}
+     * @param timed  Whether the teleport should be timed; have a warmup countdown
      */
     public void teleportPlayer(Player player, TeleportationPoint point, boolean timed) {
         Bukkit.getScheduler().runTask(huskHomes, () -> {
@@ -255,12 +247,11 @@ public class HuskHomesAPI {
     }
 
     /**
-     * Teleport a player to a specific TeleportationPoint
+     * Teleport a {@link Player} to a specific {@link TeleportationPoint}
      *
-     * @param player           The player to be teleported
-     * @param targetPlayerName The target player's name
-     * @param timed            Whether to do a warmup countdown
-     * @see TeleportationPoint
+     * @param player           The {@link Player} to be teleported
+     * @param targetPlayerName The target {@link Player}'s username
+     * @param timed            Whether the teleport should be timed; have a warmup countdown
      */
     public void teleportPlayer(Player player, String targetPlayerName, boolean timed) {
         Bukkit.getScheduler().runTask(huskHomes, () -> {

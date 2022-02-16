@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class TeleportManager {
@@ -99,18 +100,9 @@ public class TeleportManager {
                             if (!HuskHomes.getSettings().doBungee() || server.equals(HuskHomes.getSettings().getServerID())) {
                                 DataManager.setPlayerTeleporting(player, false, connection);
                                 DataManager.deletePlayerDestination(player.getName(), connection);
-                                Location targetLocation = targetPoint[0].getLocation();
-                                Bukkit.getScheduler().runTask(plugin, () -> {
-                                    if (!player.isEmpty()) {
-                                        player.eject(); // Eject passengers before  teleporting
-                                    }
-                                    PaperLib.teleportAsync(player, targetLocation).thenRun(() -> {
-                                        if (HuskHomes.getSettings().getTeleportationCompleteSound() != null) {
-                                            player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
-                                        }
-                                        MessageManager.sendMessage(player, "teleporting_complete");
-                                    });
-                                });
+
+                                final Location targetLocation = targetPoint[0].getLocation();
+                                teleportLocally(player, targetLocation, true);
                             } else if (HuskHomes.getSettings().doBungee()) {
                                 DataManager.setPlayerDestinationLocation(player, targetPoint[0], connection);
                                 DataManager.setPlayerTeleporting(player, true, connection);
@@ -123,6 +115,44 @@ public class TeleportManager {
                         }
                     });
                 });
+            }
+        });
+    }
+
+    /**
+     * Teleport a player locally on the server via PaperLib
+     *
+     * @param player         The {@link Player} to teleport
+     * @param targetLocation The target {@link Location}
+     * @param notify         Whether to notify the player of teleportation completion or failure through sounds and messages
+     */
+    public static void teleportLocally(Player player, Location targetLocation, boolean notify) {
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!player.isEmpty()) {
+                player.eject(); // Eject passengers before teleporting
+            }
+            if (!targetLocation.isWorldLoaded()) {
+                if (notify) {
+                    MessageManager.sendMessage(player, "error_invalid_on_arrival");
+                }
+                return;
+            }
+            if (HuskHomes.getSettings().doUsePaperLibIfAvailable()) {
+                PaperLib.teleportAsync(player, targetLocation).thenAccept(succeeded -> {
+                    if (!succeeded) {
+                        player.teleport(targetLocation); // Teleport normally if paperlib fails
+                    }
+                });
+            } else {
+                player.teleport(targetLocation);
+            }
+
+            // Send teleportation complete sound
+            if (notify) {
+                if (HuskHomes.getSettings().getTeleportationCompleteSound() != null) {
+                    player.playSound(targetLocation, HuskHomes.getSettings().getTeleportationCompleteSound(), 1, 1);
+                }
+                MessageManager.sendMessage(player, "teleporting_complete");
             }
         });
     }
@@ -294,11 +324,15 @@ public class TeleportManager {
         }
     }
 
-    public static TeleportationPoint getSpawnLocation() {
-        return spawnLocation;
+    public static Optional<TeleportationPoint> getSpawnLocation() {
+        if (spawnLocation == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(spawnLocation);
+        }
     }
 
-    public static void setSpawnLocation(TeleportationPoint spawnLocation) {
-        TeleportManager.spawnLocation = spawnLocation;
+    public static void setSpawnLocation(TeleportationPoint spawnPoint) {
+         spawnLocation = spawnPoint;
     }
 }

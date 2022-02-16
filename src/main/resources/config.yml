@@ -35,6 +35,7 @@ general:
   teleport_request_expiry_time: 60
   allow_unicode_descriptions: true
   enable_back_command: true
+  use_paperlib_if_available: true
   sounds:
     teleportation_complete: 'ENTITY_ENDERMAN_TELEPORT'
     teleportation_warmup: 'BLOCK_NOTE_BLOCK_BANJO'
@@ -94,4 +95,4 @@ economy_integration:
     random_teleport: 20
     back: 0
 handle_vanished_players: true
-config_file_version: 8
+config_file_version: 9

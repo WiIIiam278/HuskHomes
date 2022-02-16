@@ -5,10 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import java.util.StringJoiner;
-
 /**
- * @author William
  * HuskHomes' position representation object; represents an in-game location on a server
  */
 public class TeleportationPoint {
@@ -26,8 +23,14 @@ public class TeleportationPoint {
      *
      * @param location a new Bukkit location
      * @param server   a new Bungee server ID
+     * @throws IllegalStateException if the location supplied has an unloaded world
      */
-    public void setLocation(Location location, String server) {
+    public void setLocation(Location location, String server) throws IllegalStateException {
+        if (!location.isWorldLoaded()) {
+            throw new IllegalStateException("The location provided has a world not loaded");
+        }
+        assert location.getWorld() != null;
+
         worldName = location.getWorld().getName();
         x = location.getX();
         y = location.getY();
@@ -44,8 +47,8 @@ public class TeleportationPoint {
      * @param server   The Bungee server ID which the location is on
      */
     public TeleportationPoint(Location location, String server) {
-        if (location.getWorld() == null) {
-            throw new IllegalStateException("The location provided has an invalid world");
+        if (!location.isWorldLoaded()) {
+            throw new IllegalStateException("The location provided has a world not loaded");
         }
         setLocation(location, server);
     }
@@ -72,18 +75,17 @@ public class TeleportationPoint {
     }
 
     /**
-     * Get the Bukkit location from a TeleportationPoint
+     * Get the Bukkit {@link Location} from a TeleportationPoint
      *
      * @return the Bukkit location on the server from a TeleportationPoint
      * @throws IllegalStateException if the location is not valid on the server
      */
     public Location getLocation() {
         World world = Bukkit.getWorld(worldName);
-        if (world != null) {
-            return new Location(world, x, y, z, yaw, pitch);
-        } else {
-            throw new IllegalStateException(worldName + " is not a valid world on the server; failed to return location");
+        if (world == null) {
+            throw new IllegalStateException(worldName + " is not loaded on this server; failed to fetch location");
         }
+        return new Location(world, x, y, z, yaw, pitch);
     }
 
     /**

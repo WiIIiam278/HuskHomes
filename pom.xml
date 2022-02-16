@@ -6,7 +6,7 @@
 
     <groupId>me.William278</groupId>
     <artifactId>HuskHomes</artifactId>
-    <version>2.12-dev</version>
+    <version>2.12</version>
     <packaging>jar</packaging>
 
     <name>HuskHomes</name>
@@ -16,7 +16,6 @@
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jedis.version>4.1.1</jedis.version>
     </properties>
 
     <pluginRepositories>
@@ -31,7 +30,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.10.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -40,24 +39,28 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0-SNAPSHOT</version>
+                <version>3.3.1-SNAPSHOT</version>
                 <configuration>
                     <relocations>
+                        <relocation>
+                            <pattern>org.jetbrains</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.annotations</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.hikaricp</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.papermc</pattern>
+                            <shadedPattern>me.william278.huskhomes2.libraries.paperlib</shadedPattern>
+                        </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>me.william278.huskhomes2.libraries.bstats</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>de.themoep.minedown</pattern>
+                            <pattern>de.themoep</pattern>
                             <shadedPattern>me.william278.huskhomes2.libraries.minedown</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>io.papermc.lib</pattern>
-                            <shadedPattern>me.william278.huskhomes2.libraries.paperlib</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.zaxxer.hikari</pattern>
-                            <shadedPattern>me.william278.huskhomes2.libraries.hikari</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -80,6 +83,7 @@
                 <configuration>
                     <detectJavaApiLink>false</detectJavaApiLink>
                     <additionalJOption>-Xdoclint:none</additionalJOption>
+                    <encoding>UTF-8</encoding>
                     <staleDataPath>
                         ${project.build.directory}/javadoc-bundle-options/maven-javadoc-plugin-stale-data.txt
                     </staleDataPath>
@@ -189,7 +193,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>${jedis.version}</version>
+            <version>4.1.1</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

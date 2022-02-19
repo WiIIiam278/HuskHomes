@@ -16,6 +16,7 @@
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jedis.version>4.1.1</jedis.version>
     </properties>
 
     <pluginRepositories>
@@ -193,7 +194,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.1.1</version>
+            <version>${jedis.version}</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

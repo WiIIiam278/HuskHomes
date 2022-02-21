@@ -339,10 +339,12 @@ public class TpCommand extends CommandBase {
                 }
                 case "<target>" -> {
                     target = inputArgument;
-                    if (inputExecutor instanceof Player playerExecutor) {
-                        if (NameAutoCompleter.getAutoCompletedName(target).equalsIgnoreCase(playerExecutor.getName()) && tpHereTarget != null) {
-                            TpHereCommand.executeTpHere(playerExecutor, tpHereTarget);
-                            return HandlerResponse.CANNOT_HANDLE_HANDLED_BY_TP_HERE;
+                    if (arguments.length == 2) {
+                        if (inputExecutor instanceof Player playerExecutor) {
+                            if (NameAutoCompleter.getAutoCompletedName(target).equalsIgnoreCase(playerExecutor.getName()) && tpHereTarget != null) {
+                                TpHereCommand.executeTpHere(playerExecutor, tpHereTarget);
+                                return HandlerResponse.CANNOT_HANDLE_HANDLED_BY_TP_HERE;
+                            }
                         }
                     }
                     return HandlerResponse.CAN_HANDLE;

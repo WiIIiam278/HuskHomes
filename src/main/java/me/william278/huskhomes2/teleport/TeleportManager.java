@@ -4,7 +4,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.papermc.lib.PaperLib;
 import me.william278.huskhomes2.HuskHomes;
-import me.william278.huskhomes2.util.MessageManager;
 import me.william278.huskhomes2.api.events.PlayerPreTeleportEvent;
 import me.william278.huskhomes2.data.DataManager;
 import me.william278.huskhomes2.data.message.CrossServerMessageHandler;
@@ -12,6 +11,7 @@ import me.william278.huskhomes2.data.message.Message;
 import me.william278.huskhomes2.integrations.VaultIntegration;
 import me.william278.huskhomes2.teleport.points.RandomPoint;
 import me.william278.huskhomes2.teleport.points.TeleportationPoint;
+import me.william278.huskhomes2.util.MessageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -158,7 +158,7 @@ public class TeleportManager {
     }
 
     public static void queueTimedTeleport(Player player, String targetPlayer) {
-        if (player.hasPermission("huskhomes.bypass_timer")) {
+        if (player.hasPermission("huskhomes.bypass_timer") || HuskHomes.getSettings().getTeleportWarmupTime() <= 0) {
             teleportPlayer(player, targetPlayer);
             return;
         }
@@ -167,7 +167,7 @@ public class TeleportManager {
     }
 
     public static void queueTimedTeleport(Player player, TeleportationPoint point) {
-        if (player.hasPermission("huskhomes.bypass_timer")) {
+        if (player.hasPermission("huskhomes.bypass_timer") || HuskHomes.getSettings().getTeleportWarmupTime() <= 0) {
             teleportPlayer(player, point);
             return;
         }
@@ -203,7 +203,7 @@ public class TeleportManager {
                         }
                     }
                 }
-                if (player.hasPermission("huskhomes.bypass_timer")) {
+                if (player.hasPermission("huskhomes.bypass_timer") || HuskHomes.getSettings().getTeleportWarmupTime() <= 0) {
                     if (HuskHomes.getSettings().doEconomy()) {
                         double backCost = HuskHomes.getSettings().getRtpCost();
                         if (backCost > 0) {
@@ -245,7 +245,7 @@ public class TeleportManager {
                 }
             }
         }
-        if (player.hasPermission("huskhomes.bypass_timer")) {
+        if (player.hasPermission("huskhomes.bypass_timer") || HuskHomes.getSettings().getTeleportWarmupTime() <= 0) {
             RandomPoint randomPoint = new RandomPoint(player);
             if (randomPoint.hasFailed()) {
                 return;

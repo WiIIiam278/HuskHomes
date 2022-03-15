@@ -74,7 +74,7 @@ public abstract class Map {
     }
 
     public String getPublicHomeInfoMenu(Home home) {
-        String publicHomePopup = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/phome %HOME_NAME%</span><br/><span style=\"font-weight:bold;\">Owner: </span>%OWNER%<br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
+        String publicHomePopup = "<div class=\"infowindow\"><span style=\"font-weight:bold;\">/phome %OWNER%.%HOME_NAME%</span><br/><span style=\"font-weight:bold;\">Owner: </span>%OWNER%<br/><span style=\"font-weight:bold;\">Description: </span>%DESCRIPTION%</div>";
         publicHomePopup = publicHomePopup.replace("%HOME_NAME%", escapeHtml(home.getName()));
         publicHomePopup = publicHomePopup.replace("%OWNER%", escapeHtml(home.getOwnerUsername()));
         publicHomePopup = publicHomePopup.replace("%DESCRIPTION%", escapeHtml(home.getDescription()));

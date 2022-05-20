@@ -2,7 +2,14 @@ package net.william278.huskhomes.position;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a persistently-saved {@link Position}
+ */
 public class SavedPosition extends Position {
+
+    /**
+     * Metadata about this position (name, description)
+     */
     @NotNull
     public final PositionMeta positionMeta;
 

@@ -1,7 +1,8 @@
 package net.william278.huskhomes.player;
 
+import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.teleport.TeleportResult;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -38,9 +39,14 @@ public interface Player {
      * @param node The permission node string
      * @return {@code true} if the player has the node; {@code false} otherwise
      */
-    boolean hasPermission(String node);
+    boolean hasPermission(@NotNull String node);
 
-    void sendMessage();
+    /**
+     * Dispatch a MineDown-formatted message to this player
+     *
+     * @param mineDown the parsed {@link MineDown} to send
+     */
+    void sendMessage(@NotNull MineDown mineDown);
 
     /**
      * Returns the maximum number of homes this player can set
@@ -55,13 +61,5 @@ public interface Player {
      * @return a {@link CompletableFuture} providing the max number of homes this player can set
      */
     CompletableFuture<Integer> getFreeHomes();
-
-    /**
-     * Teleport the player to a specified {@link Position}
-     *
-     * @param position the target {@link Position} to teleport to
-     * @return A {@link CompletableFuture} callback returning the {@link TeleportResult} of completing the teleport
-     */
-    CompletableFuture<TeleportResult> teleport(Position position);
 
 }

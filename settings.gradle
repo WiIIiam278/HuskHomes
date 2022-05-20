@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'HuskHomes'
+
+include 'common'
+include 'bukkit'
+include 'plugin'

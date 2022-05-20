@@ -1,0 +1,11 @@
+dependencies {
+    compileOnly 'commons-io:commons-io:2.11.0'
+    compileOnly 'dev.dejvokep:boosted-yaml:1.2'
+    compileOnly 'de.themoep:minedown:1.7.1-SNAPSHOT'
+}
+
+shadowJar {
+    relocate 'org.apache.commons-io', 'net.william278.huskhomes.libraries.commons-io'
+    relocate 'dev.dejvokep.boosted-yaml', 'net.william278.huskhomes.libraries.boosted-yaml'
+    relocate 'de.themoep', 'net.william278.huskhomes.libraries.minedown'
+}

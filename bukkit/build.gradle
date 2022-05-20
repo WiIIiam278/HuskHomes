@@ -1,0 +1,14 @@
+dependencies {
+    implementation project(path: ':common', configuration: 'shadow')
+
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
+
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
+}
+
+shadowJar {
+    relocate 'org.apache', 'net.william278.huskhomes.libraries'
+    relocate 'de.themoep', 'net.william278.huskhomes.libraries.minedown'
+}

@@ -1,9 +1,0 @@
-# This file ensures jitpack builds HuskHomes correctly by setting the JDK to 16
-jdk:
-  - openjdk16
-before_install:
-  - bash ./.jitpack/ensure-java-16 install
-install:
-  - if ! ./.jitpack/ensure-java-16 use; then source ~/.sdkman/bin/sdkman-init.sh; fi
-  - java -version
-  - mvn install -DskipTests

@@ -5,7 +5,9 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'org.apache.commons-io', 'net.william278.huskhomes.libraries.commons-io'
-    relocate 'dev.dejvokep.boosted-yaml', 'net.william278.huskhomes.libraries.boosted-yaml'
-    relocate 'de.themoep', 'net.william278.huskhomes.libraries.minedown'
+    relocate 'org.apache', 'net.william278.huskhomes.libraries'
+    relocate 'dev.dejvokep', 'net.william278.huskhomes.libraries'
+    relocate 'de.themoep', 'net.william278.huskhomes.libraries'
+    relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
+    relocate 'org.intellij', 'net.william278.huskhomes.libraries'
 }

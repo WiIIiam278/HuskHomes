@@ -104,7 +104,7 @@ public class Settings {
      * @param config The loaded {@link YamlDocument} config.yml file
      * @return the loaded {@link Settings}
      */
-    public Settings load(YamlDocument config) {
+    public static Settings load(YamlDocument config) {
         return new Settings(config);
     }
 

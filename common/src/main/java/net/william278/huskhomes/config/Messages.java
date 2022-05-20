@@ -88,7 +88,7 @@ public class Messages {
      * @param messagesConfig The loaded {@link YamlDocument} messages.yml file
      * @return the loaded {@link Messages}
      */
-    public Messages load(YamlDocument messagesConfig) {
+    public static Messages load(YamlDocument messagesConfig) {
         return new Messages(messagesConfig);
     }
 

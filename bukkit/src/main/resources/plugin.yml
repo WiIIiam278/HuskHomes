@@ -1,3 +1,3 @@
-name: HuskHomes
-main: net.william278.huskhomes.HuskHomesBukkit
-version: ${version}
+name: 'HuskHomes'
+main: 'net.william278.huskhomes.HuskHomesBukkit'
+version: '${version}'

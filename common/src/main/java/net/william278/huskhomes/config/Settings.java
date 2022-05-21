@@ -130,11 +130,14 @@ public class Settings {
         DATABASE_CONNECTION_POOL_TIMEOUT("data_storage_options.connection_pool_options.connection_timeout", OptionType.INTEGER, 5000),
 
         DATABASE_PLAYER_TABLE_NAME("data_storage_options.table_names.player_data", OptionType.STRING, "huskhomes_player_data"),
-        DATABASE_LOCATION_TABLE_NAME("data_storage_options.table_names.locations_data", OptionType.STRING, "huskhomes_location_data"),
-        DATABASE_HOMES_TABLE_NAME("data_storage_options.table_names.homes_data", OptionType.STRING, "huskhomes_home_data"),
-        DATABASE_WARPS_TABLE_NAME("data_storage_options.table_names.warps_data", OptionType.STRING, "huskhomes_warp_data"),
+        DATABASE_POSITIONS_TABLE_NAME("data_storage_options.table_names.position_data", OptionType.STRING, "huskhomes_position_data"),
+        DATABASE_POSITIONS_META_DATA_TABLE_NAME("data_storage_options.table_names.position_meta_data", OptionType.STRING, "huskhomes_position_metadata"),
+        DATABASE_HOMES_TABLE_NAME("data_storage_options.table_names.home_data", OptionType.STRING, "huskhomes_home_data"),
+        DATABASE_WARPS_TABLE_NAME("data_storage_options.table_names.warp_data", OptionType.STRING, "huskhomes_warp_data"),
+        DATABASE_TELEPORTS_TABLE_NAME("data_storage_options.table_names.teleport_data", OptionType.STRING, "huskhomes_teleport_data"),
 
-        MAX_SETHOMES("general.max_sethomes", OptionType.INTEGER, 10),
+
+        MAX_HOMES("general.max_sethomes", OptionType.INTEGER, 10),
         AUTO_COMPLETE_PLAYER_NAMES("general.auto_complete_player_names", OptionType.BOOLEAN, true),
         HOME_LIMIT_PERMISSION_STACKING("general.home_limit_permission_stacking", OptionType.BOOLEAN, false),
         TELEPORT_WARMUP_TIME("general.teleport_warmup_time", OptionType.INTEGER, 5),

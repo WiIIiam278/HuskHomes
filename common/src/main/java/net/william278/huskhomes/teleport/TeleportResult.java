@@ -9,9 +9,14 @@ import net.william278.huskhomes.position.World;
 public enum TeleportResult {
 
     /**
-     * Returns if the {@link Teleport} completed successfully
+     * Returns if the {@link Teleport} was completed locally, successfully
      */
-    SUCCESS(true),
+    COMPLETED_LOCALLY(true),
+
+    /**
+     * Returns if the {@link Teleport} was completed cross-server
+     */
+    COMPLETED_CROSS_SERVER(true),
 
     /**
      * Returns if the {@link Teleport} failed because the {@link World} of the
@@ -32,7 +37,14 @@ public enum TeleportResult {
      * target {@link Position} were outside the world border limits
      * <p>
      */
-    FAILED_INVALID_COORDINATES(false);
+    FAILED_ILLEGAL_COORDINATES(false),
+
+    /**
+     * Returns if the {@link Teleport} failed because the coordinates of the
+     * target {@link Position} were in an unsafe spot
+     * <p>
+     */
+    FAILED_UNSAFE(false);
 
     /**
      * Is {@code true} if the teleport was a success

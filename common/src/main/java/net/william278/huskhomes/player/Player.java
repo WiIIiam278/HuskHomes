@@ -1,7 +1,9 @@
 package net.william278.huskhomes.player;
 
 import de.themoep.minedown.MineDown;
+import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -47,6 +49,13 @@ public interface Player {
      * @param mineDown the parsed {@link MineDown} to send
      */
     void sendMessage(@NotNull MineDown mineDown);
+
+    /**
+     * Teleport a player to the specified {@link Location}
+     *
+     * @param location the {@link Location} to teleport the player to
+     */
+    CompletableFuture<TeleportResult> teleport(Location location);
 
     /**
      * Returns the maximum number of homes this player can set

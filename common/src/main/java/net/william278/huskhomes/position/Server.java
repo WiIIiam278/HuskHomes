@@ -1,5 +1,7 @@
 package net.william278.huskhomes.position;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents a server on a proxied network
  */
@@ -8,9 +10,10 @@ public class Server {
     /**
      * Proxy-defined identifier of this server
      */
+    @NotNull
     public String id;
 
-    public Server(String id) {
+    public Server(@NotNull String id) {
         this.id = id;
     }
 

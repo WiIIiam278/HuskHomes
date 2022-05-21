@@ -9,11 +9,11 @@ check_for_updates: true
 data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:
-    host: localhost
+    host: 'localhost'
     port: 3306
-    database: HuskHomes
-    username: root
-    password: pa55w0rd
+    database: 'HuskHomes'
+    username: 'root'
+    password: 'pa55w0rd'
     params: '?autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull'
   connection_pool_options:
     maximum_pool_size: 10
@@ -23,9 +23,11 @@ data_storage_options:
     connection_timeout: 5000
   table_names:
     player_data: 'huskhomes_player_data'
-    locations_data: 'huskhomes_location_data'
-    homes_data: 'huskhomes_home_data'
-    warps_data: 'huskhomes_warp_data'
+    position_data: 'huskhomes_position_data'
+    position_meta_data: 'huskhomes_position_metadata'
+    home_data: 'huskhomes_home_data'
+    warp_data: 'huskhomes_warp_data'
+    teleport_data: 'huskhomes_teleport_data'
 general:
   max_sethomes: 10
   auto_complete_player_names: true
@@ -52,7 +54,7 @@ proxy_options:
   cluster_id: ''
   messenger_type: 'PLUGIN_MESSAGE'
   redis_credentials:
-    host: localhost
+    host: 'localhost'
     port: 6379
     password: ''
     use_ssl: false # todo tab complete cross-server options removed

@@ -38,7 +38,8 @@ public class Messages {
     /**
      * Returns an unformatted message loaded from the messages file, with replacements applied
      *
-     * @param messageId String identifier of the message, corresponding to a key in the file
+     * @param messageId    String identifier of the message, corresponding to a key in the file
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return An {@link Optional} containing the replacement-applied message corresponding to the id, if it exists
      */
     public Optional<String> getRawMessage(String messageId, String... replacements) {
@@ -58,7 +59,8 @@ public class Messages {
     /**
      * Returns a MineDown-formatted message from the messages file, with replacements applied
      *
-     * @param messageId String identifier of the message, corresponding to a key in the file
+     * @param messageId    String identifier of the message, corresponding to a key in the file
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return An {@link Optional} containing the replacement-applied, formatted message corresponding to the id, if it exists
      */
     public Optional<MineDown> getMessage(String messageId, String... replacements) {
@@ -69,7 +71,7 @@ public class Messages {
      * Apply placeholder replacements to a raw message
      *
      * @param rawMessage   The raw, unparsed message
-     * @param replacements Ordered list of placeholder replacement Strings
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return the raw message, with inserted placeholders
      */
     private String applyReplacements(String rawMessage, String... replacements) {

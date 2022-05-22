@@ -8,20 +8,20 @@ import org.jetbrains.annotations.NotNull;
 public class Server {
 
     /**
-     * Proxy-defined identifier of this server
+     * Proxy-defined name of this server
      */
     @NotNull
-    public String id;
+    public String name;
 
-    public Server(@NotNull String id) {
-        this.id = id;
+    public Server(@NotNull String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Server server) {
-            // If the id of this server matches another, the servers are the same.
-            return server.id.equalsIgnoreCase(this.id);
+            // If the name of this server matches another, the servers are the same.
+            return server.name.equalsIgnoreCase(this.name);
         }
         return super.equals(other);
     }

@@ -2,8 +2,6 @@ package net.william278.huskhomes.position;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 /**
  * Represents a position - a location somewhere on the proxy network or server
  */

@@ -23,8 +23,9 @@ public class TeleportManager {
     }
 
     /**
-     * Teleport the player to a specified {@link Position}
+     * Teleport a {@link Player} to a specified {@link Position}
      *
+     * @param player   the {@link Player} to teleport
      * @param position the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(Player player, Position position) {
@@ -38,7 +39,7 @@ public class TeleportManager {
 
     private CompletableFuture<TeleportResult> teleportCrossServer(Teleport teleport) {
         return CompletableFuture.supplyAsync(() -> {
-
+            //todo
             return TeleportResult.COMPLETED_CROSS_SERVER;
         });
     }

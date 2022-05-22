@@ -2,6 +2,9 @@ package net.william278.huskhomes.position;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a local position on this server
+ */
 public class Location {
 
     /**

@@ -2,6 +2,7 @@ dependencies {
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'dev.dejvokep:boosted-yaml:1.2'
     compileOnly 'de.themoep:minedown:1.7.1-SNAPSHOT'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
 }
 
 shadowJar {
@@ -10,4 +11,6 @@ shadowJar {
     relocate 'de.themoep', 'net.william278.huskhomes.libraries'
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
+    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
+    relocate 'org.slf4j', 'net.william278.huskhomes.libraries.slf4j'
 }

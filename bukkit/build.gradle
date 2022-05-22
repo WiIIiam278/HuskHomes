@@ -15,4 +15,6 @@ shadowJar {
     relocate 'de.themoep', 'net.william278.huskhomes.libraries'
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
+    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
+    relocate 'org.slf4j', 'net.william278.huskhomes.libraries.slf4j'
 }

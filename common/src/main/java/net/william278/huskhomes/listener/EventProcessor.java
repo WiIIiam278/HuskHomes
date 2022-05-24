@@ -25,10 +25,10 @@ public class EventProcessor {
      */
     public void onPlayerJoin(@NotNull Player player) {
         // Ensure the player is present on the database first
-        implementor.getDatabase().ensurePlayer(player).thenRun(() -> {
+        implementor.getDatabase().ensureUser(player).thenRun(() -> {
             // If the server is in proxy mode, check if the player is teleporting cross-server
             if (implementor.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
-                implementor.getDatabase().getCurrentTeleport(new User(player.getUuid(), player.getName()))
+                implementor.getDatabase().getCurrentTeleport(new User(player))
                         .thenAccept(teleport -> teleport.ifPresent(currentTeleport ->
                                 player.teleport(currentTeleport.target).thenAccept(teleportResult -> {
                                     if (!teleportResult.successful) {

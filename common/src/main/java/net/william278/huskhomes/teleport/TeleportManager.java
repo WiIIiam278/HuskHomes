@@ -2,6 +2,7 @@ package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +30,7 @@ public class TeleportManager {
      * @param position the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(Player player, Position position) {
-        final Teleport teleport = new Teleport(player, position);
+        final Teleport teleport = new Teleport(new User(player), position);
         if (position.server.equals(plugin.getServerData())) {
             return player.teleport(teleport.target);
         } else {

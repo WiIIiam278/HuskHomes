@@ -20,7 +20,7 @@ public class BukkitPlayer implements Player {
     }
 
     public static Optional<BukkitPlayer> get(@NotNull User user) {
-        return get(user.uuid());
+        return get(user.uuid);
     }
 
     public static Optional<BukkitPlayer> get(@NotNull UUID uuid) {

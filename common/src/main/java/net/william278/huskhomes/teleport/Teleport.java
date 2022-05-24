@@ -1,6 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +14,7 @@ public class Teleport {
      * The player involved in the teleport
      */
     @NotNull
-    public Player player;
+    public User player;
 
     /**
      * The target position for the player
@@ -21,7 +22,7 @@ public class Teleport {
     @NotNull
     public Position target;
 
-    public Teleport(@NotNull Player player, @NotNull Position target) {
+    public Teleport(@NotNull User player, @NotNull Position target) {
         this.player = player;
         this.target = target;
     }

@@ -3,6 +3,7 @@ package net.william278.huskhomes.data;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
@@ -194,37 +195,37 @@ public abstract class Database {
     protected abstract int setPositionMeta(@NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException;
 
     /**
-     * Ensure a {@link Player} has a {@link User} entry in the database and that their username is up-to-date
+     * Ensure a {@link Player} has a {@link UserData} entry in the database and that their username is up-to-date
      *
      * @param player The {@link Player} to ensure
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> ensurePlayer(@NotNull Player player);
+    public abstract CompletableFuture<Void> ensureUser(@NotNull Player player);
 
     /**
-     * Get a player by their username (<i>case-insensitive</i>)
+     * Get a user by their username (<i>case-insensitive</i>)
      *
-     * @param name Username of the {@link User} to get (<i>case-insensitive</i>)
-     * @return A future returning an optional with the {@link User} present if they exist
+     * @param name Username of the {@link UserData} to get (<i>case-insensitive</i>)
+     * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<User>> getUserByName(@NotNull String name);
+    public abstract CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name);
 
     /**
      * Get a player by their Minecraft account {@link UUID}
      *
-     * @param uuid Minecraft account {@link UUID} of the {@link User} to get
-     * @return A future returning an optional with the {@link User} present if they exist
+     * @param uuid Minecraft account {@link UUID} of the {@link UserData} to get
+     * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<User>> getUser(@NotNull UUID uuid);
+    public abstract CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid);
 
 
     /**
      * Get a list of {@link Home}s set by a {@link User}
      *
-     * @param player {@link User} to get the homes of
+     * @param user {@link User} to get the homes of
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<List<Home>> getHomes(@NotNull User player);
+    public abstract CompletableFuture<List<Home>> getHomes(@NotNull User user);
 
     /**
      * Get a list of all {@link Warp}s that have been set
@@ -243,11 +244,11 @@ public abstract class Database {
     /**
      * Get a {@link Home} set by a {@link User}
      *
-     * @param player   The {@link User} who set the home
+     * @param user     The {@link User} who set the home
      * @param homeName The <i>case-insensitive</i> name of the home to get
      * @return A future returning an optional with the {@link Home} present if it exists
      */
-    public abstract CompletableFuture<Optional<Home>> getHome(@NotNull User player, @NotNull String homeName);
+    public abstract CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName);
 
     /**
      * Get a {@link Home} by its unique id
@@ -276,72 +277,80 @@ public abstract class Database {
     /**
      * Get the current {@link Teleport} being executed by the specified {@link User}
      *
-     * @param player The {@link User} to check
+     * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Teleport} present if they are teleporting cross-server
      */
-    public abstract CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User player);
+    public abstract CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user);
+
+    /**
+     * Updates a user in the database with new {@link UserData}
+     *
+     * @param userData The {@link UserData} to update
+     * @return A future returning void when complete
+     */
+    public abstract CompletableFuture<Void> updateUserData(@NotNull UserData userData);
 
     /**
      * Sets or clears the current {@link Teleport} being executed by a {@link User}
      *
-     * @param player   The {@link User} to set the current teleport of.
+     * @param user     The {@link User} to set the current teleport of.
      *                 Pass as {@code null} to clear the player's current teleport.<p>
      * @param teleport The {@link Teleport} to set as their current cross-server teleport
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setCurrentTeleport(@NotNull User player, @Nullable Teleport teleport);
+    public abstract CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport);
 
     /**
      * Get the last teleport {@link Position} of a specified {@link User}
      *
-     * @param player The {@link User} to check
+     * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getLastPosition(@NotNull User player);
+    public abstract CompletableFuture<Optional<Position>> getLastPosition(@NotNull User user);
 
     /**
      * Sets the last teleport {@link Position} of a {@link User}
      *
-     * @param player   The {@link User} to set the last position of
+     * @param user     The {@link User} to set the last position of
      * @param position The {@link Position} to set as their last position
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setLastPosition(@NotNull User player, @NotNull Position position);
+    public abstract CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position);
 
     /**
      * Get the offline {@link Position} of a specified {@link User}
      *
-     * @param player The {@link User} to check
+     * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getOfflinePosition(@NotNull User player);
+    public abstract CompletableFuture<Optional<Position>> getOfflinePosition(@NotNull User user);
 
     /**
      * Sets the offline {@link Position} of a {@link User}
      *
-     * @param player   The {@link User} to set the offline position of
+     * @param user     The {@link User} to set the offline position of
      * @param position The {@link Position} to set as their offline position
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setOfflinePosition(@NotNull User player, @NotNull Position position);
+    public abstract CompletableFuture<Void> setOfflinePosition(@NotNull User user, @NotNull Position position);
 
     /**
      * Get the respawn {@link Position} of a specified {@link User}
      *
-     * @param player The {@link User} to check
+     * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getRespawnPosition(@NotNull User player);
+    public abstract CompletableFuture<Optional<Position>> getRespawnPosition(@NotNull User user);
 
     /**
      * Sets or clears the respawn {@link Position} of a {@link User}
      *
-     * @param player   The {@link User} to set the respawn position of
+     * @param user     The {@link User} to set the respawn position of
      * @param position The {@link Position} to set as their respawn position
      *                 Pass as {@code null} to clear the player's current respawn position.<p>
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setRespawnPosition(@NotNull User player, @Nullable Position position);
+    public abstract CompletableFuture<Void> setRespawnPosition(@NotNull User user, @Nullable Position position);
 
     /**
      * Sets or updates a {@link Home} into the home data table on the database.
@@ -373,57 +382,6 @@ public abstract class Database {
      * @param uuid {@link UUID} of the warp to delete
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> deleteWarp(@NotNull Warp uuid);
-
-    /**
-     * Get the rtp cooldown time of a specified {@link User}
-     *
-     * @param player The {@link User} to check
-     * @return A future returning the epoch time of their current cooldown
-     */
-    public abstract CompletableFuture<Long> getRtpCooldown(@NotNull User player);
-
-    /**
-     * Sets the rtp cooldown time of a {@link User}
-     *
-     * @param player   The {@link User} to update
-     * @param position The epoch time of when the user can use rtp again.
-     * @return A future returning void when complete
-     */
-    public abstract CompletableFuture<Void> setRtpCooldown(@NotNull User player, long position);
-
-    /**
-     * Get the number of home slots a {@link User} has consumed (bought)
-     *
-     * @param player The {@link User} to check
-     * @return A future returning the number of home slots
-     */
-    public abstract CompletableFuture<Integer> getHomeSlots(@NotNull User player);
-
-    /**
-     * Sets the number of home slots a {@link User} has consumed (bought)
-     *
-     * @param player    The {@link User} to update
-     * @param homeSlots The number of home slots to set the user as having consumed.
-     * @return A future returning void when complete
-     */
-    public abstract CompletableFuture<Void> setHomeSlots(@NotNull User player, int homeSlots);
-
-    /**
-     * Get if a {@link User} is ignoring tp requests
-     *
-     * @param player The {@link User} to check
-     * @return A future returning if the player is ignoring tp requests
-     */
-    public abstract CompletableFuture<Boolean> getIsIgnoringTeleports(@NotNull User player);
-
-    /**
-     * Sets if a {@link User} is ignoring tp requests
-     *
-     * @param player            The {@link User} to update
-     * @param ignoringTeleports If the player is ignoring tp requests
-     * @return A future returning void when complete
-     */
-    public abstract CompletableFuture<Void> setIgnoringTeleports(@NotNull User player, boolean ignoringTeleports);
+    public abstract CompletableFuture<Void> deleteWarp(@NotNull UUID uuid);
 
 }

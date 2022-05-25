@@ -34,4 +34,5 @@ public class BukkitLogger implements Logger {
     public void config(String message) {
         logger.config(message);
     }
+
 }

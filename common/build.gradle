@@ -2,7 +2,11 @@ dependencies {
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'dev.dejvokep:boosted-yaml:1.2'
     compileOnly 'de.themoep:minedown:1.7.1-SNAPSHOT'
+    compileOnly 'redis.clients:jedis:4.2.3'
+
     implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+    implementation 'com.google.code.gson:gson:2.9.0'
 }
 
 shadowJar {
@@ -13,4 +17,8 @@ shadowJar {
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
     relocate 'org.slf4j', 'net.william278.huskhomes.libraries.slf4j'
+    relocate 'org.xerial', 'net.william278.huskhomes.libraries'
+    relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'com.google.code', 'net.william278.huskhomes.libraries'
+    relocate 'redis.clients', 'net.william278.huskhomes.libraries.jedis'
 }

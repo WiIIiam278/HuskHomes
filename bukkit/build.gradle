@@ -4,6 +4,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'dev.dejvokep:boosted-yaml:1.2'
+    implementation 'io.papermc:paperlib:1.0.7'
+    implementation 'redis.clients:jedis:4.2.3'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:23.0.0'
@@ -17,4 +19,7 @@ shadowJar {
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
     relocate 'org.slf4j', 'net.william278.huskhomes.libraries.slf4j'
+    relocate 'org.xerial', 'net.william278.huskhomes.libraries'
+    relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'com.google.code', 'net.william278.huskhomes.libraries'
 }

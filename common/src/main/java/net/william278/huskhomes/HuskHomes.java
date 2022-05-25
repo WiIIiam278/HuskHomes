@@ -1,13 +1,14 @@
 package net.william278.huskhomes;
 
+import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.config.Messages;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.util.Logger;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ public interface HuskHomes {
      *
      * @return a {@link Set} of currently online {@link Player}s
      */
-    Set<Player> getOnlinePlayers();
+    List<Player> getOnlinePlayers();
 
     /**
      * The plugin {@link Settings} loaded from file
@@ -44,19 +45,44 @@ public interface HuskHomes {
     Messages getMessages();
 
     /**
-     * The {@link Server} the plugin is running on
-     *
-     * @return the {@link Server} object representing the implementing server
-     */
-    Server getServerData();
-
-    /**
      * The {@link Database} that stores persistent plugin data
      *
      * @return the {@link Database} implementation for accessing data
      */
     Database getDatabase();
 
+    /**
+     * The {@link Cache} that holds cached data
+     *
+     * @return the plugin {@link Cache}
+     */
+    Cache getCache();
+
+    /**
+     * Returns true if the position is a valid location on the server
+     *
+     * @param position The {@link Position} to check
+     * @return {@code true} if the position is a valid one on the server; {@code false} otherwise
+     */
     boolean isValidPositionOnServer(Position position);
+
+    /**
+     * (Re)-load config and message data from files
+     */
+    void loadConfigData();
+
+    /**
+     * Get the HuskHomes plugin version
+     *
+     * @return the HuskHomes plugin version string
+     */
+    String getPluginVersion();
+
+    /**
+     * Get the platform type (e.g. Spigot, Paper etc)
+     *
+     * @return the type of server platform string
+     */
+    String getPlatformType();
 
 }

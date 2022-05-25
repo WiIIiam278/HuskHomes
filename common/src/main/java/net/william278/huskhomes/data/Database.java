@@ -384,4 +384,10 @@ public abstract class Database {
      */
     public abstract CompletableFuture<Void> deleteWarp(@NotNull UUID uuid);
 
+    /**
+     * Close any remaining connection to the database source
+     */
+    public abstract void terminate();
+
+
 }

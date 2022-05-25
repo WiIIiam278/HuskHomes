@@ -33,7 +33,7 @@ public interface Player {
      *
      * @return the player's current {@link Position}
      */
-    Position getPosition();
+    CompletableFuture<Position> getPosition();
 
     /**
      * Returns if the player has the permission node

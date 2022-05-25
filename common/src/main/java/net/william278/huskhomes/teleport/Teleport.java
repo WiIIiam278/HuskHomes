@@ -1,6 +1,5 @@
 package net.william278.huskhomes.teleport;
 
-import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;

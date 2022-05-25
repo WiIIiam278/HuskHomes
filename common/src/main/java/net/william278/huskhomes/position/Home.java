@@ -1,6 +1,5 @@
 package net.william278.huskhomes.position;
 
-import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import org.jetbrains.annotations.NotNull;
 

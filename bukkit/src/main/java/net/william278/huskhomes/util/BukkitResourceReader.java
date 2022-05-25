@@ -2,6 +2,7 @@ package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomesBukkit;
 
+import java.io.File;
 import java.io.InputStream;
 
 public class BukkitResourceReader implements ResourceReader {
@@ -15,6 +16,11 @@ public class BukkitResourceReader implements ResourceReader {
     @Override
     public InputStream getResource(String fileName) {
         return plugin.getResource(fileName);
+    }
+
+    @Override
+    public File getDataFolder() {
+        return plugin.getDataFolder();
     }
 
 }

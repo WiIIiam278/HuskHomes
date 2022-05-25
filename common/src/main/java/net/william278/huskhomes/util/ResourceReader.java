@@ -1,5 +1,6 @@
 package net.william278.huskhomes.util;
 
+import java.io.File;
 import java.io.InputStream;
 
 /**
@@ -14,5 +15,12 @@ public interface ResourceReader {
      * @return The resource, read as an {@link InputStream}
      */
     InputStream getResource(String fileName);
+
+    /**
+     * Gets the plugin data folder where plugin configuration and data are kept
+     *
+     * @return the plugin data directory
+     */
+    File getDataFolder();
 
 }

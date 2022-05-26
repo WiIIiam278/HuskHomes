@@ -7,6 +7,9 @@ import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import net.william278.huskhomes.cache.Cache;
+import net.william278.huskhomes.command.BukkitCommand;
+import net.william278.huskhomes.command.CommandBase;
+import net.william278.huskhomes.command.HomeCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
@@ -27,6 +30,7 @@ import net.william278.huskhomes.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -131,6 +135,15 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
 
         // Prepare the teleport manager
         this.teleportManager = new BukkitTeleportManager(this);
+
+        // Register commands - todo add all here
+        final CommandBase[] commands = new CommandBase[]{new HomeCommand(this)};
+        for (CommandBase commandBase : commands) {
+            final PluginCommand pluginCommand = getCommand(commandBase.command);
+            if (pluginCommand != null) {
+                new BukkitCommand(commandBase, this).register(pluginCommand);
+            }
+        }
     }
 
     @Override

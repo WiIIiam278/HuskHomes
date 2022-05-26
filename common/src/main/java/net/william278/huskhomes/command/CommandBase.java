@@ -4,8 +4,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * Represents an abstract cross-platform representation for a plugin command
  */
@@ -46,15 +44,6 @@ public abstract class CommandBase {
      * @param args   Command arguments
      */
     public abstract void onExecute(@NotNull Player player, @NotNull String[] args);
-
-    /**
-     * What should be returned when the player attempts to TAB-complete the command
-     *
-     * @param player {@link Player} doing the TAB completion
-     * @param args   Current command arguments
-     * @return List of String arguments to offer TAB suggestions
-     */
-    public abstract List<String> onTabComplete(@NotNull Player player, @NotNull String[] args);
 
     /**
      * Returns the localised description string of this command

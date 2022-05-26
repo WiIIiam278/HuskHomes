@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HomeCommand extends CommandBase {
+public class HomeCommand extends CommandBase implements TabCompletable {
 
     private final static String PERMISSION = "huskhomes.command.home";
 

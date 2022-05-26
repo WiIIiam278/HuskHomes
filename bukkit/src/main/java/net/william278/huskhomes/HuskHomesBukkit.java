@@ -7,7 +7,7 @@ import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import net.william278.huskhomes.cache.Cache;
-import net.william278.huskhomes.config.Messages;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
 import net.william278.huskhomes.data.MySqlDatabase;
@@ -19,6 +19,8 @@ import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.teleport.BukkitTeleportManager;
+import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.BukkitLogger;
 import net.william278.huskhomes.util.BukkitResourceReader;
 import net.william278.huskhomes.util.Logger;
@@ -46,11 +48,12 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     }
 
     private Settings settings;
-    private Messages messages;
+    private Locales locales;
     private BukkitLogger logger;
     private BukkitResourceReader resourceReader;
     private Database database;
     private Cache cache;
+    private TeleportManager teleportManager;
 
     @Nullable
     private NetworkMessenger networkMessenger;
@@ -125,6 +128,9 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             cache = new Cache();
             cache.initialize(database);
         });
+
+        // Prepare the teleport manager
+        this.teleportManager = new BukkitTeleportManager(this);
     }
 
     @Override
@@ -154,8 +160,8 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public Messages getMessages() {
-        return messages;
+    public Locales getLocales() {
+        return locales;
     }
 
     @Override
@@ -166,6 +172,16 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     @Override
     public Cache getCache() {
         return cache;
+    }
+
+    @Override
+    public TeleportManager getTeleportManager() {
+        return teleportManager;
+    }
+
+    @Override
+    public @Nullable NetworkMessenger getNetworkMessenger() {
+        return networkMessenger;
     }
 
     @Override
@@ -188,7 +204,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
                     LoaderSettings.builder().setAutoUpdate(true).build(),
                     DumperSettings.builder().setEncoding(DumperSettings.Encoding.UNICODE).build(),
                     UpdaterSettings.builder().setVersioning(new BasicVersioning("config_version")).build()));
-            messages = Messages.load(YamlDocument.create(new File(getDataFolder(),
+            locales = Locales.load(YamlDocument.create(new File(getDataFolder(),
                             "messages-" + settings.getStringValue(Settings.ConfigOption.LANGUAGE) + ".yml"),
                     Objects.requireNonNull(resourceReader.getResource(
                             "languages/" + settings.getStringValue(Settings.ConfigOption.LANGUAGE) + ".yml"))));

@@ -3,6 +3,7 @@ package net.william278.huskhomes.messenger;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import org.jetbrains.annotations.NotNull;
 
@@ -111,19 +112,7 @@ public abstract class NetworkMessenger {
     protected final void handleMessage(@NotNull Player receiver, @NotNull Message message) {
         switch (message.kind) {
             // Handle a message and send reply
-            case MESSAGE -> {
-                // Handle different message types and apply changes for reply message
-                switch (message.type) {
-                    case TP_REQUEST -> {
-                        message = message;
-                    }
-                }
-
-                // Reply with the modified message
-                message.targetPlayer = message.sender;
-                message.sender = receiver.getName();
-                sendReply(receiver, message);
-            }
+            case MESSAGE -> prepareReply(receiver, message).thenAccept(reply -> sendReply(receiver, message));
             // Handle a reply message
             case REPLY -> {
                 if (processingMessages.containsKey(message.uuid)) {
@@ -132,6 +121,26 @@ public abstract class NetworkMessenger {
                 }
             }
         }
+    }
+
+    private CompletableFuture<Message> prepareReply(@NotNull final Player receiver, @NotNull final Message message) {
+        return CompletableFuture.supplyAsync(() -> {
+            // Handle different message types and apply changes for reply message
+            switch (message.type) {
+                case TP_REQUEST -> {
+
+                }
+                case POSITION_REQUEST -> {
+                    message.payload = receiver.getPosition().join().toJson();
+                }
+            }
+
+            // Prepare reply message
+            message.targetPlayer = message.sender;
+            message.sender = receiver.getName();
+            message.kind = Message.MessageKind.REPLY;
+            return message;
+        });
     }
 
     /**

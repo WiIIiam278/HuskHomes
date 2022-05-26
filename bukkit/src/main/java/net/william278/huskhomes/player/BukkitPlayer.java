@@ -5,6 +5,7 @@ import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.HuskHomesBukkit;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportResult;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -47,7 +48,7 @@ public class BukkitPlayer implements Player {
         return new BukkitPlayer(player);
     }
 
-    public org.bukkit.entity.Player getBukkitPlayer() {
+    public org.bukkit.entity.Player toBukkitPlayer() {
         return bukkitPlayer;
     }
 
@@ -63,12 +64,22 @@ public class BukkitPlayer implements Player {
 
     @Override
     public CompletableFuture<Position> getPosition() {
-        final org.bukkit.Location location = bukkitPlayer.getLocation();
-        return HuskHomesBukkit.getInstance().getServer(this).thenApplyAsync(server ->
-                new Position(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(),
-                        new net.william278.huskhomes.position.World(bukkitPlayer.getWorld().getName(),
-                                bukkitPlayer.getWorld().getUID()), server));
+        final Location location = getLocation();
+        return HuskHomesBukkit.getInstance().getServer(this).thenApplyAsync(server -> new Position(
+                location.x, location.y, location.z, location.yaw, location.pitch, location.world, server));
 
+    }
+
+    @Override
+    public Location getLocation() {
+        final org.bukkit.Location location = bukkitPlayer.getLocation();
+        return new Location(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(),
+                new World(bukkitPlayer.getWorld().getName(), bukkitPlayer.getWorld().getUID()));
+    }
+
+    @Override
+    public double getHealth() {
+        return bukkitPlayer.getHealth();
     }
 
     @Override
@@ -91,9 +102,12 @@ public class BukkitPlayer implements Player {
         if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
             return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ILLEGAL_COORDINATES);
         }
-        return PaperLib.teleportAsync(bukkitPlayer, bukkitLocation.get(),
-                        PlayerTeleportEvent.TeleportCause.COMMAND)
-                .thenApplyAsync(result -> TeleportResult.COMPLETED_LOCALLY);
+        final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(HuskHomesBukkit.getInstance(), () ->
+                resultCompletableFuture.complete(PaperLib.teleportAsync(bukkitPlayer, bukkitLocation.get(),
+                                PlayerTeleportEvent.TeleportCause.COMMAND)
+                        .thenApply(result -> TeleportResult.COMPLETED_LOCALLY).join()));
+        return resultCompletableFuture;
     }
 
     @Override

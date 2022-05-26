@@ -10,11 +10,13 @@ public class Server {
     /**
      * Proxy-defined name of this server
      */
-    @NotNull
     public String name;
 
     public Server(@NotNull String name) {
         this.name = name;
+    }
+
+    public Server() {
     }
 
     @Override
@@ -25,4 +27,5 @@ public class Server {
         }
         return super.equals(other);
     }
+
 }

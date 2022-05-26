@@ -1,14 +1,17 @@
 package net.william278.huskhomes;
 
 import net.william278.huskhomes.cache.Cache;
-import net.william278.huskhomes.config.Messages;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
+import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -43,9 +46,9 @@ public interface HuskHomes {
     /**
      * The plugin messages loaded from file
      *
-     * @return The plugin {@link Messages}
+     * @return The plugin {@link Locales}
      */
-    Messages getMessages();
+    Locales getLocales();
 
     /**
      * The {@link Database} that stores persistent plugin data
@@ -62,7 +65,23 @@ public interface HuskHomes {
     Cache getCache();
 
     /**
+     * The {@link TeleportManager} that manages player teleports
+     *
+     * @return the {@link TeleportManager} implementation
+     */
+    TeleportManager getTeleportManager();
+
+    /**
+     * The {@link NetworkMessenger} that sends cross-network messages
+     *
+     * @return the {@link NetworkMessenger} implementation
+     */
+    @Nullable
+    NetworkMessenger getNetworkMessenger();
+
+    /**
      * Get the {@link Server} this server is on
+     *
      * @return The server
      */
     CompletableFuture<Server> getServer(@NotNull Player requester);

@@ -35,7 +35,6 @@ public class Location {
     /**
      * The {@link World} the location is on
      */
-    @NotNull
     public World world;
 
     public Location(double x, double y, double z, float yaw, float pitch,
@@ -46,6 +45,9 @@ public class Location {
         this.yaw = yaw;
         this.pitch = pitch;
         this.world = world;
+    }
+
+    public Location() {
     }
 
 }

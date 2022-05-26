@@ -36,6 +36,20 @@ public interface Player {
     CompletableFuture<Position> getPosition();
 
     /**
+     * Returns the current local {@link Location} of this player
+     *
+     * @return the player's current {@link Location} on the server
+     */
+    Location getLocation();
+
+    /**
+     * Returns the health of this player
+     *
+     * @return the player's health points
+     */
+    double getHealth();
+
+    /**
      * Returns if the player has the permission node
      *
      * @param node The permission node string

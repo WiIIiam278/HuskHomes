@@ -1,6 +1,10 @@
 package net.william278.huskhomes.cache;
 
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
+import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -8,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * A cache used to hold persistently used data
@@ -30,12 +35,18 @@ public class Cache {
     public final List<String> warps;
 
     /**
+     * Cached player list
+     */
+    public final List<String> players;
+
+    /**
      * Create a new cache
      */
     public Cache() {
         this.homes = new HashMap<>();
         this.publicHomes = new HashMap<>();
         this.warps = new ArrayList<>();
+        this.players = new ArrayList<>();
     }
 
     /**
@@ -50,6 +61,25 @@ public class Cache {
             database.getWarps().thenAccept(warpsList -> warpsList.forEach(warp ->
                     this.warps.add(warp.meta.name)));
         });
+    }
+
+    /**
+     * Updates the cached list of online players
+     *
+     * @param plugin the implementing plugin
+     */
+    public void updatePlayerList(@NotNull HuskHomes plugin, @NotNull Player requester) {
+        if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+            assert plugin.getNetworkMessenger() != null;
+            CompletableFuture.runAsync(() -> plugin.getNetworkMessenger().
+                    getOnlinePlayerNames(requester).thenAcceptAsync(returnedPlayerList -> {
+                        players.clear();
+                        players.addAll(List.of(returnedPlayerList));
+                    }));
+        } else {
+            players.clear();
+            players.addAll(plugin.getOnlinePlayers().stream().map(Player::getName).toList());
+        }
     }
 
 }

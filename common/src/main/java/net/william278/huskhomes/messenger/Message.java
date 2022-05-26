@@ -55,7 +55,7 @@ public class Message {
     public String payload;
 
     public Message(@NotNull MessageType type, @NotNull String sender, @NotNull String targetPlayer,
-                   @NotNull MessagePayload payload, @NotNull MessageKind messageKind, int clusterId) {
+                   @NotNull MessageSerializable payload, @NotNull MessageKind messageKind, int clusterId) {
         this.type = type;
         this.sender = sender;
         this.targetPlayer = targetPlayer;
@@ -74,7 +74,9 @@ public class Message {
     }
 
     public enum MessageType {
-        TP_REQUEST
+        TP_REQUEST,
+
+        POSITION_REQUEST
     }
 
     public enum MessageKind {

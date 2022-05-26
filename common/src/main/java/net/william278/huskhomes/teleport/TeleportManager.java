@@ -31,11 +31,13 @@ public class TeleportManager {
      */
     public CompletableFuture<TeleportResult> teleport(Player player, Position position) {
         final Teleport teleport = new Teleport(new User(player), position);
-        if (position.server.equals(plugin.getServerData())) {
-            return player.teleport(teleport.target);
-        } else {
-            return teleportCrossServer(teleport);
-        }
+        return plugin.getServer(player).thenApplyAsync(server -> {
+            if (position.server.equals(server)) {
+                return player.teleport(teleport.target).join();
+            } else {
+                return teleportCrossServer(teleport).join();
+            }
+        });
     }
 
     private CompletableFuture<TeleportResult> teleportCrossServer(Teleport teleport) {

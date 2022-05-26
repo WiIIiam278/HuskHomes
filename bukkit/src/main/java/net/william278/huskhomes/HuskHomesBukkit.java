@@ -26,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -63,7 +64,8 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
      * @param player {@link Player} to request the server
      * @return The {@link Server} object
      */
-    public CompletableFuture<Server> getServer(Player player) {
+    @Override
+    public CompletableFuture<Server> getServer(@NotNull Player player) {
         if (server != null) {
             return CompletableFuture.supplyAsync(() -> server);
         }

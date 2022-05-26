@@ -6,10 +6,13 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.util.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a cross-platform instance of the plugin
@@ -57,6 +60,12 @@ public interface HuskHomes {
      * @return the plugin {@link Cache}
      */
     Cache getCache();
+
+    /**
+     * Get the {@link Server} this server is on
+     * @return The server
+     */
+    CompletableFuture<Server> getServer(@NotNull Player requester);
 
     /**
      * Returns true if the position is a valid location on the server

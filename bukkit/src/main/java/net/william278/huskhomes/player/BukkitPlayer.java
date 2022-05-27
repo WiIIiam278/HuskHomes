@@ -72,9 +72,7 @@ public class BukkitPlayer implements Player {
 
     @Override
     public Location getLocation() {
-        final org.bukkit.Location location = bukkitPlayer.getLocation();
-        return new Location(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(),
-                new World(bukkitPlayer.getWorld().getName(), bukkitPlayer.getWorld().getUID()));
+        return HuskHomesBukkit.BukkitAdapter.adaptLocation(bukkitPlayer.getLocation());
     }
 
     @Override

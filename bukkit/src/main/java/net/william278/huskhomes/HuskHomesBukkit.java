@@ -236,10 +236,13 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
         return getServer().getName();
     }
 
-    public static class BukkitAdapter {
+    public static final class BukkitAdapter {
 
         public static Optional<Location> adaptLocation(net.william278.huskhomes.position.Location location) {
-            final World world = Bukkit.getWorld(location.world.name);
+            World world = Bukkit.getWorld(location.world.name);
+            if (world == null) {
+                world = Bukkit.getWorld(location.world.uuid);
+            }
             if (world == null) {
                 return Optional.empty();
             }
@@ -247,5 +250,14 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
                     location.yaw, location.pitch));
         }
 
+        @Nullable
+        public static net.william278.huskhomes.position.Location adaptLocation(@NotNull Location location) {
+            if (location.getWorld() == null) return null;
+            return new net.william278.huskhomes.position.Location(location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(), location.getPitch(),
+                    new net.william278.huskhomes.position.World(location.getWorld().getName(), location.getWorld().getUID()));
+        }
+
     }
+
 }

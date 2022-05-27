@@ -21,8 +21,7 @@ public class Warp extends SavedPosition {
      * @param position The {@link Position} to save as a warp
      * @param meta     {@link PositionMeta} information about this position
      */
-    public Warp(Position position, PositionMeta meta) {
+    public Warp(@NotNull Position position, @NotNull PositionMeta meta) {
         super(position, meta);
     }
-
 }

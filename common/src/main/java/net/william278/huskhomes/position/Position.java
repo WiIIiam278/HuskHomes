@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * Represents a position - a location somewhere on the proxy network or server
+ * Represents a position - a {@link Location} somewhere on the proxy network or server
  */
 public class Position extends Location implements MessageSerializable {
 

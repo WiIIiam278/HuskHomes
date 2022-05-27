@@ -3,7 +3,7 @@ package net.william278.huskhomes.cache;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.list.PositionList;
 import net.william278.huskhomes.player.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * A cache used to hold persistently used data
@@ -40,6 +39,11 @@ public class Cache {
     public final List<String> players;
 
     /**
+     * Cached position lists for optimized list navigating
+     */
+    public final HashMap<UUID, PositionList> positionLists;
+
+    /**
      * Create a new cache
      */
     public Cache() {
@@ -47,6 +51,7 @@ public class Cache {
         this.publicHomes = new HashMap<>();
         this.warps = new ArrayList<>();
         this.players = new ArrayList<>();
+        this.positionLists = new HashMap<>();
     }
 
     /**

@@ -30,7 +30,7 @@ public class Home extends SavedPosition {
         this.isPublic = isPublic;
     }
 
-    public Home(Position position, PositionMeta meta, @NotNull User owner) {
+    public Home(@NotNull Position position,  @NotNull PositionMeta meta, @NotNull User owner) {
         super(position, meta);
         this.owner = owner;
         this.isPublic = false;

@@ -4,6 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             case 0 -> plugin.getDatabase().getHomes(new User(player)).thenAccept(homes -> {
                 switch (homes.size()) {
                     case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(player::sendMessage);
-                    case 1 -> plugin.getTeleportManager().executeTeleport(player, homes.get(0)).thenAccept(result ->
+                    case 1 -> plugin.getTeleportManager().teleport(player, homes.get(0)).thenAccept(result ->
                             plugin.getTeleportManager().finishTeleport(player, result));
                     default -> {
                         final User user = new User(player.getUuid(), player.getName());
@@ -36,8 +37,17 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                 }
             });
             case 1 -> {
-                //todo check if its a public home, process. Support sending a player
-                plugin.getTeleportManager().teleportToHome(player, new User(player), args[0]);
+                final String homeName = args[0];
+                if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeName).matches()) {
+                    final String ownerName = homeName.split("\\.")[0];
+                    final String ownersHomeName = homeName.split("\\.")[1];
+                    plugin.getDatabase().getUserByName(ownerName).thenAccept(optionalUserData -> optionalUserData
+                            .ifPresentOrElse(userData -> plugin.getTeleportManager().teleportToHome(player, userData, ownersHomeName),
+                                    () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName)
+                                            .ifPresent(player::sendMessage)));
+                } else {
+                    plugin.getTeleportManager().teleportToHome(player, new User(player), homeName);
+                }
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/home [name]")
                     .ifPresent(player::sendMessage);
@@ -53,6 +63,6 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-
+        //todo
     }
 }

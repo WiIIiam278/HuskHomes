@@ -10,6 +10,7 @@ import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.command.HomeCommand;
+import net.william278.huskhomes.command.SetHomeCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
@@ -22,6 +23,7 @@ import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.teleport.BukkitTeleportManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.BukkitLogger;
@@ -58,7 +60,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     private Database database;
     private Cache cache;
     private TeleportManager teleportManager;
-
+    private SavedPositionManager savedPositionManager;
     @Nullable
     private NetworkMessenger networkMessenger;
 
@@ -136,8 +138,11 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
         // Prepare the teleport manager
         this.teleportManager = new BukkitTeleportManager(this);
 
+        // Prepare the home and warp position manager
+        this.savedPositionManager = new SavedPositionManager(database, cache);
+
         // Register commands - todo add all here
-        final CommandBase[] commands = new CommandBase[]{new HomeCommand(this)};
+        final CommandBase[] commands = new CommandBase[]{new HomeCommand(this), new SetHomeCommand(this)};
         for (CommandBase commandBase : commands) {
             final PluginCommand pluginCommand = getCommand(commandBase.command);
             if (pluginCommand != null) {
@@ -190,6 +195,11 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     @Override
     public TeleportManager getTeleportManager() {
         return teleportManager;
+    }
+
+    @Override
+    public SavedPositionManager getSettingManager() {
+        return savedPositionManager;
     }
 
     @Override

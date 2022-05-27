@@ -3,7 +3,9 @@ package net.william278.huskhomes.player;
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.util.EconomyUnsupportedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -84,5 +86,21 @@ public interface Player {
      * @return a {@link CompletableFuture} providing the max number of homes this player can set
      */
     CompletableFuture<Integer> getFreeHomes();
+
+    /**
+     * Get this player's economy balance
+     *
+     * @return the player's economy balance
+     * @throws EconomyUnsupportedException if the economy integration is not enabled
+     */
+    double getEconomyBalance() throws EconomyUnsupportedException;
+
+    /**
+     * Deduct money from this player's economy balance
+     *
+     * @throws EconomyUnsupportedException if the economy integration is not enabled
+     */
+    void deductEconomyBalance() throws EconomyUnsupportedException;
+
 
 }

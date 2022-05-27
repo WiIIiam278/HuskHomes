@@ -44,7 +44,12 @@ public enum TeleportResult {
      * target {@link Position} were in an unsafe spot
      * <p>
      */
-    FAILED_UNSAFE(false);
+    FAILED_UNSAFE(false),
+
+    /**
+     * Returns if the teleport was cancelled, for example if a {@link TimedTeleport} in progress is cancelled
+     */
+    CANCELLED(false);
 
     /**
      * Is {@code true} if the teleport was a success

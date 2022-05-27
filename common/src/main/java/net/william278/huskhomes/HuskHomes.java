@@ -8,6 +8,7 @@ import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,13 @@ public interface HuskHomes {
      * @return the {@link TeleportManager} implementation
      */
     TeleportManager getTeleportManager();
+
+    /**
+     * The {@link SavedPositionManager} that manages setting homes and warps
+     *
+     * @return the {@link SavedPositionManager} implementation
+     */
+    SavedPositionManager getSettingManager();
 
     /**
      * The {@link NetworkMessenger} that sends cross-network messages

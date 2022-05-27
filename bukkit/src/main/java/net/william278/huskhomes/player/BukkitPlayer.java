@@ -5,8 +5,8 @@ import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.HuskHomesBukkit;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.util.EconomyUnsupportedException;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
@@ -116,6 +116,16 @@ public class BukkitPlayer implements Player {
     @Override
     public CompletableFuture<Integer> getFreeHomes() {
         return null; //todo
+    }
+
+    @Override
+    public double getEconomyBalance() throws EconomyUnsupportedException {
+        return 0;
+    }
+
+    @Override
+    public void deductEconomyBalance() throws EconomyUnsupportedException {
+
     }
 
     /**

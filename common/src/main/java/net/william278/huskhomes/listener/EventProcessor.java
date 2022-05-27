@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class EventProcessor {
 
     @NotNull
-    protected final HuskHomes implementor;
+    protected final HuskHomes plugin;
 
     public EventProcessor(@NotNull HuskHomes implementor) {
-        this.implementor = implementor;
+        this.plugin = implementor;
     }
 
     /**
@@ -27,30 +27,36 @@ public class EventProcessor {
      */
     public void onPlayerJoin(@NotNull Player player) {
         // Ensure the player is present on the database first
-        implementor.getDatabase().ensureUser(player).thenRun(() -> {
+        plugin.getDatabase().ensureUser(player).thenRun(() -> {
 
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
-            if (implementor.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
-                implementor.getDatabase().getCurrentTeleport(new User(player))
+            if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+                plugin.getDatabase().getCurrentTeleport(new User(player))
                         .thenAccept(teleport -> teleport.ifPresent(currentTeleport ->
+                                // Teleport the player locally
                                 player.teleport(currentTeleport.target).thenAccept(teleportResult -> {
                                     if (!teleportResult.successful) {
-                                        implementor.getLocales().getLocale("error_invalid_on_arrival")
+                                        plugin.getLocales().getLocale("error_invalid_on_arrival")
                                                 .ifPresent(player::sendMessage);
                                     } else {
-                                        implementor.getLocales().getLocale("teleporting_complete")
+                                        plugin.getLocales().getLocale("teleporting_complete")
                                                 .ifPresent(player::sendMessage);
                                     }
                                 })));
                 // Update the player list
-                assert implementor.getNetworkMessenger() != null;
-                implementor.getCache().updatePlayerList(implementor, player);
+                assert plugin.getNetworkMessenger() != null;
+                plugin.getCache().updatePlayerList(plugin, player);
             }
 
             // Cache this user's homes
-            implementor.getDatabase().getHomes(new User(player)).thenAccept(homes ->
-                    implementor.getCache().homes.put(player.getUuid(),
+            plugin.getDatabase().getHomes(new User(player)).thenAccept(homes ->
+                    plugin.getCache().homes.put(player.getUuid(),
                             homes.stream().map(home -> home.meta.name).collect(Collectors.toList())));
+
+            // Ensure the server has been set
+            if (plugin.getOnlinePlayers().size() == 1) {
+                plugin.getServer(player);
+            }
         });
     }
 
@@ -61,16 +67,20 @@ public class EventProcessor {
      */
     public void onPlayerLeave(@NotNull Player player) {
         // Remove this user's home cache
-        implementor.getCache().homes.remove(player.getUuid());
+        plugin.getCache().homes.remove(player.getUuid());
 
         // Update the player list
-        if (implementor.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
-            assert implementor.getNetworkMessenger() != null;
-            implementor.getOnlinePlayers().stream().filter(
+        if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+            assert plugin.getNetworkMessenger() != null;
+            plugin.getOnlinePlayers().stream().filter(
                             onlinePlayer -> !onlinePlayer.getUuid().equals(player.getUuid()))
                     .findAny().ifPresent(updater ->
-                            implementor.getCache().updatePlayerList(implementor, updater));
+                            plugin.getCache().updatePlayerList(plugin, updater));
         }
+
+        // Set offline position
+        player.getPosition().thenAcceptAsync(position -> plugin.getDatabase().setOfflinePosition(
+                new User(player.getUuid(), player.getName()), position));
     }
 
 }

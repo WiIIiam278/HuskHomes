@@ -92,20 +92,28 @@ public class BukkitPlayer implements Player {
 
     @Override
     public CompletableFuture<TeleportResult> teleport(Location location) {
-        final Optional<org.bukkit.Location> bukkitLocation = HuskHomesBukkit.BukkitAdapter.adaptLocation(location);
-        if (bukkitLocation.isEmpty()) {
-            return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_INVALID_WORLD);
-        }
-        assert bukkitLocation.get().getWorld() != null;
-        if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
-            return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ILLEGAL_COORDINATES);
-        }
-        final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(HuskHomesBukkit.getInstance(), () ->
-                resultCompletableFuture.complete(PaperLib.teleportAsync(bukkitPlayer, bukkitLocation.get(),
-                                PlayerTeleportEvent.TeleportCause.COMMAND)
-                        .thenApply(result -> TeleportResult.COMPLETED_LOCALLY).join()));
-        return resultCompletableFuture;
+        return CompletableFuture.supplyAsync(() -> {
+            final Optional<org.bukkit.Location> bukkitLocation = HuskHomesBukkit.BukkitAdapter.adaptLocation(location);
+            if (bukkitLocation.isEmpty()) {
+                return TeleportResult.FAILED_INVALID_WORLD;
+            }
+            assert bukkitLocation.get().getWorld() != null;
+            if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
+                return TeleportResult.FAILED_ILLEGAL_COORDINATES;
+            }
+            System.out.println("teleport 5");
+            final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
+            Bukkit.getScheduler().runTask(HuskHomesBukkit.getInstance(), () ->
+                    PaperLib.teleportAsync(bukkitPlayer, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.COMMAND)
+                            .thenAccept(result -> {
+                                if (result) {
+                                    resultCompletableFuture.completeAsync(() -> TeleportResult.COMPLETED_LOCALLY);
+                                } else {
+                                    resultCompletableFuture.completeAsync(() -> TeleportResult.FAILED_INVALID_WORLD);
+                                }
+                            }));
+            return resultCompletableFuture.join();
+        });
     }
 
     @Override

@@ -38,7 +38,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
     public void register(@NotNull PluginCommand pluginCommand) {
         pluginCommand.setExecutor(this);
         pluginCommand.setTabCompleter(this);
-        pluginCommand.setDescription(pluginCommand.getDescription());
+        pluginCommand.setDescription(command.getDescription());
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                       @NotNull String alias, @NotNull String[] args) {
-        if (command instanceof TabCompletable tabCompletable) {
+        if (this.command instanceof TabCompletable tabCompletable) {
             return tabCompletable.onTabComplete(BukkitPlayer.adapt((Player) sender), args);
         }
         return Collections.emptyList();

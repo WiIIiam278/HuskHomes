@@ -61,8 +61,10 @@ public class Cache {
      */
     public void initialize(@NotNull Database database) {
         CompletableFuture.runAsync(() -> {
-            database.getPublicHomes().thenAccept(publicHomeList -> publicHomeList.forEach(home ->
-                    this.publicHomes.computeIfAbsent(home.owner.username, key -> new ArrayList<>()).add(home.meta.name)));
+            database.getPublicHomes().thenAccept(publicHomeList -> publicHomeList.forEach(home -> {
+                this.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
+                this.publicHomes.get(home.owner.username).add(home.meta.name);
+            }));
             database.getWarps().thenAccept(warpsList -> warpsList.forEach(warp ->
                     this.warps.add(warp.meta.name)));
         });

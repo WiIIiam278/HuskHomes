@@ -5,6 +5,7 @@ import net.william278.huskhomes.HuskHomesBukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,17 +19,24 @@ public class BukkitTeleportManager extends TeleportManager {
 
     @Override
     public CompletableFuture<TimedTeleport> processTimedTeleport(@NotNull final TimedTeleport teleport) {
-        final CompletableFuture<TimedTeleport> timedTeleportCompletableFuture = new CompletableFuture<>();
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // Tick (decrement) the timed teleport timer
-                if (tickTimedTeleport(teleport, timedTeleportCompletableFuture)) {
-                    this.cancel();
+        return CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<TimedTeleport> teleportCompletableFuture = new CompletableFuture<>();
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    System.out.println("teleport warmup tick");
+                    // Tick (decrement) the timed teleport timer
+                    final Optional<TimedTeleport> result = tickTimedTeleport(teleport);
+                    if (result.isPresent()) {
+                        System.out.println("task cancelled... ");
+                        teleportCompletableFuture.complete(teleport);
+                        this.cancel();
+                    }
                 }
-            }
-        }.runTaskTimerAsynchronously((HuskHomesBukkit) plugin, 0L, 20L);
-        return timedTeleportCompletableFuture;
+            }.runTaskTimerAsynchronously((HuskHomesBukkit) plugin, 0L, 20L);
+
+            return teleportCompletableFuture.join();
+        });
     }
 
 }

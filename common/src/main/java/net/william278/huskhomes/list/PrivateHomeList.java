@@ -57,8 +57,8 @@ public class PrivateHomeList extends PositionList {
 
     @Override
     protected String getFormattedItem(@NotNull SavedPosition position) {
-        return plugin.getLocales().getRawLocale("home_list_item",
-                position.meta.name, homeOwner.username).orElse(position.meta.name);
+        return plugin.getLocales().getRawLocale("home_list_item", position.meta.name,
+                homeOwner.username, position.meta.description).orElse(position.meta.name);
     }
 
     @Override

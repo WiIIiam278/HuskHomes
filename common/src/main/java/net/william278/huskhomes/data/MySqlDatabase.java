@@ -205,7 +205,7 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `uuid`, `username`
+                        SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
                     statement.setString(1, name);
@@ -232,7 +232,7 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `uuid`, `username`
+                        SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `uuid`=?"""))) {
 
@@ -445,7 +445,7 @@ public class MySqlDatabase extends Database {
                     }
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to query a player's home by UUID", e);
+                getLogger().log(Level.SEVERE, "Failed to query a player's home by uuid", e);
             }
             return Optional.empty();
         });

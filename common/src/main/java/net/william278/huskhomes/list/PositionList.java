@@ -22,9 +22,12 @@ public abstract class PositionList {
         Collections.sort(this.positions);
     }
 
+    /**
+     * Gets a list of formatted MineDown sequences to form a page
+     */
     public List<MineDown> getDisplay(int pageNumber) {
         final List<MineDown> display = new ArrayList<>();
-        final int pageCount = (positions.size() / itemsPerPage) + (positions.size() % itemsPerPage);
+        final int pageCount = (int) Math.ceil((double) positions.size() / (double) itemsPerPage);
 
         if (pageNumber <= 0 || pageNumber > pageCount) {
             return Collections.singletonList(getInvalidPageNumberMessage());
@@ -50,21 +53,30 @@ public abstract class PositionList {
         }
 
         // Add the footer with navigation buttons
-        display.add(getFooter(determineFooterLayout(pageNumber, itemIndexEnd, lastItemIndex), pageNumber, pageCount));
+        display.add(getFooter(determineFooterLayout(pageNumber, pageCount), pageNumber, pageCount));
         return display;
     }
 
-    private FooterLayout determineFooterLayout(int pageNumber, int pageItemEnd, int totalItemCount) {
-        if (positions.size() == 0 || pageNumber == 1 && pageItemEnd <= totalItemCount) {
-            return FooterLayout.NO_BUTTONS;
-        }
-        if (pageNumber == 1) {
-            return FooterLayout.NEXT_BUTTON;
-        }
-        if (totalItemCount > pageItemEnd) {
+    /**
+     * Determines the {@link FooterLayout} to use for a given page
+     *
+     * @param pageNumber number of page to get layout for
+     * @param pageCount  total number of pages
+     * @return the {@link FooterLayout} for the page
+     */
+    private FooterLayout determineFooterLayout(int pageNumber, int pageCount) {
+        final boolean isNextPage = pageNumber + 1 <= pageCount;
+        final boolean isPreviousPage = pageNumber - 1 > 0;
+        if (isNextPage && isPreviousPage) {
             return FooterLayout.BOTH_BUTTONS;
         }
-        return FooterLayout.PREVIOUS_BUTTON;
+        if (isNextPage) {
+            return FooterLayout.NEXT_BUTTON;
+        }
+        if (isPreviousPage) {
+            return FooterLayout.PREVIOUS_BUTTON;
+        }
+        return FooterLayout.NO_BUTTONS;
     }
 
     protected abstract String getItemSeparator();

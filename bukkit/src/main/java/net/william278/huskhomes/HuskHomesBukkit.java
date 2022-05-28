@@ -7,15 +7,13 @@ import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import net.william278.huskhomes.cache.Cache;
-import net.william278.huskhomes.command.BukkitCommand;
-import net.william278.huskhomes.command.CommandBase;
-import net.william278.huskhomes.command.HomeCommand;
-import net.william278.huskhomes.command.SetHomeCommand;
+import net.william278.huskhomes.command.*;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.data.Database;
 import net.william278.huskhomes.data.MySqlDatabase;
 import net.william278.huskhomes.data.SqLiteDatabase;
+import net.william278.huskhomes.listener.BukkitEventProcessor;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.messenger.PluginMessenger;
 import net.william278.huskhomes.messenger.RedisMessenger;
@@ -78,12 +76,12 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
         if (server != null) {
             return CompletableFuture.supplyAsync(() -> server);
         }
-        if (getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+        if (!getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
             server = new Server("server");
             return CompletableFuture.supplyAsync(() -> server);
         }
         assert networkMessenger != null;
-        return networkMessenger.getServerName(player).thenApply(server -> {
+        return networkMessenger.getServerName(player).thenApplyAsync(server -> {
             this.server = new Server(server);
             return this.server;
         });
@@ -133,22 +131,26 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             // Initialize the cache
             cache = new Cache();
             cache.initialize(database);
-        });
+        }).thenRun(() -> {
+            // Prepare the teleport manager
+            this.teleportManager = new BukkitTeleportManager(this);
 
-        // Prepare the teleport manager
-        this.teleportManager = new BukkitTeleportManager(this);
+            // Prepare the home and warp position manager
+            this.savedPositionManager = new SavedPositionManager(database, cache);
 
-        // Prepare the home and warp position manager
-        this.savedPositionManager = new SavedPositionManager(database, cache);
-
-        // Register commands - todo add all here
-        final CommandBase[] commands = new CommandBase[]{new HomeCommand(this), new SetHomeCommand(this)};
-        for (CommandBase commandBase : commands) {
-            final PluginCommand pluginCommand = getCommand(commandBase.command);
-            if (pluginCommand != null) {
-                new BukkitCommand(commandBase, this).register(pluginCommand);
+            // Register commands - todo add all here
+            final CommandBase[] commands = new CommandBase[]{new HomeCommand(this), new SetHomeCommand(this),
+                    new HomeListCommand(this)};
+            for (CommandBase commandBase : commands) {
+                final PluginCommand pluginCommand = getCommand(commandBase.command);
+                if (pluginCommand != null) {
+                    new BukkitCommand(commandBase, this).register(pluginCommand);
+                }
             }
-        }
+
+            // Register listener
+            getServer().getPluginManager().registerEvents(new BukkitEventProcessor(this), this);
+        });
     }
 
     @Override

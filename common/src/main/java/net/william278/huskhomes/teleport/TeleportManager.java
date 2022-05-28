@@ -11,6 +11,7 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.MatcherUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
@@ -100,23 +101,25 @@ public abstract class TeleportManager {
      * @return future optionally supplying the player's position, if the player could be found
      */
     private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull Player requester, @NotNull String playerName) {
-        final Optional<Player> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
-                player.getName().equalsIgnoreCase(playerName)).findFirst();
-        if (localPlayer.isPresent()) {
-            return localPlayer.get().getPosition().thenApply(Optional::of);
-        }
-        if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
-            assert plugin.getNetworkMessenger() != null;
-            return plugin.getNetworkMessenger().sendMessage(requester,
-                            new Message(Message.MessageType.POSITION_REQUEST,
-                                    requester.getName(),
-                                    playerName,
-                                    new EmptyPayload(),
-                                    Message.MessageKind.MESSAGE,
-                                    plugin.getSettings().getIntegerValue(Settings.ConfigOption.CLUSTER_ID)))
-                    .thenApplyAsync(reply -> Optional.of(Position.fromJson(reply.payload)));
-        }
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.supplyAsync(() -> {
+            final Optional<Player> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
+                    player.getName().equalsIgnoreCase(playerName)).findFirst();
+            if (localPlayer.isPresent()) {
+                return localPlayer.get().getPosition().thenApply(Optional::of).join();
+            }
+            if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+                assert plugin.getNetworkMessenger() != null;
+                return plugin.getNetworkMessenger().sendMessage(requester,
+                                new Message(Message.MessageType.POSITION_REQUEST,
+                                        requester.getName(),
+                                        playerName,
+                                        new EmptyPayload(),
+                                        Message.MessageKind.MESSAGE,
+                                        plugin.getSettings().getIntegerValue(Settings.ConfigOption.CLUSTER_ID)))
+                        .thenApply(reply -> Optional.of(Position.fromJson(reply.payload))).join();
+            }
+            return Optional.empty();
+        });
     }
 
     /**
@@ -126,19 +129,24 @@ public abstract class TeleportManager {
      * @param position the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull Player player, @NotNull Position position) {
-        final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
-        CompletableFuture<TeleportResult> completableTeleport;
-        if (!player.hasPermission(WARMUP_BYPASS_PERMISSION) && teleportWarmupTime > 0) {
-            try {
-                completableTeleport = processTimedTeleport(new TimedTeleport(player, position, teleportWarmupTime))
-                        .thenApplyAsync(teleport -> teleport.getPlayer().teleport(teleport.getTargetPosition()).join());
-            } catch (CancellationException cancellationException) {
-                return CompletableFuture.supplyAsync(() -> TeleportResult.CANCELLED);
+        return CompletableFuture.supplyAsync(() -> {
+            final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
+            System.out.println("teleport 1");
+            if (!player.hasPermission(WARMUP_BYPASS_PERMISSION) && teleportWarmupTime > 0) {
+                System.out.println("teleport 2");
+                return processTimedTeleport(new TimedTeleport(player, position, teleportWarmupTime))
+                        .thenApply(teleport -> {
+                            if (!teleport.cancelled) {
+                                return teleport.getPlayer().teleport(teleport.getTargetPosition()).join();
+                            } else {
+                                return TeleportResult.CANCELLED;
+                            }
+                        }).join();
+            } else {
+                System.out.println("teleport b2");
+                return teleportNow(player, position).join();
             }
-        } else {
-            completableTeleport = teleportNow(player, position);
-        }
-        return completableTeleport;
+        });
     }
 
     /**
@@ -172,16 +180,18 @@ public abstract class TeleportManager {
     private CompletableFuture<TeleportResult> teleportNow(@NotNull Player player, @NotNull Position position) {
         final User user = new User(player);
         final Teleport teleport = new Teleport(user, position);
-        return player.getPosition().thenApplyAsync(preTeleportPosition -> plugin.getDatabase().
+        System.out.println("teleport b3");
+        return CompletableFuture.supplyAsync(() -> player.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase().
                 setLastPosition(user, preTeleportPosition).
                 thenApply(ignored -> plugin.getServer(player).thenApply(server -> {
+                    System.out.println("teleport b4");
                     // Teleport player locally, or across server depending on need
                     if (position.server.equals(server)) {
                         return player.teleport(teleport.target).join();
                     } else {
                         return teleportCrossServer(player, teleport).join();
                     }
-                }).join()).join());
+                }).join()).join()).join());
     }
 
     private CompletableFuture<TeleportResult> teleportCrossServer(Player player, Teleport teleport) {
@@ -196,36 +206,36 @@ public abstract class TeleportManager {
     /**
      * Process a timed teleport, ticking it
      *
-     * @param teleport                       the {@link TimedTeleport} being ticked
-     * @param timedTeleportCompletableFuture a future tracking the {@link TimedTeleport}'s completion
+     * @param teleport the {@link TimedTeleport} being ticked
      * @return {@code true} if the implementor should cancel the timedTeleport
      */
-    protected final boolean tickTimedTeleport(@NotNull final TimedTeleport teleport,
-                                              @NotNull final CompletableFuture<TimedTeleport> timedTeleportCompletableFuture) {
+    protected final Optional<TimedTeleport> tickTimedTeleport(@NotNull final TimedTeleport teleport) {
         if (teleport.isDone()) {
-            timedTeleportCompletableFuture.completeAsync(() -> teleport);
-            return true;
+            System.out.println("done... ");
+            return Optional.of(teleport);
+        } else {
+            System.out.println("countdown... ");
         }
 
         // Cancel the timed teleport if the player takes damage
         if (teleport.hasTakenDamage()) {
             plugin.getLocales().getLocale("teleporting_cancelled_damage").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
-            timedTeleportCompletableFuture.cancel(true);
-            return true;
+            teleport.cancelled = true;
+            return Optional.of(teleport);
         }
 
         // Cancel the timed teleport if the player moves
         if (teleport.hasMoved()) {
             plugin.getLocales().getLocale("teleporting_cancelled_movement").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
-            timedTeleportCompletableFuture.cancel(true);
-            return true;
+            teleport.cancelled = true;
+            return Optional.of(teleport);
         }
 
         // Decrement the countdown timer
         teleport.countDown();
-        return false;
+        return Optional.empty();
     }
 
     /**

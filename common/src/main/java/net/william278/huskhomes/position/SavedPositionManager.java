@@ -44,11 +44,12 @@ public class SavedPositionManager {
                                                 @NotNull Position position) {
         return CompletableFuture.supplyAsync(() ->
                 validateMeta(homeMeta).map(resultType -> new SetResult(resultType, null)).orElseGet(() ->
-                        database.getHome(homeOwner, homeMeta.name).thenApply(optionalWarp -> {
-                            if (optionalWarp.isEmpty()) {
+                        database.getHome(homeOwner, homeMeta.name).thenApply(optionalHome -> {
+                            if (optionalHome.isEmpty()) {
                                 final Home home = new Home(position, homeMeta, homeOwner);
-                                cache.homes.computeIfAbsent(home.owner.uuid, key ->
-                                        new ArrayList<>()).add(home.meta.name);
+                                cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
+                                cache.homes.get(home.owner.uuid).add(home.meta.name);
+                                cache.positionLists.clear();
                                 return database.setHome(home).thenApply(ignored ->
                                         new SetResult(SetResult.ResultType.SUCCESS, home)).join();
                             }
@@ -71,6 +72,7 @@ public class SavedPositionManager {
                             if (optionalWarp.isEmpty()) {
                                 final Warp warp = new Warp(position, warpMeta);
                                 cache.warps.add(warp.meta.name);
+                                cache.positionLists.clear();
                                 return database.setWarp(warp).thenApply(ignored ->
                                         new SetResult(SetResult.ResultType.SUCCESS, warp)).join();
                             }

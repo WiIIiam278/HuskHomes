@@ -19,6 +19,8 @@ public class TimedTeleport {
     private final int duration;
     private int timeLeft;
 
+    public boolean cancelled = false;
+
     protected TimedTeleport(@NotNull Player player, @NotNull Position targetPosition, int duration) {
         this.player = player;
         this.targetPosition = targetPosition;
@@ -29,7 +31,7 @@ public class TimedTeleport {
     }
 
     public final boolean isDone() {
-        return timeLeft <= duration;
+        return timeLeft <= 0;
     }
 
     public final void countDown() {

@@ -175,7 +175,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `uuid`, `username`
+                        SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
                     statement.setString(1, name);
@@ -202,7 +202,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `uuid`, `username`
+                        SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `uuid`=?"""))) {
 
@@ -609,6 +609,7 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position) {
+        System.out.println("teleport b3.5");
         return CompletableFuture.runAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""

@@ -20,19 +20,17 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public void onExecute(@NotNull Player player, @NotNull String[] args) {
+        final User user = new User(player);
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(new User(player)).thenAccept(homes -> {
+            case 0 -> plugin.getDatabase().getHomes(user).thenAccept(homes -> {
                 switch (homes.size()) {
                     case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(player::sendMessage);
                     case 1 -> plugin.getTeleportManager().teleport(player, homes.get(0)).thenAccept(result ->
                             plugin.getTeleportManager().finishTeleport(player, result));
                     default -> {
-                        final User user = new User(player.getUuid(), player.getName());
-                        plugin.getDatabase().getHomes(user).thenAccept(playerHomes -> {
-                            final PrivateHomeList homeList = new PrivateHomeList(homes, user, plugin);
-                            plugin.getCache().positionLists.put(user.uuid, homeList);
-                            homeList.getDisplay(1).forEach(player::sendMessage);
-                        });
+                        final PrivateHomeList homeList = new PrivateHomeList(homes, user, plugin);
+                        plugin.getCache().positionLists.put(user.uuid, homeList);
+                        homeList.getDisplay(1).forEach(player::sendMessage);
                     }
                 }
             });
@@ -43,10 +41,10 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                     final String ownersHomeName = homeName.split("\\.")[1];
                     plugin.getDatabase().getUserByName(ownerName).thenAccept(optionalUserData -> optionalUserData
                             .ifPresentOrElse(userData -> plugin.getTeleportManager().teleportToHome(player, userData, ownersHomeName),
-                                    () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName)
+                                    () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
                                             .ifPresent(player::sendMessage)));
                 } else {
-                    plugin.getTeleportManager().teleportToHome(player, new User(player), homeName);
+                    plugin.getTeleportManager().teleportToHome(player, user, homeName);
                 }
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/home [name]")

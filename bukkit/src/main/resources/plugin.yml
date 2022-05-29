@@ -11,3 +11,5 @@ commands:
     usage: /sethome <name>
   homelist:
     usage: /homelist [page]
+  back:
+    usage: /back

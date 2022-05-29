@@ -2,15 +2,10 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.PositionMeta;
-import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class SetHomeCommand extends CommandBase {
 

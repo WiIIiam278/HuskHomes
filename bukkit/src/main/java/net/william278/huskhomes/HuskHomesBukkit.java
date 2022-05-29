@@ -139,8 +139,9 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             this.savedPositionManager = new SavedPositionManager(database, cache);
 
             // Register commands - todo add all here
-            final CommandBase[] commands = new CommandBase[]{new HomeCommand(this), new SetHomeCommand(this),
-                    new HomeListCommand(this)};
+            final CommandBase[] commands = new CommandBase[]{
+                    new HomeCommand(this), new SetHomeCommand(this),
+                    new HomeListCommand(this), new BackCommand(this)};
             for (CommandBase commandBase : commands) {
                 final PluginCommand pluginCommand = getCommand(commandBase.command);
                 if (pluginCommand != null) {

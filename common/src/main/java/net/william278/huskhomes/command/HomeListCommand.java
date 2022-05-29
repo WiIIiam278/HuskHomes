@@ -4,11 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
@@ -21,9 +17,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
     @Override
     public void onExecute(@NotNull Player player, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> {
-                showHomeList(player, 1);
-            }
+            case 0 -> showHomeList(player, 1);
             case 1 -> {
                 try {
                     int pageNumber = Integer.parseInt(args[0]);

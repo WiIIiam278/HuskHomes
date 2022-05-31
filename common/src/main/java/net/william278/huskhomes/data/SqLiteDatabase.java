@@ -116,6 +116,32 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    protected void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                UPDATE `%positions_table%`
+                SET `x`=?,
+                `y`=?,
+                `z`=?,
+                `yaw`=?,
+                `pitch`=?,
+                `world_uuid`=?,
+                `world_name`=?,
+                `server_name`=?
+                WHERE `id`=?"""))) {
+            statement.setDouble(1, position.x);
+            statement.setDouble(2, position.y);
+            statement.setDouble(3, position.z);
+            statement.setFloat(4, position.yaw);
+            statement.setFloat(5, position.pitch);
+            statement.setString(6, position.world.uuid.toString());
+            statement.setString(7, position.world.name);
+            statement.setString(8, position.server.name);
+            statement.setDouble(9, positionId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
     protected int setPositionMeta(@NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         INSERT INTO `%position_metadata_table%` (`name`, `description`, `timestamp`)
@@ -128,6 +154,20 @@ public class SqLiteDatabase extends Database {
             statement.executeUpdate();
 
             return statement.getGeneratedKeys().getInt(1);
+        }
+    }
+
+    @Override
+    protected void updatePositionMeta(int metaId, @NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                UPDATE `%position_metadata_table%`
+                SET `name`=?,
+                `description`=?
+                WHERE `id`=?;"""))) {
+            statement.setString(1, meta.name);
+            statement.setString(2, meta.description);
+            statement.setInt(3, metaId);
+            statement.executeUpdate();
         }
     }
 
@@ -748,15 +788,15 @@ public class SqLiteDatabase extends Database {
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
                     try {
                         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                UPDATE `%homes_table%`
-                                SET `position_id`=?, `metadata_id`=?, `public`=?
+                                SELECT `position_id`, `metadata_id` FROM `%homes_table%`
                                 WHERE `uuid`=?;"""))) {
-                            statement.setInt(1, setPosition(home, getConnection()));
-                            statement.setInt(2, setPositionMeta(home.meta, getConnection()));
-                            statement.setBoolean(3, home.isPublic);
-                            statement.setString(4, home.uuid.toString());
+                            statement.setString(1, home.uuid.toString());
 
-                            statement.executeUpdate();
+                            final ResultSet resultSet = statement.executeQuery();
+                            if (resultSet.next()) {
+                                updatePosition(resultSet.getInt("position_id"), home, connection);
+                                updatePositionMeta(resultSet.getInt("metadata_id"), home.meta, connection);
+                            }
                         }
                     } catch (SQLException e) {
                         getLogger().log(Level.SEVERE,
@@ -785,17 +825,18 @@ public class SqLiteDatabase extends Database {
     @Override
     public CompletableFuture<Void> setWarp(@NotNull Warp warp) {
         return CompletableFuture.runAsync(() -> getWarp(warp.uuid)
-                .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
+                .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentWarp -> {
                     try {
                         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                UPDATE `%warps_table%`
-                                SET `position_id`=?, `metadata_id`=?
+                                SELECT `position_id`, `metadata_id` FROM `%warps_table%`
                                 WHERE `uuid`=?;"""))) {
-                            statement.setInt(1, setPosition(warp, getConnection()));
-                            statement.setInt(2, setPositionMeta(warp.meta, getConnection()));
-                            statement.setString(3, warp.uuid.toString());
+                            statement.setString(1, warp.uuid.toString());
 
-                            statement.executeUpdate();
+                            final ResultSet resultSet = statement.executeQuery();
+                            if (resultSet.next()) {
+                                updatePosition(resultSet.getInt("position_id"), warp, connection);
+                                updatePositionMeta(resultSet.getInt("metadata_id"), warp.meta, connection);
+                            }
                         }
                     } catch (SQLException e) {
                         getLogger().log(Level.SEVERE, "Failed to update a warp in the database", e);

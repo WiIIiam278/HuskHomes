@@ -11,10 +11,8 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.MatcherUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -131,9 +129,7 @@ public abstract class TeleportManager {
     public CompletableFuture<TeleportResult> teleport(@NotNull Player player, @NotNull Position position) {
         return CompletableFuture.supplyAsync(() -> {
             final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
-            System.out.println("teleport 1");
             if (!player.hasPermission(WARMUP_BYPASS_PERMISSION) && teleportWarmupTime > 0) {
-                System.out.println("teleport 2");
                 return processTimedTeleport(new TimedTeleport(player, position, teleportWarmupTime))
                         .thenApply(teleport -> {
                             if (!teleport.cancelled) {
@@ -143,7 +139,6 @@ public abstract class TeleportManager {
                             }
                         }).join();
             } else {
-                System.out.println("teleport b2");
                 return teleportNow(player, position).join();
             }
         });
@@ -180,11 +175,9 @@ public abstract class TeleportManager {
     private CompletableFuture<TeleportResult> teleportNow(@NotNull Player player, @NotNull Position position) {
         final User user = new User(player);
         final Teleport teleport = new Teleport(user, position);
-        System.out.println("teleport b3");
-        return CompletableFuture.supplyAsync(() -> player.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase().
-                setLastPosition(user, preTeleportPosition).
-                thenApply(ignored -> plugin.getServer(player).thenApply(server -> {
-                    System.out.println("teleport b4");
+        return CompletableFuture.supplyAsync(() -> player.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
+                .setLastPosition(user, preTeleportPosition) // Update the player's last position
+                .thenApply(ignored -> plugin.getServer(player).thenApply(server -> {
                     // Teleport player locally, or across server depending on need
                     if (position.server.equals(server)) {
                         return player.teleport(teleport.target).join();
@@ -211,10 +204,7 @@ public abstract class TeleportManager {
      */
     protected final Optional<TimedTeleport> tickTimedTeleport(@NotNull final TimedTeleport teleport) {
         if (teleport.isDone()) {
-            System.out.println("done... ");
             return Optional.of(teleport);
-        } else {
-            System.out.println("countdown... ");
         }
 
         // Cancel the timed teleport if the player takes damage

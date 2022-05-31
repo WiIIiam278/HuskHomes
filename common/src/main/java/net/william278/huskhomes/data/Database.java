@@ -181,18 +181,42 @@ public abstract class Database {
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database
      *
-     * @param position The {@link Position} to set
+     * @param position   The {@link Position} to set
+     * @param connection SQL connection
      * @return The newly inserted row ID
+     * @throws SQLException if an SQL exception occurs doing this
      */
     protected abstract int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException;
 
     /**
+     * <b>(Internal use only)</b> - Updates position data
+     *
+     * @param positionId ID of the position to update
+     * @param position   the new position
+     * @param connection SQL connection
+     * @throws SQLException if an SQL exception occurs doing this
+     */
+    protected abstract void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException;
+
+    /**
      * <b>(Internal use only)</b> - Sets position meta to the position metadata table in the database
      *
-     * @param meta The {@link PositionMeta} to set
+     * @param meta       The {@link PositionMeta} to set
+     * @param connection SQL connection
      * @return The newly inserted row ID
+     * @throws SQLException if an SQL exception occurs doing this
      */
     protected abstract int setPositionMeta(@NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException;
+
+    /**
+     * <b>(Internal use only)</b> - Updates position metadata
+     *
+     * @param metaId     ID of the metadata to update
+     * @param meta       the new metadata
+     * @param connection SQL connection
+     * @throws SQLException if an SQL exception occurs doing this
+     */
+    protected abstract void updatePositionMeta(int metaId, @NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException;
 
     /**
      * Ensure a {@link Player} has a {@link UserData} entry in the database and that their username is up-to-date

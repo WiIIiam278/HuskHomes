@@ -1,9 +1,3 @@
-/* Ensure data gets correctly encoded in UTF-8 */
-PRAGMA encoding = 'UTF-8';
-
-/* Ensure foreign key constraints are enforced */
-PRAGMA foreign_keys = ON;
-
 /* Create the positions table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%positions_table%`
 (

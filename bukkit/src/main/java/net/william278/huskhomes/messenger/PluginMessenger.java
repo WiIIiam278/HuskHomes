@@ -145,7 +145,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public void onPluginMessageReceived(@NotNull String channel, @NotNull org.bukkit.entity.Player player,
-                                        byte @NotNull [] messageBytes) {
+                                        @NotNull byte[] messageBytes) {
         if (!channel.equals(BUNGEE_PLUGIN_CHANNEL_NAME)) {
             return;
         }

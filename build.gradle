@@ -9,6 +9,8 @@ version "$ext.plugin_version+${versionMetadata()}"
 
 ext {
     set 'version', version.toString()
+    set 'jedis_version', jedis_version.toString()
+    set 'sqlite_driver_version', sqlite_driver_version.toString()
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -27,6 +29,7 @@ allprojects {
         mavenCentral()
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://repo.minebench.de/' }
+        maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://jitpack.io' }
     }
 

@@ -139,7 +139,7 @@ public class BukkitPlayer implements Player {
     /**
      * Send a Bukkit plugin message
      */
-    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, byte @NotNull [] message) {
+    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {
         bukkitPlayer.sendPluginMessage(source, channel, message);
     }
 }

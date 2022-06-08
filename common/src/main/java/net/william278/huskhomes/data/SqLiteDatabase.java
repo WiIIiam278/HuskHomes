@@ -10,6 +10,7 @@ import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,11 +67,20 @@ public class SqLiteDatabase extends Database {
             }
 
             // Establish the connection using the JDBC SQLite driver
-            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath());
+            Class.forName("org.sqlite.JDBC");
+
+            SQLiteConfig config = new SQLiteConfig();
+            config.enforceForeignKeys(true);
+            config.setEncoding(SQLiteConfig.Encoding.UTF8);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
+
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "An exception occurred creating the database file", e);
         } catch (SQLException e) {
             getLogger().log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
+        } catch (ClassNotFoundException e) {
+            getLogger().log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
         }
     }
 

@@ -6,6 +6,8 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.Library;
 import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.command.*;
 import net.william278.huskhomes.config.Locales;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,7 +92,19 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
 
     @Override
     public void onLoad() {
+        // Set the instance
         instance = this;
+
+        // Load runtime libraries
+        getLogger().log(Level.INFO, "Loading runtime libraries...");
+        final BukkitLibraryManager libraryManager = new BukkitLibraryManager(this);
+        final Library[] libraries = new Library[]{
+                Library.builder().groupId("redis{}clients").artifactId("jedis").version("4.2.3").id("jedis").build(),
+                Library.builder().groupId("org{}xerial").artifactId("sqlite-jdbc").version("3.36.0.3").id("sqlite-jdbc").build()
+        }; // todo fetch these versions from gradle properties the proper way
+        libraryManager.addMavenCentral();
+        Arrays.stream(libraries).forEach(libraryManager::loadLibrary);
+        getLogger().log(Level.INFO, "Successfully loaded runtime libraries.");
     }
 
     @Override
@@ -103,6 +118,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
 
         // Initialize the network messenger
         if (getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+            getLogger().log(Level.INFO, "Initializing the network messenger...");
             networkMessenger = switch (settings.getStringValue(Settings.ConfigOption.MESSENGER_TYPE).toUpperCase()) {
                 case "PLUGIN_MESSAGE", "PLUGINMESSAGE" -> new PluginMessenger();
                 case "REDIS", "JEDIS" -> new RedisMessenger();
@@ -114,10 +130,13 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
                 return;
             }
             networkMessenger.initialize(this);
+            getLogger().log(Level.INFO, "Successfully initialized the network messenger.");
         }
 
         // Initialize the database
-        database = switch (settings.getStringValue(Settings.ConfigOption.DATA_STORAGE_TYPE).toUpperCase()) {
+        getLogger().log(Level.INFO, "Initializing database...");
+        final String databaseType = settings.getStringValue(Settings.ConfigOption.DATA_STORAGE_TYPE);
+        database = switch (databaseType.toUpperCase()) {
             case "MYSQL" -> new MySqlDatabase(settings, logger, resourceReader);
             case "SQLITE" -> new SqLiteDatabase(settings, logger, resourceReader);
             default -> null;
@@ -128,9 +147,15 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             return;
         }
         database.initialize().thenRun(() -> {
+            getLogger().log(Level.INFO, "Successfully initialized the " + databaseType + " database.");
+
             // Initialize the cache
+            getLogger().log(Level.INFO, "Initializing the system cache...");
+
             cache = new Cache();
             cache.initialize(database);
+
+            getLogger().log(Level.INFO, "Successfully initialized the system cache.");
         }).thenRun(() -> {
             // Prepare the teleport manager
             this.teleportManager = new BukkitTeleportManager(this);
@@ -139,15 +164,18 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             this.savedPositionManager = new SavedPositionManager(database, cache);
 
             // Register commands - todo add all here
+            getLogger().log(Level.INFO, "Registering commands...");
             final CommandBase[] commands = new CommandBase[]{
                     new HomeCommand(this), new SetHomeCommand(this),
                     new HomeListCommand(this), new BackCommand(this)};
             for (CommandBase commandBase : commands) {
                 final PluginCommand pluginCommand = getCommand(commandBase.command);
                 if (pluginCommand != null) {
+                    getLogger().log(Level.INFO, "Registered /" + commandBase.command);
                     new BukkitCommand(commandBase, this).register(pluginCommand);
                 }
             }
+            getLogger().log(Level.INFO, "Successfully registered " + commands.length + " commands.");
 
             // Register listener
             getServer().getPluginManager().registerEvents(new BukkitEventProcessor(this), this);
@@ -224,6 +252,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     // Load from the plugin config
     public void loadConfigData() {
         try {
+            getLogger().log(Level.INFO, "Loading configuration data...");
             settings = Settings.load(YamlDocument.create(new File(getDataFolder(), "config.yml"),
                     Objects.requireNonNull(resourceReader.getResource("config.yml")),
                     GeneralSettings.builder().setUseDefaults(false).build(),
@@ -234,6 +263,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
                             "messages-" + settings.getStringValue(Settings.ConfigOption.LANGUAGE) + ".yml"),
                     Objects.requireNonNull(resourceReader.getResource(
                             "languages/" + settings.getStringValue(Settings.ConfigOption.LANGUAGE) + ".yml"))));
+            getLogger().log(Level.INFO, "Successfully loaded configuration data.");
         } catch (IOException | NullPointerException e) {
             getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", e);
         }

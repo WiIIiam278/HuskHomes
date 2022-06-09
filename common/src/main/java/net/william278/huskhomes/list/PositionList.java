@@ -42,7 +42,7 @@ public abstract class PositionList {
         display.add(getHeader(itemIndexStart + 1, itemIndexEnd + 1, lastItemIndex + 1));
 
         // Add the items
-        if (itemIndexEnd - itemIndexStart == 0) {
+        if (itemIndexEnd - itemIndexStart < 0) {
             display.add(getNoItemsMessage());
         } else {
             final StringJoiner itemJoiner = new StringJoiner(getItemSeparator());

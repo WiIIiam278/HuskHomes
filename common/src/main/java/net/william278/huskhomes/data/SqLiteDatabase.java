@@ -61,19 +61,21 @@ public class SqLiteDatabase extends Database {
 
     private void setConnection() {
         try {
-            // Ensures the database file exists
+            // Ensure that the database file exists
             if (databaseFile.createNewFile()) {
                 getLogger().log(Level.INFO, "Created the SQLite database file");
             }
 
-            // Establish the connection using the JDBC SQLite driver
+            // Specify use of the JDBC SQLite driver
             Class.forName("org.sqlite.JDBC");
 
+            // Set SQLite database properties
             SQLiteConfig config = new SQLiteConfig();
             config.enforceForeignKeys(true);
             config.setEncoding(SQLiteConfig.Encoding.UTF8);
             config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
 
+            // Establish the connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "An exception occurred creating the database file", e);
@@ -87,6 +89,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public CompletableFuture<Void> initialize() {
         return CompletableFuture.runAsync(() -> {
+            // Setup the connection
             setConnection();
 
             // Prepare database schema; make tables if they don't exist
@@ -99,14 +102,14 @@ public class SqLiteDatabase extends Database {
                     }
                 }
             } catch (SQLException | IOException e) {
-                getLogger().log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
+                getLogger().log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
             }
         });
     }
 
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         INSERT INTO `%positions_table%` (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
                         VALUES (?,?,?,?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -170,25 +173,27 @@ public class SqLiteDatabase extends Database {
 
     @Override
     protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
-        try (PreparedStatement selectStatement = connection.prepareStatement("""
+        try (PreparedStatement selectStatement = connection.prepareStatement(formatStatementTables("""
                 SELECT `position_id`
                 FROM `%saved_positions_table%`
-                WHERE `id`=?;""")) {
+                WHERE `id`=?;"""))) {
             selectStatement.setInt(1, savedPositionId);
 
             final ResultSet resultSet = selectStatement.executeQuery();
-            final int positionId = resultSet.getInt("position_id");
-            updatePosition(positionId, position, connection);
+            if (resultSet.next()) {
+                final int positionId = resultSet.getInt("position_id");
+                updatePosition(positionId, position, connection);
 
-            try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
                     UPDATE `%saved_positions_table%`
                     SET `name`=?,
                     `description`=?
                     WHERE `id`=?;"""))) {
-                updateStatement.setString(1, position.meta.name);
-                updateStatement.setString(2, position.meta.description);
-                updateStatement.setInt(3, savedPositionId);
-                updateStatement.executeUpdate();
+                    updateStatement.setString(1, position.meta.name);
+                    updateStatement.setString(2, position.meta.description);
+                    updateStatement.setInt(3, savedPositionId);
+                    updateStatement.executeUpdate();
+                }
             }
         }
     }
@@ -200,7 +205,7 @@ public class SqLiteDatabase extends Database {
                             if (!existingUser.username.equals(player.getName())) {
                                 // Update a player's name if it has changed in the database
                                 try {
-                                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                             UPDATE `%players_table%`
                                             SET `username`=?
                                             WHERE `uuid`=?"""))) {
@@ -218,7 +223,7 @@ public class SqLiteDatabase extends Database {
                         () -> {
                             // Insert new player data into the database
                             try {
-                                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                         INSERT INTO `%players_table%` (`uuid`,`username`)
                                         VALUES (?,?);"""))) {
 
@@ -236,7 +241,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
@@ -263,7 +268,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `uuid`=?"""))) {
@@ -292,7 +297,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             final List<Home> userHomes = new ArrayList<>();
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -333,7 +338,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             final List<Warp> warps = new ArrayList<>();
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -368,7 +373,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             final List<Home> userHomes = new ArrayList<>();
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -407,7 +412,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -448,7 +453,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Home>> getHome(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -487,7 +492,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -522,7 +527,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -557,7 +562,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
@@ -588,7 +593,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Void> updateUserData(@NotNull UserData userData) {
         return CompletableFuture.runAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         UPDATE `%players_table%`
                         SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                         WHERE `uuid`=?"""))) {
@@ -608,23 +613,26 @@ public class SqLiteDatabase extends Database {
     @Override
     public CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         return CompletableFuture.runAsync(() -> {
-            if (teleport == null) {
-                // Clear the user's current teleport
-                try {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            DELETE FROM `%teleports_table%`
-                            WHERE `player_uuid`=?;"""))) {
-                        statement.setString(1, user.uuid.toString());
-
-                        statement.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
+            // Clear the user's current teleport
+            try {
+                try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `id`=(
+                            SELECT `destination_id`
+                            FROM `%teleports_table%`
+                            WHERE `%teleports_table%`.`player_uuid`=?
+                        );"""))) {
+                    deleteStatement.setString(1, user.uuid.toString());
+                    deleteStatement.executeUpdate();
                 }
-            } else {
-                // Set the user's teleport into the database
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
+            }
+
+            // Set the user's teleport into the database (if it's not null)
+            if (teleport != null) {
                 try {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`)
                             VALUES (?,?);"""))) {
                         statement.setString(1, user.uuid.toString());
@@ -643,7 +651,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Position>> getLastPosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`last_position` = `%positions_table%`.`id`
@@ -673,14 +681,25 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%players_table%`
-                        SET `last_position`=?
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
+                        SELECT `last_position` FROM `%players_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setInt(1, setPosition(position, connection));
-                    statement.setString(2, user.uuid.toString());
+                    queryStatement.setString(1, user.uuid.toString());
 
-                    statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        // Update the last position
+                        updatePosition(resultSet.getInt("last_position"), position, connection);
+                    } else {
+                        // Set the last position
+                        try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
+                                UPDATE `%players_table%`
+                                SET `last_position`=?
+                                WHERE `uuid`=?;"""))) {
+                            updateStatement.setInt(1, setPosition(position, connection));
+                            updateStatement.setString(2, user.uuid.toString());
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.username, e);
@@ -692,7 +711,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Position>> getOfflinePosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
@@ -722,14 +741,25 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Void> setOfflinePosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%players_table%`
-                        SET `offline_position`=?
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
+                        SELECT `offline_position` FROM `%players_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setInt(1, setPosition(position, connection));
-                    statement.setString(2, user.uuid.toString());
+                    queryStatement.setString(1, user.uuid.toString());
 
-                    statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        // Update the offline position
+                        updatePosition(resultSet.getInt("offline_position"), position, connection);
+                    } else {
+                        // Set the offline position
+                        try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
+                                UPDATE `%players_table%`
+                                SET `offline_position`=?
+                                WHERE `uuid`=?;"""))) {
+                            updateStatement.setInt(1, setPosition(position, connection));
+                            updateStatement.setString(2, user.uuid.toString());
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.username, e);
@@ -741,7 +771,7 @@ public class SqLiteDatabase extends Database {
     public CompletableFuture<Optional<Position>> getRespawnPosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`respawn_position` = `%positions_table%`.`id`
@@ -770,35 +800,45 @@ public class SqLiteDatabase extends Database {
     @Override
     public CompletableFuture<Void> setRespawnPosition(@NotNull User user, @Nullable Position position) {
         return CompletableFuture.runAsync(() -> {
-            if (position == null) {
-                // Clear the respawn position
-                try {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `respawn_position`=NULL
-                            WHERE `uuid`=?;"""))) {
-                        statement.setString(1, user.uuid.toString());
+            try {
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
+                        SELECT `respawn_position` FROM `%players_table%`
+                        WHERE `uuid`=?;"""))) {
+                    queryStatement.setString(1, user.uuid.toString());
 
-                        statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        if (position == null) {
+                            // Delete a respawn position
+                            try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
+                                    DELETE FROM `%positions_table%`
+                                    WHERE `id`=(
+                                        SELECT `respawn_position`
+                                        FROM `%players_table%`
+                                        WHERE `%players_table%`.`uuid`=?
+                                    );"""))) {
+                                deleteStatement.setString(1, user.uuid.toString());
+                                deleteStatement.executeUpdate();
+                            }
+                        } else {
+                            // Update the respawn position
+                            updatePosition(resultSet.getInt("respawn_position"), position, connection);
+                        }
+                    } else {
+                        if (position != null) {
+                            // Set a respawn position
+                            try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
+                                    UPDATE `%players_table%`
+                                    SET `respawn_position`=?
+                                    WHERE `uuid`=?;"""))) {
+                                updateStatement.setInt(1, setPosition(position, connection));
+                                updateStatement.setString(2, user.uuid.toString());
+                            }
+                        }
                     }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
                 }
-            } else {
-                // Set the respawn position
-                try {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `respawn_position`=?
-                            WHERE `uuid`=?;"""))) {
-                        statement.setInt(1, setPosition(position, connection));
-                        statement.setString(2, user.uuid.toString());
-
-                        statement.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
-                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
             }
         });
     }
@@ -815,7 +855,7 @@ public class SqLiteDatabase extends Database {
 
                             final ResultSet resultSet = statement.executeQuery();
                             if (resultSet.next()) {
-                                updateSavedPosition(resultSet.getInt("saved_position_id"), home, getConnection());
+                                updateSavedPosition(resultSet.getInt("saved_position_id"), home, connection);
                             }
                         }
                     } catch (SQLException e) {
@@ -828,7 +868,7 @@ public class SqLiteDatabase extends Database {
                                 INSERT INTO `%homes_table%` (`uuid`, `saved_position_id`, `owner_uuid`, `public`)
                                 VALUES (?,?,?,?);"""))) {
                             statement.setString(1, home.uuid.toString());
-                            statement.setInt(2, setSavedPosition(home, getConnection()));
+                            statement.setInt(2, setSavedPosition(home, connection));
                             statement.setString(3, home.owner.uuid.toString());
                             statement.setBoolean(4, home.isPublic);
 

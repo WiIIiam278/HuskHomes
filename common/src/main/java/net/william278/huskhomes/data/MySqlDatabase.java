@@ -190,25 +190,27 @@ public class MySqlDatabase extends Database {
 
     @Override
     protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
-        try (PreparedStatement selectStatement = connection.prepareStatement("""
+        try (PreparedStatement selectStatement = connection.prepareStatement(formatStatementTables("""
                 SELECT `position_id`
                 FROM `%saved_positions_table%`
-                WHERE `id`=?;""")) {
+                WHERE `id`=?;"""))) {
             selectStatement.setInt(1, savedPositionId);
 
             final ResultSet resultSet = selectStatement.executeQuery();
-            final int positionId = resultSet.getInt("position_id");
-            updatePosition(positionId, position, connection);
+            if (resultSet.next()) {
+                final int positionId = resultSet.getInt("position_id");
+                updatePosition(positionId, position, connection);
 
-            try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
                     UPDATE `%saved_positions_table%`
                     SET `name`=?,
                     `description`=?
                     WHERE `id`=?;"""))) {
-                updateStatement.setString(1, position.meta.name);
-                updateStatement.setString(2, position.meta.description);
-                updateStatement.setInt(3, savedPositionId);
-                updateStatement.executeUpdate();
+                    updateStatement.setString(1, position.meta.name);
+                    updateStatement.setString(2, position.meta.description);
+                    updateStatement.setInt(3, savedPositionId);
+                    updateStatement.executeUpdate();
+                }
             }
         }
     }
@@ -628,21 +630,24 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         return CompletableFuture.runAsync(() -> {
-            if (teleport == null) {
-                // Clear the user's current teleport
-                try (Connection connection = getConnection()) {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            DELETE FROM `%teleports_table%`
-                            WHERE `player_uuid`=?;"""))) {
-                        statement.setString(1, user.uuid.toString());
-
-                        statement.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
+            // Clear the user's current teleport
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `id`=(
+                            SELECT `destination_id`
+                            FROM `%teleports_table%`
+                            WHERE `%teleports_table%`.`player_uuid`=?
+                        );"""))) {
+                    deleteStatement.setString(1, user.uuid.toString());
+                    deleteStatement.executeUpdate();
                 }
-            } else {
-                // Set the user's teleport into the database
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
+            }
+
+            // Set the user's teleport into the database (if it's not null)
+            if (teleport != null) {
                 try (Connection connection = getConnection()) {
                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`)
@@ -693,14 +698,25 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%players_table%`
-                        SET `last_position`=?
+                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
+                        SELECT `last_position` FROM `%players_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setInt(1, setPosition(position, connection));
-                    statement.setString(2, user.uuid.toString());
+                    queryStatement.setString(1, user.uuid.toString());
 
-                    statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        // Update the last position
+                        updatePosition(resultSet.getInt("last_position"), position, connection);
+                    } else {
+                        // Set the last position
+                        try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                                UPDATE `%players_table%`
+                                SET `last_position`=?
+                                WHERE `uuid`=?;"""))) {
+                            updateStatement.setInt(1, setPosition(position, connection));
+                            updateStatement.setString(2, user.uuid.toString());
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.username, e);
@@ -742,14 +758,25 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<Void> setOfflinePosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%players_table%`
-                        SET `offline_position`=?
+                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
+                        SELECT `offline_position` FROM `%players_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setInt(1, setPosition(position, connection));
-                    statement.setString(2, user.uuid.toString());
+                    queryStatement.setString(1, user.uuid.toString());
 
-                    statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        // Update the offline position
+                        updatePosition(resultSet.getInt("offline_position"), position, connection);
+                    } else {
+                        // Set the offline position
+                        try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                                UPDATE `%players_table%`
+                                SET `offline_position`=?
+                                WHERE `uuid`=?;"""))) {
+                            updateStatement.setInt(1, setPosition(position, connection));
+                            updateStatement.setString(2, user.uuid.toString());
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.username, e);
@@ -790,35 +817,45 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setRespawnPosition(@NotNull User user, @Nullable Position position) {
         return CompletableFuture.runAsync(() -> {
-            if (position == null) {
-                // Clear the respawn position
-                try (Connection connection = getConnection()) {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `respawn_position`=NULL
-                            WHERE `uuid`=?;"""))) {
-                        statement.setString(1, user.uuid.toString());
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
+                        SELECT `respawn_position` FROM `%players_table%`
+                        WHERE `uuid`=?;"""))) {
+                    queryStatement.setString(1, user.uuid.toString());
 
-                        statement.executeUpdate();
+                    final ResultSet resultSet = queryStatement.executeQuery();
+                    if (resultSet.next()) {
+                        if (position == null) {
+                            // Delete a respawn position
+                            try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
+                                    DELETE FROM `%positions_table%`
+                                    WHERE `id`=(
+                                        SELECT `respawn_position`
+                                        FROM `%players_table%`
+                                        WHERE `%players_table%`.`uuid`=?
+                                    );"""))) {
+                                deleteStatement.setString(1, user.uuid.toString());
+                                deleteStatement.executeUpdate();
+                            }
+                        } else {
+                            // Update the respawn position
+                            updatePosition(resultSet.getInt("respawn_position"), position, connection);
+                        }
+                    } else {
+                        if (position != null) {
+                            // Set a respawn position
+                            try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                                    UPDATE `%players_table%`
+                                    SET `respawn_position`=?
+                                    WHERE `uuid`=?;"""))) {
+                                updateStatement.setInt(1, setPosition(position, connection));
+                                updateStatement.setString(2, user.uuid.toString());
+                            }
+                        }
                     }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
                 }
-            } else {
-                // Set the respawn position
-                try (Connection connection = getConnection()) {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `respawn_position`=?
-                            WHERE `uuid`=?;"""))) {
-                        statement.setInt(1, setPosition(position, connection));
-                        statement.setString(2, user.uuid.toString());
-
-                        statement.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
-                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
             }
         });
     }

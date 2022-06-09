@@ -699,6 +699,7 @@ public class SqLiteDatabase extends Database {
                                 WHERE `uuid`=?;"""))) {
                             updateStatement.setInt(1, setPosition(position, connection));
                             updateStatement.setString(2, user.uuid.toString());
+                            updateStatement.executeUpdate();
                         }
                     }
                 }
@@ -760,6 +761,7 @@ public class SqLiteDatabase extends Database {
                                 WHERE `uuid`=?;"""))) {
                             updateStatement.setInt(1, setPosition(position, connection));
                             updateStatement.setString(2, user.uuid.toString());
+                            updateStatement.executeUpdate();
                         }
                     }
                 }
@@ -836,6 +838,7 @@ public class SqLiteDatabase extends Database {
                                     WHERE `uuid`=?;"""))) {
                                 updateStatement.setInt(1, setPosition(position, connection));
                                 updateStatement.setString(2, user.uuid.toString());
+                                updateStatement.executeUpdate();
                             }
                         }
                     }

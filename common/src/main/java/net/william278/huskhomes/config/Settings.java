@@ -131,7 +131,7 @@ public class Settings {
 
         DATABASE_PLAYER_TABLE_NAME("data_storage_options.table_names.player_data", OptionType.STRING, "huskhomes_player_data"),
         DATABASE_POSITIONS_TABLE_NAME("data_storage_options.table_names.position_data", OptionType.STRING, "huskhomes_position_data"),
-        DATABASE_POSITIONS_META_DATA_TABLE_NAME("data_storage_options.table_names.position_meta_data", OptionType.STRING, "huskhomes_position_metadata"),
+        DATABASE_SAVED_POSITIONS_TABLE_NAME("data_storage_options.table_names.saved_positions_data", OptionType.STRING, "huskhomes_saved_positions_data"),
         DATABASE_HOMES_TABLE_NAME("data_storage_options.table_names.home_data", OptionType.STRING, "huskhomes_home_data"),
         DATABASE_WARPS_TABLE_NAME("data_storage_options.table_names.warp_data", OptionType.STRING, "huskhomes_warp_data"),
         DATABASE_TELEPORTS_TABLE_NAME("data_storage_options.table_names.teleport_data", OptionType.STRING, "huskhomes_teleport_data"),

@@ -4,10 +4,7 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
-import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.PositionMeta;
-import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.ResourceReader;
@@ -62,23 +59,23 @@ public abstract class Database {
     protected final String positionsTableName;
 
     /**
-     * Stores {@link PositionMeta}; metadata about saved positions
+     * Stores {@link SavedPosition}s, including metadata about them
      * <ol>
      *     <li>id - Primary key, auto-increment; The id representing the position meta</li>
+     *     <li>position_id - References the positions table; the position location data of this saved position</li>
      *     <li>name - The name string of the position represented by this metadata</li>
      *     <li>description - A description string of the position represented by this metadata</li>
      *     <li>timestamp - A datetime timestamp representing when the position this represents was created</li>
      * </ol>
      */
-    protected final String positionMetadataTableName;
+    protected final String savedPositionsTableName;
 
     /**
      * Stores {@link Home} data
      * <ol>
      *     <li>uuid - Primary key, unique; The unique id of the home</li>
+     *     <li>saved_position id - References the saved position table; The id of the home saved position data</li>
      *     <li>owner_uuid - References the players table; the uuid of the person who set the home</li>
-     *     <li>position_id - References the positions table; The id of the home position data</li>
-     *     <li>metadata_id - References the metadata table; The id of the home metadata</li>
      *     <li>is_public - Boolean value; represents if the home is set to public</li>
      * </ol>
      */
@@ -88,8 +85,7 @@ public abstract class Database {
      * Stores {@link Warp} data
      * <ol>
      *     <li>uuid - Primary key, unique; The unique id of the warp</li>
-     *     <li>position_id - References the positions table; The id of the warp location data</li>
-     *     <li>metadata_id - References the metadata table; The id of the warp metadata</li>
+     *     <li>saved_position id - References the saved position table; The id of the warp saved position data</li>
      * </ol>
      */
     protected final String warpsTableName;
@@ -144,7 +140,7 @@ public abstract class Database {
                 .replaceAll("%positions_table%", positionsTableName)
                 .replaceAll("%players_table%", playerTableName)
                 .replaceAll("%teleports_table%", teleportsTableName)
-                .replaceAll("%position_metadata_table%", positionMetadataTableName)
+                .replaceAll("%saved_positions_table%", savedPositionsTableName)
                 .replaceAll("%homes_table%", homesTableName)
                 .replaceAll("%warps_table%", warpsTableName);
     }
@@ -159,8 +155,8 @@ public abstract class Database {
                 getStringValue(Settings.ConfigOption.DATABASE_PLAYER_TABLE_NAME);
         this.positionsTableName = settings.
                 getStringValue(Settings.ConfigOption.DATABASE_POSITIONS_TABLE_NAME);
-        this.positionMetadataTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_POSITIONS_META_DATA_TABLE_NAME);
+        this.savedPositionsTableName = settings.
+                getStringValue(Settings.ConfigOption.DATABASE_SAVED_POSITIONS_TABLE_NAME);
         this.homesTableName = settings.
                 getStringValue(Settings.ConfigOption.DATABASE_HOMES_TABLE_NAME);
         this.warpsTableName = settings.
@@ -199,24 +195,24 @@ public abstract class Database {
     protected abstract void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException;
 
     /**
-     * <b>(Internal use only)</b> - Sets position meta to the position metadata table in the database
+     * <b>(Internal use only)</b> - Sets a {@link SavedPosition} to the database
      *
-     * @param meta       The {@link PositionMeta} to set
+     * @param position   The {@link SavedPosition} to set
      * @param connection SQL connection
      * @return The newly inserted row ID
      * @throws SQLException if an SQL exception occurs doing this
      */
-    protected abstract int setPositionMeta(@NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException;
+    protected abstract int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException;
 
     /**
-     * <b>(Internal use only)</b> - Updates position metadata
+     * <b>(Internal use only)</b> - Updates a saved position metadata
      *
-     * @param metaId     ID of the metadata to update
-     * @param meta       the new metadata
-     * @param connection SQL connection
+     * @param savedPositionId ID of the metadata to update
+     * @param savedPosition   the new saved position
+     * @param connection      SQL connection
      * @throws SQLException if an SQL exception occurs doing this
      */
-    protected abstract void updatePositionMeta(int metaId, @NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException;
+    protected abstract void updateSavedPosition(int savedPositionId, @NotNull SavedPosition savedPosition, @NotNull Connection connection) throws SQLException;
 
     /**
      * Ensure a {@link Player} has a {@link UserData} entry in the database and that their username is up-to-date

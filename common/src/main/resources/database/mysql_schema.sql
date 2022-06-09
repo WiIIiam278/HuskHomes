@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `%positions_table%`
     PRIMARY KEY (`id`)
 );
 
-# Create the player data table if it does not exist
+# Create the players table if it does not exist
 CREATE TABLE IF NOT EXISTS `%players_table%`
 (
     `uuid`              char(36)    NOT NULL UNIQUE,
@@ -43,40 +43,38 @@ CREATE TABLE IF NOT EXISTS `%teleports_table%`
     FOREIGN KEY (`destination_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-# Create the position metadata table if it does not exist
-CREATE TABLE IF NOT EXISTS `%position_metadata_table%`
+# Create the saved positions table if it does not exist
+CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
 (
     `id`          integer      NOT NULL AUTO_INCREMENT,
+    `position_id` integer      NOT NULL,
     `name`        varchar(64)  NOT NULL,
     `description` varchar(255) NOT NULL,
     `timestamp`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`position_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 # Create the homes table if it does not exist
 CREATE TABLE IF NOT EXISTS `%homes_table%`
 (
-    `uuid`        char(36) NOT NULL UNIQUE,
-    `owner_uuid`  char(36) NOT NULL,
-    `position_id` integer  NOT NULL,
-    `metadata_id` integer  NOT NULL,
-    `public`      boolean  NOT NULL DEFAULT FALSE,
+    `uuid`              char(36) NOT NULL UNIQUE,
+    `saved_position_id` integer  NOT NULL,
+    `owner_uuid`        char(36) NOT NULL,
+    `public`            boolean  NOT NULL DEFAULT FALSE,
 
     PRIMARY KEY (`uuid`),
     FOREIGN KEY (`owner_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`position_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    FOREIGN KEY (`metadata_id`) REFERENCES `%position_metadata_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+    FOREIGN KEY (`saved_position_id`) REFERENCES `%saved_positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 # Create the warps table if it does not exist
 CREATE TABLE IF NOT EXISTS `%warps_table%`
 (
-    `uuid`        char(36) NOT NULL UNIQUE,
-    `position_id` integer  NOT NULL,
-    `metadata_id` integer  NOT NULL,
+    `uuid`              char(36) NOT NULL UNIQUE,
+    `saved_position_id` integer  NOT NULL,
 
     PRIMARY KEY (`uuid`),
-    FOREIGN KEY (`position_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    FOREIGN KEY (`metadata_id`) REFERENCES `%position_metadata_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+    FOREIGN KEY (`saved_position_id`) REFERENCES `%saved_positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );

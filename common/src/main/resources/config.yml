@@ -24,7 +24,7 @@ data_storage_options:
   table_names:
     player_data: 'huskhomes_player_data'
     position_data: 'huskhomes_position_data'
-    position_meta_data: 'huskhomes_position_metadata'
+    saved_positions_data: 'huskhomes_saved_positions_data'
     home_data: 'huskhomes_home_data'
     warp_data: 'huskhomes_warp_data'
     teleport_data: 'huskhomes_teleport_data'

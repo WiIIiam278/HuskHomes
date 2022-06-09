@@ -172,15 +172,16 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    protected int setPositionMeta(@NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException {
+    protected int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%position_metadata_table%` (`name`, `description`, `timestamp`)
-                        VALUES (?,?,?);"""),
+                        INSERT INTO `%saved_positions_table%` (`position_id`, `name`, `description`, `timestamp`)
+                        VALUES (?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1, meta.name);
-            statement.setString(2, meta.description);
-            statement.setTimestamp(3, new Timestamp(Instant.ofEpochSecond(meta.timestamp).toEpochMilli()));
+            statement.setInt(1, setPosition(position, connection));
+            statement.setString(2, position.meta.name);
+            statement.setString(3, position.meta.description);
+            statement.setTimestamp(4, new Timestamp(Instant.ofEpochSecond(position.meta.timestamp).toEpochMilli()));
             statement.executeUpdate();
 
             return statement.getGeneratedKeys().getInt(1);
@@ -188,16 +189,27 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    protected void updatePositionMeta(int metaId, @NotNull PositionMeta meta, @NotNull Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                UPDATE `%position_metadata_table%`
-                SET `name`=?,
-                `description`=?
-                WHERE `id`=?;"""))) {
-            statement.setString(1, meta.name);
-            statement.setString(2, meta.description);
-            statement.setInt(3, metaId);
-            statement.executeUpdate();
+    protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
+        try (PreparedStatement selectStatement = connection.prepareStatement("""
+                SELECT `position_id`
+                FROM `%saved_positions_table%`
+                WHERE `id`=?;""")) {
+            selectStatement.setInt(1, savedPositionId);
+
+            final ResultSet resultSet = selectStatement.executeQuery();
+            final int positionId = resultSet.getInt("position_id");
+            updatePosition(positionId, position, connection);
+
+            try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                    UPDATE `%saved_positions_table%`
+                    SET `name`=?,
+                    `description`=?
+                    WHERE `id`=?;"""))) {
+                updateStatement.setString(1, position.meta.name);
+                updateStatement.setString(2, position.meta.description);
+                updateStatement.setInt(3, savedPositionId);
+                updateStatement.executeUpdate();
+            }
         }
     }
 
@@ -303,9 +315,9 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
-                        INNER JOIN `%positions_table%` ON `%homes_table%`.`position_id`=`%positions_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                        INNER JOIN `%position_metadata_table%` ON `%homes_table%`.`metadata_id`=`%position_metadata_table%`.`id`
                         WHERE `owner_uuid`=?
                         ORDER BY `name`;"""))) {
 
@@ -344,8 +356,8 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
-                        INNER JOIN `%positions_table%` ON `%warps_table%`.`position_id`=`%positions_table%`.`id`
-                        INNER JOIN `%position_metadata_table%` ON `%warps_table%`.`metadata_id`=`%position_metadata_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         ORDER BY `name`;"""))) {
 
                     final ResultSet resultSet = statement.executeQuery();
@@ -379,9 +391,9 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
-                        INNER JOIN `%positions_table%` ON `%homes_table%`.`position_id`=`%positions_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                        INNER JOIN `%position_metadata_table%` ON `%homes_table%`.`metadata_id`=`%position_metadata_table%`.`id`
                         WHERE `public`=true
                         ORDER BY `name`;"""))) {
 
@@ -417,12 +429,12 @@ public class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                                                FROM `%homes_table%`
-                                                INNER JOIN `%positions_table%` ON `%homes_table%`.`position_id`=`%positions_table%`.`id`
-                                                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                                                INNER JOIN `%position_metadata_table%` ON `%homes_table%`.`metadata_id`=`%position_metadata_table%`.`id`
-                                                WHERE `owner_uuid`=?
-                                                AND `name`=?;"""))) {
+                        FROM `%homes_table%`
+                        INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                        INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                        WHERE `owner_uuid`=?
+                        AND `name`=?;"""))) {
                     statement.setString(1, user.uuid.toString());
                     statement.setString(2, homeName);
 
@@ -459,9 +471,9 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
-                        INNER JOIN `%positions_table%` ON `%homes_table%`.`position_id`=`%positions_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                        INNER JOIN `%position_metadata_table%` ON `%homes_table%`.`metadata_id`=`%position_metadata_table%`.`id`
                         WHERE `%homes_table%`.`uuid`=?;"""))) {
                     statement.setString(1, uuid.toString());
 
@@ -498,8 +510,8 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
-                        INNER JOIN `%positions_table%` ON `%warps_table%`.`position_id`=`%positions_table%`.`id`
-                        INNER JOIN `%position_metadata_table%` ON `%warps_table%`.`metadata_id`=`%position_metadata_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         WHERE `name`=?;"""))) {
                     statement.setString(1, warpName);
 
@@ -533,8 +545,8 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
-                        INNER JOIN `%positions_table%` ON `%warps_table%`.`position_id`=`%positions_table%`.`id`
-                        INNER JOIN `%position_metadata_table%` ON `%warps_table%`.`metadata_id`=`%position_metadata_table%`.`id`
+                        INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                        INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                         WHERE `%warps_table%`.uuid=?;"""))) {
                     statement.setString(1, uuid.toString());
 
@@ -816,15 +828,14 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.runAsync(() -> getHome(home.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
                     try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                SELECT `position_id`, `metadata_id` FROM `%homes_table%`
+                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                SELECT `saved_position_id` FROM `%homes_table%`
                                 WHERE `uuid`=?;"""))) {
                             statement.setString(1, home.uuid.toString());
 
                             final ResultSet resultSet = statement.executeQuery();
                             if (resultSet.next()) {
-                                updatePosition(resultSet.getInt("position_id"), home, connection);
-                                updatePositionMeta(resultSet.getInt("metadata_id"), home.meta, connection);
+                                updateSavedPosition(resultSet.getInt("saved_position_id"), home, connection);
                             }
                         }
                     } catch (SQLException e) {
@@ -834,13 +845,12 @@ public class MySqlDatabase extends Database {
                 }, () -> {
                     try (Connection connection = getConnection()) {
                         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                                INSERT INTO `%homes_table%` (`uuid`, `owner_uuid`, `position_id`, `metadata_id`, `public`)
-                                VALUES (?,?,?,?,?);"""))) {
+                                INSERT INTO `%homes_table%` (`uuid`, `saved_position_id`, `owner_uuid`, `public`)
+                                VALUES (?,?,?,?);"""))) {
                             statement.setString(1, home.uuid.toString());
-                            statement.setString(2, home.owner.uuid.toString());
-                            statement.setInt(3, setPosition(home, connection));
-                            statement.setInt(4, setPositionMeta(home.meta, connection));
-                            statement.setBoolean(5, home.isPublic);
+                            statement.setInt(2, setSavedPosition(home, connection));
+                            statement.setString(3, home.owner.uuid.toString());
+                            statement.setBoolean(4, home.isPublic);
 
                             statement.executeUpdate();
                         }
@@ -854,17 +864,16 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setWarp(@NotNull Warp warp) {
         return CompletableFuture.runAsync(() -> getWarp(warp.uuid)
-                .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
+                .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentWarp -> {
                     try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                SELECT `position_id`, `metadata_id` FROM `%warps_table%`
+                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                SELECT `saved_position_id` FROM `%warps_table%`
                                 WHERE `uuid`=?;"""))) {
                             statement.setString(1, warp.uuid.toString());
 
                             final ResultSet resultSet = statement.executeQuery();
                             if (resultSet.next()) {
-                                updatePosition(resultSet.getInt("position_id"), warp, connection);
-                                updatePositionMeta(resultSet.getInt("metadata_id"), warp.meta, connection);
+                                updateSavedPosition(resultSet.getInt("saved_position_id"), warp, connection);
                             }
                         }
                     } catch (SQLException e) {
@@ -873,11 +882,10 @@ public class MySqlDatabase extends Database {
                 }, () -> {
                     try (Connection connection = getConnection()) {
                         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                                INSERT INTO `%warps_table%` (`uuid`, `position_id`, `metadata_id`)
-                                VALUES (?,?,?);"""))) {
+                                INSERT INTO `%warps_table%` (`uuid`, `saved_position_id`)
+                                VALUES (?,?);"""))) {
                             statement.setString(1, warp.uuid.toString());
-                            statement.setInt(2, setPosition(warp, connection));
-                            statement.setInt(3, setPositionMeta(warp.meta, connection));
+                            statement.setInt(2, setSavedPosition(warp, connection));
 
                             statement.executeUpdate();
                         }
@@ -892,8 +900,16 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        DELETE FROM `%homes_table%`
-                        WHERE `uuid`=?;"""))) {
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id`=(
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id`=(
+                                SELECT `saved_position_id`
+                                FROM `%homes_table%`
+                                WHERE `uuid`=?
+                            )
+                        );"""))) {
                     statement.setString(1, uuid.toString());
 
                     statement.executeUpdate();
@@ -909,8 +925,16 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        DELETE FROM `%warps_table%`
-                        WHERE `uuid`=?;"""))) {
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id`=(
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id`=(
+                                SELECT `saved_position_id`
+                                FROM `%warps_table%`
+                                WHERE `uuid`=?
+                            )
+                        );"""))) {
                     statement.setString(1, uuid.toString());
 
                     statement.executeUpdate();

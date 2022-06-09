@@ -3,14 +3,13 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 public class BackCommand extends CommandBase {
 
-    private final static String PERMISSION = "huskhomes.command.back";
-
     public BackCommand(@NotNull HuskHomes implementor) {
-        super("back", PERMISSION, implementor);
+        super("back", Permission.COMMAND_BACK, implementor);
     }
 
     @Override

@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,9 +31,9 @@ public abstract class CommandBase {
     public final HuskHomes plugin;
 
 
-    public CommandBase(@NotNull String command, @NotNull String permission, @NotNull HuskHomes implementor, String... aliases) {
+    public CommandBase(@NotNull String command, @NotNull Permission permission, @NotNull HuskHomes implementor, String... aliases) {
         this.command = command;
-        this.permission = permission;
+        this.permission = permission.node;
         this.plugin = implementor;
         this.aliases = aliases;
     }

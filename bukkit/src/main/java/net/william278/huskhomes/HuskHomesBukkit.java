@@ -29,10 +29,12 @@ import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.BukkitLogger;
 import net.william278.huskhomes.util.BukkitResourceReader;
 import net.william278.huskhomes.util.Logger;
+import net.william278.huskhomes.util.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -162,6 +164,15 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
 
             // Prepare the home and warp position manager
             this.savedPositionManager = new SavedPositionManager(database, cache);
+
+            // Register permissions
+            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(
+                    new org.bukkit.permissions.Permission(permission.node,
+                            switch (permission.defaultAccess) {
+                                case EVERYONE -> PermissionDefault.TRUE;
+                                case NOBODY -> PermissionDefault.FALSE;
+                                case OPERATORS -> PermissionDefault.OP;
+                            })));
 
             // Register commands - todo add all here
             getLogger().log(Level.INFO, "Registering commands...");

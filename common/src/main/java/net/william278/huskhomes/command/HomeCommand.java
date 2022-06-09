@@ -4,6 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,10 +13,8 @@ import java.util.stream.Collectors;
 
 public class HomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    private final static String PERMISSION = "huskhomes.command.home";
-
     public HomeCommand(@NotNull HuskHomes implementor) {
-        super("home", PERMISSION, implementor);
+        super("home", Permission.COMMAND_HOME, implementor);
     }
 
     @Override

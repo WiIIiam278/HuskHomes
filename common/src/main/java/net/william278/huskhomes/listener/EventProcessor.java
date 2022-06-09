@@ -83,4 +83,22 @@ public class EventProcessor {
                 new User(player.getUuid(), player.getName()), position));
     }
 
+    /**
+     * Handle when a {@link Player} dies
+     *
+     * @param player the {@link Player} who died
+     */
+    public void onPlayerDeath(@NotNull Player player) {
+
+    }
+
+    /**
+     * Handle when a {@link Player} respawns after dying
+     *
+     * @param player the respawning {@link Player}
+     */
+    public void onPlayerRespawn(@NotNull Player player) {
+
+    }
+
 }

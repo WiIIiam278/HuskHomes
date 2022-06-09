@@ -5,14 +5,13 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.PositionMeta;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 public class SetHomeCommand extends CommandBase {
 
-    private final static String PERMISSION = "huskhomes.command.sethome";
-
     public SetHomeCommand(@NotNull HuskHomes implementor) {
-        super("sethome", PERMISSION, implementor);
+        super("sethome", Permission.COMMAND_SET_HOME, implementor);
     }
 
     @Override

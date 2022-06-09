@@ -4,14 +4,13 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
-    private final static String PERMISSION = "huskhomes.command.home";
-
     public HomeListCommand(@NotNull HuskHomes implementor) {
-        super("homelist", PERMISSION, implementor);
+        super("homelist", Permission.COMMAND_HOME, implementor);
     }
 
     @Override

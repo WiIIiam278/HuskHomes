@@ -699,7 +699,9 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `last_position` FROM `%players_table%`
+                        SELECT `last_position`
+                        FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -760,6 +762,7 @@ public class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
                         SELECT `offline_position` FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -820,6 +823,7 @@ public class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
                         SELECT `respawn_position` FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 

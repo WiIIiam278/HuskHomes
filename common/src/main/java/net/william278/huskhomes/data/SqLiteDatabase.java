@@ -185,10 +185,10 @@ public class SqLiteDatabase extends Database {
                 updatePosition(positionId, position, connection);
 
                 try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                    UPDATE `%saved_positions_table%`
-                    SET `name`=?,
-                    `description`=?
-                    WHERE `id`=?;"""))) {
+                        UPDATE `%saved_positions_table%`
+                        SET `name`=?,
+                        `description`=?
+                        WHERE `id`=?;"""))) {
                     updateStatement.setString(1, position.meta.name);
                     updateStatement.setString(2, position.meta.description);
                     updateStatement.setInt(3, savedPositionId);
@@ -683,6 +683,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `last_position` FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -743,6 +744,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `offline_position` FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -803,6 +805,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `respawn_position` FROM `%players_table%`
+                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 

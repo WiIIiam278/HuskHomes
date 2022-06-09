@@ -171,7 +171,6 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             for (CommandBase commandBase : commands) {
                 final PluginCommand pluginCommand = getCommand(commandBase.command);
                 if (pluginCommand != null) {
-                    getLogger().log(Level.INFO, "Registered /" + commandBase.command);
                     new BukkitCommand(commandBase, this).register(pluginCommand);
                 }
             }

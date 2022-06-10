@@ -33,7 +33,7 @@ public class SetHomeCommand extends CommandBase {
     }
 
     private void setHome(@NotNull Player player, @NotNull User user, @NotNull String homeName) {
-        player.getPosition().thenAccept(position -> plugin.getSettingManager().setHome(new PositionMeta(homeName,
+        player.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setHome(new PositionMeta(homeName,
                         plugin.getLocales().getRawLocale("home_default_description", user.username).orElse("")),
                 user, position).thenAccept(setResult ->
                 player.sendMessage(switch (setResult.resultType()) {

@@ -10,6 +10,7 @@ import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.MatcherUtil;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -26,9 +27,6 @@ public abstract class TeleportManager {
     @NotNull
     protected final HuskHomes plugin;
 
-    private static final String WARMUP_BYPASS_PERMISSION = "huskhomes.bypass.teleport_warmup";
-    private static final String PRIVACY_BYPASS_PERMISSION = "huskhomes.command.home.other";
-
     public TeleportManager(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
     }
@@ -44,7 +42,7 @@ public abstract class TeleportManager {
         plugin.getDatabase().getHome(homeOwner, homeName).thenAccept(optionalHome ->
                 optionalHome.ifPresentOrElse(home -> {
                     if (!homeOwner.uuid.equals(player.getUuid())) {
-                        if (!home.isPublic && !player.hasPermission(PRIVACY_BYPASS_PERMISSION)) {
+                        if (!home.isPublic && !player.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
                             plugin.getLocales().getLocale("error_public_home_invalid", homeOwner.username, homeName)
                                     .ifPresent(player::sendMessage);
                             return;
@@ -129,7 +127,7 @@ public abstract class TeleportManager {
     public CompletableFuture<TeleportResult> teleport(@NotNull Player player, @NotNull Position position) {
         return CompletableFuture.supplyAsync(() -> {
             final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
-            if (!player.hasPermission(WARMUP_BYPASS_PERMISSION) && teleportWarmupTime > 0) {
+            if (!player.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
                 return processTimedTeleport(new TimedTeleport(player, position, teleportWarmupTime))
                         .thenApply(teleport -> {
                             if (!teleport.cancelled) {

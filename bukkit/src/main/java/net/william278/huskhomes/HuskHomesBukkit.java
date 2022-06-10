@@ -177,8 +177,9 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
             // Register commands - todo add all here
             getLogger().log(Level.INFO, "Registering commands...");
             final CommandBase[] commands = new CommandBase[]{
-                    new HomeCommand(this), new SetHomeCommand(this),
-                    new HomeListCommand(this), new BackCommand(this)};
+                    new HomeCommand(this), new SetHomeCommand(this), new HomeListCommand(this),
+                    new WarpCommand(this), new SetWarpCommand(this), new WarpListCommand(this),
+                    new BackCommand(this)};
             for (CommandBase commandBase : commands) {
                 final PluginCommand pluginCommand = getCommand(commandBase.command);
                 if (pluginCommand != null) {
@@ -239,7 +240,7 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public SavedPositionManager getSettingManager() {
+    public SavedPositionManager getSavedPositionManager() {
         return savedPositionManager;
     }
 

@@ -77,7 +77,7 @@ public interface HuskHomes {
      *
      * @return the {@link SavedPositionManager} implementation
      */
-    SavedPositionManager getSettingManager();
+    SavedPositionManager getSavedPositionManager();
 
     /**
      * The {@link NetworkMessenger} that sends cross-network messages

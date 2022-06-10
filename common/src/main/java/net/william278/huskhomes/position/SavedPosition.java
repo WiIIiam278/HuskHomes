@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Represents a persistently-saved {@link Position}
  */
-public abstract class SavedPosition extends Position implements Comparable<SavedPosition> {
+public abstract class SavedPosition extends Position {
 
     /**
      * Metadata about this position (name, description)
@@ -40,17 +40,6 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
                 position.world, position.server);
         this.meta = meta;
         this.uuid = UUID.randomUUID();
-    }
-
-    /**
-     * Compare two {@link SavedPosition}s, returns alphabetical compareTo result
-     *
-     * @param other the object to be compared.
-     * @return the alphabetical comparison with another {@link SavedPosition}'s {@link PositionMeta#name}
-     */
-    @Override
-    public final int compareTo(@NotNull SavedPosition other) {
-        return meta.name.compareToIgnoreCase(other.meta.name);
     }
 
 }

@@ -58,6 +58,30 @@ public class SavedPositionManager {
     }
 
     /**
+     * Tries to delete a {@link User}'s home by given name
+     *
+     * @param homeOwner the owner of the home
+     * @param homeName  the name of the home
+     * @return a future supplying a boolean; {@code true} if the home was deleted, otherwise {@code false} if the home name was invalid.
+     */
+    public CompletableFuture<Boolean> deleteHome(@NotNull User homeOwner, @NotNull String homeName) {
+        return CompletableFuture.supplyAsync(() -> database.getHome(homeOwner, homeName).thenApply(optionalHome -> {
+            if (optionalHome.isPresent()) {
+                final Home home = optionalHome.get();
+                return database.deleteHome(home.uuid).thenApply(ignored -> {
+                    cache.homes.computeIfPresent(home.owner.uuid, (ownerUUID, homeNames) -> {
+                        homeNames.remove(home.meta.name);
+                        return homeNames;
+                    });
+                    cache.positionLists.clear();
+                    return true;
+                }).join();
+            }
+            return false;
+        }).join());
+    }
+
+    /**
      * Tries to create a server {@link Warp} at the specified {@link Position} from supplied
      * {@link PositionMeta} data and add it to the database
      *
@@ -78,6 +102,26 @@ public class SavedPositionManager {
                             }
                             return new SetResult(SetResult.ResultType.FAILED_DUPLICATE, null);
                         }).join()));
+    }
+
+    /**
+     * Tries to delete a warp by given name
+     *
+     * @param warpName the name of the warp
+     * @return a future supplying a boolean; {@code true} if the warp was deleted, otherwise {@code false} if the warp name was invalid.
+     */
+    public CompletableFuture<Boolean> deleteWarp(@NotNull String warpName) {
+        return CompletableFuture.supplyAsync(() -> database.getWarp(warpName).thenApply(optionalWarp -> {
+            if (optionalWarp.isPresent()) {
+                final Warp warp = optionalWarp.get();
+                return database.deleteWarp(warp.uuid).thenApply(ignored -> {
+                    cache.warps.remove(warp.meta.name);
+                    cache.positionLists.clear();
+                    return true;
+                }).join();
+            }
+            return false;
+        }).join());
     }
 
     /**

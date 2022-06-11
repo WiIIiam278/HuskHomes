@@ -11,5 +11,15 @@ commands:
     usage: /sethome <name>
   homelist:
     usage: /homelist [page]
+  delhome:
+    usage: /delhome <name>
+  warp:
+    usage: /warp <name>
+  setwarp:
+    usage: /setwarp <name>
+  warplist:
+    usage: /warplist [page]
+  delwarp:
+    usage: /delwarp <name>
   back:
     usage: /back

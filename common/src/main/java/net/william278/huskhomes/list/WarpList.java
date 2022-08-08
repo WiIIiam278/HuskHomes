@@ -14,7 +14,7 @@ public class WarpList extends ChatList {
 
     public WarpList(@NotNull List<Warp> warps, @NotNull HuskHomes implementor) {
         super(warps.stream().map(position -> new ListItem(position.meta.name, position.meta.description))
-                        .collect(Collectors.toList()), 10, "warplist", implementor.getLocales());
+                .collect(Collectors.toList()), 10, "warplist", implementor.getLocales());
         //todo config settable items per page
         this.plugin = implementor;
     }

@@ -6,8 +6,6 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
-import net.byteflux.libby.BukkitLibraryManager;
-import net.byteflux.libby.Library;
 import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.command.*;
 import net.william278.huskhomes.config.Locales;
@@ -96,17 +94,6 @@ public class HuskHomesBukkit extends JavaPlugin implements HuskHomes {
     public void onLoad() {
         // Set the instance
         instance = this;
-
-        // Load runtime libraries
-        getLogger().log(Level.INFO, "Loading runtime libraries...");
-        final BukkitLibraryManager libraryManager = new BukkitLibraryManager(this);
-        final Library[] libraries = new Library[]{
-                Library.builder().groupId("redis{}clients").artifactId("jedis").version("4.2.3").id("jedis").build(),
-                Library.builder().groupId("org{}xerial").artifactId("sqlite-jdbc").version("3.36.0.3").id("sqlite-jdbc").build()
-        }; // todo fetch these versions from gradle properties the proper way
-        libraryManager.addMavenCentral();
-        Arrays.stream(libraries).forEach(libraryManager::loadLibrary);
-        getLogger().log(Level.INFO, "Successfully loaded runtime libraries.");
     }
 
     @Override

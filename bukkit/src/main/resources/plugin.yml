@@ -4,6 +4,11 @@ author: 'William278'
 main: 'net.william278.huskhomes.HuskHomesBukkit'
 version: '${version}'
 api-version: 1.16
+libraries:
+  - 'redis.clients:jedis:${jedis_version}'
+  - 'mysql:mysql-connector-java:8.0.29'
+  - 'org.xerial:sqlite-jdbc:3.36.0.3'
+
 commands:
   home:
     usage: /home <name>

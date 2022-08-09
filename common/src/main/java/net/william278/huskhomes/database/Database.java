@@ -1,7 +1,6 @@
-package net.william278.huskhomes.data;
+package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.Player;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
@@ -172,7 +171,7 @@ public abstract class Database {
      *
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> initialize();
+    public abstract boolean initialize();
 
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database
@@ -215,12 +214,12 @@ public abstract class Database {
     protected abstract void updateSavedPosition(int savedPositionId, @NotNull SavedPosition savedPosition, @NotNull Connection connection) throws SQLException;
 
     /**
-     * Ensure a {@link Player} has a {@link UserData} entry in the database and that their username is up-to-date
+     * Ensure a {@link User} has a {@link UserData} entry in the database and that their username is up-to-date
      *
-     * @param player The {@link Player} to ensure
+     * @param user The {@link User} to ensure
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> ensureUser(@NotNull Player player);
+    public abstract CompletableFuture<Void> ensureUser(@NotNull User user);
 
     /**
      * Get a user by their username (<i>case-insensitive</i>)

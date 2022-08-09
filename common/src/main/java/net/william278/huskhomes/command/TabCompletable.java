@@ -1,6 +1,6 @@
 package net.william278.huskhomes.command;
 
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -13,10 +13,10 @@ public interface TabCompletable {
     /**
      * What should be returned when the player attempts to TAB-complete the command
      *
-     * @param player {@link Player} doing the TAB completion
+     * @param onlineUser {@link OnlineUser} doing the TAB completion
      * @param args   Current command arguments
      * @return List of String arguments to offer TAB suggestions
      */
-    List<String> onTabComplete(@NotNull Player player, @NotNull String[] args);
+    List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args);
 
 }

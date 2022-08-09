@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
@@ -17,15 +17,15 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
     }
 
     @Override
-    public void onExecute(@NotNull Player player, @NotNull String[] args) {
-        final User user = new User(player);
+    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(user).thenAccept(homes -> {
+            case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
-                    homes.stream().findFirst().ifPresent(home -> plugin.getSavedPositionManager().deleteHome(user, home.meta.name));
+                    homes.stream().findFirst().ifPresent(home -> plugin.getSavedPositionManager().deleteHome(onlineUser, home.meta.name));
                 } else {
                     plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
-                            .ifPresent(player::sendMessage);
+                            .ifPresent(onlineUser::sendMessage);
                 }
             });
             case 1 -> {
@@ -35,23 +35,23 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
                     final String ownersHomeName = homeName.split("\\.")[1];
                     plugin.getDatabase().getUserByName(ownerName).thenAccept(optionalUserData -> optionalUserData
                             .ifPresentOrElse(userData -> {
-                                        if (!userData.uuid.equals(player.getUuid())) {
-                                            if (!player.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
+                                        if (!userData.uuid.equals(onlineUser.uuid)) {
+                                            if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
                                                 plugin.getLocales().getLocale("error_no_permission")
-                                                        .ifPresent(player::sendMessage);
+                                                        .ifPresent(onlineUser::sendMessage);
                                                 return;
                                             }
                                         }
                                         plugin.getSavedPositionManager().deleteHome(userData, ownersHomeName);
                                     },
                                     () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
-                                            .ifPresent(player::sendMessage)));
+                                            .ifPresent(onlineUser::sendMessage)));
                 } else {
-                    plugin.getSavedPositionManager().deleteHome(user, homeName);
+                    plugin.getSavedPositionManager().deleteHome(onlineUser, homeName);
                 }
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
@@ -61,8 +61,8 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull Player player, @NotNull String[] args) {
-        return plugin.getCache().homes.get(player.getUuid()).stream()
+    public List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        return plugin.getCache().homes.get(onlineUser.uuid).stream()
                 .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
                 .sorted().collect(Collectors.toList());
     }

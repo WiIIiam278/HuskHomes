@@ -1,8 +1,7 @@
-package net.william278.huskhomes.data;
+package net.william278.huskhomes.database;
 
-import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
@@ -11,7 +10,9 @@ import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sqlite.SQLiteConfig;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
@@ -23,110 +24,96 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
- * A MySQL implementation of the plugin {@link Database}
+ * An SQLite implementation of the plugin {@link Database}
  */
 @SuppressWarnings("DuplicatedCode")
-public class MySqlDatabase extends Database {
+public class SqLiteDatabase extends Database {
 
     /**
-     * MySQL server hostname
+     * Path to the SQLite HuskHomesData.db file
      */
-    private final String mySqlHost;
-    /**
-     * MySQL server port
-     */
-    private final int mySqlPort;
-    /**
-     * Database to use on the MySQL server
-     */
-    private final String mySqlDatabaseName;
-    /**
-     * MySQL username for accessing the database
-     */
-    private final String mySqlUsername;
-    /**
-     * MySQL password for accessing the database
-     */
-    private final String mySqlPassword;
-    /**
-     * Additional connection parameters, formatted as a jdbc connection string
-     */
-    private final String mySqlConnectionParameters;
+    private final File databaseFile;
 
-    private final int hikariMaximumPoolSize;
-    private final int hikariMinimumIdle;
-    private final int hikariMaximumLifetime;
-    private final int hikariKeepAliveTime;
-    private final int hikariConnectionTimeOut;
+    /**
+     * The name of the database file
+     */
+    private static final String DATABASE_FILE_NAME = "HuskHomesData.db";
 
-    private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
+    /**
+     * The persistent SQLite database connection
+     */
+    private Connection connection;
 
-    private HikariDataSource dataSource;
 
-    public MySqlDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
+    public SqLiteDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
         super(settings, logger, resourceReader);
-        this.mySqlHost = settings.getStringValue(Settings.ConfigOption.DATABASE_HOST);
-        this.mySqlPort = settings.getIntegerValue(Settings.ConfigOption.DATABASE_PORT);
-        this.mySqlDatabaseName = settings.getStringValue(Settings.ConfigOption.DATABASE_NAME);
-        this.mySqlUsername = settings.getStringValue(Settings.ConfigOption.DATABASE_USERNAME);
-        this.mySqlPassword = settings.getStringValue(Settings.ConfigOption.DATABASE_PASSWORD);
-        this.mySqlConnectionParameters = settings.getStringValue(Settings.ConfigOption.DATABASE_CONNECTION_PARAMS);
-
-        this.hikariMaximumPoolSize = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MAX_SIZE);
-        this.hikariMinimumIdle = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MIN_IDLE);
-        this.hikariMaximumLifetime = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MAX_LIFETIME);
-        this.hikariKeepAliveTime = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_KEEPALIVE);
-        this.hikariConnectionTimeOut = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_TIMEOUT);
+        this.databaseFile = new File(resourceReader.getDataFolder(), DATABASE_FILE_NAME);
     }
 
-    /**
-     * Fetch the auto-closeable connection from the hikariDataSource
-     *
-     * @return The {@link Connection} to the MySQL database
-     * @throws SQLException if the connection fails for some reason
-     */
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        if (connection == null) {
+            setConnection();
+        } else if (connection.isClosed()) {
+            setConnection();
+        }
+        return connection;
+    }
+
+    private void setConnection() {
+        try {
+            // Ensure that the database file exists
+            if (databaseFile.createNewFile()) {
+                getLogger().log(Level.INFO, "Created the SQLite database file");
+            }
+
+            // Specify use of the JDBC SQLite driver
+            Class.forName("org.sqlite.JDBC");
+
+            // Set SQLite database properties
+            SQLiteConfig config = new SQLiteConfig();
+            config.enforceForeignKeys(true);
+            config.setEncoding(SQLiteConfig.Encoding.UTF8);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
+
+            // Establish the connection
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "An exception occurred creating the database file", e);
+        } catch (SQLException e) {
+            getLogger().log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
+        } catch (ClassNotFoundException e) {
+            getLogger().log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
+        }
     }
 
     @Override
-    public CompletableFuture<Void> initialize() {
-        return CompletableFuture.runAsync(() -> {
-            // Create jdbc driver connection url
-            final String jdbcUrl = "jdbc:mysql://" + mySqlHost + ":" + mySqlPort + "/" + mySqlDatabaseName + mySqlConnectionParameters;
-            dataSource = new HikariDataSource();
-            dataSource.setJdbcUrl(jdbcUrl);
-
-            // Authenticate
-            dataSource.setUsername(mySqlUsername);
-            dataSource.setPassword(mySqlPassword);
-
-            // Set various additional parameters
-            dataSource.setMaximumPoolSize(hikariMaximumPoolSize);
-            dataSource.setMinimumIdle(hikariMinimumIdle);
-            dataSource.setMaxLifetime(hikariMaximumLifetime);
-            dataSource.setKeepaliveTime(hikariKeepAliveTime);
-            dataSource.setConnectionTimeout(hikariConnectionTimeOut);
-            dataSource.setPoolName(DATA_POOL_NAME);
+    public boolean initialize() {
+        try {
+            // Set up the connection
+            setConnection();
 
             // Prepare database schema; make tables if they don't exist
-            try (Connection connection = dataSource.getConnection()) {
+            try {
                 // Load database schema CREATE statements from schema file
-                final String[] databaseSchema = getSchemaStatements("database/mysql_schema.sql");
-                try (Statement statement = connection.createStatement()) {
+                final String[] databaseSchema = getSchemaStatements("database/sqlite_schema.sql");
+                try (Statement statement = getConnection().createStatement()) {
                     for (String tableCreationStatement : databaseSchema) {
                         statement.execute(tableCreationStatement);
                     }
                 }
+                return true;
             } catch (SQLException | IOException e) {
-                getLogger().log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
+                getLogger().log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
             }
-        });
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
+        }
+        return false;
     }
 
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         INSERT INTO `%positions_table%` (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
                         VALUES (?,?,?,?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -202,10 +189,10 @@ public class MySqlDatabase extends Database {
                 updatePosition(positionId, position, connection);
 
                 try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                    UPDATE `%saved_positions_table%`
-                    SET `name`=?,
-                    `description`=?
-                    WHERE `id`=?;"""))) {
+                        UPDATE `%saved_positions_table%`
+                        SET `name`=?,
+                        `description`=?
+                        WHERE `id`=?;"""))) {
                     updateStatement.setString(1, position.meta.name);
                     updateStatement.setString(2, position.meta.description);
                     updateStatement.setInt(3, savedPositionId);
@@ -216,22 +203,22 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Void> ensureUser(@NotNull Player player) {
-        return CompletableFuture.runAsync(() -> getUser(player.getUuid()).thenAccept(optionalUser ->
+    public CompletableFuture<Void> ensureUser(@NotNull User onlineUser) {
+        return CompletableFuture.runAsync(() -> getUser(onlineUser.uuid).thenAccept(optionalUser ->
                 optionalUser.ifPresentOrElse(existingUser -> {
-                            if (!existingUser.username.equals(player.getName())) {
+                            if (!existingUser.username.equals(onlineUser.username)) {
                                 // Update a player's name if it has changed in the database
-                                try (Connection connection = getConnection()) {
-                                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                try {
+                                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                             UPDATE `%players_table%`
                                             SET `username`=?
                                             WHERE `uuid`=?"""))) {
 
-                                        statement.setString(1, player.getName());
+                                        statement.setString(1, onlineUser.username);
                                         statement.setString(2, existingUser.uuid.toString());
                                         statement.executeUpdate();
                                     }
-                                    getLogger().log(Level.INFO, "Updated " + player.getName() + "'s name in the database (" + existingUser.username + " -> " + player.getName() + ")");
+                                    getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUser.username + " -> " + onlineUser.username + ")");
                                 } catch (SQLException e) {
                                     getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
                                 }
@@ -239,13 +226,13 @@ public class MySqlDatabase extends Database {
                         },
                         () -> {
                             // Insert new player data into the database
-                            try (Connection connection = getConnection()) {
-                                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                            try {
+                                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                         INSERT INTO `%players_table%` (`uuid`,`username`)
                                         VALUES (?,?);"""))) {
 
-                                    statement.setString(1, player.getUuid().toString());
-                                    statement.setString(2, player.getName());
+                                    statement.setString(1, onlineUser.uuid.toString());
+                                    statement.setString(2, onlineUser.username);
                                     statement.executeUpdate();
                                 }
                             } catch (SQLException e) {
@@ -257,8 +244,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
@@ -284,8 +271,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `uuid`=?"""))) {
@@ -313,8 +300,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<List<Home>> getHomes(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
             final List<Home> userHomes = new ArrayList<>();
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -354,8 +341,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<List<Warp>> getWarps() {
         return CompletableFuture.supplyAsync(() -> {
             final List<Warp> warps = new ArrayList<>();
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -389,8 +376,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<List<Home>> getPublicHomes() {
         return CompletableFuture.supplyAsync(() -> {
             final List<Home> userHomes = new ArrayList<>();
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -428,8 +415,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -469,8 +456,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Home>> getHome(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -508,8 +495,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -543,8 +530,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
@@ -578,8 +565,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
@@ -609,8 +596,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> updateUserData(@NotNull UserData userData) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         UPDATE `%players_table%`
                         SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                         WHERE `uuid`=?"""))) {
@@ -631,8 +618,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         return CompletableFuture.runAsync(() -> {
             // Clear the user's current teleport
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
                         DELETE FROM `%positions_table%`
                         WHERE `id`=(
                             SELECT `destination_id`
@@ -648,8 +635,8 @@ public class MySqlDatabase extends Database {
 
             // Set the user's teleport into the database (if it's not null)
             if (teleport != null) {
-                try (Connection connection = getConnection()) {
-                    try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                try {
+                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`)
                             VALUES (?,?);"""))) {
                         statement.setString(1, user.uuid.toString());
@@ -667,8 +654,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Position>> getLastPosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`last_position` = `%positions_table%`.`id`
@@ -697,10 +684,9 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `last_position`
-                        FROM `%players_table%`
+            try {
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
+                        SELECT `last_position` FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.last_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
@@ -711,7 +697,7 @@ public class MySqlDatabase extends Database {
                         updatePosition(resultSet.getInt("last_position"), position, connection);
                     } else {
                         // Set the last position
-                        try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                        try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
                                 UPDATE `%players_table%`
                                 SET `last_position`=?
                                 WHERE `uuid`=?;"""))) {
@@ -730,8 +716,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Position>> getOfflinePosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
@@ -760,8 +746,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setOfflinePosition(@NotNull User user, @NotNull Position position) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `offline_position` FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
@@ -773,7 +759,7 @@ public class MySqlDatabase extends Database {
                         updatePosition(resultSet.getInt("offline_position"), position, connection);
                     } else {
                         // Set the offline position
-                        try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                        try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
                                 UPDATE `%players_table%`
                                 SET `offline_position`=?
                                 WHERE `uuid`=?;"""))) {
@@ -792,8 +778,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<Position>> getRespawnPosition(@NotNull User user) {
         return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.`respawn_position` = `%positions_table%`.`id`
@@ -822,8 +808,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setRespawnPosition(@NotNull User user, @Nullable Position position) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `respawn_position` FROM `%players_table%`
                         INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = "%positions_table%".id
                         WHERE `uuid`=?;"""))) {
@@ -833,7 +819,7 @@ public class MySqlDatabase extends Database {
                     if (resultSet.next()) {
                         if (position == null) {
                             // Delete a respawn position
-                            try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
+                            try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
                                     DELETE FROM `%positions_table%`
                                     WHERE `id`=(
                                         SELECT `respawn_position`
@@ -850,7 +836,7 @@ public class MySqlDatabase extends Database {
                     } else {
                         if (position != null) {
                             // Set a respawn position
-                            try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
+                            try (PreparedStatement updateStatement = getConnection().prepareStatement(formatStatementTables("""
                                     UPDATE `%players_table%`
                                     SET `respawn_position`=?
                                     WHERE `uuid`=?;"""))) {
@@ -871,8 +857,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<Void> setHome(@NotNull Home home) {
         return CompletableFuture.runAsync(() -> getHome(home.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
-                    try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    try {
+                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                 SELECT `saved_position_id` FROM `%homes_table%`
                                 WHERE `uuid`=?;"""))) {
                             statement.setString(1, home.uuid.toString());
@@ -887,8 +873,8 @@ public class MySqlDatabase extends Database {
                                 "Failed to update a home in the database for " + home.owner.username, e);
                     }
                 }, () -> {
-                    try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    try {
+                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                 INSERT INTO `%homes_table%` (`uuid`, `saved_position_id`, `owner_uuid`, `public`)
                                 VALUES (?,?,?,?);"""))) {
                             statement.setString(1, home.uuid.toString());
@@ -909,8 +895,8 @@ public class MySqlDatabase extends Database {
     public CompletableFuture<Void> setWarp(@NotNull Warp warp) {
         return CompletableFuture.runAsync(() -> getWarp(warp.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentWarp -> {
-                    try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    try {
+                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                 SELECT `saved_position_id` FROM `%warps_table%`
                                 WHERE `uuid`=?;"""))) {
                             statement.setString(1, warp.uuid.toString());
@@ -924,8 +910,8 @@ public class MySqlDatabase extends Database {
                         getLogger().log(Level.SEVERE, "Failed to update a warp in the database", e);
                     }
                 }, () -> {
-                    try (Connection connection = getConnection()) {
-                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    try {
+                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                 INSERT INTO `%warps_table%` (`uuid`, `saved_position_id`)
                                 VALUES (?,?);"""))) {
                             statement.setString(1, warp.uuid.toString());
@@ -942,8 +928,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> deleteHome(@NotNull UUID uuid) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         DELETE FROM `%positions_table%`
                         WHERE `%positions_table%`.`id`=(
                             SELECT `position_id`
@@ -967,8 +953,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> deleteWarp(@NotNull UUID uuid) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection connection = getConnection()) {
-                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+            try {
+                try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                         DELETE FROM `%positions_table%`
                         WHERE `%positions_table%`.`id`=(
                             SELECT `position_id`
@@ -991,10 +977,14 @@ public class MySqlDatabase extends Database {
 
     @Override
     public void terminate() {
-        if (dataSource != null) {
-            if (!dataSource.isClosed()) {
-                dataSource.close();
+        try {
+            if (connection != null) {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
             }
+        } catch (SQLException e) {
+            getLogger().log(Level.WARNING, "Failed to properly close the SQLite connection");
         }
     }
 

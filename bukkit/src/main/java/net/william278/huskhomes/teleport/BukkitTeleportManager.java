@@ -1,7 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.HuskHomesBukkit;
+import net.william278.huskhomes.BukkitHuskHomes;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +33,7 @@ public class BukkitTeleportManager extends TeleportManager {
                         this.cancel();
                     }
                 }
-            }.runTaskTimerAsynchronously((HuskHomesBukkit) plugin, 0L, 20L);
+            }.runTaskTimerAsynchronously((BukkitHuskHomes) plugin, 0L, 20L);
 
             return teleportCompletableFuture.join();
         });

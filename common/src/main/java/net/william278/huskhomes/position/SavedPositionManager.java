@@ -1,7 +1,7 @@
 package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.cache.Cache;
-import net.william278.huskhomes.data.Database;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;

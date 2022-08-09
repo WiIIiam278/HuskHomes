@@ -6,6 +6,7 @@
 
 language: 'en-gb'
 check_for_updates: true
+debug_logging: false
 data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:

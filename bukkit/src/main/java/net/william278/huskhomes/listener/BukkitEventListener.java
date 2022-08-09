@@ -8,9 +8,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class BukkitEventProcessor extends EventProcessor implements Listener {
+public class BukkitEventListener extends EventListener implements Listener {
 
-    public BukkitEventProcessor(@NotNull HuskHomes implementor) {
+    public BukkitEventListener(@NotNull HuskHomes implementor) {
         super(implementor);
     }
 

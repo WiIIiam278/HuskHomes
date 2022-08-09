@@ -5,13 +5,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * Represents persistently stored {@link User} data about a {@link Player}; uuid and username
- * A {@link Player} may be retrieved from a user by the platform implementing classes
+ * Represents a user who has data saved in the database
  */
 public class User {
 
+    @NotNull
     public final UUID uuid;
 
+    @NotNull
     public final String username;
 
     /**
@@ -25,13 +26,4 @@ public class User {
         this.username = username;
     }
 
-    /**
-     * Get a user from an online {@link Player}
-     *
-     * @param player the online {@link Player}
-     */
-    public User(Player player) {
-        this.uuid = player.getUuid();
-        this.username = player.getName();
-    }
 }

@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
@@ -15,28 +15,28 @@ public class SetHomeCommand extends CommandBase {
     }
 
     @Override
-    public void onExecute(@NotNull Player player, @NotNull String[] args) {
-        final User user = new User(player);
+    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(user).thenAccept(homes -> {
+            case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.isEmpty()) {
-                    setHome(player, user, "home");
+                    setHome(onlineUser, onlineUser, "home");
                 } else {
                     plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                            .ifPresent(player::sendMessage);
+                            .ifPresent(onlineUser::sendMessage);
                 }
             });
-            case 1 -> setHome(player, user, args[0]);
+            case 1 -> setHome(onlineUser, onlineUser, args[0]);
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
-    private void setHome(@NotNull Player player, @NotNull User user, @NotNull String homeName) {
-        player.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setHome(new PositionMeta(homeName,
+    private void setHome(@NotNull OnlineUser onlineUser, @NotNull User user, @NotNull String homeName) {
+        onlineUser.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setHome(new PositionMeta(homeName,
                         plugin.getLocales().getRawLocale("home_default_description", user.username).orElse("")),
                 user, position).thenAccept(setResult ->
-                player.sendMessage(switch (setResult.resultType()) {
+                onlineUser.sendMessage(switch (setResult.resultType()) {
                     case SUCCESS -> {
                         assert setResult.setPosition() != null;
                         yield plugin.getLocales().getLocale("set_home_success", setResult.setPosition().meta.name)

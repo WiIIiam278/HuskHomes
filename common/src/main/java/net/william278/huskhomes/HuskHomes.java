@@ -3,14 +3,15 @@ package net.william278.huskhomes;
 import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.data.Database;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.messenger.NetworkMessenger;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
+import net.william278.huskhomes.util.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,20 +29,23 @@ public interface HuskHomes {
      *
      * @return the {@link Logger} implementation to use
      */
+    @NotNull
     Logger getLoggingAdapter();
 
     /**
-     * The {@link Set} of online {@link Player}s on this server
+     * The {@link Set} of online {@link OnlineUser}s on this server
      *
-     * @return a {@link Set} of currently online {@link Player}s
+     * @return a {@link Set} of currently online {@link OnlineUser}s
      */
-    List<Player> getOnlinePlayers();
+    @NotNull
+    List<OnlineUser> getOnlinePlayers();
 
     /**
      * The plugin {@link Settings} loaded from file
      *
      * @return the plugin {@link Settings}
      */
+    @NotNull
     Settings getSettings();
 
     /**
@@ -49,6 +53,7 @@ public interface HuskHomes {
      *
      * @return The plugin {@link Locales}
      */
+    @NotNull
     Locales getLocales();
 
     /**
@@ -56,6 +61,7 @@ public interface HuskHomes {
      *
      * @return the {@link Database} implementation for accessing data
      */
+    @NotNull
     Database getDatabase();
 
     /**
@@ -63,6 +69,7 @@ public interface HuskHomes {
      *
      * @return the plugin {@link Cache}
      */
+    @NotNull
     Cache getCache();
 
     /**
@@ -70,6 +77,7 @@ public interface HuskHomes {
      *
      * @return the {@link TeleportManager} implementation
      */
+    @NotNull
     TeleportManager getTeleportManager();
 
     /**
@@ -77,6 +85,7 @@ public interface HuskHomes {
      *
      * @return the {@link SavedPositionManager} implementation
      */
+    @NotNull
     SavedPositionManager getSavedPositionManager();
 
     /**
@@ -92,7 +101,7 @@ public interface HuskHomes {
      *
      * @return The server
      */
-    CompletableFuture<Server> getServer(@NotNull Player requester);
+    CompletableFuture<Server> getServer(@NotNull OnlineUser requester);
 
     /**
      * Returns true if the position is a valid location on the server
@@ -103,22 +112,33 @@ public interface HuskHomes {
     boolean isValidPositionOnServer(Position position);
 
     /**
-     * (Re)-load config and message data from files
+     * Returns the plugin version
+     *
+     * @return the plugin {@link Version}
      */
-    void loadConfigData();
+    @NotNull
+    Version getPluginVersion();
 
     /**
-     * Get the HuskHomes plugin version
+     * Returns the Minecraft version implementation
      *
-     * @return the HuskHomes plugin version string
+     * @return the Minecraft {@link Version}
      */
-    String getPluginVersion();
+    @NotNull
+    Version getMinecraftVersion();
 
     /**
      * Get the platform type (e.g. Spigot, Paper etc)
      *
      * @return the type of server platform string
      */
+    @NotNull
     String getPlatformType();
 
+    /**
+     * Reloads the {@link Settings} and {@link Locales} from their respective config files
+     *
+     * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
+     */
+    CompletableFuture<Boolean> reload();
 }

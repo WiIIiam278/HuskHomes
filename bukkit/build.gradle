@@ -1,6 +1,7 @@
 dependencies {
     implementation project(path: ':common')
 
+    implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 
@@ -21,4 +22,5 @@ shadowJar {
     relocate 'com.google', 'net.william278.huskhomes.libraries'
 
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'org.bstats', 'net.william278.husksync.libraries.bstats'
 }

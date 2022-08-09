@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,18 +15,18 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     }
 
     @Override
-    public void onExecute(@NotNull Player player, @NotNull String[] args) {
+    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
             final String warpName = args[0];
-            plugin.getTeleportManager().teleportToWarp(player, warpName);
+            plugin.getTeleportManager().teleportToWarp(onlineUser, warpName);
         } else {
             plugin.getLocales().getLocale("error_invalid_syntax", "/warp [name]")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull Player player, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         return plugin.getCache().warps.stream()
                 .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
                 .sorted().collect(Collectors.toList());

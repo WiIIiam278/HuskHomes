@@ -2,7 +2,7 @@ package net.william278.huskhomes.messenger;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.redis.RedisWorker;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
@@ -53,7 +53,7 @@ public class RedisMessenger extends PluginMessenger {
     }
 
     @Override
-    public CompletableFuture<Message> sendMessage(@NotNull Player sender, @NotNull Message message) {
+    public CompletableFuture<Message> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
         final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
         processingMessages.put(message.uuid, repliedMessage);
         redisWorker.sendMessage(message);
@@ -61,7 +61,7 @@ public class RedisMessenger extends PluginMessenger {
     }
 
     @Override
-    protected CompletableFuture<Void> sendReply(@NotNull Player replier, @NotNull Message reply) {
+    protected CompletableFuture<Void> sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
         return redisWorker.sendMessage(reply);
     }
 

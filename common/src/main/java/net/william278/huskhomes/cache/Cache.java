@@ -2,9 +2,9 @@ package net.william278.huskhomes.cache;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.data.Database;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.list.ChatList;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class Cache {
      *
      * @param plugin the implementing plugin
      */
-    public void updatePlayerList(@NotNull HuskHomes plugin, @NotNull Player requester) {
+    public void updatePlayerList(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
         if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
             assert plugin.getNetworkMessenger() != null;
             CompletableFuture.runAsync(() -> plugin.getNetworkMessenger().
@@ -85,7 +85,7 @@ public class Cache {
                     }));
         } else {
             players.clear();
-            players.addAll(plugin.getOnlinePlayers().stream().map(Player::getName).toList());
+            players.addAll(plugin.getOnlinePlayers().stream().map(onlineUser -> onlineUser.username).toList());
         }
     }
 

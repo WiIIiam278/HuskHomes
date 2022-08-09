@@ -4,7 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.messenger.EmptyPayload;
 import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
@@ -32,74 +32,74 @@ public abstract class TeleportManager {
     }
 
     /**
-     * Teleport a {@link Player} to another {@link User}'s {@link Home}
+     * Teleport a {@link OnlineUser} to another {@link User}'s {@link Home}
      *
-     * @param player    the {@link Player} to teleport
+     * @param onlineUser    the {@link OnlineUser} to teleport
      * @param homeOwner the {@link User} who owns the home
      * @param homeName  the name of the home
      */
-    public void teleportToHome(@NotNull Player player, @NotNull User homeOwner, @NotNull String homeName) {
+    public void teleportToHome(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull String homeName) {
         plugin.getDatabase().getHome(homeOwner, homeName).thenAccept(optionalHome ->
                 optionalHome.ifPresentOrElse(home -> {
-                    if (!homeOwner.uuid.equals(player.getUuid())) {
-                        if (!home.isPublic && !player.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
+                    if (!homeOwner.uuid.equals(onlineUser.uuid)) {
+                        if (!home.isPublic && !onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
                             plugin.getLocales().getLocale("error_public_home_invalid", homeOwner.username, homeName)
-                                    .ifPresent(player::sendMessage);
+                                    .ifPresent(onlineUser::sendMessage);
                             return;
                         }
                     }
-                    teleport(player, home).thenAccept(result -> finishTeleport(player, result));
+                    teleport(onlineUser, home).thenAccept(result -> finishTeleport(onlineUser, result));
                 }, () -> {
-                    if (homeOwner.uuid.equals(player.getUuid())) {
-                        plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(player::sendMessage);
+                    if (homeOwner.uuid.equals(onlineUser.uuid)) {
+                        plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(onlineUser::sendMessage);
                     } else {
-                        plugin.getLocales().getLocale("error_home_invalid_other", homeName).ifPresent(player::sendMessage);
+                        plugin.getLocales().getLocale("error_home_invalid_other", homeName).ifPresent(onlineUser::sendMessage);
                     }
                 }));
     }
 
     /**
-     * Teleport a {@link Player} to a server {@link Warp}
+     * Teleport a {@link OnlineUser} to a server {@link Warp}
      *
-     * @param player   the {@link Player} to teleport
+     * @param onlineUser   the {@link OnlineUser} to teleport
      * @param warpName the name of the warp
      */
-    public void teleportToWarp(@NotNull Player player, @NotNull String warpName) {
+    public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
         plugin.getDatabase().getWarp(warpName).thenAccept(optionalWarp ->
                 optionalWarp.ifPresentOrElse(warp -> //todo permission restricted warps
-                        teleport(player, warp).thenAccept(result -> finishTeleport(player, result)), () ->
+                        teleport(onlineUser, warp).thenAccept(result -> finishTeleport(onlineUser, result)), () ->
                         plugin.getLocales().getLocale("error_warp_invalid", warpName)
-                                .ifPresent(player::sendMessage)));
+                                .ifPresent(onlineUser::sendMessage)));
     }
 
     /**
-     * Teleport a {@link Player} to another player by given input name
+     * Teleport a {@link OnlineUser} to another player by given input name
      *
-     * @param player       the {@link Player} to teleport
+     * @param onlineUser       the {@link OnlineUser} to teleport
      * @param targetPlayer the name of the target player
      */
-    public void teleportToPlayer(@NotNull Player player, @NotNull String targetPlayer) {
+    public void teleportToPlayer(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer) {
         MatcherUtil.matchPlayerName(targetPlayer, plugin).ifPresentOrElse(playerName ->
-                        getPlayerPosition(player, playerName).thenAccept(optionalPosition ->
+                        getPlayerPosition(onlineUser, playerName).thenAccept(optionalPosition ->
                                 optionalPosition.ifPresentOrElse(targetPosition ->
-                                                teleport(player, targetPosition).thenAccept(result ->
-                                                        finishTeleport(player, result)),
+                                                teleport(onlineUser, targetPosition).thenAccept(result ->
+                                                        finishTeleport(onlineUser, result)),
                                         () -> plugin.getLocales().getLocale("error_invalid_player").
-                                                ifPresent(player::sendMessage))),
-                () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(player::sendMessage));
+                                                ifPresent(onlineUser::sendMessage))),
+                () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(onlineUser::sendMessage));
     }
 
     /**
      * Gets the position of a player by their username, including players on other servers
      *
-     * @param requester  the {@link Player} requesting their position
+     * @param requester  the {@link OnlineUser} requesting their position
      * @param playerName the username of the player being requested
      * @return future optionally supplying the player's position, if the player could be found
      */
-    private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull Player requester, @NotNull String playerName) {
+    private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull OnlineUser requester, @NotNull String playerName) {
         return CompletableFuture.supplyAsync(() -> {
-            final Optional<Player> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
-                    player.getName().equalsIgnoreCase(playerName)).findFirst();
+            final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
+                    player.username.equalsIgnoreCase(playerName)).findFirst();
             if (localPlayer.isPresent()) {
                 return localPlayer.get().getPosition().thenApply(Optional::of).join();
             }
@@ -107,7 +107,7 @@ public abstract class TeleportManager {
                 assert plugin.getNetworkMessenger() != null;
                 return plugin.getNetworkMessenger().sendMessage(requester,
                                 new Message(Message.MessageType.POSITION_REQUEST,
-                                        requester.getName(),
+                                        requester.username,
                                         playerName,
                                         new EmptyPayload(),
                                         Message.MessageKind.MESSAGE,
@@ -119,16 +119,16 @@ public abstract class TeleportManager {
     }
 
     /**
-     * Teleport a {@link Player} to a specified {@link Position}. Respects timed teleport.
+     * Teleport a {@link OnlineUser} to a specified {@link Position}. Respects timed teleport.
      *
-     * @param player   the {@link Player} to teleport
+     * @param onlineUser   the {@link OnlineUser} to teleport
      * @param position the target {@link Position} to teleport to
      */
-    public CompletableFuture<TeleportResult> teleport(@NotNull Player player, @NotNull Position position) {
+    public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         return CompletableFuture.supplyAsync(() -> {
             final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
-            if (!player.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
-                return processTimedTeleport(new TimedTeleport(player, position, teleportWarmupTime))
+            if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
+                return processTimedTeleport(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                         .thenApply(teleport -> {
                             if (!teleport.cancelled) {
                                 return teleport.getPlayer().teleport(teleport.getTargetPosition()).join();
@@ -137,58 +137,57 @@ public abstract class TeleportManager {
                             }
                         }).join();
             } else {
-                return teleportNow(player, position).join();
+                return teleportNow(onlineUser, position).join();
             }
         });
     }
 
     /**
-     * Handles a completed {@link Player}'s {@link TeleportResult} with the appropriate message
+     * Handles a completed {@link OnlineUser}'s {@link TeleportResult} with the appropriate message
      *
-     * @param player         the {@link Player} who just completed a teleport
+     * @param onlineUser         the {@link OnlineUser} who just completed a teleport
      * @param teleportResult the {@link TeleportResult} to handle
      */
-    public void finishTeleport(@NotNull Player player, @NotNull TeleportResult teleportResult) {
+    public void finishTeleport(@NotNull OnlineUser onlineUser, @NotNull TeleportResult teleportResult) {
         switch (teleportResult) {
             case COMPLETED_LOCALLY -> plugin.getLocales().getLocale("teleporting_complete")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_on_arrival")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
             case FAILED_UNSAFE -> {
                 //todo
             }
             case FAILED_ILLEGAL_COORDINATES -> plugin.getLocales().getLocale("error_illegal_target_coordinates")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_SERVER -> plugin.getLocales().getLocale("error_invalid_server")
-                    .ifPresent(player::sendMessage);
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
     /**
-     * Executes a teleport now, teleporting a {@link Player} to a specified {@link Position}
+     * Executes a teleport now, teleporting a {@link OnlineUser} to a specified {@link Position}
      *
-     * @param player   the {@link Player} to teleport
+     * @param onlineUser   the {@link OnlineUser} to teleport
      * @param position the target {@link Position} to teleport to
      */
-    private CompletableFuture<TeleportResult> teleportNow(@NotNull Player player, @NotNull Position position) {
-        final User user = new User(player);
-        final Teleport teleport = new Teleport(user, position);
-        return CompletableFuture.supplyAsync(() -> player.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
-                .setLastPosition(user, preTeleportPosition) // Update the player's last position
-                .thenApply(ignored -> plugin.getServer(player).thenApply(server -> {
+    private CompletableFuture<TeleportResult> teleportNow(@NotNull OnlineUser onlineUser, @NotNull Position position) {
+        final Teleport teleport = new Teleport(onlineUser, position);
+        return CompletableFuture.supplyAsync(() -> onlineUser.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
+                .setLastPosition(onlineUser, preTeleportPosition) // Update the player's last position
+                .thenApply(ignored -> plugin.getServer(onlineUser).thenApply(server -> {
                     // Teleport player locally, or across server depending on need
                     if (position.server.equals(server)) {
-                        return player.teleport(teleport.target).join();
+                        return onlineUser.teleport(teleport.target).join();
                     } else {
-                        return teleportCrossServer(player, teleport).join();
+                        return teleportCrossServer(onlineUser, teleport).join();
                     }
                 }).join()).join()).join());
     }
 
-    private CompletableFuture<TeleportResult> teleportCrossServer(Player player, Teleport teleport) {
+    private CompletableFuture<TeleportResult> teleportCrossServer(OnlineUser onlineUser, Teleport teleport) {
         assert plugin.getNetworkMessenger() != null;
         return CompletableFuture.supplyAsync(() -> plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
-                .thenApply(ignored -> plugin.getNetworkMessenger().sendPlayer(player, teleport.target.server)
+                .thenApply(ignored -> plugin.getNetworkMessenger().sendPlayer(onlineUser, teleport.target.server)
                         .thenApply(completed -> completed ? TeleportResult.COMPLETED_CROSS_SERVER :
                                 TeleportResult.FAILED_INVALID_SERVER)
                         .join()).join());

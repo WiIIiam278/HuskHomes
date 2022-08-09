@@ -2,8 +2,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.Player;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -15,24 +14,20 @@ public class SetWarpCommand extends CommandBase {
     }
 
     @Override
-    public void onExecute(@NotNull Player player, @NotNull String[] args) {
-        final User user = new User(player);
-        switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(user).thenAccept(homes -> {
-                plugin.getLocales().getLocale("error_invalid_syntax", "/setwarp <name>")
-                        .ifPresent(player::sendMessage);
-            });
-            case 1 -> setWarp(player, args[0]);
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/setwarp <name>")
-                    .ifPresent(player::sendMessage);
+    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        if (args.length == 1) {
+            setWarp(onlineUser, args[0]);
+        } else {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/setwarp <name>")
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
-    private void setWarp(@NotNull Player player, @NotNull String warpName) {
-        player.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setWarp(new PositionMeta(warpName,
+    private void setWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
+        onlineUser.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setWarp(new PositionMeta(warpName,
                         plugin.getLocales().getRawLocale("warp_default_description").orElse("")),
                 position).thenAccept(setResult ->
-                player.sendMessage(switch (setResult.resultType()) {
+                onlineUser.sendMessage(switch (setResult.resultType()) {
                     case SUCCESS -> {
                         assert setResult.setPosition() != null;
                         yield plugin.getLocales().getLocale("set_warp_success", setResult.setPosition().meta.name)

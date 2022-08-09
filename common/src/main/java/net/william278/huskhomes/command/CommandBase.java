@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,10 +41,10 @@ public abstract class CommandBase {
     /**
      * Fires when the command is executed
      *
-     * @param player {@link Player} executing the command
+     * @param onlineUser {@link OnlineUser} executing the command
      * @param args   Command arguments
      */
-    public abstract void onExecute(@NotNull Player player, @NotNull String[] args);
+    public abstract void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args);
 
     /**
      * Returns the localised description string of this command

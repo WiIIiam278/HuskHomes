@@ -2,8 +2,7 @@ package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.Player;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;
@@ -11,94 +10,101 @@ import java.util.stream.Collectors;
 /**
  * A handler for when events take place
  */
-public class EventProcessor {
+public class EventListener {
 
     @NotNull
     protected final HuskHomes plugin;
 
-    public EventProcessor(@NotNull HuskHomes implementor) {
+    public EventListener(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
     }
 
     /**
-     * Handle when a {@link Player} joins the server
+     * Handle when a {@link OnlineUser} joins the server
      *
-     * @param player the joining {@link Player}
+     * @param onlineUser the joining {@link OnlineUser}
      */
-    public void onPlayerJoin(@NotNull Player player) {
+    public void onPlayerJoin(@NotNull OnlineUser onlineUser) {
         // Ensure the player is present on the database first
-        plugin.getDatabase().ensureUser(player).thenRun(() -> {
+        plugin.getDatabase().ensureUser(onlineUser).thenRun(() -> {
 
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
             if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
-                plugin.getDatabase().getCurrentTeleport(new User(player))
+                plugin.getDatabase().getCurrentTeleport(onlineUser)
                         .thenAccept(teleport -> teleport.ifPresent(currentTeleport ->
                                 // Teleport the player locally
-                                player.teleport(currentTeleport.target).thenAccept(teleportResult -> {
+                                onlineUser.teleport(currentTeleport.target).thenAccept(teleportResult -> {
                                     if (!teleportResult.successful) {
                                         plugin.getLocales().getLocale("error_invalid_on_arrival")
-                                                .ifPresent(player::sendMessage);
+                                                .ifPresent(onlineUser::sendMessage);
                                     } else {
                                         plugin.getLocales().getLocale("teleporting_complete")
-                                                .ifPresent(player::sendMessage);
+                                                .ifPresent(onlineUser::sendMessage);
                                     }
                                 })));
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
-                plugin.getCache().updatePlayerList(plugin, player);
+                plugin.getCache().updatePlayerList(plugin, onlineUser);
             }
 
             // Cache this user's homes
-            plugin.getDatabase().getHomes(new User(player)).thenAccept(homes ->
-                    plugin.getCache().homes.put(player.getUuid(),
+            plugin.getDatabase().getHomes(onlineUser).thenAccept(homes ->
+                    plugin.getCache().homes.put(onlineUser.uuid,
                             homes.stream().map(home -> home.meta.name).collect(Collectors.toList())));
 
             // Ensure the server has been set
             if (plugin.getOnlinePlayers().size() == 1) {
-                plugin.getServer(player);
+                plugin.getServer(onlineUser);
             }
         });
     }
 
     /**
-     * Handle when a {@link Player} leaves the server
+     * Handle when a {@link OnlineUser} leaves the server
      *
-     * @param player the leaving {@link Player}
+     * @param onlineUser the leaving {@link OnlineUser}
      */
-    public void onPlayerLeave(@NotNull Player player) {
+    public void onPlayerLeave(@NotNull OnlineUser onlineUser) {
         // Remove this user's home cache
-        plugin.getCache().homes.remove(player.getUuid());
+        plugin.getCache().homes.remove(onlineUser.uuid);
 
         // Update the player list
         if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
             assert plugin.getNetworkMessenger() != null;
             plugin.getOnlinePlayers().stream().filter(
-                            onlinePlayer -> !onlinePlayer.getUuid().equals(player.getUuid()))
+                            onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))
                     .findAny().ifPresent(updater ->
                             plugin.getCache().updatePlayerList(plugin, updater));
         }
 
         // Set offline position
-        player.getPosition().thenAcceptAsync(position -> plugin.getDatabase().setOfflinePosition(
-                new User(player.getUuid(), player.getName()), position));
+        onlineUser.getPosition().thenAcceptAsync(position -> plugin.getDatabase()
+                .setOfflinePosition(onlineUser, position));
     }
 
     /**
-     * Handle when a {@link Player} dies
+     * Handle when a {@link OnlineUser} dies
      *
-     * @param player the {@link Player} who died
+     * @param onlineUser the {@link OnlineUser} who died
      */
-    public void onPlayerDeath(@NotNull Player player) {
-
+    public void onPlayerDeath(@NotNull OnlineUser onlineUser) {
+        //todo
     }
 
     /**
-     * Handle when a {@link Player} respawns after dying
+     * Handle when a {@link OnlineUser} respawns after dying
      *
-     * @param player the respawning {@link Player}
+     * @param onlineUser the respawning {@link OnlineUser}
      */
-    public void onPlayerRespawn(@NotNull Player player) {
+    public void onPlayerRespawn(@NotNull OnlineUser onlineUser) {
+        //todo
+    }
 
+    /**
+     * Handle when the plugin is disabling (server is shutting down)
+     */
+    public void handlePluginDisable() {
+        //todo
     }
 
 }

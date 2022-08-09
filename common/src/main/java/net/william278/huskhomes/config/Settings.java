@@ -114,7 +114,7 @@ public class Settings {
     public enum ConfigOption {
         LANGUAGE("language", OptionType.STRING, "en-gb"),
         CHECK_FOR_UPDATES("check_for_updates", OptionType.BOOLEAN, true),
-
+        DEBUG_LOGGING("debug_logging", OptionType.BOOLEAN, false),
         DATA_STORAGE_TYPE("data_storage_options.storage_type", OptionType.STRING, "SQLite"),
         DATABASE_HOST("data_storage_options.mysql_credentials.host", OptionType.STRING, "localhost"),
         DATABASE_PORT("data_storage_options.mysql_credentials.port", OptionType.INTEGER, 3306),

@@ -1,6 +1,6 @@
 package net.william278.huskhomes.teleport;
 
-import net.william278.huskhomes.player.Player;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TimedTeleport {
 
-    private final Player player;
+    private final OnlineUser onlineUser;
     private final Position targetPosition;
 
     private final Location startLocation;
@@ -21,11 +21,11 @@ public class TimedTeleport {
 
     public boolean cancelled = false;
 
-    protected TimedTeleport(@NotNull Player player, @NotNull Position targetPosition, int duration) {
-        this.player = player;
+    protected TimedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position targetPosition, int duration) {
+        this.onlineUser = onlineUser;
         this.targetPosition = targetPosition;
-        this.startLocation = player.getLocation();
-        this.startHealth = player.getHealth();
+        this.startLocation = onlineUser.getLocation();
+        this.startHealth = onlineUser.getHealth();
         this.duration = duration;
         this.timeLeft = duration;
     }
@@ -41,10 +41,10 @@ public class TimedTeleport {
     /**
      * Get the teleporting player
      *
-     * @return the {@link Player} who is teleporting
+     * @return the {@link OnlineUser} who is teleporting
      */
-    public Player getPlayer() {
-        return player;
+    public OnlineUser getPlayer() {
+        return onlineUser;
     }
 
     /**
@@ -54,9 +54,9 @@ public class TimedTeleport {
      */
     public boolean hasMoved() {
         final double maxMovementDistance = 0.1d;
-        double movementDistance = Math.abs(startLocation.x - player.getLocation().x) +
-                Math.abs(startLocation.y - player.getLocation().y) +
-                Math.abs(startLocation.z - player.getLocation().z);
+        double movementDistance = Math.abs(startLocation.x - onlineUser.getLocation().x) +
+                                  Math.abs(startLocation.y - onlineUser.getLocation().y) +
+                                  Math.abs(startLocation.z - onlineUser.getLocation().z);
         return movementDistance > maxMovementDistance;
     }
 
@@ -66,7 +66,7 @@ public class TimedTeleport {
      * @return {@code true} if the player has taken damage
      */
     public boolean hasTakenDamage() {
-        return player.getHealth() < startHealth;
+        return onlineUser.getHealth() < startHealth;
     }
 
     /**

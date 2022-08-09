@@ -2,12 +2,14 @@ package net.william278.huskhomes.player;
 
 import de.themoep.minedown.MineDown;
 import io.papermc.lib.PaperLib;
-import net.william278.huskhomes.HuskHomesBukkit;
+import net.md_5.bungee.api.ChatMessageType;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.EconomyUnsupportedException;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -16,84 +18,90 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class BukkitPlayer implements Player {
+/**
+ * Bukkit implementation of an {@link OnlineUser}
+ */
+public class BukkitPlayer extends OnlineUser {
 
-    private final org.bukkit.entity.Player bukkitPlayer;
+    private final Player player;
 
-    private BukkitPlayer(org.bukkit.entity.Player bukkitPlayer) {
-        this.bukkitPlayer = bukkitPlayer;
+    private BukkitPlayer(@NotNull Player player) {
+        super(player.getUniqueId(), player.getName());
+        this.player = player;
     }
 
-    public static Optional<BukkitPlayer> get(@NotNull User user) {
-        return get(user.uuid);
-    }
-
-    public static Optional<BukkitPlayer> get(@NotNull UUID uuid) {
-        final org.bukkit.entity.Player bukkitPlayer = Bukkit.getPlayer(uuid);
-        if (bukkitPlayer != null) {
-            return Optional.of(adapt(bukkitPlayer));
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<BukkitPlayer> get(@NotNull String username) {
-        final org.bukkit.entity.Player bukkitPlayer = Bukkit.getPlayerExact(username);
-        if (bukkitPlayer != null) {
-            return Optional.of(adapt(bukkitPlayer));
-        }
-        return Optional.empty();
-    }
-
-    public static BukkitPlayer adapt(@NotNull org.bukkit.entity.Player player) {
+    /**
+     * Adapt a {@link Player} to a {@link OnlineUser}
+     * @param player the online {@link Player} to adapt
+     * @return the adapted {@link OnlineUser}
+     */
+    public static BukkitPlayer adapt(@NotNull Player player) {
         return new BukkitPlayer(player);
     }
 
-    public org.bukkit.entity.Player toBukkitPlayer() {
-        return bukkitPlayer;
+    /**
+     * Get an online {@link BukkitPlayer} by their UUID
+     * @param uuid the UUID of the player to find
+     * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
+     */
+    public static Optional<BukkitPlayer> get(@NotNull UUID uuid) {
+        final Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            return Optional.of(adapt(player));
+        }
+        return Optional.empty();
     }
 
-    @Override
-    public String getName() {
-        return bukkitPlayer.getName();
-    }
-
-    @Override
-    public UUID getUuid() {
-        return bukkitPlayer.getUniqueId();
+    /**
+     * Get an online {@link BukkitPlayer} by their exact username
+     * @param username the UUID of the player to find
+     * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
+     */
+    public static Optional<BukkitPlayer> get(@NotNull String username) {
+        final Player player = Bukkit.getPlayerExact(username);
+        if (player != null) {
+            return Optional.of(adapt(player));
+        }
+        return Optional.empty();
     }
 
     @Override
     public CompletableFuture<Position> getPosition() {
         final Location location = getLocation();
-        return HuskHomesBukkit.getInstance().getServer(this).thenApplyAsync(server -> new Position(
+        return BukkitHuskHomes.getInstance().getServer(this).thenApplyAsync(server -> new Position(
                 location.x, location.y, location.z, location.yaw, location.pitch, location.world, server));
 
     }
 
     @Override
     public Location getLocation() {
-        return HuskHomesBukkit.BukkitAdapter.adaptLocation(bukkitPlayer.getLocation());
+        return BukkitHuskHomes.BukkitAdapter.adaptLocation(player.getLocation());
     }
 
     @Override
     public double getHealth() {
-        return bukkitPlayer.getHealth();
+        return player.getHealth();
     }
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        return bukkitPlayer.hasPermission(node);
+        return player.hasPermission(node);
+    }
+
+    @Override
+    public void sendActionBar(@NotNull MineDown mineDown) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, mineDown.replace().toComponent());
     }
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-        bukkitPlayer.spigot().sendMessage(mineDown.toComponent());
+        player.spigot().sendMessage(mineDown.replace().toComponent());
     }
 
     @Override
     public CompletableFuture<TeleportResult> teleport(Location location) {
         return CompletableFuture.supplyAsync(() -> {
-            final Optional<org.bukkit.Location> bukkitLocation = HuskHomesBukkit.BukkitAdapter.adaptLocation(location);
+            final Optional<org.bukkit.Location> bukkitLocation = BukkitHuskHomes.BukkitAdapter.adaptLocation(location);
             if (bukkitLocation.isEmpty()) {
                 return TeleportResult.FAILED_INVALID_WORLD;
             }
@@ -101,10 +109,9 @@ public class BukkitPlayer implements Player {
             if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
                 return TeleportResult.FAILED_ILLEGAL_COORDINATES;
             }
-            System.out.println("teleport 5");
             final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-            Bukkit.getScheduler().runTask(HuskHomesBukkit.getInstance(), () ->
-                    PaperLib.teleportAsync(bukkitPlayer, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.COMMAND)
+            Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () ->
+                    PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.COMMAND)
                             .thenAccept(result -> {
                                 if (result) {
                                     resultCompletableFuture.completeAsync(() -> TeleportResult.COMPLETED_LOCALLY);
@@ -128,18 +135,18 @@ public class BukkitPlayer implements Player {
 
     @Override
     public double getEconomyBalance() throws EconomyUnsupportedException {
-        return 0;
+        return 0; //todo
     }
 
     @Override
     public void deductEconomyBalance() throws EconomyUnsupportedException {
-
+        //todo
     }
 
     /**
      * Send a Bukkit plugin message
      */
     public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {
-        bukkitPlayer.sendPluginMessage(source, channel, message);
+        player.sendPluginMessage(source, channel, message);
     }
 }

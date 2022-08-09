@@ -35,6 +35,7 @@ public class BukkitPlayer extends OnlineUser {
      * @param player the online {@link Player} to adapt
      * @return the adapted {@link OnlineUser}
      */
+    @NotNull
     public static BukkitPlayer adapt(@NotNull Player player) {
         return new BukkitPlayer(player);
     }

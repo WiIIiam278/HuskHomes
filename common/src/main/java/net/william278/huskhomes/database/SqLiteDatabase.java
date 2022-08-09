@@ -1,7 +1,6 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
@@ -204,9 +203,9 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public CompletableFuture<Void> ensureUser(@NotNull User onlineUser) {
-        return CompletableFuture.runAsync(() -> getUser(onlineUser.uuid).thenAccept(optionalUser ->
+        return CompletableFuture.runAsync(() -> getUserData(onlineUser.uuid).thenAccept(optionalUser ->
                 optionalUser.ifPresentOrElse(existingUser -> {
-                            if (!existingUser.username.equals(onlineUser.username)) {
+                            if (!existingUser.getUsername().equals(onlineUser.username)) {
                                 // Update a player's name if it has changed in the database
                                 try {
                                     try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -215,10 +214,10 @@ public class SqLiteDatabase extends Database {
                                             WHERE `uuid`=?"""))) {
 
                                         statement.setString(1, onlineUser.username);
-                                        statement.setString(2, existingUser.uuid.toString());
+                                        statement.setString(2, existingUser.getUserUuid().toString());
                                         statement.executeUpdate();
                                     }
-                                    getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUser.username + " -> " + onlineUser.username + ")");
+                                    getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUser.getUsername() + " -> " + onlineUser.username + ")");
                                 } catch (SQLException e) {
                                     getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
                                 }
@@ -242,7 +241,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name) {
+    public CompletableFuture<Optional<UserData>> getUserDataByName(@NotNull String name) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -254,8 +253,8 @@ public class SqLiteDatabase extends Database {
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
                         return Optional.of(new UserData(
-                                UUID.fromString(resultSet.getString("uuid")),
-                                resultSet.getString("username"),
+                                new User(UUID.fromString(resultSet.getString("uuid")),
+                                        resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
                                 resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
@@ -269,7 +268,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid) {
+    public CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -282,8 +281,8 @@ public class SqLiteDatabase extends Database {
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
                         return Optional.of(new UserData(
-                                UUID.fromString(resultSet.getString("uuid")),
-                                resultSet.getString("username"),
+                                new User(UUID.fromString(resultSet.getString("uuid")),
+                                        resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
                                 resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
@@ -602,14 +601,14 @@ public class SqLiteDatabase extends Database {
                         SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                         WHERE `uuid`=?"""))) {
 
-                    statement.setInt(1, userData.homeSlots);
-                    statement.setBoolean(2, userData.isIgnoringTeleports);
-                    statement.setLong(3, userData.rtpCooldown);
-                    statement.setString(4, userData.uuid.toString());
+                    statement.setInt(1, userData.homeSlots());
+                    statement.setBoolean(2, userData.ignoringTeleports());
+                    statement.setLong(3, userData.rtpCooldown());
+                    statement.setString(4, userData.getUserUuid().toString());
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to update user data for " + userData.username + " on the database", e);
+                getLogger().log(Level.SEVERE, "Failed to update user data for " + userData.getUsername() + " on the database", e);
             }
         });
     }
@@ -687,7 +686,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `last_position` FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -749,7 +748,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `offline_position` FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -811,7 +810,7 @@ public class SqLiteDatabase extends Database {
             try {
                 try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                         SELECT `respawn_position` FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 

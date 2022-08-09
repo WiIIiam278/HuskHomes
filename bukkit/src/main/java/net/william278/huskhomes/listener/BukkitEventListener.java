@@ -1,8 +1,11 @@
 package net.william278.huskhomes.listener;
 
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -10,18 +13,19 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitEventListener extends EventListener implements Listener {
 
-    public BukkitEventListener(@NotNull HuskHomes implementor) {
-        super(implementor);
+    public BukkitEventListener(@NotNull BukkitHuskHomes huskHomes) {
+        super(huskHomes);
+        Bukkit.getServer().getPluginManager().registerEvents(this, huskHomes);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        super.onPlayerJoin(BukkitPlayer.adapt(event.getPlayer()));
+        super.handlePlayerJoin(BukkitPlayer.adapt(event.getPlayer()));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLeave(PlayerQuitEvent event) {
-        super.onPlayerLeave(BukkitPlayer.adapt(event.getPlayer()));
+        super.handlePlayerLeave(BukkitPlayer.adapt(event.getPlayer()));
     }
 
 }

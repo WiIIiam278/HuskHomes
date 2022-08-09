@@ -222,20 +222,20 @@ public abstract class Database {
     public abstract CompletableFuture<Void> ensureUser(@NotNull User user);
 
     /**
-     * Get a user by their username (<i>case-insensitive</i>)
+     * Get {@link UserData} for a user by their Minecraft username (<i>case-insensitive</i>)
      *
      * @param name Username of the {@link UserData} to get (<i>case-insensitive</i>)
      * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name);
+    public abstract CompletableFuture<Optional<UserData>> getUserDataByName(@NotNull String name);
 
     /**
-     * Get a player by their Minecraft account {@link UUID}
+     * Get {@link UserData} for a user by their Minecraft account {@link UUID}
      *
      * @param uuid Minecraft account {@link UUID} of the {@link UserData} to get
      * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid);
+    public abstract CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid);
 
 
     /**

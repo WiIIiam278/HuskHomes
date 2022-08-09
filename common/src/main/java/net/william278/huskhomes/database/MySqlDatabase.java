@@ -2,7 +2,6 @@ package net.william278.huskhomes.database;
 
 import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
@@ -145,7 +144,11 @@ public class MySqlDatabase extends Database {
             statement.setString(8, position.server.name);
             statement.executeUpdate();
 
-            return statement.getGeneratedKeys().getInt(1);
+            final ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            throw new SQLException("Failed to insert position into database");
         }
     }
 
@@ -188,7 +191,11 @@ public class MySqlDatabase extends Database {
             statement.setTimestamp(4, new Timestamp(Instant.ofEpochSecond(position.meta.timestamp).toEpochMilli()));
             statement.executeUpdate();
 
-            return statement.getGeneratedKeys().getInt(1);
+            final ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            throw new SQLException("Failed to insert saved position into database");
         }
     }
 
@@ -221,9 +228,9 @@ public class MySqlDatabase extends Database {
 
     @Override
     public CompletableFuture<Void> ensureUser(@NotNull User onlineUser) {
-        return CompletableFuture.runAsync(() -> getUser(onlineUser.uuid).thenAccept(optionalUser ->
-                optionalUser.ifPresentOrElse(existingUser -> {
-                            if (!existingUser.username.equals(onlineUser.username)) {
+        return CompletableFuture.runAsync(() -> getUserData(onlineUser.uuid).thenAccept(optionalUser ->
+                optionalUser.ifPresentOrElse(existingUserData -> {
+                            if (!existingUserData.getUsername().equals(onlineUser.username)) {
                                 // Update a player's name if it has changed in the database
                                 try (Connection connection = getConnection()) {
                                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -232,10 +239,10 @@ public class MySqlDatabase extends Database {
                                             WHERE `uuid`=?"""))) {
 
                                         statement.setString(1, onlineUser.username);
-                                        statement.setString(2, existingUser.uuid.toString());
+                                        statement.setString(2, existingUserData.getUserUuid().toString());
                                         statement.executeUpdate();
                                     }
-                                    getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUser.username + " -> " + onlineUser.username + ")");
+                                    getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.username + ")");
                                 } catch (SQLException e) {
                                     getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
                                 }
@@ -259,34 +266,43 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<UserData>> getUserByName(@NotNull String name) {
+    public CompletableFuture<Optional<UserData>> getUserDataByName(@NotNull String name) {
         return CompletableFuture.supplyAsync(() -> {
+            getLogger().info("Getting user data by name for " + name);
             try (Connection connection = getConnection()) {
+                getLogger().info("Got connection");
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
                     statement.setString(1, name);
+                    getLogger().info("Set str");
 
                     final ResultSet resultSet = statement.executeQuery();
+                    getLogger().info("Got results");
                     if (resultSet.next()) {
+                        getLogger().info("resultset paged to next");
                         return Optional.of(new UserData(
-                                UUID.fromString(resultSet.getString("uuid")),
-                                resultSet.getString("username"),
+                                new User(UUID.fromString(resultSet.getString("uuid")),
+                                        resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
                                 resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return Optional.empty();
         });
     }
 
     @Override
-    public CompletableFuture<Optional<UserData>> getUser(@NotNull UUID uuid) {
+    public CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -299,8 +315,8 @@ public class MySqlDatabase extends Database {
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
                         return Optional.of(new UserData(
-                                UUID.fromString(resultSet.getString("uuid")),
-                                resultSet.getString("username"),
+                                new User(UUID.fromString(resultSet.getString("uuid")),
+                                        resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
                                 resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
@@ -619,14 +635,14 @@ public class MySqlDatabase extends Database {
                         SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                         WHERE `uuid`=?"""))) {
 
-                    statement.setInt(1, userData.homeSlots);
-                    statement.setBoolean(2, userData.isIgnoringTeleports);
-                    statement.setLong(3, userData.rtpCooldown);
-                    statement.setString(4, userData.uuid.toString());
+                    statement.setInt(1, userData.homeSlots());
+                    statement.setBoolean(2, userData.ignoringTeleports());
+                    statement.setLong(3, userData.rtpCooldown());
+                    statement.setString(4, userData.getUserUuid().toString());
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to update user data for " + userData.username + " on the database", e);
+                getLogger().log(Level.SEVERE, "Failed to update user data for " + userData.getUsername() + " on the database", e);
             }
         });
     }
@@ -705,7 +721,7 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
                         SELECT `last_position`
                         FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.last_position = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -767,7 +783,7 @@ public class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
                         SELECT `offline_position` FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.offline_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 
@@ -829,7 +845,7 @@ public class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
                         SELECT `respawn_position` FROM `%players_table%`
-                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = "%positions_table%".id
+                        INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = `%positions_table%`.`id`
                         WHERE `uuid`=?;"""))) {
                     queryStatement.setString(1, user.uuid.toString());
 

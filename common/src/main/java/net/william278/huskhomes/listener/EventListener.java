@@ -15,7 +15,7 @@ public class EventListener {
     @NotNull
     protected final HuskHomes plugin;
 
-    public EventListener(@NotNull HuskHomes implementor) {
+    protected EventListener(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
     }
 
@@ -24,9 +24,11 @@ public class EventListener {
      *
      * @param onlineUser the joining {@link OnlineUser}
      */
-    public void onPlayerJoin(@NotNull OnlineUser onlineUser) {
+    protected final void handlePlayerJoin(@NotNull OnlineUser onlineUser) {
+        plugin.getLoggingAdapter().info("Player " + onlineUser.username + " joined");
         // Ensure the player is present on the database first
         plugin.getDatabase().ensureUser(onlineUser).thenRun(() -> {
+            plugin.getLoggingAdapter().info("Player " + onlineUser.username + " ensured");
 
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
             if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
@@ -64,7 +66,7 @@ public class EventListener {
      *
      * @param onlineUser the leaving {@link OnlineUser}
      */
-    public void onPlayerLeave(@NotNull OnlineUser onlineUser) {
+    protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
         // Remove this user's home cache
         plugin.getCache().homes.remove(onlineUser.uuid);
 
@@ -87,7 +89,7 @@ public class EventListener {
      *
      * @param onlineUser the {@link OnlineUser} who died
      */
-    public void onPlayerDeath(@NotNull OnlineUser onlineUser) {
+    protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         //todo
     }
 
@@ -96,14 +98,14 @@ public class EventListener {
      *
      * @param onlineUser the respawning {@link OnlineUser}
      */
-    public void onPlayerRespawn(@NotNull OnlineUser onlineUser) {
+    protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
         //todo
     }
 
     /**
      * Handle when the plugin is disabling (server is shutting down)
      */
-    public void handlePluginDisable() {
+    public final void handlePluginDisable() {
         //todo
     }
 

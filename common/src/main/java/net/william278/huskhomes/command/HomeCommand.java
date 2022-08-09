@@ -37,8 +37,8 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                 if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeName).matches()) {
                     final String ownerName = homeName.split("\\.")[0];
                     final String ownersHomeName = homeName.split("\\.")[1];
-                    plugin.getDatabase().getUserByName(ownerName).thenAccept(optionalUserData -> optionalUserData
-                            .ifPresentOrElse(userData -> plugin.getTeleportManager().teleportToHome(onlineUser, userData, ownersHomeName),
+                    plugin.getDatabase().getUserDataByName(ownerName).thenAccept(optionalUserData -> optionalUserData
+                            .ifPresentOrElse(userData -> plugin.getTeleportManager().teleportToHome(onlineUser, userData.user(), ownersHomeName),
                                     () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
                                             .ifPresent(onlineUser::sendMessage)));
                 } else {

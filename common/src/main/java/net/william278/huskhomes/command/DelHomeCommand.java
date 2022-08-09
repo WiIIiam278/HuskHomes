@@ -2,7 +2,6 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
@@ -33,16 +32,16 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
                 if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeName).matches()) {
                     final String ownerName = homeName.split("\\.")[0];
                     final String ownersHomeName = homeName.split("\\.")[1];
-                    plugin.getDatabase().getUserByName(ownerName).thenAccept(optionalUserData -> optionalUserData
+                    plugin.getDatabase().getUserDataByName(ownerName).thenAccept(optionalUserData -> optionalUserData
                             .ifPresentOrElse(userData -> {
-                                        if (!userData.uuid.equals(onlineUser.uuid)) {
+                                        if (!userData.getUserUuid().equals(onlineUser.uuid)) {
                                             if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
                                                 plugin.getLocales().getLocale("error_no_permission")
                                                         .ifPresent(onlineUser::sendMessage);
                                                 return;
                                             }
                                         }
-                                        plugin.getSavedPositionManager().deleteHome(userData, ownersHomeName);
+                                        plugin.getSavedPositionManager().deleteHome(userData.user(), ownersHomeName);
                                     },
                                     () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
                                             .ifPresent(onlineUser::sendMessage)));

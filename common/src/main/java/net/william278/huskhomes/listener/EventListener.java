@@ -15,8 +15,21 @@ public class EventListener {
     @NotNull
     protected final HuskHomes plugin;
 
+    // Indicates if the first user has joined yet
+    private boolean firstUser = true;
+
     protected EventListener(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
+    }
+
+    /**
+     * Handle when the first {@link OnlineUser} joins the server
+     *
+     * @param onlineUser {@link OnlineUser} joining the server
+     */
+    private void handleFirstPlayerJoin(@NotNull OnlineUser onlineUser) {
+        // Cache the server name
+        plugin.getServer(onlineUser);
     }
 
     /**
@@ -25,11 +38,14 @@ public class EventListener {
      * @param onlineUser the joining {@link OnlineUser}
      */
     protected final void handlePlayerJoin(@NotNull OnlineUser onlineUser) {
-        plugin.getLoggingAdapter().info("Player " + onlineUser.username + " joined");
+        // Handle the first player joining the server
+        if (firstUser) {
+            handleFirstPlayerJoin(onlineUser);
+            firstUser = false;
+        }
+
         // Ensure the player is present on the database first
         plugin.getDatabase().ensureUser(onlineUser).thenRun(() -> {
-            plugin.getLoggingAdapter().info("Player " + onlineUser.username + " ensured");
-
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
             if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
                 plugin.getDatabase().getCurrentTeleport(onlineUser)
@@ -43,7 +59,7 @@ public class EventListener {
                                         plugin.getLocales().getLocale("teleporting_complete")
                                                 .ifPresent(onlineUser::sendMessage);
                                     }
-                                })));
+                                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))));
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
                 plugin.getCache().updatePlayerList(plugin, onlineUser);

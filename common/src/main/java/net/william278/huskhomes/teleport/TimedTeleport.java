@@ -17,7 +17,7 @@ public class TimedTeleport {
     private final double startHealth;
 
     private final int duration;
-    private int timeLeft;
+    protected int timeLeft;
 
     public boolean cancelled = false;
 

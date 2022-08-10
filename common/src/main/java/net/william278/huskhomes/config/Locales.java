@@ -2,6 +2,7 @@ package net.william278.huskhomes.config;
 
 import de.themoep.minedown.MineDown;
 import dev.dejvokep.boostedyaml.YamlDocument;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -15,10 +16,10 @@ public class Locales {
     @NotNull
     private final HashMap<String, String> rawLocales;
 
-    private Locales(YamlDocument localesConfig) {
+    private Locales(@NotNull YamlDocument localesConfig) {
         this.rawLocales = new HashMap<>();
         for (String localeId : localesConfig.getRoutesAsStrings(false)) {
-            rawLocales.put(localeId, localesConfig.getString(localeId));
+            rawLocales.put(localeId, StringEscapeUtils.unescapeJava(localesConfig.getString(localeId)));
         }
     }
 

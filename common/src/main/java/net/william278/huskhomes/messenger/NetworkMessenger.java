@@ -41,7 +41,7 @@ public abstract class NetworkMessenger {
     /**
      * ID of the HuskHomes network cluster this server is on
      */
-    protected int clusterId;
+    protected String clusterId;
 
     /**
      * Initialize the network messenger
@@ -50,7 +50,7 @@ public abstract class NetworkMessenger {
      */
     public void initialize(@NotNull HuskHomes implementor) {
         this.processingMessages = new HashMap<>();
-        this.clusterId = implementor.getSettings().getIntegerValue(Settings.ConfigOption.CLUSTER_ID);
+        this.clusterId = implementor.getSettings().getStringValue(Settings.ConfigOption.CLUSTER_ID);
     }
 
     /**

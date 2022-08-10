@@ -68,12 +68,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Nullable
     private Server server;
 
-    private static BukkitHuskHomes instance;
-
-    public static BukkitHuskHomes getInstance() {
-        return instance;
-    }
-
     /**
      * Returns the {@link Server} the plugin is on
      *
@@ -94,6 +88,13 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             this.server = new Server(server);
             return this.server;
         });
+    }
+
+    // Instance of the plugin
+    private static BukkitHuskHomes instance;
+
+    public static BukkitHuskHomes getInstance() {
+        return instance;
     }
 
     @Override

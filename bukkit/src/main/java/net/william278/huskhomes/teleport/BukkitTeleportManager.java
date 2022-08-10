@@ -24,11 +24,13 @@ public class BukkitTeleportManager extends TeleportManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    System.out.println("teleport warmup tick");
+                    // Display countdown action bar message
+                    plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
+                            .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+
                     // Tick (decrement) the timed teleport timer
                     final Optional<TimedTeleport> result = tickTimedTeleport(teleport);
                     if (result.isPresent()) {
-                        System.out.println("task cancelled... ");
                         teleportCompletableFuture.complete(teleport);
                         this.cancel();
                     }

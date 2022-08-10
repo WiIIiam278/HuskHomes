@@ -289,13 +289,9 @@ public class MySqlDatabase extends Database {
                                 resultSet.getBoolean("ignoring_requests"),
                                 resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             return Optional.empty();
         });

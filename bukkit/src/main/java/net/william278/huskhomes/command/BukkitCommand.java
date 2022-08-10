@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Bukkit executor that implements and executes {@link CommandBase}s
@@ -36,10 +37,15 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
      * @param pluginCommand {@link PluginCommand} to register
      */
     public void register(@NotNull PluginCommand pluginCommand) {
-        pluginCommand.setExecutor(this);
-        pluginCommand.setTabCompleter(this);
-        pluginCommand.setPermission(command.permission);
-        pluginCommand.setDescription(command.getDescription());
+        try {
+            plugin.getLoggingAdapter().log(Level.INFO, "Registering executor for command " + pluginCommand.getName() + "...");
+            pluginCommand.setExecutor(this);
+            pluginCommand.setTabCompleter(this);
+            pluginCommand.setPermission(command.permission);
+            pluginCommand.setDescription(command.getDescription());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

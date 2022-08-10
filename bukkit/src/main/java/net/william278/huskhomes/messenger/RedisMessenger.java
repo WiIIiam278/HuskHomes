@@ -37,7 +37,7 @@ public class RedisMessenger extends PluginMessenger {
                             return;
                         }
                         final Message message = Message.fromJson(encodedMessage);
-                        if (message.clusterId != clusterId) {
+                        if (!message.clusterId.equals(clusterId)) {
                             return;
                         }
                         final Optional<BukkitPlayer> receiver = BukkitPlayer.get(message.targetPlayer);

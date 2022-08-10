@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Cross-platform teleportation manager
@@ -34,9 +35,9 @@ public abstract class TeleportManager {
     /**
      * Teleport a {@link OnlineUser} to another {@link User}'s {@link Home}
      *
-     * @param onlineUser    the {@link OnlineUser} to teleport
-     * @param homeOwner the {@link User} who owns the home
-     * @param homeName  the name of the home
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param homeOwner  the {@link User} who owns the home
+     * @param homeName   the name of the home
      */
     public void teleportToHome(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull String homeName) {
         plugin.getDatabase().getHome(homeOwner, homeName).thenAccept(optionalHome ->
@@ -61,8 +62,8 @@ public abstract class TeleportManager {
     /**
      * Teleport a {@link OnlineUser} to a server {@link Warp}
      *
-     * @param onlineUser   the {@link OnlineUser} to teleport
-     * @param warpName the name of the warp
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param warpName   the name of the warp
      */
     public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
         plugin.getDatabase().getWarp(warpName).thenAccept(optionalWarp ->
@@ -75,7 +76,7 @@ public abstract class TeleportManager {
     /**
      * Teleport a {@link OnlineUser} to another player by given input name
      *
-     * @param onlineUser       the {@link OnlineUser} to teleport
+     * @param onlineUser   the {@link OnlineUser} to teleport
      * @param targetPlayer the name of the target player
      */
     public void teleportToPlayer(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer) {
@@ -111,7 +112,7 @@ public abstract class TeleportManager {
                                         playerName,
                                         new EmptyPayload(),
                                         Message.MessageKind.MESSAGE,
-                                        plugin.getSettings().getIntegerValue(Settings.ConfigOption.CLUSTER_ID)))
+                                        plugin.getSettings().getStringValue(Settings.ConfigOption.CLUSTER_ID)))
                         .thenApply(reply -> Optional.of(Position.fromJson(reply.payload))).join();
             }
             return Optional.empty();
@@ -121,8 +122,8 @@ public abstract class TeleportManager {
     /**
      * Teleport a {@link OnlineUser} to a specified {@link Position}. Respects timed teleport.
      *
-     * @param onlineUser   the {@link OnlineUser} to teleport
-     * @param position the target {@link Position} to teleport to
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param position   the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         return CompletableFuture.supplyAsync(() -> {
@@ -131,7 +132,7 @@ public abstract class TeleportManager {
                 return processTimedTeleport(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                         .thenApply(teleport -> {
                             if (!teleport.cancelled) {
-                                return teleport.getPlayer().teleport(teleport.getTargetPosition()).join();
+                                return teleportNow(onlineUser, position).join();
                             } else {
                                 return TeleportResult.CANCELLED;
                             }
@@ -145,7 +146,7 @@ public abstract class TeleportManager {
     /**
      * Handles a completed {@link OnlineUser}'s {@link TeleportResult} with the appropriate message
      *
-     * @param onlineUser         the {@link OnlineUser} who just completed a teleport
+     * @param onlineUser     the {@link OnlineUser} who just completed a teleport
      * @param teleportResult the {@link TeleportResult} to handle
      */
     public void finishTeleport(@NotNull OnlineUser onlineUser, @NotNull TeleportResult teleportResult) {
@@ -167,8 +168,8 @@ public abstract class TeleportManager {
     /**
      * Executes a teleport now, teleporting a {@link OnlineUser} to a specified {@link Position}
      *
-     * @param onlineUser   the {@link OnlineUser} to teleport
-     * @param position the target {@link Position} to teleport to
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param position   the target {@link Position} to teleport to
      */
     private CompletableFuture<TeleportResult> teleportNow(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         final Teleport teleport = new Teleport(onlineUser, position);
@@ -208,6 +209,8 @@ public abstract class TeleportManager {
         if (teleport.hasTakenDamage()) {
             plugin.getLocales().getLocale("teleporting_cancelled_damage").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
+            plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
+                    teleport.getPlayer().sendActionBar(locale));
             teleport.cancelled = true;
             return Optional.of(teleport);
         }
@@ -216,6 +219,8 @@ public abstract class TeleportManager {
         if (teleport.hasMoved()) {
             plugin.getLocales().getLocale("teleporting_cancelled_movement").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
+            plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
+                    teleport.getPlayer().sendActionBar(locale));
             teleport.cancelled = true;
             return Optional.of(teleport);
         }

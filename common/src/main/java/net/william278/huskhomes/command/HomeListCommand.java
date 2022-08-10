@@ -52,26 +52,20 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                 return;
             }
         }
-        plugin.getLoggingAdapter().info("Getting home list for " + homeOwner);
         plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {
-            plugin.getLoggingAdapter().info("Got user!");
             if (!userData.getUserUuid().equals(onlineUser.uuid)) {
                 if (!onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
                     plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
                     return;
                 }
             }
-            plugin.getLoggingAdapter().info("User has perms! Getting list...");
             plugin.getDatabase().getHomes(userData.user()).thenAccept(homes -> {
-                plugin.getLoggingAdapter().info("Got home list!");
                 if (homes.isEmpty()) {
                     plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                plugin.getLoggingAdapter().info("Making list...");
                 final PrivateHomeList homeList = new PrivateHomeList(homes, userData.user(), plugin);
                 plugin.getCache().positionLists.put(userData.user().uuid, homeList);
-                plugin.getLoggingAdapter().info("Showing list...");
                 homeList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
             });
         }, () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(onlineUser::sendMessage)));

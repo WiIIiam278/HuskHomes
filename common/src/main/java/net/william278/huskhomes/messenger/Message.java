@@ -46,7 +46,8 @@ public class Message {
      * ID of the cluster this message is for
      */
     @SerializedName("cluster_id")
-    public int clusterId;
+    @NotNull
+    public String clusterId;
 
     /**
      * Data to send in the message
@@ -55,7 +56,7 @@ public class Message {
     public String payload;
 
     public Message(@NotNull MessageType type, @NotNull String sender, @NotNull String targetPlayer,
-                   @NotNull MessageSerializable payload, @NotNull MessageKind messageKind, int clusterId) {
+                   @NotNull MessageSerializable payload, @NotNull MessageKind messageKind, @NotNull String clusterId) {
         this.type = type;
         this.sender = sender;
         this.targetPlayer = targetPlayer;

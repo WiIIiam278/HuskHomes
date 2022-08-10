@@ -1,7 +1,6 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

@@ -162,7 +162,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
                     final Message message = Message.fromJson(messageReader.readUTF());
 
                     // Ignore plugin messages to other clusters
-                    if (message.clusterId != clusterId) {
+                    if (!message.clusterId.equals(clusterId)) {
                         return;
                     }
 

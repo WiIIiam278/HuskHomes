@@ -17,7 +17,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        
+
         switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
@@ -29,25 +29,21 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
             });
             case 1 -> {
                 final String homeName = args[0];
-                if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeName).matches()) {
-                    final String ownerName = homeName.split("\\.")[0];
-                    final String ownersHomeName = homeName.split("\\.")[1];
-                    plugin.getDatabase().getUserDataByName(ownerName).thenAccept(optionalUserData -> optionalUserData
-                            .ifPresentOrElse(userData -> {
-                                        if (!userData.getUserUuid().equals(onlineUser.uuid)) {
-                                            if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
-                                                plugin.getLocales().getLocale("error_no_permission")
-                                                        .ifPresent(onlineUser::sendMessage);
-                                                return;
-                                            }
-                                        }
-                                        plugin.getSavedPositionManager().deleteHome(userData.user(), ownersHomeName);
-                                    },
-                                    () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
-                                            .ifPresent(onlineUser::sendMessage)));
-                } else {
-                    plugin.getSavedPositionManager().deleteHome(onlineUser, homeName);
-                }
+                RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(homeIdentifier ->
+                                plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName()).thenAccept(
+                                        optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
+                                                    if (!userData.getUserUuid().equals(onlineUser.uuid)) {
+                                                        if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
+                                                            plugin.getLocales().getLocale("error_no_permission")
+                                                                    .ifPresent(onlineUser::sendMessage);
+                                                            return;
+                                                        }
+                                                    }
+                                                    plugin.getSavedPositionManager().deleteHome(userData.user(), homeIdentifier.homeName());
+                                                },
+                                                () -> plugin.getLocales().getLocale("error_home_invalid_other",
+                                                        homeIdentifier.ownerName(), homeIdentifier.homeName()).ifPresent(onlineUser::sendMessage))),
+                        () -> plugin.getSavedPositionManager().deleteHome(onlineUser, homeName));
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
                     .ifPresent(onlineUser::sendMessage);

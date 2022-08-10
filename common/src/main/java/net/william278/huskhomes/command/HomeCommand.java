@@ -18,7 +18,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        
+
         switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 switch (homes.size()) {
@@ -34,16 +34,13 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             });
             case 1 -> {
                 final String homeName = args[0];
-                if (RegexUtil.OWNER_NAME_PATTERN.matcher(homeName).matches()) {
-                    final String ownerName = homeName.split("\\.")[0];
-                    final String ownersHomeName = homeName.split("\\.")[1];
-                    plugin.getDatabase().getUserDataByName(ownerName).thenAccept(optionalUserData -> optionalUserData
-                            .ifPresentOrElse(userData -> plugin.getTeleportManager().teleportToHome(onlineUser, userData.user(), ownersHomeName),
-                                    () -> plugin.getLocales().getLocale("error_home_invalid_other", ownerName, homeName)
-                                            .ifPresent(onlineUser::sendMessage)));
-                } else {
-                    plugin.getTeleportManager().teleportToHome(onlineUser, onlineUser, homeName);
-                }
+                RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
+                        homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
+                                .thenAccept(optionalUserData -> optionalUserData.ifPresentOrElse(
+                                        userData -> plugin.getTeleportManager().teleportToHome(onlineUser, userData.user(), homeIdentifier.ownerName()),
+                                        () -> plugin.getLocales().getLocale("error_home_invalid_other", homeIdentifier.ownerName(), homeIdentifier.homeName())
+                                                .ifPresent(onlineUser::sendMessage))),
+                        () -> plugin.getTeleportManager().teleportToHome(onlineUser, onlineUser, homeName));
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/home [name]")
                     .ifPresent(onlineUser::sendMessage);

@@ -16,7 +16,6 @@ public class SetHomeCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        
         switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.isEmpty()) {

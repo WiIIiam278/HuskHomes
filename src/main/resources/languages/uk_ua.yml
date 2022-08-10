@@ -1,0 +1,254 @@
+#  ------------------------------ 
+# |      HuskHomes Messages      |
+# |    Developed by William278   |
+#  ------------------------------ 
+# If you'd like to use a different language, you can change it in the config.yml 
+# Change the appearance/text of messages in the plugin using this config. 
+# This config makes use of MineDown formatting, with extensive support for custom colors & formats. 
+# For formatting help, see: https://github.com/Phoenix616/MineDown or check the HuskHomes Wiki.
+
+error_no_permission: '[Помилка:](#ff3300) [У тебе немає прав на цю команду.](#ff7e5e)'
+error_no_last_position: '[Помилка:](#ff3300) [Немає куди тебе повертати!](#ff7e5e)'
+teleporting_last_position: '[Повертаємо тебе на минулу локацію. ](#00fb9a) [%1%](#00fb9a
+  bold) [с](#00fb9a)'
+teleporting_offline_player: '[Телепортуємо тебе туди, де %1% бачили в останнє...](#00fb9a)'
+teleporting_countdown_start: '[Телепортація через ](#00fb9a) [%1%](#00fb9a bold) [секунд](#00fb9a)'
+teleporting_cancelled_movement: '[Телепортацію скасовано; ти рухнувся!](#ff7e5e)'
+teleporting_cancelled_damage: '[Телепортацію скасовано; ти отримав по морді!](#ff7e5e)'
+teleporting_complete: '[Телепортовано!](#00fb9a)'
+teleporting_action_bar_countdown: '[Телепортація через](#00fb9a) [%1%](#00fb9a bold)[...](#00fb9a)'
+teleporting_action_bar_cancelled: '[Телепортацію скасовано!](#ff7e5e)'
+teleporting_please_stand_still: '[Телепортацію буде скасовано, якщо ти рухнешся чи
+  отримаєш по морді.](gray)'
+home_deleted: '[Домівку](#00fb9a) [%1%](#00fb9a bold) [видалено успішно](#00fb9a)'
+home_deleted_other: '[Успішно видалено домівку %1%,](#00fb9a) [%2%](#00fb9a bold)'
+warp_deleted: '[Успішно видалено варп ](#00fb9a) [%1%](#00fb9a bold)'
+error_home_invalid: '[Помилка:](#ff3300) [У тебе немає домівки "%1%"](#ff7e5e)'
+error_warp_invalid: '[Помилка:](#ff3300) [Немає варпу "%1%"](#ff7e5e)'
+error_invalid_syntax: '[Помилка:](#ff3300) [Неккоректне використання. Треба: %1%](#ff7e5e)'
+edit_home_title: \n[Редагувати дані домівки](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)
+edit_home_title_other: \n[Редагувати дані для домівки гравця %1%,](#00fb9a) [%2%](#00fb9a
+  bold)[:](#00fb9a)
+edit_home_options: \n[[Телепортація]](green show_text=&7Телепортуватися до домівки
+  run_command=/huskhomes:home %1%.%2%) [[Видалити]](red show_text=&7Видалити цю домівку
+  run_command=/huskhomes:delhome %1%.%2%) [[Перемістити]](blue show_text=&7Встановити
+  нове розташування домівки run_command=/huskhomes:edithome %1%.%2% location)\n[[Перейменувати]](yellow
+  show_text=&7Змінити назву домівки suggest_command=/huskhomes:edithome %1%.%2% rename
+  ) [[Змінити Опис]](gold show_text=&7Встановити новий опис домівки suggest_command=/huskhomes:edithome
+  %1%.%2% description )\n
+edit_home_options_make_public: \n[[Телепортація]](green show_text=&7Телепортуватися
+  до домівки run_command=/huskhomes:home %1%.%2%) [[Видалити]](red show_text=&7Видалити
+  цю домівку run_command=/huskhomes:delhome %1%.%2%) [[Перемістити]](blue show_text=&7Встановити
+  нове розташування домівки run_command=/huskhomes:edithome %1%.%2% location)\n[[Перейменувати]](yellow
+  show_text=&7Змінити назву домівки suggest_command=/huskhomes:edithome %1%.%2% rename
+  ) [[Змінити Опис]](gold show_text=&7Встановити новий опис домівки suggest_command=/huskhomes:edithome
+  %1%.%2% description ) [[Зробити публічною]](dark_green show_text=&7Зробити цю домівку
+  публічною run_command=/huskhomes:edithome %1%.%2% public)\n
+edit_home_options_make_private: \n[[Телепортація]](green show_text=&7Телепортуватися
+  до домівки run_command=/huskhomes:home %1%.%2%) [[Видалити]](red show_text=&7Видалити
+  цю домівку run_command=/huskhomes:delhome %1%.%2%) [[Перемістити]](blue show_text=&7Встановити
+  нове розташування домівки run_command=/huskhomes:edithome %1%.%2% location)\n[[Перейменувати]](yellow
+  show_text=&7Змінити назву домівки suggest_command=/huskhomes:edithome %1%.%2% rename
+  ) [[Змінити Опис]](gold show_text=&7Встановити новий опис домівки suggest_command=/huskhomes:edithome
+  %1%.%2% description ) [[Зробити приватною]](dark_red show_text=&7Зробити цю домівку
+  привантою run_command=/huskhomes:edithome %1%.%2% private)\n
+edit_home_privacy_private: '• Доступ: &#ff7e5e&Private &7(Лише ви можете користуватися)'
+edit_home_privacy_private_other: '• Доступ: &#ff7e5e&Private &7(Лише %1% може користуватися)'
+edit_home_privacy_public: '• Доступ: &aPublic &7(Ніхто не може користуватися)'
+edit_home_privacy_public_success: '[Домівку](#00fb9a) [%1%](#00fb9a bold)[ успішно
+  зроблено публічною.](#00fb9a)'
+edit_home_privacy_public_success_economy: '[Successfully made the home,](#00fb9a)
+  [%1%](#00fb9a bold)[, open to the public for %2%.](#00fb9a)'
+edit_home_privacy_private_success: '[Доміку](#00fb9a) [%1%](#00fb9a bold)[ успішно
+  зроблено приватною.](#00fb9a)'
+error_edit_home_privacy_already_public: '[Помилка:](#ff3300) [Ця домівка вже публічна.](#ff7e5e)'
+error_edit_home_privacy_already_private: '[Помилка:](#ff3300) [Ця домівка вже приватна.](#ff7e5e)'
+error_edit_home_privacy_no_permission: '[Помилка:](#ff3300) [У вас недостатньо прав,
+  щоб робити домівки публічними.](#ff7e5e)'
+error_edit_home_description_length: '[Помилка:](#ff3300) [Довжина опису домівки має
+  не перевищувати 255 символів.](#ff7e5e)'
+error_edit_home_description_characters: '[Помилка:](#ff3300) [Опис домівки може містити
+  лише латинські літери (A-Z), цифри (0-9), дефіс (-) та символ підкресення (_)](#ff7e5e)'
+edit_home_update_location: '[Домівку](#00fb9a) [%1%](#00fb9a bold) [переміщено на
+  вашу поточну позицію.](#00fb9a)'
+edit_home_update_description: '[Змінено опис домівки](#00fb9a) [%1%](#00fb9a bold)
+  [на "%2%"](#00fb9a)'
+edit_home_update_name: '[Домівку успішно перейменовано: %1% →](#00fb9a) [%2%](#00fb9a
+  bold)'
+edit_warp_title: \n[Змінити дані варпу](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)
+edit_warp_options: \n[[Телепортація]](green show_text=&7Телепортуватися на варп run_command=/huskhomes:warp
+  %1%) [[Видалити]](red show_text=&7Видалити цей варп run_command=/huskhomes:delwarp
+  %1%) [[Перемістити]](blue show_text=&7Встановити нове розташування варпу run_command=/huskhomes:editwarp
+  %1% location)\n[[Перейменувати]](yellow show_text=&7Змінити ім'я варпу suggest_command=/huskhomes:editwarp
+  %1% rename ) [[Змінити Опис]](gold show_text=&7Встановити новий опис варпу suggest_command=/huskhomes:editwarp
+  %1% description )\n
+error_edit_warp_description_length: '[Помилка:](#ff3300) [Довжина опису варпу має не
+  перевищувати 255 символів.](#ff7e5e)'
+error_edit_warp_description_characters: '[Помилка:](#ff3300) [Опис варпу може містити
+  лише латинські літери (A-Z), цифри (0-9), дефіс (-) та символ підкресення (_)](#ff7e5e)'
+edit_warp_update_location: '[Варп](#00fb9a) [%1%](#00fb9a bold) [переміщено на вашу
+  поточну позицію.](#00fb9a)'
+edit_warp_update_description: '[Змінено опис варпу](#00fb9a) [%1%](#00fb9a bold) [на
+  "%2%".](#00fb9a)'
+edit_warp_update_name: '[Варп успішно перейменовано: %1% →](#00fb9a) [%2%](#00fb9a
+  bold)'
+edit_description: '• Опис: &7%1%'
+edit_location: '• Розташування: &7%1%, %2%, %3%'
+edit_world: '• Світ: &7%1%'
+edit_server: '• Сервер: &7%1%'
+edit_timestamp: '• Створено: &7%1%'
+error_no_homes_set: '[Помилка:](#ff3300) [Ти не створив жодної домівки!](#ff7e5e)'
+error_no_public_homes_set: '[Помилка:](#ff3300) [Немає жодної публічної домівки!](#ff7e5e)'
+error_no_warps_set: '[Помилка:](#ff3300) [Немає жодного варпу!](#ff7e5e)'
+private_home_list_page_top: \n[Домівки гравця %1%:](#00fb9a) [(](#00fb9a)[%2%-%3%](#00fb9a
+  bold) [of](#00fb9a) [%4%](#00fb9a bold)[)](#00fb9a)\n
+public_home_list_page_top: \n[Публічні домівки:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a
+  bold) [of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n
+warp_list_page_top: \n[Варпи:](#00fb9a) [(](#00fb9a)[%1%-%2%](#00fb9a bold) [of](#00fb9a)
+  [%3%](#00fb9a bold)[)](#00fb9a)\n
+error_public_home_invalid: '[Помилка:](#ff3300) [Не знайдено домівку гравця %1% з назвою
+  %2%.](#ff7e5e)'
+error_set_home_invalid_characters: '[Помилка:](#ff3300) [Назва домівки може містити
+  лише латинські букви, цифри, дефіс та символ підкресення (A-Z, 0-9, -_)](#ff7e5e)'
+error_set_home_invalid_length: '[Помилка:](#ff3300) [Назва домівки може містити не більше
+  ніж 16 символів](#ff7e5e)'
+error_set_warp_invalid_characters: '[Помилка:](#ff3300) [Ім''я варпу може містити лише
+  латинські букви, цифри, дефіс та символ підкресення (A-Z,0-9, -_)](#ff7e5e)'
+error_set_warp_invalid_length: '[Помилка:](#ff3300) [Ім''я варпу може містити не більше
+  ніж 16 символів](#ff7e5e)'
+error_set_home_maximum_homes: '[Помилка:](#ff3300) [Максимальна кількість твоїх домівок:
+  %1%](#ff7e5e)'
+error_insufficient_funds: '[Помилка:](#ff3300) [У тебе недостатньо грошей! (Вартість:
+  %1%)](#ff7e5e)'
+set_home_spent_money: '[Успішно потрачено %1% на нову домівку!](gray)'
+set_home_used_free_slots: '[Ти використав усі безкоштовні комірки домівок (%1%); створення
+  нових додаткових буде коштувати %2% кожна.](gray)'
+set_home_success: '[Успішно створено домівку](#00fb9a) [%1%](#00fb9a bold)'
+set_warp_success: '[Успішно створено варп](#00fb9a) [%1%](#00fb9a bold)'
+error_set_home_name_taken: '[Помилка:](#ff3300) [У тебе вже є домівка з таким ім''ям.](#ff7e5e)'
+error_set_warp_name_taken: '[Помилка:](#ff3300) [Варп з таким іменем вже існує.](#ff7e5e)'
+set_spawn_success: '[Точку спавну на сервері встановлено на вашу поточну позицію.](#00fb9a)'
+error_spawn_undefined: '[Помилка:](#ff3300) [Точка спавну на цьому сервері не встановлена.](#ff7e5e)'
+error_tpa_no_pending_request: '[Помилка:](#ff3300) [У тебе немає очікуваних запитів
+  на телепортацію.](#ff7e5e)'
+error_tpa_request_expired: '[Помилка:](#ff3300) [Термін дії запиту на телепортацію минув.](#ff7e5e)'
+error_player_not_found: '[Помилка:](#ff3300) [Не вдалося знайти гравця %1%.](#ff7e5e)'
+return_by_death: '[Повернутися на місце смерті?](gray) [/back](#00fb9a show_text=&#00fb9a&Натисніть,
+  щоб повернутися на місце смерті run_command=/back)'
+teleport_request_options: '[Натисніть опцію:](gray) [[Прийняти]](#00fb9a show_text=&#00fb9a&Прийняти
+  запит на телепортацію; /tpaccept %1% run_command=/tpaccept %1%) [•](gray) [[Відхилити]](#ff7e5e
+  show_text=&#ff7e5e&Відхилити запит на телепортацію; /tpdeny %1% run_command=/tpdeny
+  %1%)'
+tpa_you_accepted: '[Ви прийняли запит %1% на телепортацію](#00fb9a)'
+tpa_you_declined: '[Ви відхилили запит %1% на телепортацію](#ff7e5e)'
+tpa_has_accepted: '[%1% прийняв ваш запит на телепортацію](#00fb9a)'
+tpa_has_declined: '[%1% відхилив ваш запит на телепортацію](#ff7e5e)'
+tpa_request_sent: '[Ви надіслали запит на телепортацію гравцю](#00fb9a) [%1%](#00fb9a
+  bold)'
+tpa_request_ask: '[%1%](#00fb9a bold) [просить телепортуватися до вас](#00fb9a)'
+tpahere_request_sent: '[Ви надіслали запит гравцю](#00fb9a) [%1%](#00fb9a bold) [на
+  телепортацію до вас](#00fb9a)'
+tpahere_request_ask: '[%1%](#00fb9a bold) [просить вас телепортуватися до нього](#00fb9a)'
+error_tp_self: '[Помилка:](#ff3300) [Ви не можете телепортуватися самі до себе!](#ff7e5e)'
+error_rtp_invalid_dimension: '[Помилка:](#ff3300) [Ви можете випадково телепортуватися
+  лише в надземному світі!](#ff7e5e)'
+error_rtp_cooldown: '[Помилка:](#ff3300) [Зачекайте %1% щоб знову випадково телепортуватися.](#ff7e5e)'
+rtp_spent_money: '[Витрачено %1% на випадковий телепорт.](gray)'
+back_spent_money: '[Витрачено %1% щоб повернутися на вашу останню позицію.](gray)'
+error_command_disabled: '[Помилка:](#ff3300) [Ця команда вимкнена!](#ff7e5e)'
+error_console_only: '[Помилка:](#ff3300) [Цю команду можна запустити лише з консолі
+  сервера.](#ff7e5e)'
+error_tp_invalid_world: '[Помилка:](#ff3300) [Будь ласка, вкажіть дійсний світ серверу.](#ff7e5e)'
+error_rtp_randomization_timeout: '[Помилка:](#ff3300) [Не вдалося знайти випадкове безпечне
+  місце, щоб вас телепортувати.](#ff7e5e)'
+list_item_divider: ' [•](gray) '
+home_list_item: '[[%1%]](show_text=&7%3% run_command=/huskhomes:edithome %2%.%1%)'
+public_home_list_item: '[[%1%]](show_text=&#00fb9a&%2%: &7%3% run_command=/huskhomes:phome
+  %2%.%1%)'
+warp_list_item: '[[%1%]](show_text=&7%2% run_command=/huskhomes:warp %1%)'
+home_default_description: Домівка %1%
+warp_default_description: Загальнодоступний варп
+delete_all_homes_confirm: '[Warning:](#ff3300) [Ви впевнені, що хочете видалити всі
+  свої домівки?](#ff7e5e)\n[Після підтвердження відновити їх буде неможливо.](gray)\n[→](gray)
+  [[Підтвердити]](#ff3300 show_text=&#ff3300&Натисніть, щоб підтвердити видалення.
+  Цю дію неможливо скасувати. run_command=/delhome all confirm)'
+delete_all_warps_confirm: '[Warning:](#ff3300) [Ви впевнені, що бажаєте видалити усі
+  варпи?] (#ff7e5e)\n[Після підтвердження відновити їх буде неможливо.](gray)\n[→](gray)
+  [[Підтвердити]](#ff3300 show_text=&#ff3300&Натисніть, щоб підтвердити видалення.
+  Цю дію неможливо скасувати. run_command=/delwarp all confirm)'
+delete_all_homes_success: '[Успішно видалено твої домівки](#00fb9a) [%1%](#00fb9a
+  bold) [.](#00fb9a)'
+delete_all_warps_success: '[Успішно видалено усі варпи серверу](#00fb9a) [%1%](#00fb9a
+  bold) [.](#00fb9a)'
+error_permission_restricted_warp: '[Помилка:](#ff3300) [У вас немає прав на перехід
+  до варпу %1%!](#ff7e5e)'
+teleporting_complete_console: '[Консоль телепортувала вас до %1%.](gray)'
+spawn_warp_default_description: Позиція /spawn сервера
+error_invalid_page_number: '[Помилка:](#ff3300) [Вкажіть дійсний номер сторінки.](#ff7e5e)'
+page_options: '[←](gray show_text=&7Переглянути попередню сторінку run_command=%1%)
+  [Перегляд сторінки %2%/%3%](#00fb9a) [→](gray show_text=&7Переглянути наступну сторінку
+  run_command=%4%)'
+page_options_min: '[Перегляд сторінки %1%/%2%](#00fb9a) [→](gray show_text=&7Переглянути
+  наступну сторінку run_command=%3%)'
+page_options_min_max: '[Перегляд сторінки %1%/%2%](#00fb9a)'
+page_options_max: '[←](gray show_text=&7Переглянути попередню сторінку run_command=%1%)
+  [Перегляд сторінки %2%/%3%](#00fb9a)'
+page_no_items: '[(На цій сторінці немає елементів для відображення)](gray show_text=&7Спробуйте
+  інший номер сторінки)'
+command_list_header: \n[HuskHomes](#00fb9a bold) [| Список команд](#00fb9a)
+command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white)
+  [%3%](gray)'
+error_invalid_on_arrival: '[Помилка:](#ff3300) [Не вдалося завершити телепортацію, оскільки
+  не знайдено цільовий світ.](#ff7e5e)'
+tpignore_toggle_on: '[Тепер ви](#00fb9a) [ігноруєте](#00fb9a bold) [вхідні запити
+  на телепортацію.](#00fb9a) [(Натисніть, щоб перемкнути)](gray show_text=&7Натисніть,
+  щоб прослуховувати вхідні запити на телепортацію. run_command=/huskhomes:tpignore)'
+tpignore_toggle_off: '[Тепер ви](#00fb9a) [не ігноруєте](#00fb9a bold) [вхідні запити
+  на телепортацію.](#00fb9a) [(Натисність, щоб перемкнути)](gray show_text=&7Натисніть
+  щоб ігнорувати вхідні запити на телепортацію. run_command=/huskhomes:tpignore)'
+tpignore_on_reminder: '[Зараз ви ігноруєте вхідні запити на телепортацію!](gray) [(Натисність,
+  щоб перемкнути)](gray show_text=&7Натисність, щоб прослуховувати вхідні запити на
+  телепортацію. run_command=/huskhomes:tpignore)'
+error_ignoring_teleport_requests: '[Помилка:](#ff3300) [Зараз ви ігноруєте запити на
+  телепортацію!] (#ff7e5e) [(Натисніть, щоб змінити)](#ff7e5e show_text=&#ff7e5e&Натисніть,
+  щоб прослуховувати вхідні запити на телепортацію. run_command=/huskhomes:tpignore)'
+error_no_offline_position: '[Помилка:](#ff3300) [Не вдалося знайти, де %1% востаннє
+  покинув сервер.] (#ff7e5e)'
+error_invalid_player: '[Помилка:](#ff3300) [Будь ласка, вкажіть дійсне ім''я гравця!](#ff7e5e)'
+error_no_homes_set_other: '[Помилка:](#ff3300) [%1% не має жодної домівки!](#ff7e5e)'
+error_home_invalid_other: '[Помилка:](#ff3300) [%1% не має домівки з ім''ям "%2%"](#ff7e5e)'
+error_edit_home_maximum_public_homes: '[Помилка:](#ff3300) [Ви можете зробити публічними
+  лише %1% домівок.](#ff7e5e)'
+tpaall_request_sent: '[Ви усім надіслали запит на телепортацію до вас!](#00fb9a)'
+error_no_other_online_players: '[Помилка:](#ff3300) [Немає інших онлайн-гравців, які
+  б могли телепортуватися до вас :\(](#ff7e5e)'
+teleporting_all_players: '[Телепортуємо всіх гравців до вас...](#00fb9a)'
+home_command_description: Телепорт до вашої домівки
+sethome_command_description: Створити нову домівку із заданою назвою
+delhome_command_description: Видалити раніше створену доміку
+edithome_command_description: Редагувати домівку
+warp_command_description: Телепортуватися на варп
+setwarp_command_description: Встановити новий варп із заданим ім'ям
+delwarp_command_description: Видалити варп
+editwarp_command_description: Редагувати варп
+back_command_description: Повернутися на попередню позицію, або місце смерті
+homelist_command_description: Cписок моїх домівок
+warplist_command_description: Cписок варпів
+publichomelist_command_description: Cписок публічних домівок
+publichome_command_description: Телепортуватися до публічної домівки
+tp_command_description: Телепортуватися до іншого гравця чи на позицію
+tphere_command_description: Телепортувати гравця до себе
+tpa_command_description: Надіслати гравцеві запит на телепортацію
+tpahere_command_description: Надіслати гравцеві запит на телепортацію до мене
+tpaccept_command_description: Прийняти запит на телепортацію
+tpdeny_command_description: Відхилити запит на телепортацію
+tpignore_command_description: Ігнорувати вхідні запити на телепортацію
+tpoffline_command_description: Телепортуватися на позицію, де гравець востаннє був
+  в мережі
+rtp_command_description: Телепортуватися в випадкову місцевість
+spawn_command_description: Телепортуватися на спавн
+setspawn_command_description: Встановити точку спавну
+tpaall_command_description: Надіслати усім запит на телепортацію до мене
+tpall_command_description: Телепортувати всіх до мене
+huskhomes_command_description: Переглянути інформацію про плагін та перезавантажити
+  конфігурації

@@ -1,27 +1,28 @@
 package net.william278.huskhomes.config;
 
 import de.themoep.minedown.MineDown;
-import dev.dejvokep.boostedyaml.YamlDocument;
-import org.apache.commons.text.StringEscapeUtils;
-import org.jetbrains.annotations.NotNull;
+import net.william278.annotaml.RootedMap;
+import net.william278.annotaml.YamlFile;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Loaded locales used by the plugin to display various locales
  */
+@YamlFile(header = """
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃      HuskHomes Locales       ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ See plugin about menu for international locale credits
+        ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+        ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/Translating-HuskHomes""")
 public class Locales {
 
-    @NotNull
-    private final HashMap<String, String> rawLocales;
-
-    private Locales(@NotNull YamlDocument localesConfig) {
-        this.rawLocales = new HashMap<>();
-        for (String localeId : localesConfig.getRoutesAsStrings(false)) {
-            rawLocales.put(localeId, StringEscapeUtils.unescapeJava(localesConfig.getString(localeId)));
-        }
-    }
+    @RootedMap
+    public Map<String, String> rawLocales = new HashMap<>();
 
     /**
      * Returns an unformatted locale loaded from the locales file
@@ -85,14 +86,8 @@ public class Locales {
         return rawLocale;
     }
 
-    /**
-     * Load the locales from a BoostedYaml {@link YamlDocument} locales file
-     *
-     * @param localesConfig The loaded {@link YamlDocument} locales.yml file
-     * @return the loaded {@link Locales}
-     */
-    public static Locales load(YamlDocument localesConfig) {
-        return new Locales(localesConfig);
+    @SuppressWarnings("unused")
+    public Locales() {
     }
 
 }

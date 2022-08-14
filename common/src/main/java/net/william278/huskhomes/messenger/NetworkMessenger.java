@@ -1,7 +1,6 @@
 package net.william278.huskhomes.messenger;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Server;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +49,7 @@ public abstract class NetworkMessenger {
      */
     public void initialize(@NotNull HuskHomes implementor) {
         this.processingMessages = new HashMap<>();
-        this.clusterId = implementor.getSettings().getStringValue(Settings.ConfigOption.CLUSTER_ID);
+        this.clusterId = implementor.getSettings().clusterId;
     }
 
     /**
@@ -129,9 +128,7 @@ public abstract class NetworkMessenger {
                 case TP_REQUEST -> {
 
                 }
-                case POSITION_REQUEST -> {
-                    message.payload = receiver.getPosition().join().toJson();
-                }
+                case POSITION_REQUEST -> message.payload = receiver.getPosition().join().toJson();
             }
 
             // Prepare reply message

@@ -27,36 +27,14 @@ import java.util.logging.Level;
 @SuppressWarnings("DuplicatedCode")
 public class MySqlDatabase extends Database {
 
-    /**
-     * MySQL server hostname
-     */
-    private final String mySqlHost;
-    /**
-     * MySQL server port
-     */
-    private final int mySqlPort;
-    /**
-     * Database to use on the MySQL server
-     */
-    private final String mySqlDatabaseName;
-    /**
-     * MySQL username for accessing the database
-     */
-    private final String mySqlUsername;
-    /**
-     * MySQL password for accessing the database
-     */
-    private final String mySqlPassword;
-    /**
-     * Additional connection parameters, formatted as a jdbc connection string
-     */
-    private final String mySqlConnectionParameters;
+    public String host;
+    public int port;
+    public String database;
+    public String username;
+    public String password;
+    public String connectionParameters;
 
-    private final int hikariMaximumPoolSize;
-    private final int hikariMinimumIdle;
-    private final int hikariMaximumLifetime;
-    private final int hikariKeepAliveTime;
-    private final int hikariConnectionTimeOut;
+    private final Settings.ConnectionPoolOptions poolOptions;
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
 
@@ -64,18 +42,13 @@ public class MySqlDatabase extends Database {
 
     public MySqlDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
         super(settings, logger, resourceReader);
-        this.mySqlHost = settings.getStringValue(Settings.ConfigOption.DATABASE_HOST);
-        this.mySqlPort = settings.getIntegerValue(Settings.ConfigOption.DATABASE_PORT);
-        this.mySqlDatabaseName = settings.getStringValue(Settings.ConfigOption.DATABASE_NAME);
-        this.mySqlUsername = settings.getStringValue(Settings.ConfigOption.DATABASE_USERNAME);
-        this.mySqlPassword = settings.getStringValue(Settings.ConfigOption.DATABASE_PASSWORD);
-        this.mySqlConnectionParameters = settings.getStringValue(Settings.ConfigOption.DATABASE_CONNECTION_PARAMS);
-
-        this.hikariMaximumPoolSize = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MAX_SIZE);
-        this.hikariMinimumIdle = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MIN_IDLE);
-        this.hikariMaximumLifetime = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_MAX_LIFETIME);
-        this.hikariKeepAliveTime = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_KEEPALIVE);
-        this.hikariConnectionTimeOut = settings.getIntegerValue(Settings.ConfigOption.DATABASE_CONNECTION_POOL_TIMEOUT);
+        this.host = settings.mySqlHost;
+        this.port = settings.mySqlPort;
+        this.database = settings.mySqlDatabase;
+        this.username = settings.mySqlUsername;
+        this.password = settings.mySqlPassword;
+        this.connectionParameters = settings.mySqlConnectionParameters;
+        this.poolOptions = settings.mySqlPoolOptions;
     }
 
     /**
@@ -92,20 +65,20 @@ public class MySqlDatabase extends Database {
     public boolean initialize() {
         try {
             // Create jdbc driver connection url
-            final String jdbcUrl = "jdbc:mysql://" + mySqlHost + ":" + mySqlPort + "/" + mySqlDatabaseName + mySqlConnectionParameters;
+            final String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database + connectionParameters;
             dataSource = new HikariDataSource();
             dataSource.setJdbcUrl(jdbcUrl);
 
             // Authenticate
-            dataSource.setUsername(mySqlUsername);
-            dataSource.setPassword(mySqlPassword);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
 
             // Set various additional parameters
-            dataSource.setMaximumPoolSize(hikariMaximumPoolSize);
-            dataSource.setMinimumIdle(hikariMinimumIdle);
-            dataSource.setMaxLifetime(hikariMaximumLifetime);
-            dataSource.setKeepaliveTime(hikariKeepAliveTime);
-            dataSource.setConnectionTimeout(hikariConnectionTimeOut);
+            dataSource.setMaximumPoolSize(poolOptions.size);
+            dataSource.setMinimumIdle(poolOptions.idle);
+            dataSource.setMaxLifetime(poolOptions.lifetime);
+            dataSource.setKeepaliveTime(poolOptions.keepalive);
+            dataSource.setConnectionTimeout(poolOptions.timeout);
             dataSource.setPoolName(DATA_POOL_NAME);
 
             // Prepare database schema; make tables if they don't exist
@@ -268,20 +241,15 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Optional<UserData>> getUserDataByName(@NotNull String name) {
         return CompletableFuture.supplyAsync(() -> {
-            getLogger().info("Getting user data by name for " + name);
             try (Connection connection = getConnection()) {
-                getLogger().info("Got connection");
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
                         FROM `%players_table%`
                         WHERE `username`=?"""))) {
                     statement.setString(1, name);
-                    getLogger().info("Set str");
 
                     final ResultSet resultSet = statement.executeQuery();
-                    getLogger().info("Got results");
                     if (resultSet.next()) {
-                        getLogger().info("resultset paged to next");
                         return Optional.of(new UserData(
                                 new User(UUID.fromString(resultSet.getString("uuid")),
                                         resultSet.getString("username")),

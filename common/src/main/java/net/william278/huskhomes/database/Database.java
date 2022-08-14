@@ -150,18 +150,12 @@ public abstract class Database {
      * @param settings {@link Settings} to fetch database configuration data from
      */
     protected Database(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
-        this.playerTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_PLAYER_TABLE_NAME);
-        this.positionsTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_POSITIONS_TABLE_NAME);
-        this.savedPositionsTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_SAVED_POSITIONS_TABLE_NAME);
-        this.homesTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_HOMES_TABLE_NAME);
-        this.warpsTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_WARPS_TABLE_NAME);
-        this.teleportsTableName = settings.
-                getStringValue(Settings.ConfigOption.DATABASE_TELEPORTS_TABLE_NAME);
+        this.playerTableName = settings.getTableName(Settings.TableName.PLAYER_DATA);
+        this.positionsTableName = settings.getTableName(Settings.TableName.POSITION_DATA);
+        this.savedPositionsTableName = settings.getTableName(Settings.TableName.SAVED_POSITION_DATA);
+        this.homesTableName = settings.getTableName(Settings.TableName.HOME_DATA);
+        this.warpsTableName = settings.getTableName(Settings.TableName.WARP_DATA);
+        this.teleportsTableName = settings.getTableName(Settings.TableName.TELEPORT_DATA);
         this.logger = logger;
         this.resourceReader = resourceReader;
     }

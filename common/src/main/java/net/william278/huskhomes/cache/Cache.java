@@ -1,7 +1,6 @@
 package net.william278.huskhomes.cache;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.list.ChatList;
 import net.william278.huskhomes.player.OnlineUser;
@@ -76,7 +75,7 @@ public class Cache {
      * @param plugin the implementing plugin
      */
     public void updatePlayerList(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
-        if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+        if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
             CompletableFuture.runAsync(() -> plugin.getNetworkMessenger().
                     getOnlinePlayerNames(requester).thenAcceptAsync(returnedPlayerList -> {

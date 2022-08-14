@@ -4,7 +4,6 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.messenger.Message;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -16,29 +15,31 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedisWorker {
 
-    @NotNull
-    private final String redisHost;
-    private final int redisPort;
-    @Nullable
-    private final String redisPassword;
-    private final boolean redisSsl;
+    public String host;
+
+    public int port;
+
+    public String password;
+
+    public boolean ssl;
     public JedisPool jedisPool;
 
     public RedisWorker(@NotNull Settings settings) {
-        this.redisHost = settings.getStringValue(Settings.ConfigOption.REDIS_HOST);
-        this.redisPort = settings.getIntegerValue(Settings.ConfigOption.REDIS_PORT);
-        this.redisPassword = settings.getStringValue(Settings.ConfigOption.REDIS_PASSWORD).isEmpty() ? null : settings.getStringValue(Settings.ConfigOption.REDIS_PASSWORD);
-        this.redisSsl = !redisHost.equalsIgnoreCase("localhost") && !redisHost.equalsIgnoreCase("127.0.0.1") && settings.getBooleanValue(Settings.ConfigOption.REDIS_USE_SSL);
+        this.host = settings.redisHost;
+        this.port = settings.redisPort;
+        this.password = settings.redisPassword != null ? settings.redisPassword : "";
+        this.ssl = settings.redisUseSsl && !(this.host.equalsIgnoreCase("localhost")
+                                             || this.host.equalsIgnoreCase("127.0.0.1"));
     }
 
     /**
      * Initialize the JedisPool connection
      */
     public void initialize() {
-        if (redisPassword == null) {
-            jedisPool = new JedisPool(new JedisPoolConfig(), redisHost, redisPort, 0, redisSsl);
+        if (password.isEmpty()) {
+            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, ssl);
         } else {
-            jedisPool = new JedisPool(new JedisPoolConfig(), redisHost, redisPort, 0, redisPassword, redisSsl);
+            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, password, ssl);
         }
     }
 

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.messenger.EmptyPayload;
 import net.william278.huskhomes.messenger.Message;
 import net.william278.huskhomes.player.OnlineUser;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Cross-platform teleportation manager
@@ -104,7 +102,7 @@ public abstract class TeleportManager {
             if (localPlayer.isPresent()) {
                 return localPlayer.get().getPosition().thenApply(Optional::of).join();
             }
-            if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+            if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
                 return plugin.getNetworkMessenger().sendMessage(requester,
                                 new Message(Message.MessageType.POSITION_REQUEST,
@@ -112,7 +110,7 @@ public abstract class TeleportManager {
                                         playerName,
                                         new EmptyPayload(),
                                         Message.MessageKind.MESSAGE,
-                                        plugin.getSettings().getStringValue(Settings.ConfigOption.CLUSTER_ID)))
+                                        plugin.getSettings().clusterId))
                         .thenApply(reply -> Optional.of(Position.fromJson(reply.payload))).join();
             }
             return Optional.empty();
@@ -127,7 +125,7 @@ public abstract class TeleportManager {
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         return CompletableFuture.supplyAsync(() -> {
-            final int teleportWarmupTime = plugin.getSettings().getIntegerValue(Settings.ConfigOption.TELEPORT_WARMUP_TIME);
+            final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
             if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
                 return processTimedTeleport(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                         .thenApply(teleport -> {

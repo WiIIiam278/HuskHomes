@@ -1,7 +1,6 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,7 +46,7 @@ public class EventListener {
         // Ensure the player is present on the database first
         plugin.getDatabase().ensureUser(onlineUser).thenRun(() -> {
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
-            if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+            if (plugin.getSettings().crossServer) {
                 plugin.getDatabase().getCurrentTeleport(onlineUser)
                         .thenAccept(teleport -> teleport.ifPresent(currentTeleport ->
                                 // Teleport the player locally
@@ -87,7 +86,7 @@ public class EventListener {
         plugin.getCache().homes.remove(onlineUser.uuid);
 
         // Update the player list
-        if (plugin.getSettings().getBooleanValue(Settings.ConfigOption.ENABLE_PROXY_MODE)) {
+        if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
             plugin.getOnlinePlayers().stream().filter(
                             onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))

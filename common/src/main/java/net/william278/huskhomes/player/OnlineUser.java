@@ -4,7 +4,7 @@ import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
-import net.william278.huskhomes.util.EconomyUnsupportedException;
+import net.william278.huskhomes.EconomyUnsupportedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

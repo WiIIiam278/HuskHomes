@@ -127,7 +127,13 @@ public class SqLiteDatabase extends Database {
             statement.setString(8, position.server.name);
             statement.executeUpdate();
 
-            return statement.getGeneratedKeys().getInt(1);
+            // Return the ID of the newly inserted row
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+            throw new SQLException("No generated key found");
         }
     }
 
@@ -170,7 +176,13 @@ public class SqLiteDatabase extends Database {
             statement.setTimestamp(4, new Timestamp(Instant.ofEpochSecond(position.meta.timestamp).toEpochMilli()));
             statement.executeUpdate();
 
-            return statement.getGeneratedKeys().getInt(1);
+            // Return the ID of the newly inserted row
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+            throw new SQLException("No generated key found");
         }
     }
 
@@ -884,6 +896,7 @@ public class SqLiteDatabase extends Database {
                             statement.executeUpdate();
                         }
                     } catch (SQLException e) {
+                        e.printStackTrace();
                         getLogger().log(Level.SEVERE,
                                 "Failed to set a home to the database for " + home.owner.username, e);
                     }

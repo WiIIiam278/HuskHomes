@@ -22,15 +22,25 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     javadoc.options.encoding = 'UTF-8'
 
-    compileJava.options.release.set 16
+    compileJava.options.release.set 17
 
     repositories {
         mavenLocal()
         mavenCentral()
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://jitpack.io' }
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     processResources {

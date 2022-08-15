@@ -50,7 +50,7 @@ public class SavedPositionManager {
                                 cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                                 cache.homes.get(home.owner.uuid).add(home.meta.name);
                                 cache.positionLists.clear();
-                                return database.setHome(home).thenApply(ignored ->
+                                return database.setHome(home).thenApply(value ->
                                         new SetResult(SetResult.ResultType.SUCCESS, home)).join();
                             }
                             return new SetResult(SetResult.ResultType.FAILED_DUPLICATE, null);
@@ -188,7 +188,12 @@ public class SavedPositionManager {
             /**
              * The position was not set; the description uses illegal characters
              */
-            FAILED_DESCRIPTION_CHARACTERS(false);
+            FAILED_DESCRIPTION_CHARACTERS(false),
+
+            /**
+             * The position was not set; the position is not in a valid world
+             */
+            FAILED_ERROR(false);
 
             public final boolean successful;
 

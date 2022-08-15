@@ -6,8 +6,8 @@ version: '${version}'
 api-version: 1.16
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
-  - 'mysql:mysql-connector-java:8.0.29'
-  - 'org.xerial:sqlite-jdbc:3.36.0.3'
+  - 'mysql:mysql-connector-java:8.0.30'
+  - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
   - 'org.apache.commons:commons-text:1.9'
 
 commands:

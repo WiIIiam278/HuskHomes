@@ -7,7 +7,7 @@ import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
-import net.william278.huskhomes.util.EconomyUnsupportedException;
+import net.william278.huskhomes.EconomyUnsupportedException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;

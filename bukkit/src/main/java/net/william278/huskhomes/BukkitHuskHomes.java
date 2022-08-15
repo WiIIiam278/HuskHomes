@@ -29,7 +29,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,7 +184,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             try {
                 new Metrics(this, METRICS_ID);
             } catch (final Exception e) {
-                getLoggingAdapter().log(Level.WARNING, "Skipped bStats metrics initialization due to an exception.");
+                getLoggingAdapter().log(Level.WARNING, "Skipped bStats metrics initialization.");
             }
 
             // Check for updates
@@ -318,6 +320,19 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 return false;
             }
         });
+    }
+
+    // Default constructor
+    public BukkitHuskHomes()
+    {
+        super();
+    }
+
+    // Super constructor for unit testing
+    protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
+                              @NotNull File dataFolder, @NotNull File file)
+    {
+        super(loader, description, dataFolder, file);
     }
 
     public static final class BukkitAdapter {

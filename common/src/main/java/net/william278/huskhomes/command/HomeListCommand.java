@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
     public HomeListCommand(@NotNull HuskHomes implementor) {
-        super("homelist", Permission.COMMAND_HOME, implementor);
+        super("homelist", Permission.COMMAND_HOME, implementor, "homes");
     }
 
     @Override
@@ -65,7 +65,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                     return;
                 }
                 final PrivateHomeList homeList = new PrivateHomeList(homes, userData.user(), plugin);
-                plugin.getCache().positionLists.put(userData.user().uuid, homeList);
+                plugin.getCache().positionLists.put(onlineUser.uuid, homeList);
                 homeList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
             });
         }, () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(onlineUser::sendMessage)));

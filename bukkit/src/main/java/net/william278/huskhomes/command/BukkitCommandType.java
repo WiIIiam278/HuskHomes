@@ -12,6 +12,8 @@ public enum BukkitCommandType {
     SET_HOME_COMMAND(new SetHomeCommand(BukkitHuskHomes.getInstance())),
     HOME_LIST_COMMAND(new HomeListCommand(BukkitHuskHomes.getInstance())),
     DEL_HOME_COMMAND(new DelHomeCommand(BukkitHuskHomes.getInstance())),
+    PUBLIC_HOME_COMMAND(new PublicHomeCommand(BukkitHuskHomes.getInstance())),
+    PUBLIC_HOME_LIST_COMMAND(new PublicHomeListCommand(BukkitHuskHomes.getInstance())),
     WARP_COMMAND(new WarpCommand(BukkitHuskHomes.getInstance())),
     SET_WARP_COMMAND(new SetWarpCommand(BukkitHuskHomes.getInstance())),
     WARP_LIST_COMMAND(new WarpListCommand(BukkitHuskHomes.getInstance())),

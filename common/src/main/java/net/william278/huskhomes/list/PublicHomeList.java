@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class PublicHomeList extends ChatList {
     private final HuskHomes plugin;
 
-    public PublicHomeList(@NotNull List<Home> homes, @NotNull User homeOwner, @NotNull HuskHomes implementor) {
+    public PublicHomeList(@NotNull List<Home> homes, @NotNull HuskHomes implementor) {
         super(homes.stream().map(position -> new ListItem(position.meta.name, position.owner.username,
                         position.meta.description)).collect(Collectors.toList()),
                 10, "phomelist", implementor.getLocales()); //todo config settable items per page

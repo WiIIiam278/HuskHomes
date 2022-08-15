@@ -19,6 +19,10 @@ commands:
     usage: /homelist [page]
   delhome:
     usage: /delhome <name>
+  publichome:
+    usage: /publichome [<owner_name>.<home_name>]
+  publichomelist:
+    usage: /publichomelist [page]
   warp:
     usage: /warp <name>
   setwarp:

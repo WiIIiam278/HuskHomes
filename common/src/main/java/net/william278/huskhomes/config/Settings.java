@@ -22,7 +22,7 @@ import java.util.Optional;
         versionField = "config_version", versionNumber = 11)
 public class Settings {
 
-    // Main settings
+    // Top-level settings
 
     public String language = "en-gb";
 
@@ -146,6 +146,7 @@ public class Settings {
     @SuppressWarnings("unused")
     public Settings() {
     }
+
 
     /**
      * Options for use in establishing pooled connections to a database

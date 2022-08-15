@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class WarpListCommand extends CommandBase implements ConsoleExecutable {
 
     public WarpListCommand(@NotNull HuskHomes implementor) {
-        super("warplist", Permission.COMMAND_WARP, implementor);
+        super("warplist", Permission.COMMAND_WARP, implementor, "warps");
     }
 
     @Override

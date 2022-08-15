@@ -31,7 +31,7 @@ public abstract class TeleportManager {
     }
 
     /**
-     * Teleport a {@link OnlineUser} to another {@link User}'s {@link Home}
+     * Attempt to teleport a {@link OnlineUser} to a {@link User}'s home by the home name
      *
      * @param onlineUser the {@link OnlineUser} to teleport
      * @param homeOwner  the {@link User} who owns the home
@@ -39,16 +39,7 @@ public abstract class TeleportManager {
      */
     public void teleportToHome(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull String homeName) {
         plugin.getDatabase().getHome(homeOwner, homeName).thenAccept(optionalHome ->
-                optionalHome.ifPresentOrElse(home -> {
-                    if (!homeOwner.uuid.equals(onlineUser.uuid)) {
-                        if (!home.isPublic && !onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
-                            plugin.getLocales().getLocale("error_public_home_invalid", homeOwner.username, homeName)
-                                    .ifPresent(onlineUser::sendMessage);
-                            return;
-                        }
-                    }
-                    teleport(onlineUser, home).thenAccept(result -> finishTeleport(onlineUser, result));
-                }, () -> {
+                optionalHome.ifPresentOrElse(home -> teleportToHome(onlineUser, home), () -> {
                     if (homeOwner.uuid.equals(onlineUser.uuid)) {
                         plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(onlineUser::sendMessage);
                     } else {
@@ -58,7 +49,24 @@ public abstract class TeleportManager {
     }
 
     /**
-     * Teleport a {@link OnlineUser} to a server {@link Warp}
+     * Attempt to teleport a {@link OnlineUser} to a {@link Home}
+     *
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param home       the {@link Home} to teleport to
+     */
+    public void teleportToHome(@NotNull OnlineUser onlineUser, @NotNull Home home) {
+        if (!home.owner.uuid.equals(onlineUser.uuid)) {
+            if (!home.isPublic && !onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
+                plugin.getLocales().getLocale("error_public_home_invalid", home.owner.username, home.meta.name)
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
+        }
+        teleport(onlineUser, home).thenAccept(result -> finishTeleport(onlineUser, result));
+    }
+
+    /**
+     * Attempt to teleport a {@link OnlineUser} to a server warp by its' given name
      *
      * @param onlineUser the {@link OnlineUser} to teleport
      * @param warpName   the name of the warp
@@ -66,9 +74,19 @@ public abstract class TeleportManager {
     public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
         plugin.getDatabase().getWarp(warpName).thenAccept(optionalWarp ->
                 optionalWarp.ifPresentOrElse(warp -> //todo permission restricted warps
-                        teleport(onlineUser, warp).thenAccept(result -> finishTeleport(onlineUser, result)), () ->
+                        teleportToWarp(onlineUser, warp), () ->
                         plugin.getLocales().getLocale("error_warp_invalid", warpName)
                                 .ifPresent(onlineUser::sendMessage)));
+    }
+
+    /**
+     * Attempt to teleport a {@link OnlineUser} to a server {@link Warp}
+     *
+     * @param onlineUser the {@link OnlineUser} to teleport
+     * @param warp       the {@link Warp} to teleport to
+     */
+    public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull Warp warp) {
+        teleport(onlineUser, warp).thenAccept(result -> finishTeleport(onlineUser, result));
     }
 
     /**

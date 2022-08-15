@@ -21,6 +21,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
         switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
+                // Send the home list if they have homes set. If they have just one home set, teleport the player
                 switch (homes.size()) {
                     case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
                     case 1 -> plugin.getTeleportManager().teleport(onlineUser, homes.get(0)).thenAccept(result ->
@@ -33,6 +34,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                 }
             });
             case 1 -> {
+                // Parse the home name input and teleport the player to the home
                 final String homeName = args[0];
                 RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
                         homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
@@ -55,7 +57,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         return plugin.getCache().homes.get(onlineUser.uuid).stream()
-                .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
+                .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList());
     }
 }

@@ -22,20 +22,21 @@ public class PositionMeta {
     public String description;
 
     /**
-     * The epoch timestamp of a position's creation
+     * The time the position was created
      */
-    public long timestamp;
+    @NotNull
+    public Instant creationTime;
 
-    public PositionMeta(@NotNull String name, @NotNull String description, long timestamp) {
+    public PositionMeta(@NotNull String name, @NotNull String description, @NotNull Instant creationTime) {
         this.name = name;
         this.description = description;
-        this.timestamp = timestamp;
+        this.creationTime = creationTime;
     }
 
     public PositionMeta(@NotNull String name, @NotNull String description) {
         this.name = name;
         this.description = description;
-        this.timestamp = Instant.now().getEpochSecond();
+        this.creationTime = Instant.now();
     }
 
 }

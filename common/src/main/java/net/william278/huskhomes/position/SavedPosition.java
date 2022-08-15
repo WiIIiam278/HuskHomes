@@ -13,7 +13,7 @@ public abstract class SavedPosition extends Position {
      * Metadata about this position (name, description)
      */
     @NotNull
-    public final PositionMeta meta;
+    public PositionMeta meta;
 
     /**
      * A unique ID representing this position

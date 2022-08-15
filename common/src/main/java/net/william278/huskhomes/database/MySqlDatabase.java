@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.sql.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -161,7 +160,7 @@ public class MySqlDatabase extends Database {
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.meta.name);
             statement.setString(3, position.meta.description);
-            statement.setTimestamp(4, new Timestamp(Instant.ofEpochSecond(position.meta.timestamp).toEpochMilli()));
+            statement.setTimestamp(4, Timestamp.from(position.meta.creationTime));
             statement.executeUpdate();
 
             final ResultSet resultSet = statement.getGeneratedKeys();
@@ -255,7 +254,7 @@ public class MySqlDatabase extends Database {
                                         resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
-                                resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
+                                resultSet.getTimestamp("rtp_cooldown").toInstant()));
                     }
                 }
             } catch (SQLException e) {
@@ -283,7 +282,7 @@ public class MySqlDatabase extends Database {
                                         resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
-                                resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
+                                resultSet.getTimestamp("rtp_cooldown").toInstant()));
                     }
                 }
             } catch (SQLException e) {
@@ -321,7 +320,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 user,
                                 resultSet.getBoolean("public")));
@@ -358,7 +357,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -395,7 +394,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -436,7 +435,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -445,6 +444,8 @@ public class MySqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to query a player's home", e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return Optional.empty();
         });
@@ -475,7 +476,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -513,7 +514,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -548,7 +549,7 @@ public class MySqlDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -601,7 +602,7 @@ public class MySqlDatabase extends Database {
 
                     statement.setInt(1, userData.homeSlots());
                     statement.setBoolean(2, userData.ignoringTeleports());
-                    statement.setLong(3, userData.rtpCooldown());
+                    statement.setTimestamp(3, Timestamp.from(userData.rtpCooldown()));
                     statement.setString(4, userData.getUserUuid().toString());
                     statement.executeUpdate();
                 }
@@ -856,6 +857,7 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.runAsync(() -> getHome(home.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
                     try (Connection connection = getConnection()) {
+                        // Update the home's saved position, including metadata
                         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                                 SELECT `saved_position_id` FROM `%homes_table%`
                                 WHERE `uuid`=?;"""))) {
@@ -865,6 +867,16 @@ public class MySqlDatabase extends Database {
                             if (resultSet.next()) {
                                 updateSavedPosition(resultSet.getInt("saved_position_id"), home, connection);
                             }
+                        }
+
+                        // Update the home privacy
+                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                UPDATE `%homes_table%`
+                                SET `public`=?
+                                WHERE `uuid`=?;"""))) {
+                            statement.setBoolean(1, home.isPublic);
+                            statement.setString(2, home.uuid.toString());
+                            statement.executeUpdate();
                         }
                     } catch (SQLException e) {
                         getLogger().log(Level.SEVERE,

@@ -14,7 +14,6 @@ import org.sqlite.SQLiteConfig;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -173,7 +172,7 @@ public class SqLiteDatabase extends Database {
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.meta.name);
             statement.setString(3, position.meta.description);
-            statement.setTimestamp(4, new Timestamp(Instant.ofEpochSecond(position.meta.timestamp).toEpochMilli()));
+            statement.setTimestamp(4, Timestamp.from(position.meta.creationTime));
             statement.executeUpdate();
 
             // Return the ID of the newly inserted row
@@ -269,7 +268,7 @@ public class SqLiteDatabase extends Database {
                                         resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
-                                resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
+                                resultSet.getTimestamp("rtp_cooldown").toInstant()));
                     }
                 }
             } catch (SQLException e) {
@@ -297,7 +296,7 @@ public class SqLiteDatabase extends Database {
                                         resultSet.getString("username")),
                                 resultSet.getInt("home_slots"),
                                 resultSet.getBoolean("ignoring_requests"),
-                                resultSet.getTimestamp("rtp_cooldown").toInstant().getEpochSecond()));
+                                resultSet.getTimestamp("rtp_cooldown").toInstant()));
                     }
                 }
             } catch (SQLException e) {
@@ -335,7 +334,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 user,
                                 resultSet.getBoolean("public")));
@@ -372,7 +371,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -409,7 +408,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -450,7 +449,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -489,7 +488,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -527,7 +526,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -562,7 +561,7 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant().getEpochSecond()),
+                                        resultSet.getTimestamp("timestamp").toInstant()),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -615,7 +614,7 @@ public class SqLiteDatabase extends Database {
 
                     statement.setInt(1, userData.homeSlots());
                     statement.setBoolean(2, userData.ignoringTeleports());
-                    statement.setLong(3, userData.rtpCooldown());
+                    statement.setTimestamp(3, Timestamp.from(userData.rtpCooldown()));
                     statement.setString(4, userData.getUserUuid().toString());
                     statement.executeUpdate();
                 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A cache used to hold persistently used data
+ * A cache used to hold frequently accessed data (i.e. TAB-completed homes and warps)
  */
 public class Cache {
 

@@ -3,6 +3,7 @@ package net.william278.huskhomes.player;
 import de.themoep.minedown.MineDown;
 import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
@@ -96,7 +97,11 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-        player.spigot().sendMessage(mineDown.replace().toComponent());
+        final BaseComponent[] messageComponents = mineDown.replace().toComponent();
+        if (messageComponents.length == 0) {
+            return;
+        }
+        player.spigot().sendMessage(messageComponents);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class BukkitPlayer extends OnlineUser {
     /**
      * Send a Bukkit plugin message
      */
-    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {
+    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, final byte[] message) {
         player.sendPluginMessage(source, channel, message);
     }
 }

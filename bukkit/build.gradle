@@ -13,6 +13,7 @@ dependencies {
     compileOnly 'net.william278:Annotaml:1.0.1'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.19:2.117.0'
+    testImplementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     testImplementation 'redis.clients:jedis:' + jedis_version
     testImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     testImplementation 'mysql:mysql-connector-java:8.0.30'

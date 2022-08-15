@@ -65,7 +65,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         // Return every public home name as username.home_name from the cache
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().publicHomes.forEach((ownerName, homeNames) ->

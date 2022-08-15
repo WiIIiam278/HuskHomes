@@ -3,14 +3,16 @@ package net.william278.huskhomes;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.position.PositionMeta;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.19 API.
@@ -49,6 +51,24 @@ public class BukkitPluginTests {
         // Assert that the player adapter is working
         PlayerMock player = server.addPlayer();
         Assertions.assertNotNull(BukkitPlayer.adapt(player));
+    }
+
+    @Test
+    public void testLocalesLoading() {
+        final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
+        Assertions.assertTrue(rawLocales.size() > 0);
+        rawLocales.forEach((key, value) -> Assertions.assertNotNull(value));
+    }
+
+    @Test
+    public void testLocaleParsing() {
+        final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
+        BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(server.addPlayer());
+        rawLocales.forEach((key, value) -> {
+            Optional<MineDown> locale = plugin.getLocales().getLocale(key);
+            Assertions.assertTrue(locale.isPresent());
+            bukkitPlayer.sendMessage(locale.get());
+        });
     }
 
 }

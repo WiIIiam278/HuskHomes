@@ -17,7 +17,14 @@ public class DelWarpCommand extends CommandBase implements TabCompletable, Conso
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
-            plugin.getSavedPositionManager().deleteWarp(args[0]);
+            final String warpName = args[0];
+            plugin.getSavedPositionManager().deleteWarp(warpName).thenAccept(deleted -> {
+                if (deleted) {
+                    plugin.getLocales().getLocale("warp_deleted").ifPresent(onlineUser::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("error_warp_invalid", warpName).ifPresent(onlineUser::sendMessage);
+                }
+            });
         } else {
             plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
                     .ifPresent(onlineUser::sendMessage);
@@ -26,11 +33,11 @@ public class DelWarpCommand extends CommandBase implements TabCompletable, Conso
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-
+        //todo
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         return plugin.getCache().warps.stream()
                 .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
                 .sorted().collect(Collectors.toList());

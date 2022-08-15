@@ -29,8 +29,8 @@ public class SetWarpCommand extends CommandBase {
                 position).thenAccept(setResult ->
                 onlineUser.sendMessage(switch (setResult.resultType()) {
                     case SUCCESS -> {
-                        assert setResult.setPosition() != null;
-                        yield plugin.getLocales().getLocale("set_warp_success", setResult.setPosition().meta.name)
+                        assert setResult.savedPosition().isPresent();
+                        yield plugin.getLocales().getLocale("set_warp_success", setResult.savedPosition().get().meta.name)
                                 .orElse(new MineDown(""));
                     }
                     case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_set_warp_name_taken")

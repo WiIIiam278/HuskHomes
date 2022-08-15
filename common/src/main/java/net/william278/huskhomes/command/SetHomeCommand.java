@@ -8,6 +8,8 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class SetHomeCommand extends CommandBase {
 
     public SetHomeCommand(@NotNull HuskHomes implementor) {
@@ -35,20 +37,16 @@ public class SetHomeCommand extends CommandBase {
         onlineUser.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setHome(new PositionMeta(homeName,
                         plugin.getLocales().getRawLocale("home_default_description", user.username).orElse("")),
                 user, position).thenAccept(setResult ->
-                onlineUser.sendMessage(switch (setResult.resultType()) {
+                (switch (setResult.resultType()) {
                     case SUCCESS -> {
-                        assert setResult.setPosition() != null;
-                        yield plugin.getLocales().getLocale("set_home_success", setResult.setPosition().meta.name)
-                                .orElse(new MineDown(""));
+                        assert setResult.savedPosition().isPresent();
+                        yield plugin.getLocales().getLocale("set_home_success", setResult.savedPosition().get().meta.name);
                     }
-                    case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_set_home_name_taken")
-                            .orElse(new MineDown(""));
-                    case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_set_home_invalid_length")
-                            .orElse(new MineDown(""));
-                    case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_set_home_invalid_characters")
-                            .orElse(new MineDown(""));
-                    default -> new MineDown("");
-                })));
+                    case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_set_home_name_taken");
+                    case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_set_home_invalid_length");
+                    case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_set_home_invalid_characters");
+                    default -> Optional.of(new MineDown(""));
+                }).ifPresent(onlineUser::sendMessage)));
     }
 
 }

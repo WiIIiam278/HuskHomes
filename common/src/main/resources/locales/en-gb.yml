@@ -14,17 +14,17 @@ warp_deleted: '[Successfully deleted the warp called](#00fb9a) [%1%](#00fb9a bol
 
 edit_home_menu_title: '[Viewing home details for](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
 edit_home_menu_title_other: '[Viewing details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
-edit_home_menu_metadata: '[⌚ %1%](#ffc43b-#f5c962 show_text=&7Set Timestamp:\n&8When the home was set)   [⚡ %2%](#62a9f5-#7ab8fa show_text=&7ID:\n&8%3%)'
-edit_home_menu_privacy_private: '[☁ Private Home](#ffc43b-#f5c962 show_text=&7Privacy:\n&8The home is private to the owner)'
-edit_home_menu_privacy_public: '[☀ Public Home](#23a825-#36f539 show_text=&7Privacy:\n&8Anyone can teleport to the home)'
-edit_home_menu_description: '[🔱 %1%](#ffc43b-#f5c962 show_text=&7Description:\n&8The description set for the home)\n'
+edit_home_menu_metadata_private: '[⌚ %1%](#ffc43b-#f5c962 show_text=&7Set Timestamp:\n&8When the home was set)   [⚡ %2%](#999999-#bcbcbc show_text=&7Home ID:\n&8%3%)   [☁ Private Home](#d8ff2b show_text=&7Privacy: ☁ Private Home\n&8The home is private to the owner)'
+edit_home_menu_metadata_public: '[⌚ %1%](#999999-#bcbcbc show_text=&7Set Timestamp:\n&8When the home was set)   [⚡ %2%](#62a9f5-#7ab8fa show_text=&7Home ID:\n&8%3%)   [☀ Public Home](#d8ff2b show_text=&7Privacy: ☀ Public Home\n&8Anyone can teleport to the home)'
+edit_home_menu_description: '[ℹ %1%](#62a9f5-#7ab8fa show_text=&7Description:\n&8The description set for the home)\n'
 
-edit_home_menu_world: '[▼ %1%](#ffc43b-#f5c962 show_text=&7World:\n&8The world where the home is set)'
-edit_home_menu_world_server: '[▼ %1%](#ffc43b-#f5c962 show_text=&7World:\n&8The world where the home is set)   [🏹 %2%](#23a825-#36f539 show_text=&7Server:\n&8The server where the home is set)'
-edit_home_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&7Coordinates:\n&8The coordinates, where the home is set\n&7yaw: &8%4%, &7pitch: &8%5%)\n'
+edit_home_menu_world: '[⭘ %1%](dark_aqua show_text=&7World:\n&8The world where the home is set)'
+edit_home_menu_world_server: '[⭘ %1%](dark_aqua show_text=&7World:\n&8The world where the home is set)   [⧈ %2%](#36f539 show_text=&7Server:\n&8The server where the home is set)'
+edit_home_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&yaw: %4%, pitch: %5%\n&7Coordinates:\n&8Location of the home in the world)\n'
 
-edit_home_menu_manage_buttons: '[Manage:](gray) [[❌ Delete…]](#ff7e5e show_text=&7Click to delete this home\n&#ff3300&⚠ This cannot be undone! run_command=/huskhomes:delhome %1%)   [[▼ Relocate]](#ffc43b show_text=&7Click to relocate this home to your position run_command=/huskhomes:edithome %1% relocate)   [[☀ Toggle Privacy]](#00fb9a show_text=&7Click to toggle the privacy of this home run_command=/huskhomes:edithome %1% privacy)'
-edit_home_menu_meta_edit_buttons: '[Edit:](gray) [[✎ Rename…]](#00fb9a show_text=&7Click to suggest the rename command suggest_command=/huskhomes:edithome %1% rename )   [[🔱 Description…]](#23a825 show_text=&7Click to suggest the edit description command suggest_command=/huskhomes:edithome %1% description )'
+edit_home_menu_use_buttons: '[Use:](gray) [[⏩ Teleport…]](#00fb9a show_text=&7Click to teleport to this home run_command=/huskhomes:home %1%)'
+edit_home_menu_manage_buttons: '[Manage:](gray) [[❌ Delete…]](#ff3300 show_text=&7Click to delete this home\n&#ff3300&⚠ This cannot be undone! run_command=/huskhomes:delhome %1%)   [[⚐ Relocate…]](#ffc43b show_text=&7Click to relocate this home to your position run_command=/huskhomes:edithome %1% relocate)   [[☀ Public/Private…]](#d8ff2b show_text=&7Click to toggle the privacy of this home run_command=/huskhomes:edithome %1% privacy)'
+edit_home_menu_meta_edit_buttons: '[Edit:](gray) [[✎ Rename…]](#62a9f5 show_text=&7Click to suggest the rename command suggest_command=/huskhomes:edithome %1% rename )   [[ℹ Description…]](#7ab8fa show_text=&7Click to suggest the edit description command suggest_command=/huskhomes:edithome %1% description )'
 
 edit_home_privacy_public_success: '[Successfully made the home,](#00fb9a) [%1%](#00fb9a bold)[, open to the public.](#00fb9a)'
 edit_home_privacy_private_success: '[Successfully made the home,](#00fb9a) [%1%](#00fb9a bold)[, private.](#00fb9a)'

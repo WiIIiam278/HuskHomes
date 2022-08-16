@@ -81,14 +81,11 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
     private void editHome(@NotNull Home home, @NotNull OnlineUser editor,
                           @Nullable String editOperation, @Nullable String editArgs) {
         if (editOperation == null) {
-            try {
-                boolean otherOwner = editor.uuid.equals(home.owner.uuid);
-                home.getHomeEditorWindow(plugin.getLocales(), otherOwner, plugin.getSettings().crossServer,
-                                !otherOwner || editor.hasPermission(Permission.COMMAND_EDIT_HOME_OTHER.node))
-                        .forEach(editor::sendMessage);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            boolean otherOwner = editor.uuid.equals(home.owner.uuid);
+            home.getHomeEditorWindow(plugin.getLocales(), otherOwner, plugin.getSettings().crossServer,
+                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                            !otherOwner || editor.hasPermission(Permission.COMMAND_EDIT_HOME_OTHER.node))
+                    .forEach(editor::sendMessage);
             return;
         }
         switch (editOperation.toLowerCase()) {

@@ -45,7 +45,8 @@ public class Home extends SavedPosition {
 
     @NotNull
     public List<MineDown> getHomeEditorWindow(@NotNull Locales locales, final boolean otherViewer,
-                                              final boolean showServerInformation, final boolean showButtons) {
+                                              final boolean showServerInformation,
+                                              final boolean showUseButtons, final boolean showManagementButtons) {
         return new ArrayList<>() {{
             if (!otherViewer) {
                 locales.getLocale("edit_home_menu_title", meta.name)
@@ -55,18 +56,12 @@ public class Home extends SavedPosition {
                         .ifPresent(this::add);
             }
 
-            locales.getLocale("edit_home_menu_metadata",
+            locales.getLocale("edit_home_menu_metadata_" + (!isPublic ? "private" : "public"),
                             DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
                                     .format(meta.creationTime.atZone(ZoneId.systemDefault())),
                             uuid.toString().split(Pattern.quote("-"))[0],
                             uuid.toString())
                     .ifPresent(this::add);
-
-            if (!isPublic) {
-                locales.getLocale("edit_home_menu_privacy_private").ifPresent(this::add);
-            } else {
-                locales.getLocale("edit_home_menu_privacy_public").ifPresent(this::add);
-            }
 
             if (meta.description.length() > 0) {
                 locales.getLocale("edit_home_menu_description", MineDown.escape(meta.description))
@@ -84,8 +79,13 @@ public class Home extends SavedPosition {
                             String.format("%.2f", yaw), String.format("%.2f", pitch))
                     .ifPresent(this::add);
 
-            if (showButtons) {
-                final String formattedName = owner.username + "." + meta.name;
+            final String formattedName = owner.username + "." + meta.name;
+            if (showUseButtons) {
+                locales.getLocale("edit_home_menu_use_buttons",
+                                formattedName)
+                        .ifPresent(this::add);
+            }
+            if (showManagementButtons) {
                 locales.getLocale("edit_home_menu_manage_buttons",
                                 formattedName)
                         .ifPresent(this::add);

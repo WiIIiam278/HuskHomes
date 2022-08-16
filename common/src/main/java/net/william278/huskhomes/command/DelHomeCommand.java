@@ -40,7 +40,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
                                                             return;
                                                         }
                                                     }
-                                                    deletePlayerHome(onlineUser, userData.user(), homeName);
+                                                    deletePlayerHome(onlineUser, userData.user(), homeIdentifier.homeName());
                                                 },
                                                 () -> plugin.getLocales().getLocale("error_home_invalid_other",
                                                         homeIdentifier.ownerName(), homeIdentifier.homeName()).ifPresent(onlineUser::sendMessage))),
@@ -64,7 +64,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
                 if (deleted) {
                     plugin.getLocales().getLocale("home_deleted", homeName).ifPresent(deleter::sendMessage);
                 } else {
-                    plugin.getLocales().getLocale("error_home_invalid_other", homeName).ifPresent(deleter::sendMessage);
+                    plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(deleter::sendMessage);
                 }
             } else {
                 if (deleted) {

@@ -10,6 +10,8 @@ import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -223,8 +225,14 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        return plugin.getCache().homes.get(onlineUser.uuid).stream()
-                .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList());
+        return switch (args.length) {
+            case 0, 1 -> plugin.getCache().homes.get(onlineUser.uuid).stream()
+                    .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
+                    .sorted().collect(Collectors.toList());
+            case 2 -> Arrays.stream(EDIT_HOME_COMPLETIONS)
+                    .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .sorted().collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
     }
 }

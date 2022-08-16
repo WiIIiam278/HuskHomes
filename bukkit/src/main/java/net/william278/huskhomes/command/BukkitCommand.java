@@ -37,10 +37,11 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
      */
     public void register(@NotNull PluginCommand pluginCommand) {
         try {
-            pluginCommand.setExecutor(this);
-            pluginCommand.setTabCompleter(this);
+            pluginCommand.setAliases(pluginCommand.getAliases());
             pluginCommand.setPermission(command.permission);
             pluginCommand.setDescription(command.getDescription());
+            pluginCommand.setExecutor(this);
+            pluginCommand.setTabCompleter(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

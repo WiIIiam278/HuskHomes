@@ -19,9 +19,13 @@ public enum TeleportResult {
     COMPLETED_CROSS_SERVER(true),
 
     /**
+     * Returns if the {@link Teleport} failed because the user is already teleporting
+     */
+    FAILED_ALREADY_TELEPORTING(false),
+
+    /**
      * Returns if the {@link Teleport} failed because the {@link World} of the
      * target {@link Position} could not be found
-     * <p>
      */
     FAILED_INVALID_WORLD(false),
 

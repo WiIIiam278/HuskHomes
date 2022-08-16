@@ -12,7 +12,9 @@ import net.william278.huskhomes.util.MatcherUtil;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +30,12 @@ public class TeleportManager {
      */
     @NotNull
     protected final HuskHomes plugin;
+
+    /**
+     * A set of user UUIDs currently on warmup countdowns for {@link TimedTeleport}
+     */
+    @NotNull
+    private HashSet<UUID> currentlyOnWarmup = new HashSet<>();
 
     public TeleportManager(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
@@ -145,6 +153,9 @@ public class TeleportManager {
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
         if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
+            if (currentlyOnWarmup.contains(onlineUser.uuid)) {
+                return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
+            }
             return processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                     .thenApply(teleport -> {
                         if (!teleport.cancelled) {
@@ -167,6 +178,8 @@ public class TeleportManager {
     public void finishTeleport(@NotNull OnlineUser onlineUser, @NotNull TeleportResult teleportResult) {
         switch (teleportResult) {
             case COMPLETED_LOCALLY -> plugin.getLocales().getLocale("teleporting_complete")
+                    .ifPresent(onlineUser::sendMessage);
+            case FAILED_ALREADY_TELEPORTING -> plugin.getLocales().getLocale("error_already_teleporting")
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_on_arrival")
                     .ifPresent(onlineUser::sendMessage);
@@ -216,17 +229,26 @@ public class TeleportManager {
      * @return a future, returning when the teleport has finished
      */
     private CompletableFuture<TimedTeleport> processTeleportWarmup(@NotNull final TimedTeleport teleport) {
+        // Mark the player as warming up
+        currentlyOnWarmup.add(teleport.getPlayer().uuid);
+
         // Create a scheduled executor to tick the timed teleport
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture<TimedTeleport> timedTeleportFuture = new CompletableFuture<>();
         executor.scheduleAtFixedRate(() -> {
             // Display countdown action bar message
-            plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
-                    .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+            if (teleport.timeLeft > 0) {
+                plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
+                        .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+            } else {
+                plugin.getLocales().getLocale("teleporting_complete")
+                        .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+            }
 
             // Tick (decrement) the timed teleport timer
             final Optional<TimedTeleport> result = tickTeleportWarmup(teleport);
             if (result.isPresent()) {
+                currentlyOnWarmup.remove(teleport.getPlayer().uuid);
                 timedTeleportFuture.complete(teleport);
                 executor.shutdown();
             }

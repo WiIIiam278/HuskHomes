@@ -107,7 +107,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> updateHomeMeta(@NotNull Home home, @NotNull PositionMeta newHomeMeta) {
         return CompletableFuture.supplyAsync(() -> {
-            if (database.getHome(home.owner, newHomeMeta.name).join().isPresent()) {
+            if (!home.meta.name.equals(newHomeMeta.name) && database.getHome(home.owner, newHomeMeta.name).join().isPresent()) {
                 return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
             }
             final String existingHomeName = home.meta.name;
@@ -271,7 +271,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> updateWarpMeta(@NotNull Warp warp, @NotNull PositionMeta newWarpMeta) {
         return CompletableFuture.supplyAsync(() -> {
-            if (database.getWarp(newWarpMeta.name).join().isPresent()) {
+            if (!warp.meta.name.equals(newWarpMeta.name) && database.getWarp(newWarpMeta.name).join().isPresent()) {
                 return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
             }
             final String existingWarpName = warp.meta.name;

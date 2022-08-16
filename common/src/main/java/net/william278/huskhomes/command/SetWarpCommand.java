@@ -7,6 +7,8 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class SetWarpCommand extends CommandBase {
 
     public SetWarpCommand(@NotNull HuskHomes implementor) {
@@ -26,21 +28,16 @@ public class SetWarpCommand extends CommandBase {
     private void setWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
         onlineUser.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setWarp(new PositionMeta(warpName,
                         plugin.getLocales().getRawLocale("warp_default_description").orElse("")),
-                position).thenAccept(setResult ->
-                onlineUser.sendMessage(switch (setResult.resultType()) {
-                    case SUCCESS -> {
-                        assert setResult.savedPosition().isPresent();
-                        yield plugin.getLocales().getLocale("set_warp_success", setResult.savedPosition().get().meta.name)
-                                .orElse(new MineDown(""));
-                    }
-                    case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_set_warp_name_taken")
-                            .orElse(new MineDown(""));
-                    case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_set_warp_invalid_length")
-                            .orElse(new MineDown(""));
-                    case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_set_warp_invalid_characters")
-                            .orElse(new MineDown(""));
-                    default -> new MineDown("");
-                })));
+                position).thenAccept(setResult -> (switch (setResult.resultType()) {
+            case SUCCESS -> {
+                assert setResult.savedPosition().isPresent();
+                yield plugin.getLocales().getLocale("set_warp_success", setResult.savedPosition().get().meta.name);
+            }
+            case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_warp_name_taken");
+            case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_warp_name_length");
+            case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_warp_name_characters");
+            default -> Optional.of(new MineDown(""));
+        }).ifPresent(onlineUser::sendMessage)));
     }
 
 }

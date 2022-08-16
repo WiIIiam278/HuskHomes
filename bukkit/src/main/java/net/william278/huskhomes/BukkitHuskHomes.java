@@ -20,7 +20,6 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.position.Server;
-import net.william278.huskhomes.teleport.BukkitTeleportManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
@@ -151,7 +150,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             cache.initialize(database);
 
             // Prepare the teleport manager
-            this.teleportManager = new BukkitTeleportManager(this);
+            this.teleportManager = new TeleportManager(this);
 
             // Prepare the home and warp position manager
             this.savedPositionManager = new SavedPositionManager(database, cache);

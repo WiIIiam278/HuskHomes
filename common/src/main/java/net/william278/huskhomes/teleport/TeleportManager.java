@@ -14,11 +14,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Cross-platform teleportation manager
  */
-public abstract class TeleportManager {
+public class TeleportManager {
 
     /**
      * Instance of the implementing plugin
@@ -114,23 +117,23 @@ public abstract class TeleportManager {
      * @return future optionally supplying the player's position, if the player could be found
      */
     private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull OnlineUser requester, @NotNull String playerName) {
-            final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
-                    player.username.equalsIgnoreCase(playerName)).findFirst();
-            if (localPlayer.isPresent()) {
-                return localPlayer.get().getPosition().thenApply(Optional::of);
-            }
-            if (plugin.getSettings().crossServer) {
-                assert plugin.getNetworkMessenger() != null;
-                return plugin.getNetworkMessenger().sendMessage(requester,
-                                new Message(Message.MessageType.POSITION_REQUEST,
-                                        requester.username,
-                                        playerName,
-                                        new EmptyPayload(),
-                                        Message.MessageKind.MESSAGE,
-                                        plugin.getSettings().clusterId))
-                        .thenApply(reply -> Optional.of(Position.fromJson(reply.payload)));
-            }
-            return CompletableFuture.supplyAsync(Optional::empty);
+        final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
+                player.username.equalsIgnoreCase(playerName)).findFirst();
+        if (localPlayer.isPresent()) {
+            return localPlayer.get().getPosition().thenApply(Optional::of);
+        }
+        if (plugin.getSettings().crossServer) {
+            assert plugin.getNetworkMessenger() != null;
+            return plugin.getNetworkMessenger().sendMessage(requester,
+                            new Message(Message.MessageType.POSITION_REQUEST,
+                                    requester.username,
+                                    playerName,
+                                    new EmptyPayload(),
+                                    Message.MessageKind.MESSAGE,
+                                    plugin.getSettings().clusterId))
+                    .thenApply(reply -> Optional.of(Position.fromJson(reply.payload)));
+        }
+        return CompletableFuture.supplyAsync(Optional::empty);
     }
 
     /**
@@ -140,19 +143,19 @@ public abstract class TeleportManager {
      * @param position   the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-            final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
-            if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
-                return processTimedTeleport(new TimedTeleport(onlineUser, position, teleportWarmupTime))
-                        .thenApply(teleport -> {
-                            if (!teleport.cancelled) {
-                                return teleportNow(onlineUser, position);
-                            } else {
-                                return CompletableFuture.supplyAsync(() -> TeleportResult.CANCELLED);
-                            }
-                        }).join();
-            } else {
-                return teleportNow(onlineUser, position);
-            }
+        final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
+        if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
+            return processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
+                    .thenApply(teleport -> {
+                        if (!teleport.cancelled) {
+                            return teleportNow(onlineUser, position);
+                        } else {
+                            return CompletableFuture.supplyAsync(() -> TeleportResult.CANCELLED);
+                        }
+                    }).join();
+        } else {
+            return teleportNow(onlineUser, position);
+        }
     }
 
     /**
@@ -207,12 +210,46 @@ public abstract class TeleportManager {
     }
 
     /**
-     * Process a timed teleport, ticking it
+     * Processes a timed teleport
+     *
+     * @param teleport the {@link TimedTeleport} to process
+     * @return a future, returning when the teleport has finished
+     */
+    private CompletableFuture<TimedTeleport> processTeleportWarmup(@NotNull final TimedTeleport teleport) {
+        // Create a scheduled executor to tick the timed teleport
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        final CompletableFuture<TimedTeleport> timedTeleportFuture = new CompletableFuture<>();
+        executor.scheduleAtFixedRate(() -> {
+            // Display countdown action bar message
+            plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
+                    .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+
+            // Tick (decrement) the timed teleport timer
+            final Optional<TimedTeleport> result = tickTeleportWarmup(teleport);
+            if (result.isPresent()) {
+                timedTeleportFuture.complete(teleport);
+                executor.shutdown();
+            }
+        }, 0, 1, TimeUnit.SECONDS);
+        return timedTeleportFuture;
+    }
+
+    /**
+     * Ticks a timed teleport, decrementing the time left until the teleport is complete
+     * <p>
+     * A timed teleport will be cancelled if certain criteria are met:
+     * <ul>
+     *     <li>The player has left the server</li>
+     *     <li>The plugin is disabling</li>
+     *     <li>The player has moved beyond the movement threshold from when the warmup started</li>
+     *     <li>The player has taken damage (though they may heal, have status ailments or lose/gain hunger)</li>
+     * </ul>
      *
      * @param teleport the {@link TimedTeleport} being ticked
-     * @return {@code true} if the implementor should cancel the timedTeleport
+     * @return Optional containing the {@link TimedTeleport} after it has been ticked,
+     * or {@link Optional#empty()} if the teleport has been cancelled
      */
-    protected final Optional<TimedTeleport> tickTimedTeleport(@NotNull final TimedTeleport teleport) {
+    private Optional<TimedTeleport> tickTeleportWarmup(@NotNull final TimedTeleport teleport) {
         if (teleport.isDone()) {
             return Optional.of(teleport);
         }
@@ -241,13 +278,5 @@ public abstract class TeleportManager {
         teleport.countDown();
         return Optional.empty();
     }
-
-    /**
-     * Process a timed teleport, implemented by platform-specific schedulers
-     *
-     * @param teleport the {@link TimedTeleport} to process
-     * @return a future, returning when the teleport has finished
-     */
-    public abstract CompletableFuture<TimedTeleport> processTimedTeleport(TimedTeleport teleport);
 
 }

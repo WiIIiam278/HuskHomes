@@ -114,11 +114,10 @@ public abstract class TeleportManager {
      * @return future optionally supplying the player's position, if the player could be found
      */
     private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull OnlineUser requester, @NotNull String playerName) {
-        return CompletableFuture.supplyAsync(() -> {
             final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
                     player.username.equalsIgnoreCase(playerName)).findFirst();
             if (localPlayer.isPresent()) {
-                return localPlayer.get().getPosition().thenApply(Optional::of).join();
+                return localPlayer.get().getPosition().thenApply(Optional::of);
             }
             if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
@@ -129,10 +128,9 @@ public abstract class TeleportManager {
                                         new EmptyPayload(),
                                         Message.MessageKind.MESSAGE,
                                         plugin.getSettings().clusterId))
-                        .thenApply(reply -> Optional.of(Position.fromJson(reply.payload))).join();
+                        .thenApply(reply -> Optional.of(Position.fromJson(reply.payload)));
             }
-            return Optional.empty();
-        });
+            return CompletableFuture.supplyAsync(Optional::empty);
     }
 
     /**
@@ -142,21 +140,19 @@ public abstract class TeleportManager {
      * @param position   the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-        return CompletableFuture.supplyAsync(() -> {
             final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
             if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
                 return processTimedTeleport(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                         .thenApply(teleport -> {
                             if (!teleport.cancelled) {
-                                return teleportNow(onlineUser, position).join();
+                                return teleportNow(onlineUser, position);
                             } else {
-                                return TeleportResult.CANCELLED;
+                                return CompletableFuture.supplyAsync(() -> TeleportResult.CANCELLED);
                             }
                         }).join();
             } else {
-                return teleportNow(onlineUser, position).join();
+                return teleportNow(onlineUser, position);
             }
-        });
     }
 
     /**
@@ -189,7 +185,7 @@ public abstract class TeleportManager {
      */
     private CompletableFuture<TeleportResult> teleportNow(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         final Teleport teleport = new Teleport(onlineUser, position);
-        return CompletableFuture.supplyAsync(() -> onlineUser.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
+        return onlineUser.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
                 .setLastPosition(onlineUser, preTeleportPosition) // Update the player's last position
                 .thenApply(ignored -> plugin.getServer(onlineUser).thenApply(server -> {
                     // Teleport player locally, or across server depending on need
@@ -198,16 +194,16 @@ public abstract class TeleportManager {
                     } else {
                         return teleportCrossServer(onlineUser, teleport).join();
                     }
-                }).join()).join()).join());
+                }).join()).join());
     }
 
     private CompletableFuture<TeleportResult> teleportCrossServer(OnlineUser onlineUser, Teleport teleport) {
         assert plugin.getNetworkMessenger() != null;
-        return CompletableFuture.supplyAsync(() -> plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
+        return plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
                 .thenApply(ignored -> plugin.getNetworkMessenger().sendPlayer(onlineUser, teleport.target.server)
                         .thenApply(completed -> completed ? TeleportResult.COMPLETED_CROSS_SERVER :
                                 TeleportResult.FAILED_INVALID_SERVER)
-                        .join()).join());
+                        .join());
     }
 
     /**

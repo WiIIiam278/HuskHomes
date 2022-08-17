@@ -1,7 +1,6 @@
 package net.william278.huskhomes.config;
 
 import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
 import de.themoep.minedown.Util;
 import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * Loaded locales used by the plugin to display styled messages

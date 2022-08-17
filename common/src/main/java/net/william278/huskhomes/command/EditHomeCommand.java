@@ -2,14 +2,11 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

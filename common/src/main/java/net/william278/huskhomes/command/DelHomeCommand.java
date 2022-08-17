@@ -20,7 +20,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
 
-        switch (args.length) {
+        switch (args.length) { //todo delhome all
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
                     homes.stream().findFirst().ifPresent(home -> deletePlayerHome(onlineUser, onlineUser, home.meta.name));

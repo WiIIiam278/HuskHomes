@@ -17,7 +17,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable, Conso
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length == 1) {
+        if (args.length == 1) { //todo delwarp all
             final String warpName = args[0];
             plugin.getSavedPositionManager().deleteWarp(warpName).thenAccept(deleted -> {
                 if (deleted) {

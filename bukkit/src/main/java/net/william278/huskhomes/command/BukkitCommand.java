@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
      */
     public void register(@NotNull PluginCommand pluginCommand) {
         try {
-            pluginCommand.setAliases(pluginCommand.getAliases());
+            pluginCommand.setAliases(Arrays.asList(command.aliases));
             pluginCommand.setPermission(command.permission);
             pluginCommand.setDescription(command.getDescription());
             pluginCommand.setExecutor(this);

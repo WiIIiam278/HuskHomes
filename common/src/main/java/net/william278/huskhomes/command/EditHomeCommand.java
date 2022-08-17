@@ -2,11 +2,14 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -140,17 +143,21 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
 
                 final String oldHomeDescription = home.meta.description;
                 final String newDescription = editArgs;
+
                 plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> {
                                 if (home.owner.uuid.equals(editor.uuid)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_description",
                                             home.meta.name,
-                                            oldHomeDescription, newDescription);
+                                            oldHomeDescription,
+                                            newDescription);
                                 } else {
                                     yield plugin.getLocales().getLocale("edit_home_update_description_other",
-                                            home.owner.username, home.meta.name,
-                                            oldHomeDescription, newDescription);
+                                            home.owner.username,
+                                            home.meta.name,
+                                            oldHomeDescription,
+                                            newDescription);
                                 }
                             }
                             case FAILED_DESCRIPTION_LENGTH ->
@@ -270,13 +277,10 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                     .ifPresent(this::add);
 
             if (home.meta.description.length() > 0) {
-                final String escapedDescription = MineDown.escape(home.meta.description
-                        .replaceAll(Pattern.quote("("), "\\(")
-                        .replaceAll(Pattern.quote(")"), "\\)"));
                 plugin.getLocales().getLocale("edit_home_menu_description",
-                                escapedDescription.length() > 50
-                                        ? escapedDescription.substring(0, 49).trim() + "…" : escapedDescription,
-                                String.join("\n", escapedDescription.split("(?<=\\G.{40,}\\s)")))
+                                home.meta.description.length() > 50
+                                        ? home.meta.description.substring(0, 49).trim() + "…" : home.meta.description,
+                                String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
                         .ifPresent(this::add);
             }
 

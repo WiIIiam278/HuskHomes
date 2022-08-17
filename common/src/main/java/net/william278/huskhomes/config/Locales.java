@@ -1,14 +1,18 @@
 package net.william278.huskhomes.config;
 
 import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
+import de.themoep.minedown.Util;
 import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Loaded locales used by the plugin to display styled messages
@@ -37,7 +41,9 @@ public class Locales {
     }
 
     /**
-     * Returnsa raw, un-formatted locale loaded from the locales file, with replacements applied
+     * Returns a raw, un-formatted locale loaded from the locales file, with replacements applied
+     * <p>
+     * Note that replacements will not be MineDown-escaped; use {@link #escapeMineDown(String)} to escape replacements
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
@@ -59,13 +65,16 @@ public class Locales {
 
     /**
      * Returns a MineDown-formatted locale from the locales file, with replacements applied
+     * <p>
+     * Note that replacements will be MineDown-escaped before application
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return An {@link Optional} containing the replacement-applied, formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
-        return getRawLocale(localeId, replacements).map(MineDown::new);
+        return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeMineDown)
+                .toArray(String[]::new)).map(MineDown::new);
     }
 
     /**
@@ -84,6 +93,24 @@ public class Locales {
             replacementIndexer += 1;
         }
         return rawLocale;
+    }
+
+    @NotNull
+    private static String escapeMineDown(@NotNull String string) {
+        final StringBuilder value = new StringBuilder();
+        for (int i = 0; i < string.length(); ++i) {
+            char c = string.charAt(i);
+            boolean isEscape = c == '\\';
+            boolean isColorCode = i + 1 < string.length() && (c == 167 || c == '&');
+            boolean isEvent = c == '[' || c == ']' || c == '(' || c == ')';
+            boolean isFormatting = (c == '_' || c == '*' || c == '~' || c == '?' || c == '#') && Util.isDouble(string, i);
+            if (isEscape || isColorCode || isEvent || isFormatting) {
+                value.append('\\');
+            }
+
+            value.append(c);
+        }
+        return value.toString();
     }
 
     @SuppressWarnings("unused")

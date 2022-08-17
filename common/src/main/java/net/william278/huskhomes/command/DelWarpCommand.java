@@ -5,6 +5,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +39,8 @@ public class DelWarpCommand extends CommandBase implements TabCompletable, Conso
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        return plugin.getCache().warps.stream()
-                .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().warps.stream()
+                .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
                 .sorted().collect(Collectors.toList());
     }
 }

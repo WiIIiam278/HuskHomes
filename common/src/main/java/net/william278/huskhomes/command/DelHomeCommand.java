@@ -7,6 +7,7 @@ import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,8 +84,8 @@ public class DelHomeCommand extends CommandBase implements TabCompletable, Conso
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        return plugin.getCache().homes.get(onlineUser.uuid).stream()
-                .filter(s -> s.startsWith(args.length >= 1 ? args[0] : ""))
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes.get(onlineUser.uuid).stream()
+                .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
                 .sorted().collect(Collectors.toList());
     }
 }

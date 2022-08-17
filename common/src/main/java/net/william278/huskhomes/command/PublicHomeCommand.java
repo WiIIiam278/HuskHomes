@@ -8,6 +8,7 @@ import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().publicHomes.forEach((ownerName, homeNames) ->
                 homeNames.forEach(homeName -> publicHomes.add(ownerName + "." + homeName)));
-        return publicHomes.stream().filter(publicHomeIdentifier ->
+        return args.length > 1 ? Collections.emptyList() : publicHomes.stream().filter(publicHomeIdentifier ->
                         publicHomeIdentifier.split(Pattern.quote("."))[1].toLowerCase()
                                 .startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList());

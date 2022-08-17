@@ -13,25 +13,29 @@ public abstract class CommandBase {
     /**
      * The input string to match for this command
      */
+    @NotNull
     public final String command;
 
     /**
      * The permission node required to use this command
      */
-    public final String permission;
+    @NotNull
+    protected final String permission;
 
     /**
      * Alias input strings for this command
      */
-    public final String[] aliases;
+    @NotNull
+    protected final String[] aliases;
 
     /**
      * Instance of the implementing plugin
      */
-    public final HuskHomes plugin;
+    @NotNull
+    protected final HuskHomes plugin;
 
-
-    public CommandBase(@NotNull String command, @NotNull Permission permission, @NotNull HuskHomes implementor, String... aliases) {
+    protected CommandBase(@NotNull String command, @NotNull Permission permission, @NotNull HuskHomes implementor,
+                          @NotNull String... aliases) {
         this.command = command;
         this.permission = permission.node;
         this.plugin = implementor;
@@ -42,7 +46,7 @@ public abstract class CommandBase {
      * Fires when the command is executed
      *
      * @param onlineUser {@link OnlineUser} executing the command
-     * @param args   Command arguments
+     * @param args       Command arguments
      */
     public abstract void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args);
 
@@ -51,6 +55,7 @@ public abstract class CommandBase {
      *
      * @return the command description
      */
+    @NotNull
     public String getDescription() {
         return plugin.getLocales().getRawLocale(command + "_command_description")
                 .orElse("A HuskHomes command");

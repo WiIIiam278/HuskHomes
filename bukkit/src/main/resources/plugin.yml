@@ -17,20 +17,24 @@ commands:
     usage: /sethome <name>
   homelist:
     usage: /homelist [page]
+    aliases: [homes]
   delhome:
     usage: /delhome <name>
   edithome:
     usage: /edithome <name> [rename|description|relocate|privacy] [args]
   publichome:
     usage: /publichome [<owner_name>.<home_name>]
+    aliases:  [phome]
   publichomelist:
     usage: /publichomelist [page]
+    aliases:  [phomelist, phomes]
   warp:
     usage: /warp <name>
   setwarp:
     usage: /setwarp <name>
   warplist:
     usage: /warplist [page]
+    aliases: [warps]
   delwarp:
     usage: /delwarp <name>
   editwarp:

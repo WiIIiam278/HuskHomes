@@ -93,6 +93,15 @@ public class Locales {
         return rawLocale;
     }
 
+    /**
+     * Escape a string from {@link MineDown} formatting for use in a MineDown-formatted locale
+     * <p>
+     * Although MineDown provides {@link MineDown#escape(String)}, that method fails to escape events
+     * properly when using the escaped string in a replacement, so this is used instead
+     *
+     * @param string The string to escape
+     * @return The escaped string
+     */
     @NotNull
     private static String escapeMineDown(@NotNull String string) {
         final StringBuilder value = new StringBuilder();

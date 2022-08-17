@@ -33,5 +33,7 @@ commands:
     usage: /warplist [page]
   delwarp:
     usage: /delwarp <name>
+  editwarp:
+    usage: /editwarp <name> [rename|description|relocate] [args]
   back:
     usage: /back

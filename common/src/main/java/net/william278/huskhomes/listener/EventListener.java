@@ -61,7 +61,7 @@ public class EventListener {
                                 }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))));
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
-                plugin.getCache().updatePlayerList(plugin, onlineUser);
+                plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
             }
 
             // Cache this user's homes
@@ -91,7 +91,7 @@ public class EventListener {
             plugin.getOnlinePlayers().stream().filter(
                             onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))
                     .findAny().ifPresent(updater ->
-                            plugin.getCache().updatePlayerList(plugin, updater));
+                            plugin.getCache().updateOnlinePlayerList(plugin, updater));
         }
 
         // Set offline position

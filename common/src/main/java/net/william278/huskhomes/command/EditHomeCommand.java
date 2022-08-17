@@ -270,7 +270,9 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                     .ifPresent(this::add);
 
             if (home.meta.description.length() > 0) {
-                final String escapedDescription = MineDown.escape(home.meta.description);
+                final String escapedDescription = MineDown.escape(home.meta.description
+                        .replaceAll(Pattern.quote("("), "\\(")
+                        .replaceAll(Pattern.quote(")"), "\\)"));
                 plugin.getLocales().getLocale("edit_home_menu_description",
                                 escapedDescription.length() > 50
                                         ? escapedDescription.substring(0, 49).trim() + "…" : escapedDescription,

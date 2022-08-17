@@ -3,6 +3,7 @@ dependencies {
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'net.william278:Annotaml:1.0.1'
+    implementation 'net.william278:PagineDown:1.0.3'
     implementation('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'
     }
@@ -21,5 +22,6 @@ shadowJar {
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
     relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
+    relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 }

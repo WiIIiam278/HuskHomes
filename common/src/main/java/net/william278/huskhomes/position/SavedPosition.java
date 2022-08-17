@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Represents a persistently-saved {@link Position}
  */
-public abstract class SavedPosition extends Position {
+public abstract class SavedPosition extends Position implements Comparable<SavedPosition> {
 
     /**
      * Metadata about this position (name, description)
@@ -42,4 +42,9 @@ public abstract class SavedPosition extends Position {
         this.uuid = UUID.randomUUID();
     }
 
+    // Compare based on names for alphabetical sorting
+    @Override
+    public int compareTo(@NotNull SavedPosition o) {
+        return this.meta.name.compareTo(o.meta.name);
+    }
 }

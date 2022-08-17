@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.PublicHomeList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -37,21 +36,18 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
      * @param pageNumber page number to display
      */
     private void showPublicHomeList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().positionLists.containsKey(onlineUser.uuid)) {
-            if (plugin.getCache().positionLists.get(onlineUser.uuid) instanceof PublicHomeList publicHomeList) {
-                publicHomeList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
-                return;
-            }
+        if (plugin.getCache().publicHomeLists.containsKey(onlineUser.uuid)) {
+            onlineUser.sendMessage(plugin.getCache().publicHomeLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+            return;
         }
 
-        plugin.getDatabase().getPublicHomes().thenAccept(warps -> {
-            if (warps.isEmpty()) {
+        plugin.getDatabase().getPublicHomes().thenAccept(publicHomes -> {
+            if (publicHomes.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_public_homes_set").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            final PublicHomeList warpList = new PublicHomeList(warps, plugin);
-            plugin.getCache().positionLists.put(onlineUser.uuid, warpList);
-            warpList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
+            onlineUser.sendMessage(plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(), publicHomes,
+                    plugin.getSettings().listItemsPerPage, pageNumber));
         });
 
     }

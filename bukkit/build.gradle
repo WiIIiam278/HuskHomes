@@ -27,6 +27,7 @@ shadowJar {
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
     relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
+    relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'

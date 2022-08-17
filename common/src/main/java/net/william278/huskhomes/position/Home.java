@@ -1,16 +1,9 @@
 package net.william278.huskhomes.position;
 
-import de.themoep.minedown.MineDown;
-import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.player.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * Represents a home set by a {@link User}

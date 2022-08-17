@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -41,16 +40,14 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
     /**
      * Show a (cached) list of a {@link OnlineUser}'s homes
      *
-     * @param onlineUser     the user to display the homes to
+     * @param onlineUser the user to display the homes to
      * @param homeOwner  the user whose homes should be displayed
      * @param pageNumber page number to display
      */
     private void showHomeList(@NotNull OnlineUser onlineUser, @NotNull String homeOwner, int pageNumber) {
-        if (plugin.getCache().positionLists.containsKey(onlineUser.uuid)) {
-            if (plugin.getCache().positionLists.get(onlineUser.uuid) instanceof PrivateHomeList privateHomeList) {
-                privateHomeList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
-                return;
-            }
+        if (plugin.getCache().privateHomeLists.containsKey(onlineUser.uuid)) {
+            onlineUser.sendMessage(plugin.getCache().privateHomeLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+            return;
         }
         plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {
             if (!userData.getUserUuid().equals(onlineUser.uuid)) {
@@ -64,9 +61,8 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                     plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                final PrivateHomeList homeList = new PrivateHomeList(homes, userData.user(), plugin);
-                plugin.getCache().positionLists.put(onlineUser.uuid, homeList);
-                homeList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
+                onlineUser.sendMessage(plugin.getCache().getHomeList(onlineUser, userData.user(),
+                        plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, pageNumber));
             });
         }, () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(onlineUser::sendMessage)));
 

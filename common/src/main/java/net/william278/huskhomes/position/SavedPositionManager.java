@@ -47,7 +47,7 @@ public class SavedPositionManager {
                         final Home home = new Home(position, homeMeta, homeOwner);
                         cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                         cache.homes.get(home.owner.uuid).add(home.meta.name);
-                        cache.positionLists.clear();
+                        cache.privateHomeLists.remove(home.owner.uuid);
                         return database.setHome(home).thenApply(value ->
                                 new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                     }
@@ -72,7 +72,8 @@ public class SavedPositionManager {
                         homeNames.remove(home.meta.name);
                         return homeNames;
                     });
-                    cache.positionLists.clear();
+                    cache.privateHomeLists.remove(home.owner.uuid);
+                    cache.publicHomeLists.clear();
                     return true;
                 }).join();
             }
@@ -118,7 +119,8 @@ public class SavedPositionManager {
                     cache.homes.get(home.owner.uuid).remove(existingHomeName);
                     cache.homes.get(home.owner.uuid).add(newHomeMeta.name);
                 }
-                cache.positionLists.clear();
+                cache.privateHomeLists.remove(home.owner.uuid);
+                cache.publicHomeLists.clear();
                 return database.setHome(home).thenApply(value ->
                         new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
             });
@@ -197,7 +199,8 @@ public class SavedPositionManager {
             } else if (cache.publicHomes.containsKey(home.owner.username)) {
                 cache.publicHomes.get(home.owner.username).remove(home.meta.name);
             }
-            cache.positionLists.clear();
+            cache.privateHomeLists.remove(home.owner.uuid);
+            cache.publicHomeLists.clear();
             return true;
         });
     }
@@ -216,7 +219,7 @@ public class SavedPositionManager {
                     if (optionalWarp.isEmpty()) {
                         final Warp warp = new Warp(position, warpMeta);
                         cache.warps.add(warp.meta.name);
-                        cache.positionLists.clear();
+                        cache.warpLists.clear();
                         return database.setWarp(warp).thenApply(ignored ->
                                 new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                     }
@@ -237,7 +240,7 @@ public class SavedPositionManager {
                 final Warp warp = optionalWarp.get();
                 return database.deleteWarp(warp.uuid).thenApply(ignored -> {
                     cache.warps.remove(warp.meta.name);
-                    cache.positionLists.clear();
+                    cache.warpLists.clear();
                     return true;
                 }).join();
             }
@@ -282,7 +285,7 @@ public class SavedPositionManager {
                     cache.warps.remove(existingWarpName);
                     cache.warps.add(newWarpMeta.name);
                 }
-                cache.positionLists.clear();
+                cache.warpLists.clear();
                 return database.setWarp(warp).thenApply(value ->
                         new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
             });

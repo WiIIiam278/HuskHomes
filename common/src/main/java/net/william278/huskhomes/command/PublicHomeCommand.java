@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.PublicHomeList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
@@ -29,9 +28,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                     return;
                 }
 
-                final PublicHomeList homeList = new PublicHomeList(publicHomes, plugin);
-                plugin.getCache().positionLists.put(onlineUser.uuid, homeList);
-                homeList.getDisplay(1).forEach(onlineUser::sendMessage);
+                onlineUser.sendMessage(plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(), publicHomes,
+                        plugin.getSettings().listItemsPerPage,1));
             });
             case 1 -> {
                 final String homeName = args[0];

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.WarpList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -37,11 +36,9 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
      * @param pageNumber page number to display
      */
     private void showWarpList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().positionLists.containsKey(onlineUser.uuid)) {
-            if (plugin.getCache().positionLists.get(onlineUser.uuid) instanceof WarpList warpList) {
-                warpList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
-                return;
-            }
+        if (plugin.getCache().warpLists.containsKey(onlineUser.uuid)) {
+            onlineUser.sendMessage(plugin.getCache().warpLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+            return;
         }
         
         plugin.getDatabase().getWarps().thenAccept(warps -> {
@@ -49,9 +46,8 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
                 plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            final WarpList warpList = new WarpList(warps, plugin);
-            plugin.getCache().positionLists.put(onlineUser.uuid, warpList);
-            warpList.getDisplay(pageNumber).forEach(onlineUser::sendMessage);
+            onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
+                    plugin.getSettings().listItemsPerPage, pageNumber));
         });
     }
 

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.WarpList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +22,8 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                     plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                final WarpList warpList = new WarpList(warps, plugin);
-                plugin.getCache().positionLists.put(onlineUser.uuid, warpList);
-                warpList.getDisplay(1).forEach(onlineUser::sendMessage);
+                onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
+                        plugin.getSettings().listItemsPerPage, 1));
             });
             case 1 -> {
                 final String warpName = args[0];

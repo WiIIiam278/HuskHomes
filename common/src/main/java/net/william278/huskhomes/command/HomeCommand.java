@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.list.PrivateHomeList;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
@@ -21,20 +20,12 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
         switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 // Send the home list if they have homes set. If they have just one home set, teleport the player
-                try {
-                    switch (homes.size()) {
-                        case 0 ->
-                                plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
-                        case 1 -> plugin.getTeleportManager().teleport(onlineUser, homes.get(0)).thenAccept(result ->
-                                plugin.getTeleportManager().finishTeleport(onlineUser, result)).join();
-                        default -> {
-                            final PrivateHomeList homeList = new PrivateHomeList(homes, onlineUser, plugin);
-                            plugin.getCache().positionLists.put(onlineUser.uuid, homeList);
-                            homeList.getDisplay(1).forEach(onlineUser::sendMessage);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                switch (homes.size()) {
+                    case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
+                    case 1 -> plugin.getTeleportManager().teleport(onlineUser, homes.get(0)).thenAccept(result ->
+                            plugin.getTeleportManager().finishTeleport(onlineUser, result)).join();
+                    default -> onlineUser.sendMessage(plugin.getCache().getHomeList(onlineUser, onlineUser,
+                            plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage,1));
                 }
             });
             case 1 -> {

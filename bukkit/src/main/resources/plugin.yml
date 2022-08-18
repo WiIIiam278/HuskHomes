@@ -45,5 +45,15 @@ commands:
   tphere:
     usage: /tphere <player>
     aliases: [tpohere]
+  tpa:
+    usage: /tpa <player>
+  tpahere:
+    usage: /tpahere <player>
+  tpaccept:
+    usage: /tpaccept
+    aliases: [tpyes]
+  tpdecline:
+    usage: /tpdecline
+    aliases: [tpdeny, tpno]
   back:
     usage: /back

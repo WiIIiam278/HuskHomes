@@ -13,7 +13,7 @@ public class MessageTests {
     @Test
     public void testMessageSerializationWithEmptyPayload() {
         final Message message = new Message(
-                Message.MessageType.TP_REQUEST,
+                Message.MessageType.TELEPORT_REQUEST,
                 "TestSender",
                 "TestTarget",
                 MessagePayload.empty(),
@@ -49,5 +49,4 @@ public class MessageTests {
         Assertions.assertEquals(message.payload.position.y, readMessage.payload.position.y);
         Assertions.assertEquals(message.payload.position.z, readMessage.payload.position.z);
     }
-
 }

@@ -36,6 +36,18 @@ public class RequestManager {
         this.ignoringRequests = new HashSet<>();
     }
 
+    public void setIgnoringRequests(@NotNull User user) {
+        this.ignoringRequests.add(user.uuid);
+    }
+
+    public void removeIgnoringRequests(@NotNull User user) {
+        this.ignoringRequests.remove(user.uuid);
+    }
+
+    public boolean isIgnoringRequests(@NotNull User user) {
+        return this.ignoringRequests.contains(user.uuid);
+    }
+
     public void addTeleportRequest(@NotNull TeleportRequest request, @NotNull User recipient) {
         this.requests.computeIfAbsent(recipient.uuid, uuid -> new ArrayList<>()).add(request);
     }
@@ -53,7 +65,7 @@ public class RequestManager {
 
     public Optional<TeleportRequest> getTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
         return this.requests.getOrDefault(recipient.uuid, Collections.emptyList()).stream().filter(request ->
-                request.requester.username.equals(requesterName)).findFirst();
+                request.requesterName.equals(requesterName)).findFirst();
     }
 
     /**
@@ -117,17 +129,22 @@ public class RequestManager {
      * @return {@code true} if the request was sent, {@code false} if it was not sent because the recipient is ignoring requests
      */
     public boolean sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
-        if (ignoringRequests.contains(recipient.uuid)) {
+        if (isIgnoringRequests(recipient)) {
             request.status = TeleportRequest.RequestStatus.IGNORED;
             return false;
+        }
+
+        // If the person already has a request from the sender by name, don't bother sending another one
+        if (getTeleportRequest(request.requesterName, recipient).isPresent()) {
+            return true;
         }
 
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.type == TeleportRequest.RequestType.TPA ? "tpa" : "tpahere")
-                                      + "_request_received", request.requester.username)
+                                      + "_request_received", request.requesterName)
                 .ifPresent(recipient::sendMessage);
-        plugin.getLocales().getLocale("teleport_request_buttons", request.requester.username)
+        plugin.getLocales().getLocale("teleport_request_buttons", request.requesterName)
                 .ifPresent(recipient::sendMessage);
         return true;
     }
@@ -135,7 +152,7 @@ public class RequestManager {
     public void respondToTeleportRequestBySenderName(@NotNull OnlineUser recipient, @NotNull String senderName,
                                                      boolean accepted) {
         // Check the recipient is not ignoring teleport requests
-        if (ignoringRequests.contains(recipient.uuid)) {
+        if (isIgnoringRequests(recipient)) {
             plugin.getLocales().getLocale("error_ignoring_teleport_requests").ifPresent(recipient::sendMessage);
             return;
         }
@@ -152,7 +169,7 @@ public class RequestManager {
 
     public void respondToTeleportRequest(@NotNull OnlineUser recipient, boolean accepted) {
         // Check the recipient is not ignoring teleport requests
-        if (ignoringRequests.contains(recipient.uuid)) {
+        if (isIgnoringRequests(recipient)) {
             plugin.getLocales().getLocale("error_ignoring_teleport_requests").ifPresent(recipient::sendMessage);
             return;
         }
@@ -178,19 +195,19 @@ public class RequestManager {
 
         // Send request response confirmation to the recipient
         plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
-                        request.requester.username)
+                        request.requesterName)
                 .ifPresent(recipient::sendMessage);
         request.status = accepted ? TeleportRequest.RequestStatus.ACCEPTED : TeleportRequest.RequestStatus.DECLINED;
 
         // Send request response to the sender
         CompletableFuture.runAsync(() -> {
-            final Optional<OnlineUser> localSender = plugin.findPlayer(request.requester.username);
+            final Optional<OnlineUser> localSender = plugin.findPlayer(request.requesterName);
             if (localSender.isPresent()) {
                 handleLocalRequestResponse(localSender.get(), request);
             } else if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
                 // Ensure the sender is still online
-                if (!plugin.getNetworkMessenger().findPlayer(recipient, request.requester.username).thenApply(networkedTarget -> {
+                if (!plugin.getNetworkMessenger().findPlayer(recipient, request.requesterName).thenApply(networkedTarget -> {
                     if (networkedTarget.isEmpty()) {
                         plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
                                 .ifPresent(recipient::sendMessage);
@@ -222,9 +239,10 @@ public class RequestManager {
             if (accepted && request.type == TeleportRequest.RequestType.TPA_HERE) {
                 // Strict /tpahere requests will teleport to where the sender was when typing the command
                 if (plugin.getSettings().strictTpaHereRequests) {
-                    plugin.getTeleportManager().teleport(recipient, request.requesterPosition);
+                    plugin.getTeleportManager().timedTeleport(recipient, request.requesterPosition).thenAccept(
+                            teleportResult -> plugin.getTeleportManager().finishTeleport(recipient, teleportResult));
                 } else {
-                    plugin.getTeleportManager().teleportToPlayerByName(recipient, request.requester.username);
+                    plugin.getTeleportManager().teleportToPlayerByName(recipient, request.requesterName);
                 }
             }
         });

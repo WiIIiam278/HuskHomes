@@ -22,6 +22,10 @@ public enum BukkitCommandType {
     EDIT_WARP_COMMAND(new EditWarpCommand(BukkitHuskHomes.getInstance())),
     TP_COMMAND(new TpCommand(BukkitHuskHomes.getInstance())),
     TP_HERE_COMMAND(new TpHereCommand(BukkitHuskHomes.getInstance())),
+    TPA_COMMAND(new TpaCommand(BukkitHuskHomes.getInstance())),
+    TPA_HERE_COMMAND(new TpaHereCommand(BukkitHuskHomes.getInstance())),
+    TPACCEPT_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), true)),
+    TPDECLINE_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), false)),
     BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));
 
     public final CommandBase commandBase;

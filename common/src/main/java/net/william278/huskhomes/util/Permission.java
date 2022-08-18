@@ -103,7 +103,7 @@ public enum Permission {
     /**
      * Lets the user deny a tp request ({@code /tpdeny})
      */
-    COMMAND_TPDENY("huskhomes.command.tpdeny", DefaultAccess.EVERYONE),
+    COMMAND_TPDECLINE("huskhomes.command.tpdecline", DefaultAccess.EVERYONE),
     /**
      * Lets the user ignore incoming tp requests ({@code /tpignore})
      */

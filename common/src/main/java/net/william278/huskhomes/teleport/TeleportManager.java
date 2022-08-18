@@ -8,7 +8,6 @@ import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
-import net.william278.huskhomes.util.MatcherUtil;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -107,14 +106,30 @@ public class TeleportManager {
      * @param targetPlayer the name of the target player
      */
     public void teleportToPlayerByName(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer) {
-        MatcherUtil.matchPlayerName(targetPlayer, plugin).ifPresentOrElse(playerName ->
-                        getPlayerPositionByName(onlineUser, playerName).thenAccept(optionalPosition ->
-                                optionalPosition.ifPresentOrElse(targetPosition ->
-                                                timedTeleport(onlineUser, targetPosition).thenAccept(result ->
-                                                        finishTeleport(onlineUser, result)),
-                                        () -> plugin.getLocales().getLocale("error_invalid_player").
-                                                ifPresent(onlineUser::sendMessage))),
-                () -> plugin.getLocales().getLocale("error_invalid_player").ifPresent(onlineUser::sendMessage));
+        CompletableFuture.runAsync(() -> {
+            Optional<OnlineUser> localPlayer = plugin.findPlayer(targetPlayer);
+
+            if (localPlayer.isPresent()) {
+                timedTeleport(onlineUser, localPlayer.get().getPosition().join())
+                        .thenAccept(result -> finishTeleport(onlineUser, result));
+            } else {
+                if (plugin.getSettings().crossServer) {
+                    assert plugin.getNetworkMessenger() != null;
+                    getPlayerPositionByName(onlineUser, targetPlayer).thenAccept(optionalPosition -> {
+                        if (optionalPosition.isPresent()) {
+                            timedTeleport(onlineUser, optionalPosition.get())
+                                    .thenAccept(teleportResult -> finishTeleport(onlineUser, teleportResult));
+                            return;
+                        }
+                        plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
+                                .ifPresent(onlineUser::sendMessage);
+                    });
+                }
+                return;
+            }
+            plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
+                    .ifPresent(onlineUser::sendMessage);
+        });
     }
 
     /**
@@ -183,7 +198,8 @@ public class TeleportManager {
      * @param playerName the username of the player being requested
      * @return future optionally supplying the player's position, if the player could be found
      */
-    private CompletableFuture<Optional<Position>> getPlayerPositionByName(@NotNull OnlineUser requester, @NotNull String playerName) {
+    private CompletableFuture<Optional<Position>> getPlayerPositionByName(@NotNull OnlineUser requester,
+                                                                          @NotNull String playerName) {
         final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
                 player.username.equalsIgnoreCase(playerName)).findFirst();
         if (localPlayer.isPresent()) {
@@ -191,14 +207,21 @@ public class TeleportManager {
         }
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
-            return plugin.getNetworkMessenger().sendMessage(requester,
-                            new Message(Message.MessageType.POSITION_REQUEST,
-                                    requester.username,
-                                    playerName,
-                                    MessagePayload.empty(),
-                                    Message.RelayType.MESSAGE,
-                                    plugin.getSettings().clusterId))
-                    .thenApply(reply -> Optional.ofNullable(reply.payload.position));
+            return plugin.getNetworkMessenger().findPlayer(requester, playerName).thenApply(foundPlayer -> {
+                if (foundPlayer.isEmpty()) {
+                    return Optional.empty();
+                }
+                return plugin.getNetworkMessenger().sendMessage(requester,
+                                new Message(Message.MessageType.POSITION_REQUEST,
+                                        requester.username,
+                                        playerName,
+                                        MessagePayload.empty(),
+                                        Message.RelayType.MESSAGE,
+                                        plugin.getSettings().clusterId))
+                        .orTimeout(3, TimeUnit.SECONDS)
+                        .exceptionally(throwable -> null)
+                        .thenApply(reply -> Optional.ofNullable(reply.payload.position)).join();
+            });
         }
         return CompletableFuture.supplyAsync(Optional::empty);
     }

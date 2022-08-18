@@ -2,7 +2,6 @@ package net.william278.huskhomes.request;
 
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +15,8 @@ public class TeleportRequest {
     /**
      * The user making the request
      */
-    protected User requester;
+    @SerializedName("requester_name")
+    protected String requesterName;
 
     /**
      * The position of the requester, relevant in the case of a {@link RequestType#TPA_HERE} request
@@ -53,13 +53,14 @@ public class TeleportRequest {
      */
     protected TeleportRequest(@NotNull OnlineUser requester, @NotNull RequestType requestType,
                               final long expiryTime) {
-        this.requester = requester;
+        this.requesterName = requester.username;
         this.requesterPosition = requester.getPosition().join();
         this.type = requestType;
         this.status = RequestStatus.PENDING;
         this.expiryTime = expiryTime;
     }
 
+    @SuppressWarnings("unused")
     private TeleportRequest() {
     }
 

@@ -148,7 +148,6 @@ error_permission_restricted_warp: '[Error:](#ff3300) [You do not have permission
 error_invalid_page_number: '[Error:](#ff3300) [Please specify a valid page number.](#ff7e5e)'
 error_invalid_on_arrival: '[Error:](#ff3300) [Failed to finish teleportation as the target world could not be found.](#ff7e5e)'
 error_no_offline_position: '[Error:](#ff3300) [Could not find where %1% last logged out.](#ff7e5e)'
-error_invalid_player: '[Error:](#ff3300) [Please specify the name of a valid player!](#ff7e5e)'
 error_no_homes_set_other: '[Error:](#ff3300) [%1% has not set any homes!](#ff7e5e)'
 error_home_invalid_other: '[Error:](#ff3300) [%1% does not have a home set named "%2%"](#ff7e5e)'
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'

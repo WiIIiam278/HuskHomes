@@ -61,8 +61,8 @@ public class RedisMessenger extends PluginMessenger {
     }
 
     @Override
-    protected CompletableFuture<Void> sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
-        return redisWorker.sendMessage(reply);
+    protected void sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
+        redisWorker.sendMessage(reply);
     }
 
     @Override

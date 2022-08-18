@@ -43,6 +43,11 @@ public abstract class NetworkMessenger {
     protected String clusterId;
 
     /**
+     * The implementing HuskHomes plugin instance
+     */
+    private HuskHomes plugin;
+
+    /**
      * Initialize the network messenger
      *
      * @param implementor Instance of the implementing plugin
@@ -50,6 +55,7 @@ public abstract class NetworkMessenger {
     public void initialize(@NotNull HuskHomes implementor) {
         this.processingMessages = new HashMap<>();
         this.clusterId = implementor.getSettings().clusterId;
+        this.plugin = implementor;
     }
 
     /**
@@ -97,9 +103,8 @@ public abstract class NetworkMessenger {
      * Send a reply to a received {@link Message}
      *
      * @param reply The reply {@link Message} to send
-     * @return A future completing when the message has been sent
      */
-    protected abstract CompletableFuture<Void> sendReply(@NotNull OnlineUser replier, @NotNull Message reply);
+    protected abstract void sendReply(@NotNull OnlineUser replier, @NotNull Message reply);
 
     /**
      * Handle and action received network {@link Message}s
@@ -127,6 +132,14 @@ public abstract class NetworkMessenger {
             switch (message.type) {
                 case TP_REQUEST -> {
                     //todo
+                }
+                case TP_TO_POSITION_REQUEST -> {
+                    if (message.payload.position != null) {
+                        message.payload = MessagePayload.withTeleportResult(plugin.getTeleportManager()
+                                .teleport(receiver, message.payload.position).join());
+                    } else {
+                        message.payload = MessagePayload.empty();
+                    }
                 }
                 case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition().join());
             }

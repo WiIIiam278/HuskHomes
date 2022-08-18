@@ -38,7 +38,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                 RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
                         homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
                                 .thenAccept(optionalUserData -> optionalUserData.ifPresentOrElse(
-                                        userData -> plugin.getTeleportManager().teleportToHome(onlineUser, userData.user(), homeIdentifier.homeName()),
+                                        userData -> plugin.getTeleportManager().teleportToHomeByName(onlineUser, userData.user(), homeIdentifier.homeName()),
                                         () -> plugin.getLocales().getLocale("error_home_invalid_other", homeIdentifier.ownerName(), homeIdentifier.homeName())
                                                 .ifPresent(onlineUser::sendMessage))),
                         () -> plugin.getDatabase().getPublicHomes().thenAccept(publicHomes -> {

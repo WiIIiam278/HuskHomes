@@ -82,6 +82,7 @@ public class Message {
      */
     public enum MessageType {
         TP_REQUEST,
+        TP_TO_POSITION_REQUEST,
         POSITION_REQUEST
     }
 

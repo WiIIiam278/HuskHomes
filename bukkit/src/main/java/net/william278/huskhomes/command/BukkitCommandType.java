@@ -21,6 +21,7 @@ public enum BukkitCommandType {
     DEL_WARP_COMMAND(new DelWarpCommand(BukkitHuskHomes.getInstance())),
     EDIT_WARP_COMMAND(new EditWarpCommand(BukkitHuskHomes.getInstance())),
     TP_COMMAND(new TpCommand(BukkitHuskHomes.getInstance())),
+    TP_HERE_COMMAND(new TpHereCommand(BukkitHuskHomes.getInstance())),
     BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));
 
     public final CommandBase commandBase;

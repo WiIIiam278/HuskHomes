@@ -22,7 +22,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        OnlineUser userToTeleport = onlineUser;
+        String teleportingUserName = onlineUser.username;
         TeleportCommandTarget targetPosition;
 
         // Validate argument length
@@ -40,13 +40,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             int coordinatesIndex = ((args.length > 3 && (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3])))
                                     || (args.length == 2)) ? 1 : 0;
             if (coordinatesIndex == 1) {
-                userToTeleport = plugin.getOnlinePlayers().stream().filter(user -> user.username.equalsIgnoreCase(args[0]))
-                        .findFirst().orElse(plugin.getOnlinePlayers().stream().filter(user -> user.username.startsWith(args[0]))
-                                .findFirst().orElse(null));
-                if (userToTeleport == null) {
-                    plugin.getLocales().getLocale("error_player_not_found", args[0]).ifPresent(onlineUser::sendMessage);
-                    return;
-                }
+                teleportingUserName = args[0];
             }
 
             // Determine the target position (player or coordinates)
@@ -73,15 +67,25 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         }
 
         // Execute the teleport
-        final OnlineUser teleportingUser = userToTeleport;
+        final String playerToTeleportName = teleportingUserName;
         if (targetPosition.targetType == TeleportCommandTarget.TargetType.PLAYER) {
+            // Teleport players by usernames
             assert targetPosition.targetPlayer != null;
-            CompletableFuture.runAsync(() -> plugin.getTeleportManager().teleportToPlayer(teleportingUser, targetPosition.targetPlayer));
+            CompletableFuture.runAsync(() -> plugin.getTeleportManager()
+                    .teleportPlayerToPlayerByName(playerToTeleportName, targetPosition.targetPlayer, onlineUser)
+                    .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
+                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result),
+                            () -> plugin.getLocales().getLocale("error_player_not_found", playerToTeleportName)
+                                    .ifPresent(onlineUser::sendMessage))));
             return;
         } else if (targetPosition.targetType == TeleportCommandTarget.TargetType.POSITION) {
+            // Teleport players by specified position
             assert targetPosition.targetPosition != null;
-            plugin.getTeleportManager().teleport(teleportingUser, targetPosition.targetPosition).thenAccept(
-                    result -> plugin.getTeleportManager().finishTeleport(teleportingUser, result));
+            plugin.getTeleportManager().teleportPlayerByName(playerToTeleportName, targetPosition.targetPosition, onlineUser)
+                    .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
+                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result),
+                            () -> plugin.getLocales().getLocale("error_player_not_found", playerToTeleportName)
+                                    .ifPresent(onlineUser::sendMessage)));
             return;
         }
         throw new HuskHomesException("Attempted to execute invalid teleport command operation");

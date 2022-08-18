@@ -106,13 +106,13 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    protected CompletableFuture<Void> sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
-        return sendPluginMessage((BukkitPlayer) replier, reply);
+    protected void sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
+        sendPluginMessage((BukkitPlayer) replier, reply);
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private CompletableFuture<Void> sendPluginMessage(@NotNull BukkitPlayer player, @NotNull Message message) {
-        return CompletableFuture.runAsync(() -> {
+    private void sendPluginMessage(@NotNull BukkitPlayer player, @NotNull Message message) {
+        CompletableFuture.runAsync(() -> {
             final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
             messageWriter.writeUTF("ForwardToPlayer");
             messageWriter.writeUTF(message.targetPlayer);

@@ -40,7 +40,10 @@ commands:
   editwarp:
     usage: /editwarp <name> [rename|description|relocate] [args]
   tp:
-    usage: /tp <name>
+    usage: /tp <target> [destination]
     aliases: [tpo]
+  tphere:
+    usage: /tphere <player>
+    aliases: [tpohere]
   back:
     usage: /back

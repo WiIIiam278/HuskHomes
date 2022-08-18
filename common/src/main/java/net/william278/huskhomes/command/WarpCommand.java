@@ -27,7 +27,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             });
             case 1 -> {
                 final String warpName = args[0];
-                plugin.getTeleportManager().teleportToWarp(onlineUser, warpName);
+                plugin.getTeleportManager().teleportToWarpByName(onlineUser, warpName);
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/warp [name]")
                     .ifPresent(onlineUser::sendMessage);

@@ -2,6 +2,7 @@ package net.william278.huskhomes.messenger;
 
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.request.TeleportRequest;
 import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,13 @@ public class MessagePayload {
     @Nullable
     @SerializedName("teleport_result")
     public TeleportResult teleportResult;
+
+    /**
+     * A teleport request field
+     */
+    @Nullable
+    @SerializedName("teleport_request")
+    public TeleportRequest teleportRequest;
 
     /**
      * Returns an empty cross-server message payload
@@ -57,6 +65,19 @@ public class MessagePayload {
     public static MessagePayload withTeleportResult(@NotNull TeleportResult teleportResult) {
         final MessagePayload payload = new MessagePayload();
         payload.teleportResult = teleportResult;
+        return payload;
+    }
+
+    /**
+     * Returns a payload containing a {@link TeleportRequest}
+     *
+     * @param teleportRequest the teleport to send
+     * @return a payload containing the teleport request
+     */
+    @NotNull
+    public static MessagePayload withTeleportRequest(@NotNull TeleportRequest teleportRequest) {
+        final MessagePayload payload = new MessagePayload();
+        payload.teleportRequest = teleportRequest;
         return payload;
     }
 

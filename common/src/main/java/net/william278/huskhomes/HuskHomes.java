@@ -1,6 +1,5 @@
 package net.william278.huskhomes;
 
-import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
@@ -9,6 +8,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.SavedPositionManager;
+import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Version;
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,6 +40,21 @@ public interface HuskHomes {
      */
     @NotNull
     List<OnlineUser> getOnlinePlayers();
+
+    /**
+     * Finds a {@link OnlineUser} by their name. Auto-completes partially typed names for a closest match
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> findPlayer(@NotNull String playerName) {
+        return Optional.ofNullable(getOnlinePlayers().stream()
+                .filter(user -> user.username.equalsIgnoreCase(playerName))
+                .findFirst()
+                .orElse(getOnlinePlayers().stream()
+                        .filter(user -> user.username.toLowerCase().startsWith(playerName.toLowerCase()))
+                        .findFirst().orElse(null)));
+    }
 
     /**
      * The plugin {@link Settings} loaded from file
@@ -75,10 +91,17 @@ public interface HuskHomes {
     /**
      * The {@link TeleportManager} that manages player teleports
      *
-     * @return the {@link TeleportManager} implementation
+     * @return the plugin {@link TeleportManager}
      */
     @NotNull
     TeleportManager getTeleportManager();
+
+    /**
+     * The {@link RequestManager} that manages player requests
+     *
+     * @return the plugin {@link RequestManager}
+     */
+    @NotNull RequestManager getRequestManager();
 
     /**
      * The {@link SavedPositionManager} that manages setting homes and warps

@@ -5,9 +5,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Server;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class NetworkMessenger {
@@ -45,7 +43,7 @@ public abstract class NetworkMessenger {
     /**
      * The implementing HuskHomes plugin instance
      */
-    private HuskHomes plugin;
+    protected HuskHomes plugin;
 
     /**
      * Initialize the network messenger
@@ -65,6 +63,25 @@ public abstract class NetworkMessenger {
      * @return Future returning a {@link List} of usernames of players on the proxy network
      */
     public abstract CompletableFuture<String[]> getOnlinePlayerNames(@NotNull OnlineUser requester);
+
+    /**
+     * Find a player on the proxy network by username to validate if they exist.
+     *
+     * @param requester  {@link OnlineUser} to send the request
+     * @param playerName Approximate name of the player to find. If an exact match is not found,
+     *                   this will attempt to return the closest match
+     * @return Future returning an {@link Optional} of the player's canonical username if found;
+     * otherwise an empty {@link Optional}
+     */
+    public final CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String playerName) {
+        return getOnlinePlayerNames(requester).thenApply(networkedPlayers ->
+                Optional.ofNullable(Arrays.stream(networkedPlayers)
+                        .filter(user -> user.equalsIgnoreCase(playerName))
+                        .findFirst()
+                        .orElse(Arrays.stream(networkedPlayers)
+                                .filter(user -> user.toLowerCase().startsWith(playerName))
+                                .findFirst().orElse(null))));
+    }
 
     /**
      * Fetch the name of this server on the proxy network
@@ -130,10 +147,7 @@ public abstract class NetworkMessenger {
         return CompletableFuture.supplyAsync(() -> {
             // Handle different message types and apply changes for reply message
             switch (message.type) {
-                case TP_REQUEST -> {
-                    //todo
-                }
-                case TP_TO_POSITION_REQUEST -> {
+                case TELEPORT_TO_POSITION_REQUEST -> {
                     if (message.payload.position != null) {
                         message.payload = MessagePayload.withTeleportResult(plugin.getTeleportManager()
                                 .teleport(receiver, message.payload.position).join());
@@ -142,6 +156,20 @@ public abstract class NetworkMessenger {
                     }
                 }
                 case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition().join());
+                case TELEPORT_REQUEST -> {
+                    if (message.payload.teleportRequest != null) {
+                        plugin.getRequestManager().sendLocalTeleportRequest(message.payload.teleportRequest, receiver);
+                    } else {
+                        message.payload = MessagePayload.empty();
+                    }
+                }
+                case TELEPORT_REQUEST_RESPONSE -> {
+                    if (message.payload.teleportRequest != null) {
+                        plugin.getRequestManager().handleLocalRequestResponse(receiver, message.payload.teleportRequest);
+                    } else {
+                        message.payload = MessagePayload.empty();
+                    }
+                }
             }
 
             // Prepare reply message

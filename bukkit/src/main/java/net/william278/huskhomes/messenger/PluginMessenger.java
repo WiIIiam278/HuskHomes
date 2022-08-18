@@ -48,7 +48,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
         final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
         pluginMessageWriter.writeUTF("PlayerList");
         pluginMessageWriter.writeUTF("ALL");
-        ((BukkitPlayer) requester).sendPluginMessage(BukkitHuskHomes.getInstance(),
+        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
                 BUNGEE_PLUGIN_CHANNEL_NAME,
                 pluginMessageWriter.toByteArray());
         return onlinePlayerNamesRequest;
@@ -60,7 +60,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
         serverNameRequest = new CompletableFuture<>();
         final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
         pluginMessageWriter.writeUTF("GetServer");
-        ((BukkitPlayer) requester).sendPluginMessage(BukkitHuskHomes.getInstance(),
+        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
                 BUNGEE_PLUGIN_CHANNEL_NAME,
                 pluginMessageWriter.toByteArray());
         return serverNameRequest;
@@ -72,7 +72,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
         onlineServersRequest = new CompletableFuture<>();
         final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
         pluginMessageWriter.writeUTF("GetServers");
-        ((BukkitPlayer) requester).sendPluginMessage(BukkitHuskHomes.getInstance(),
+        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
                 BUNGEE_PLUGIN_CHANNEL_NAME,
                 pluginMessageWriter.toByteArray());
         return onlineServersRequest;
@@ -87,7 +87,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
                     final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
                     pluginMessageWriter.writeUTF("Connect");
                     pluginMessageWriter.writeUTF(server.name);
-                    ((BukkitPlayer) onlineUser).sendPluginMessage(BukkitHuskHomes.getInstance(),
+                    ((BukkitPlayer) onlineUser).sendPluginMessage((BukkitHuskHomes) plugin,
                             BUNGEE_PLUGIN_CHANNEL_NAME,
                             pluginMessageWriter.toByteArray());
                     return true;
@@ -126,26 +126,26 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
                     messageWriter.write(messageByteOutputStream.toByteArray());
                 }
             } catch (IOException e) {
-                BukkitHuskHomes.getInstance().getLoggingAdapter().log(Level.SEVERE,
+                plugin.getLoggingAdapter().log(Level.SEVERE,
                         "An error occurred dispatching a plugin message", e);
             }
 
             // Send the written message
-            player.sendPluginMessage(BukkitHuskHomes.getInstance(),
+            player.sendPluginMessage((BukkitHuskHomes) plugin,
                     BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
         });
     }
 
     @Override
     public void terminate() {
-        Bukkit.getMessenger().unregisterIncomingPluginChannel(BukkitHuskHomes.getInstance());
-        Bukkit.getMessenger().unregisterIncomingPluginChannel(BukkitHuskHomes.getInstance());
+        Bukkit.getMessenger().unregisterIncomingPluginChannel((BukkitHuskHomes) plugin);
+        Bukkit.getMessenger().unregisterIncomingPluginChannel((BukkitHuskHomes) plugin);
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public void onPluginMessageReceived(@NotNull String channel, @NotNull org.bukkit.entity.Player player,
-                                        @NotNull byte[] messageBytes) {
+                                        final byte[] messageBytes) {
         if (!channel.equals(BUNGEE_PLUGIN_CHANNEL_NAME)) {
             return;
         }
@@ -168,7 +168,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
                     handleMessage(BukkitPlayer.adapt(player), message);
                 } catch (IOException e) {
-                    BukkitHuskHomes.getInstance().getLoggingAdapter().log(Level.SEVERE,
+                    plugin.getLoggingAdapter().log(Level.SEVERE,
                             "Failed to read an inbound plugin message", e);
                 }
             }
@@ -179,7 +179,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
                 }
             }
             case "PlayerList" -> {
-                final String serverName = pluginMessage.readUTF();
+                pluginMessage.readUTF(); // Read the server name (unused)
                 final String[] playerNames = pluginMessage.readUTF().split(", ");
                 if (onlinePlayerNamesRequest != null) {
                     onlinePlayerNamesRequest.completeAsync(() -> playerNames);

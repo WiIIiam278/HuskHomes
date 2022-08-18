@@ -1,7 +1,6 @@
-package net.william278.huskhomes.cache;
+package net.william278.huskhomes;
 
 import de.themoep.minedown.MineDown;
-import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.player.OnlineUser;
@@ -12,7 +11,10 @@ import net.william278.paginedown.ListOptions;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 

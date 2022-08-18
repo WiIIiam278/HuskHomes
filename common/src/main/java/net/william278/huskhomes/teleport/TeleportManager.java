@@ -136,7 +136,7 @@ public class TeleportManager {
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
             return plugin.getNetworkMessenger().sendMessage(requester,
-                            new Message(Message.MessageType.TP_TO_POSITION_REQUEST,
+                            new Message(Message.MessageType.TELEPORT_TO_POSITION_REQUEST,
                                     requester.username,
                                     playerName,
                                     MessagePayload.withPosition(position),

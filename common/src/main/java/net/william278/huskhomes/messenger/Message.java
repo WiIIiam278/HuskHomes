@@ -81,9 +81,10 @@ public class Message {
      * Identifies the type of message or reply
      */
     public enum MessageType {
-        TP_REQUEST,
-        TP_TO_POSITION_REQUEST,
-        POSITION_REQUEST
+        TELEPORT_TO_POSITION_REQUEST,
+        POSITION_REQUEST,
+        TELEPORT_REQUEST,
+        TELEPORT_REQUEST_RESPONSE
     }
 
     /**

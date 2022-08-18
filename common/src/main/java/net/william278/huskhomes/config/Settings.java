@@ -93,6 +93,9 @@ public class Settings {
     @KeyPath("general.list_items_per_page")
     public int listItemsPerPage = 12;
 
+    @KeyPath("general.strict_tpa_here_requests")
+    public boolean strictTpaHereRequests = true;
+
     @KeyPath("general.allow_unicode_names")
     public boolean allowUnicodeNames = false;
 

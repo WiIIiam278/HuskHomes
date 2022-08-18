@@ -2,7 +2,6 @@ package net.william278.huskhomes;
 
 import net.william278.annotaml.Annotaml;
 import net.william278.annotaml.AnnotamlException;
-import net.william278.huskhomes.cache.Cache;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.config.Locales;
@@ -20,6 +19,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
@@ -56,6 +56,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private Database database;
     private Cache cache;
     private TeleportManager teleportManager;
+    private RequestManager requestManager;
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
 
@@ -151,6 +152,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Prepare the teleport manager
             this.teleportManager = new TeleportManager(this);
+
+            // Prepare the request manager
+            this.requestManager = new RequestManager(this);
 
             // Prepare the home and warp position manager
             this.savedPositionManager = new SavedPositionManager(database, cache);
@@ -261,6 +265,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public TeleportManager getTeleportManager() {
         return teleportManager;
+    }
+
+    @Override
+    public @NotNull RequestManager getRequestManager() {
+        return requestManager;
     }
 
     @NotNull

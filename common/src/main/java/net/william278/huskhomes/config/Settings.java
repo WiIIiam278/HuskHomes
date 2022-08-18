@@ -91,7 +91,7 @@ public class Settings {
     public int teleportRequestExpiryTime = 60;
 
     @KeyPath("general.list_items_per_page")
-    public int listItemsPerPage = 10;
+    public int listItemsPerPage = 12;
 
     @KeyPath("general.allow_unicode_names")
     public boolean allowUnicodeNames = false;

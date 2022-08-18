@@ -51,6 +51,13 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             if (args.length == 2) {
                 targetPosition = new TeleportCommandTarget(args[1]);
             } else {
+                // Coordinate teleportation requires a permission node
+                if (!onlineUser.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node)) {
+                    plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+
+                // Parse the coordinates and set the target position
                 final Position userPosition = onlineUser.getPosition().join();
                 final Optional<Position> parsedPosition = Position.parse(userPosition,
                         Arrays.copyOfRange(args, coordinatesIndex, args.length - 1));

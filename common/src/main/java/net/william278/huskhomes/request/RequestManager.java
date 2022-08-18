@@ -201,9 +201,9 @@ public class RequestManager {
 
         // Send request response to the sender
         CompletableFuture.runAsync(() -> {
-            final Optional<OnlineUser> localSender = plugin.findPlayer(request.requesterName);
-            if (localSender.isPresent()) {
-                handleLocalRequestResponse(localSender.get(), request);
+            final Optional<OnlineUser> localRequester = plugin.findPlayer(request.requesterName);
+            if (localRequester.isPresent()) {
+                handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
                 // Ensure the sender is still online
@@ -253,8 +253,9 @@ public class RequestManager {
         plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined"),
                 request.recipientName).ifPresent(requester::sendMessage);
 
-        // If the request is a tpa request, teleport the sender to the recipient
+        // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.type == TeleportRequest.RequestType.TPA)) {
+            System.out.println("Teleporting " + requester.username + " to " + request.recipientName);
             plugin.getTeleportManager().teleportToPlayerByName(requester, request.recipientName);
         }
     }

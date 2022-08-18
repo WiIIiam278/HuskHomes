@@ -107,28 +107,25 @@ public class TeleportManager {
      */
     public void teleportToPlayerByName(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer) {
         CompletableFuture.runAsync(() -> {
-            Optional<OnlineUser> localPlayer = plugin.findPlayer(targetPlayer);
-
+            final Optional<OnlineUser> localPlayer = plugin.findPlayer(targetPlayer);
             if (localPlayer.isPresent()) {
                 timedTeleport(onlineUser, localPlayer.get().getPosition().join())
                         .thenAccept(result -> finishTeleport(onlineUser, result));
+            } else if (plugin.getSettings().crossServer) {
+                assert plugin.getNetworkMessenger() != null;
+                getPlayerPositionByName(onlineUser, targetPlayer).thenAccept(optionalPosition -> {
+                    if (optionalPosition.isPresent()) {
+                        timedTeleport(onlineUser, optionalPosition.get())
+                                .thenAccept(teleportResult -> finishTeleport(onlineUser, teleportResult));
+                        return;
+                    }
+                    plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
+                            .ifPresent(onlineUser::sendMessage);
+                });
             } else {
-                if (plugin.getSettings().crossServer) {
-                    assert plugin.getNetworkMessenger() != null;
-                    getPlayerPositionByName(onlineUser, targetPlayer).thenAccept(optionalPosition -> {
-                        if (optionalPosition.isPresent()) {
-                            timedTeleport(onlineUser, optionalPosition.get())
-                                    .thenAccept(teleportResult -> finishTeleport(onlineUser, teleportResult));
-                            return;
-                        }
-                        plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
-                                .ifPresent(onlineUser::sendMessage);
-                    });
-                }
-                return;
+                plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
+                        .ifPresent(onlineUser::sendMessage);
             }
-            plugin.getLocales().getLocale("error_player_not_found", targetPlayer)
-                    .ifPresent(onlineUser::sendMessage);
         });
     }
 
@@ -143,8 +140,7 @@ public class TeleportManager {
      */
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerByName(@NotNull String playerName, @NotNull Position position,
                                                                             @NotNull OnlineUser requester) {
-        final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
-                player.username.equalsIgnoreCase(playerName)).findFirst();
+        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         if (localPlayer.isPresent()) {
             return teleport(localPlayer.get(), position).thenApply(Optional::of);
         }
@@ -178,8 +174,8 @@ public class TeleportManager {
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerToPlayerByName(@NotNull String playerName,
                                                                                     @NotNull String targetPlayer,
                                                                                     @NotNull OnlineUser requester) {
-        final Optional<Position> localPositionTarget = plugin.getOnlinePlayers().stream().filter(player ->
-                player.username.equalsIgnoreCase(targetPlayer)).findFirst().map(user -> user.getPosition().join());
+        final Optional<Position> localPositionTarget = plugin.findPlayer(targetPlayer)
+                .map(onlineUser -> onlineUser.getPosition().join());
         if (localPositionTarget.isPresent()) {
             return teleportPlayerByName(playerName, localPositionTarget.get(), requester);
         }
@@ -200,8 +196,7 @@ public class TeleportManager {
      */
     private CompletableFuture<Optional<Position>> getPlayerPositionByName(@NotNull OnlineUser requester,
                                                                           @NotNull String playerName) {
-        final Optional<OnlineUser> localPlayer = plugin.getOnlinePlayers().stream().filter(player ->
-                player.username.equalsIgnoreCase(playerName)).findFirst();
+        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         if (localPlayer.isPresent()) {
             return localPlayer.get().getPosition().thenApply(Optional::of);
         }
@@ -233,11 +228,13 @@ public class TeleportManager {
      * @param position   the target {@link Position} to teleport to
      */
     public CompletableFuture<TeleportResult> timedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
+        // Prevent players starting multiple timed teleports
+        if (currentlyOnWarmup.contains(onlineUser.uuid)) {
+            return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
+        }
+
         final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
         if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
-            if (currentlyOnWarmup.contains(onlineUser.uuid)) {
-                return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
-            }
             return CompletableFuture.supplyAsync(() -> processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                     .thenApply(teleport -> {
                         if (!teleport.cancelled) {

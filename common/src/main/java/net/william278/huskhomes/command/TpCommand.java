@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
@@ -36,7 +37,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             targetPosition = new TeleportCommandTarget(args[0]);
         } else {
             // Determine if a player argument has been passed before the destination argument
-            int coordinatesIndex = (args[0].matches("^[a-zA-Z0-9_.*]{1,17}$") || args.length == 4 || args.length == 6) ? 1 : 0;
+            int coordinatesIndex = ((args.length > 3 && (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3])))
+                                    || (args.length == 2)) ? 1 : 0;
             if (coordinatesIndex == 1) {
                 userToTeleport = plugin.getOnlinePlayers().stream().filter(user -> user.username.equalsIgnoreCase(args[0]))
                         .findFirst().orElse(plugin.getOnlinePlayers().stream().filter(user -> user.username.startsWith(args[0]))
@@ -60,7 +62,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                 // Parse the coordinates and set the target position
                 final Position userPosition = onlineUser.getPosition().join();
                 final Optional<Position> parsedPosition = Position.parse(userPosition,
-                        Arrays.copyOfRange(args, coordinatesIndex, args.length - 1));
+                        Arrays.copyOfRange(args, coordinatesIndex, args.length));
                 if (parsedPosition.isEmpty()) {
                     plugin.getLocales().getLocale("error_invalid_syntax", "/tp <target> <x> <y> <z> [world] [server]")
                             .ifPresent(onlineUser::sendMessage);
@@ -74,13 +76,30 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         final OnlineUser teleportingUser = userToTeleport;
         if (targetPosition.targetType == TeleportCommandTarget.TargetType.PLAYER) {
             assert targetPosition.targetPlayer != null;
-            plugin.getTeleportManager().teleportToPlayer(teleportingUser, targetPosition.targetPlayer);
+            CompletableFuture.runAsync(() -> plugin.getTeleportManager().teleportToPlayer(teleportingUser, targetPosition.targetPlayer));
+            return;
         } else if (targetPosition.targetType == TeleportCommandTarget.TargetType.POSITION) {
             assert targetPosition.targetPosition != null;
             plugin.getTeleportManager().teleport(teleportingUser, targetPosition.targetPosition).thenAccept(
                     result -> plugin.getTeleportManager().finishTeleport(teleportingUser, result));
+            return;
         }
         throw new HuskHomesException("Attempted to execute invalid teleport command operation");
+    }
+
+    private boolean isCoordinate(@NotNull String coordinate) {
+        try {
+            if (coordinate.startsWith("~")) {
+                coordinate = coordinate.substring(1);
+            }
+            if (coordinate.isBlank()) {
+                return true;
+            }
+            Double.parseDouble(coordinate);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     @Override

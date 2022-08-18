@@ -156,14 +156,14 @@ public class TeleportManager {
             if (currentlyOnWarmup.contains(onlineUser.uuid)) {
                 return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
             }
-            return processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
+            return CompletableFuture.supplyAsync(() -> processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                     .thenApply(teleport -> {
                         if (!teleport.cancelled) {
-                            return teleportNow(onlineUser, position);
+                            return teleportNow(onlineUser, position).join();
                         } else {
-                            return CompletableFuture.supplyAsync(() -> TeleportResult.CANCELLED);
+                            return TeleportResult.CANCELLED;
                         }
-                    }).join();
+                    }).join());
         } else {
             return teleportNow(onlineUser, position);
         }

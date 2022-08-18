@@ -32,8 +32,11 @@ public class Position extends Location {
      * @return The position if it could be parsed, otherwise an empty optional
      */
     public static Optional<Position> parse(@NotNull Position currentPosition, @NotNull String... values) {
+        System.out.println(String.join(" ", values));
+
         // Validate argument length
         if (values.length < 3 || values.length > 5) {
+            System.out.println("Invalid syntax");
             return Optional.empty();
         }
 
@@ -59,8 +62,13 @@ public class Position extends Location {
      * @throws NumberFormatException If the string could not be parsed
      */
     private static double parseCoordinate(@NotNull String value, double currentValue) throws NumberFormatException {
+        // Future: Consider supporting ^ ^ ^ (position-relative-to-facing)
         if (value.startsWith("~")) {
-            return currentValue + Double.parseDouble(value.substring(1));
+            if (value.length() == 1) {
+                return currentValue;
+            } else {
+                return currentValue + Double.parseDouble(value.substring(1));
+            }
         } else {
             return Double.parseDouble(value);
         }

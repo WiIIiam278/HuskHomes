@@ -39,5 +39,7 @@ commands:
     usage: /delwarp <name>
   editwarp:
     usage: /editwarp <name> [rename|description|relocate] [args]
+  tp:
+    usage: /tp <name>
   back:
     usage: /back

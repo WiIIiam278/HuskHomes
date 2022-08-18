@@ -1,8 +1,8 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.messenger.EmptyPayload;
 import net.william278.huskhomes.messenger.Message;
+import net.william278.huskhomes.messenger.MessagePayload;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
@@ -35,7 +35,7 @@ public class TeleportManager {
      * A set of user UUIDs currently on warmup countdowns for {@link TimedTeleport}
      */
     @NotNull
-    private HashSet<UUID> currentlyOnWarmup = new HashSet<>();
+    private final HashSet<UUID> currentlyOnWarmup = new HashSet<>();
 
     public TeleportManager(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
@@ -136,10 +136,10 @@ public class TeleportManager {
                             new Message(Message.MessageType.POSITION_REQUEST,
                                     requester.username,
                                     playerName,
-                                    new EmptyPayload(),
-                                    Message.MessageKind.MESSAGE,
+                                    MessagePayload.empty(),
+                                    Message.RelayType.MESSAGE,
                                     plugin.getSettings().clusterId))
-                    .thenApply(reply -> Optional.of(Position.fromJson(reply.payload)));
+                    .thenApply(reply -> Optional.ofNullable(reply.payload.position));
         }
         return CompletableFuture.supplyAsync(Optional::empty);
     }

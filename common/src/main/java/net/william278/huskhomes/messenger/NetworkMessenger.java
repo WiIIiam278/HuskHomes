@@ -108,7 +108,7 @@ public abstract class NetworkMessenger {
      * @param message  The received {@link Message}
      */
     protected final void handleMessage(@NotNull OnlineUser receiver, @NotNull Message message) {
-        switch (message.kind) {
+        switch (message.relayType) {
             // Handle a message and send reply
             case MESSAGE -> prepareReply(receiver, message).thenAccept(reply -> sendReply(receiver, message));
             // Handle a reply message
@@ -126,15 +126,15 @@ public abstract class NetworkMessenger {
             // Handle different message types and apply changes for reply message
             switch (message.type) {
                 case TP_REQUEST -> {
-
+                    //todo
                 }
-                case POSITION_REQUEST -> message.payload = receiver.getPosition().join().toJson();
+                case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition().join());
             }
 
             // Prepare reply message
             message.targetPlayer = message.sender;
             message.sender = receiver.username;
-            message.kind = Message.MessageKind.REPLY;
+            message.relayType = Message.RelayType.REPLY;
             return message;
         });
     }

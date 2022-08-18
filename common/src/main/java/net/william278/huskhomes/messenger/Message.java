@@ -24,10 +24,11 @@ public class Message {
     public MessageType type;
 
     /**
-     * The kind of message this is - {@link MessageKind#MESSAGE} or a {@link MessageKind#REPLY} to a message.
+     * The kind of message this is - {@link RelayType#MESSAGE} or a {@link RelayType#REPLY} to a message.
      */
+    @SerializedName("relay_type")
     @NotNull
-    public MessageKind kind;
+    public RelayType relayType;
 
     /**
      * Username of the target player the message is bound for
@@ -53,34 +54,41 @@ public class Message {
      * Data to send in the message
      */
     @NotNull
-    public String payload;
+    public MessagePayload payload;
 
     public Message(@NotNull MessageType type, @NotNull String sender, @NotNull String targetPlayer,
-                   @NotNull MessageSerializable payload, @NotNull MessageKind messageKind, @NotNull String clusterId) {
+                   @NotNull MessagePayload payload, @NotNull Message.RelayType relayType, @NotNull String clusterId) {
         this.type = type;
         this.sender = sender;
         this.targetPlayer = targetPlayer;
-        this.payload = payload.toJson();
-        this.kind = messageKind;
+        this.payload = payload;
+        this.relayType = relayType;
         this.clusterId = clusterId;
         this.uuid = UUID.randomUUID();
     }
 
+    @NotNull
     public String toJson() {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(this);
+        return new GsonBuilder().create().toJson(this);
     }
 
-    public static Message fromJson(String json) {
-        return new GsonBuilder().setPrettyPrinting().create().fromJson(json, Message.class);
+    @NotNull
+    public static Message fromJson(@NotNull String json) {
+        return new GsonBuilder().create().fromJson(json, Message.class);
     }
 
+    /**
+     * Identifies the type of message or reply
+     */
     public enum MessageType {
         TP_REQUEST,
-
         POSITION_REQUEST
     }
 
-    public enum MessageKind {
+    /**
+     * Identifies the source of the message being relayed - a {@link RelayType#MESSAGE} or a {@link RelayType#REPLY} to a message.
+     */
+    public enum RelayType {
         MESSAGE,
         REPLY
     }

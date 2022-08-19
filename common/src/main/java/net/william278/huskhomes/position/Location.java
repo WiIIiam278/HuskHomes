@@ -37,6 +37,15 @@ public class Location {
      */
     public World world;
 
+    public Location(double x, double y, double z, @NotNull World world) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = 0;
+        this.pitch = 0;
+        this.world = world;
+    }
+
     public Location(double x, double y, double z, float yaw, float pitch,
                     @NotNull World world) {
         this.x = x;

@@ -20,7 +20,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
 
     private final String[] EDIT_WARP_COMPLETIONS = {"rename", "description", "relocate"};
 
-    public EditWarpCommand(@NotNull HuskHomes implementor) {
+    protected EditWarpCommand(@NotNull HuskHomes implementor) {
         super("editwarp", Permission.COMMAND_EDIT_WARP, implementor);
     }
 

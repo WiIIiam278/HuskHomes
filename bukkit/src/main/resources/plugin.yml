@@ -55,5 +55,7 @@ commands:
   tpdecline:
     usage: /tpdecline
     aliases: [tpdeny, tpno]
+  rtp:
+    usage: /rtp
   back:
     usage: /back

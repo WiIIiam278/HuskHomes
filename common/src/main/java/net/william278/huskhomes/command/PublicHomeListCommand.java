@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PublicHomeListCommand extends CommandBase implements ConsoleExecutable {
 
-    public PublicHomeListCommand(@NotNull HuskHomes implementor) {
+    protected PublicHomeListCommand(@NotNull HuskHomes implementor) {
         super("publichomelist", Permission.COMMAND_HOME, implementor, "phomelist", "phomes");
     }
 

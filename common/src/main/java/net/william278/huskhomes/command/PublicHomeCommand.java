@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class PublicHomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    public PublicHomeCommand(@NotNull HuskHomes implementor) {
+    protected PublicHomeCommand(@NotNull HuskHomes implementor) {
         super("publichome", Permission.COMMAND_PUBLIC_HOME, implementor, "phome");
     }
 

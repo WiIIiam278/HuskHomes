@@ -8,16 +8,17 @@ import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
-import net.william278.huskhomes.EconomyUnsupportedException;
+import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Bukkit implementation of an {@link OnlineUser}
@@ -33,6 +34,7 @@ public class BukkitPlayer extends OnlineUser {
 
     /**
      * Adapt a {@link Player} to a {@link OnlineUser}
+     *
      * @param player the online {@link Player} to adapt
      * @return the adapted {@link OnlineUser}
      */
@@ -43,6 +45,7 @@ public class BukkitPlayer extends OnlineUser {
 
     /**
      * Get an online {@link BukkitPlayer} by their UUID
+     *
      * @param uuid the UUID of the player to find
      * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
      */
@@ -56,6 +59,7 @@ public class BukkitPlayer extends OnlineUser {
 
     /**
      * Get an online {@link BukkitPlayer} by their exact username
+     *
      * @param username the UUID of the player to find
      * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
      */
@@ -77,7 +81,7 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     public Location getLocation() {
-        return BukkitHuskHomes.BukkitAdapter.adaptLocation(player.getLocation());
+        return BukkitAdapter.adaptLocation(player.getLocation()).orElse(null);
     }
 
     @Override
@@ -88,6 +92,13 @@ public class BukkitPlayer extends OnlineUser {
     @Override
     public boolean hasPermission(@NotNull String node) {
         return player.hasPermission(node);
+    }
+
+    @Override
+    public @NotNull Map<String, Boolean> getPermissions() {
+        return player.getEffectivePermissions().stream().collect(
+                Collectors.toMap(PermissionAttachmentInfo::getPermission,
+                        PermissionAttachmentInfo::getValue, (a, b) -> b));
     }
 
     @Override
@@ -107,7 +118,7 @@ public class BukkitPlayer extends OnlineUser {
     @Override
     public CompletableFuture<TeleportResult> teleport(Location location) {
         return CompletableFuture.supplyAsync(() -> {
-            final Optional<org.bukkit.Location> bukkitLocation = BukkitHuskHomes.BukkitAdapter.adaptLocation(location);
+            final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
             if (bukkitLocation.isEmpty()) {
                 return TeleportResult.FAILED_INVALID_WORLD;
             }
@@ -129,30 +140,19 @@ public class BukkitPlayer extends OnlineUser {
         });
     }
 
-    @Override
-    public CompletableFuture<Integer> getMaxHomes() {
-        return null; //todo
-    }
-
-    @Override
-    public CompletableFuture<Integer> getFreeHomes() {
-        return null; //todo
-    }
-
-    @Override
-    public double getEconomyBalance() throws EconomyUnsupportedException {
-        return 0; //todo
-    }
-
-    @Override
-    public void deductEconomyBalance() throws EconomyUnsupportedException {
-        //todo
-    }
-
     /**
      * Send a Bukkit plugin message
      */
     public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, final byte[] message) {
         player.sendPluginMessage(source, channel, message);
+    }
+
+    /**
+     * Return the {@link Player} wrapped by this {@link BukkitPlayer}
+     *
+     * @return the {@link Player} wrapped by this {@link BukkitPlayer}
+     */
+    public Player getPlayer() {
+        return player;
     }
 }

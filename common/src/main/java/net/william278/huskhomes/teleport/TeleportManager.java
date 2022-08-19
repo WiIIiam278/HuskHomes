@@ -83,7 +83,7 @@ public class TeleportManager {
      */
     public void teleportToWarpByName(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
         plugin.getDatabase().getWarp(warpName).thenAccept(optionalWarp ->
-                optionalWarp.ifPresentOrElse(warp -> //todo permission restricted warps
+                optionalWarp.ifPresentOrElse(warp ->
                         teleportToWarp(onlineUser, warp), () ->
                         plugin.getLocales().getLocale("error_warp_invalid", warpName)
                                 .ifPresent(onlineUser::sendMessage)));
@@ -96,6 +96,7 @@ public class TeleportManager {
      * @param warp       the {@link Warp} to teleport to
      */
     public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull Warp warp) {
+        //todo permission restricted warps
         timedTeleport(onlineUser, warp).thenAccept(result -> finishTeleport(onlineUser, result));
     }
 

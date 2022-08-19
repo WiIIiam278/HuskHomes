@@ -32,7 +32,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             return;
         }
 
-        // If the first argument is a player
+        // If the first argument is a player target
         if (args.length == 1) {
             targetPosition = new TeleportCommandTarget(args[0]);
         } else {

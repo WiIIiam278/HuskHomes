@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class WarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    public WarpCommand(@NotNull HuskHomes implementor) {
+    protected WarpCommand(@NotNull HuskHomes implementor) {
         super("warp", Permission.COMMAND_WARP, implementor);
     }
 

@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
@@ -204,26 +205,46 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                     return;
                 }
 
-                //todo economy check here
-
-                plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic).thenRun(() -> {
-                    if (home.owner.uuid.equals(editor.uuid)) {
-                        editor.sendMessage(plugin.getLocales().getLocale(
-                                "edit_home_privacy_" + privacyKeyedString + "_success",
-                                home.meta.name).orElse(new MineDown("")));
-                    } else {
-                        editor.sendMessage(plugin.getLocales().getLocale(
-                                "edit_home_privacy_" + privacyKeyedString + "_success_other",
-                                home.owner.username, home.meta.name).orElse(new MineDown("")));
+                // Perform checks if making the home public
+                if (newIsPublic && !otherOwner) {
+                    // Check against maximum public homes
+                    final List<Home> existingPublicHomes = plugin.getDatabase().getHomes(editor).join().stream()
+                            .filter(existingHome -> existingHome.isPublic).toList();
+                    final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().maxPublicHomes,
+                            plugin.getSettings().stackPermissionLimits);
+                    if (existingPublicHomes.size() >= maxPublicHomes) {
+                        plugin.getLocales().getLocale("error_edit_home_maximum_public_homes")
+                                .ifPresent(editor::sendMessage);
+                        return;
                     }
 
-                    // Show the menu if the menu flag is set
-                    if (showMenuFlag.get()) {
-                        getHomeEditorWindow(home, false, otherOwner,
-                                !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node))
-                                .forEach(editor::sendMessage);
+                    // Check against economy
+                    if (!plugin.validateEconomyCheck(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC)) {
+                        return;
                     }
-                });
+                }
+
+                // Execute the update
+                plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic).join();
+                if (home.owner.uuid.equals(editor.uuid)) {
+                    editor.sendMessage(plugin.getLocales().getLocale(
+                            "edit_home_privacy_" + privacyKeyedString + "_success",
+                            home.meta.name).orElse(new MineDown("")));
+                } else {
+                    editor.sendMessage(plugin.getLocales().getLocale(
+                            "edit_home_privacy_" + privacyKeyedString + "_success_other",
+                            home.owner.username, home.meta.name).orElse(new MineDown("")));
+                }
+
+                // Perform necessary economy transaction
+                plugin.performEconomyTransaction(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC);
+
+                // Show the menu if the menu flag is set
+                if (showMenuFlag.get()) {
+                    getHomeEditorWindow(home, false, otherOwner,
+                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node))
+                            .forEach(editor::sendMessage);
+                }
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax",
                             "/edithome <name> [" + String.join("|", EDIT_HOME_COMPLETIONS) + "] [args]")

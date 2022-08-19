@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class DelWarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    public DelWarpCommand(@NotNull HuskHomes implementor) {
+    protected DelWarpCommand(@NotNull HuskHomes implementor) {
         super("delwarp", Permission.COMMAND_DELETE_WARP, implementor);
     }
 

@@ -4,9 +4,10 @@ import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
-import net.william278.huskhomes.EconomyUnsupportedException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,6 +51,14 @@ public abstract class OnlineUser extends User {
     public abstract boolean hasPermission(@NotNull String node);
 
     /**
+     * Returns a {@link Map} of a player's permission nodes
+     *
+     * @return a {@link Map} of all permissions this player has to their set values
+     */
+    @NotNull
+    public abstract Map<String, Boolean> getPermissions();
+
+    /**
      * Dispatch a MineDown-formatted action bar message to this player
      *
      * @param mineDown the parsed {@link MineDown} to send
@@ -72,33 +81,84 @@ public abstract class OnlineUser extends User {
     public abstract CompletableFuture<TeleportResult> teleport(Location location);
 
     /**
-     * Returns the maximum number of homes this player can set
+     * Get the maximum number of homes this user may set
      *
-     * @return a {@link CompletableFuture} providing the max number of homes this player can set
+     * @param defaultMaxHomes the default maximum number of homes if the user has not set a custom value
+     * @param stack           whether to stack numerical permissions that grant the user extra max homes
+     * @return the maximum number of homes this user may set
      */
-    public abstract CompletableFuture<Integer> getMaxHomes();
+    public final int getMaxHomes(final int defaultMaxHomes, final boolean stack) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.max_homes.");
+        if (homes.isEmpty()) {
+            return defaultMaxHomes;
+        }
+        if (stack) {
+            return defaultMaxHomes + homes.stream().reduce(0, Integer::sum);
+        } else {
+            return homes.get(0);
+        }
+    }
 
     /**
-     * Returns the number of homes this player can set for free
+     * Get the number of homes this user may make public
      *
-     * @return a {@link CompletableFuture} providing the max number of homes this player can set
+     * @param defaultPublicHomes the default number of homes this user may make public
+     * @param stack            whether to stack numerical permissions that grant the user extra public homes
+     * @return the number of public home slots this user may set
      */
-    public abstract CompletableFuture<Integer> getFreeHomes();
+    public int getMaxPublicHomes(final int defaultPublicHomes, final boolean stack) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.max_public_homes.");
+        if (homes.isEmpty()) {
+            return defaultPublicHomes;
+        }
+        if (stack) {
+            return defaultPublicHomes + homes.stream().reduce(0, Integer::sum);
+        } else {
+            return homes.get(0);
+        }
+    }
 
     /**
-     * Get this player's economy balance
+     * Get the number of free home slots this user may set
      *
-     * @return the player's economy balance
-     * @throws EconomyUnsupportedException if the economy integration is not enabled
+     * @param defaultFreeHomes the default number of free home slots to give this user
+     * @param stack            whether to stack numerical permissions that grant the user extra free homes
+     * @return the number of free home slots this user may set
      */
-    public abstract double getEconomyBalance() throws EconomyUnsupportedException;
+    public int getFreeHomes(final int defaultFreeHomes, final boolean stack) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.free_homes.");
+        if (homes.isEmpty()) {
+            return defaultFreeHomes;
+        }
+        if (stack) {
+            return defaultFreeHomes + homes.stream().reduce(0, Integer::sum);
+        } else {
+            return homes.get(0);
+        }
+    }
 
     /**
-     * Deduct money from this player's economy balance
+     * Gets a list of numbers from the prefixed permission nodes
      *
-     * @throws EconomyUnsupportedException if the economy integration is not enabled
+     * @param nodePrefix the prefix of the permission nodes to get
+     * @return a list of numbers from the prefixed permission nodes, sorted by size
      */
-    public abstract void deductEconomyBalance() throws EconomyUnsupportedException;
+    private List<Integer> getNumericalPermissions(@NotNull String nodePrefix) {
+        return getPermissions().entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .filter(permission -> permission.getKey().startsWith(nodePrefix))
+                .filter(permission -> {
+                    try {
+                        // Remove node prefix from the permission and parse as an integer
+                        Integer.parseInt(permission.getKey().substring(nodePrefix.length()));
+                    } catch (final NumberFormatException e) {
+                        return false;
+                    }
+                    return true;
+                })
+                .map(permission -> Integer.parseInt(permission.getKey().substring(nodePrefix.length())))
+                .sorted().toList();
+    }
 
 
 }

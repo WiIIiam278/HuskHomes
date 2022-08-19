@@ -5,6 +5,7 @@ import net.william278.annotaml.KeyPath;
 import net.william278.annotaml.YamlFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -81,6 +82,9 @@ public class Settings {
     @KeyPath("general.max_public_homes")
     public int maxPublicHomes = 10;
 
+    @KeyPath("general.stack_permission_limits")
+    public boolean stackPermissionLimits = true;
+
     @KeyPath("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 
@@ -101,9 +105,6 @@ public class Settings {
 
     @KeyPath("general.allow_unicode_descriptions")
     public boolean allowUnicodeDescriptions = true;
-
-    @KeyPath("general.handle_vanished_players")
-    public boolean handleVanishedPlayers = true;
 
     @KeyPath("general.use_paper_lib")
     public boolean usePaperLib = true;
@@ -145,6 +146,52 @@ public class Settings {
     @KeyPath("cross_server.redis_credentials.use_ssl")
     public boolean redisUseSsl = false;
 
+
+    // Rtp command settings
+    @KeyPath("rtp.radius")
+    public int rtpRadius = 5000;
+
+    @KeyPath("rtp.spawn_radius")
+    public int rtpSpawnRadius = 500;
+
+    @KeyPath("rtp.distribution_mean")
+    public float rtpDistributionMean = 0.75f;
+
+    @KeyPath("rtp.distribution_deviation")
+    public float rtpDistributionStandardDeviation = 2f;
+
+    @KeyPath("rtp.location_cache_size")
+    public int rtpLocationCacheSize = 10;
+
+    @KeyPath("rtp.restricted_worlds")
+    public List<String> rtpRestrictedWorlds = List.of("world_nether", "world_the_end");
+
+
+    // Economy settings
+    @KeyPath("economy.enabled")
+    public boolean economy = false;
+
+    @KeyPath("economy.free_home_slots")
+    public int freeHomeSlots = 5;
+
+    @KeyPath("economy.costs")
+    public Map<String, Double> economyCosts = Map.of(
+            EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyAction.ADDITIONAL_HOME_SLOT.defaultCost,
+            EconomyAction.MAKE_HOME_PUBLIC.name(), EconomyAction.MAKE_HOME_PUBLIC.defaultCost,
+            EconomyAction.RANDOM_TELEPORT.name().toLowerCase(), EconomyAction.RANDOM_TELEPORT.defaultCost,
+            EconomyAction.BACK_COMMAND.name(), EconomyAction.BACK_COMMAND.defaultCost
+    );
+
+    public Optional<Double> getEconomyCost(@NotNull EconomyAction action) {
+        if (!economy) {
+            return Optional.empty();
+        }
+        final Double cost = economyCosts.get(action.name().toLowerCase());
+        if (cost != null && cost > 0d) {
+            return Optional.of(cost);
+        }
+        return Optional.empty();
+    }
 
     @SuppressWarnings("unused")
     public Settings() {
@@ -206,6 +253,25 @@ public class Settings {
 
         SoundEffectAction(@NotNull String defaultSoundEffect) {
             this.defaultSoundEffect = defaultSoundEffect;
+        }
+    }
+
+    /**
+     * Identifies actions that incur an economic cost if economy is enabled
+     */
+    public enum EconomyAction {
+        ADDITIONAL_HOME_SLOT(100.00, "economy_action_additional_home_slot"),
+        MAKE_HOME_PUBLIC(50.00, "economy_action_make_home_public"),
+        RANDOM_TELEPORT(25.00, "economy_action_random_teleport"),
+        BACK_COMMAND(0.00, "economy_action_back_command");
+
+        private final double defaultCost;
+        @NotNull
+        public final String confirmationLocaleId;
+
+        EconomyAction(final double defaultCost, @NotNull String confirmationLocaleId) {
+            this.defaultCost = defaultCost;
+            this.confirmationLocaleId = confirmationLocaleId;
         }
     }
 

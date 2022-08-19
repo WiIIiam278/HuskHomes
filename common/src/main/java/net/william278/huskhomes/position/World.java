@@ -1,6 +1,7 @@
 package net.william278.huskhomes.position;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -19,12 +20,42 @@ public class World {
      */
     public UUID uuid;
 
+    /**
+     * Environment of the world ({@link Environment#OVERWORLD}, {@link Environment#NETHER}, {@link Environment#THE_END},
+     * or {@link Environment#CUSTOM})
+     */
+    @Nullable
+    public Environment environment;
+
+    /**
+     * Spawn location of the world
+     */
+    @Nullable
+    public Location spawn;
+
     public World(@NotNull String name, @NotNull UUID uuid) {
         this.name = name;
         this.uuid = uuid;
     }
 
+    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment, @Nullable Location spawn) {
+        this.name = name;
+        this.uuid = uuid;
+        this.environment = environment;
+        this.spawn = spawn;
+    }
+
     public World() {
+    }
+
+    /**
+     * Identifies the environment of the world
+     */
+    public enum Environment {
+        OVERWORLD,
+        NETHER,
+        THE_END,
+        CUSTOM
     }
 
 }

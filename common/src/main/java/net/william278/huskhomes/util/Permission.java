@@ -19,6 +19,10 @@ public enum Permission {
      * Lets the user bypass the cooldown on the {@code /rtp} command
      */
     BYPASS_RTP_COOLDOWN("huskhomes.bypass.rtp_cooldown", DefaultAccess.NOBODY),
+    /**
+     * Lets the user bypass economy costs when teleporting
+     */
+    BYPASS_ECONOMY_CHECKS("huskhomes.bypass.economy", DefaultAccess.NOBODY),
 
     /*
      * Command permission nodes
@@ -81,7 +85,7 @@ public enum Permission {
      */
     COMMAND_TP("huskhomes.command.tp", DefaultAccess.OPERATORS),
     /**
-     * Lets the user instantly tp to a set of coordinates ({@code /tp [x] [y] [z] [yaw] [pitch] [world] [server]})
+     * Lets the user instantly tp to a set of coordinates ({@code /tp [x] [y] [z] [world] [server]})
      */
     COMMAND_TP_TO_COORDINATES("huskhomes.command.tp.coordinates", DefaultAccess.OPERATORS),
     /**

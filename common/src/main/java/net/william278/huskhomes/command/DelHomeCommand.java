@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class DelHomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    public DelHomeCommand(@NotNull HuskHomes implementor) {
+    protected DelHomeCommand(@NotNull HuskHomes implementor) {
         super("delhome", Permission.COMMAND_DELETE_HOME, implementor);
     }
 

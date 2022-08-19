@@ -26,6 +26,7 @@ public enum BukkitCommandType {
     TPA_HERE_COMMAND(new TpaHereCommand(BukkitHuskHomes.getInstance())),
     TPACCEPT_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), true)),
     TPDECLINE_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), false)),
+    RTP_COMMAND(new RtpCommand(BukkitHuskHomes.getInstance())),
     BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));
 
     public final CommandBase commandBase;

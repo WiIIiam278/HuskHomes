@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class HomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
-    public HomeCommand(@NotNull HuskHomes implementor) {
+    protected HomeCommand(@NotNull HuskHomes implementor) {
         super("home", Permission.COMMAND_HOME, implementor);
     }
 

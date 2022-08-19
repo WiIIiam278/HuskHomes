@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class SetWarpCommand extends CommandBase {
 
-    public SetWarpCommand(@NotNull HuskHomes implementor) {
+    protected SetWarpCommand(@NotNull HuskHomes implementor) {
         super("setwarp", Permission.COMMAND_SET_WARP, implementor);
     }
 

@@ -3,14 +3,16 @@ package net.william278.huskhomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
-import net.william278.huskhomes.position.SavedPositionManager;
+import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.random.RtpEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
+import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +44,7 @@ public interface HuskHomes {
     List<OnlineUser> getOnlinePlayers();
 
     /**
-     * Finds a {@link OnlineUser} by their name. Auto-completes partially typed names for a closest match
+     * Finds a {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
      *
      * @param playerName the name of the player to find
      * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
@@ -120,11 +122,87 @@ public interface HuskHomes {
     NetworkMessenger getNetworkMessenger();
 
     /**
+     * The {@link RtpEngine} that manages random teleports
+     *
+     * @return the {@link RtpEngine} implementation
+     */
+    @NotNull
+    RtpEngine getRtpEngine();
+
+    /**
+     * Set of active {@link PluginHook}s running on the server
+     *
+     * @return the {@link Set} of active {@link PluginHook}s
+     */
+    @NotNull
+    Set<PluginHook> getPluginHooks();
+
+    /**
+     * Perform an economy check on the {@link OnlineUser}; returning {@code true} if it passes the check
+     *
+     * @param player the player to perform the check on
+     * @param action the action to perform
+     * @return {@code true} if the action passes the check, {@code false} if the user has insufficient funds
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
+        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
+        if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
+            final Optional<EconomyHook> hook = getPluginHooks().stream().filter(pluginHook ->
+                    pluginHook instanceof EconomyHook).findFirst().map(pluginHook -> (EconomyHook) pluginHook);
+            if (hook.isPresent()) {
+                if (cost.get() > hook.get().getPlayerBalance(player)) {
+                    getLocales().getLocale("error_insufficient_funds", hook.get().formatCurrency(cost.get()))
+                            .ifPresent(player::sendMessage);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Execute an economy transaction if needed, updating the player's balance
+     *
+     * @param player the player to deduct the cost from if needed
+     * @param action the action to deduct the cost from if needed
+     */
+    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
+        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
+        if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
+            final Optional<EconomyHook> hook = getPluginHooks().stream().filter(pluginHook ->
+                    pluginHook instanceof EconomyHook).findFirst().map(pluginHook -> (EconomyHook) pluginHook);
+            if (hook.isPresent()) {
+                hook.get().changePlayerBalance(player, -cost.get());
+                getLocales().getLocale(action.confirmationLocaleId, hook.get().formatCurrency(cost.get()))
+                        .ifPresent(player::sendMessage);
+            }
+        }
+    }
+
+    /**
+     * Returns a safe ground location for the specified {@link Location} if possible
+     *
+     * @param location the {@link Location} to find a safe ground location for
+     * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
+     * possible to find one
+     */
+    CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location);
+
+    /**
      * Get the {@link Server} this server is on
      *
      * @return The server
      */
     CompletableFuture<Server> getServer(@NotNull OnlineUser requester);
+
+    /**
+     * Returns a list of worlds on the server
+     *
+     * @return a list of worlds on the server
+     */
+    @NotNull
+    List<World> getWorlds();
 
     /**
      * Returns true if the position is a valid location on the server

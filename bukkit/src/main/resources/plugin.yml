@@ -58,6 +58,8 @@ commands:
   rtp:
     usage: /rtp [player]
   tpignore:
-    usage: /tpignore <player>
+    usage: /tpignore
+  tpoffline:
+    usage: /tpoffline <player>
   back:
     usage: /back

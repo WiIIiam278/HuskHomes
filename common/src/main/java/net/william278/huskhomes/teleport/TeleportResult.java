@@ -32,23 +32,14 @@ public enum TeleportResult {
     /**
      * Returns if the {@link Teleport} failed because the server of the target
      * {@link Position} was invalid or not online
-     * <p>
      */
     FAILED_INVALID_SERVER(false),
 
     /**
      * Returns if the {@link Teleport} failed because the coordinates of the
      * target {@link Position} were outside the world border limits
-     * <p>
      */
     FAILED_ILLEGAL_COORDINATES(false),
-
-    /**
-     * Returns if the {@link Teleport} failed because the coordinates of the
-     * target {@link Position} were in an unsafe spot
-     * <p>
-     */
-    FAILED_UNSAFE(false),
 
     /**
      * Returns if the teleport was cancelled, for example if a {@link TimedTeleport} in progress is cancelled

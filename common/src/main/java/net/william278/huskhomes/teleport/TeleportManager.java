@@ -275,9 +275,6 @@ public class TeleportManager {
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_on_arrival")
                     .ifPresent(onlineUser::sendMessage);
-            case FAILED_UNSAFE -> {
-                //todo
-            }
             case FAILED_ILLEGAL_COORDINATES -> plugin.getLocales().getLocale("error_illegal_target_coordinates")
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_SERVER -> plugin.getLocales().getLocale("error_invalid_server")
@@ -350,10 +347,20 @@ public class TeleportManager {
             // Display countdown action bar message
             if (teleport.timeLeft > 0) {
                 plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
-                        .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+                        .ifPresent(message -> {
+                            switch (plugin.getSettings().teleportWarmupDisplay) {
+                                case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                case MESSAGE -> teleport.getPlayer().sendMessage(message);
+                            }
+                        });
             } else {
                 plugin.getLocales().getLocale("teleporting_complete")
-                        .ifPresent(message -> teleport.getPlayer().sendActionBar(message));
+                        .ifPresent(message -> {
+                            switch (plugin.getSettings().teleportWarmupDisplay) {
+                                case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                case MESSAGE -> teleport.getPlayer().sendMessage(message);
+                            }
+                        });
             }
 
             // Tick (decrement) the timed teleport timer

@@ -19,12 +19,16 @@ public class TpIgnoreCommand extends CommandBase {
                     .ifPresent(onlineUser::sendMessage);
             return;
         }
+
+        // Update local value
         final boolean isIgnoringRequests = !plugin.getRequestManager().isIgnoringRequests(onlineUser);
         plugin.getRequestManager().setIgnoringRequests(onlineUser, isIgnoringRequests);
-        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData ->
-                        userData.ifPresent(data -> plugin.getDatabase().updateUserData(new UserData(onlineUser,
-                                data.homeSlots(), isIgnoringRequests, data.rtpCooldown())).join()))
-                .thenRun(() -> plugin.getLocales().getLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"))
+
+        // Update value on the database and send a message
+        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(
+                userData -> userData.ifPresent(data -> plugin.getDatabase().updateUserData(new UserData(onlineUser,
+                        data.homeSlots(), isIgnoringRequests, data.rtpCooldown())).join())).thenRun(
+                () -> plugin.getLocales().getLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"))
                         .ifPresent(onlineUser::sendMessage));
     }
 }

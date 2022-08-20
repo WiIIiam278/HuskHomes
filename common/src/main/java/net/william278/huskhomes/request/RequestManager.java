@@ -36,12 +36,12 @@ public class RequestManager {
         this.ignoringRequests = new HashSet<>();
     }
 
-    public void setIgnoringRequests(@NotNull User user) {
-        this.ignoringRequests.add(user.uuid);
-    }
-
-    public void removeIgnoringRequests(@NotNull User user) {
-        this.ignoringRequests.remove(user.uuid);
+    public void setIgnoringRequests(@NotNull User user, boolean ignoring) {
+        if (ignoring) {
+            this.ignoringRequests.add(user.uuid);
+        } else {
+            this.ignoringRequests.remove(user.uuid);
+        }
     }
 
     public boolean isIgnoringRequests(@NotNull User user) {

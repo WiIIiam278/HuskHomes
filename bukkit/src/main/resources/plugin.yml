@@ -57,5 +57,7 @@ commands:
     aliases: [tpdeny, tpno]
   rtp:
     usage: /rtp [player]
+  tpignore:
+    usage: /tpignore <player>
   back:
     usage: /back

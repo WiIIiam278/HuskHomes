@@ -58,16 +58,32 @@ public class EventListener {
                                         plugin.getLocales().getLocale("teleporting_complete")
                                                 .ifPresent(onlineUser::sendMessage);
                                     }
-                                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))));
+                                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))))
+                        .join();
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
                 plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
             }
 
+            // Get this user's tp-ignore state and set locally
+            plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
+                if (userData.isPresent()) {
+                    final boolean ignoringRequests = userData.get().ignoringTeleports();
+                    plugin.getRequestManager().setIgnoringRequests(onlineUser, ignoringRequests);
+
+                    // Send a reminder message if they are still ignoring requests
+                    if (ignoringRequests) {
+                        plugin.getLocales().getLocale("tpignore_on_reminder")
+                                .ifPresent(onlineUser::sendMessage);
+                    }
+                }
+            }).join();
+
             // Cache this user's homes
-            plugin.getDatabase().getHomes(onlineUser).thenAccept(homes ->
-                    plugin.getCache().homes.put(onlineUser.uuid,
-                            homes.stream().map(home -> home.meta.name).collect(Collectors.toList())));
+            plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> plugin.getCache()
+                    .homes.put(onlineUser.uuid, homes
+                            .stream().map(home -> home.meta.name)
+                            .collect(Collectors.toList()))).join();
 
             // Ensure the server has been set
             if (plugin.getOnlinePlayers().size() == 1) {

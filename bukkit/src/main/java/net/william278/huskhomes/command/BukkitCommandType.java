@@ -27,6 +27,7 @@ public enum BukkitCommandType {
     TPACCEPT_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), true)),
     TPDECLINE_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), false)),
     RTP_COMMAND(new RtpCommand(BukkitHuskHomes.getInstance())),
+    TP_IGNORE_COMMAND(new TpIgnoreCommand(BukkitHuskHomes.getInstance())),
     BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));
 
     public final CommandBase commandBase;

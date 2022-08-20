@@ -148,6 +148,9 @@ public class Settings {
 
 
     // Rtp command settings
+    @KeyPath("rtp.cooldown_length")
+    public int rtpCooldownLength = 10;
+
     @KeyPath("rtp.radius")
     public int rtpRadius = 5000;
 

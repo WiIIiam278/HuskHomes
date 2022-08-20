@@ -21,12 +21,25 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length != 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/rtp")
+        OnlineUser target = onlineUser;
+        if (args.length == 1) {
+            Optional<OnlineUser> foundUser = plugin.findPlayer(args[0]);
+            if (foundUser.isEmpty()) {
+                plugin.getLocales().getLocale("error_player_not_found", args[0])
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
+            if (!onlineUser.hasPermission(Permission.COMMAND_RTP_OTHER.node)) {
+                plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
+                return;
+            }
+            target = foundUser.get();
+        } else if (args.length > 1) {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/rtp [player]")
                     .ifPresent(onlineUser::sendMessage);
             return;
         }
-        final Position userPosition = onlineUser.getPosition().join();
+        final Position userPosition = target.getPosition().join();
         if (plugin.getSettings().rtpRestrictedWorlds.stream()
                 .anyMatch(worldName -> worldName.equals(userPosition.world.name))) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
@@ -39,17 +52,20 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             return;
         }
 
+        final OnlineUser userToTeleport = target;
         CompletableFuture.runAsync(() -> {
             // Check the user is not still on /rtp cooldown
             final Optional<UserData> userData = plugin.getDatabase().getUserData(onlineUser.uuid).join();
-            if (userData.isPresent()) {
-                final Instant currentTime = Instant.now();
-                if (!currentTime.isAfter(userData.get().rtpCooldown())) {
-                    plugin.getLocales().getLocale("error_rtp_cooldown",
-                                    Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES)))
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
+            if (userData.isEmpty()) {
+                return;
+            }
+            final Instant currentTime = Instant.now();
+            if (!userToTeleport.uuid.equals(onlineUser.uuid) &&
+                !currentTime.isAfter(userData.get().rtpCooldown()) && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                plugin.getLocales().getLocale("error_rtp_cooldown",
+                                Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES)))
+                        .ifPresent(onlineUser::sendMessage);
+                return;
             }
 
             // Get a random position and teleport
@@ -60,9 +76,17 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                                     .ifPresent(onlineUser::sendMessage);
                             return;
                         }
-                        plugin.getTeleportManager().timedTeleport(onlineUser, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
-                                .thenAccept(result -> plugin.getTeleportManager()
-                                        .finishTeleport(onlineUser, result, Settings.EconomyAction.RANDOM_TELEPORT)).join();
+                        plugin.getTeleportManager().timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
+                                .thenAccept(result -> {
+                                    if (userToTeleport.uuid.equals(onlineUser.uuid) &&
+                                        result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                                        plugin.getDatabase().updateUserData(new UserData(onlineUser,
+                                                userData.get().homeSlots(), userData.get().ignoringTeleports(),
+                                                Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
+                                    }
+                                    plugin.getTeleportManager()
+                                            .finishTeleport(userToTeleport, result, Settings.EconomyAction.RANDOM_TELEPORT);
+                                }).join();
                     }).join();
         });
     }

@@ -56,6 +56,6 @@ commands:
     usage: /tpdecline
     aliases: [tpdeny, tpno]
   rtp:
-    usage: /rtp
+    usage: /rtp [player]
   back:
     usage: /back

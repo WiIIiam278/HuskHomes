@@ -85,6 +85,9 @@ public class Settings {
     @KeyPath("general.stack_permission_limits")
     public boolean stackPermissionLimits = true;
 
+    @KeyPath("general.permission_restrict_warps")
+    public boolean permissionRestrictWarps = false;
+
     @KeyPath("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 

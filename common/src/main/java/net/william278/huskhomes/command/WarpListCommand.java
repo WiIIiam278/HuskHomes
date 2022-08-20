@@ -32,7 +32,7 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
     /**
      * Show a (cached) list of server warps
      *
-     * @param onlineUser     the user to display warps to
+     * @param onlineUser the user to display warps to
      * @param pageNumber page number to display
      */
     private void showWarpList(@NotNull OnlineUser onlineUser, int pageNumber) {
@@ -40,14 +40,14 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
             onlineUser.sendMessage(plugin.getCache().warpLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
             return;
         }
-        
+
         plugin.getDatabase().getWarps().thenAccept(warps -> {
             if (warps.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                 return;
             }
             onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                    plugin.getSettings().listItemsPerPage, pageNumber));
+                    plugin.getSettings().permissionRestrictWarps, plugin.getSettings().listItemsPerPage, pageNumber));
         });
     }
 

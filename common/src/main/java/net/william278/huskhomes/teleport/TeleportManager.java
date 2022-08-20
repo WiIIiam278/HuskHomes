@@ -91,13 +91,24 @@ public class TeleportManager {
     }
 
     /**
-     * Attempt to teleport a {@link OnlineUser} to a server {@link Warp}
+     * Attempt to teleport a {@link OnlineUser} to a server {@link Warp}.
+     * <p>
+     * If permission restricted warps are enabled, the user will not be teleported if they lack the
+     * required permission node ({@code huskhomes.warp.[warp_name]})
      *
      * @param onlineUser the {@link OnlineUser} to teleport
      * @param warp       the {@link Warp} to teleport to
      */
     public void teleportToWarp(@NotNull OnlineUser onlineUser, @NotNull Warp warp) {
-        //todo permission restricted warps
+        // Check against warp permission restrictions if enabled (huskhomes.warp.<warp_name>)
+        if (plugin.getSettings().permissionRestrictWarps) {
+            if (!onlineUser.hasPermission(warp.getPermissionNode())) {
+                plugin.getLocales().getLocale("error_permission_restricted_warp", warp.meta.name)
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
+        }
+
         timedTeleport(onlineUser, warp).thenAccept(result -> finishTeleport(onlineUser, result));
     }
 

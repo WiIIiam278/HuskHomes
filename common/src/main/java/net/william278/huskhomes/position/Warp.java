@@ -24,4 +24,9 @@ public class Warp extends SavedPosition {
     public Warp(@NotNull Position position, @NotNull PositionMeta meta) {
         super(position, meta);
     }
+
+    @NotNull
+    public String getPermissionNode() {
+        return "huskhomes.warp." + meta.name.toLowerCase();
+    }
 }

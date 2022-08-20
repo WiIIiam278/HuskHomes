@@ -23,7 +23,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                     return;
                 }
                 onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                        plugin.getSettings().listItemsPerPage, 1));
+                        plugin.getSettings().permissionRestrictWarps, plugin.getSettings().listItemsPerPage, 1));
             });
             case 1 -> {
                 final String warpName = args[0];

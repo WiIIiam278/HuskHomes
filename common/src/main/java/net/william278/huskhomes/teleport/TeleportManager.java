@@ -1,6 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.messenger.Message;
 import net.william278.huskhomes.messenger.MessagePayload;
 import net.william278.huskhomes.player.OnlineUser;
@@ -225,10 +226,13 @@ public class TeleportManager {
     /**
      * Teleport a {@link OnlineUser} to a specified {@link Position} after a warmup period
      *
-     * @param onlineUser the {@link OnlineUser} to teleport
-     * @param position   the target {@link Position} to teleport to
+     * @param onlineUser     the {@link OnlineUser} to teleport
+     * @param position       the target {@link Position} to teleport to
+     * @param economyActions any economy actions to validate before the teleport.
+     *                       Note that this will not actually carry out the economy transactions, only validate them
      */
-    public CompletableFuture<TeleportResult> timedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
+    public CompletableFuture<TeleportResult> timedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position position,
+                                                           @NotNull Settings.EconomyAction... economyActions) {
         // Prevent players starting multiple timed teleports
         if (currentlyOnWarmup.contains(onlineUser.uuid)) {
             return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
@@ -239,6 +243,11 @@ public class TeleportManager {
             return CompletableFuture.supplyAsync(() -> processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
                     .thenApply(teleport -> {
                         if (!teleport.cancelled) {
+                            for (final Settings.EconomyAction action : economyActions) {
+                                if (!plugin.validateEconomyCheck(onlineUser, action)) {
+                                    return TeleportResult.CANCELLED;
+                                }
+                            }
                             return teleport(onlineUser, position).join();
                         } else {
                             return TeleportResult.CANCELLED;
@@ -254,8 +263,11 @@ public class TeleportManager {
      *
      * @param onlineUser     the {@link OnlineUser} to send the teleport completion message to
      * @param teleportResult the {@link TeleportResult} to handle
+     * @param economyActions any economy actions to complete the transaction of
      */
-    public void finishTeleport(@NotNull OnlineUser onlineUser, @NotNull TeleportResult teleportResult) {
+    public void finishTeleport(@NotNull OnlineUser onlineUser, @NotNull TeleportResult teleportResult,
+                               @NotNull Settings.EconomyAction... economyActions) {
+        // Display the teleport result message
         switch (teleportResult) {
             case COMPLETED_LOCALLY -> plugin.getLocales().getLocale("teleporting_complete")
                     .ifPresent(onlineUser::sendMessage);
@@ -270,6 +282,13 @@ public class TeleportManager {
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_SERVER -> plugin.getLocales().getLocale("error_invalid_server")
                     .ifPresent(onlineUser::sendMessage);
+        }
+
+        // Handle economy actions
+        if (teleportResult.successful) {
+            for (final Settings.EconomyAction action : economyActions) {
+                plugin.performEconomyTransaction(onlineUser, action);
+            }
         }
     }
 

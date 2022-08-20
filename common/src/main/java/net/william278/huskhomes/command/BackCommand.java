@@ -20,11 +20,11 @@ public class BackCommand extends CommandBase {
                             if (!plugin.validateEconomyCheck(onlineUser, Settings.EconomyAction.BACK_COMMAND)) {
                                 return;
                             }
-                            plugin.performEconomyTransaction(onlineUser, Settings.EconomyAction.BACK_COMMAND);
 
                             // Teleport the player
-                            plugin.getTeleportManager().timedTeleport(onlineUser, position)
-                                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                            plugin.getTeleportManager().timedTeleport(onlineUser, position, Settings.EconomyAction.RANDOM_TELEPORT)
+                                    .thenAccept(result -> plugin.getTeleportManager()
+                                            .finishTeleport(onlineUser, result, Settings.EconomyAction.RANDOM_TELEPORT));
                         },
                         () -> plugin.getLocales().getLocale("error_no_last_position").ifPresent(onlineUser::sendMessage)));
     }

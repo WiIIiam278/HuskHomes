@@ -27,22 +27,15 @@ public class World {
     @Nullable
     public Environment environment;
 
-    /**
-     * Spawn location of the world
-     */
-    @Nullable
-    public Location spawn;
-
     public World(@NotNull String name, @NotNull UUID uuid) {
         this.name = name;
         this.uuid = uuid;
     }
 
-    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment, @Nullable Location spawn) {
+    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment) {
         this.name = name;
         this.uuid = uuid;
         this.environment = environment;
-        this.spawn = spawn;
     }
 
     public World() {

@@ -120,8 +120,7 @@ public abstract class RtpEngine {
                     populateCache(keyedWorld.get(), cacheSize);
                 }
             }
-            return generateRandomPosition(world.spawn != null ? world.spawn : new Location(0, 0, 0, world))
-                    .join();
+            return generateRandomPosition(new Location(0, 0, 0, 0f, 0f, world)).join();
         }).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> Optional.empty());
     }
 

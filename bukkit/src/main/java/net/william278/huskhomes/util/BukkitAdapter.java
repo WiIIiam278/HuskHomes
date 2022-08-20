@@ -53,7 +53,8 @@ public final class BukkitAdapter {
                     case NETHER -> net.william278.huskhomes.position.World.Environment.NETHER;
                     case THE_END -> net.william278.huskhomes.position.World.Environment.THE_END;
                     case CUSTOM -> net.william278.huskhomes.position.World.Environment.CUSTOM;
-                }, adaptLocation(world.getSpawnLocation()).orElse(null)));
+                })
+        );
     }
 
 }

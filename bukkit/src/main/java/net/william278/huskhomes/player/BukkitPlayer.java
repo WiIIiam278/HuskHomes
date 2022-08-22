@@ -4,12 +4,16 @@ import de.themoep.minedown.MineDown;
 import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -77,6 +81,14 @@ public class BukkitPlayer extends OnlineUser {
         return BukkitHuskHomes.getInstance().getServer(this).thenApply(server -> new Position(
                 location.x, location.y, location.z, location.yaw, location.pitch, location.world, server));
 
+    }
+
+    @Override
+    public CompletableFuture<Optional<Position>> getBedSpawnPosition() {
+        return BukkitHuskHomes.getInstance().getServer(this).thenApply(server ->
+                Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
+                        .map(location -> new Position(location.x, location.y, location.z,
+                                location.yaw, location.pitch, location.world, server)));
     }
 
     @Override

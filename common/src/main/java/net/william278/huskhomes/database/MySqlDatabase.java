@@ -6,6 +6,7 @@ import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
@@ -581,7 +582,8 @@ public class MySqlDatabase extends Database {
                                         resultSet.getFloat("pitch"),
                                         new World(resultSet.getString("world_name"),
                                                 UUID.fromString(resultSet.getString("world_uuid"))),
-                                        new Server(resultSet.getString("server_name")))));
+                                        new Server(resultSet.getString("server_name"))),
+                                TeleportType.getTeleportType(resultSet.getInt("type")).orElse(TeleportType.TELEPORT)));
                     }
                 }
             } catch (SQLException e) {

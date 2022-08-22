@@ -21,8 +21,15 @@ public class Teleport {
     @NotNull
     public Position target;
 
-    public Teleport(@NotNull User player, @NotNull Position target) {
+    /**
+     * The type of the teleport
+     */
+    @NotNull
+    public TeleportType type;
+
+    public Teleport(@NotNull User player, @NotNull Position target, @NotNull TeleportType type) {
         this.player = player;
         this.target = target;
+        this.type = type;
     }
 }

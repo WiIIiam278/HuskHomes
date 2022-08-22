@@ -301,15 +301,29 @@ public class TeleportManager {
     }
 
     /**
-     * Carries out a teleport, teleporting a {@link OnlineUser} to a specified {@link Position} and returning
-     * a future that will return a {@link TeleportResult}
+     * Carries out a teleport, teleporting a {@link OnlineUser} to a specified {@link Position} with a TeleportType of
+     * {@link TeleportType#TELEPORT} and returning a future that will return a {@link TeleportResult}
      *
      * @param onlineUser the {@link OnlineUser} to teleport
-     * @param position   the target {@link Position} to teleport to#
+     * @param position   the target {@link Position} to teleport to
      * @return a {@link CompletableFuture} that completes when the teleport is complete with the {@link TeleportResult}
      */
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-        final Teleport teleport = new Teleport(onlineUser, position);
+        return teleport(onlineUser, position, TeleportType.TELEPORT);
+    }
+
+    /**
+     * Carries out a teleport, teleporting a {@link OnlineUser} to a specified {@link Position} and returning
+     * a future that will return a {@link TeleportResult}
+     *
+     * @param onlineUser   the {@link OnlineUser} to teleport
+     * @param position     the target {@link Position} to teleport to
+     * @param teleportType the {@link TeleportType} of the teleport
+     * @return a {@link CompletableFuture} that completes when the teleport is complete with the {@link TeleportResult}
+     */
+    public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position,
+                                                      @NotNull TeleportType teleportType) {
+        final Teleport teleport = new Teleport(onlineUser, position, teleportType);
         return onlineUser.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
                 .setLastPosition(onlineUser, preTeleportPosition) // Update the player's last position
                 .thenApply(ignored -> plugin.getServer(onlineUser).thenApply(server -> {

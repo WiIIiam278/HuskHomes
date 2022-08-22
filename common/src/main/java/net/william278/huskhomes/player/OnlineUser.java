@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,6 +28,14 @@ public abstract class OnlineUser extends User {
      * @return the player's current {@link Position}
      */
     public abstract CompletableFuture<Position> getPosition();
+
+    /**
+     * Returns the player's current bed or respawn anchor {@link Position}
+     *
+     * @return an optional with the player's current bed or respawn anchor {@link Position} if it has been set,
+     * otherwise an {@link Optional#empty()}
+     */
+    public abstract CompletableFuture<Optional<Position>> getBedSpawnPosition();
 
     /**
      * Returns the current local {@link Location} of this player
@@ -103,7 +112,7 @@ public abstract class OnlineUser extends User {
      * Get the number of homes this user may make public
      *
      * @param defaultPublicHomes the default number of homes this user may make public
-     * @param stack            whether to stack numerical permissions that grant the user extra public homes
+     * @param stack              whether to stack numerical permissions that grant the user extra public homes
      * @return the number of public home slots this user may set
      */
     public int getMaxPublicHomes(final int defaultPublicHomes, final boolean stack) {

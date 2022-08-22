@@ -6,19 +6,15 @@ import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a {@link Teleport} due to occur
+ * Represents a {@link Teleport} due to occur after a warmup period
  */
 public class TimedTeleport {
 
     private final OnlineUser onlineUser;
     private final Position targetPosition;
-
     private final Location startLocation;
     private final double startHealth;
-
-    private final int duration;
     protected int timeLeft;
-
     public boolean cancelled = false;
 
     protected TimedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position targetPosition, int duration) {
@@ -26,7 +22,6 @@ public class TimedTeleport {
         this.targetPosition = targetPosition;
         this.startLocation = onlineUser.getLocation();
         this.startHealth = onlineUser.getHealth();
-        this.duration = duration;
         this.timeLeft = duration;
     }
 

@@ -1,6 +1,7 @@
 package net.william278.huskhomes.position;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a server on a proxied network
@@ -12,8 +13,8 @@ public class Server {
      */
     public String name;
 
-    public Server(@NotNull String name) {
-        this.name = name;
+    public Server(@Nullable String name) {
+        this.name = (name != null ? name : "server");
     }
 
     public Server() {

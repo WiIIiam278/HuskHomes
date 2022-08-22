@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `%teleports_table%`
 (
     `player_uuid`    char(36) NOT NULL UNIQUE,
     `destination_id` integer  NOT NULL,
+    `type`           integer  NOT NULL DEFAULT 0,
 
     PRIMARY KEY (`player_uuid`),
     FOREIGN KEY (`player_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,

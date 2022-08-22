@@ -3,9 +3,12 @@ package net.william278.huskhomes.listener;
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -51,17 +54,32 @@ public class EventListener {
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
             if (plugin.getSettings().crossServer) {
                 plugin.getDatabase().getCurrentTeleport(onlineUser)
-                        .thenAccept(teleport -> teleport.ifPresent(currentTeleport ->
-                                // Teleport the player locally
-                                onlineUser.teleport(currentTeleport.target).thenAccept(teleportResult -> {
-                                    if (!teleportResult.successful) {
-                                        plugin.getLocales().getLocale("error_invalid_on_arrival")
-                                                .ifPresent(onlineUser::sendMessage);
-                                    } else {
-                                        plugin.getLocales().getLocale("teleporting_complete")
-                                                .ifPresent(onlineUser::sendMessage);
-                                    }
-                                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))))
+                        .thenAccept(teleport -> teleport.ifPresent(activeTeleport -> {
+                            // Handle respawn
+                            if (activeTeleport.type == TeleportType.RESPAWN) {
+                                final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition().join();
+                                if (bedPosition.isEmpty()) {
+                                    plugin.getLocales().getLocale("error_respawn_invalid")
+                                            .ifPresent(onlineUser::sendMessage);
+                                    plugin.getDatabase().setRespawnPosition(onlineUser, null).join();
+                                    return;
+                                }
+                                onlineUser.teleport(bedPosition.get()).join();
+                                return;
+                            }
+
+                            // Teleport the player locally
+                            onlineUser.teleport(activeTeleport.target).thenAccept(teleportResult -> {
+                                        if (!teleportResult.successful) {
+                                            plugin.getLocales().getLocale("error_invalid_on_arrival")
+                                                    .ifPresent(onlineUser::sendMessage);
+                                        } else {
+                                            plugin.getLocales().getLocale("teleporting_complete")
+                                                    .ifPresent(onlineUser::sendMessage);
+                                        }
+                                    }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
+                                    .join();
+                        }))
                         .join();
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
@@ -76,7 +94,7 @@ public class EventListener {
 
                     // Send a reminder message if they are still ignoring requests
                     if (ignoringRequests) {
-                        plugin.getLocales().getRawLocale("tpignore_on_reminder",
+                        plugin.getLocales().getRawLocale("tpignore_on_notification",
                                         plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
                                 .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
                     }
@@ -138,7 +156,33 @@ public class EventListener {
      * @param onlineUser the respawning {@link OnlineUser}
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
-        //todo
+        if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
+            plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> {
+                position.ifPresent(respawnPosition -> {
+                    if (!respawnPosition.server.equals(plugin.getServer(onlineUser).join())) {
+                        plugin.getTeleportManager().teleport(onlineUser, respawnPosition).thenAccept(
+                                result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                    }
+                });
+            });
+        } else {
+            if (plugin.getSettings().backCommandReturnByDeath && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+                plugin.getLocales().getLocale("back_return_by_death")
+                        .ifPresent(onlineUser::sendMessage);
+            }
+        }
+    }
+
+    /**
+     * Handle when an {@link OnlineUser}'s spawn point is updated
+     *
+     * @param onlineUser the {@link OnlineUser} whose spawn point was updated
+     * @param position   the new spawn point
+     */
+    protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
+        if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
+            plugin.getDatabase().setRespawnPosition(onlineUser, position);
+        }
     }
 
     /**

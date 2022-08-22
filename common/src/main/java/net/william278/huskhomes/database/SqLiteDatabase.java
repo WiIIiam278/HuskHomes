@@ -5,6 +5,7 @@ import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
@@ -577,7 +578,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                        SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `type`
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                         WHERE `player_uuid`=?"""))) {
@@ -593,7 +594,8 @@ public class SqLiteDatabase extends Database {
                                         resultSet.getFloat("pitch"),
                                         new World(resultSet.getString("world_name"),
                                                 UUID.fromString(resultSet.getString("world_uuid"))),
-                                        new Server(resultSet.getString("server_name")))));
+                                        new Server(resultSet.getString("server_name"))),
+                                TeleportType.getTeleportType(resultSet.getInt("type")).orElse(TeleportType.TELEPORT)));
                     }
                 }
             } catch (SQLException e) {

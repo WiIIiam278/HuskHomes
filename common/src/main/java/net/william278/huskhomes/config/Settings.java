@@ -146,6 +146,9 @@ public class Settings {
     @KeyPath("cross_server.global_spawn.warp_name")
     public String globalSpawnName = "Spawn";
 
+    @KeyPath("cross_server_global_respawning")
+    public boolean globalRespawning = false;
+
     @KeyPath("cross_server.redis_credentials.host")
     public String redisHost = "localhost";
 

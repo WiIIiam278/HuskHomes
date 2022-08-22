@@ -137,6 +137,12 @@ public class Settings {
     @KeyPath("cross_server.cluster_id")
     public String clusterId = "";
 
+    @KeyPath("cross_server.global_spawn.enabled")
+    public boolean globalSpawn = false;
+
+    @KeyPath("cross_server.global_spawn.warp_name")
+    public String globalSpawnName = "Spawn";
+
     @KeyPath("cross_server.redis_credentials.host")
     public String redisHost = "localhost";
 

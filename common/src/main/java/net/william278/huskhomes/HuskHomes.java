@@ -2,6 +2,7 @@ package net.william278.huskhomes;
 
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.PluginHook;
@@ -128,6 +129,20 @@ public interface HuskHomes {
      */
     @NotNull
     RtpEngine getRtpEngine();
+
+    /**
+     * The {@link Spawn} location of this server
+     *
+     * @return the {@link Spawn} location data
+     */
+    Optional<Spawn> getSpawn();
+
+    /**
+     * Update the {@link Spawn} position to a location on the server
+     *
+     * @param location the new {@link Spawn} location
+     */
+    void setSpawn(@NotNull Location location);
 
     /**
      * Set of active {@link PluginHook}s running on the server

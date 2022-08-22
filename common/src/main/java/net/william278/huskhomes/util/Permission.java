@@ -128,7 +128,7 @@ public enum Permission {
     /**
      * Lets the user set the spawn position ({@code /setspawn})
      */
-    COMMAND_SETSPAWN("huskhomes.command.setspawn", DefaultAccess.OPERATORS),
+    COMMAND_SET_SPAWN("huskhomes.command.setspawn", DefaultAccess.OPERATORS),
     /**
      * Lets the user return to where they last teleported from ({@code /back})
      */

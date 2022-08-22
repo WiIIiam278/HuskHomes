@@ -2,11 +2,11 @@ package net.william278.huskhomes;
 
 import io.papermc.lib.PaperLib;
 import net.william278.annotaml.Annotaml;
-import net.william278.annotaml.AnnotamlException;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
@@ -59,6 +59,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
     private RtpEngine rtpEngine;
+    private Spawn spawn;
     private Set<PluginHook> pluginHooks;
 
     @Nullable
@@ -285,6 +286,18 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
+    public Optional<Spawn> getSpawn() {
+        return Optional.ofNullable(spawn);
+    }
+
+    @Override
+    public void setSpawn(@NotNull Location location) {
+        final Spawn newSpawn = new Spawn(location);
+        this.spawn = newSpawn;
+        Annotaml.save(newSpawn, new File(getDataFolder(), "spawn.yml"));
+    }
+
+    @Override
     public @NotNull Set<PluginHook> getPluginHooks() {
         return pluginHooks;
     }
@@ -360,30 +373,33 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public CompletableFuture<Boolean> reload() {
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                this.settings = Annotaml.reload(new File(getDataFolder(), "config.yml"),
-                        new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
+            // Load settings and locales
+            this.settings = Annotaml.reload(new File(getDataFolder(), "config.yml"),
+                    new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
+            this.locales = Annotaml.reload(new File(getDataFolder(), "messages-" + settings.language + ".yml"),
+                    Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
+                    Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
 
-                this.locales = Annotaml.reload(new File(getDataFolder(), "messages-" + settings.language + ".yml"),
-                        Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
-                        Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
-                return true;
-            } catch (AnnotamlException e) {
-                getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", e);
-                return false;
-            } catch (NullPointerException e) {
-                getLoggingAdapter().log(Level.SEVERE, "An unsupported language code was supplied, could not load locales", e);
-                return false;
+            // Load spawn location from file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists()) {
+                this.spawn = Annotaml.load(spawnFile, Spawn.class);
             }
+            return true;
+        }).exceptionally(throwable -> {
+            getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", throwable);
+            return false;
         });
     }
 
     // Default constructor
+    @SuppressWarnings("unused")
     public BukkitHuskHomes() {
         super();
     }
 
     // Super constructor for unit testing
+    @SuppressWarnings("unused")
     protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
                               @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);

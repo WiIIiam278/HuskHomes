@@ -3,6 +3,7 @@ package net.william278.huskhomes.listener;
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Permission;
@@ -173,6 +174,19 @@ public class EventListener {
                 }
             }));
         }
+    }
+
+    /**
+     * Handle when a player teleports
+     *
+     * @param onlineUser     the {@link OnlineUser} who teleported
+     * @param sourcePosition the source {@link Position} they came from
+     */
+    protected final void handlePlayerTeleport(@NotNull OnlineUser onlineUser, @NotNull Position sourcePosition) {
+        if (!plugin.getSettings().backCommandOnTeleportEvent) return;
+
+        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData ->
+                userData.ifPresent(data -> plugin.getDatabase().setLastPosition(data.user(), sourcePosition).join()));
     }
 
     /**

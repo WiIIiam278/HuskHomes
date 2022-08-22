@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -43,6 +44,22 @@ public class BukkitEventListener extends EventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         super.handlePlayerRespawn(BukkitPlayer.adapt(event.getPlayer()));
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        final Player player = event.getPlayer();
+
+        // Return if the disconnecting entity is a Citizens NPC, or if the teleport was naturally caused
+        if (player.hasMetadata("NPC")) return;
+        if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND
+              || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
+
+        final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
+        BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
+                handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation.x, sourceLocation.y, sourceLocation.z,
+                        sourceLocation.yaw, sourceLocation.pitch, sourceLocation.world,
+                        plugin.getServer(bukkitPlayer).join())));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

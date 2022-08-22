@@ -89,9 +89,6 @@ public class Settings {
     @KeyPath("general.permission_restrict_warps")
     public boolean permissionRestrictWarps = false;
 
-    @KeyPath("general.back_command_return_by_death")
-    public boolean backCommandReturnByDeath = true;
-
     @KeyPath("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 
@@ -108,6 +105,12 @@ public class Settings {
 
     @KeyPath("general.allow_unicode_descriptions")
     public boolean allowUnicodeDescriptions = true;
+
+    @KeyPath("general.back_command_return_by_death")
+    public boolean backCommandReturnByDeath = true;
+
+    @KeyPath("general.back_command_on_teleport_event")
+    public boolean backCommandOnTeleportEvent = true;
 
     @KeyPath("general.list_items_per_page")
     public int listItemsPerPage = 12;

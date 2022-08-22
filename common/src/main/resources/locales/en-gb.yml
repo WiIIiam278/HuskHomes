@@ -83,7 +83,7 @@ teleport_request_declined: '[%1% has declined your teleport request.](#ff7e5e)'
 set_home_used_free_slots: '[You''ve used all of your free set home slots (%1%); setting additional homes will cost %2% each.](gray)'
 set_home_success: '[Successfully set a new home called](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Successfully set a new warp called](#00fb9a) [%1%](#00fb9a bold)'
-set_spawn_success: '[Updated spawn position for this server to your current location.](#00fb9a)'
+set_spawn_success: '[Updated the spawn position to your current location.](#00fb9a)'
 return_by_death_notification: '[Return to where you died?](gray) [[⏪ Teleport…]](#00fb9a show_text=&#00fb9a&Click to teleport\n&7Return to where you died run_command=/huskhomes:back)'
 
 home_default_description: '%1%''s home.'
@@ -159,7 +159,6 @@ error_home_invalid_other: '[Error:](#ff3300) [%1% does not have a home set named
 error_edit_home_maximum_public_homes: '[Error:](#ff3300) [You can only make a maximum of %1% homes public.](#ff7e5e)'
 error_illegal_target_coordinates: '[Error:](#ff3300) [Cancelled teleport as it exceeds the possible game world limits.](#ff7e5e)'
 error_no_other_online_players: '[Error:](#ff3300) [There are no other online players who could teleport to you.](#ff7e5e)'
-error_respawn_invalid: '[You have no home bed or charged respawn anchor, or it was obstructed.](#ff7e5e)'
 
 home_command_description: 'Teleport to one of your homes'
 sethome_command_description: 'Set a new home with given name'

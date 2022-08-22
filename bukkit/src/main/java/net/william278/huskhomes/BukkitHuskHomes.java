@@ -4,7 +4,6 @@ import io.papermc.lib.PaperLib;
 import net.william278.annotaml.Annotaml;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
-import net.william278.huskhomes.command.ConsoleExecutable;
 import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
@@ -61,7 +60,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
     private RtpEngine rtpEngine;
-    private Spawn spawn;
+    private Spawn serverSpawn;
     private Set<PluginHook> pluginHooks;
 
     @Nullable
@@ -302,15 +301,21 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public Optional<Spawn> getSpawn() {
-        return Optional.ofNullable(spawn);
+    public Optional<Spawn> getServerSpawn() {
+        return Optional.ofNullable(serverSpawn);
     }
 
     @Override
-    public void setSpawn(@NotNull Location location) {
+    public void setServerSpawn(@NotNull Location location) {
         final Spawn newSpawn = new Spawn(location);
-        this.spawn = newSpawn;
+        this.serverSpawn = newSpawn;
         Annotaml.save(newSpawn, new File(getDataFolder(), "spawn.yml"));
+
+        // Update the world spawn location, too
+        BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
+            assert bukkitLocation.getWorld() != null;
+            bukkitLocation.getWorld().setSpawnLocation(bukkitLocation);
+        });
     }
 
     @Override
@@ -399,7 +404,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Load spawn location from file
             final File spawnFile = new File(getDataFolder(), "spawn.yml");
             if (spawnFile.exists()) {
-                this.spawn = Annotaml.load(spawnFile, Spawn.class);
+                this.serverSpawn = Annotaml.load(spawnFile, Spawn.class);
             }
             return true;
         }).exceptionally(throwable -> {

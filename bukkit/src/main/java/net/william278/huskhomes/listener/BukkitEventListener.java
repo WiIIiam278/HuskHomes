@@ -16,6 +16,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
+
 public class BukkitEventListener extends EventListener implements Listener {
 
     public BukkitEventListener(@NotNull BukkitHuskHomes huskHomes) {
@@ -54,13 +56,13 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (location == null) return;
 
         // Update the player's respawn location
-        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
+        CompletableFuture.runAsync(() -> BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
             final OnlineUser user = BukkitPlayer.adapt(event.getPlayer());
             super.handlePlayerUpdateSpawnPoint(user, new Position(
                     adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
                     adaptedLocation.yaw, adaptedLocation.pitch,
                     adaptedLocation.world, plugin.getServer(user).join()));
-        });
+        }));
     }
 
 }

@@ -566,7 +566,7 @@ public class MySqlDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                        SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `type`
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                         WHERE `player_uuid`=?"""))) {
@@ -637,10 +637,11 @@ public class MySqlDatabase extends Database {
             if (teleport != null) {
                 try (Connection connection = getConnection()) {
                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                            INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`)
-                            VALUES (?,?);"""))) {
+                            INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
+                            VALUES (?,?,?);"""))) {
                         statement.setString(1, user.uuid.toString());
                         statement.setInt(2, setPosition(teleport.target, connection));
+                        statement.setInt(3, teleport.type.typeId);
 
                         statement.executeUpdate();
                     }

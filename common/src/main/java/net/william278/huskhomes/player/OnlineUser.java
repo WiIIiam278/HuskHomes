@@ -83,6 +83,13 @@ public abstract class OnlineUser extends User {
     public abstract void sendMessage(@NotNull MineDown mineDown);
 
     /**
+     * Dispatch a Minecraft translatable keyed-message to this player
+     *
+     * @param translationKey the translation key of the message to send
+     */
+    public abstract void sendMinecraftMessage(@NotNull String translationKey);
+
+    /**
      * Teleport a player to the specified {@link Location}
      *
      * @param location the {@link Location} to teleport the player to
@@ -168,6 +175,4 @@ public abstract class OnlineUser extends User {
                 .map(permission -> Integer.parseInt(permission.getKey().substring(nodePrefix.length())))
                 .sorted().toList();
     }
-
-
 }

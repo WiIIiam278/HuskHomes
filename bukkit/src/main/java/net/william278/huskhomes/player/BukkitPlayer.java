@@ -4,7 +4,6 @@ import de.themoep.minedown.MineDown;
 import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
@@ -12,15 +11,15 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -125,6 +124,11 @@ public class BukkitPlayer extends OnlineUser {
             return;
         }
         player.spigot().sendMessage(messageComponents);
+    }
+
+    @Override
+    public void sendMinecraftMessage(@NotNull String translationKey) {
+        player.spigot().sendMessage(new TranslatableComponent(translationKey));
     }
 
     @Override

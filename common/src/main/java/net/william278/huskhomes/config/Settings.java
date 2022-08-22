@@ -146,7 +146,7 @@ public class Settings {
     @KeyPath("cross_server.global_spawn.warp_name")
     public String globalSpawnName = "Spawn";
 
-    @KeyPath("cross_server_global_respawning")
+    @KeyPath("cross_server.global_respawning")
     public boolean globalRespawning = false;
 
     @KeyPath("cross_server.redis_credentials.host")
@@ -195,9 +195,9 @@ public class Settings {
     @KeyPath("economy.costs")
     public Map<String, Double> economyCosts = Map.of(
             EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyAction.ADDITIONAL_HOME_SLOT.defaultCost,
-            EconomyAction.MAKE_HOME_PUBLIC.name(), EconomyAction.MAKE_HOME_PUBLIC.defaultCost,
+            EconomyAction.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyAction.MAKE_HOME_PUBLIC.defaultCost,
             EconomyAction.RANDOM_TELEPORT.name().toLowerCase(), EconomyAction.RANDOM_TELEPORT.defaultCost,
-            EconomyAction.BACK_COMMAND.name(), EconomyAction.BACK_COMMAND.defaultCost
+            EconomyAction.BACK_COMMAND.name().toLowerCase(), EconomyAction.BACK_COMMAND.defaultCost
     );
 
     public Optional<Double> getEconomyCost(@NotNull EconomyAction action) {

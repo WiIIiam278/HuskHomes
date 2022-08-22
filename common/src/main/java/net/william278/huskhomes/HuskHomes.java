@@ -135,14 +135,14 @@ public interface HuskHomes {
      *
      * @return the {@link Spawn} location data
      */
-    Optional<Spawn> getSpawn();
+    Optional<Spawn> getServerSpawn();
 
     /**
      * Update the {@link Spawn} position to a location on the server
      *
      * @param location the new {@link Spawn} location
      */
-    void setSpawn(@NotNull Location location);
+    void setServerSpawn(@NotNull Location location);
 
     /**
      * Set of active {@link PluginHook}s running on the server

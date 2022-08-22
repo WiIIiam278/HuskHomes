@@ -649,10 +649,11 @@ public class SqLiteDatabase extends Database {
             if (teleport != null) {
                 try {
                     try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                            INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`)
-                            VALUES (?,?);"""))) {
+                            INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
+                            VALUES (?,?,?);"""))) {
                         statement.setString(1, user.uuid.toString());
                         statement.setInt(2, setPosition(teleport.target, connection));
+                        statement.setInt(3, teleport.type.typeId);
 
                         statement.executeUpdate();
                     }

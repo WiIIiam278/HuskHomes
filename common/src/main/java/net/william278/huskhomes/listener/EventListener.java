@@ -53,18 +53,20 @@ public class EventListener {
         plugin.getDatabase().ensureUser(onlineUser).thenRun(() -> {
             // If the server is in proxy mode, check if the player is teleporting cross-server and handle
             if (plugin.getSettings().crossServer) {
-                plugin.getDatabase().getCurrentTeleport(onlineUser)
-                        .thenAccept(teleport -> teleport.ifPresent(activeTeleport -> {
-                            // Handle respawn
+                plugin.getDatabase().getCurrentTeleport(onlineUser).thenAccept(teleport -> teleport.ifPresent(activeTeleport -> {
+                            // Handle cross-server respawn
                             if (activeTeleport.type == TeleportType.RESPAWN) {
                                 final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition().join();
                                 if (bedPosition.isEmpty()) {
-                                    plugin.getLocales().getLocale("error_respawn_invalid")
-                                            .ifPresent(onlineUser::sendMessage);
-                                    plugin.getDatabase().setRespawnPosition(onlineUser, null).join();
-                                    return;
+                                    plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getServer(onlineUser).join()))
+                                            .ifPresent(onlineUser::teleport);
+                                    onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
+                                } else {
+                                    onlineUser.teleport(bedPosition.get()).join();
                                 }
-                                onlineUser.teleport(bedPosition.get()).join();
+                                plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRun(() ->
+                                        plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null))
+                                                .join()).join();
                                 return;
                             }
 
@@ -156,20 +158,20 @@ public class EventListener {
      * @param onlineUser the respawning {@link OnlineUser}
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
+        // Display the return by death via /back notification
+        if (plugin.getSettings().backCommandReturnByDeath && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+            plugin.getLocales().getLocale("return_by_death_notification")
+                    .ifPresent(onlineUser::sendMessage);
+        }
+
+        // Respawn the player cross-server if needed
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
-            plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> {
-                position.ifPresent(respawnPosition -> {
-                    if (!respawnPosition.server.equals(plugin.getServer(onlineUser).join())) {
-                        plugin.getTeleportManager().teleport(onlineUser, respawnPosition).thenAccept(
-                                result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
-                    }
-                });
-            });
-        } else {
-            if (plugin.getSettings().backCommandReturnByDeath && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
-                plugin.getLocales().getLocale("back_return_by_death")
-                        .ifPresent(onlineUser::sendMessage);
-            }
+            plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
+                if (!respawnPosition.server.equals(plugin.getServer(onlineUser).join())) {
+                    plugin.getTeleportManager().teleport(onlineUser, respawnPosition, TeleportType.RESPAWN).thenAccept(
+                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                }
+            }));
         }
     }
 
@@ -181,7 +183,7 @@ public class EventListener {
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
-            plugin.getDatabase().setRespawnPosition(onlineUser, position);
+            plugin.getDatabase().setRespawnPosition(onlineUser, position).join();
         }
     }
 

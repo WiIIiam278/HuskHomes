@@ -34,7 +34,7 @@ public class SetSpawnCommand extends CommandBase {
                                     .orElse("")), position).join();
                 }
             } else {
-                plugin.setSpawn(position);
+                plugin.setServerSpawn(position);
             }
         }).thenRun(() -> plugin.getLocales().getLocale("set_spawn_success").ifPresent(onlineUser::sendMessage));
     }

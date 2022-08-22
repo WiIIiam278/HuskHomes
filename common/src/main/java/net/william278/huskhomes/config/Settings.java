@@ -5,6 +5,7 @@ import net.william278.annotaml.KeyPath;
 import net.william278.annotaml.YamlFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -204,6 +205,10 @@ public class Settings {
         }
         return Optional.empty();
     }
+
+    // Disabled commands
+    @KeyPath("disabled_commands")
+    public List<String> disabledCommands = Collections.emptyList();
 
     @SuppressWarnings("unused")
     public Settings() {

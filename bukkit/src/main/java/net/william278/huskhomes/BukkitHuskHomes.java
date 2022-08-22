@@ -4,6 +4,8 @@ import io.papermc.lib.PaperLib;
 import net.william278.annotaml.Annotaml;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
+import net.william278.huskhomes.command.ConsoleExecutable;
+import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
@@ -172,12 +174,26 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                             })));
 
             // Register commands
-            for (final BukkitCommandType bukkitCommandType : BukkitCommandType.values()) {
-                final PluginCommand pluginCommand = getCommand(bukkitCommandType.commandBase.command);
-                if (pluginCommand != null) {
-                    new BukkitCommand(bukkitCommandType.commandBase, this).register(pluginCommand);
+            Arrays.stream(BukkitCommandType.values()).forEach(commandType -> {
+                final PluginCommand pluginCommand = getCommand(commandType.commandBase.command);
+                if (pluginCommand == null) {
+                    return;
                 }
-            }
+
+                // If the command is disabled, use the disabled CommandBase
+                if (settings.disabledCommands.stream().anyMatch(disabledCommand -> {
+                    final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
+                    return command.equalsIgnoreCase(commandType.commandBase.command) ||
+                           Arrays.stream(commandType.commandBase.aliases)
+                                   .anyMatch(alias -> alias.equalsIgnoreCase(command));
+                })) {
+                    new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
+                    return;
+                }
+
+                // Otherwise, register the command
+                new BukkitCommand(commandType.commandBase, this).register(pluginCommand);
+            });
             getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
             // Hook into bStats metrics

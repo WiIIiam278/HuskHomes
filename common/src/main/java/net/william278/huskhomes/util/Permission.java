@@ -27,6 +27,10 @@ public enum Permission {
     /*
      * Command permission nodes
      */
+    /**
+     * Lets the user view the "disabled command" message for disabled commands
+     */
+    COMMAND_DISABLED_MESSAGE("huskhomes.disabled_command_message", DefaultAccess.EVERYONE),
 
     /**
      * Lets the user teleport to their homes ({@code /home [home_name]})

@@ -17,16 +17,16 @@ public abstract class CommandBase {
     public final String command;
 
     /**
+     * Alias input strings for this command
+     */
+    @NotNull
+    public final String[] aliases;
+
+    /**
      * The permission node required to use this command
      */
     @NotNull
     protected final String permission;
-
-    /**
-     * Alias input strings for this command
-     */
-    @NotNull
-    protected final String[] aliases;
 
     /**
      * Instance of the implementing plugin

@@ -41,7 +41,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
             pluginCommand.setDescription(command.getDescription());
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(this);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
     }

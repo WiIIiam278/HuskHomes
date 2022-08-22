@@ -103,7 +103,7 @@ public class Locales {
      * @return The escaped string
      */
     @NotNull
-    private static String escapeMineDown(@NotNull String string) {
+    public static String escapeMineDown(@NotNull String string) {
         final StringBuilder value = new StringBuilder();
         for (int i = 0; i < string.length(); ++i) {
             char c = string.charAt(i);

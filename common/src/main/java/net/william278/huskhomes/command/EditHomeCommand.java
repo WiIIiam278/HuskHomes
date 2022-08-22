@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Home;
@@ -88,7 +89,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
 
         if (editOperation == null) {
             getHomeEditorWindow(home, true, otherOwner,
-                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node))
+                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                    editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
                     .forEach(editor::sendMessage);
             return;
         }
@@ -178,7 +180,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                         // Show the menu if the menu flag is set
                         if (showMenuFlag.get()) {
                             getHomeEditorWindow(home, false, otherOwner,
-                                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node))
+                                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                                    editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
                                     .forEach(editor::sendMessage);
                         }
                     }));
@@ -242,7 +245,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                 // Show the menu if the menu flag is set
                 if (showMenuFlag.get()) {
                     getHomeEditorWindow(home, false, otherOwner,
-                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node))
+                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                            editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
                             .forEach(editor::sendMessage);
                 }
             }
@@ -267,15 +271,16 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
     /**
      * Get a formatted home editor chat window for a supplied {@link Home}
      *
-     * @param home               The home to display
-     * @param showTitle          Whether to show the menu title
-     * @param otherViewer        If the viewer of the editor is not the homeowner
-     * @param showTeleportButton Whether to show the teleport "use" button
+     * @param home                    The home to display
+     * @param showTitle               Whether to show the menu title
+     * @param otherViewer             If the viewer of the editor is not the homeowner
+     * @param showTeleportButton      Whether to show the teleport "use" button
+     * @param showPrivacyToggleButton Whether to show the home privacy toggle button
      * @return List of {@link MineDown} messages to send to the editor that form the menu
      */
     @NotNull
-    private List<MineDown> getHomeEditorWindow(@NotNull Home home, final boolean showTitle,
-                                               final boolean otherViewer, final boolean showTeleportButton) {
+    private List<MineDown> getHomeEditorWindow(@NotNull Home home, final boolean showTitle, final boolean otherViewer,
+                                               final boolean showTeleportButton, final boolean showPrivacyToggleButton) {
         return new ArrayList<>() {{
             if (showTitle) {
                 if (!otherViewer) {
@@ -303,9 +308,11 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
             }
 
             if (!plugin.getSettings().crossServer) {
-                plugin.getLocales().getLocale("edit_home_menu_world", home.world.name).ifPresent(this::add);
+                plugin.getLocales().getLocale("edit_home_menu_world", home.world.name)
+                        .ifPresent(this::add);
             } else {
-                plugin.getLocales().getLocale("edit_home_menu_world_server", home.world.name, home.server.name).ifPresent(this::add);
+                plugin.getLocales().getLocale("edit_home_menu_world_server", home.world.name, home.server.name)
+                        .ifPresent(this::add);
             }
 
             plugin.getLocales().getLocale("edit_home_menu_coordinates",
@@ -319,9 +326,10 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                                 formattedName)
                         .ifPresent(this::add);
             }
-            plugin.getLocales().getLocale("edit_home_menu_manage_buttons",
-                            formattedName)
-                    .ifPresent(this::add);
+            plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons",
+                            Locales.escapeMineDown(formattedName), showPrivacyToggleButton ? plugin.getLocales()
+                                    .getRawLocale("edit_home_menu_toggle_privacy_button").orElse("") : "")
+                    .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",
                             formattedName)
                     .ifPresent(this::add);

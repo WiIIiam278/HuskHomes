@@ -1,5 +1,6 @@
 package net.william278.huskhomes.listener;
 
+import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -73,8 +74,9 @@ public class EventListener {
 
                     // Send a reminder message if they are still ignoring requests
                     if (ignoringRequests) {
-                        plugin.getLocales().getLocale("tpignore_on_reminder")
-                                .ifPresent(onlineUser::sendMessage);
+                        plugin.getLocales().getRawLocale("tpignore_on_reminder",
+                                        plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
+                                .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
                     }
                 }
             }).join();

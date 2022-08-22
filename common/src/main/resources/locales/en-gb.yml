@@ -95,9 +95,10 @@ delete_all_warps_success: '[Successfully deleted all](#00fb9a) [%1%](#00fb9a bol
 teleporting_complete_console: '[Console teleported you to %1%.](gray)'
 spawn_warp_default_description: 'The /spawn position of the server'
 
-tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
-tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to any incoming teleport requests.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to ignore incoming teleport requests run_command=/huskhomes:tpignore)'
-tpignore_on_reminder: '[You are currently ignoring incoming teleport requests!](gray) [(Click to toggle)](gray show_text=&7Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
+tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) %1%'
+tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to incoming teleport requests.](#00fb9a) %1%'
+tpignore_on_reminder: '[You are currently ignoring incoming teleport requests!](gray) %1%'
+tpignore_toggle_button: '[[🔔 Toggle…]](#ffc43b show_text=&#ffc43b&Click to toggle:\n&7Toggle ignoring/listening to incoming teleport requests run_command=/huskhomes:tpignore)'
 
 teleporting_all_players: '[Teleporting all players to your position…](#00fb9a)'
 

@@ -1,5 +1,6 @@
 package net.william278.huskhomes.command;
 
+import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.UserData;
@@ -28,7 +29,8 @@ public class TpIgnoreCommand extends CommandBase {
         plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(
                 userData -> userData.ifPresent(data -> plugin.getDatabase().updateUserData(new UserData(onlineUser,
                         data.homeSlots(), isIgnoringRequests, data.rtpCooldown())).join())).thenRun(
-                () -> plugin.getLocales().getLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"))
-                        .ifPresent(onlineUser::sendMessage));
+                () -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
+                                plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
+                        .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale))));
     }
 }

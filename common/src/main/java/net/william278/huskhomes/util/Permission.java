@@ -140,7 +140,7 @@ public enum Permission {
     /**
      * Lets the user use {@code /back} to return to where they died
      */
-    COMMAND_BACK_ON_DEATH("huskhomes.command.back.death", DefaultAccess.EVERYONE),
+    COMMAND_BACK_RETURN_BY_DEATH("huskhomes.command.back.death", DefaultAccess.EVERYONE),
     /**
      * Lets the user view plugin information
      */

@@ -89,6 +89,9 @@ public class Settings {
     @KeyPath("general.permission_restrict_warps")
     public boolean permissionRestrictWarps = false;
 
+    @KeyPath("general.back_command_return_by_death")
+    public boolean backCommandReturnByDeath = true;
+
     @KeyPath("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 
@@ -97,10 +100,6 @@ public class Settings {
 
     @KeyPath("general.teleport_request_expiry_time")
     public int teleportRequestExpiryTime = 60;
-
-    @KeyPath("general.list_items_per_page")
-    public int listItemsPerPage = 12;
-
     @KeyPath("general.strict_tpa_here_requests")
     public boolean strictTpaHereRequests = true;
 
@@ -109,6 +108,9 @@ public class Settings {
 
     @KeyPath("general.allow_unicode_descriptions")
     public boolean allowUnicodeDescriptions = true;
+
+    @KeyPath("general.list_items_per_page")
+    public int listItemsPerPage = 12;
 
     @KeyPath("general.use_paper_lib")
     public boolean usePaperLib = true;

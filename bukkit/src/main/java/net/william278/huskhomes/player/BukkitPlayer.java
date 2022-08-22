@@ -74,7 +74,7 @@ public class BukkitPlayer extends OnlineUser {
     @Override
     public CompletableFuture<Position> getPosition() {
         final Location location = getLocation();
-        return BukkitHuskHomes.getInstance().getServer(this).thenApplyAsync(server -> new Position(
+        return BukkitHuskHomes.getInstance().getServer(this).thenApply(server -> new Position(
                 location.x, location.y, location.z, location.yaw, location.pitch, location.world, server));
 
     }
@@ -131,9 +131,9 @@ public class BukkitPlayer extends OnlineUser {
                     PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.COMMAND)
                             .thenAccept(result -> {
                                 if (result) {
-                                    resultCompletableFuture.completeAsync(() -> TeleportResult.COMPLETED_LOCALLY);
+                                    resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
                                 } else {
-                                    resultCompletableFuture.completeAsync(() -> TeleportResult.FAILED_INVALID_WORLD);
+                                    resultCompletableFuture.complete(TeleportResult.FAILED_INVALID_WORLD);
                                 }
                             }));
             return resultCompletableFuture.join();

@@ -84,7 +84,6 @@ set_home_used_free_slots: '[You''ve used all of your free set home slots (%1%); 
 set_home_success: '[Successfully set a new home called](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Successfully set a new warp called](#00fb9a) [%1%](#00fb9a bold)'
 set_spawn_success: '[Updated spawn position for this server to your current location.](#00fb9a)'
-return_by_death: '[Return to where you died?](gray) [/back](#00fb9a show_text=&#00fb9a&Click to return to where you died run_command=/back)'
 
 home_default_description: '%1%''s home.'
 warp_default_description: 'A publicly accessible warp.'

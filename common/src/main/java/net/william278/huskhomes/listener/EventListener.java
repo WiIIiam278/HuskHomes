@@ -3,8 +3,10 @@ package net.william278.huskhomes.listener;
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -123,7 +125,11 @@ public class EventListener {
      * @param onlineUser the {@link OnlineUser} who died
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
-        //todo
+        // Set the player's last position to where they died
+        if (plugin.getSettings().backCommandReturnByDeath
+            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+            onlineUser.getPosition().thenAccept(position -> plugin.getDatabase().setLastPosition(onlineUser, position).join());
+        }
     }
 
     /**
@@ -139,7 +145,7 @@ public class EventListener {
      * Handle when the plugin is disabling (server is shutting down)
      */
     public final void handlePluginDisable() {
-        //todo
+        plugin.getLoggingAdapter().log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getPluginVersion());
     }
 
 }

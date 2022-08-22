@@ -15,8 +15,8 @@ import java.util.UUID;
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃   Server /spawn location.    ┃
-        ┃ Edit in-game with /setspawn. ┃
+        ┃    Server /spawn location    ┃
+        ┃ Edit in-game using /setspawn ┃
         ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
 public class Spawn {
 

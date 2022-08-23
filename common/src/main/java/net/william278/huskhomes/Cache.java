@@ -131,7 +131,8 @@ public class Cache {
                                 @NotNull List<Home> homes, final int itemsPerPage, final int page) {
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
-                                home.meta.name, home.owner.username + "." + home.meta.name)
+                                home.meta.name, home.owner.username + "." + home.meta.name,
+                                String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
                         .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         listOwner.username, "%first_item_on_page_index%",
@@ -146,7 +147,8 @@ public class Cache {
                                       @NotNull List<Home> publicHomes, final int itemsPerPage, final int page) {
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
                 locales.getRawLocale("public_home_list_item",
-                                home.meta.name, home.owner.username + "." + home.meta.name)
+                                home.meta.name, home.owner.username + "." + home.meta.name,
+                                home.owner.username, String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
                         .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
@@ -163,7 +165,8 @@ public class Cache {
         final PaginatedList warpList = PaginatedList.of(warps.stream()
                 .filter(warp -> !permissionRestrictWarps || onlineUser.hasPermission(warp.getPermissionNode()))
                 .map(warp ->
-                        locales.getRawLocale("warp_list_item", warp.meta.name)
+                        locales.getRawLocale("warp_list_item", warp.meta.name,
+                                        String.join("\n", warp.meta.description.split("(?<=\\G.{40,}\\s)")))
                                 .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",

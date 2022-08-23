@@ -18,7 +18,8 @@ edit_home_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#3b76ff&World
 edit_home_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&Coordinates:\n&8Location of the home in the world\n&8yaw: %4%, pitch: %5%)\n'
 edit_home_menu_use_buttons: '[Use:](gray) [[⏩ Teleport…]](#00fb9a show_text=&7Click to teleport to this home run_command=/huskhomes:home %1%)'
 edit_home_menu_manage_buttons: '[Manage:](gray) [[❌ Delete…]](#ff3300 show_text=&7Click to delete this home\n&#ff3300&⚠ This cannot be undone! run_command=/huskhomes:delhome %1%)   [[⚐ Relocate…]](#ffc43b-#f5c962 show_text=&7Click to relocate this home to your position run_command=/huskhomes:edithome %1% relocate -m)   %2%'
-edit_home_menu_toggle_privacy_button: '[[☀ Public/Private…]](#6fff00 show_text=&7Click to toggle the privacy of this home run_command=/huskhomes:edithome %1% privacy -m)'
+edit_home_menu_privacy_button_public: '[[☀ Make Public…]](#6fff00 show_text=&7Click to open this home to the public run_command=/huskhomes:edithome %1% privacy -m)'
+edit_home_menu_privacy_button_private: '[[● Make Private…]](#ff9f0f show_text=&7Click to make this home private run_command=/huskhomes:edithome %1% privacy -m)'
 edit_home_menu_meta_edit_buttons: '[Edit:](gray) [[✎ Rename…]](#c160ff-#bb50ff show_text=&7Click to suggest the rename command suggest_command=/huskhomes:edithome %1% rename )   [[ℹ Description…]](#bb50ff-#b43fff show_text=&7Click to suggest the edit description command suggest_command=/huskhomes:edithome %1% description )'
 
 edit_home_privacy_public_success: '[Successfully made your home,](#00fb9a) [%1%](#00fb9a bold)[, open to the public.](#00fb9a)'
@@ -51,9 +52,9 @@ public_home_list_page_title: '[☀ Public Homes:](#00fb9a) [(%1%-%2% of](#00fb9a
 warp_list_page_title: '[Warps:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)'
 command_list_title: '[HuskHomes](#00fb9a bold) [| Command List](#00fb9a)'
 
-home_list_item: '[[%1%]](show_text=&7%3% run_command=/huskhomes:edithome %2%)'
-public_home_list_item: '[[%1%]](show_text=&#00fb9a&%2%: &7%3% run_command=/huskhomes:publichome %2%)'
-warp_list_item: '[[%1%]](show_text=&7%2% run_command=/huskhomes:warp %1%)'
+home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:edithome %2%)'
+public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:publichome %2%)'
+warp_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %2% run_command=/huskhomes:warp %1%)'
 command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
 
 list_item_divider: ' [•](gray) '

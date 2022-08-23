@@ -329,7 +329,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
             final String escapedName = Locales.escapeMineDown(formattedName);
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
-                                    .getRawLocale("edit_home_menu_toggle_privacy_button", escapedName)
+                                    .getRawLocale("edit_home_menu_privacy_button_"
+                                                  + (home.isPublic ? "private" : "public"), escapedName)
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",

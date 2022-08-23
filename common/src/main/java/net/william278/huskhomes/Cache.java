@@ -132,7 +132,7 @@ public class Cache {
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
                                 home.meta.name, home.owner.username + "." + home.meta.name,
-                                String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
+                                locales.formatDescription(home.meta.description))
                         .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         listOwner.username, "%first_item_on_page_index%",
@@ -148,7 +148,7 @@ public class Cache {
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
                 locales.getRawLocale("public_home_list_item",
                                 home.meta.name, home.owner.username + "." + home.meta.name,
-                                home.owner.username, String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
+                                home.owner.username, locales.formatDescription(home.meta.description))
                         .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",

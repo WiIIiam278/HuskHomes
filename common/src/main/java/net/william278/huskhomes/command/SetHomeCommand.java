@@ -85,8 +85,7 @@ public class SetHomeCommand extends CommandBase {
 
         // Set the home in the saved position manager
         final SavedPositionManager.SaveResult setResult = plugin.getSavedPositionManager()
-                .setHome(new PositionMeta(homeName, plugin.getLocales().getRawLocale("home_default_description",
-                        onlineUser.username).orElse("")), onlineUser, onlineUser.getPosition().join()).join();
+                .setHome(new PositionMeta(homeName, ""), onlineUser, onlineUser.getPosition().join()).join();
 
         // Display feedback of the result of the set operation
         (switch (setResult.resultType()) {

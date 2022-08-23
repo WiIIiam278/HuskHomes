@@ -174,7 +174,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
                 plugin.getLocales().getLocale("edit_warp_menu_description",
                                 warp.meta.description.length() > 50
                                         ? warp.meta.description.substring(0, 49).trim() + "…" : warp.meta.description,
-                                String.join("\n", warp.meta.description.split("(?<=\\G.{40,}\\s)")))
+                                plugin.getLocales().formatDescription(warp.meta.description))
                         .ifPresent(this::add);
             }
 

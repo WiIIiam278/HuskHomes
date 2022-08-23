@@ -120,6 +120,23 @@ public class Locales {
         return value.toString();
     }
 
+    /**
+     * Formats a description string, applying space-delimited line breaks after 35 characters.
+     * <p>
+     * If there is no space after 35 characters, the string will be split regardless at 45 characters.
+     *
+     * @param string The string to format
+     * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
+     */
+    @NotNull
+    public String formatDescription(@NotNull String string) {
+        if (string.isBlank()) {
+            return this.getRawLocale("item_no_description").orElse("N/A");
+        }
+        return String.join("\n", string.split("(?<=\\G.{35}\\s)"))
+                .replaceAll("(.{45})", "$1\n");
+    }
+
     @SuppressWarnings("unused")
     public Locales() {
     }

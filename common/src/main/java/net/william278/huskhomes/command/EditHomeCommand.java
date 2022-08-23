@@ -303,7 +303,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                 plugin.getLocales().getLocale("edit_home_menu_description",
                                 home.meta.description.length() > 50
                                         ? home.meta.description.substring(0, 49).trim() + "…" : home.meta.description,
-                                String.join("\n", home.meta.description.split("(?<=\\G.{40,}\\s)")))
+                                plugin.getLocales().formatDescription(home.meta.description))
                         .ifPresent(this::add);
             }
 

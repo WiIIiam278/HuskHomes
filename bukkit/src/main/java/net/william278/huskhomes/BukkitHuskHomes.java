@@ -338,17 +338,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public boolean isValidPositionOnServer(@NotNull Position position) {
-        final Optional<org.bukkit.Location> adaptedLocation = BukkitAdapter.adaptLocation(position);
-        if (adaptedLocation.isEmpty()) {
-            return false;
-        }
-        final org.bukkit.Location location = adaptedLocation.get();
-        assert location.getWorld() != null;
-        return location.getWorld().getWorldBorder().isInside(location);
-    }
-
-    @Override
     public @NotNull Version getPluginVersion() {
         return Version.pluginVersion(getDescription().getVersion());
     }
@@ -366,23 +355,20 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     /**
      * Returns the {@link Server} the plugin is on
      *
-     * @param onlineUser {@link OnlineUser} to request the server
      * @return The {@link Server} object
      */
     @Override
-    public CompletableFuture<Server> getServer(@NotNull OnlineUser onlineUser) {
+    @NotNull
+    public Server getServer(@NotNull OnlineUser requester) {
         if (server != null) {
-            return CompletableFuture.supplyAsync(() -> server);
+            return server;
         }
-        if (!getSettings().crossServer) {
+        if (getSettings().crossServer && getNetworkMessenger() != null) {
+            server = getNetworkMessenger().getServerName(requester).thenApply(Server::new).join();
+        } else {
             server = new Server("server");
-            return CompletableFuture.supplyAsync(() -> server);
         }
-        assert networkMessenger != null;
-        return networkMessenger.getServerName(onlineUser).thenApplyAsync(server -> {
-            this.server = new Server(server);
-            return this.server;
-        });
+        return server;
     }
 
     @Override

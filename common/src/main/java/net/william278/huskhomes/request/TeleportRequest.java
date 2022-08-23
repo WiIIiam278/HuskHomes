@@ -54,7 +54,7 @@ public class TeleportRequest {
     protected TeleportRequest(@NotNull OnlineUser requester, @NotNull RequestType requestType,
                               final long expiryTime) {
         this.requesterName = requester.username;
-        this.requesterPosition = requester.getPosition().join();
+        this.requesterPosition = requester.getPosition();
         this.type = requestType;
         this.status = RequestStatus.PENDING;
         this.expiryTime = expiryTime;

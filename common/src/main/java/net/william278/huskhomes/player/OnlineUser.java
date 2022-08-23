@@ -27,7 +27,7 @@ public abstract class OnlineUser extends User {
      *
      * @return the player's current {@link Position}
      */
-    public abstract CompletableFuture<Position> getPosition();
+    public abstract Position getPosition();
 
     /**
      * Returns the player's current bed or respawn anchor {@link Position}
@@ -35,14 +35,7 @@ public abstract class OnlineUser extends User {
      * @return an optional with the player's current bed or respawn anchor {@link Position} if it has been set,
      * otherwise an {@link Optional#empty()}
      */
-    public abstract CompletableFuture<Optional<Position>> getBedSpawnPosition();
-
-    /**
-     * Returns the current local {@link Location} of this player
-     *
-     * @return the player's current {@link Location} on the server
-     */
-    public abstract Location getLocation();
+    public abstract Optional<Position> getBedSpawnPosition();
 
     /**
      * Returns the health of this player
@@ -92,9 +85,10 @@ public abstract class OnlineUser extends User {
     /**
      * Teleport a player to the specified {@link Location}
      *
-     * @param location the {@link Location} to teleport the player to
+     * @param location     the {@link Location} to teleport the player to
+     * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract CompletableFuture<TeleportResult> teleport(Location location);
+    public abstract CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous);
 
     /**
      * Get the maximum number of homes this user may set

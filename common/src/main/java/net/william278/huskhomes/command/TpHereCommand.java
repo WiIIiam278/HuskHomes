@@ -22,7 +22,7 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                     .ifPresent(onlineUser::sendMessage);
             return;
         }
-        plugin.getTeleportManager().teleportPlayerByName(args[0], onlineUser.getPosition().join(), onlineUser);
+        plugin.getTeleportManager().teleportPlayerByName(args[0], onlineUser.getPosition(), onlineUser);
     }
 
     @Override

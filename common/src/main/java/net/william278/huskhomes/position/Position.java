@@ -21,6 +21,11 @@ public class Position extends Location {
         this.server = server;
     }
 
+    public Position(@NotNull Location location, @NotNull Server server) {
+        super(location.x, location.y, location.z, location.yaw, location.pitch, location.world);
+        this.server = server;
+    }
+
     @SuppressWarnings("unused")
     public Position() {
     }

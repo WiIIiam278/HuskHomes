@@ -55,11 +55,11 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND
               || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
 
-        final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
-        BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
-                handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation.x, sourceLocation.y, sourceLocation.z,
-                        sourceLocation.yaw, sourceLocation.pitch, sourceLocation.world,
-                        plugin.getServer(bukkitPlayer).join())));
+        CompletableFuture.runAsync(() -> {
+            final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
+            BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
+                    handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getServer(bukkitPlayer))));
+        });
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -74,11 +74,11 @@ public class BukkitEventListener extends EventListener implements Listener {
 
         // Update the player's respawn location
         CompletableFuture.runAsync(() -> BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
-            final OnlineUser user = BukkitPlayer.adapt(event.getPlayer());
-            super.handlePlayerUpdateSpawnPoint(user, new Position(
+            final OnlineUser onlineUser = BukkitPlayer.adapt(event.getPlayer());
+            super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
                     adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
                     adaptedLocation.yaw, adaptedLocation.pitch,
-                    adaptedLocation.world, plugin.getServer(user).join()));
+                    adaptedLocation.world, plugin.getServer(onlineUser)));
         }));
     }
 

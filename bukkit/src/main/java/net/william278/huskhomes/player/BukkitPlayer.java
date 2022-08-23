@@ -6,6 +6,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,20 +47,6 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     /**
-     * Get an online {@link BukkitPlayer} by their UUID
-     *
-     * @param uuid the UUID of the player to find
-     * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
-     */
-    public static Optional<BukkitPlayer> get(@NotNull UUID uuid) {
-        final Player player = Bukkit.getPlayer(uuid);
-        if (player != null) {
-            return Optional.of(adapt(player));
-        }
-        return Optional.empty();
-    }
-
-    /**
      * Get an online {@link BukkitPlayer} by their exact username
      *
      * @param username the UUID of the player to find
@@ -75,24 +61,17 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public CompletableFuture<Position> getPosition() {
-        final Location location = getLocation();
-        return BukkitHuskHomes.getInstance().getServer(this).thenApply(server -> new Position(
-                location.x, location.y, location.z, location.yaw, location.pitch, location.world, server));
+    public Position getPosition() {
+        return new Position(BukkitAdapter.adaptLocation(player.getLocation())
+                .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
+                BukkitHuskHomes.getInstance().getServer(this));
 
     }
 
     @Override
-    public CompletableFuture<Optional<Position>> getBedSpawnPosition() {
-        return BukkitHuskHomes.getInstance().getServer(this).thenApply(server ->
-                Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                        .map(location -> new Position(location.x, location.y, location.z,
-                                location.yaw, location.pitch, location.world, server)));
-    }
-
-    @Override
-    public Location getLocation() {
-        return BukkitAdapter.adaptLocation(player.getLocation()).orElse(null);
+    public Optional<Position> getBedSpawnPosition() {
+        return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
+                .map(location -> new Position(location, BukkitHuskHomes.getInstance().getServer(this)));
     }
 
     @Override
@@ -132,7 +111,7 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public CompletableFuture<TeleportResult> teleport(Location location) {
+    public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
         return CompletableFuture.supplyAsync(() -> {
             final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
             if (bukkitLocation.isEmpty()) {
@@ -143,15 +122,16 @@ public class BukkitPlayer extends OnlineUser {
                 return TeleportResult.FAILED_ILLEGAL_COORDINATES;
             }
             final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-            Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () ->
-                    PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.COMMAND)
-                            .thenAccept(result -> {
-                                if (result) {
-                                    resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
-                                } else {
-                                    resultCompletableFuture.complete(TeleportResult.FAILED_INVALID_WORLD);
-                                }
-                            }));
+            Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () -> {
+                if (asynchronous) {
+                    PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
+                            .thenAccept(result -> resultCompletableFuture.complete(
+                                    result ? TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD));
+                } else {
+                    player.teleport(bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
+                }
+            });
             return resultCompletableFuture.join();
         });
     }

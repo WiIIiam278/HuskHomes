@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
@@ -54,11 +53,12 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                 }
 
                 // Parse the coordinates and set the target position
-                final Position userPosition = onlineUser.getPosition().join();
+                final Position userPosition = onlineUser.getPosition();
                 final Optional<Position> parsedPosition = Position.parse(userPosition,
                         Arrays.copyOfRange(args, coordinatesIndex, args.length));
                 if (parsedPosition.isEmpty()) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/tp <target> <x> <y> <z> [world] [server]")
+                    plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/tp <target> <x> <y> <z> [world] [server]")
                             .ifPresent(onlineUser::sendMessage);
                     return;
                 }
@@ -71,12 +71,12 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         if (targetPosition.targetType == TeleportCommandTarget.TargetType.PLAYER) {
             // Teleport players by usernames
             assert targetPosition.targetPlayer != null;
-            CompletableFuture.runAsync(() -> plugin.getTeleportManager()
+            plugin.getTeleportManager()
                     .teleportPlayerToPlayerByName(playerToTeleportName, targetPosition.targetPlayer, onlineUser)
                     .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
                             result -> plugin.getTeleportManager().finishTeleport(onlineUser, result),
                             () -> plugin.getLocales().getLocale("error_player_not_found", playerToTeleportName)
-                                    .ifPresent(onlineUser::sendMessage))));
+                                    .ifPresent(onlineUser::sendMessage)));
             return;
         } else if (targetPosition.targetType == TeleportCommandTarget.TargetType.POSITION) {
             // Teleport players by specified position

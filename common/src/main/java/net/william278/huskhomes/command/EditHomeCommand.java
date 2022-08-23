@@ -164,8 +164,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                             default -> Optional.of(new MineDown(""));
                         }).ifPresent(editor::sendMessage));
             }
-            case "relocate" -> editor.getPosition().thenAccept(position ->
-                    plugin.getSavedPositionManager().updateHomePosition(home, position).thenRun(() -> {
+            case "relocate" ->
+                    plugin.getSavedPositionManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
                         if (home.owner.uuid.equals(editor.uuid)) {
                             editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
                                     home.meta.name).orElse(new MineDown("")));
@@ -181,7 +181,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                                     editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
                                     .forEach(editor::sendMessage);
                         }
-                    }));
+                    });
             case "privacy" -> {
                 boolean newIsPublic = !home.isPublic;
                 if (editArgs != null && !editArgs.isBlank()) {

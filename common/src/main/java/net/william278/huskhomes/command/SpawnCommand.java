@@ -26,7 +26,7 @@ public class SpawnCommand extends CommandBase {
         CompletableFuture.runAsync(() -> {
             final Optional<? extends Position> position = (plugin.getSettings().crossServer && plugin.getSettings().globalSpawn
                     ? plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).join()
-                    : plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getServer(onlineUser).join())));
+                    : plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getServer(onlineUser))));
             if (position.isEmpty()) {
                 plugin.getLocales().getLocale("error_spawn_not_set").ifPresent(onlineUser::sendMessage);
                 return;

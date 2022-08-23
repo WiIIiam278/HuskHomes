@@ -114,8 +114,8 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
                             default -> Optional.of(new MineDown(""));
                         }).ifPresent(editor::sendMessage));
             }
-            case "relocate" -> editor.getPosition().thenAccept(position ->
-                    plugin.getSavedPositionManager().updateWarpPosition(warp, position).thenRun(() -> {
+            case "relocate" ->
+                    plugin.getSavedPositionManager().updateWarpPosition(warp, editor.getPosition()).thenRun(() -> {
                         editor.sendMessage(plugin.getLocales().getLocale("edit_warp_update_location",
                                 warp.meta.name).orElse(new MineDown("")));
 
@@ -124,7 +124,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
                             getWarpEditorWindow(warp, false, editor.hasPermission(Permission.COMMAND_WARP.node))
                                     .forEach(editor::sendMessage);
                         }
-                    }));
+                    });
             default -> plugin.getLocales().getLocale("error_invalid_syntax",
                             "/editwarp <name> [" + String.join("|", EDIT_WARP_COMPLETIONS) + "] [args]")
                     .ifPresent(editor::sendMessage);

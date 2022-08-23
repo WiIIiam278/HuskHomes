@@ -122,8 +122,8 @@ public class TeleportManager {
         CompletableFuture.runAsync(() -> {
             final Optional<OnlineUser> localPlayer = plugin.findPlayer(targetPlayer);
             if (localPlayer.isPresent()) {
-                timedTeleport(onlineUser, localPlayer.get().getPosition().join())
-                        .thenAccept(result -> finishTeleport(onlineUser, result));
+                timedTeleport(onlineUser, localPlayer.get().getPosition()).thenAccept(
+                        result -> finishTeleport(onlineUser, result));
             } else if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
                 getPlayerPositionByName(onlineUser, targetPlayer).thenAccept(optionalPosition -> {
@@ -157,8 +157,7 @@ public class TeleportManager {
         if (localPlayer.isPresent()) {
             return teleport(localPlayer.get(), position).thenApply(Optional::of);
         }
-        if (plugin.getSettings().crossServer) {
-            assert plugin.getNetworkMessenger() != null;
+        if (plugin.getSettings().crossServer && plugin.getNetworkMessenger() != null) {
             return plugin.getNetworkMessenger().sendMessage(requester,
                             new Message(Message.MessageType.TELEPORT_TO_POSITION_REQUEST,
                                     requester.username,
@@ -187,8 +186,7 @@ public class TeleportManager {
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerToPlayerByName(@NotNull String playerName,
                                                                                     @NotNull String targetPlayer,
                                                                                     @NotNull OnlineUser requester) {
-        final Optional<Position> localPositionTarget = plugin.findPlayer(targetPlayer)
-                .map(onlineUser -> onlineUser.getPosition().join());
+        final Optional<Position> localPositionTarget = plugin.findPlayer(targetPlayer).map(OnlineUser::getPosition);
         if (localPositionTarget.isPresent()) {
             return teleportPlayerByName(playerName, localPositionTarget.get(), requester);
         }
@@ -211,7 +209,7 @@ public class TeleportManager {
                                                                           @NotNull String playerName) {
         final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         if (localPlayer.isPresent()) {
-            return localPlayer.get().getPosition().thenApply(Optional::of);
+            return CompletableFuture.supplyAsync(() -> Optional.of(localPlayer.get().getPosition()));
         }
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
@@ -324,16 +322,18 @@ public class TeleportManager {
     public CompletableFuture<TeleportResult> teleport(@NotNull OnlineUser onlineUser, @NotNull Position position,
                                                       @NotNull TeleportType teleportType) {
         final Teleport teleport = new Teleport(onlineUser, position, teleportType);
-        return onlineUser.getPosition().thenApply(preTeleportPosition -> plugin.getDatabase()
-                .setLastPosition(onlineUser, preTeleportPosition) // Update the player's last position
-                .thenApply(ignored -> plugin.getServer(onlineUser).thenApply(server -> {
-                    // Teleport player locally, or across server depending on need
-                    if (position.server.equals(server)) {
-                        return onlineUser.teleport(teleport.target).join();
-                    } else {
-                        return teleportCrossServer(onlineUser, teleport).join();
-                    }
-                }).join()).join());
+
+        // Update the player's last position
+        if (!plugin.getSettings().backCommandSaveOnTeleportEvent) {
+            plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
+        }
+
+        // Teleport player locally, or across server depending on need
+        if (position.server.equals(plugin.getServer(onlineUser))) {
+            return onlineUser.teleport(teleport.target, plugin.getSettings().asynchronousTeleports);
+        } else {
+            return teleportCrossServer(onlineUser, teleport);
+        }
     }
 
     /**

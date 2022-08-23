@@ -1,7 +1,6 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +11,7 @@ public class TimedTeleport {
 
     private final OnlineUser onlineUser;
     private final Position targetPosition;
-    private final Location startLocation;
+    private final Position startLocation;
     private final double startHealth;
     protected int timeLeft;
     public boolean cancelled = false;
@@ -20,7 +19,7 @@ public class TimedTeleport {
     protected TimedTeleport(@NotNull OnlineUser onlineUser, @NotNull Position targetPosition, int duration) {
         this.onlineUser = onlineUser;
         this.targetPosition = targetPosition;
-        this.startLocation = onlineUser.getLocation();
+        this.startLocation = onlineUser.getPosition();
         this.startHealth = onlineUser.getHealth();
         this.timeLeft = duration;
     }
@@ -49,9 +48,9 @@ public class TimedTeleport {
      */
     public boolean hasMoved() {
         final double maxMovementDistance = 0.1d;
-        double movementDistance = Math.abs(startLocation.x - onlineUser.getLocation().x) +
-                                  Math.abs(startLocation.y - onlineUser.getLocation().y) +
-                                  Math.abs(startLocation.z - onlineUser.getLocation().z);
+        double movementDistance = Math.abs(startLocation.x - onlineUser.getPosition().x) +
+                                  Math.abs(startLocation.y - onlineUser.getPosition().y) +
+                                  Math.abs(startLocation.z - onlineUser.getPosition().z);
         return movementDistance > maxMovementDistance;
     }
 

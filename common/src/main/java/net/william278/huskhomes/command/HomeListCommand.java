@@ -58,7 +58,12 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             }
             plugin.getDatabase().getHomes(userData.user()).thenAccept(homes -> {
                 if (homes.isEmpty()) {
-                    plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
+                    if (!onlineUser.uuid.equals(userData.user().uuid)) {
+                        plugin.getLocales().getLocale("error_no_homes_set_other",
+                                userData.user().username).ifPresent(onlineUser::sendMessage);
+                    } else {
+                        plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
+                    }
                     return;
                 }
                 onlineUser.sendMessage(plugin.getCache().getHomeList(onlineUser, userData.user(),

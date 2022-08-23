@@ -209,7 +209,8 @@ public interface HuskHomes {
      *
      * @return The server
      */
-    CompletableFuture<Server> getServer(@NotNull OnlineUser requester);
+    @NotNull
+    Server getServer(@NotNull OnlineUser requester);
 
     /**
      * Returns a list of worlds on the server
@@ -218,14 +219,6 @@ public interface HuskHomes {
      */
     @NotNull
     List<World> getWorlds();
-
-    /**
-     * Returns true if the position is a valid location on the server
-     *
-     * @param position The {@link Position} to check
-     * @return {@code true} if the position is a valid one on the server; {@code false} otherwise
-     */
-    boolean isValidPositionOnServer(Position position);
 
     /**
      * Returns the plugin version

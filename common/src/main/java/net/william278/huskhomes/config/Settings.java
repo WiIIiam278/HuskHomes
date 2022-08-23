@@ -109,14 +109,14 @@ public class Settings {
     @KeyPath("general.back_command_return_by_death")
     public boolean backCommandReturnByDeath = true;
 
-    @KeyPath("general.back_command_on_teleport_event")
-    public boolean backCommandOnTeleportEvent = true;
+    @KeyPath("general.back_command_save_teleport_event")
+    public boolean backCommandSaveOnTeleportEvent = false;
 
     @KeyPath("general.list_items_per_page")
     public int listItemsPerPage = 12;
 
-    @KeyPath("general.use_paper_lib")
-    public boolean usePaperLib = true;
+    @KeyPath("general.asynchronous_teleports")
+    public boolean asynchronousTeleports = true;
 
     @KeyPath("general.play_sound_effects")
     public boolean playSoundEffects = true;

@@ -39,7 +39,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                     .ifPresent(onlineUser::sendMessage);
             return;
         }
-        final Position userPosition = target.getPosition().join();
+        final Position userPosition = target.getPosition();
         if (plugin.getSettings().rtpRestrictedWorlds.stream()
                 .anyMatch(worldName -> worldName.equals(userPosition.world.name))) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")

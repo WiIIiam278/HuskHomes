@@ -26,8 +26,8 @@ public class SetWarpCommand extends CommandBase {
     }
 
     private void setWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
-        onlineUser.getPosition().thenAccept(position -> plugin.getSavedPositionManager().setWarp(
-                new PositionMeta(warpName, ""), position).thenAccept(setResult ->
+        plugin.getSavedPositionManager().setWarp(
+                new PositionMeta(warpName, ""), onlineUser.getPosition()).thenAccept(setResult ->
                 (switch (setResult.resultType()) {
                     case SUCCESS -> {
                         assert setResult.savedPosition().isPresent();
@@ -38,7 +38,7 @@ public class SetWarpCommand extends CommandBase {
                     case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_warp_name_length");
                     case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_warp_name_characters");
                     default -> Optional.of(new MineDown(""));
-                }).ifPresent(onlineUser::sendMessage)));
+                }).ifPresent(onlineUser::sendMessage));
     }
 
 }

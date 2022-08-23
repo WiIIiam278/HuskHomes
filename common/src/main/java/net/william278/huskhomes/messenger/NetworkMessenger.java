@@ -155,7 +155,7 @@ public abstract class NetworkMessenger {
                         message.payload = MessagePayload.empty();
                     }
                 }
-                case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition().join());
+                case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition());
                 case TELEPORT_REQUEST -> {
                     if (message.payload.teleportRequest != null) {
                         plugin.getRequestManager().sendLocalTeleportRequest(message.payload.teleportRequest, receiver);

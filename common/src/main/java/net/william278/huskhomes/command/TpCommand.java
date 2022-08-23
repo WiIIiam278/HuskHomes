@@ -112,8 +112,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        return Collections.emptyList();
+    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+        return Collections.emptyList();//todo
     }
 
     /**

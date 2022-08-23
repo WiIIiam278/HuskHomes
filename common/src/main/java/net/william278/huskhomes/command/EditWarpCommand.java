@@ -203,7 +203,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return switch (args.length) {
             case 0, 1 -> plugin.getCache().warps.stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))

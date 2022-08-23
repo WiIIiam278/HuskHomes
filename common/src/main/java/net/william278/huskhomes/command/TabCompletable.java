@@ -1,6 +1,8 @@
 package net.william278.huskhomes.command;
 
+import net.william278.huskhomes.player.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,6 +18,6 @@ public interface TabCompletable {
      * @return List of String arguments to offer TAB suggestions
      */
     @NotNull
-    List<String> onTabComplete(@NotNull String[] args);
+    List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user);
 
 }

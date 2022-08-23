@@ -342,9 +342,12 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+        if (user == null) {
+            return Collections.emptyList();
+        }
         return switch (args.length) {
-            case 0, 1 -> plugin.getCache().homes.get(onlineUser.uuid).stream()
+            case 0, 1 -> plugin.getCache().homes.get(user.uuid).stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                     .sorted().collect(Collectors.toList());
             case 2 -> Arrays.stream(EDIT_HOME_COMPLETIONS)

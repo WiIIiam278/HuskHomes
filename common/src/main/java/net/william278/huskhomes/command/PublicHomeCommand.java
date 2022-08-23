@@ -6,6 +6,7 @@ import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,14 +65,14 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         // Return every public home name as username.home_name from the cache
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().publicHomes.forEach((ownerName, homeNames) ->
                 homeNames.forEach(homeName -> publicHomes.add(ownerName + "." + homeName)));
         return args.length > 1 ? Collections.emptyList() : publicHomes.stream().filter(publicHomeIdentifier ->
                         publicHomeIdentifier.split(Pattern.quote("."))[1].toLowerCase()
-                                .startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
+                                .startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList());
     }
 }

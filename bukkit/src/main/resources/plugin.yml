@@ -63,6 +63,8 @@ commands:
     usage: /tpoffline <player>
   tpall:
     usage: /tpall [page]
+  tpaall:
+    usage: /tpaall [page]
   spawn:
     usage: /spawn
   setspawn:

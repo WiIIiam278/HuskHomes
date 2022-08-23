@@ -73,7 +73,7 @@ warp_deleted: '[Successfully deleted the warp,](#00fb9a) [%1%](#00fb9a bold)'
 
 tpa_request_sent: '[You sent a teleport request asking to teleport to](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
 tpahere_request_sent: '[You sent a teleport request asking](#00fb9a) [%1%](#00fb9a bold) [to teleport to you.](#00fb9a)'
-tpaall_request_sent: '[You sent a teleport request asking everyone to teleport to you.](#00fb9a)'
+tpaall_request_sent: '[You sent a request to](#00fb9a) [%1%](#00fb9a bold) [players asking them to teleport to you.](#00fb9a)'
 tpa_request_received: '[%1%](#00fb9a bold) [has requested to teleport to you.](#00fb9a)'
 tpahere_request_received: '[%1%](#00fb9a bold) [has requested that you teleport to them.](#00fb9a)'
 teleport_request_buttons: '[Options:](gray) [[✔ Accept…]](#00fb9a show_text=&#00fb9a&Accept teleport request\n&8Click to accept %1%''s request run_command=/tpaccept %1%)   [[❌ Decline…]](#ff3300 show_text=&#ff3300&Decline teleport request\n&8Click to decline %1%''s request run_command=/tpdeny %1%)'

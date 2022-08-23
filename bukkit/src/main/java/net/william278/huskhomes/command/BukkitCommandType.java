@@ -34,6 +34,7 @@ public enum BukkitCommandType {
     TP_IGNORE_COMMAND(new TpIgnoreCommand(BukkitHuskHomes.getInstance())),
     TP_OFFLINE_COMMAND(new TpOfflineCommand(BukkitHuskHomes.getInstance())),
     TP_ALL_COMMAND(new TpAllCommand(BukkitHuskHomes.getInstance())),
+    TPA_ALL_COMMAND(new TpaAllCommand(BukkitHuskHomes.getInstance())),
     SPAWN_COMMAND(new SpawnCommand(BukkitHuskHomes.getInstance())),
     SET_SPAWN_COMMAND(new SetSpawnCommand(BukkitHuskHomes.getInstance())),
     BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));

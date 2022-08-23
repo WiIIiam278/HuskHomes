@@ -127,7 +127,7 @@ public enum Permission {
     /**
      * Lets the user send a teleport request asking everyone to teleport to them ({@code /tpaall})
      */
-    COMMAND_TPAALL("huskhomes.command.tpaall", DefaultAccess.OPERATORS),
+    COMMAND_TPA_ALL("huskhomes.command.tpaall", DefaultAccess.OPERATORS),
     /**
      * Lets the user randomly teleport in the world they are in ({@code /rtp})
      */

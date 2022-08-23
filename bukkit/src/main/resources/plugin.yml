@@ -71,3 +71,5 @@ commands:
     usage: /setspawn
   back:
     usage: /back
+  huskhomes:
+    usage: /huskhomes [about|help|reload|update]

@@ -37,7 +37,8 @@ public enum BukkitCommandType {
     TPA_ALL_COMMAND(new TpaAllCommand(BukkitHuskHomes.getInstance())),
     SPAWN_COMMAND(new SpawnCommand(BukkitHuskHomes.getInstance())),
     SET_SPAWN_COMMAND(new SetSpawnCommand(BukkitHuskHomes.getInstance())),
-    BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance()));
+    BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance())),
+    HUSKHOMES_COMMAND(new HuskHomesCommand(BukkitHuskHomes.getInstance()));
 
     public final CommandBase commandBase;
 

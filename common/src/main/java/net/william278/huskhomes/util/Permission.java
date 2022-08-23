@@ -150,6 +150,14 @@ public enum Permission {
      */
     COMMAND_BACK_RETURN_BY_DEATH("huskhomes.command.back.death", DefaultAccess.EVERYONE),
     /**
+     * Lets the user access /huskhomes subcommands
+     */
+    COMMAND_HUSKHOMES("huskhomes.command.huskhomes", DefaultAccess.EVERYONE),
+    /**
+     * Lets the user view the command list
+     */
+    COMMAND_HUSKHOMES_HELP("huskhomes.command.huskhomes.help", DefaultAccess.EVERYONE),
+    /**
      * Lets the user view plugin information
      */
     COMMAND_HUSKHOMES_ABOUT("huskhomes.command.huskhomes.about", DefaultAccess.EVERYONE),

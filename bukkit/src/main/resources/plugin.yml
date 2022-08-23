@@ -61,6 +61,8 @@ commands:
     usage: /tpignore
   tpoffline:
     usage: /tpoffline <player>
+  tpall:
+    usage: /tpall [page]
   spawn:
     usage: /spawn
   setspawn:

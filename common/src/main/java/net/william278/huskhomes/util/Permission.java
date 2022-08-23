@@ -121,6 +121,14 @@ public enum Permission {
      */
     COMMAND_TPOFFLINE("huskhomes.command.tpoffline", DefaultAccess.OPERATORS),
     /**
+     * Lets the user teleport everyone to their position ({@code /tpall})
+     */
+    COMMAND_TPALL("huskhomes.command.tpall", DefaultAccess.OPERATORS),
+    /**
+     * Lets the user send a teleport request asking everyone to teleport to them ({@code /tpaall})
+     */
+    COMMAND_TPAALL("huskhomes.command.tpaall", DefaultAccess.OPERATORS),
+    /**
      * Lets the user randomly teleport in the world they are in ({@code /rtp})
      */
     COMMAND_RTP("huskhomes.command.rtp", DefaultAccess.EVERYONE),

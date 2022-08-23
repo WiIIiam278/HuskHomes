@@ -27,7 +27,7 @@ public class AboutMenu {
     private AboutMenu(@NotNull String title) {
         this.title = title;
         this.buttons = new ArrayList<>();
-        this.attributions = new HashMap<>();
+        this.attributions = new LinkedHashMap<>();
     }
 
     @NotNull
@@ -64,7 +64,8 @@ public class AboutMenu {
     @NotNull
     public MineDown toMineDown() {
         final StringJoiner menu = new StringJoiner("\n")
-                .add("[" + title + "](#00fb9a bold)" + (version != null ? " [| Version " + version + "](#00fb9a)" : ""));
+                .add("[" + Locales.escapeMineDown(title) + "](#00fb9a bold)"
+                     + (version != null ? " [| Version " + Locales.escapeMineDown(version.toString()) + "](#00fb9a)" : ""));
         if (description != null) {
             menu.add("[" + Locales.escapeMineDown(description) + "](gray)");
         }
@@ -75,9 +76,10 @@ public class AboutMenu {
         for (Map.Entry<String, List<Credit>> entry : attributions.entrySet()) {
             final StringJoiner creditJoiner = new StringJoiner(", ");
             for (final Credit credit : entry.getValue()) {
-                creditJoiner.add("[" + credit.name + "](gray" +
-                                 (credit.description != null ? " show_text=&7" + credit.description : "") +
-                                 (credit.url != null ? " open_url=" + MineDown.escape(credit.url) : "") + ")");
+                creditJoiner.add("[" + credit.name + "](" + credit.color +
+                                 (credit.description != null ? " show_text=&7" + Locales.escapeMineDown(credit.description) : "") +
+                                 (credit.url != null ? " open_url=" + Locales.escapeMineDown(credit.url) : "")
+                                 + ")");
             }
 
             if (!creditJoiner.toString().isBlank()) {
@@ -89,8 +91,8 @@ public class AboutMenu {
             final StringJoiner buttonsJoiner = new StringJoiner("   ");
             for (final Link link : buttons) {
                 buttonsJoiner.add("[[" + (link.icon != null ? link.icon + " " : "")
-                                  + link.text + "…]](#00fb9a show_text=&7Click to open link open_url="
-                                  + MineDown.escape(link.url) + ")");
+                                  + Locales.escapeMineDown(link.text) + "…]](" + link.color + " "
+                                  + "show_text=&7Click to open link open_url=" + Locales.escapeMineDown(link.url) + ")");
             }
             menu.add("").add("[Links:](gray) " + buttonsJoiner);
         }
@@ -135,6 +137,9 @@ public class AboutMenu {
         @NotNull
         private String text = "Link";
 
+        @NotNull
+        private String color = "#00fb9a";
+
         @Nullable
         private String icon;
 
@@ -159,6 +164,11 @@ public class AboutMenu {
             return this;
         }
 
+        public Link withColor(@NotNull String color) {
+            this.color = color;
+            return this;
+        }
+
     }
 
     public static class Credit {
@@ -170,6 +180,9 @@ public class AboutMenu {
 
         @Nullable
         private String url;
+
+        @NotNull
+        private String color = "gray";
 
         private Credit(@NotNull String name) {
             this.name = name;
@@ -186,6 +199,11 @@ public class AboutMenu {
 
         public Credit withUrl(@Nullable String url) {
             this.url = url;
+            return this;
+        }
+
+        public Credit withColor(@NotNull String color) {
+            this.color = color;
             return this;
         }
 

@@ -96,20 +96,17 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
                         }).ifPresent(editor::sendMessage));
             }
             case "description" -> {
-                if (editArgs == null) {
-                    plugin.getLocales().getLocale("error_invalid_syntax",
-                                    "/editwarp <name> description <new description>")
-                            .ifPresent(editor::sendMessage);
-                    return;
-                }
-
                 final String oldWarpDescription = warp.meta.description;
-                final String newDescription = editArgs;
+                final String newDescription = editArgs != null ? editArgs : "";
 
                 plugin.getSavedPositionManager().updateWarpMeta(warp, new PositionMeta(warp.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> plugin.getLocales().getLocale("edit_warp_update_description",
-                                    warp.meta.name, oldWarpDescription, newDescription);
+                                    warp.meta.name,
+                                    oldWarpDescription.isBlank() ? plugin.getLocales()
+                                            .getRawLocale("item_no_description").orElse("N/A") : oldWarpDescription,
+                                    newDescription.isBlank() ? plugin.getLocales()
+                                            .getRawLocale("item_no_description").orElse("N/A") : newDescription);
                             case FAILED_DESCRIPTION_LENGTH ->
                                     plugin.getLocales().getLocale("error_warp_description_length");
                             case FAILED_DESCRIPTION_CHARACTERS ->

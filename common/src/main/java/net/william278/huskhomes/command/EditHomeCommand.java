@@ -134,15 +134,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                         }).ifPresent(editor::sendMessage));
             }
             case "description" -> {
-                if (editArgs == null) {
-                    plugin.getLocales().getLocale("error_invalid_syntax",
-                                    "/edithome <name> description <new description>")
-                            .ifPresent(editor::sendMessage);
-                    return;
-                }
-
                 final String oldHomeDescription = home.meta.description;
-                final String newDescription = editArgs;
+                final String newDescription = editArgs != null ? editArgs : "";
 
                 plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
@@ -150,14 +143,18 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                                 if (home.owner.uuid.equals(editor.uuid)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_description",
                                             home.meta.name,
-                                            oldHomeDescription,
-                                            newDescription);
+                                            oldHomeDescription.isBlank() ? plugin.getLocales()
+                                                    .getRawLocale("item_no_description").orElse("N/A") : oldHomeDescription,
+                                            newDescription.isBlank() ? plugin.getLocales()
+                                                    .getRawLocale("item_no_description").orElse("N/A") : newDescription);
                                 } else {
                                     yield plugin.getLocales().getLocale("edit_home_update_description_other",
                                             home.owner.username,
                                             home.meta.name,
-                                            oldHomeDescription,
-                                            newDescription);
+                                            oldHomeDescription.isBlank() ? plugin.getLocales()
+                                                    .getRawLocale("item_no_description").orElse("N/A") : oldHomeDescription,
+                                            newDescription.isBlank() ? plugin.getLocales()
+                                                    .getRawLocale("item_no_description").orElse("N/A") : newDescription);
                                 }
                             }
                             case FAILED_DESCRIPTION_LENGTH ->

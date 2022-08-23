@@ -15,12 +15,18 @@ public class TpAllCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        if (args.length != 0) {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/tpaall")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+
         // Update cached players
         plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
 
         // Determine players to teleport
         final List<String> players = plugin.getCache().players.stream()
-                .filter(userName -> !userName.equals(onlineUser.username)).toList();
+                .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
         if (players.isEmpty()) {
             plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
             return;

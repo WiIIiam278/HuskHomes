@@ -95,11 +95,10 @@ public class Cache {
     public void updateOnlinePlayerList(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
-            CompletableFuture.runAsync(() -> plugin.getNetworkMessenger().
-                    getOnlinePlayerNames(requester).thenAcceptAsync(returnedPlayerList -> {
-                        players.clear();
-                        players.addAll(List.of(returnedPlayerList));
-                    }));
+            plugin.getNetworkMessenger().getOnlinePlayerNames(requester).thenAccept(returnedPlayerList -> {
+                players.clear();
+                players.addAll(List.of(returnedPlayerList));
+            });
         } else {
             players.clear();
             players.addAll(plugin.getOnlinePlayers().stream().map(onlineUser -> onlineUser.username).toList());

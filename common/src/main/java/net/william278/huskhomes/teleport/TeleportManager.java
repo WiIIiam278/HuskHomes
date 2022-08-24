@@ -370,6 +370,10 @@ public class TeleportManager {
         // Mark the player as warming up
         currentlyOnWarmup.add(teleport.getPlayer().uuid);
 
+        // Display the message
+        plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(teleport.timeLeft))
+                .ifPresent(teleport.getPlayer()::sendMessage);
+
         // Create a scheduled executor to tick the timed teleport
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture<TimedTeleport> timedTeleportFuture = new CompletableFuture<>();
@@ -378,7 +382,7 @@ public class TeleportManager {
             if (teleport.timeLeft > 0) {
                 plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
                         .ifPresent(sound -> teleport.getPlayer().playSound(sound));
-                plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
+                plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(teleport.timeLeft))
                         .ifPresent(message -> {
                             switch (plugin.getSettings().teleportWarmupDisplay) {
                                 case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
@@ -386,7 +390,7 @@ public class TeleportManager {
                             }
                         });
             } else {
-                plugin.getLocales().getLocale("teleporting_complete")
+                plugin.getLocales().getLocale("teleporting_action_bar_processing")
                         .ifPresent(message -> {
                             switch (plugin.getSettings().teleportWarmupDisplay) {
                                 case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);

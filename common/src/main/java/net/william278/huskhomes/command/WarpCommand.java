@@ -65,7 +65,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.meta.name);
-            plugin.getTeleportManager().timedTeleport(playerToTeleport, warp)
+            plugin.getTeleportManager().teleport(playerToTeleport, warp)
                     .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
         });
     }

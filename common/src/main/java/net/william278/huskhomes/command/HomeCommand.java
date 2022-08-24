@@ -79,7 +79,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
                                                        + home.owner.username + "." + home.meta.name);
-            plugin.getTeleportManager().timedTeleport(playerToTeleport, home)
+            plugin.getTeleportManager().teleport(playerToTeleport, home)
                     .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
         });
     }

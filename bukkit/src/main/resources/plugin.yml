@@ -4,6 +4,7 @@ author: 'William278'
 main: 'net.william278.huskhomes.BukkitHuskHomes'
 version: '${version}'
 api-version: 1.16
+softdepend: [Vault]
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'mysql:mysql-connector-java:${mysql_driver_version}'

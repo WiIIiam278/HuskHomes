@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DelWarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class DelWarpCommand extends CommandBase implements TabCompletable {
 
     protected DelWarpCommand(@NotNull HuskHomes implementor) {
         super("delwarp", Permission.COMMAND_DELETE_WARP, implementor);
@@ -31,11 +31,6 @@ public class DelWarpCommand extends CommandBase implements TabCompletable, Conso
             plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
                     .ifPresent(onlineUser::sendMessage);
         }
-    }
-
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        //todo
     }
 
     @Override

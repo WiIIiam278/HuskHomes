@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EditHomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class EditHomeCommand extends CommandBase implements TabCompletable {
 
     private final String[] EDIT_HOME_COMPLETIONS = {"rename", "description", "relocate", "privacy"};
 
@@ -334,11 +334,6 @@ public class EditHomeCommand extends CommandBase implements TabCompletable, Cons
                             formattedName)
                     .ifPresent(this::add);
         }};
-    }
-
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        //todo
     }
 
     @Override

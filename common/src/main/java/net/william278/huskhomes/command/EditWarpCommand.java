@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EditWarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class EditWarpCommand extends CommandBase implements TabCompletable {
 
     private final String[] EDIT_WARP_COMPLETIONS = {"rename", "description", "relocate"};
 
@@ -195,11 +195,6 @@ public class EditWarpCommand extends CommandBase implements TabCompletable, Cons
             plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.meta.name)
                     .ifPresent(this::add);
         }};
-    }
-
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        //todo
     }
 
     @Override

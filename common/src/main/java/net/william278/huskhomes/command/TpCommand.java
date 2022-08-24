@@ -8,10 +8,8 @@ import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
@@ -113,7 +111,75 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
-        return Collections.emptyList();//todo
+        switch (args.length) {
+            case 0, 1 -> {
+                final ArrayList<String> completions = new ArrayList<>();
+                completions.addAll(user != null
+                        ? List.of("~", "~ ~", "~ ~ ~",
+                        Integer.toString((int) user.getPosition().x),
+                        ((int) user.getPosition().x + " " + (int) user.getPosition().y),
+                        ((int) user.getPosition().x + " " + (int) user.getPosition().y + " " + (int) user.getPosition().z))
+                        : Collections.emptyList());
+                completions.addAll(plugin.getCache().players);
+                return completions.stream()
+                        .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
+                        .sorted().collect(Collectors.toList());
+            }
+            case 2 -> {
+                final ArrayList<String> completions = new ArrayList<>();
+                if (isCoordinate(args[0])) {
+                    if (user == null) {
+                        return completions;
+                    }
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
+                    completions.addAll(List.of("~ ~", (int) user.getPosition().y + " " + (int) user.getPosition().z));
+                } else {
+                    completions.addAll(user != null
+                            ? List.of("~", "~ ~", "~ ~ ~",
+                            Integer.toString((int) user.getPosition().x),
+                            ((int) user.getPosition().x + " " + (int) user.getPosition().y),
+                            ((int) user.getPosition().x + " " + (int) user.getPosition().y + " " + (int) user.getPosition().z))
+                            : Collections.emptyList());
+                    completions.addAll(plugin.getCache().players);
+                }
+                return completions.stream()
+                        .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                        .sorted().collect(Collectors.toList());
+            }
+            case 3 -> {
+                final ArrayList<String> completions = new ArrayList<>();
+                if (isCoordinate(args[0]) && isCoordinate(args[1])) {
+                    if (user == null) {
+                        return completions;
+                    }
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
+                } else if (isCoordinate(args[1])){
+                    if (user == null) {
+                        return completions;
+                    }
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
+                    completions.addAll(List.of("~ ~", (int) user.getPosition().y + " " + (int) user.getPosition().z));
+                }
+                return completions.stream()
+                        .filter(s -> s.toLowerCase().startsWith(args[2].toLowerCase()))
+                        .sorted().collect(Collectors.toList());
+            }
+            case 4 -> {
+                final ArrayList<String> completions = new ArrayList<>();
+                if (isCoordinate(args[1]) && isCoordinate(args[2]) && !isCoordinate(args[0])) {
+                    if (user == null) {
+                        return completions;
+                    }
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
+                }
+                return completions.stream()
+                        .filter(s -> s.toLowerCase().startsWith(args[3].toLowerCase()))
+                        .sorted().collect(Collectors.toList());
+            }
+            default -> {
+                return Collections.emptyList();
+            }
+        }
     }
 
     /**

@@ -130,7 +130,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                             case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_home_name_taken");
                             case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_home_name_length");
                             case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_home_name_characters");
-                            default -> Optional.of(new MineDown(""));
+                            default -> plugin.getLocales().getLocale("error_home_description_characters");
                         }).ifPresent(editor::sendMessage));
             }
             case "description" -> {
@@ -161,7 +161,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                                     plugin.getLocales().getLocale("error_home_description_length");
                             case FAILED_DESCRIPTION_CHARACTERS ->
                                     plugin.getLocales().getLocale("error_home_description_characters");
-                            default -> Optional.of(new MineDown(""));
+                            default -> plugin.getLocales().getLocale("error_home_name_characters");
                         }).ifPresent(editor::sendMessage));
             }
             case "relocate" ->

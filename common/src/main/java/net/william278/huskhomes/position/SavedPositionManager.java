@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 /**
  * Cross-platform manager for validating homes and warps and updating them as neccessary
@@ -25,9 +26,22 @@ public class SavedPositionManager {
      */
     private final Cache cache;
 
-    public SavedPositionManager(@NotNull Database database, @NotNull Cache cache) {
+    /**
+     * Whether to allow unicode characters in SavedPosition names
+     */
+    private final boolean allowUnicodeNames;
+
+    /**
+     * Whether to allow unicode characters in SavedPosition descriptions
+     */
+    private final boolean allowUnicodeDescriptions;
+
+    public SavedPositionManager(@NotNull Database database, @NotNull Cache cache,
+                                boolean allowUnicodeNames, boolean allowUnicodeDescriptions) {
         this.database = database;
         this.cache = cache;
+        this.allowUnicodeNames = allowUnicodeNames;
+        this.allowUnicodeDescriptions = allowUnicodeDescriptions;
     }
 
     /**
@@ -336,18 +350,21 @@ public class SavedPositionManager {
      * identifying which constraint is violated by the metadata
      */
     private Optional<SaveResult.ResultType> validateMeta(@NotNull PositionMeta positionMeta) {
-        //todo options for allowing unicode names / descriptions
         if (positionMeta.name.length() > 16) {
             return Optional.of(SaveResult.ResultType.FAILED_NAME_LENGTH);
         }
-        if (!RegexUtil.NAME_PATTERN.matcher(positionMeta.name).matches()) {
-            return Optional.of(SaveResult.ResultType.FAILED_NAME_CHARACTERS);
+        if (!allowUnicodeNames || positionMeta.name.contains(Pattern.quote("."))) {
+            if (!RegexUtil.NAME_PATTERN.matcher(positionMeta.name).matches()) {
+                return Optional.of(SaveResult.ResultType.FAILED_NAME_CHARACTERS);
+            }
         }
         if (positionMeta.description.length() > 255) {
             return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_LENGTH);
         }
-        if (!RegexUtil.DESCRIPTION_PATTERN.matcher(positionMeta.name).matches()) {
-            return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_CHARACTERS);
+        if (!allowUnicodeDescriptions) {
+            if (!RegexUtil.DESCRIPTION_PATTERN.matcher(positionMeta.description).matches()) {
+                return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_CHARACTERS);
+            }
         }
         return Optional.empty();
     }

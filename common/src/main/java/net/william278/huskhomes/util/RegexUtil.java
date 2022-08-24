@@ -14,7 +14,7 @@ public final class RegexUtil {
     /**
      * Pattern for checking home and warp {@link PositionMeta} description fields
      */
-    public static final Pattern DESCRIPTION_PATTERN = Pattern.compile("[a-zA-Z\\d\\-_\\s]+");
+    public static final Pattern DESCRIPTION_PATTERN = Pattern.compile("[a-zA-Z\\d\\-_\\s]*");
 
     /**
      * Pattern for checking home and warp {@link PositionMeta} name fields

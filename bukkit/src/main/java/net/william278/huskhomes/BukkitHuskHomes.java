@@ -144,7 +144,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             this.requestManager = new RequestManager(this);
 
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(database, cache);
+            this.savedPositionManager = new SavedPositionManager(database, cache,
+                    settings.allowUnicodeNames, settings.allowUnicodeDescriptions);
 
             // Initialize the RTP engine with the default normal distribution engine
             this.rtpEngine = new NormalDistributionEngine(this);

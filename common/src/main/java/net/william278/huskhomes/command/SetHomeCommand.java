@@ -102,7 +102,7 @@ public class SetHomeCommand extends CommandBase {
             case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_home_name_taken");
             case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_home_name_length");
             case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_home_name_characters");
-            default -> Optional.of(new MineDown(""));
+            default -> plugin.getLocales().getLocale("error_home_description_characters");
         }).ifPresent(onlineUser::sendMessage);
     }
 

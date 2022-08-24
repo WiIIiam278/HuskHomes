@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 /**
  * Cross-platform manager for validating homes and warps and updating them as neccessary
@@ -353,10 +352,13 @@ public class SavedPositionManager {
         if (positionMeta.name.length() > 16) {
             return Optional.of(SaveResult.ResultType.FAILED_NAME_LENGTH);
         }
-        if (!allowUnicodeNames || positionMeta.name.contains(Pattern.quote("."))) {
+        if (!allowUnicodeNames) {
             if (!RegexUtil.NAME_PATTERN.matcher(positionMeta.name).matches()) {
                 return Optional.of(SaveResult.ResultType.FAILED_NAME_CHARACTERS);
             }
+        }
+        if (positionMeta.name.contains(".")) {
+            return Optional.of(SaveResult.ResultType.FAILED_NAME_CHARACTERS);
         }
         if (positionMeta.description.length() > 255) {
             return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_LENGTH);

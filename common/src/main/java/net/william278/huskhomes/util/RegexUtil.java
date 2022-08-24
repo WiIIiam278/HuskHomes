@@ -26,7 +26,7 @@ public final class RegexUtil {
      * <p>
      * e.g. {@code ownerName.homeName}
      */
-    private static final Pattern OWNER_DISAMBIGUATED_HOME_IDENTIFIER_PATTERN = Pattern.compile("\\w+\\.[A-Za-z\\d_\\-]+");
+    private static final Pattern OWNER_DISAMBIGUATED_HOME_IDENTIFIER_PATTERN = Pattern.compile("\\w+\\.[^.]{1,16}$");
 
     /**
      * Match pattern for checking home input fields disambiguated by the owner's name

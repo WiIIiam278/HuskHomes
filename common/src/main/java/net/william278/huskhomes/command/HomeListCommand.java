@@ -2,8 +2,17 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
@@ -75,6 +84,30 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length != 1) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: homelist <player>");
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            final Optional<UserData> userData = plugin.getDatabase().getUserDataByName(args[0]).join();
+            if (userData.isEmpty()) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                return;
+            }
+            final List<Home> homes = plugin.getDatabase().getHomes(userData.get().user()).join();
+            StringJoiner rowJoiner = new StringJoiner("   ");
+
+            plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
+                                                       + homes.size() + " homes:");
+            for (int i = 1; i <= homes.size(); i++) {
+                final String home = homes.get(i).meta.name;
+                rowJoiner.add(home.length() < 16 ? " ".repeat(16 - home.length()) + home : home);
+                if (i % 3 == 0) {
+                    plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+                    rowJoiner = new StringJoiner("   ");
+                }
+            }
+            plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+        });
     }
 }

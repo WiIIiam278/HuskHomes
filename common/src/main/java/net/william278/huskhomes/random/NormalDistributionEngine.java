@@ -59,7 +59,7 @@ public class NormalDistributionEngine extends RtpEngine {
      */
     private static float generateNormallyDistributedRadius(float mean, float standardDeviation,
                                                            float spawnRadius, float maxRadius) {
-        double value = new Random().nextGaussian(mean, standardDeviation) * maxRadius;
+        double value = (new Random().nextGaussian() * mean + standardDeviation) * maxRadius;
         if (value < spawnRadius || value > maxRadius) {
             return generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
         }

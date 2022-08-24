@@ -122,9 +122,7 @@ public class Locales {
     }
 
     /**
-     * Formats a description string, applying space-delimited line breaks after 35 characters.
-     * <p>
-     * If there is no space after 35 characters, the string will be split regardless at 45 characters.
+     * Formats a description string, wrapping text on whitespace after 40 characters
      *
      * @param string The string to format
      * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
@@ -134,7 +132,7 @@ public class Locales {
         if (string.isBlank()) {
             return this.getRawLocale("item_no_description").orElse("N/A");
         }
-        return WordUtils.wrap(string, 35);
+        return WordUtils.wrap(string, 40, "\n", true);
     }
 
     @SuppressWarnings("unused")

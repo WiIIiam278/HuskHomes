@@ -146,9 +146,11 @@ public class Cache {
     }
 
     @NotNull
-    public MineDown getCommandList(@NotNull Locales locales, @NotNull List<CommandBase> commands,
-                                   final int itemsPerPage, final int page) {
-        return PaginatedList.of(commands.stream().map(command -> locales.getRawLocale("command_list_item",
+    public MineDown getCommandList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
+                                   @NotNull List<CommandBase> commands, final int itemsPerPage, final int page) {
+        return PaginatedList.of(commands.stream()
+                                .filter(command -> onlineUser.hasPermission(command.permission))
+                                .map(command -> locales.getRawLocale("command_list_item",
                                                 Locales.escapeMineDown(command.command),
                                                 Locales.escapeMineDown(command.getDescription().length() > 50
                                                         ? command.getDescription().substring(0, 49).trim() + "…"

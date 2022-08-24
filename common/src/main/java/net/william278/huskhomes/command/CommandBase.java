@@ -26,7 +26,7 @@ public abstract class CommandBase {
      * The permission node required to use this command
      */
     @NotNull
-    protected final String permission;
+    public final String permission;
 
     /**
      * Instance of the implementing plugin

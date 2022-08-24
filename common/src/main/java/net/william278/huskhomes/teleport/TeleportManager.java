@@ -186,7 +186,8 @@ public class TeleportManager {
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerToPlayerByName(@NotNull String playerName,
                                                                                     @NotNull String targetPlayer,
                                                                                     @NotNull OnlineUser requester) {
-        final Optional<Position> localPositionTarget = plugin.findPlayer(targetPlayer).map(OnlineUser::getPosition);
+        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
+        final Optional<Position> localPositionTarget = localPlayer.map(OnlineUser::getPosition);
         if (localPositionTarget.isPresent()) {
             return teleportPlayerByName(playerName, localPositionTarget.get(), requester);
         }

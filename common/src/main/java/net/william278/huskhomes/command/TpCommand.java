@@ -130,10 +130,11 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+        final boolean serveCoordinateCompletions = user != null && user.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node);
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = new ArrayList<>();
-                completions.addAll(user != null
+                completions.addAll(serveCoordinateCompletions
                         ? List.of("~", "~ ~", "~ ~ ~",
                         Integer.toString((int) user.getPosition().x),
                         ((int) user.getPosition().x + " " + (int) user.getPosition().y),
@@ -153,7 +154,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
                     completions.addAll(List.of("~ ~", (int) user.getPosition().y + " " + (int) user.getPosition().z));
                 } else {
-                    completions.addAll(user != null
+                    completions.addAll(serveCoordinateCompletions
                             ? List.of("~", "~ ~", "~ ~ ~",
                             Integer.toString((int) user.getPosition().x),
                             ((int) user.getPosition().x + " " + (int) user.getPosition().y),
@@ -168,12 +169,12 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             case 3 -> {
                 final ArrayList<String> completions = new ArrayList<>();
                 if (isCoordinate(args[0]) && isCoordinate(args[1])) {
-                    if (user == null) {
+                    if (!serveCoordinateCompletions) {
                         return completions;
                     }
                     completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
                 } else if (isCoordinate(args[1])) {
-                    if (user == null) {
+                    if (!serveCoordinateCompletions) {
                         return completions;
                     }
                     completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
@@ -186,7 +187,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             case 4 -> {
                 final ArrayList<String> completions = new ArrayList<>();
                 if (isCoordinate(args[1]) && isCoordinate(args[2]) && !isCoordinate(args[0])) {
-                    if (user == null) {
+                    if (!serveCoordinateCompletions) {
                         return completions;
                     }
                     completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));

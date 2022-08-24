@@ -83,6 +83,9 @@ public class RequestManager {
                 Instant.now().getEpochSecond() + plugin.getSettings().teleportRequestExpiryTime);
         final Optional<OnlineUser> localTarget = plugin.findPlayer(targetUser);
         if (localTarget.isPresent()) {
+            if (localTarget.get().uuid.equals(requester.uuid)) {
+                return CompletableFuture.completedFuture(false);
+            }
             request.recipientName = localTarget.get().username;
             return CompletableFuture.supplyAsync(() -> sendLocalTeleportRequest(request, localTarget.get()));
         }

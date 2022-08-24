@@ -32,6 +32,10 @@ public class TpAllCommand extends CommandBase {
             return;
         }
 
+        // Send a message
+        plugin.getLocales().getLocale("teleporting_all_players", Integer.toString(players.size()))
+                .ifPresent(onlineUser::sendMessage);
+
         // Teleport every player
         players.forEach(playerName -> plugin.getTeleportManager()
                 .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser));

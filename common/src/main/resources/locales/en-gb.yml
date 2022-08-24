@@ -8,6 +8,7 @@ teleporting_action_bar_processing: '[Teleporting…](#00fb9a)'
 teleporting_action_bar_cancelled: '[Teleportation cancelled!](#ff7e5e)'
 teleporting_other_complete: '[Teleported %1% to %2%.](#00fb9a)'
 teleporting_other_complete_position: '[Teleported %1% to ⚐ x: %2%, y: %3%, z: %4%.](#00fb9a)'
+teleporting_all_players: '[Teleporting %1% players to your position…](#00fb9a)'
 
 edit_home_menu_title: '[Viewing details for your home,](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
 edit_home_menu_title_other: '[Viewing details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
@@ -83,6 +84,12 @@ teleport_request_declined_confirmation: '[You declined %1%''s teleport request.]
 teleport_request_accepted: '[%1% has accepted your teleport request!](#00fb9a)'
 teleport_request_declined: '[%1% has declined your teleport request.](#ff7e5e)'
 
+tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) %1%'
+tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to incoming teleport requests.](#00fb9a) %1%'
+tpignore_on_notification: '[You are currently ignoring incoming teleport requests!](gray) %1%'
+tpignore_toggle_button: '[[🔔 Toggle…]](#ffc43b show_text=&#ffc43b&Click to toggle:\n&7Toggle ignoring/listening to incoming teleport requests run_command=/huskhomes:tpignore)'
+
+
 set_home_used_free_slots: '[You''ve used all of your free set home slots (%1%); setting additional homes will cost %2% each.](gray)'
 set_home_success: '[Successfully set a new home called](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Successfully set a new warp called](#00fb9a) [%1%](#00fb9a bold)'
@@ -96,13 +103,6 @@ delete_all_warps_success: '[Successfully deleted all](#00fb9a) [%1%](#00fb9a bol
 teleporting_complete_console: '[Console teleported you to %1%.](gray)'
 spawn_warp_default_description: 'The /spawn position of the server'
 item_no_description: '(No description)'
-
-tpignore_toggle_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [incoming teleport requests.](#00fb9a) %1%'
-tpignore_toggle_off: '[You are now](#00fb9a) [listening](#00fb9a bold) [to incoming teleport requests.](#00fb9a) %1%'
-tpignore_on_notification: '[You are currently ignoring incoming teleport requests!](gray) %1%'
-tpignore_toggle_button: '[[🔔 Toggle…]](#ffc43b show_text=&#ffc43b&Click to toggle:\n&7Toggle ignoring/listening to incoming teleport requests run_command=/huskhomes:tpignore)'
-
-teleporting_all_players: '[Teleporting all players to your position…](#00fb9a)'
 
 economy_action_additional_home_slot: '[ℹ Spent %1% to set an additional home.](gray)'
 economy_action_make_home_public: '[ℹ Spent %1% to make your home public.](gray)'
@@ -144,8 +144,8 @@ error_teleport_request_expired: '[Error:](#ff3300) [Your pending teleport reques
 error_teleport_request_sender_not_online: '[Error:](#ff3300) [The sender of your pending teleport request is no longer online.](#ff7e5e)'
 error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests.](#ff7e5e) [[Stop Ignoring…]](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
 error_invalid_teleport_request: '[Error:](#ff3300) [You do not have a pending teleport request from %1%.](#ff7e5e)'
+error_teleport_request_self: '[Error:](#ff3300) [You cannot send a teleport request to yourself.](#ff7e5e)'
 error_player_not_found: '[Error:](#ff3300) [Could not find the player %1%.](#ff7e5e)'
-error_teleport_to_self: '[Error:](#ff3300) [You cannot teleport to yourself!](#ff7e5e)' # todo
 error_rtp_restricted_world: '[Error:](#ff3300) [You cannot randomly teleport in this world.](#ff7e5e)'
 error_rtp_cooldown: '[Error:](#ff3300) [You must wait %1% minutes before randomly teleporting again.](#ff7e5e)'
 error_command_disabled: '[Error:](#ff3300) [That command is disabled!](#ff7e5e)'

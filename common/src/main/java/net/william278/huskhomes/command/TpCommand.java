@@ -163,7 +163,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, teleportCommandTarget.targetPlayer);
         } else {
             assert teleportCommandTarget.targetPosition != null;
-            plugin.getTeleportManager().timedTeleport(playerToTeleport, teleportCommandTarget.targetPosition)
+            plugin.getTeleportManager().teleport(playerToTeleport, teleportCommandTarget.targetPosition)
                     .thenAccept(teleportResult -> {
                         if (teleportResult.successful) {
                             plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);

@@ -113,12 +113,12 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             plugin.getTeleportManager().teleport(foundUser.get(), position.get())
                     .thenAccept(result -> {
                         if (result.successful) {
-                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported" + foundUser.get().username + " to a random position.");
+                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported " + foundUser.get().username + " to a random position.");
                         } else {
                             plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().username + " to a random position.");
                         }
                         plugin.getTeleportManager().finishTeleport(foundUser.get(), result);
-                    }).join();
+                    });
         });
 
     }

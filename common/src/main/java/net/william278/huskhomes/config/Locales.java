@@ -5,6 +5,7 @@ import de.themoep.minedown.Util;
 import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -133,8 +134,7 @@ public class Locales {
         if (string.isBlank()) {
             return this.getRawLocale("item_no_description").orElse("N/A");
         }
-        return String.join("\n", string.split("(?<=\\G.{35}\\s)"))
-                .replaceAll("(.{45})", "$1\n");
+        return WordUtils.wrap(string, 35);
     }
 
     @SuppressWarnings("unused")

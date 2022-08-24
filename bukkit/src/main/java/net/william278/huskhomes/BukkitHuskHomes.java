@@ -26,6 +26,8 @@ import net.william278.huskhomes.random.RtpEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
+import net.william278.desertwell.Version;
+import net.william278.desertwell.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -205,7 +207,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Check for updates
             if (settings.checkForUpdates) {
                 getLoggingAdapter().log(Level.INFO, "Checking for updates...");
-                CompletableFuture.runAsync(() -> new UpdateChecker(getPluginVersion(), getLoggingAdapter()).logToConsole());
+                final UpdateChecker updateChecker = UpdateChecker.create(getPluginVersion(), 83767);
+                updateChecker.isUpToDate().thenAccept(isUpToDate -> {
+                    if (!isUpToDate) {
+                        getLoggingAdapter().log(Level.WARNING, "An update is available for HuskHomes, v" +
+                                                               updateChecker.getLatestVersion().join()
+                                                               + " (Currently running v" + getPluginVersion() + ")");
+                    }
+                });
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -339,12 +348,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
     @Override
     public @NotNull Version getPluginVersion() {
-        return Version.pluginVersion(getDescription().getVersion());
+        return Version.fromString(getDescription().getVersion());
     }
 
     @Override
     public @NotNull Version getMinecraftVersion() {
-        return Version.minecraftVersion(Bukkit.getBukkitVersion());
+        return Version.fromMinecraftVersionString(Bukkit.getBukkitVersion());
     }
 
     @Override

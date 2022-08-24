@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.util.AboutMenu;
+import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +28,14 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                 .addAttribution("Contributors",
                         AboutMenu.Credit.of("imDaniX").withDescription("Code, refactoring"),
                         AboutMenu.Credit.of("Log1x").withDescription("Code"))
+                .addAttribution("Translators",
+                        AboutMenu.Credit.of("SnivyJ").withDescription("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
+                        AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),
+                        AboutMenu.Credit.of("anchelthe").withDescription("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Ceddix").withDescription("German, (de-de)"),
+                        AboutMenu.Credit.of("Pukejoy_1").withDescription("Bulgarian (bg-bg)"))
                 .addButtons(
                         AboutMenu.Link.of("https://william278.net/docs/huskhomes").withText("Documentation").withIcon("⛏"),
                         AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
@@ -57,12 +65,12 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length == 0) {
-            Arrays.stream(aboutMenu.toConsoleString().split("\n")).forEach(message ->
+            Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
                     plugin.getLoggingAdapter().log(Level.INFO, message));
             return;
         }
         switch (args[0].toLowerCase()) {
-            case "about" -> Arrays.stream(aboutMenu.toConsoleString().split("\n")).forEach(message ->
+            case "about" -> Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
                     plugin.getLoggingAdapter().log(Level.INFO, message));
             case "help" -> {
 

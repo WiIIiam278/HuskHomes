@@ -14,7 +14,7 @@ import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
-import net.william278.huskhomes.util.Version;
+import net.william278.desertwell.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

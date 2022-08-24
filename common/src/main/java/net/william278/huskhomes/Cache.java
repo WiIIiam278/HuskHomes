@@ -1,6 +1,7 @@
 package net.william278.huskhomes;
 
 import de.themoep.minedown.MineDown;
+import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.player.OnlineUser;
@@ -105,6 +106,7 @@ public class Cache {
         }
     }
 
+    @NotNull
     private ListOptions.Builder getBaseList(@NotNull Locales locales, int itemsPerPage) {
         return new ListOptions.Builder().setFooterFormat(locales.getRawLocale("list_footer",
                         "%previous_page_button%", "%current_page%",
@@ -126,6 +128,7 @@ public class Cache {
                 .setEscapeItemsMineDown(false);
     }
 
+    @NotNull
     public MineDown getHomeList(@NotNull OnlineUser onlineUser, @NotNull User listOwner, @NotNull Locales locales,
                                 @NotNull List<Home> homes, final int itemsPerPage, final int page) {
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
@@ -140,6 +143,23 @@ public class Cache {
                 .setCommand("/huskhomes:homelist").build());
         this.privateHomeLists.put(onlineUser.uuid, homeList);
         return homeList.getNearestValidPage(page);
+    }
+
+    @NotNull
+    public MineDown getCommandList(@NotNull Locales locales, @NotNull List<CommandBase> commands,
+                                   final int itemsPerPage, final int page) {
+        return PaginatedList.of(commands.stream().map(command -> locales.getRawLocale("command_list_item",
+                                                Locales.escapeMineDown(command.command),
+                                                Locales.escapeMineDown(command.getDescription().length() > 50
+                                                        ? command.getDescription().substring(0, 49).trim() + "…"
+                                                        : command.getDescription()),
+                                                Locales.escapeMineDown(locales.formatDescription(command.getDescription())))
+                                        .orElse(command.command))
+                                .collect(Collectors.toList()),
+                        getBaseList(locales, itemsPerPage)
+                                .setHeaderFormat(locales.getRawLocale("command_list_title").orElse(""))
+                                .setItemSeparator("\n").setCommand("/huskhomes:huskhomes help").build())
+                .getNearestValidPage(page);
     }
 
     @NotNull

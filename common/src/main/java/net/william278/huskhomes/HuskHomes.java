@@ -1,5 +1,6 @@
 package net.william278.huskhomes;
 
+import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
@@ -229,9 +230,18 @@ public interface HuskHomes {
     Version getPluginVersion();
 
     /**
+     * Returns a list of enabled commands
+     *
+     * @return A list of registered and enabled {@link CommandBase}s
+     */
+    @NotNull
+    List<CommandBase> getCommands();
+
+    /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files
      *
      * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
      */
     CompletableFuture<Boolean> reload();
+
 }

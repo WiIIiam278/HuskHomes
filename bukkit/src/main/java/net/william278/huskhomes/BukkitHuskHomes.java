@@ -4,6 +4,7 @@ import io.papermc.lib.PaperLib;
 import net.william278.annotaml.Annotaml;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
+import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
@@ -64,6 +65,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private RtpEngine rtpEngine;
     private Spawn serverSpawn;
     private Set<PluginHook> pluginHooks;
+    private List<CommandBase> registeredCommands;
 
     @Nullable
     private NetworkMessenger networkMessenger;
@@ -175,6 +177,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                             })));
 
             // Register commands
+            this.registeredCommands = new ArrayList<>();
             Arrays.stream(BukkitCommandType.values()).forEach(commandType -> {
                 final PluginCommand pluginCommand = getCommand(commandType.commandBase.command);
                 if (pluginCommand == null) {
@@ -193,7 +196,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 }
 
                 // Otherwise, register the command
-                new BukkitCommand(commandType.commandBase, this).register(pluginCommand);
+                final CommandBase commandBase = commandType.commandBase;
+                this.registeredCommands.add(commandBase);
+                new BukkitCommand(commandBase, this).register(pluginCommand);
             });
             getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
@@ -349,6 +354,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public @NotNull Version getPluginVersion() {
         return Version.fromString(getDescription().getVersion());
+    }
+
+    @Override
+    public @NotNull List<CommandBase> getCommands() {
+        return registeredCommands;
     }
 
     /**

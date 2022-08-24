@@ -55,7 +55,7 @@ command_list_title: '[HuskHomes](#00fb9a bold) [| Command List](#00fb9a)'
 home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:edithome %2%)'
 public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:publichome %2%)'
 warp_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %2% run_command=/huskhomes:warp %1%)'
-command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
+command_list_item: '[/%1%](#00fb9a show_text=&7Click to suggest command suggest_command=/%1%)   [%2%](gray show_text=&#00fb9a&/%1%\n&7%3%)'
 
 list_item_divider: ' [•](gray) '
 list_footer: '%1%[Page](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'

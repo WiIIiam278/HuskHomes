@@ -66,8 +66,11 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
             for (int i = 1; i <= homes.size(); i++) {
-                final String home = homes.get(i - 1).owner.username + "." + homes.get(i).meta.name;
-                rowJoiner.add(home.length() < 33 ? home + " ".repeat(33 - home.length()) : home);
+                final String ownerUsername = homes.get(i - 1).owner.username;
+                final String homeName = homes.get(i - 1).meta.name;
+                final String home = ownerUsername + "." + homeName;
+                int spacingSize = (16 - ownerUsername.length()) + 17;
+                rowJoiner.add(home.length() < spacingSize ? home + " ".repeat(spacingSize - home.length()) : home);
                 if (i % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("   ");

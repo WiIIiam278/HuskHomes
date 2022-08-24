@@ -1,4 +1,3 @@
-teleporting_last_position: '[Returning to your last position in](#00fb9a) [%1%](#00fb9a bold) [seconds](#00fb9a)'
 teleporting_offline_player: '[Teleporting you to where %1% last logged out…](#00fb9a)'
 teleporting_warmup_start: '[You will be teleported in](#00fb9a) [%1%](#00fb9a bold) [seconds, please stand still…](#00fb9a)'
 teleporting_cancelled_movement: '[Teleportation cancelled; you moved!](#ff7e5e)'
@@ -7,6 +6,8 @@ teleporting_complete: '[Teleportation complete!](#00fb9a)'
 teleporting_action_bar_warmup: '[Teleporting in](#00fb9a) [%1%](#00fb9a bold)[…](#00fb9a)'
 teleporting_action_bar_processing: '[Teleporting…](#00fb9a)'
 teleporting_action_bar_cancelled: '[Teleportation cancelled!](#ff7e5e)'
+teleporting_other_complete: '[Teleported %1% to %2%.](#00fb9a)'
+teleporting_other_complete_position: '[Teleported %1% to ⚐ x: %2%, y: %3%, z: %4%.](#00fb9a)'
 
 edit_home_menu_title: '[Viewing details for your home,](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
 edit_home_menu_title_other: '[Viewing details for %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'

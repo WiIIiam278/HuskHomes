@@ -72,7 +72,15 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             plugin.getTeleportManager()
                     .teleportPlayerToPlayerByName(playerToTeleportName, targetPosition.targetPlayer, onlineUser)
                     .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
-                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result),
+                            result -> {
+                                if (result.successful) {
+                                    plugin.getLocales().getLocale("teleporting_other_complete",
+                                                    playerToTeleportName, targetPosition.targetPlayer)
+                                            .ifPresent(onlineUser::sendMessage);
+                                    return;
+                                }
+                                plugin.getTeleportManager().finishTeleport(onlineUser, result);
+                            },
                             () -> plugin.getLocales().getLocale("error_player_not_found", playerToTeleportName)
                                     .ifPresent(onlineUser::sendMessage)));
             return;
@@ -81,7 +89,18 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             assert targetPosition.targetPosition != null;
             plugin.getTeleportManager().teleportPlayerByName(playerToTeleportName, targetPosition.targetPosition, onlineUser)
                     .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
-                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result),
+                            result -> {
+                                if (result.successful && !playerToTeleportName.equalsIgnoreCase(onlineUser.username)) {
+                                    plugin.getLocales().getLocale("teleporting_other_complete_position",
+                                                    playerToTeleportName,
+                                                    Integer.toString((int) targetPosition.targetPosition.x),
+                                                    Integer.toString((int) targetPosition.targetPosition.y),
+                                                    Integer.toString((int) targetPosition.targetPosition.z))
+                                            .ifPresent(onlineUser::sendMessage);
+                                    return;
+                                }
+                                plugin.getTeleportManager().finishTeleport(onlineUser, result);
+                            },
                             () -> plugin.getLocales().getLocale("error_player_not_found", playerToTeleportName)
                                     .ifPresent(onlineUser::sendMessage)));
             return;
@@ -153,7 +172,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         return completions;
                     }
                     completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
-                } else if (isCoordinate(args[1])){
+                } else if (isCoordinate(args[1])) {
                     if (user == null) {
                         return completions;
                     }

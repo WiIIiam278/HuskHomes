@@ -23,7 +23,20 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                     .ifPresent(onlineUser::sendMessage);
             return;
         }
-        plugin.getTeleportManager().teleportPlayerByName(args[0], onlineUser.getPosition(), onlineUser);
+        final String targetPlayerName = args[0];
+        plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser)
+                .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
+                        result -> {
+                            if (result.successful) {
+                                plugin.getLocales().getLocale("teleporting_other_complete",
+                                                targetPlayerName, onlineUser.username)
+                                        .ifPresent(onlineUser::sendMessage);
+                                return;
+                            }
+                            plugin.getTeleportManager().finishTeleport(onlineUser, result);
+                        },
+                        () -> plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
+                                .ifPresent(onlineUser::sendMessage)));
     }
 
     @Override

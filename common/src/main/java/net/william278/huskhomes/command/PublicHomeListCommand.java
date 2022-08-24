@@ -2,13 +2,11 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -68,8 +66,8 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
             for (int i = 1; i <= homes.size(); i++) {
-                final String home = homes.get(i).owner.username + homes.get(i).meta.name;
-                rowJoiner.add(home.length() < 33 ? " ".repeat(33 - home.length()) + home : home);
+                final String home = homes.get(i - 1).owner.username + "." + homes.get(i).meta.name;
+                rowJoiner.add(home.length() < 33 ? home + " ".repeat(33 - home.length()) : home);
                 if (i % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("   ");

@@ -2,7 +2,6 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
@@ -100,8 +99,8 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
                                                        + homes.size() + " homes:");
             for (int i = 1; i <= homes.size(); i++) {
-                final String home = homes.get(i).meta.name;
-                rowJoiner.add(home.length() < 16 ? " ".repeat(16 - home.length()) + home : home);
+                final String home = homes.get(i-1).meta.name;
+                rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
                 if (i % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("   ");

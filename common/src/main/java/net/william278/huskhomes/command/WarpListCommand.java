@@ -65,8 +65,8 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + warps.size() + " warps:");
             for (int i = 1; i <= warps.size(); i++) {
-                final String warp = warps.get(i).meta.name;
-                rowJoiner.add(warp.length() < 16 ? " ".repeat(16 - warp.length()) + warp : warp);
+                final String warp = warps.get(i - 1).meta.name;
+                rowJoiner.add(warp.length() < 16 ? warp + " ".repeat(16 - warp.length()) : warp);
                 if (i % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("   ");

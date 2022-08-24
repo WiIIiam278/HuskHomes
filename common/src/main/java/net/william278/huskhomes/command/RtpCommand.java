@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 public class RtpCommand extends CommandBase implements ConsoleExecutable {
 
@@ -93,6 +94,32 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length == 0) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: rtp [player]");
+            return;
+        }
+        final Optional<OnlineUser> foundUser = plugin.findPlayer(args[0]);
+        if (foundUser.isEmpty()) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            return;
+        }
+
+        plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
+        plugin.getRtpEngine().getRandomPosition(foundUser.get().getPosition()).thenAccept(position -> {
+            if (position.isEmpty()) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
+                return;
+            }
+            plugin.getTeleportManager().teleport(foundUser.get(), position.get())
+                    .thenAccept(result -> {
+                        if (result.successful) {
+                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported" + foundUser.get().username + " to a random position.");
+                        } else {
+                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().username + " to a random position.");
+                        }
+                        plugin.getTeleportManager().finishTeleport(foundUser.get(), result);
+                    }).join();
+        });
+
     }
 }

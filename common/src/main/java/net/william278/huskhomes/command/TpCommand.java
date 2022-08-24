@@ -129,7 +129,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length < 2 || args.length > 6) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax: /tp <player> <destination>");
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: tp <player> <destination>");
             return;
         }
         final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
@@ -150,7 +150,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         args.length >= 5 ? new World(args[4], UUID.randomUUID()) : plugin.getWorlds().get(0),
                         args.length == 6 ? new Server(args[5]) : plugin.getServer(playerToTeleport)));
             } catch (NumberFormatException e) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax: /tp <player> <x> <y> <z> [world] [server]");
+                plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: tp <player> <x> <y> <z> [world] [server]");
                 return;
             }
         }

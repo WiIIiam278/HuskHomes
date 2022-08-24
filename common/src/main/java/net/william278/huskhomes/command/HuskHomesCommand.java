@@ -1,8 +1,9 @@
 package net.william278.huskhomes.command;
 
+import de.themoep.minedown.MineDown;
+import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +57,11 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
         switch (args[0].toLowerCase()) {
             case "about" -> sendAboutMenu(onlineUser);
             case "help" -> {
+                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_HELP.node)) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
                 int page = 1;
                 if (args.length == 2) {
                     try {
@@ -70,10 +76,33 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         plugin.getLocales(), plugin.getCommands(), plugin.getSettings().listItemsPerPage, page));
             }
             case "reload" -> {
-
+                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_RELOAD.node)) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+                plugin.reload().thenAccept(reloaded -> {
+                    if (!reloaded) {
+                        onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
+                        return;
+                    }
+                    onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
+                });
             }
             case "update" -> {
-
+                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_UPDATE.node)) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+                plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
+                        newestVersion.ifPresentOrElse(
+                                newVersion -> onlineUser.sendMessage(
+                                        new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
+                                                     + " (v" + newVersion + " (Currently running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
+                                () -> onlineUser.sendMessage(
+                                        new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
+                                                     + " (Currently running: v" + plugin.getPluginVersion() + "](#00fb9a)"))));
             }
         }
     }
@@ -89,16 +118,31 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
             case "about" -> Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
                     plugin.getLoggingAdapter().log(Level.INFO, message));
             case "help" -> {
-
+                plugin.getLoggingAdapter().log(Level.INFO, "List of enabled console-executable commands:");
+                plugin.getCommands()
+                        .stream().filter(command -> command instanceof ConsoleExecutable)
+                        .forEach(command -> plugin.getLoggingAdapter().log(Level.INFO,
+                                command.command +
+                                (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
+                                + " - " + command.getDescription()));
             }
-            case "reload" -> {
-
-            }
-            case "update" -> {
-
-            }
+            case "reload" -> plugin.reload().thenAccept(reloaded -> {
+                if (!reloaded) {
+                    plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to reload the plugin.");
+                    return;
+                }
+                plugin.getLoggingAdapter().log(Level.INFO, "Reloaded config & message files.");
+            });
+            case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
+                    newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
+                                    "An update is available for HuskHomes, v" + newVersion
+                                    + " (Currently running v" + plugin.getPluginVersion() + ")"),
+                            () -> plugin.getLoggingAdapter().log(Level.INFO,
+                                    "HuskHomes is up to date" +
+                                    " (Currently running v" + plugin.getPluginVersion() + ")")));
         }
     }
+
 
     private void sendAboutMenu(@NotNull OnlineUser onlineUser) {
         if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_ABOUT.node)) {

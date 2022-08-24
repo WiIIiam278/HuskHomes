@@ -2,6 +2,7 @@ package net.william278.huskhomes;
 
 import io.papermc.lib.PaperLib;
 import net.william278.annotaml.Annotaml;
+import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.command.CommandBase;
@@ -21,14 +22,15 @@ import net.william278.huskhomes.messenger.PluginMessenger;
 import net.william278.huskhomes.messenger.RedisMessenger;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.SavedPositionManager;
+import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RtpEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
-import net.william278.desertwell.Version;
-import net.william278.desertwell.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -212,14 +214,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Check for updates
             if (settings.checkForUpdates) {
                 getLoggingAdapter().log(Level.INFO, "Checking for updates...");
-                final UpdateChecker updateChecker = UpdateChecker.create(getPluginVersion(), 83767);
-                updateChecker.isUpToDate().thenAccept(isUpToDate -> {
-                    if (!isUpToDate) {
-                        getLoggingAdapter().log(Level.WARNING, "An update is available for HuskHomes, v" +
-                                                               updateChecker.getLatestVersion().join()
-                                                               + " (Currently running v" + getPluginVersion() + ")");
-                    }
-                });
+                getLatestVersionIfOutdated().thenAccept(newestVersion ->
+                        newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
+                                "An update is available for HuskHomes, v" + newVersion
+                                + " (Currently running v" + getPluginVersion() + ")")));
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());

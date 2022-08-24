@@ -46,7 +46,7 @@ public class RedisMessenger extends PluginMessenger {
                         }
                         handleMessage(receiver.get(), message);
                     }
-                });
+                }, NETWORK_MESSAGE_CHANNEL);
             }
         }, "Redis Subscriber").start();
 

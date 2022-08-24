@@ -1,6 +1,5 @@
 package net.william278.huskhomes.position;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**

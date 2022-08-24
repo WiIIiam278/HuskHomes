@@ -37,8 +37,6 @@ public class Position extends Location {
      * @return The position if it could be parsed, otherwise an empty optional
      */
     public static Optional<Position> parse(@NotNull Position currentPosition, @NotNull String... values) {
-        System.out.println(String.join(" ", values));
-
         // Validate argument length
         if (values.length < 3 || values.length > 5) {
             System.out.println("Invalid syntax");

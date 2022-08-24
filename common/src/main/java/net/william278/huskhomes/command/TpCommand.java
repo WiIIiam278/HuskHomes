@@ -4,11 +4,14 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
@@ -125,7 +128,52 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length < 2 || args.length > 6) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax: /tp <player> <destination>");
+            return;
+        }
+        final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+        if (playerToTeleport == null) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            return;
+        }
+        final TeleportCommandTarget teleportCommandTarget;
+        if (args.length == 2) {
+            teleportCommandTarget = new TeleportCommandTarget(args[1]);
+        } else {
+            try {
+                teleportCommandTarget = new TeleportCommandTarget(new Position(
+                        Double.parseDouble(args[1]),
+                        Double.parseDouble(args[2]),
+                        Double.parseDouble(args[3]),
+                        0f, 0f,
+                        args.length >= 5 ? new World(args[4], UUID.randomUUID()) : plugin.getWorlds().get(0),
+                        args.length == 6 ? new Server(args[5]) : plugin.getServer(playerToTeleport)));
+            } catch (NumberFormatException e) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax: /tp <player> <x> <y> <z> [world] [server]");
+                return;
+            }
+        }
+
+        // Execute the console teleport
+        if (teleportCommandTarget.targetType == TeleportCommandTarget.TargetType.PLAYER) {
+            assert teleportCommandTarget.targetPlayer != null;
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username
+                                                       + " to " + teleportCommandTarget.targetPlayer);
+            plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, teleportCommandTarget.targetPlayer);
+        } else {
+            assert teleportCommandTarget.targetPosition != null;
+            plugin.getTeleportManager().timedTeleport(playerToTeleport, teleportCommandTarget.targetPosition)
+                    .thenAccept(teleportResult -> {
+                        if (teleportResult.successful) {
+                            plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
+                        } else {
+                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username
+                                                                          + " (" + teleportResult.name() + ")");
+                        }
+                        plugin.getTeleportManager().finishTeleport(playerToTeleport, teleportResult);
+                    });
+        }
     }
 
     @Override

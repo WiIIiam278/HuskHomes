@@ -351,16 +351,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         return Version.fromString(getDescription().getVersion());
     }
 
-    @Override
-    public @NotNull Version getMinecraftVersion() {
-        return Version.fromMinecraftVersionString(Bukkit.getBukkitVersion());
-    }
-
-    @Override
-    public @NotNull String getPlatformType() {
-        return getServer().getName();
-    }
-
     /**
      * Returns the {@link Server} the plugin is on
      *

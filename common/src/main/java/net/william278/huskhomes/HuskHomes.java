@@ -229,22 +229,6 @@ public interface HuskHomes {
     Version getPluginVersion();
 
     /**
-     * Returns the Minecraft version implementation
-     *
-     * @return the Minecraft {@link Version}
-     */
-    @NotNull
-    Version getMinecraftVersion();
-
-    /**
-     * Get the platform type (e.g. Spigot, Paper etc)
-     *
-     * @return the type of server platform string
-     */
-    @NotNull
-    String getPlatformType();
-
-    /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files
      *
      * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful

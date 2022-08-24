@@ -2,11 +2,14 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class WarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
@@ -44,6 +47,27 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length != 2) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: warp <player> <warp>");
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+            if (playerToTeleport == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                return;
+            }
+
+            final Warp warp = plugin.getDatabase().getWarp(args[1]).join().orElse(null);
+            if (warp == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find warp '" + args[1] + "'");
+                return;
+            }
+
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.meta.name);
+            plugin.getTeleportManager().timedTeleport(playerToTeleport, warp)
+                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
+        });
     }
+
 }

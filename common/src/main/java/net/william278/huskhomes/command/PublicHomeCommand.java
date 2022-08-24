@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                 }
 
                 onlineUser.sendMessage(plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(), publicHomes,
-                        plugin.getSettings().listItemsPerPage,1));
+                        plugin.getSettings().listItemsPerPage, 1));
             });
             case 1 -> {
                 final String homeName = args[0];
@@ -61,7 +64,38 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length != 2) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: publichome <player> <[owner_name].[home_name]>");
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+            if (playerToTeleport == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                return;
+            }
+            final AtomicReference<Home> matchedHome = new AtomicReference<>(null);
+            RegexUtil.matchDisambiguatedHomeIdentifier(args[1]).ifPresentOrElse(
+                    identifier -> matchedHome.set(plugin.getDatabase().getUserDataByName(identifier.ownerName()).join()
+                            .flatMap(user -> plugin.getDatabase().getHome(user.user(), identifier.homeName()).join())
+                            .orElse(null)),
+                    () -> matchedHome.set(plugin.getDatabase().getPublicHomes().join()
+                            .stream()
+                            .filter(home -> home.owner.uuid.equals(playerToTeleport.uuid) && home.meta.name.equalsIgnoreCase(args[1]))
+                            .findFirst()
+                            .orElse(null)));
+
+            final Home home = matchedHome.get();
+            if (home == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find public home '" + args[1] + "'");
+                return;
+            }
+
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
+                                                       + home.owner.username + "." + home.meta.name);
+            plugin.getTeleportManager().timedTeleport(playerToTeleport, home)
+                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
+        });
     }
 
     @Override

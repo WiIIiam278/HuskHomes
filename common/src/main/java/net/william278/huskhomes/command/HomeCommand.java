@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class HomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
@@ -27,7 +31,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                     case 1 -> plugin.getTeleportManager().timedTeleport(onlineUser, homes.get(0)).thenAccept(result ->
                             plugin.getTeleportManager().finishTeleport(onlineUser, result)).join();
                     default -> onlineUser.sendMessage(plugin.getCache().getHomeList(onlineUser, onlineUser,
-                            plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage,1));
+                            plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, 1));
                 }
             });
             case 1 -> {
@@ -48,7 +52,36 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        //todo
+        if (args.length != 2) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: home <player> <home>");
+            return;
+        }
+        CompletableFuture.runAsync(() -> {
+            final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+            if (playerToTeleport == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                return;
+            }
+            final AtomicReference<Home> matchedHome = new AtomicReference<>(null);
+            RegexUtil.matchDisambiguatedHomeIdentifier(args[1]).ifPresentOrElse(
+                    identifier -> matchedHome.set(plugin.getDatabase().getUserDataByName(identifier.ownerName()).join()
+                            .flatMap(user -> plugin.getDatabase().getHome(user.user(), identifier.homeName()).join())
+                            .orElse(null)),
+                    () -> matchedHome.set(plugin.getDatabase().getUserDataByName(playerToTeleport.username).join()
+                            .flatMap(user -> plugin.getDatabase().getHome(user.user(), args[1]).join())
+                            .orElse(null)));
+
+            final Home home = matchedHome.get();
+            if (home == null) {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find home '" + args[1] + "'");
+                return;
+            }
+
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
+                                                       + home.owner.username + "." + home.meta.name);
+            plugin.getTeleportManager().timedTeleport(playerToTeleport, home)
+                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
+        });
     }
 
     @Override

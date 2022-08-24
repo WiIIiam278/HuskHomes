@@ -109,16 +109,16 @@ public class RequestManager {
                                         MessagePayload.withTeleportRequest(request),
                                         Message.RelayType.MESSAGE,
                                         plugin.getSettings().clusterId))
-                        .thenApply(message -> {
-                            if (message.payload.teleportRequest == null) {
+                        .orTimeout(3, TimeUnit.SECONDS)
+                        .exceptionally(throwable -> null)
+                        .thenApply(reply -> {
+                            if (reply == null || reply.payload.teleportRequest == null) {
                                 return false;
                             }
 
                             // If the message was ignored by the recipient, return false
-                            return message.payload.teleportRequest.status == TeleportRequest.RequestStatus.PENDING;
-                        })
-                        .orTimeout(3, TimeUnit.SECONDS)
-                        .exceptionally(throwable -> false).join();
+                            return reply.payload.teleportRequest.status == TeleportRequest.RequestStatus.PENDING;
+                        }).join();
             });
         }
         return CompletableFuture.supplyAsync(() -> false);

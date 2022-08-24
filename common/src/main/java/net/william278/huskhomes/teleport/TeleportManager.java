@@ -165,8 +165,10 @@ public class TeleportManager {
                                     MessagePayload.withPosition(position),
                                     Message.RelayType.MESSAGE,
                                     plugin.getSettings().clusterId))
+                    .orTimeout(3, TimeUnit.SECONDS)
+                    .exceptionally(throwable -> null)
                     .thenApply(result -> {
-                        if (result.payload.teleportResult == null) {
+                        if (result == null || result.payload.teleportResult == null) {
                             return Optional.empty();
                         }
                         return Optional.of(result.payload.teleportResult);

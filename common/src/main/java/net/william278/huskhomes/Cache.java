@@ -158,7 +158,7 @@ public class Cache {
                                                 Locales.escapeMineDown(locales.formatDescription(command.getDescription())))
                                         .orElse(command.command))
                                 .collect(Collectors.toList()),
-                        getBaseList(locales, itemsPerPage)
+                        getBaseList(locales, Math.min(itemsPerPage, 6))
                                 .setHeaderFormat(locales.getRawLocale("command_list_title").orElse(""))
                                 .setItemSeparator("\n").setCommand("/huskhomes:huskhomes help").build())
                 .getNearestValidPage(page);

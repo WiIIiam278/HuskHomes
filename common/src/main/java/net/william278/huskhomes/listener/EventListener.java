@@ -2,6 +2,7 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportType;
@@ -71,6 +72,8 @@ public class EventListener {
                                 } else {
                                     plugin.getLocales().getLocale("teleporting_complete")
                                             .ifPresent(onlineUser::sendMessage);
+                                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
+                                            .ifPresent(onlineUser::playSound);
                                 }
                             }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
                             .join();

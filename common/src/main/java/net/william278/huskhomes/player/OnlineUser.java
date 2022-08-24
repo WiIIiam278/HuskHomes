@@ -83,6 +83,13 @@ public abstract class OnlineUser extends User {
     public abstract void sendMinecraftMessage(@NotNull String translationKey);
 
     /**
+     * Play the specified sound to this player
+     *
+     * @param soundEffect the sound effect to play. If the sound name is invalid, the sound will not play
+     */
+    public abstract void playSound(@NotNull String soundEffect);
+
+    /**
      * Teleport a player to the specified {@link Location}
      *
      * @param location     the {@link Location} to teleport the player to

@@ -290,8 +290,13 @@ public class TeleportManager {
                     .ifPresent(onlineUser::sendMessage);
         }
 
-        // Handle economy actions
+        // If the result was successful
         if (teleportResult.successful) {
+            // Play sound
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
+                    .ifPresent(onlineUser::playSound);
+
+            // Handle economy actions
             for (final Settings.EconomyAction action : economyActions) {
                 plugin.performEconomyTransaction(onlineUser, action);
             }
@@ -371,6 +376,8 @@ public class TeleportManager {
         executor.scheduleAtFixedRate(() -> {
             // Display countdown action bar message
             if (teleport.timeLeft > 0) {
+                plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
+                        .ifPresent(sound -> teleport.getPlayer().playSound(sound));
                 plugin.getLocales().getLocale("teleporting_action_bar_countdown", Integer.toString(teleport.timeLeft))
                         .ifPresent(message -> {
                             switch (plugin.getSettings().teleportWarmupDisplay) {
@@ -425,6 +432,8 @@ public class TeleportManager {
                     teleport.getPlayer().sendMessage(locale));
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
                     teleport.getPlayer().sendActionBar(locale));
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+                    .ifPresent(sound -> teleport.getPlayer().playSound(sound));
             teleport.cancelled = true;
             return Optional.of(teleport);
         }
@@ -435,6 +444,8 @@ public class TeleportManager {
                     teleport.getPlayer().sendMessage(locale));
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
                     teleport.getPlayer().sendActionBar(locale));
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+                    .ifPresent(sound -> teleport.getPlayer().playSound(sound));
             teleport.cancelled = true;
             return Optional.of(teleport);
         }

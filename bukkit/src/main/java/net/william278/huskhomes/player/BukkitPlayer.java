@@ -111,6 +111,11 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
+    public void playSound(@NotNull String soundEffect) {
+        player.playSound(player.getLocation(), soundEffect, 1, 1);
+    }
+
+    @Override
     public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
         return CompletableFuture.supplyAsync(() -> {
             final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);

@@ -129,6 +129,9 @@ public class Settings {
     );
 
     public Optional<String> getSoundEffect(@NotNull SoundEffectAction action) {
+        if (!playSoundEffects) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(soundEffects.get(action.name().toLowerCase()));
     }
 
@@ -271,9 +274,9 @@ public class Settings {
      * Represents the sound effect to play when an action happens
      */
     public enum SoundEffectAction {
-        TELEPORTATION_COMPLETE("entity_enderman_teleport"),
-        TELEPORTATION_WARMUP("block_note_block_banjo"),
-        TELEPORTATION_CANCELLED("entity_item_break");
+        TELEPORTATION_COMPLETE("entity.enderman.teleport"),
+        TELEPORTATION_WARMUP("block.note_block.banjo"),
+        TELEPORTATION_CANCELLED("entity.item.break");
         private final String defaultSoundEffect;
 
         SoundEffectAction(@NotNull String defaultSoundEffect) {

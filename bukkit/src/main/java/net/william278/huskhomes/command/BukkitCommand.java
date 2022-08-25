@@ -1,6 +1,7 @@
 package net.william278.huskhomes.command;
 
-import net.william278.huskhomes.HuskHomes;
+import me.lucko.commodore.CommodoreProvider;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -23,9 +24,9 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
     /**
      * The implementing plugin
      */
-    private final HuskHomes plugin;
+    private final BukkitHuskHomes plugin;
 
-    public BukkitCommand(@NotNull CommandBase command, @NotNull HuskHomes implementor) {
+    public BukkitCommand(@NotNull CommandBase command, @NotNull BukkitHuskHomes implementor) {
         this.command = command;
         this.plugin = implementor;
     }
@@ -36,13 +37,13 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
      * @param pluginCommand {@link PluginCommand} to register
      */
     public void register(@NotNull PluginCommand pluginCommand) {
-        try {
-            pluginCommand.setPermission(command.permission);
-            pluginCommand.setDescription(command.getDescription());
-            pluginCommand.setExecutor(this);
-            pluginCommand.setTabCompleter(this);
-        } catch (final Exception e) {
-            e.printStackTrace();
+        pluginCommand.setPermission(command.permission);
+        pluginCommand.setDescription(command.getDescription());
+        pluginCommand.setExecutor(this);
+        pluginCommand.setTabCompleter(this);
+
+        if (CommodoreProvider.isSupported()) {
+            BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
         }
     }
 

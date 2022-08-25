@@ -1,0 +1,8 @@
+huskhomes {
+    about;
+    help {
+        page brigadier:integer;
+    }
+    reload;
+    update;
+}

@@ -1,0 +1,3 @@
+rtp {
+    player brigadier:string single_word;
+}

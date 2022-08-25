@@ -1,0 +1,3 @@
+publichomelist {
+    page brigadier:integer;
+}

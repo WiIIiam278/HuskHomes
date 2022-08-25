@@ -3,6 +3,7 @@ dependencies {
 
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
+    implementation 'me.lucko:commodore:2.2'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'redis.clients:jedis:' + jedis_version
@@ -23,6 +24,10 @@ dependencies {
 }
 
 shadowJar {
+    dependencies {
+        exclude(dependency('com.mojang:brigadier'))
+    }
+
     relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
     relocate 'de.themoep', 'net.william278.huskhomes.libraries'
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
@@ -34,6 +39,7 @@ shadowJar {
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 
-    relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
+    relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
 }

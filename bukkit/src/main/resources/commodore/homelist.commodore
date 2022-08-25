@@ -1,0 +1,6 @@
+homelist {
+    page brigadier:integer;
+    player brigadier:string single_word {
+        page brigadier:integer;
+    }
+}

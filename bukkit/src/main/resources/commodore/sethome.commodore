@@ -1,0 +1,3 @@
+sethome {
+    name brigadier:string single_word;
+}

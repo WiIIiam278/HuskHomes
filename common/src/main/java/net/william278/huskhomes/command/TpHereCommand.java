@@ -24,7 +24,7 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
             return;
         }
         final String targetPlayerName = args[0];
-        plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser)
+        plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser, false)
                 .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
                         result -> {
                             if (result.successful) {

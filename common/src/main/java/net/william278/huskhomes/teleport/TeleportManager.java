@@ -117,18 +117,19 @@ public class TeleportManager {
      *
      * @param onlineUser   the {@link OnlineUser} to teleport
      * @param targetPlayer the name of the target player
+     * @param timed        whether the teleport is timed ({@code true}), otherwise instant
      */
-    public void teleportToPlayerByName(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer) {
+    public void teleportToPlayerByName(@NotNull OnlineUser onlineUser, @NotNull String targetPlayer, boolean timed) {
         CompletableFuture.runAsync(() -> {
             final Optional<OnlineUser> localPlayer = plugin.findPlayer(targetPlayer);
             if (localPlayer.isPresent()) {
-                timedTeleport(onlineUser, localPlayer.get().getPosition()).thenAccept(
-                        result -> finishTeleport(onlineUser, result));
+                (timed ? timedTeleport(onlineUser, localPlayer.get().getPosition()) : teleport(onlineUser, localPlayer.get().getPosition()))
+                        .thenAccept(result -> finishTeleport(onlineUser, result));
             } else if (plugin.getSettings().crossServer) {
                 assert plugin.getNetworkMessenger() != null;
                 getPlayerPositionByName(onlineUser, targetPlayer).thenAccept(optionalPosition -> {
                     if (optionalPosition.isPresent()) {
-                        timedTeleport(onlineUser, optionalPosition.get())
+                        (timed ? timedTeleport(onlineUser, optionalPosition.get()) : teleport(onlineUser, optionalPosition.get()))
                                 .thenAccept(teleportResult -> finishTeleport(onlineUser, teleportResult));
                         return;
                     }
@@ -143,19 +144,21 @@ public class TeleportManager {
     }
 
     /**
-     * Immediately teleport a player by username to a {@link Position} by name
+     * Teleport a player by username to a {@link Position} by name
      *
      * @param playerName username of the target player to teleport
      * @param position   the {@link Position} to teleport to
      * @param requester  the {@link OnlineUser} performing the teleport action
+     * @param timed      whether the teleport is timed ({@code true}), otherwise instant
      * @return a {@link CompletableFuture} that completes when the teleport is complete with the {@link TeleportResult},
      * if it was processed, otherwise an empty {@link Optional} if the player was not found
      */
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerByName(@NotNull String playerName, @NotNull Position position,
-                                                                            @NotNull OnlineUser requester) {
+                                                                            @NotNull OnlineUser requester, boolean timed) {
         final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         if (localPlayer.isPresent()) {
-            return teleport(localPlayer.get(), position).thenApply(Optional::of);
+            return (timed ? timedTeleport(localPlayer.get(), position) : teleport(localPlayer.get(), position))
+                    .thenApply(Optional::of);
         }
         if (plugin.getSettings().crossServer && plugin.getNetworkMessenger() != null) {
             return plugin.getNetworkMessenger().sendMessage(requester,
@@ -183,21 +186,23 @@ public class TeleportManager {
      * @param playerName   the name of the player to teleport
      * @param targetPlayer the name of the target player
      * @param requester    the {@link OnlineUser} performing the teleport action
+     * @param timed        whether the teleport is timed ({@code true}), otherwise instant
      * @return a {@link CompletableFuture} that completes when the teleport is complete with the {@link TeleportResult},
      */
     public CompletableFuture<Optional<TeleportResult>> teleportPlayerToPlayerByName(@NotNull String playerName,
                                                                                     @NotNull String targetPlayer,
-                                                                                    @NotNull OnlineUser requester) {
+                                                                                    @NotNull OnlineUser requester,
+                                                                                    final boolean timed) {
         final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         final Optional<Position> localPositionTarget = localPlayer.map(OnlineUser::getPosition);
         if (localPositionTarget.isPresent()) {
-            return teleportPlayerByName(playerName, localPositionTarget.get(), requester);
+            return teleportPlayerByName(playerName, localPositionTarget.get(), requester, timed);
         }
         return getPlayerPositionByName(requester, targetPlayer).thenApply(position -> {
             if (position.isEmpty()) {
                 return Optional.empty();
             }
-            return teleportPlayerByName(playerName, position.get(), requester).join();
+            return teleportPlayerByName(playerName, position.get(), requester, timed).join();
         });
     }
 

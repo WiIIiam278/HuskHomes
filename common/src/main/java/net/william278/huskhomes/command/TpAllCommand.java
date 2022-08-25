@@ -38,7 +38,7 @@ public class TpAllCommand extends CommandBase {
 
         // Teleport every player
         players.forEach(playerName -> plugin.getTeleportManager()
-                .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser));
+                .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser, false));
 
     }
 

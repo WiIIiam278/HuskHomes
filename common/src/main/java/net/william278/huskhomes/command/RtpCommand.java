@@ -54,6 +54,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         final OnlineUser userToTeleport = target;
+        final boolean isExecutorTeleporting = userToTeleport.uuid.equals(onlineUser.uuid);
         CompletableFuture.runAsync(() -> {
             // Check the user is not still on /rtp cooldown
             final Optional<UserData> userData = plugin.getDatabase().getUserData(onlineUser.uuid).join();
@@ -61,8 +62,9 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                 return;
             }
             final Instant currentTime = Instant.now();
-            if (!userToTeleport.uuid.equals(onlineUser.uuid) &&
-                !currentTime.isAfter(userData.get().rtpCooldown()) && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+            if (!isExecutorTeleporting
+                && !currentTime.isAfter(userData.get().rtpCooldown())
+                && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                 plugin.getLocales().getLocale("error_rtp_cooldown",
                                 Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES)))
                         .ifPresent(onlineUser::sendMessage);
@@ -77,17 +79,17 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                                     .ifPresent(onlineUser::sendMessage);
                             return;
                         }
-                        plugin.getTeleportManager().timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
-                                .thenAccept(result -> {
-                                    if (userToTeleport.uuid.equals(onlineUser.uuid) &&
-                                        result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
-                                        plugin.getDatabase().updateUserData(new UserData(onlineUser,
-                                                userData.get().homeSlots(), userData.get().ignoringTeleports(),
-                                                Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
-                                    }
-                                    plugin.getTeleportManager()
-                                            .finishTeleport(userToTeleport, result, Settings.EconomyAction.RANDOM_TELEPORT);
-                                }).join();
+                        (isExecutorTeleporting ? plugin.getTeleportManager().timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
+                                : plugin.getTeleportManager().teleport(userToTeleport, position.get())).thenAccept(result -> {
+                            if (isExecutorTeleporting &&
+                                result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                                plugin.getDatabase().updateUserData(new UserData(onlineUser,
+                                        userData.get().homeSlots(), userData.get().ignoringTeleports(),
+                                        Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
+                            }
+                            plugin.getTeleportManager().finishTeleport(userToTeleport, result,
+                                    Settings.EconomyAction.RANDOM_TELEPORT);
+                        }).join();
                     }).join();
         });
     }

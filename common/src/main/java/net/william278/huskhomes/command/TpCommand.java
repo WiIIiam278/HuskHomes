@@ -73,7 +73,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             // Teleport players by usernames
             assert targetPosition.targetPlayer != null;
             plugin.getTeleportManager()
-                    .teleportPlayerToPlayerByName(playerToTeleportName, targetPosition.targetPlayer, onlineUser)
+                    .teleportPlayerToPlayerByName(playerToTeleportName, targetPosition.targetPlayer, onlineUser, false)
                     .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
                             result -> {
                                 if (result.successful) {
@@ -90,7 +90,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         } else if (targetPosition.targetType == TeleportCommandTarget.TargetType.POSITION) {
             // Teleport players by specified position
             assert targetPosition.targetPosition != null;
-            plugin.getTeleportManager().teleportPlayerByName(playerToTeleportName, targetPosition.targetPosition, onlineUser)
+            plugin.getTeleportManager().teleportPlayerByName(playerToTeleportName, targetPosition.targetPosition, onlineUser, false)
                     .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
                             result -> {
                                 if (result.successful && !playerToTeleportName.equalsIgnoreCase(onlineUser.username)) {
@@ -160,7 +160,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             assert teleportCommandTarget.targetPlayer != null;
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username
                                                        + " to " + teleportCommandTarget.targetPlayer);
-            plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, teleportCommandTarget.targetPlayer);
+            plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, teleportCommandTarget.targetPlayer, false);
         } else {
             assert teleportCommandTarget.targetPosition != null;
             plugin.getTeleportManager().teleport(playerToTeleport, teleportCommandTarget.targetPosition)

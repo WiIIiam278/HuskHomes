@@ -141,6 +141,12 @@ public class BukkitPlayer extends OnlineUser {
         });
     }
 
+    @Override
+    public boolean isMoving() {
+        // Get the player momentum and return if they are moving
+        return player.getVelocity().length() >= 0.1;
+    }
+
     /**
      * Send a Bukkit plugin message
      */

@@ -98,6 +98,13 @@ public abstract class OnlineUser extends User {
     public abstract CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous);
 
     /**
+     * Returns if a player is moving (i.e. they have momentum)
+     *
+     * @return {@code true} if the player is moving; {@code false} otherwise
+     */
+    public abstract boolean isMoving();
+
+    /**
      * Get the maximum number of homes this user may set
      *
      * @param defaultMaxHomes the default maximum number of homes if the user has not set a custom value

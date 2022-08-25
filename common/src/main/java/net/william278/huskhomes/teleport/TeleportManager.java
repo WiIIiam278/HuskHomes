@@ -247,7 +247,12 @@ public class TeleportManager {
                                                            @NotNull Settings.EconomyAction... economyActions) {
         // Prevent players starting multiple timed teleports
         if (currentlyOnWarmup.contains(onlineUser.uuid)) {
-            return CompletableFuture.supplyAsync(() -> TeleportResult.FAILED_ALREADY_TELEPORTING);
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING);
+        }
+
+        // Cancel if the player is already moving
+        if (onlineUser.isMoving()) {
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING);
         }
 
         final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
@@ -284,6 +289,8 @@ public class TeleportManager {
             case COMPLETED_LOCALLY -> plugin.getLocales().getLocale("teleporting_complete")
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_ALREADY_TELEPORTING -> plugin.getLocales().getLocale("error_already_teleporting")
+                    .ifPresent(onlineUser::sendMessage);
+            case FAILED_MOVING -> plugin.getLocales().getLocale("error_teleport_warmup_stand_still")
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_on_arrival")
                     .ifPresent(onlineUser::sendMessage);
@@ -370,6 +377,7 @@ public class TeleportManager {
      * @return a future, returning when the teleport has finished
      */
     private CompletableFuture<TimedTeleport> processTeleportWarmup(@NotNull final TimedTeleport teleport) {
+
         // Mark the player as warming up
         currentlyOnWarmup.add(teleport.getPlayer().uuid);
 

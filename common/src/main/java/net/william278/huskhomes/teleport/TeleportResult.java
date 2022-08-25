@@ -24,6 +24,11 @@ public enum TeleportResult {
     FAILED_ALREADY_TELEPORTING(false),
 
     /**
+     * Returns if the {@link Teleport} warmup could not be started because they were moving
+     */
+    FAILED_MOVING(false),
+
+    /**
      * Returns if the {@link Teleport} failed because the {@link World} of the
      * target {@link Position} could not be found
      */

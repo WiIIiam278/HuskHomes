@@ -161,6 +161,12 @@ public class TeleportManager {
                     .thenApply(Optional::of);
         }
         if (plugin.getSettings().crossServer && plugin.getNetworkMessenger() != null) {
+            // If the player is not online, cancel
+            if (plugin.getCache().players.stream().noneMatch(player -> player.equalsIgnoreCase(playerName))) {
+                return CompletableFuture.completedFuture(Optional.empty());
+            }
+
+            // Dispatch the message cross-server
             return plugin.getNetworkMessenger().sendMessage(requester,
                             new Message(Message.MessageType.TELEPORT_TO_POSITION_REQUEST,
                                     requester.username,
@@ -193,7 +199,7 @@ public class TeleportManager {
                                                                                     @NotNull String targetPlayer,
                                                                                     @NotNull OnlineUser requester,
                                                                                     final boolean timed) {
-        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
+        final Optional<OnlineUser> localPlayer = !playerName.equals("@s") ? plugin.findPlayer(playerName) : Optional.of(requester);
         final Optional<Position> localPositionTarget = localPlayer.map(OnlineUser::getPosition);
         if (localPositionTarget.isPresent()) {
             return teleportPlayerByName(playerName, localPositionTarget.get(), requester, timed);

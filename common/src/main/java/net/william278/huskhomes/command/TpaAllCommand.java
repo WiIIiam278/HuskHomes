@@ -25,35 +25,33 @@ public class TpaAllCommand extends CommandBase {
             return;
         }
 
-        // Update cached players
-        plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
-
-        // Determine players to send teleport requests to
-        final List<String> players = plugin.getCache().players.stream()
-                .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
-        if (players.isEmpty()) {
-            plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
-            return;
-        }
-
-        // Send a teleport request to every player
-        final AtomicInteger counter = new AtomicInteger(0);
-        final List<CompletableFuture<Void>> sentRequestsFuture = new ArrayList<>();
-        players.forEach(playerName -> sentRequestsFuture.add(plugin.getRequestManager()
-                .sendTeleportRequest(onlineUser, playerName, TeleportRequest.RequestType.TPA_HERE)
-                .thenAccept(sent -> counter.addAndGet(sent ? 1 : 0))));
-
-        // Send a message when all requests have been sent
-        CompletableFuture.allOf(sentRequestsFuture.toArray(new CompletableFuture[0])).thenRun(() -> {
-            if (counter.get() == 0) {
-                plugin.getLocales().getLocale("error_no_players_online")
-                        .ifPresent(onlineUser::sendMessage);
+        // Determine players to teleport and teleport them
+        plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser).thenAccept(playerList -> {
+            final List<String> players = plugin.getCache().players.stream()
+                    .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
+            if (players.isEmpty()) {
+                plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            plugin.getLocales().getLocale("tpaall_request_sent", Integer.toString(counter.get()))
-                    .ifPresent(onlineUser::sendMessage);
-        });
 
+            // Send a teleport request to every player
+            final AtomicInteger counter = new AtomicInteger(0);
+            final List<CompletableFuture<Void>> sentRequestsFuture = new ArrayList<>();
+            players.forEach(playerName -> sentRequestsFuture.add(plugin.getRequestManager()
+                    .sendTeleportRequest(onlineUser, playerName, TeleportRequest.RequestType.TPA_HERE)
+                    .thenAccept(sent -> counter.addAndGet(sent ? 1 : 0))));
+
+            // Send a message when all requests have been sent
+            CompletableFuture.allOf(sentRequestsFuture.toArray(new CompletableFuture[0])).thenRun(() -> {
+                if (counter.get() == 0) {
+                    plugin.getLocales().getLocale("error_no_players_online")
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+                plugin.getLocales().getLocale("tpaall_request_sent", Integer.toString(counter.get()))
+                        .ifPresent(onlineUser::sendMessage);
+            });
+        });
     }
 
 }

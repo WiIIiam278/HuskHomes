@@ -89,16 +89,18 @@ public class Cache {
     }
 
     /**
-     * Updates the cached list of online players
+     * Updates the cached list of online players and returns it
      *
      * @param plugin the implementing plugin
      */
-    public void updateOnlinePlayerList(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
+    public CompletableFuture<List<String>> fetchAndCacheGlobalPlayerList(@NotNull HuskHomes plugin,
+                                                                         @NotNull OnlineUser requester) {
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
-            plugin.getNetworkMessenger().getOnlinePlayerNames(requester).thenAccept(returnedPlayerList -> {
+            return plugin.getNetworkMessenger().getOnlinePlayerNames(requester).thenApply(returnedPlayerList -> {
                 players.clear();
                 players.addAll(List.of(returnedPlayerList));
+                return players;
             });
         } else {
             players.clear();
@@ -107,6 +109,7 @@ public class Cache {
                     .filter(player -> !player.isVanished())
                     .map(onlineUser -> onlineUser.username)
                     .toList());
+            return CompletableFuture.completedFuture(players);
         }
     }
 

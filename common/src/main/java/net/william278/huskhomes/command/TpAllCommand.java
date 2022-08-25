@@ -21,24 +21,23 @@ public class TpAllCommand extends CommandBase {
             return;
         }
 
-        // Update cached players
-        plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
+        // Determine players to teleport and teleport them
+        plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser).thenAccept(fetchedPlayers -> {
+            final List<String> players = fetchedPlayers.stream()
+                    .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
+            if (players.isEmpty()) {
+                plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
+                return;
+            }
 
-        // Determine players to teleport
-        final List<String> players = plugin.getCache().players.stream()
-                .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
-        if (players.isEmpty()) {
-            plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
-            return;
-        }
+            // Send a message
+            plugin.getLocales().getLocale("teleporting_all_players", Integer.toString(players.size()))
+                    .ifPresent(onlineUser::sendMessage);
 
-        // Send a message
-        plugin.getLocales().getLocale("teleporting_all_players", Integer.toString(players.size()))
-                .ifPresent(onlineUser::sendMessage);
-
-        // Teleport every player
-        players.forEach(playerName -> plugin.getTeleportManager()
-                .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser, false));
+            // Teleport every player
+            players.forEach(playerName -> plugin.getTeleportManager()
+                    .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser, false));
+        });
 
     }
 

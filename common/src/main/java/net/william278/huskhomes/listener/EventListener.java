@@ -81,7 +81,7 @@ public class EventListener {
 
                 // Update the player list
                 assert plugin.getNetworkMessenger() != null;
-                plugin.getCache().updateOnlinePlayerList(plugin, onlineUser);
+                plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser);
             }
         }).thenRun(() -> {
             // Get this user's tp-ignore state and set locally
@@ -116,13 +116,14 @@ public class EventListener {
         // Remove this user's home cache
         plugin.getCache().homes.remove(onlineUser.uuid);
 
-        // Update the player list
+        // Update the player list using another online player if possible
         if (plugin.getSettings().crossServer) {
             assert plugin.getNetworkMessenger() != null;
-            plugin.getOnlinePlayers().stream().filter(
-                            onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))
-                    .findAny().ifPresent(updater ->
-                            plugin.getCache().updateOnlinePlayerList(plugin, updater));
+            plugin.getOnlinePlayers()
+                    .stream()
+                    .filter(onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))
+                    .findAny()
+                    .ifPresent(updater -> plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, updater));
         }
 
         // Set offline position

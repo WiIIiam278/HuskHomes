@@ -1,7 +1,7 @@
 teleporting_offline_player: '[Teleporting you to where %1% last logged out…](#00fb9a)'
 teleporting_warmup_start: '[You will be teleported in](#00fb9a) [%1%](#00fb9a bold) [seconds, please stand still…](#00fb9a)'
-teleporting_cancelled_movement: '[Teleportation cancelled; you moved!](#ff7e5e)'
-teleporting_cancelled_damage: '[Teleportation cancelled; you took damage!](#ff7e5e)'
+teleporting_cancelled_movement: '[Teleportation cancelled—you moved!](#ff7e5e)'
+teleporting_cancelled_damage: '[Teleportation cancelled—you took damage!](#ff7e5e)'
 teleporting_complete: '[Teleportation complete!](#00fb9a)'
 teleporting_action_bar_warmup: '[Teleporting in](#00fb9a) [%1%](#00fb9a bold)[…](#00fb9a)'
 teleporting_action_bar_processing: '[Teleporting…](#00fb9a)'
@@ -90,7 +90,7 @@ tpignore_on_notification: '[You are currently ignoring incoming teleport request
 tpignore_toggle_button: '[[🔔 Toggle…]](#ffc43b show_text=&#ffc43b&Click to toggle:\n&7Toggle ignoring/listening to incoming teleport requests run_command=/huskhomes:tpignore)'
 
 
-set_home_used_free_slots: '[You''ve used all of your free set home slots (%1%); setting additional homes will cost %2% each.](gray)'
+set_home_used_free_slots: '[ℹ You have used all %1% of your free home slots. Setting additional homes will cost %2% each.](gray)'
 set_home_success: '[Successfully set a new home called](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Successfully set a new warp called](#00fb9a) [%1%](#00fb9a bold)'
 set_spawn_success: '[Updated the spawn position to your current location.](#00fb9a)'

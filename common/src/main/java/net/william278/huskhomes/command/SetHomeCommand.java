@@ -1,6 +1,5 @@
 package net.william278.huskhomes.command;
 
-import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
@@ -80,6 +79,11 @@ public class SetHomeCommand extends CommandBase {
                 }
                 userDataToUpdate = new UserData(onlineUser, (currentHomes.size() + 1) - freeHomes,
                         fetchedData.get().ignoringTeleports(), fetchedData.get().rtpCooldown());
+            } else {
+                if (currentHomes.size() == freeHomes) {
+                    plugin.getLocales().getLocale("set_home_used_free_slots", Integer.toString(freeHomes))
+                            .ifPresent(onlineUser::sendMessage);
+                }
             }
         }
 

@@ -105,6 +105,13 @@ public abstract class OnlineUser extends User {
     public abstract boolean isMoving();
 
     /**
+     * Returns if the player is tagged as being "vanished" by a /vanish plugin
+     *
+     * @return {@code true} if the player is tagged as being "vanished" by a /vanish plugin; {@code false} otherwise
+     */
+    public abstract boolean isVanished();
+
+    /**
      * Get the maximum number of homes this user may set
      *
      * @param defaultMaxHomes the default maximum number of homes if the user has not set a custom value

@@ -132,7 +132,7 @@ public class RequestManager {
      * @return {@code true} if the request was sent, {@code false} if it was not sent because the recipient is ignoring requests
      */
     public boolean sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
-        if (isIgnoringRequests(recipient)) {
+        if (isIgnoringRequests(recipient) || recipient.isVanished()) {
             request.status = TeleportRequest.RequestStatus.IGNORED;
             return false;
         }

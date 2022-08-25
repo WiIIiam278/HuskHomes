@@ -102,7 +102,11 @@ public class Cache {
             });
         } else {
             players.clear();
-            players.addAll(plugin.getOnlinePlayers().stream().map(onlineUser -> onlineUser.username).toList());
+            players.addAll(plugin.getOnlinePlayers()
+                    .stream()
+                    .filter(player -> !player.isVanished())
+                    .map(onlineUser -> onlineUser.username)
+                    .toList());
         }
     }
 

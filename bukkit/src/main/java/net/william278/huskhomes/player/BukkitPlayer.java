@@ -14,6 +14,7 @@ import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -145,6 +146,16 @@ public class BukkitPlayer extends OnlineUser {
     public boolean isMoving() {
         // Get the player momentum and return if they are moving
         return player.getVelocity().length() >= 0.1;
+    }
+
+    @Override
+    public boolean isVanished() {
+        // Return the value of the player's "vanished" metadata tag if they have it
+        return player.getMetadata("vanished")
+                .stream()
+                .map(MetadataValue::asBoolean)
+                .findFirst()
+                .orElse(false);
     }
 
     /**

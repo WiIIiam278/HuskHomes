@@ -129,7 +129,8 @@ public class RequestManager {
      *
      * @param request   The {@link TeleportRequest} to send
      * @param recipient The online recipient of the request
-     * @return {@code true} if the request was sent, {@code false} if it was not sent because the recipient is ignoring requests
+     * @return {@code true} if the request was sent, {@code false} if it was not sent because the recipient
+     * is ignoring requests or is vanished ({@link OnlineUser#isVanished()})
      */
     public boolean sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
         if (isIgnoringRequests(recipient) || recipient.isVanished()) {

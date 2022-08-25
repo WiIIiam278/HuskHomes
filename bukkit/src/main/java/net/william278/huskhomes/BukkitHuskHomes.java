@@ -160,9 +160,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             } else {
                 settings.economy = false;
             }
-            getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                                                pluginHooks.stream().map(PluginHook::getHookName)
-                                                        .collect(Collectors.joining(", ")));
+            if (pluginHooks.size() > 0) {
+                getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
+                                                    pluginHooks.stream().map(PluginHook::getHookName)
+                                                            .collect(Collectors.joining(", ")));
+            }
 
             // Register events
             getLoggingAdapter().log(Level.INFO, "Registering events...");

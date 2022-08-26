@@ -19,7 +19,7 @@ import java.util.logging.Level;
 //todo Still a WIP, awaiting Pl3xMap v2 API!
 public class Pl3xMapHook extends MapHook {
 
-    protected Pl3xMapHook(@NotNull HuskHomes implementor) {
+    public Pl3xMapHook(@NotNull HuskHomes implementor) {
         super(implementor, "Pl3xMap v2");
     }
 

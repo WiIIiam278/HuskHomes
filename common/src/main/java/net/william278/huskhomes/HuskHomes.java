@@ -1,22 +1,26 @@
 package net.william278.huskhomes;
 
 import net.william278.desertwell.UpdateChecker;
+import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.SavedPositionManager;
+import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RtpEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
-import net.william278.desertwell.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -173,6 +177,19 @@ public interface HuskHomes {
     Set<PluginHook> getPluginHooks();
 
     /**
+     * Gets the {@link MapHook} being used to display public homes and warps on a web map, if there is one, and it is enabled
+     *
+     * @return the {@link MapHook} being used, if there is one, and it is enabled
+     */
+    default Optional<MapHook> getMapHook() {
+        return getSettings().doMapHook ? getPluginHooks()
+                .stream()
+                .filter(pluginHook -> pluginHook instanceof MapHook)
+                .findFirst()
+                .map(hook -> (MapHook) hook) : Optional.empty();
+    }
+
+    /**
      * Perform an economy check on the {@link OnlineUser}; returning {@code true} if it passes the check
      *
      * @param player the player to perform the check on
@@ -203,7 +220,9 @@ public interface HuskHomes {
      * @param action the action to deduct the cost from if needed
      */
     default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
+        if (!getSettings().economy) return;
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
+
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
             final Optional<EconomyHook> hook = getPluginHooks().stream().filter(pluginHook ->
                     pluginHook instanceof EconomyHook).findFirst().map(pluginHook -> (EconomyHook) pluginHook);

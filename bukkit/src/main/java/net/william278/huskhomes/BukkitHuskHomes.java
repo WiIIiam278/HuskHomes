@@ -13,6 +13,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.hook.DynMapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
 import net.william278.huskhomes.listener.BukkitEventListener;
@@ -35,6 +36,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -151,16 +153,27 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             this.rtpEngine = new NormalDistributionEngine(this);
             rtpEngine.initialize();
 
-            // Register plugin hooks
+            // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
-            if (Bukkit.getPluginManager().getPlugin("Vault") != null && settings.economy) {
-                final PluginHook vaultHook = new VaultEconomyHook(this);
-                vaultHook.initialize();
-                pluginHooks.add(vaultHook);
-            } else {
-                settings.economy = false;
+
+            if (settings.economy && Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                pluginHooks.add(new VaultEconomyHook(this));
             }
+
+            if (settings.doMapHook) {
+                switch (settings.mappingPlugin) {
+                    case DYNMAP -> {
+                        final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
+                        if (dynmapPlugin != null) {
+                            pluginHooks.add(new DynMapHook(this, dynmapPlugin));
+                        }
+                    }
+                }
+                getMapHook().ifPresent(mapHook -> savedPositionManager.setMapHook(mapHook));
+            }
+
             if (pluginHooks.size() > 0) {
+                pluginHooks.forEach(PluginHook::initialize);
                 getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
                                                     pluginHooks.stream().map(PluginHook::getHookName)
                                                             .collect(Collectors.joining(", ")));

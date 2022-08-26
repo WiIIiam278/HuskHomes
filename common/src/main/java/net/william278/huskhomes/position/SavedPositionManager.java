@@ -2,9 +2,11 @@ package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.Cache;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -26,6 +28,12 @@ public class SavedPositionManager {
     private final Cache cache;
 
     /**
+     * The {@link MapHook} used to update the map when a home or warp is set
+     */
+    @Nullable
+    private MapHook mapHook;
+
+    /**
      * Whether to allow unicode characters in SavedPosition names
      */
     private final boolean allowUnicodeNames;
@@ -41,6 +49,15 @@ public class SavedPositionManager {
         this.cache = cache;
         this.allowUnicodeNames = allowUnicodeNames;
         this.allowUnicodeDescriptions = allowUnicodeDescriptions;
+    }
+
+    /**
+     * Set the {@link MapHook} used to update the map when a home or warp is set
+     *
+     * @param mapHook the {@link MapHook} to set
+     */
+    public void setMapHook(@NotNull MapHook mapHook) {
+        this.mapHook = mapHook;
     }
 
     /**
@@ -87,6 +104,9 @@ public class SavedPositionManager {
                     });
                     cache.privateHomeLists.remove(home.owner.uuid);
                     cache.publicHomeLists.clear();
+                    if (mapHook != null) {
+                        mapHook.removeHome(home);
+                    }
                     return true;
                 }).join();
             }
@@ -134,6 +154,9 @@ public class SavedPositionManager {
                 }
                 cache.privateHomeLists.remove(home.owner.uuid);
                 cache.publicHomeLists.clear();
+                if (home.isPublic && mapHook != null) {
+                    mapHook.updateHome(home);
+                }
                 return database.setHome(home).thenApply(value ->
                         new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
             });
@@ -174,6 +197,9 @@ public class SavedPositionManager {
         home.yaw = newPosition.yaw;
         home.world = newPosition.world;
         home.server = newPosition.server;
+        if (home.isPublic && mapHook != null) {
+            mapHook.updateHome(home);
+        }
         return database.setHome(home).thenApply(ignored -> true);
     }
 
@@ -209,8 +235,16 @@ public class SavedPositionManager {
             if (isHomePublic) {
                 cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
                 cache.publicHomes.get(home.owner.username).add(home.meta.name);
-            } else if (cache.publicHomes.containsKey(home.owner.username)) {
-                cache.publicHomes.get(home.owner.username).remove(home.meta.name);
+                if (mapHook != null) {
+                    mapHook.updateHome(home);
+                }
+            } else {
+                if (cache.publicHomes.containsKey(home.owner.username)) {
+                    cache.publicHomes.get(home.owner.username).remove(home.meta.name);
+                }
+                if (mapHook != null) {
+                    mapHook.removeHome(home);
+                }
             }
             cache.privateHomeLists.remove(home.owner.uuid);
             cache.publicHomeLists.clear();
@@ -233,6 +267,9 @@ public class SavedPositionManager {
                         final Warp warp = new Warp(position, warpMeta);
                         cache.warps.add(warp.meta.name);
                         cache.warpLists.clear();
+                        if (mapHook != null) {
+                            mapHook.updateWarp(warp);
+                        }
                         return database.setWarp(warp).thenApply(ignored ->
                                 new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                     }
@@ -254,6 +291,9 @@ public class SavedPositionManager {
                 return database.deleteWarp(warp.uuid).thenApply(ignored -> {
                     cache.warps.remove(warp.meta.name);
                     cache.warpLists.clear();
+                    if (mapHook != null) {
+                        mapHook.removeWarp(warp);
+                    }
                     return true;
                 }).join();
             }
@@ -299,6 +339,9 @@ public class SavedPositionManager {
                     cache.warps.add(newWarpMeta.name);
                 }
                 cache.warpLists.clear();
+                if (mapHook != null) {
+                    mapHook.updateWarp(warp);
+                }
                 return database.setWarp(warp).thenApply(value ->
                         new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
             });
@@ -338,6 +381,9 @@ public class SavedPositionManager {
         warp.yaw = newPosition.yaw;
         warp.world = newPosition.world;
         warp.server = newPosition.server;
+        if (mapHook != null) {
+            mapHook.updateWarp(warp);
+        }
         return database.setWarp(warp).thenApply(ignored -> true);
     }
 

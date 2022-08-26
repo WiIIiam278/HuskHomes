@@ -5,7 +5,9 @@ website: 'https://william278.net/'
 main: 'net.william278.huskhomes.BukkitHuskHomes'
 version: '${version}'
 api-version: 1.16
-softdepend: [Vault]
+softdepend:
+  - Vault
+  - dynmap
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'mysql:mysql-connector-java:${mysql_driver_version}'

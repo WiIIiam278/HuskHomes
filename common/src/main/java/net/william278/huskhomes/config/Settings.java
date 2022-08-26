@@ -217,6 +217,20 @@ public class Settings {
         return Optional.empty();
     }
 
+    // Mapping plugins
+    @KeyPath("map_hook.enabled")
+    public boolean doMapHook = false;
+
+    @KeyPath("map_hook.map_plugin")
+    public MappingPlugin mappingPlugin = MappingPlugin.DYNMAP;
+
+    @KeyPath("map_hook.show_public_homes")
+    public boolean publicHomesOnMap = true;
+
+    @KeyPath("map_hook.show_warps")
+    public boolean warpsOnMap = true;
+
+
     // Disabled commands
     @KeyPath("disabled_commands")
     public List<String> disabledCommands = Collections.emptyList();
@@ -317,6 +331,16 @@ public class Settings {
     public enum MessengerType {
         PLUGIN_MESSAGE,
         REDIS
+    }
+
+    /**
+     * Identifies types of supported Map plugins
+     */
+    public enum MappingPlugin {
+        DYNMAP,
+        SQUAREMAP,
+        PL3XMAP,
+        BLUEMAP
     }
 
 }

@@ -13,7 +13,8 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'net.william278:Annotaml:1.0.2'
     compileOnly 'net.william278:DesertWell:1.0'
-    compileOnly "com.github.MilkBowl:VaultAPI:1.7.1"
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+    compileOnly 'us.dynmap:dynmap-api:3.1'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.19:2.117.1'
     testImplementation 'de.themoep:minedown:1.7.1-SNAPSHOT'

@@ -24,7 +24,7 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     javadoc.options.encoding = 'UTF-8'
 
-    compileJava.options.release.set 16
+    compileJava.options.release.set 17
 
     repositories {
         mavenLocal()
@@ -34,6 +34,7 @@ allprojects {
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
+        maven { url 'https://repo.mikeprimm.com/' }
         maven { url 'https://jitpack.io' }
     }
 

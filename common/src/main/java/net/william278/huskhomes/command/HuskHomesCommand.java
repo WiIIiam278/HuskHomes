@@ -3,6 +3,7 @@ package net.william278.huskhomes.command;
 import de.themoep.minedown.MineDown;
 import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -104,6 +106,8 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                                         new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
                                                      + " (Currently running: v" + plugin.getPluginVersion() + "](#00fb9a)"))));
             }
+            case "migrate" -> plugin.getLocales().getLocale("error_console_command_only")
+                    .ifPresent(onlineUser::sendMessage);
         }
     }
 
@@ -140,9 +144,49 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                             () -> plugin.getLoggingAdapter().log(Level.INFO,
                                     "HuskHomes is up to date" +
                                     " (Currently running v" + plugin.getPluginVersion() + ")")));
+            case "migrate" -> {
+                if (args.length < 2) {
+                    plugin.getLoggingAdapter().log(Level.INFO,
+                            "Please choose a migrator, then run \"huskhomes migrate <migrator>\"");
+                    logMigratorsList();
+                    return;
+                }
+                final Optional<Migrator> selectedMigrator = plugin.getMigrators().stream().filter(availableMigrator ->
+                        availableMigrator.getIdentifier().equalsIgnoreCase(args[1])).findFirst();
+                selectedMigrator.ifPresentOrElse(migrator -> {
+                    if (args.length < 3) {
+                        plugin.getLoggingAdapter().log(Level.INFO, migrator.getHelpMenu());
+                        return;
+                    }
+                    switch (args[2]) {
+                        case "start" -> migrator.start().thenAccept(succeeded -> {
+                            if (succeeded) {
+                                plugin.getLoggingAdapter().log(Level.INFO, "Migration completed successfully!");
+                            } else {
+                                plugin.getLoggingAdapter().log(Level.WARNING, "Migration failed!");
+                            }
+                        });
+                        case "set" -> migrator.handleConfigurationCommand(Arrays.copyOfRange(args, 3, args.length));
+                        default -> plugin.getLoggingAdapter().log(Level.INFO,
+                                "Invalid syntax. Console usage: \"huskhomes migrate " + args[1] + " <start/set>");
+                    }
+                }, () -> {
+                    plugin.getLoggingAdapter().log(Level.INFO,
+                            "Please specify a valid migrator.\n" +
+                            "If a migrator is not available, please verify that you meet the prerequisites to use it.");
+                    logMigratorsList();
+                });
+            }
         }
     }
 
+    private void logMigratorsList() {
+        plugin.getLoggingAdapter().log(Level.INFO,
+                "List of available migrators:\nMigrator ID / Migrator Name:\n" +
+                plugin.getMigrators().stream()
+                        .map(migrator -> migrator.getIdentifier() + " - " + migrator.getName())
+                        .collect(Collectors.joining("\n")));
+    }
 
     private void sendAboutMenu(@NotNull OnlineUser onlineUser) {
         if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_ABOUT.node)) {

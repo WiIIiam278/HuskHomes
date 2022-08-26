@@ -21,6 +21,8 @@ import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.messenger.PluginMessenger;
 import net.william278.huskhomes.messenger.RedisMessenger;
+import net.william278.huskhomes.migrator.LegacyMigrator;
+import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Location;
@@ -72,6 +74,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
 
+    private List<Migrator> migrators;
+
     @Nullable
     private NetworkMessenger networkMessenger;
 
@@ -100,11 +104,17 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             this.logger = new BukkitLogger(getLogger());
             this.resourceReader = new BukkitResourceReader(this);
 
+            // Detect if an upgrade is needed
+            final BukkitUpgradeUtil upgradeData = BukkitUpgradeUtil.detect(this);
+
             // Load settings and locales
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
             initialized.set(reload().join());
             if (initialized.get()) {
                 logger.showDebugLogs(settings.debugLogging);
+                if (upgradeData != null) {
+                    upgradeData.upgradeSettings(settings);
+                }
                 getLoggingAdapter().log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
             } else {
                 throw new HuskHomesInitializationException("Failed to load plugin configuration settings and/or locales");
@@ -229,6 +239,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             });
             getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
+            // Prepare migrators
+            this.migrators = new ArrayList<>();
+            this.migrators.add(new LegacyMigrator(this));
+            //todo EssentialsX
+
             // Hook into bStats metrics
             try {
                 new Metrics(this, METRICS_ID);
@@ -243,6 +258,18 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
                                 + " (Currently running v" + getPluginVersion() + ")")));
+            }
+
+            // Perform automatic upgrade if detected
+            if (upgradeData != null) {
+                getLoggingAdapter().log(Level.INFO, "Performing automatic upgrade...");
+                new LegacyMigrator(this, upgradeData).start().thenAccept(result -> {
+                    if (result) {
+                        getLoggingAdapter().log(Level.INFO, "Successfully performed automatic upgrade.");
+                    } else {
+                        getLoggingAdapter().log(Level.WARNING, "Failed to perform automatic upgrade.");
+                    }
+                });
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -346,6 +373,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public @NotNull EventDispatcher getEventDispatcher() {
         return eventDispatcher;
+    }
+
+    @Override
+    public List<Migrator> getMigrators() {
+        return migrators;
     }
 
     @Override

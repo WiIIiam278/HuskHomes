@@ -261,12 +261,12 @@ public class Settings {
      * Represents the names of tables in the database
      */
     public enum TableName {
-        PLAYER_DATA("huskhomes_player_data"),
+        PLAYER_DATA("huskhomes_users"),
         POSITION_DATA("huskhomes_position_data"),
-        SAVED_POSITION_DATA("huskhomes_saved_position_data"),
-        HOME_DATA("huskhomes_home_data"),
-        WARP_DATA("huskhomes_warp_data"),
-        TELEPORT_DATA("huskhomes_teleport_data");
+        SAVED_POSITION_DATA("huskhomes_saved_positions"),
+        HOME_DATA("huskhomes_homes"),
+        WARP_DATA("huskhomes_warps"),
+        TELEPORT_DATA("huskhomes_teleports");
 
         private final String defaultName;
 

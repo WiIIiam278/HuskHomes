@@ -12,6 +12,7 @@ import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.SavedPositionManager;
@@ -154,6 +155,13 @@ public interface HuskHomes {
      */
     @NotNull
     EventDispatcher getEventDispatcher();
+
+    /**
+     * The list of available {@link Migrator}s
+     *
+     * @return the list of available {@link Migrator}
+     */
+    List<Migrator> getMigrators();
 
     /**
      * The {@link Spawn} location of this server

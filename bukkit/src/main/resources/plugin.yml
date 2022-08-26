@@ -78,4 +78,4 @@ commands:
   back:
     usage: /back
   huskhomes:
-    usage: /huskhomes [about|help|reload|update]
+    usage: /huskhomes [about|help|reload|update|migrate]

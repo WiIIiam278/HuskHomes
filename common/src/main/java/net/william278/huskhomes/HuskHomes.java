@@ -7,6 +7,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
@@ -16,7 +17,7 @@ import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
-import net.william278.huskhomes.random.RtpEngine;
+import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
@@ -132,12 +133,27 @@ public interface HuskHomes {
     NetworkMessenger getNetworkMessenger();
 
     /**
-     * The {@link RtpEngine} that manages random teleports
+     * The {@link RandomTeleportEngine} that manages random teleports
      *
-     * @return the {@link RtpEngine} implementation
+     * @return the {@link RandomTeleportEngine} implementation
      */
     @NotNull
-    RtpEngine getRtpEngine();
+    RandomTeleportEngine getRandomTeleportEngine();
+
+    /**
+     * Set the {@link RandomTeleportEngine} to use and initialize it, calling {@link RandomTeleportEngine#initialize()}
+     *
+     * @param randomTeleportEngine the {@link RandomTeleportEngine} to use
+     */
+    void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine);
+
+    /**
+     * The {@link EventDispatcher} that dispatches API events
+     *
+     * @return the {@link EventDispatcher} implementation
+     */
+    @NotNull
+    EventDispatcher getEventDispatcher();
 
     /**
      * The {@link Spawn} location of this server

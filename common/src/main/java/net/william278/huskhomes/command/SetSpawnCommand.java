@@ -19,25 +19,31 @@ public class SetSpawnCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture.supplyAsync(() -> {
             if (args.length > 0) {
                 plugin.getLocales().getLocale("error_invalid_syntax", "/setspawn")
                         .ifPresent(onlineUser::sendMessage);
-                return;
+                return false;
             }
             final Position position = onlineUser.getPosition();
             if (plugin.getSettings().crossServer && plugin.getSettings().globalSpawn) {
                 final Optional<Warp> warp = plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).join();
                 if (warp.isPresent()) {
-                    plugin.getSavedPositionManager().updateWarpPosition(warp.get(), position).join();
+                    return plugin.getSavedPositionManager().updateWarpPosition(warp.get(), position).join();
                 } else {
-                    plugin.getSavedPositionManager().setWarp(new PositionMeta(plugin.getSettings().globalSpawnName,
+                    return plugin.getSavedPositionManager().setWarp(new PositionMeta(plugin.getSettings().globalSpawnName,
                             plugin.getLocales().getRawLocale("spawn_warp_default_description")
-                                    .orElse("")), position).join();
+                                    .orElse("")), position).join().resultType().successful;
                 }
             } else {
                 plugin.setServerSpawn(position);
+                return true;
             }
-        }).thenRun(() -> plugin.getLocales().getLocale("set_spawn_success").ifPresent(onlineUser::sendMessage));
+        }).thenAccept(succeeded -> {
+            if (succeeded) {
+                plugin.getLocales().getLocale("set_spawn_success")
+                        .ifPresent(onlineUser::sendMessage);
+            }
+        });
     }
 }

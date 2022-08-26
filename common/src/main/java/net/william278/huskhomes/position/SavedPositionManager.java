@@ -2,6 +2,7 @@ package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.Cache;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
@@ -28,6 +29,11 @@ public class SavedPositionManager {
     private final Cache cache;
 
     /**
+     * The {@link EventDispatcher} used to dispatch save and delete events
+     */
+    private final EventDispatcher eventDispatcher;
+
+    /**
      * The {@link MapHook} used to update the map when a home or warp is set
      */
     @Nullable
@@ -43,10 +49,11 @@ public class SavedPositionManager {
      */
     private final boolean allowUnicodeDescriptions;
 
-    public SavedPositionManager(@NotNull Database database, @NotNull Cache cache,
+    public SavedPositionManager(@NotNull Database database, @NotNull Cache cache, @NotNull EventDispatcher eventDispatcher,
                                 boolean allowUnicodeNames, boolean allowUnicodeDescriptions) {
         this.database = database;
         this.cache = cache;
+        this.eventDispatcher = eventDispatcher;
         this.allowUnicodeNames = allowUnicodeNames;
         this.allowUnicodeDescriptions = allowUnicodeDescriptions;
     }
@@ -75,11 +82,16 @@ public class SavedPositionManager {
                 validateMeta(homeMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalHome.isEmpty()) {
                         final Home home = new Home(position, homeMeta, homeOwner);
-                        cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
-                        cache.homes.get(home.owner.uuid).add(home.meta.name);
-                        cache.privateHomeLists.remove(home.owner.uuid);
-                        return database.setHome(home).thenApply(value ->
-                                new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
+                        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+                            if (event.isCancelled()) {
+                                return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
+                            }
+                            cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
+                            cache.homes.get(home.owner.uuid).add(home.meta.name);
+                            cache.privateHomeLists.remove(home.owner.uuid);
+                            return database.setHome(home).thenApply(value ->
+                                    new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
+                        }).join();
                     }
                     return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
                 }));
@@ -96,18 +108,23 @@ public class SavedPositionManager {
     public CompletableFuture<Boolean> deleteHome(@NotNull User homeOwner, @NotNull String homeName) {
         return database.getHome(homeOwner, homeName).thenApply(optionalHome -> {
             if (optionalHome.isPresent()) {
-                final Home home = optionalHome.get();
-                return database.deleteHome(home.uuid).thenApply(ignored -> {
-                    cache.homes.computeIfPresent(home.owner.uuid, (ownerUUID, homeNames) -> {
-                        homeNames.remove(home.meta.name);
-                        return homeNames;
-                    });
-                    cache.privateHomeLists.remove(home.owner.uuid);
-                    cache.publicHomeLists.clear();
-                    if (mapHook != null) {
-                        mapHook.removeHome(home);
+                return eventDispatcher.dispatchHomeDeleteEvent(optionalHome.get()).thenApply(event -> {
+                    if (event.isCancelled()) {
+                        return false;
                     }
-                    return true;
+                    final Home home = event.getHome();
+                    return database.deleteHome(home.uuid).thenApply(ignored -> {
+                        cache.homes.computeIfPresent(home.owner.uuid, (ownerUUID, homeNames) -> {
+                            homeNames.remove(home.meta.name);
+                            return homeNames;
+                        });
+                        cache.privateHomeLists.remove(home.owner.uuid);
+                        cache.publicHomeLists.clear();
+                        if (mapHook != null) {
+                            mapHook.removeHome(home);
+                        }
+                        return true;
+                    }).join();
                 }).join();
             }
             return false;
@@ -148,17 +165,22 @@ public class SavedPositionManager {
             return validateMeta(newHomeMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 home.meta = newHomeMeta;
-                if (!existingHomeName.equals(newHomeMeta.name)) {
-                    cache.homes.get(home.owner.uuid).remove(existingHomeName);
-                    cache.homes.get(home.owner.uuid).add(newHomeMeta.name);
-                }
-                cache.privateHomeLists.remove(home.owner.uuid);
-                cache.publicHomeLists.clear();
-                if (home.isPublic && mapHook != null) {
-                    mapHook.updateHome(home);
-                }
-                return database.setHome(home).thenApply(value ->
-                        new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
+                return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+                    if (event.isCancelled()) {
+                        return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
+                    }
+                    if (!existingHomeName.equals(newHomeMeta.name)) {
+                        cache.homes.get(home.owner.uuid).remove(existingHomeName);
+                        cache.homes.get(home.owner.uuid).add(newHomeMeta.name);
+                    }
+                    cache.privateHomeLists.remove(home.owner.uuid);
+                    cache.publicHomeLists.clear();
+                    if (home.isPublic && mapHook != null) {
+                        mapHook.updateHome(home);
+                    }
+                    return database.setHome(home).thenApply(value ->
+                            new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
+                }).join();
             });
         });
     }
@@ -197,10 +219,15 @@ public class SavedPositionManager {
         home.yaw = newPosition.yaw;
         home.world = newPosition.world;
         home.server = newPosition.server;
-        if (home.isPublic && mapHook != null) {
-            mapHook.updateHome(home);
-        }
-        return database.setHome(home).thenApply(ignored -> true);
+        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+            if (event.isCancelled()) {
+                return false;
+            }
+            if (home.isPublic && mapHook != null) {
+                mapHook.updateHome(home);
+            }
+            return database.setHome(home).thenApply(ignored -> true).join();
+        });
     }
 
     /**
@@ -231,24 +258,30 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateHomePrivacy(@NotNull Home home, final boolean isHomePublic) {
         home.isPublic = isHomePublic;
-        return database.setHome(home).thenApply(ignored -> {
-            if (isHomePublic) {
-                cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
-                cache.publicHomes.get(home.owner.username).add(home.meta.name);
-                if (mapHook != null) {
-                    mapHook.updateHome(home);
-                }
-            } else {
-                if (cache.publicHomes.containsKey(home.owner.username)) {
-                    cache.publicHomes.get(home.owner.username).remove(home.meta.name);
-                }
-                if (mapHook != null) {
-                    mapHook.removeHome(home);
-                }
+        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+            if (event.isCancelled()) {
+                return false;
             }
-            cache.privateHomeLists.remove(home.owner.uuid);
-            cache.publicHomeLists.clear();
-            return true;
+
+            return database.setHome(home).thenApply(ignored -> {
+                if (isHomePublic) {
+                    cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
+                    cache.publicHomes.get(home.owner.username).add(home.meta.name);
+                    if (mapHook != null) {
+                        mapHook.updateHome(home);
+                    }
+                } else {
+                    if (cache.publicHomes.containsKey(home.owner.username)) {
+                        cache.publicHomes.get(home.owner.username).remove(home.meta.name);
+                    }
+                    if (mapHook != null) {
+                        mapHook.removeHome(home);
+                    }
+                }
+                cache.privateHomeLists.remove(home.owner.uuid);
+                cache.publicHomeLists.clear();
+                return true;
+            }).join();
         });
     }
 
@@ -265,13 +298,18 @@ public class SavedPositionManager {
                 validateMeta(warpMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalWarp.isEmpty()) {
                         final Warp warp = new Warp(position, warpMeta);
-                        cache.warps.add(warp.meta.name);
-                        cache.warpLists.clear();
-                        if (mapHook != null) {
-                            mapHook.updateWarp(warp);
-                        }
-                        return database.setWarp(warp).thenApply(ignored ->
-                                new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
+                        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+                            if (event.isCancelled()) {
+                                return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
+                            }
+                            cache.warps.add(warp.meta.name);
+                            cache.warpLists.clear();
+                            if (mapHook != null) {
+                                mapHook.updateWarp(warp);
+                            }
+                            return database.setWarp(warp).thenApply(ignored ->
+                                    new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
+                        }).join();
                     }
                     return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
                 }));
@@ -287,14 +325,19 @@ public class SavedPositionManager {
     public CompletableFuture<Boolean> deleteWarp(@NotNull String warpName) {
         return database.getWarp(warpName).thenApply(optionalWarp -> {
             if (optionalWarp.isPresent()) {
-                final Warp warp = optionalWarp.get();
-                return database.deleteWarp(warp.uuid).thenApply(ignored -> {
-                    cache.warps.remove(warp.meta.name);
-                    cache.warpLists.clear();
-                    if (mapHook != null) {
-                        mapHook.removeWarp(warp);
+                return eventDispatcher.dispatchWarpDeleteEvent(optionalWarp.get()).thenApply(event -> {
+                    if (event.isCancelled()) {
+                        return false;
                     }
-                    return true;
+                    final Warp warp = event.getWarp();
+                    return database.deleteWarp(warp.uuid).thenApply(ignored -> {
+                        cache.warps.remove(warp.meta.name);
+                        cache.warpLists.clear();
+                        if (mapHook != null) {
+                            mapHook.removeWarp(warp);
+                        }
+                        return true;
+                    }).join();
                 }).join();
             }
             return false;
@@ -334,16 +377,21 @@ public class SavedPositionManager {
             return validateMeta(newWarpMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 warp.meta = newWarpMeta;
-                if (!existingWarpName.equals(newWarpMeta.name)) {
-                    cache.warps.remove(existingWarpName);
-                    cache.warps.add(newWarpMeta.name);
-                }
-                cache.warpLists.clear();
-                if (mapHook != null) {
-                    mapHook.updateWarp(warp);
-                }
-                return database.setWarp(warp).thenApply(value ->
-                        new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
+                return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+                    if (event.isCancelled()) {
+                        return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
+                    }
+                    if (!existingWarpName.equals(newWarpMeta.name)) {
+                        cache.warps.remove(existingWarpName);
+                        cache.warps.add(newWarpMeta.name);
+                    }
+                    cache.warpLists.clear();
+                    if (mapHook != null) {
+                        mapHook.updateWarp(warp);
+                    }
+                    return database.setWarp(warp).thenApply(value ->
+                            new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
+                }).join();
             });
         });
     }
@@ -381,10 +429,15 @@ public class SavedPositionManager {
         warp.yaw = newPosition.yaw;
         warp.world = newPosition.world;
         warp.server = newPosition.server;
-        if (mapHook != null) {
-            mapHook.updateWarp(warp);
-        }
-        return database.setWarp(warp).thenApply(ignored -> true);
+        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+            if (event.isCancelled()) {
+                return false;
+            }
+            if (mapHook != null) {
+                mapHook.updateWarp(warp);
+            }
+            return database.setWarp(warp).thenApply(ignored -> true).join();
+        });
     }
 
     /**
@@ -463,6 +516,11 @@ public class SavedPositionManager {
              * The position was not set or updated; the description uses illegal characters
              */
             FAILED_DESCRIPTION_CHARACTERS(false),
+
+            /**
+             * The position was not set or updated; the save event was cancelled by a plugin
+             */
+            FAILED_EVENT_CANCELLED(false),
 
             /**
              * The position was not set or updated; an exception occurred

@@ -72,7 +72,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
 
             // Get a random position and teleport
-            plugin.getRtpEngine().getRandomPosition(userPosition)
+            plugin.getRandomTeleportEngine().getRandomPosition(userPosition)
                     .thenAccept(position -> {
                         if (position.isEmpty()) {
                             plugin.getLocales().getLocale("error_rtp_randomization_timeout")
@@ -107,7 +107,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
-        plugin.getRtpEngine().getRandomPosition(foundUser.get().getPosition()).thenAccept(position -> {
+        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition()).thenAccept(position -> {
             if (position.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
                 return;

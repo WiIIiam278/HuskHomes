@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * An engine for random teleportation, that generates and caches random points
  */
-public abstract class RtpEngine {
+public abstract class RandomTeleportEngine {
 
     @NotNull
     protected final String name;
@@ -27,7 +27,7 @@ public abstract class RtpEngine {
     @NotNull
     private final Map<World, Queue<Location>> cachedRandomLocations;
 
-    protected RtpEngine(@NotNull HuskHomes implementor, @NotNull String name) {
+    protected RandomTeleportEngine(@NotNull HuskHomes implementor, @NotNull String name) {
         this.name = name;
         this.radius = implementor.getSettings().rtpRadius;
         this.spawnRadius = implementor.getSettings().rtpSpawnRadius;
@@ -40,7 +40,7 @@ public abstract class RtpEngine {
     }
 
     //todo better API for this?
-    protected RtpEngine(@NotNull String name, int radius, int spawnRadius, int cacheSize, @NotNull List<World> worlds) {
+    protected RandomTeleportEngine(@NotNull String name, int radius, int spawnRadius, int cacheSize, @NotNull List<World> worlds) {
         this.name = name;
         this.radius = radius;
         this.spawnRadius = spawnRadius;

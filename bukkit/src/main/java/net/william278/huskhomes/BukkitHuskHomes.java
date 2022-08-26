@@ -13,6 +13,8 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.event.BukkitEventDispatcher;
+import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
@@ -26,7 +28,7 @@ import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
-import net.william278.huskhomes.random.RtpEngine;
+import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
@@ -64,8 +66,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private RequestManager requestManager;
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
-    private RtpEngine rtpEngine;
+    private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
+    private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
 
@@ -143,13 +146,15 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Prepare the request manager
             this.requestManager = new RequestManager(this);
 
+            // Prepare the event dispatcher
+            this.eventDispatcher = new BukkitEventDispatcher(this);
+
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(database, cache,
+            this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher,
                     settings.allowUnicodeNames, settings.allowUnicodeDescriptions);
 
             // Initialize the RTP engine with the default normal distribution engine
-            this.rtpEngine = new NormalDistributionEngine(this);
-            rtpEngine.initialize();
+            setRandomTeleportEngine(new NormalDistributionEngine(this));
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
@@ -328,8 +333,19 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public @NotNull RtpEngine getRtpEngine() {
-        return rtpEngine;
+    public @NotNull RandomTeleportEngine getRandomTeleportEngine() {
+        return randomTeleportEngine;
+    }
+
+    @Override
+    public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
+        this.randomTeleportEngine = randomTeleportEngine;
+        this.randomTeleportEngine.initialize();
+    }
+
+    @Override
+    public @NotNull EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 
     @Override

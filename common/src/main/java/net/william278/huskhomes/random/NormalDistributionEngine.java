@@ -9,7 +9,10 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public class NormalDistributionEngine extends RtpEngine {
+/**
+ * A random teleport engine that uses a Gaussian normal distribution to generate random positions.
+ */
+public class NormalDistributionEngine extends RandomTeleportEngine {
 
     private final HuskHomes plugin;
     private final float mean;

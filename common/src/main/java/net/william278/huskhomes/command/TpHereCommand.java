@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class TpHereCommand extends CommandBase implements TabCompletable {
@@ -18,25 +19,27 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length != 1) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tphere <player>")
-                    .ifPresent(onlineUser::sendMessage);
-            return;
-        }
-        final String targetPlayerName = args[0];
-        plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser, false)
-                .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
-                        result -> {
-                            if (result.successful) {
-                                plugin.getLocales().getLocale("teleporting_other_complete",
-                                                targetPlayerName, onlineUser.username)
-                                        .ifPresent(onlineUser::sendMessage);
-                                return;
-                            }
-                            plugin.getTeleportManager().finishTeleport(onlineUser, result);
-                        },
-                        () -> plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
-                                .ifPresent(onlineUser::sendMessage)));
+        CompletableFuture.runAsync(() -> {
+            if (args.length != 1) {
+                plugin.getLocales().getLocale("error_invalid_syntax", "/tphere <player>")
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
+            final String targetPlayerName = args[0];
+            plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser, false)
+                    .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
+                            result -> {
+                                if (result.successful) {
+                                    plugin.getLocales().getLocale("teleporting_other_complete",
+                                                    targetPlayerName, onlineUser.username)
+                                            .ifPresent(onlineUser::sendMessage);
+                                    return;
+                                }
+                                plugin.getTeleportManager().finishTeleport(onlineUser, result);
+                            },
+                            () -> plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
+                                    .ifPresent(onlineUser::sendMessage)));
+        });
     }
 
     @Override

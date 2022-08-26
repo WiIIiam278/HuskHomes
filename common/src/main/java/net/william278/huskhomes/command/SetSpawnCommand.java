@@ -19,13 +19,12 @@ public class SetSpawnCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length > 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/setspawn")
-                    .ifPresent(onlineUser::sendMessage);
-            return;
-        }
-
         CompletableFuture.runAsync(() -> {
+            if (args.length > 0) {
+                plugin.getLocales().getLocale("error_invalid_syntax", "/setspawn")
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
             final Position position = onlineUser.getPosition();
             if (plugin.getSettings().crossServer && plugin.getSettings().globalSpawn) {
                 final Optional<Warp> warp = plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).join();

@@ -338,8 +338,6 @@ public class Settings {
      */
     public enum MappingPlugin {
         DYNMAP,
-        SQUAREMAP,
-        PL3XMAP,
         BLUEMAP
     }
 

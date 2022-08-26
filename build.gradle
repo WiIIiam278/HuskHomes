@@ -48,8 +48,10 @@ allprojects {
     }
 
     processResources {
-        filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
-                tokens: rootProject.ext.properties
+        filesNotMatching('**/*.png') {
+            filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
+                    tokens: rootProject.ext.properties
+        }
     }
 }
 

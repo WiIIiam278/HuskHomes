@@ -12,8 +12,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class MapHook extends PluginHook {
 
-    protected static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes:public_homes";
-    protected static final String WARPS_MARKER_SET_ID = "huskhomes:warps";
+    protected static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes-public-homes";
+    protected static final String WARPS_MARKER_SET_ID = "huskhomes-warps";
 
     protected MapHook(@NotNull HuskHomes implementor, @NotNull String hookName) {
         super(implementor, hookName);
@@ -49,27 +49,29 @@ public abstract class MapHook extends PluginHook {
      *
      * @param home the home to update
      */
-    public abstract void updateHome(@NotNull Home home);
+    @SuppressWarnings("UnusedReturnValue")
+    public abstract CompletableFuture<Void> updateHome(@NotNull Home home);
 
     /**
      * Removes a home from the map
      *
      * @param home the home to remove
      */
-    public abstract void removeHome(@NotNull Home home);
+    public abstract CompletableFuture<Void> removeHome(@NotNull Home home);
 
     /**
      * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't
      *
      * @param warp the warp to update
      */
-    public abstract void updateWarp(@NotNull Warp warp);
+    @SuppressWarnings("UnusedReturnValue")
+    public abstract CompletableFuture<Void> updateWarp(@NotNull Warp warp);
 
     /**
      * Removes a warp from the map
      *
      * @param warp the warp to remove
      */
-    public abstract void removeWarp(@NotNull Warp warp);
+    public abstract CompletableFuture<Void> removeWarp(@NotNull Warp warp);
 
 }

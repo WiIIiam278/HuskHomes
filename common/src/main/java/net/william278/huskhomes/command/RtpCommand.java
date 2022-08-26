@@ -24,14 +24,14 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         OnlineUser target = onlineUser;
         if (args.length == 1) {
+            if (!onlineUser.hasPermission(Permission.COMMAND_RTP_OTHER.node)) {
+                plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
+                return;
+            }
             Optional<OnlineUser> foundUser = plugin.findPlayer(args[0]);
             if (foundUser.isEmpty()) {
                 plugin.getLocales().getLocale("error_player_not_found", args[0])
                         .ifPresent(onlineUser::sendMessage);
-                return;
-            }
-            if (!onlineUser.hasPermission(Permission.COMMAND_RTP_OTHER.node)) {
-                plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
                 return;
             }
             target = foundUser.get();

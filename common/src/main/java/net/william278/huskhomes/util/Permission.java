@@ -132,7 +132,7 @@ public enum Permission {
      * Lets the user randomly teleport in the world they are in ({@code /rtp})
      */
     COMMAND_RTP("huskhomes.command.rtp", DefaultAccess.EVERYONE),
-    COMMAND_RTP_OTHER("huskhomes.command.rtp.other", DefaultAccess.EVERYONE),
+    COMMAND_RTP_OTHER("huskhomes.command.rtp.other", DefaultAccess.OPERATORS),
     /**
      * Lets the user teleport to the defined spawn position ({@code /spawn})
      */

@@ -199,7 +199,7 @@ public class TeleportManager {
                                                                                     @NotNull String targetPlayer,
                                                                                     @NotNull OnlineUser requester,
                                                                                     final boolean timed) {
-        final Optional<OnlineUser> localPlayer = !playerName.equals("@s") ? plugin.findPlayer(playerName) : Optional.of(requester);
+        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
         final Optional<Position> localPositionTarget = localPlayer.map(OnlineUser::getPosition);
         if (localPositionTarget.isPresent()) {
             return teleportPlayerByName(playerName, localPositionTarget.get(), requester, timed);

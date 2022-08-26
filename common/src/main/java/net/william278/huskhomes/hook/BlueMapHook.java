@@ -70,7 +70,7 @@ public class BlueMapHook extends MapHook {
                         .computeIfPresent(home.world.uuid + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
                             markerSet.getMarkers().put(home.uuid.toString(),
                                     POIMarker.toBuilder()
-                                            .label(home.meta.name)
+                                            .label("/phome" + home.owner.username + "." + home.meta.name)
                                             .position((int) home.x, (int) home.y, (int) home.z)
                                             .icon(publicHomeMarkerIconPath, Vector2i.from(25, 25))
                                             .maxDistance(5000)
@@ -99,7 +99,7 @@ public class BlueMapHook extends MapHook {
                         .computeIfPresent(warp.world.uuid + ":" + WARPS_MARKER_SET_ID, (s, markerSet) -> {
                             markerSet.getMarkers().put(warp.uuid.toString(),
                                     POIMarker.toBuilder()
-                                            .label(warp.meta.name)
+                                            .label("/warp " + warp.meta.name)
                                             .position((int) warp.x, (int) warp.y, (int) warp.z)
                                             .icon(warpMarkerIconPath, Vector2i.from(25, 25))
                                             .maxDistance(10000)

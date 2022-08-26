@@ -13,10 +13,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
-import net.william278.huskhomes.hook.BlueMapHook;
-import net.william278.huskhomes.hook.DynMapHook;
-import net.william278.huskhomes.hook.PluginHook;
-import net.william278.huskhomes.hook.VaultEconomyHook;
+import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.messenger.NetworkMessenger;
@@ -156,11 +153,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
-
             if (settings.economy && Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 pluginHooks.add(new VaultEconomyHook(this));
             }
-
             if (settings.doMapHook) {
                 switch (settings.mappingPlugin) {
                     case DYNMAP -> {
@@ -176,6 +171,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     }
                 }
                 getMapHook().ifPresent(mapHook -> savedPositionManager.setMapHook(mapHook));
+            }
+            if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
+                pluginHooks.add(new PlanHook(this));
             }
 
             if (pluginHooks.size() > 0) {

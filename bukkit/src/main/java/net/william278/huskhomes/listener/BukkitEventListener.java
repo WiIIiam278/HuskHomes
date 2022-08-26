@@ -62,6 +62,8 @@ public class BukkitEventListener extends EventListener implements Listener {
         });
     }
 
+    //todo When defining paper-plugin.yml files gets merged, use the PlayerSetSpawnEvent in the paper module
+    // (https://jd.papermc.io/paper/1.19/com/destroystokyo/paper/event/player/PlayerSetSpawnEvent.html)
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
         if (!(plugin.getSettings().crossServer && plugin.getSettings().globalRespawning)) return;

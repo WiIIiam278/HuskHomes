@@ -13,6 +13,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.hook.BlueMapHook;
 import net.william278.huskhomes.hook.DynMapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
@@ -166,6 +167,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                         final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
                         if (dynmapPlugin != null) {
                             pluginHooks.add(new DynMapHook(this, dynmapPlugin));
+                        }
+                    }
+                    case BLUEMAP -> {
+                        if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
+                            pluginHooks.add(new BlueMapHook(this));
                         }
                     }
                 }

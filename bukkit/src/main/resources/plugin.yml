@@ -8,6 +8,7 @@ api-version: 1.16
 softdepend:
   - Vault
   - dynmap
+  - BlueMap
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'mysql:mysql-connector-java:${mysql_driver_version}'

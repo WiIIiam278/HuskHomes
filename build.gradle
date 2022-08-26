@@ -48,7 +48,7 @@ allprojects {
     }
 
     processResources {
-        filesNotMatching('**/*.png') {
+        filesNotMatching(['**/*.png', '**/*.svg']) {
             filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
                     tokens: rootProject.ext.properties
         }

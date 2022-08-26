@@ -24,9 +24,6 @@ import java.util.logging.Level;
  */
 public class DynMapHook extends MapHook {
 
-    private static final String WARP_MARKER_IMAGE_NAME = "warp";
-    private static final String PUBLIC_HOME_MARKER_IMAGE_NAME = "public-home";
-
     @NotNull
     private final DynmapAPI dynmapAPI;
 
@@ -45,7 +42,7 @@ public class DynMapHook extends MapHook {
                         .findFirst()
                         .ifPresent(markerIcon -> markerAPI.getMarkerIcons().remove(markerIcon));
                 markerAPI.createMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME, "Public Home",
-                        ((BukkitHuskHomes) plugin).getResource("markers/" + PUBLIC_HOME_MARKER_IMAGE_NAME + ".png"));
+                        ((BukkitHuskHomes) plugin).getResource("markers/16x/" + PUBLIC_HOME_MARKER_IMAGE_NAME + ".png"));
                 markerAPI.createMarkerSet(PUBLIC_HOMES_MARKER_SET_ID,
                         "Public Homes", dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             }
@@ -55,7 +52,7 @@ public class DynMapHook extends MapHook {
                         .findFirst()
                         .ifPresent(markerIcon -> markerAPI.getMarkerIcons().remove(markerIcon));
                 markerAPI.createMarkerIcon(WARP_MARKER_IMAGE_NAME, "Warp",
-                        ((BukkitHuskHomes) plugin).getResource("markers/" + WARP_MARKER_IMAGE_NAME + ".png"));
+                        ((BukkitHuskHomes) plugin).getResource("markers/16x/" + WARP_MARKER_IMAGE_NAME + ".png"));
                 markerAPI.createMarkerSet(WARPS_MARKER_SET_ID,
                         "Warps", dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             }

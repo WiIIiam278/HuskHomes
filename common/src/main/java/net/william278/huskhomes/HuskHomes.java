@@ -24,6 +24,7 @@ import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -250,6 +251,15 @@ public interface HuskHomes {
      */
     @NotNull
     Server getServer(@NotNull OnlineUser requester);
+
+    /**
+     * Returns a resource read from the plugin resources folder
+     *
+     * @param name the name of the resource
+     * @return the resource read as an {@link InputStream}
+     */
+    @Nullable
+    InputStream getResource(@NotNull String name);
 
     /**
      * Returns a list of worlds on the server

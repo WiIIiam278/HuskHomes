@@ -14,6 +14,8 @@ public abstract class MapHook extends PluginHook {
 
     protected static final String PUBLIC_HOMES_MARKER_SET_ID = "huskhomes-public-homes";
     protected static final String WARPS_MARKER_SET_ID = "huskhomes-warps";
+    protected static final String WARP_MARKER_IMAGE_NAME = "warp";
+    protected static final String PUBLIC_HOME_MARKER_IMAGE_NAME = "public-home";
 
     protected MapHook(@NotNull HuskHomes implementor, @NotNull String hookName) {
         super(implementor, hookName);

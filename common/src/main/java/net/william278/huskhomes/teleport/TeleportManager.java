@@ -195,15 +195,8 @@ public class TeleportManager {
      * @param timed        whether the teleport is timed ({@code true}), otherwise instant
      * @return a {@link CompletableFuture} that completes when the teleport is complete with the {@link TeleportResult},
      */
-    public CompletableFuture<Optional<TeleportResult>> teleportPlayerToPlayerByName(@NotNull String playerName,
-                                                                                    @NotNull String targetPlayer,
-                                                                                    @NotNull OnlineUser requester,
-                                                                                    final boolean timed) {
-        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
-        final Optional<Position> localPositionTarget = localPlayer.map(OnlineUser::getPosition);
-        if (localPositionTarget.isPresent()) {
-            return teleportPlayerByName(playerName, localPositionTarget.get(), requester, timed);
-        }
+    public CompletableFuture<Optional<TeleportResult>> teleportNamedPlayers(@NotNull String playerName, @NotNull String targetPlayer,
+                                                                            @NotNull OnlineUser requester, final boolean timed) {
         return getPlayerPositionByName(requester, targetPlayer).thenApply(position -> {
             if (position.isEmpty()) {
                 return Optional.empty();

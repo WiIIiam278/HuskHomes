@@ -75,12 +75,12 @@ public abstract class NetworkMessenger {
      */
     public final CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String playerName) {
         return getOnlinePlayerNames(requester).thenApply(networkedPlayers ->
-                Optional.ofNullable(Arrays.stream(networkedPlayers)
+                Arrays.stream(networkedPlayers)
                         .filter(user -> user.equalsIgnoreCase(playerName))
                         .findFirst()
-                        .orElse(Arrays.stream(networkedPlayers)
+                        .or(() -> Arrays.stream(networkedPlayers)
                                 .filter(user -> user.toLowerCase().startsWith(playerName))
-                                .findFirst().orElse(null))));
+                                .findFirst()));
     }
 
     /**

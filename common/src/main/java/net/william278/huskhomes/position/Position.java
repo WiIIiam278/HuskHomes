@@ -33,24 +33,24 @@ public class Position extends Location {
     /**
      * Parses the position from a set of values
      *
-     * @param values The values to parse
+     * @param args       The values to parse
+     * @param relativeTo The {@link Position} to use as a reference for relative coordinates
      * @return The position if it could be parsed, otherwise an empty optional
      */
-    public static Optional<Position> parse(@NotNull Position currentPosition, @NotNull String... values) {
+    public static Optional<Position> parse(@NotNull String[] args, @NotNull Position relativeTo) {
         // Validate argument length
-        if (values.length < 3 || values.length > 5) {
-            System.out.println("Invalid syntax");
+        if (args.length < 3 || args.length > 5) {
             return Optional.empty();
         }
 
         // Parse, handle relatives, and return, catching NumberFormatExceptions and returning an empty optional
         try {
-            final double x = parseCoordinate(values[0], currentPosition.x);
-            final double y = parseCoordinate(values[1], currentPosition.y);
-            final double z = parseCoordinate(values[2], currentPosition.z);
-            final World world = values.length > 3 ? new World(values[3], UUID.randomUUID()) : currentPosition.world;
-            final Server server = values.length > 4 ? new Server(values[4]) : currentPosition.server;
-            return Optional.of(new Position(x, y, z, currentPosition.yaw, currentPosition.pitch, world, server));
+            final double x = parseCoordinate(args[0], relativeTo.x);
+            final double y = parseCoordinate(args[1], relativeTo.y);
+            final double z = parseCoordinate(args[2], relativeTo.z);
+            final World world = args.length > 3 ? new World(args[3], UUID.randomUUID()) : relativeTo.world;
+            final Server server = args.length > 4 ? new Server(args[4]) : relativeTo.server;
+            return Optional.of(new Position(x, y, z, relativeTo.yaw, relativeTo.pitch, world, server));
         } catch (NumberFormatException ignored) {
             return Optional.empty();
         }

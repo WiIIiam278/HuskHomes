@@ -31,7 +31,6 @@ public enum Permission {
      * Lets the user view the "disabled command" message for disabled commands
      */
     COMMAND_DISABLED_MESSAGE("huskhomes.disabled_command_message", DefaultAccess.EVERYONE),
-
     /**
      * Lets the user teleport to their homes ({@code /home [home_name]})
      */
@@ -92,6 +91,11 @@ public enum Permission {
      * Lets the user instantly tp to a set of coordinates ({@code /tp [x] [y] [z] [world] [server]})
      */
     COMMAND_TP_TO_COORDINATES("huskhomes.command.tp.coordinates", DefaultAccess.OPERATORS),
+    /**
+     * Lets the user instantly tp another user to a player (and, if they have the {@link Permission#COMMAND_TP_TO_COORDINATES}
+     * permission, to a set of coordinates) ({@code /tp [player_to_teleport] [target]})
+     */
+    COMMAND_TP_OTHER("huskhomes.command.tp.other", DefaultAccess.OPERATORS),
     /**
      * Lets the user instantly tp another player to them ({@code /tphere [player_name]})
      */

@@ -61,13 +61,14 @@ public interface HuskHomes {
      * @param playerName the name of the player to find
      * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
      */
+    @NotNull
     default Optional<OnlineUser> findPlayer(@NotNull String playerName) {
-        return Optional.ofNullable(getOnlinePlayers().stream()
+        return getOnlinePlayers().stream()
                 .filter(user -> user.username.equalsIgnoreCase(playerName))
                 .findFirst()
-                .orElse(getOnlinePlayers().stream()
+                .or(() -> getOnlinePlayers().stream()
                         .filter(user -> user.username.toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst().orElse(null)));
+                        .findFirst());
     }
 
     /**

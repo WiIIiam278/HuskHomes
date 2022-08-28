@@ -6,6 +6,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.Permission;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -23,7 +24,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         OnlineUser target = onlineUser;
-        if (args.length == 1) {
+        if (args.length >= 1) {
             if (!onlineUser.hasPermission(Permission.COMMAND_RTP_OTHER.node)) {
                 plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
                 return;
@@ -35,12 +36,9 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                 return;
             }
             target = foundUser.get();
-        } else if (args.length > 1) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/rtp [player]")
-                    .ifPresent(onlineUser::sendMessage);
-            return;
         }
         final Position userPosition = target.getPosition();
+        final String[] rtpArguments = args.length >= 1 ? ArrayUtils.subarray(args, 1, args.length) : args;
         if (plugin.getSettings().rtpRestrictedWorlds.stream()
                 .anyMatch(worldName -> worldName.equals(userPosition.world.name))) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
@@ -72,7 +70,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
 
             // Get a random position and teleport
-            plugin.getRandomTeleportEngine().getRandomPosition(userPosition)
+            plugin.getRandomTeleportEngine().getRandomPosition(userPosition, rtpArguments)
                     .thenAccept(position -> {
                         if (position.isEmpty()) {
                             plugin.getLocales().getLocale("error_rtp_randomization_timeout")
@@ -107,7 +105,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
-        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition()).thenAccept(position -> {
+        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
             if (position.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
                 return;

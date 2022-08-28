@@ -190,12 +190,14 @@ public abstract class BaseHuskHomesAPI {
      * @param user          The {@link OnlineUser} to teleport
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
      *                      for a period of time)
+     * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
      * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
      * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport) {
-        return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine().getRandomPosition(user.getPosition())
+    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport,
+                                                                          @NotNull String... rtpArgs) {
+        return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine().getRandomPosition(user.getPosition(), rtpArgs)
                 .thenApply(position -> {
                     if (position.isPresent()) {
                         return teleportPlayer(user, position.get(), timedTeleport).join();

@@ -15,18 +15,23 @@ import java.util.concurrent.TimeUnit;
 public class NormalDistributionEngine extends RandomTeleportEngine {
 
     private final HuskHomes plugin;
+    protected final int radius;
+    protected final int spawnRadius;
     private final float mean;
     private final float standardDeviation;
 
     public NormalDistributionEngine(@NotNull HuskHomes implementor) {
         super(implementor, "Normal Distribution");
+        this.radius = implementor.getSettings().rtpRadius;
+        this.spawnRadius = implementor.getSettings().rtpSpawnRadius;
         this.mean = implementor.getSettings().rtpDistributionMean;
         this.standardDeviation = implementor.getSettings().rtpDistributionStandardDeviation;
         this.plugin = implementor;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Optional<Location>> generateRandomPosition(@NotNull Location origin) {
+    protected @NotNull CompletableFuture<Optional<Location>> generateRandomLocation(@NotNull Location origin,
+                                                                                    @NotNull String... args) {
         return CompletableFuture.supplyAsync(() -> plugin.getSafeGroundLocation(generateLocation(origin, mean,
                         standardDeviation, spawnRadius, radius)).join())
                 .orTimeout(5, TimeUnit.SECONDS)

@@ -296,7 +296,7 @@ public class TeleportManager {
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_MOVING -> plugin.getLocales().getLocale("error_teleport_warmup_stand_still")
                     .ifPresent(onlineUser::sendMessage);
-            case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_on_arrival")
+            case FAILED_INVALID_WORLD -> plugin.getLocales().getLocale("error_invalid_world")
                     .ifPresent(onlineUser::sendMessage);
             case FAILED_ILLEGAL_COORDINATES -> plugin.getLocales().getLocale("error_illegal_target_coordinates")
                     .ifPresent(onlineUser::sendMessage);

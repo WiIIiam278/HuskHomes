@@ -67,7 +67,7 @@ public class EventListener {
                     // Teleport the player locally
                     onlineUser.teleport(activeTeleport.target, plugin.getSettings().asynchronousTeleports).thenAccept(teleportResult -> {
                                 if (!teleportResult.successful) {
-                                    plugin.getLocales().getLocale("error_invalid_on_arrival")
+                                    plugin.getLocales().getLocale("error_invalid_world")
                                             .ifPresent(onlineUser::sendMessage);
                                 } else {
                                     plugin.getLocales().getLocale("teleporting_complete")

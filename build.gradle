@@ -24,7 +24,8 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     javadoc.options.encoding = 'UTF-8'
 
-    compileJava.options.release.set 17
+    compileJava.options.release.set 16
+    compileTestJava.options.release.set 17
 
     repositories {
         mavenLocal()

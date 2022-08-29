@@ -1,7 +1,5 @@
 package net.william278.huskhomes.hook;
 
-import net.pl3x.map.api.Key;
-import net.pl3x.map.api.Pl3xMap;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
@@ -26,14 +24,14 @@ public class Pl3xMapHook extends MapHook {
     @Override
     protected CompletableFuture<Void> initializeMap() {
         return CompletableFuture.runAsync(() -> {
-            try {
+            /*try {
                 Pl3xMap.api().getIconRegistry().register(new Key(PUBLIC_HOME_MARKER_IMAGE_NAME), ImageIO.read
                         (Objects.requireNonNull(plugin.getResource("markers/16x/" + PUBLIC_HOME_MARKER_IMAGE_NAME + ".png"))));
                 Pl3xMap.api().getIconRegistry().register(new Key(PUBLIC_HOME_MARKER_IMAGE_NAME), ImageIO.read
                         (Objects.requireNonNull(plugin.getResource("markers/16x/" + WARP_MARKER_IMAGE_NAME + ".png"))));
             } catch (IOException e) {
                 plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to load marker image resources", e);
-            }
+            }*/
         });
     }
 

@@ -1,5 +1,11 @@
 /* SQLite migration script. */
 
+-- Clear target database.
+DELETE
+FROM `%target_positions_table%`;
+DELETE
+FROM `%target_users_table%`;
+
 -- Migrate positions to the new schema
 INSERT INTO `%target_positions_table%` (`id`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`)
 SELECT `location_id`                          AS `id`,
@@ -67,7 +73,11 @@ FROM `%source_warps_table%`
                     ON `%source_warps_table%`.`location_id` = `%target_saved_positions%`.`position_id`;
 
 -- Rename old tables
-ALTER TABLE `%source_positions_table%` RENAME TO `old_%source_positions_table%`;
-ALTER TABLE `%source_users_table%` RENAME TO `old_%source_users_table%`;
-ALTER TABLE `%source_homes_table%` RENAME TO `old_%source_homes_table%`;
-ALTER TABLE `%source_warps_table%` RENAME TO `old_%source_warps_table%`;
+ALTER TABLE `%source_positions_table%`
+    RENAME TO `old_%source_positions_table%`;
+ALTER TABLE `%source_users_table%`
+    RENAME TO `old_%source_users_table%`;
+ALTER TABLE `%source_homes_table%`
+    RENAME TO `old_%source_homes_table%`;
+ALTER TABLE `%source_warps_table%`
+    RENAME TO `old_%source_warps_table%`;

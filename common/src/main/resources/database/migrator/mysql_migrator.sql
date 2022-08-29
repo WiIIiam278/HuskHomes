@@ -1,5 +1,11 @@
 # MySQL migration script.
 
+# Clear target database.
+DELETE
+FROM `%target_positions_table%`;
+DELETE
+FROM `%target_users_table%`;
+
 # Migrate positions to the new schema
 INSERT INTO `%target_positions_table%` (`id`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`)
 SELECT `location_id`                          AS `id`,

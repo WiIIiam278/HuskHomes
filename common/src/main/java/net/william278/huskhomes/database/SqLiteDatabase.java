@@ -14,11 +14,10 @@ import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -108,6 +107,31 @@ public class SqLiteDatabase extends Database {
             getLogger().log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
         }
         return false;
+    }
+
+    @Override
+    public CompletableFuture<Void> runScript(@NotNull InputStream inputStream, @NotNull Map<String, String> replacements) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                final String[] scriptString;
+                scriptString = new String[]{new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)};
+                replacements.forEach((key, value) -> scriptString[0] = scriptString[0].replaceAll(key, value));
+                final boolean autoCommit = getConnection().getAutoCommit();
+
+                // Execute batched SQLite script
+                getConnection().setAutoCommit(false);
+                try (Statement statement = getConnection().createStatement()) {
+                    for (String statementString : scriptString[0].split(";")) {
+                        statement.addBatch(statementString);
+                    }
+                    statement.executeBatch();
+                }
+                getConnection().setAutoCommit(autoCommit);
+            } catch (IOException | SQLException e) {
+                getLogger().log(Level.SEVERE, "An exception occurred running script on the SQLite database", e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override

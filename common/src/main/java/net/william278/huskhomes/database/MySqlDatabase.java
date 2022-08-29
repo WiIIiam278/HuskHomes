@@ -13,11 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -98,6 +97,27 @@ public class MySqlDatabase extends Database {
             getLogger().log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
         }
         return false;
+    }
+
+    @Override
+    public CompletableFuture<Void> runScript(@NotNull InputStream inputStream, @NotNull Map<String, String> replacements) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection connection = getConnection()) {
+                final String[] scriptString;
+                scriptString = new String[]{new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)};
+                replacements.forEach((key, value) -> scriptString[0] = scriptString[0].replaceAll(key, value));
+                connection.setAutoCommit(false);
+                try (Statement statement = connection.createStatement()) {
+                    for (String statementString : scriptString[0].split(";")) {
+                        statement.addBatch(statementString);
+                    }
+                    statement.executeBatch();
+                }
+            } catch (IOException | SQLException e) {
+                getLogger().log(Level.SEVERE, "An error occurred running a script on the MySQL database: ", e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override

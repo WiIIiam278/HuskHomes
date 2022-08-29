@@ -11,10 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -166,6 +168,15 @@ public abstract class Database {
      * @return A future returning void when complete
      */
     public abstract boolean initialize();
+
+    /**
+     * Execute a MySQL script file read as an InputStream
+     *
+     * @param inputStream The input stream to read the script from
+     * @return A future returning void when complete
+     */
+    public abstract CompletableFuture<Void> runScript(@NotNull InputStream inputStream,
+                                                      @NotNull Map<String, String> replacements);
 
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database

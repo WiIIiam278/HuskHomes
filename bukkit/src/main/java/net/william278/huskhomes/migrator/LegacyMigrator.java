@@ -5,6 +5,8 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.util.BukkitUpgradeUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -70,8 +72,24 @@ public class LegacyMigrator extends Migrator {
     }
 
     private void migrateSqLiteDatabase() {
-        plugin.getLoggingAdapter().log(Level.INFO, "Migrating SQLite database...");
-        //todo write script
+        plugin.getLoggingAdapter().log(Level.INFO, "Migrating SQLite database, please wait... This may take a while!");
+
+        // Execute the migration script
+        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("migrator/sqlite_migrator.sql")),
+                        Map.of("%target_positions_table%", plugin.getSettings().getTableName(Settings.TableName.POSITION_DATA),
+                                "%source_positions_table%", sourceLocationsDataTable,
+                                "%target_users_table%", plugin.getSettings().getTableName(Settings.TableName.PLAYER_DATA),
+                                "%source_users_table%", sourcePlayerDataTable,
+                                "%target_saved_positions%", plugin.getSettings().getTableName(Settings.TableName.SAVED_POSITION_DATA),
+                                "%source_homes_table%", sourceHomesDataTable,
+                                "%target_homes_table%", plugin.getSettings().getTableName(Settings.TableName.HOME_DATA),
+                                "%source_warps_table%", sourceWarpsDataTable,
+                                "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA)))
+                .thenRun(() -> plugin.getLoggingAdapter().log(Level.INFO, "Migration complete!"))
+                .exceptionally(e -> {
+                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of SQLite database failed!", e);
+                    return null;
+                });
     }
 
     private void migrateMySqlDatabase() {

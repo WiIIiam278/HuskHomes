@@ -75,7 +75,7 @@ public class LegacyMigrator extends Migrator {
         plugin.getLoggingAdapter().log(Level.INFO, "Migrating SQLite database, please wait... This may take a while!");
 
         // Execute the migration script
-        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("migrator/sqlite_migrator.sql")),
+        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/sqlite_migrator.sql")),
                         Map.of("%target_positions_table%", plugin.getSettings().getTableName(Settings.TableName.POSITION_DATA),
                                 "%source_positions_table%", sourceLocationsDataTable,
                                 "%target_users_table%", plugin.getSettings().getTableName(Settings.TableName.PLAYER_DATA),
@@ -97,7 +97,7 @@ public class LegacyMigrator extends Migrator {
         plugin.getLoggingAdapter().log(Level.INFO, "Migrating MySQL database, please wait... This may take a while!");
 
         // Execute the migration script
-        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("migrator/mysql_migrator.sql")),
+        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/mysql_migrator.sql")),
                         Map.of("%target_positions_table%", plugin.getSettings().getTableName(Settings.TableName.POSITION_DATA),
                                 "%source_positions_table%", sourceLocationsDataTable,
                                 "%target_users_table%", plugin.getSettings().getTableName(Settings.TableName.PLAYER_DATA),

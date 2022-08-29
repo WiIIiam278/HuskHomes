@@ -101,10 +101,10 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         newestVersion.ifPresentOrElse(
                                 newVersion -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
-                                                     + " (v" + newVersion + " (Currently running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
+                                                     + " (v" + newVersion + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
                                 () -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
-                                                     + " (Currently running: v" + plugin.getPluginVersion() + "](#00fb9a)"))));
+                                                     + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)"))));
             }
             case "migrate" -> plugin.getLocales().getLocale("error_console_command_only")
                     .ifPresent(onlineUser::sendMessage);
@@ -140,10 +140,10 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
             case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
                     newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
                                     "An update is available for HuskHomes, v" + newVersion
-                                    + " (Currently running v" + plugin.getPluginVersion() + ")"),
+                                    + " (Running v" + plugin.getPluginVersion() + ")"),
                             () -> plugin.getLoggingAdapter().log(Level.INFO,
                                     "HuskHomes is up to date" +
-                                    " (Currently running v" + plugin.getPluginVersion() + ")")));
+                                    " (Running v" + plugin.getPluginVersion() + ")")));
             case "migrate" -> {
                 if (args.length < 2) {
                     plugin.getLoggingAdapter().log(Level.INFO,

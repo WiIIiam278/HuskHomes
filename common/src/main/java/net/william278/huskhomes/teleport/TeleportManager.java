@@ -314,7 +314,10 @@ public class TeleportManager {
             for (final Settings.EconomyAction action : economyActions) {
                 plugin.performEconomyTransaction(onlineUser, action);
             }
+        } else if (plugin.getSettings().crossServer) {
+            plugin.getDatabase().setCurrentTeleport(onlineUser, null);
         }
+
     }
 
     /**

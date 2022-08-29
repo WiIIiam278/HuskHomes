@@ -56,10 +56,10 @@ commands:
   tpahere:
     usage: /tpahere <player>
   tpaccept:
-    usage: /tpaccept
+    usage: /tpaccept [player]
     aliases: [tpyes]
   tpdecline:
-    usage: /tpdecline
+    usage: /tpdecline [player]
     aliases: [tpdeny, tpno]
   rtp:
     usage: /rtp [player]
@@ -68,9 +68,9 @@ commands:
   tpoffline:
     usage: /tpoffline <player>
   tpall:
-    usage: /tpall [page]
+    usage: /tpall
   tpaall:
-    usage: /tpaall [page]
+    usage: /tpaall
   spawn:
     usage: /spawn
   setspawn:

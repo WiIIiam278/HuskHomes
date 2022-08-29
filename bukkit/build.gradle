@@ -15,7 +15,6 @@ dependencies {
     compileOnly 'net.william278:DesertWell:1.0'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'us.dynmap:dynmap-api:3.1'
-    //compileOnly 'maven.modrinth:pl3xmap:1.19.2-217'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.19:2.117.1'
     testImplementation 'de.themoep:minedown:1.7.1-SNAPSHOT'

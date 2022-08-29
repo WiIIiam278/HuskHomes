@@ -21,7 +21,7 @@ public class TpaHereCommand extends CommandBase implements TabCompletable {
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
             plugin.getRequestManager().sendTeleportRequest(onlineUser, args[0], TeleportRequest.RequestType.TPA_HERE).thenAccept(sent -> {
-                if (!sent) {
+                if (sent.isEmpty()) {
                     if (plugin.findPlayer(args[0]).isPresent()) {
                         plugin.getLocales().getLocale("error_teleport_request_self")
                                 .ifPresent(onlineUser::sendMessage);
@@ -31,7 +31,7 @@ public class TpaHereCommand extends CommandBase implements TabCompletable {
                             .ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                plugin.getLocales().getLocale("tpahere_request_sent", args[0])
+                plugin.getLocales().getLocale("tpahere_request_sent", sent.get().getRecipientName())
                         .ifPresent(onlineUser::sendMessage);
             });
         } else {

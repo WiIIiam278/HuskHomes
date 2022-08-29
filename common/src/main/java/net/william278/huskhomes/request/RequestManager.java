@@ -74,20 +74,20 @@ public class RequestManager {
      * @param requester   The user making the request
      * @param targetUser  The user to send the request to
      * @param requestType The type of request to send
-     * @return A {@link CompletableFuture} that will return {@code true} if the request was successfully sent, or
-     * {@code false} if it was not as the user was not found
+     * @return A {@link CompletableFuture} that will return the request that was sent if it was sent successfully,
+     * or an empty {@link Optional} if the request was not sent
      */
-    public CompletableFuture<Boolean> sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
-                                                          @NotNull TeleportRequest.RequestType requestType) {
+    public CompletableFuture<Optional<TeleportRequest>> sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
+                                                                            @NotNull TeleportRequest.RequestType requestType) {
         final TeleportRequest request = new TeleportRequest(requester, requestType,
                 Instant.now().getEpochSecond() + plugin.getSettings().teleportRequestExpiryTime);
         final Optional<OnlineUser> localTarget = plugin.findPlayer(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().uuid.equals(requester.uuid)) {
-                return CompletableFuture.completedFuture(false);
+                return CompletableFuture.completedFuture(Optional.empty());
             }
             request.recipientName = localTarget.get().username;
-            return CompletableFuture.supplyAsync(() -> sendLocalTeleportRequest(request, localTarget.get()));
+            return CompletableFuture.completedFuture(sendLocalTeleportRequest(request, localTarget.get()));
         }
 
         // If the player couldn't be found locally, send the request cross-server
@@ -97,12 +97,12 @@ public class RequestManager {
             // Find the matching networked target
             return plugin.getNetworkMessenger().findPlayer(requester, targetUser).thenApply(networkedTarget -> {
                 if (networkedTarget.isEmpty()) {
-                    return false;
+                    return Optional.empty();
                 }
 
                 // Use the network messenger to send the request
                 request.recipientName = networkedTarget.get();
-                return plugin.getNetworkMessenger().sendMessage(requester,
+                return Optional.ofNullable(plugin.getNetworkMessenger().sendMessage(requester,
                                 new Message(Message.MessageType.TELEPORT_REQUEST,
                                         requester.username,
                                         networkedTarget.get(),
@@ -113,15 +113,18 @@ public class RequestManager {
                         .exceptionally(throwable -> null)
                         .thenApply(reply -> {
                             if (reply == null || reply.payload.teleportRequest == null) {
-                                return false;
+                                return null;
                             }
 
                             // If the message was ignored by the recipient, return false
-                            return reply.payload.teleportRequest.status == TeleportRequest.RequestStatus.PENDING;
-                        }).join();
+                            if (reply.payload.teleportRequest.status == TeleportRequest.RequestStatus.PENDING) {
+                                return request;
+                            }
+                            return null;
+                        }).join());
             });
         }
-        return CompletableFuture.supplyAsync(() -> false);
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     /**
@@ -129,19 +132,19 @@ public class RequestManager {
      *
      * @param request   The {@link TeleportRequest} to send
      * @param recipient The online recipient of the request
-     * @return {@code true} if the request was sent, {@code false} if it was not sent because the recipient
-     * is ignoring requests or is vanished ({@link OnlineUser#isVanished()})
+     * @return the {@link TeleportRequest} that was sent if it could be sent, otherwise an empty optional if it was not
+     * sent because the recipient is ignoring requests or is vanished ({@link OnlineUser#isVanished()})
      */
-    public boolean sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
+    public Optional<TeleportRequest> sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
         if (isIgnoringRequests(recipient) || recipient.isVanished()) {
             request.status = TeleportRequest.RequestStatus.IGNORED;
-            return false;
+            return Optional.empty();
         }
 
         // If the person already has a request of the same type by this player, don't bother sending another one
         if (getTeleportRequest(request.requesterName, recipient).map(existingRequest -> existingRequest.type)
                     .orElse(null) == request.type) {
-            return true;
+            return Optional.of(request);
         }
 
         // Add the request and display a message to the recipient
@@ -151,7 +154,7 @@ public class RequestManager {
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.requesterName)
                 .ifPresent(recipient::sendMessage);
-        return true;
+        return Optional.of(request);
     }
 
     public void respondToTeleportRequestBySenderName(@NotNull OnlineUser recipient, @NotNull String senderName,

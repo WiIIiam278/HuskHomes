@@ -39,7 +39,7 @@ public class TpaAllCommand extends CommandBase {
             final List<CompletableFuture<Void>> sentRequestsFuture = new ArrayList<>();
             players.forEach(playerName -> sentRequestsFuture.add(plugin.getRequestManager()
                     .sendTeleportRequest(onlineUser, playerName, TeleportRequest.RequestType.TPA_HERE)
-                    .thenAccept(sent -> counter.addAndGet(sent ? 1 : 0))));
+                    .thenAccept(sent -> counter.addAndGet(sent.isPresent() ? 1 : 0))));
 
             // Send a message when all requests have been sent
             CompletableFuture.allOf(sentRequestsFuture.toArray(new CompletableFuture[0])).thenRun(() -> {

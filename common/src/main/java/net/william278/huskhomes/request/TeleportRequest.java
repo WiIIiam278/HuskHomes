@@ -73,6 +73,11 @@ public class TeleportRequest {
         return Instant.now().isAfter(Instant.ofEpochSecond(expiryTime));
     }
 
+    @NotNull
+    public String getRecipientName() {
+        return recipientName;
+    }
+
     public enum RequestType {
         TPA,
         TPA_HERE

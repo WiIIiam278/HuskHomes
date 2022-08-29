@@ -1,21 +1,6 @@
-plugins {
-    id 'maven-publish'
-}
-
 dependencies {
     implementation project(path: ':bukkit', configuration: 'shadow')
 }
 
 shadowJar {
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = 'net.william278'
-            artifactId = 'huskhomes-plugin'
-            version = "$rootProject.version"
-            artifact shadowJar
-        }
-    }
 }

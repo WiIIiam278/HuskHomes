@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.19 API.
+ * Uses MockBukkit to test the plugin on a mock Spigot server implementing the Bukkit 1.16 API.
  */
 public class BukkitPluginTests {
 

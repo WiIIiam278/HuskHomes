@@ -138,8 +138,9 @@ public class RequestManager {
             return false;
         }
 
-        // If the person already has a request from the sender by name, don't bother sending another one
-        if (getTeleportRequest(request.requesterName, recipient).isPresent()) {
+        // If the person already has a request of the same type by this player, don't bother sending another one
+        if (getTeleportRequest(request.requesterName, recipient).map(existingRequest -> existingRequest.type)
+                    .orElse(null) == request.type) {
             return true;
         }
 

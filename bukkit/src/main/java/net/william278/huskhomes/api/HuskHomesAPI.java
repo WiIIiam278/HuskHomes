@@ -16,8 +16,8 @@ import java.util.Objects;
 
 /**
  * The HuskHomes API implementation for the Bukkit platform, providing methods to access player data, homes, warps
- * & process teleports
- * </p>
+ * and process teleports
+ * <p>
  * Retrieve an instance of the API class via {@link #getInstance()}.
  */
 @SuppressWarnings("unused")
@@ -97,6 +97,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      *
      * @param location the bukkit location to get the {@link Position} instance for
      * @param server   the {@link Server} the position is on
+     * @return the {@link Position} instance for the given bukkit {@link Location} on the given {@link Server}
      * @see Position#server
      * @since 3.0
      */

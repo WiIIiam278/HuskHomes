@@ -2,6 +2,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.ajoberstar.grgit' version '5.0.0'
     id 'java'
+    id 'maven-publish'
 }
 
 group 'net.william278'
@@ -22,9 +23,9 @@ allprojects {
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
-    javadoc.options.encoding = 'UTF-8'
-
     compileJava.options.release.set 16
+    javadoc.options.encoding = 'UTF-8'
+    javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
     repositories {
         mavenLocal()
@@ -65,6 +66,35 @@ subprojects {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
+
+        // API publishing
+        if ('bukkit'.contains(project.name)) {
+            java {
+                withSourcesJar()
+                withJavadocJar()
+            }
+            sourcesJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            javadocJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            shadowJar.dependsOn(sourcesJar, javadocJar)
+
+            publishing {
+                publications {
+                    mavenJava(MavenPublication) {
+                        groupId = 'net.william278'
+                        artifactId = 'huskhomes'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact javadocJar
+                        artifact sourcesJar
+                    }
+                }
+            }
+        }
+
         jar.dependsOn shadowJar
         clean.delete "$rootDir/target"
     }

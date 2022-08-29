@@ -407,12 +407,21 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     public CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location) {
         final CompletableFuture<Optional<Location>> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(getInstance(), () -> BukkitAdapter.adaptLocation(location).ifPresentOrElse(
-                bukkitLocation -> PaperLib.getChunkAtAsync(bukkitLocation).thenAccept(chunk ->
-                        future.complete(BukkitSafetyUtil.findSafeLocation(location.world, bukkitLocation,
-                                chunk.getChunkSnapshot()))).exceptionally(throwable -> {
-                    throwable.printStackTrace();
-                    return null;
-                }),
+                bukkitLocation -> {
+                    // Validate the location is within the world's border
+                    assert bukkitLocation.getWorld() != null;
+                    if (!bukkitLocation.getWorld().getWorldBorder().isInside(bukkitLocation)) {
+                        future.complete(Optional.empty());
+                    }
+
+                    // Find a safe position and return
+                    PaperLib.getChunkAtAsync(bukkitLocation).thenAccept(chunk ->
+                            future.complete(BukkitSafetyUtil.findSafeLocation(location.world, bukkitLocation,
+                                    chunk.getChunkSnapshot()))).exceptionally(throwable -> {
+                        throwable.printStackTrace();
+                        return null;
+                    });
+                },
                 () -> future.complete(Optional.empty())));
         return future;
     }

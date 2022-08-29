@@ -19,7 +19,7 @@ public class BukkitSafetyUtil {
      * @return The safe location, if found
      */
     public static Optional<Location> findSafeLocation(@NotNull World world, @NotNull org.bukkit.Location bukkitLocation,
-                                                @NotNull ChunkSnapshot chunkSnapshot) {
+                                                      @NotNull ChunkSnapshot chunkSnapshot) {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 int chunkX = Math.abs(bukkitLocation.getBlockX() % 16) + i;

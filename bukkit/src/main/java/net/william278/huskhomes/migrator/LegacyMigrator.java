@@ -87,7 +87,8 @@ public class LegacyMigrator extends Migrator {
                                 "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA)))
                 .thenRun(() -> plugin.getLoggingAdapter().log(Level.INFO, "SQLite Migration complete!"))
                 .exceptionally(e -> {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of SQLite database failed!", e);
+                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of SQLite database failed!" +
+                                                                 " Perhaps the target tables was not clean?", e);
                     return null;
                 });
     }
@@ -105,10 +106,12 @@ public class LegacyMigrator extends Migrator {
                                 "%source_homes_table%", sourceHomesDataTable,
                                 "%target_homes_table%", plugin.getSettings().getTableName(Settings.TableName.HOME_DATA),
                                 "%source_warps_table%", sourceWarpsDataTable,
-                                "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA)))
+                                "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA),
+                                "%source_database%", sourceMySqlDatabase))
                 .thenRun(() -> plugin.getLoggingAdapter().log(Level.INFO, "MySQL Migration complete!"))
                 .exceptionally(e -> {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of MySQL database failed!", e);
+                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of MySQL database failed!" +
+                                                                 " Perhaps the target tables was not clean?", e);
                     return null;
                 });
     }

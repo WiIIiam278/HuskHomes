@@ -467,7 +467,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Load settings and locales
             this.settings = Annotaml.reload(new File(getDataFolder(), "config.yml"),
                     new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
-            this.locales = Annotaml.reload(new File(getDataFolder(), "messages-" + settings.language + ".yml"),
+            this.locales = Annotaml.reload(new File(getDataFolder(), "messages_" + settings.language + ".yml"),
                     Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
                     Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
 

@@ -146,6 +146,9 @@ public class Settings {
     @KeyPath("cross_server.cluster_id")
     public String clusterId = "";
 
+    @KeyPath("cross_server.bungee_server_id")
+    public String bungeeServerId = "auto";
+
     @KeyPath("cross_server.global_spawn.enabled")
     public boolean globalSpawn = false;
 

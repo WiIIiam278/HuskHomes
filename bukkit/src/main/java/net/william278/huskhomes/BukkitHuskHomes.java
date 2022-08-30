@@ -453,7 +453,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             return server;
         }
         if (getSettings().crossServer) {
-            server = getNetworkMessenger().getServerName(requester).thenApply(Server::new).join();
+            if(getSettings().bungeeServerId.equals("auto"))
+                server=new Server(getSettings().bungeeServerId);
+            else
+                server = getNetworkMessenger().getServerName(requester).thenApply(Server::new).join();
+
         } else {
             server = new Server("server");
         }

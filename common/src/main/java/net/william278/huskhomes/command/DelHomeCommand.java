@@ -23,46 +23,53 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
+        if (args.length == 0) {
+            plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
-                    homes.stream().findFirst().ifPresent(home -> deletePlayerHome(onlineUser, onlineUser, home.meta.name));
+                    homes.stream().findFirst().ifPresent(home -> deletePlayerHome(onlineUser, onlineUser, home.meta.name, false));
                 } else {
                     plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
                             .ifPresent(onlineUser::sendMessage);
                 }
             });
-            case 1 -> {
-                final String homeName = args[0];
-                RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(homeIdentifier ->
-                                plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName()).thenAccept(
-                                        optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
-                                                    if (!userData.getUserUuid().equals(onlineUser.uuid)) {
-                                                        if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
-                                                            plugin.getLocales().getLocale("error_no_permission")
-                                                                    .ifPresent(onlineUser::sendMessage);
-                                                            return;
-                                                        }
-                                                    }
-                                                    deletePlayerHome(onlineUser, userData.user(), homeIdentifier.homeName());
-                                                },
-                                                () -> plugin.getLocales().getLocale("error_home_invalid_other",
-                                                        homeIdentifier.ownerName(), homeIdentifier.homeName()).ifPresent(onlineUser::sendMessage))),
-                        () -> deletePlayerHome(onlineUser, onlineUser, homeName));
-            }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+
+        if (args.length <= 2) {
+            final String homeName = args[0];
+            final boolean confirm = args.length == 2 && args[1].equalsIgnoreCase("confirm");
+            RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(homeIdentifier ->
+                            plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName()).thenAccept(
+                                    optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
+                                                if (!userData.getUserUuid().equals(onlineUser.uuid)) {
+                                                    if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
+                                                        plugin.getLocales().getLocale("error_no_permission")
+                                                                .ifPresent(onlineUser::sendMessage);
+                                                        return;
+                                                    }
+                                                }
+                                                deletePlayerHome(onlineUser, userData.user(), homeIdentifier.homeName(), confirm);
+                                            },
+                                            () -> plugin.getLocales().getLocale("error_home_invalid_other",
+                                                    homeIdentifier.ownerName(), homeIdentifier.homeName()).ifPresent(onlineUser::sendMessage))),
+                    () -> deletePlayerHome(onlineUser, onlineUser, homeName, confirm));
+            return;
+        }
+
+        plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
+                .ifPresent(onlineUser::sendMessage);
     }
 
     /**
      * Delete a player's home
      *
-     * @param deleter   the player who is deleting the home
-     * @param homeOwner The player who owns the home
-     * @param homeName  The home name to delete
+     * @param deleter           the player who is deleting the home
+     * @param homeOwner         The player who owns the home
+     * @param homeName          The home name to delete
+     * @param delHomeAllConfirm Whether to skip the confirmation prompt for deleting all homes
      */
-    private void deletePlayerHome(@NotNull OnlineUser deleter, @NotNull User homeOwner, @NotNull String homeName) {
+    private void deletePlayerHome(@NotNull OnlineUser deleter, @NotNull User homeOwner, @NotNull String homeName,
+                                  final boolean delHomeAllConfirm) {
         plugin.getSavedPositionManager().deleteHome(homeOwner, homeName).thenAccept(deleted -> {
             if (deleter.uuid.equals(homeOwner.uuid)) {
                 if (deleted) {
@@ -70,7 +77,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
                     return;
                 }
                 if (homeName.equals("all")) {
-                    deleteAllHomes(deleter, homeOwner);
+                    deleteAllHomes(deleter, homeOwner, delHomeAllConfirm);
                     return;
                 }
                 plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(deleter::sendMessage);
@@ -80,7 +87,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
                     return;
                 }
                 if (homeName.equals("all")) {
-                    deleteAllHomes(deleter, homeOwner);
+                    deleteAllHomes(deleter, homeOwner, delHomeAllConfirm);
                     return;
                 }
                 plugin.getLocales().getLocale("error_home_invalid_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
@@ -93,11 +100,19 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
      *
      * @param deleter   the player who is deleting the homes
      * @param homeOwner the player who owns the homes
+     * @param confirm   whether to skip the confirmation prompt
      */
-    private void deleteAllHomes(@NotNull OnlineUser deleter, @NotNull User homeOwner) {
+    private void deleteAllHomes(@NotNull OnlineUser deleter, @NotNull User homeOwner,
+                                final boolean confirm) {
         plugin.getDatabase().getHomes(homeOwner).thenAccept(homes -> {
             if (homes.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_warps_set")
+                        .ifPresent(deleter::sendMessage);
+                return;
+            }
+
+            if (!confirm) {
+                plugin.getLocales().getLocale("delete_all_homes_confirm")
                         .ifPresent(deleter::sendMessage);
                 return;
             }

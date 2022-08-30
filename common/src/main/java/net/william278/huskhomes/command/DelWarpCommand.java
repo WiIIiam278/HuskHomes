@@ -21,8 +21,9 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length == 1) { //todo delwarp all
+        if (args.length <= 2) {
             final String warpName = args[0];
+            final boolean confirm = args.length == 2 && args[1].equalsIgnoreCase("confirm");
             plugin.getSavedPositionManager().deleteWarp(warpName).thenAccept(deleted -> {
                 if (deleted) {
                     plugin.getLocales().getLocale("warp_deleted", warpName)
@@ -30,7 +31,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
                     return;
                 }
                 if (warpName.equals("all")) {
-                    deleteAllWarps(onlineUser);
+                    deleteAllWarps(onlineUser, confirm);
                     return;
                 }
 
@@ -47,11 +48,18 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
      * Delete all the server warps
      *
      * @param deleter the player who is deleting the warps
+     * @param confirm whether to skip the confirmation prompt
      */
-    private void deleteAllWarps(@NotNull OnlineUser deleter) {
+    private void deleteAllWarps(@NotNull OnlineUser deleter, final boolean confirm) {
         plugin.getDatabase().getWarps().thenAccept(warps -> {
             if (warps.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_warps_set")
+                        .ifPresent(deleter::sendMessage);
+                return;
+            }
+
+            if (!confirm) {
+                plugin.getLocales().getLocale("confirm_delete_all_warps")
                         .ifPresent(deleter::sendMessage);
                 return;
             }

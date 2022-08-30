@@ -23,7 +23,7 @@ import java.util.Optional;
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ See plugin about menu for international locale credits
         ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-        ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/Translating-HuskHomes""")
+        ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/Translations""")
 public class Locales {
 
     @RootedMap

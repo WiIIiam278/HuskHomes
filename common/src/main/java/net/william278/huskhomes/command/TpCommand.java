@@ -34,8 +34,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             // Determine the player to teleport
             final String targetPlayerToTeleport = ((teleportTarget.get() instanceof TargetPlayer) && args.length == 2)
                     ? args[0] : ((teleportTarget.get() instanceof TargetPosition)
-                    ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.username)
-                    : onlineUser.username);
+                    ? args.length > 3 ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.username)
+                    : onlineUser.username : onlineUser.username);
 
             // Find the online user to teleport
             plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser).join();

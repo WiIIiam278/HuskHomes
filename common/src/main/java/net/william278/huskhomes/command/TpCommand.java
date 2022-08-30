@@ -38,7 +38,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     : onlineUser.username : onlineUser.username);
 
             // Find the online user to teleport
-            plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser).join();
+            plugin.getCache().updatePlayerListCache(plugin, onlineUser).join();
             final String playerToTeleport = plugin.getCache().players.stream()
                     .filter(user -> user.equalsIgnoreCase(targetPlayerToTeleport)).findFirst()
                     .or(() -> plugin.getCache().players.stream()

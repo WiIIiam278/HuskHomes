@@ -93,10 +93,8 @@ public class Cache {
      *
      * @param plugin the implementing plugin
      */
-    public CompletableFuture<List<String>> fetchAndCacheGlobalPlayerList(@NotNull HuskHomes plugin,
-                                                                         @NotNull OnlineUser requester) {
+    public CompletableFuture<List<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
         if (plugin.getSettings().crossServer) {
-            assert plugin.getNetworkMessenger() != null;
             return plugin.getNetworkMessenger().getOnlinePlayerNames(requester).thenApply(returnedPlayerList -> {
                 players.clear();
                 players.addAll(List.of(returnedPlayerList));
@@ -109,6 +107,7 @@ public class Cache {
                     .filter(player -> !player.isVanished())
                     .map(onlineUser -> onlineUser.username)
                     .toList());
+            System.out.println(String.join(", ", players));
             return CompletableFuture.completedFuture(players);
         }
     }

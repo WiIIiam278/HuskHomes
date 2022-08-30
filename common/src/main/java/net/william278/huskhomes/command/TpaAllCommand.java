@@ -26,7 +26,7 @@ public class TpaAllCommand extends CommandBase {
         }
 
         // Determine players to teleport and teleport them
-        plugin.getCache().fetchAndCacheGlobalPlayerList(plugin, onlineUser).thenAccept(playerList -> {
+        plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenAccept(playerList -> {
             final List<String> players = plugin.getCache().players.stream()
                     .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
             if (players.isEmpty()) {

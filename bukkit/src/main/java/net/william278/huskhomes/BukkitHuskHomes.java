@@ -354,13 +354,18 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         return savedPositionManager;
     }
 
+    @NotNull
     @Override
-    public @Nullable NetworkMessenger getNetworkMessenger() {
+    public NetworkMessenger getNetworkMessenger() {
+        if (networkMessenger == null) {
+            throw new HuskHomesException("Attempted to access network messenger when it was not initialized");
+        }
         return networkMessenger;
     }
 
+    @NotNull
     @Override
-    public @NotNull RandomTeleportEngine getRandomTeleportEngine() {
+    public RandomTeleportEngine getRandomTeleportEngine() {
         return randomTeleportEngine;
     }
 
@@ -447,7 +452,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         if (server != null) {
             return server;
         }
-        if (getSettings().crossServer && getNetworkMessenger() != null) {
+        if (getSettings().crossServer) {
             server = getNetworkMessenger().getServerName(requester).thenApply(Server::new).join();
         } else {
             server = new Server("server");

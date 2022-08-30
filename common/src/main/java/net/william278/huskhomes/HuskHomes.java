@@ -131,8 +131,8 @@ public interface HuskHomes {
      *
      * @return the {@link NetworkMessenger} implementation
      */
-    @Nullable
-    NetworkMessenger getNetworkMessenger();
+    @NotNull
+    NetworkMessenger getNetworkMessenger() throws HuskHomesException;
 
     /**
      * The {@link RandomTeleportEngine} that manages random teleports

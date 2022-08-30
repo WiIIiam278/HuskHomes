@@ -3,13 +3,16 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class DelHomeCommand extends CommandBase implements TabCompletable {
@@ -20,8 +23,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-
-        switch (args.length) { //todo delhome all
+        switch (args.length) {
             case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
                     homes.stream().findFirst().ifPresent(home -> deletePlayerHome(onlineUser, onlineUser, home.meta.name));
@@ -65,16 +67,48 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             if (deleter.uuid.equals(homeOwner.uuid)) {
                 if (deleted) {
                     plugin.getLocales().getLocale("home_deleted", homeName).ifPresent(deleter::sendMessage);
-                } else {
-                    plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(deleter::sendMessage);
+                    return;
                 }
+                if (homeName.equals("all")) {
+                    deleteAllHomes(deleter, homeOwner);
+                    return;
+                }
+                plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(deleter::sendMessage);
             } else {
                 if (deleted) {
                     plugin.getLocales().getLocale("home_deleted_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
-                } else {
-                    plugin.getLocales().getLocale("error_home_invalid_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
+                    return;
                 }
+                if (homeName.equals("all")) {
+                    deleteAllHomes(deleter, homeOwner);
+                    return;
+                }
+                plugin.getLocales().getLocale("error_home_invalid_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
             }
+        });
+    }
+
+    /**
+     * Delete all of a player's homes
+     *
+     * @param deleter   the player who is deleting the homes
+     * @param homeOwner the player who owns the homes
+     */
+    private void deleteAllHomes(@NotNull OnlineUser deleter, @NotNull User homeOwner) {
+        plugin.getDatabase().getHomes(homeOwner).thenAccept(homes -> {
+            if (homes.isEmpty()) {
+                plugin.getLocales().getLocale("error_no_warps_set")
+                        .ifPresent(deleter::sendMessage);
+                return;
+            }
+
+            final List<CompletableFuture<Boolean>> homeDeletionFuture = new ArrayList<>();
+            for (final Home toDelete : homes) {
+                homeDeletionFuture.add(plugin.getSavedPositionManager().deleteHome(homeOwner, toDelete.meta.name));
+            }
+            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0])).thenRun(() ->
+                    plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(homeDeletionFuture.size()))
+                            .ifPresent(deleter::sendMessage)).join();
         });
     }
 

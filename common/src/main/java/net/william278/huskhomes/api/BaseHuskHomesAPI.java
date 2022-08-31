@@ -154,6 +154,41 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get the maximum number of set homes a given {@link OnlineUser} can make
+     *
+     * @param user The {@link OnlineUser} to get the maximum number of homes for
+     * @return The maximum number of homes the user can set
+     * @since 3.0
+     */
+    public final int getMaxHomeSlots(@NotNull OnlineUser user) {
+        return user.getMaxHomes(plugin.getSettings().maxHomes, plugin.getSettings().stackPermissionLimits);
+    }
+
+    /**
+     * Get the number of homes an {@link OnlineUser} can set for free
+     * <p>
+     * This is irrelevant unless the server is using economy features with HuskHomes
+     *
+     * @param user The {@link OnlineUser} to get the number of free home slots for
+     * @return The number of homes the user can set for free
+     * @since 3.0
+     */
+    public final int getFreeHomeSlots(@NotNull OnlineUser user) {
+        return user.getFreeHomes(plugin.getSettings().freeHomeSlots, plugin.getSettings().stackPermissionLimits);
+    }
+
+    /**
+     * Get the number of homes an {@link OnlineUser} can make public
+     *
+     * @param user The {@link OnlineUser} to get the number of public home slots for
+     * @return The number of homes the user can make public
+     * @since 3.0
+     */
+    public final int getMaxPublicHomeSlots(@NotNull OnlineUser user) {
+        return user.getMaxPublicHomes(plugin.getSettings().maxPublicHomes, plugin.getSettings().stackPermissionLimits);
+    }
+
+    /**
      * Attempt to teleport an {@link OnlineUser} to a target {@link Position}
      *
      * @param user          The {@link OnlineUser} to teleport

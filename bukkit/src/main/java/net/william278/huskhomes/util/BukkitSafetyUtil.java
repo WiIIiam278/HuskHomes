@@ -48,6 +48,7 @@ public class BukkitSafetyUtil {
      * @return True if the block is safe, false otherwise
      */
     public static boolean isSafePosition(@NotNull ChunkSnapshot chunkSnapshot, final int chunkX, final int chunkY, final int chunkZ) {
+        if(chunkY<-64||chunkY>320)return false;
         final Material blockType = chunkSnapshot.getBlockType(chunkX, chunkY, chunkZ);
         return switch (blockType) {
             // Special case handling for safe, un-solid blocks

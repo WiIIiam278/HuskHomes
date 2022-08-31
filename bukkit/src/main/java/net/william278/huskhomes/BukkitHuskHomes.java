@@ -7,9 +7,10 @@ import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.command.DisabledCommand;
+import net.william278.huskhomes.config.CachedServer;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.config.Spawn;
+import net.william278.huskhomes.config.CachedSpawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
@@ -69,7 +70,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
-    private Spawn serverSpawn;
+    private CachedSpawn serverSpawn;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
@@ -386,13 +387,13 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public Optional<Spawn> getServerSpawn() {
+    public Optional<CachedSpawn> getServerSpawn() {
         return Optional.ofNullable(serverSpawn);
     }
 
     @Override
     public void setServerSpawn(@NotNull Location location) {
-        final Spawn newSpawn = new Spawn(location);
+        final CachedSpawn newSpawn = new CachedSpawn(location);
         this.serverSpawn = newSpawn;
         Annotaml.save(newSpawn, new File(getDataFolder(), "spawn.yml"));
 
@@ -441,23 +442,29 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         return registeredCommands;
     }
 
-    /**
-     * Returns the {@link Server} the plugin is on
-     *
-     * @return The {@link Server} object
-     */
     @Override
     @NotNull
-    public Server getServer(@NotNull OnlineUser requester) {
-        if (server != null) {
-            return server;
-        }
-        if (getSettings().crossServer) {
-            server = getNetworkMessenger().getServerName(requester).thenApply(Server::new).join();
-        } else {
-            server = new Server("server");
+    public Server getPluginServer() throws HuskHomesException {
+        if (server == null) {
+            throw new HuskHomesException("Attempted to access server when it was not initialized");
         }
         return server;
+    }
+
+    public CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester) {
+        if (!getSettings().crossServer) {
+            return CompletableFuture.completedFuture(null);
+        }
+        if (server == null) {
+            return getNetworkMessenger().getServerName(requester).thenAccept(serverName -> {
+                // Set the server name
+                this.server = new Server(serverName);
+
+                // Cache the server to the server.yml file
+                Annotaml.save(new CachedServer(serverName), new File(getDataFolder(), "server.yml"));
+            });
+        }
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -476,10 +483,20 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
                     Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
 
+            // Load cached server from file
+            if (settings.crossServer) {
+                final File serverFile = new File(getDataFolder(), "server.yml");
+                if (serverFile.exists()) {
+                    this.server = Annotaml.load(serverFile, CachedServer.class).getServer();
+                }
+            } else {
+                this.server = new Server("server");
+            }
+
             // Load spawn location from file
             final File spawnFile = new File(getDataFolder(), "spawn.yml");
             if (spawnFile.exists()) {
-                this.serverSpawn = Annotaml.load(spawnFile, Spawn.class);
+                this.serverSpawn = Annotaml.load(spawnFile, CachedSpawn.class);
             }
             return true;
         }).exceptionally(throwable -> {

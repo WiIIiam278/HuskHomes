@@ -5,7 +5,7 @@ import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.config.Spawn;
+import net.william278.huskhomes.config.CachedSpawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
@@ -165,11 +165,11 @@ public interface HuskHomes {
     List<Migrator> getMigrators();
 
     /**
-     * The {@link Spawn} location of this server
+     * The {@link CachedSpawn} location of this server
      *
-     * @return the {@link Spawn} location data
+     * @return the {@link CachedSpawn} location data
      */
-    Optional<Spawn> getServerSpawn();
+    Optional<CachedSpawn> getServerSpawn();
 
     /**
      * Returns a future returning the latest plugin {@link Version} if the plugin is out-of-date
@@ -188,9 +188,9 @@ public interface HuskHomes {
     }
 
     /**
-     * Update the {@link Spawn} position to a location on the server
+     * Update the {@link CachedSpawn} position to a location on the server
      *
-     * @param location the new {@link Spawn} location
+     * @param location the new {@link CachedSpawn} location
      */
     void setServerSpawn(@NotNull Location location);
 
@@ -270,12 +270,23 @@ public interface HuskHomes {
     CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location);
 
     /**
-     * Get the {@link Server} this server is on
+     * Returns the {@link Server} the plugin is on
      *
-     * @return The server
+     * @return The {@link Server} object
+     * @throws HuskHomesException If the server has not been initialized
      */
     @NotNull
-    Server getServer(@NotNull OnlineUser requester);
+    Server getPluginServer() throws HuskHomesException;
+
+    /**
+     * Fetches the name of this server if {@link Server} is {@code null} by querying the proxy
+     *
+     * @param requester The {@link OnlineUser} to carry out the proxy request
+     * @return a future completing when the server has been fetched
+     * @implNote If cross-server mode is disabled, or the server has already been pulled from the server.yml cache file,
+     * the future will return immediately
+     */
+    CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester);
 
     /**
      * Returns a resource read from the plugin resources folder

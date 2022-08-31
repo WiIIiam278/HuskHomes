@@ -38,8 +38,8 @@ public class EventListener {
         // Handle the first player joining the server
         CompletableFuture.runAsync(() -> {
             if (firstUser) {
-                plugin.getServer(onlineUser);
                 firstUser = false;
+                plugin.fetchServer(onlineUser).join();
             }
         }).thenRun(() -> {
             // Ensure the player is present on the database first
@@ -52,7 +52,7 @@ public class EventListener {
                     if (activeTeleport.type == TeleportType.RESPAWN) {
                         final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                         if (bedPosition.isEmpty()) {
-                            plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getServer(onlineUser)))
+                            plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getPluginServer()))
                                     .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
                             onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
                         } else {
@@ -155,7 +155,7 @@ public class EventListener {
         // Respawn the player cross-server if needed
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
             plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
-                if (!respawnPosition.server.equals(plugin.getServer(onlineUser))) {
+                if (!respawnPosition.server.equals(plugin.getPluginServer())) {
                     plugin.getTeleportManager().teleport(onlineUser, respawnPosition, TeleportType.RESPAWN).thenAccept(
                             result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
                 }

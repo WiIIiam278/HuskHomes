@@ -107,14 +107,14 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Get this {@link Server}.
+     * Get the {@link Server}, containing the ID of the server the plugin is running on
      *
-     * @param requester a player; needed to send a plugin message requesting the server if it has not been cached
      * @return the {@link Server}
+     * @since 3.0
      */
     @NotNull
-    public Server getServer(@NotNull OnlineUser requester) {
-        return plugin.getServer(requester);
+    public Server getServer() {
+        return plugin.getPluginServer();
     }
 
 }

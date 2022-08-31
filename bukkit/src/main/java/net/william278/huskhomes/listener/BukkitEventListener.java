@@ -58,7 +58,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         CompletableFuture.runAsync(() -> {
             final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
             BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
-                    handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getServer(bukkitPlayer))));
+                    handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getPluginServer())));
         });
     }
 
@@ -80,7 +80,7 @@ public class BukkitEventListener extends EventListener implements Listener {
             super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
                     adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
                     adaptedLocation.yaw, adaptedLocation.pitch,
-                    adaptedLocation.world, plugin.getServer(onlineUser)));
+                    adaptedLocation.world, plugin.getPluginServer()));
         }));
     }
 

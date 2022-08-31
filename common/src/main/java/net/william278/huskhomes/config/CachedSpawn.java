@@ -15,10 +15,10 @@ import java.util.UUID;
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    Server /spawn location    ┃
+        ┃ Server /spawn location cache ┃
         ┃ Edit in-game using /setspawn ┃
         ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
-public class Spawn {
+public class CachedSpawn {
 
     public double x;
     public double y;
@@ -47,7 +47,7 @@ public class Spawn {
      *
      * @param location The {@link Location} of the spawn
      */
-    public Spawn(@NotNull Location location) {
+    public CachedSpawn(@NotNull Location location) {
         this.x = location.x;
         this.y = location.y;
         this.z = location.z;
@@ -58,6 +58,6 @@ public class Spawn {
     }
 
     @SuppressWarnings("unused")
-    public Spawn() {
+    public CachedSpawn() {
     }
 }

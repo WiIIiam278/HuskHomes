@@ -354,7 +354,7 @@ public class TeleportManager {
         }
 
         // Teleport player locally, or across server depending on need
-        if (position.server.equals(plugin.getServer(onlineUser))) {
+        if (position.server.equals(plugin.getPluginServer())) {
             return onlineUser.teleport(teleport.target, plugin.getSettings().asynchronousTeleports);
         } else {
             return teleportCrossServer(onlineUser, teleport);

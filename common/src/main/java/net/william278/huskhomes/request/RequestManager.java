@@ -92,8 +92,6 @@ public class RequestManager {
 
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().crossServer) {
-
-
             // Find the matching networked target
             return plugin.getNetworkMessenger().findPlayer(requester, targetUser).thenApply(networkedTarget -> {
                 if (networkedTarget.isEmpty()) {
@@ -141,10 +139,12 @@ public class RequestManager {
             return Optional.empty();
         }
 
-        // If the person already has a request of the same type by this player, don't bother sending another one
-        if (getTeleportRequest(request.requesterName, recipient).map(existingRequest -> existingRequest.type)
-                    .orElse(null) == request.type) {
-            return Optional.of(request);
+        // If the person already has an unexpired request of the same type by this player, don't bother sending another
+        final Optional<TeleportRequest> existingRequest = getTeleportRequest(request.requesterName, recipient);
+        if (existingRequest.isPresent()) {
+            if (existingRequest.get().type == request.type && !existingRequest.get().hasExpired()) {
+                return Optional.of(request);
+            }
         }
 
         // Add the request and display a message to the recipient

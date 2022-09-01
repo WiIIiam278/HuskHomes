@@ -263,7 +263,6 @@ public class RequestManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.type == TeleportRequest.RequestType.TPA)) {
-            System.out.println("Teleporting " + requester.username + " to " + request.recipientName);
             plugin.getTeleportManager().teleportToPlayerByName(requester, request.recipientName, true);
         }
     }

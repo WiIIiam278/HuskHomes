@@ -381,54 +381,62 @@ public class TeleportManager {
     }
 
     /**
-     * Processes a timed teleport
+     * Start the processing of a {@link TimedTeleport} warmup
      *
      * @param teleport the {@link TimedTeleport} to process
      * @return a future, returning when the teleport has finished
      */
     private CompletableFuture<TimedTeleport> processTeleportWarmup(@NotNull final TimedTeleport teleport) {
-
-        // Mark the player as warming up
-        currentlyOnWarmup.add(teleport.getPlayer().uuid);
-
-        // Display the message
-        plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(teleport.timeLeft))
-                .ifPresent(teleport.getPlayer()::sendMessage);
-
-        // Create a scheduled executor to tick the timed teleport
-        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        final CompletableFuture<TimedTeleport> timedTeleportFuture = new CompletableFuture<>();
-        executor.scheduleAtFixedRate(() -> {
-            // Display countdown action bar message
-            if (teleport.timeLeft > 0) {
-                plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
-                        .ifPresent(sound -> teleport.getPlayer().playSound(sound));
-                plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(teleport.timeLeft))
-                        .ifPresent(message -> {
-                            switch (plugin.getSettings().teleportWarmupDisplay) {
-                                case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
-                                case MESSAGE -> teleport.getPlayer().sendMessage(message);
-                            }
-                        });
-            } else {
-                plugin.getLocales().getLocale("teleporting_action_bar_processing")
-                        .ifPresent(message -> {
-                            switch (plugin.getSettings().teleportWarmupDisplay) {
-                                case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
-                                case MESSAGE -> teleport.getPlayer().sendMessage(message);
-                            }
-                        });
+        // Execute the warmup start event
+        return plugin.getEventDispatcher().dispatchTeleportWarmupEvent(teleport, teleport.timeLeft).thenApply(event -> {
+            // Handle event cancellation
+            if (event.isCancelled()) {
+                teleport.cancelled = true;
+                return teleport;
             }
 
-            // Tick (decrement) the timed teleport timer
-            final Optional<TimedTeleport> result = tickTeleportWarmup(teleport);
-            if (result.isPresent()) {
-                currentlyOnWarmup.remove(teleport.getPlayer().uuid);
-                timedTeleportFuture.complete(teleport);
-                executor.shutdown();
-            }
-        }, 0, 1, TimeUnit.SECONDS);
-        return timedTeleportFuture;
+            // Mark the player as warming up
+            currentlyOnWarmup.add(teleport.getPlayer().uuid);
+
+            // Display the message
+            plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(teleport.timeLeft))
+                    .ifPresent(teleport.getPlayer()::sendMessage);
+
+            // Create a scheduled executor to tick the timed teleport
+            final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            final CompletableFuture<TimedTeleport> timedTeleportFuture = new CompletableFuture<>();
+            executor.scheduleAtFixedRate(() -> {
+                // Display countdown action bar message
+                if (teleport.timeLeft > 0) {
+                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
+                            .ifPresent(sound -> teleport.getPlayer().playSound(sound));
+                    plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(teleport.timeLeft))
+                            .ifPresent(message -> {
+                                switch (plugin.getSettings().teleportWarmupDisplay) {
+                                    case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                    case MESSAGE -> teleport.getPlayer().sendMessage(message);
+                                }
+                            });
+                } else {
+                    plugin.getLocales().getLocale("teleporting_action_bar_processing")
+                            .ifPresent(message -> {
+                                switch (plugin.getSettings().teleportWarmupDisplay) {
+                                    case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                    case MESSAGE -> teleport.getPlayer().sendMessage(message);
+                                }
+                            });
+                }
+
+                // Tick (decrement) the timed teleport timer
+                final Optional<TimedTeleport> result = tickTeleportWarmup(teleport);
+                if (result.isPresent()) {
+                    currentlyOnWarmup.remove(teleport.getPlayer().uuid);
+                    timedTeleportFuture.complete(teleport);
+                    executor.shutdown();
+                }
+            }, 0, 1, TimeUnit.SECONDS);
+            return timedTeleportFuture.join();
+        });
     }
 
     /**

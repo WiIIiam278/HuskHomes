@@ -24,7 +24,7 @@ public enum TeleportResult {
     FAILED_ALREADY_TELEPORTING(false),
 
     /**
-     * Returns if the {@link Teleport} warmup could not be started because they were moving
+     * Returns if the {@link TimedTeleport} warmup could not be started because they were moving
      */
     FAILED_MOVING(false),
 

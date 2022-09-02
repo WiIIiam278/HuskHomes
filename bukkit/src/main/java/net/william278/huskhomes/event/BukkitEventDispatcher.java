@@ -4,6 +4,7 @@ import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +23,17 @@ public class BukkitEventDispatcher implements EventDispatcher {
         final CompletableFuture<ITeleportEvent> dispatchFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             final TeleportEvent event = new TeleportEvent(teleport);
+            Bukkit.getPluginManager().callEvent(event);
+            dispatchFuture.complete(event);
+        });
+        return dispatchFuture;
+    }
+
+    @Override
+    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+        final CompletableFuture<ITeleportWarmupEvent> dispatchFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            final TeleportWarmupEvent event = new TeleportWarmupEvent(teleport, duration);
             Bukkit.getPluginManager().callEvent(event);
             dispatchFuture.complete(event);
         });

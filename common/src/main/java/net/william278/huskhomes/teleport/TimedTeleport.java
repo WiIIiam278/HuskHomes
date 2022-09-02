@@ -9,9 +9,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TimedTeleport {
 
-    private final OnlineUser onlineUser;
-    private final Position targetPosition;
-    private final Position startLocation;
+    public final OnlineUser onlineUser;
+    public final Position targetPosition;
+    public final Position startLocation;
     private final double startHealth;
     protected int timeLeft;
     public boolean cancelled = false;

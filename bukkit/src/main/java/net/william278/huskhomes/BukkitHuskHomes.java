@@ -434,7 +434,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
     @Override
     public @NotNull Version getPluginVersion() {
-        return Version.fromString(getDescription().getVersion());
+        return Version.fromString(getDescription().getVersion(), "-");
     }
 
     @Override

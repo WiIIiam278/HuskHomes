@@ -1,7 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.modrinth.minotaur' version '2.+'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.ajoberstar.grgit' version '5.0.0'
     id 'java'
@@ -98,19 +97,6 @@ subprojects {
 
         jar.dependsOn shadowJar
         clean.delete "$rootDir/target"
-    }
-}
-
-tasks {
-    modrinth {
-        token = System.getenv("MODRINTH_TOKEN")
-        projectId = "huskhomes"
-        versionType = "alpha"
-        gameVersions = ["1.16.5", "1.17.1", "1.18.2", "1.19.2"]
-        versionName = "${project.version}"
-        versionNumber = "${project.version}"
-        versionType = "alpha"
-        uploadFile = file("$rootDir/target/HuskHomes-Plugin-${project.version}.jar")
     }
 }
 

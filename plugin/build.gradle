@@ -1,6 +1,23 @@
+plugins {
+    id 'com.modrinth.minotaur' version '2.+'
+}
+
 dependencies {
     implementation project(path: ':bukkit', configuration: 'shadow')
 }
 
-shadowJar {
+tasks {
+    modrinth {
+        token = System.getenv("MODRINTH_TOKEN")
+        projectId = "huskhomes"
+        versionType = "alpha"
+        gameVersions = ["1.16.5", "1.17.1", "1.18.2", "1.19.2"]
+        loaders = ["spigot", "paper", "purpur"]
+        versionName = "${project.version}"
+        versionNumber = "${project.version}"
+        versionType = "alpha"
+        uploadFile = file("$rootDir/target/HuskHomes-Plugin-${project.version}.jar")
+    }
 }
+
+tasks.getByName("build").finalizedBy(tasks.getByName("modrinth"))

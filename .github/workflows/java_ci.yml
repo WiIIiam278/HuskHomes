@@ -23,7 +23,10 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: build test
+          arguments: build test modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_CHANGELOG: ${{ join(github.event.commits.*.message, '<br>') }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:

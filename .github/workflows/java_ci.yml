@@ -38,7 +38,7 @@ jobs:
           modrinth-featured: false
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files-primary: target/HuskHomes-Plugin-*.jar
-          name: HuskHomes
+          name: HuskHomes ${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}

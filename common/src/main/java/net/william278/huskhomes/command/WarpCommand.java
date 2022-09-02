@@ -42,7 +42,8 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return plugin.getCache().warps.stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     @Override

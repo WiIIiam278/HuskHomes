@@ -132,8 +132,11 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
         if (user == null) {
             return Collections.emptyList();
         }
-        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes.get(user.uuid).stream()
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes
+                .getOrDefault(user.uuid, new ArrayList<>())
+                .stream()
                 .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

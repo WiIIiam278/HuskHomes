@@ -200,12 +200,15 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return switch (args.length) {
-            case 0, 1 -> plugin.getCache().warps.stream()
+            case 0, 1 -> plugin.getCache().warps
+                    .stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                    .sorted().collect(Collectors.toList());
+                    .sorted()
+                    .collect(Collectors.toList());
             case 2 -> Arrays.stream(EDIT_WARP_COMPLETIONS)
                     .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                    .sorted().collect(Collectors.toList());
+                    .sorted()
+                    .collect(Collectors.toList());
             default -> Collections.emptyList();
         };
     }

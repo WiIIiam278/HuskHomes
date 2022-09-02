@@ -342,12 +342,15 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             return Collections.emptyList();
         }
         return switch (args.length) {
-            case 0, 1 -> plugin.getCache().homes.get(user.uuid).stream()
+            case 0, 1 -> plugin.getCache().homes.getOrDefault(user.uuid, new ArrayList<>())
+                    .stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                    .sorted().collect(Collectors.toList());
+                    .sorted()
+                    .collect(Collectors.toList());
             case 2 -> Arrays.stream(EDIT_HOME_COMPLETIONS)
                     .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                    .sorted().collect(Collectors.toList());
+                    .sorted()
+                    .collect(Collectors.toList());
             default -> Collections.emptyList();
         };
     }

@@ -8,6 +8,7 @@ import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -78,7 +79,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.owner.username + "." + home.meta.name);
+                    + home.owner.username + "." + home.meta.name);
             plugin.getTeleportManager().teleport(playerToTeleport, home)
                     .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
         });
@@ -89,8 +90,11 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
         if (user == null) {
             return Collections.emptyList();
         }
-        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes.get(user.uuid).stream()
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes
+                .getOrDefault(user.uuid, new ArrayList<>())
+                .stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

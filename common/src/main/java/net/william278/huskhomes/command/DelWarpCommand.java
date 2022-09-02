@@ -76,8 +76,10 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
-        return args.length > 1 ? Collections.emptyList() : plugin.getCache().warps.stream()
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().warps
+                .stream()
                 .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

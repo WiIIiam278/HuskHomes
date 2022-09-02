@@ -104,9 +104,11 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().publicHomes.forEach((ownerName, homeNames) ->
                 homeNames.forEach(homeName -> publicHomes.add(ownerName + "." + homeName)));
-        return args.length > 1 ? Collections.emptyList() : publicHomes.stream().filter(publicHomeIdentifier ->
-                        publicHomeIdentifier.split(Pattern.quote("."))[1].toLowerCase()
+        return args.length > 1 ? Collections.emptyList() : publicHomes
+                .stream()
+                .filter(publicHomeIdentifier -> publicHomeIdentifier.split(Pattern.quote("."))[1].toLowerCase()
                                 .startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

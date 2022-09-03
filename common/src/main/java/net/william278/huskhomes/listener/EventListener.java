@@ -56,7 +56,7 @@ public class EventListener {
                                     .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
                             onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
                         } else {
-                            onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports).join();
+                            onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
                         }
                         plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRun(() ->
                                 plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null))
@@ -75,9 +75,8 @@ public class EventListener {
                                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
                                             .ifPresent(onlineUser::playSound);
                                 }
-                            }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
-                            .join();
-                })).join();
+                            }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null));
+                }));
             }
         }).thenRun(() -> {
             // Update the cached player list

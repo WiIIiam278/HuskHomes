@@ -118,28 +118,26 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
-        return CompletableFuture.supplyAsync(() -> {
-            final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
-            if (bukkitLocation.isEmpty()) {
-                return TeleportResult.FAILED_INVALID_WORLD;
+        final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
+        if (bukkitLocation.isEmpty()) {
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_WORLD);
+        }
+        assert bukkitLocation.get().getWorld() != null;
+        if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_ILLEGAL_COORDINATES);
+        }
+        final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () -> {
+            if (asynchronous) {
+                PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
+                        .thenAccept(result -> resultCompletableFuture.complete(
+                                result ? TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD));
+            } else {
+                player.teleport(bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
             }
-            assert bukkitLocation.get().getWorld() != null;
-            if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
-                return TeleportResult.FAILED_ILLEGAL_COORDINATES;
-            }
-            final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-            Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () -> {
-                if (asynchronous) {
-                    PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
-                            .thenAccept(result -> resultCompletableFuture.complete(
-                                    result ? TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD));
-                } else {
-                    player.teleport(bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
-                }
-            });
-            return resultCompletableFuture.join();
         });
+        return resultCompletableFuture;
     }
 
     @Override

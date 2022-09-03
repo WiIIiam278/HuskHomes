@@ -261,19 +261,19 @@ public class TeleportManager {
 
         final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
         if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
-            return CompletableFuture.supplyAsync(() -> processTeleportWarmup(new TimedTeleport(onlineUser, position, teleportWarmupTime))
-                    .thenApply(teleport -> {
-                        if (!teleport.cancelled) {
-                            for (final Settings.EconomyAction action : economyActions) {
-                                if (!plugin.validateEconomyCheck(onlineUser, action)) {
-                                    return TeleportResult.CANCELLED;
-                                }
-                            }
-                            return teleport(onlineUser, position).join();
-                        } else {
+            final TimedTeleport timedTeleport = new TimedTeleport(onlineUser, position, teleportWarmupTime);
+            return processTeleportWarmup(timedTeleport).thenApplyAsync(teleport -> {
+                if (!teleport.cancelled) {
+                    for (final Settings.EconomyAction action : economyActions) {
+                        if (!plugin.validateEconomyCheck(onlineUser, action)) {
                             return TeleportResult.CANCELLED;
                         }
-                    }).join());
+                    }
+                    return teleport(onlineUser, position).join();
+                } else {
+                    return TeleportResult.CANCELLED;
+                }
+            });
         } else {
             return teleport(onlineUser, position);
         }

@@ -10,7 +10,7 @@
 All of this is supported on standalone and cross-server setups; players can set home and teleport on and between multiple servers on a proxy network.
 
 ## Features
-![Editing homes screenshot](images/edit-home-menu.png)
+![Editing homes animation](images/edit-homes-animation.gif)
 - Supports a wide array of commands players will understand in seconds.
 - Simple and intuitive interface; no clunky GUIs! Instead, the plugin provides a robust clickable chat menu system to view and manage homes and warps.
 - Supports teleporting to homes and players cross-server on a proxy network.
@@ -27,12 +27,14 @@ All of this is supported on standalone and cross-server setups; players can set 
 - Perfect for a small server with friends, or a large multiple-server network!
 
 ### Commands
+Too many? Don't worry; you can easily disable the commands you don't need.
 - /home, /sethome, /edithome, /homelist
 - /publichome, /publichomelist
 - /warp, /setwarp, /editwarp, /warplist
 - /tpa, /tpahere, /tpaccept, /tpdeny
 - /tp, /tphere, /tpall, /tpaall
-- /spawn, /rtp, /back, /huskhomes
+- /spawn, /rtp, /back, /huskhomes 
+- [Full list & permissions](https://william278.net/docs/huskhomes/Commands)
 ![Command list screenshot](images/command-list.png)
 
 ### Requirements

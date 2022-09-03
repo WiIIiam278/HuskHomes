@@ -388,7 +388,7 @@ public class TeleportManager {
      */
     private CompletableFuture<TimedTeleport> processTeleportWarmup(@NotNull final TimedTeleport teleport) {
         // Execute the warmup start event
-        return plugin.getEventDispatcher().dispatchTeleportWarmupEvent(teleport, teleport.timeLeft).thenApply(event -> {
+        return plugin.getEventDispatcher().dispatchTeleportWarmupEvent(teleport, teleport.timeLeft).thenApplyAsync(event -> {
             // Handle event cancellation
             if (event.isCancelled()) {
                 teleport.cancelled = true;

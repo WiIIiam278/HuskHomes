@@ -382,7 +382,7 @@ public abstract class Database {
      * @param home The {@link Home} to set - or update - in the database.
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setHome(@NotNull Home home);
+    public abstract CompletableFuture<Void> saveHome(@NotNull Home home);
 
     /**
      * Sets or updates a {@link Warp} into the warp data table on the database.
@@ -390,7 +390,7 @@ public abstract class Database {
      * @param warp The {@link Warp} to set - or update - in the database.
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setWarp(@NotNull Warp warp);
+    public abstract CompletableFuture<Void> saveWarp(@NotNull Warp warp);
 
     /**
      * Deletes a {@link Home} by the given unique id from the home table on the database.

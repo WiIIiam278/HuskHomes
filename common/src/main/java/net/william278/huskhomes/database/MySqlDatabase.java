@@ -886,7 +886,7 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Void> setHome(@NotNull Home home) {
+    public CompletableFuture<Void> saveHome(@NotNull Home home) {
         return CompletableFuture.runAsync(() -> getHome(home.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
                     try (Connection connection = getConnection()) {
@@ -935,7 +935,7 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Void> setWarp(@NotNull Warp warp) {
+    public CompletableFuture<Void> saveWarp(@NotNull Warp warp) {
         return CompletableFuture.runAsync(() -> getWarp(warp.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentWarp -> {
                     try (Connection connection = getConnection()) {

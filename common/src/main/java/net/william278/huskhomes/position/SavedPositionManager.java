@@ -89,7 +89,7 @@ public class SavedPositionManager {
                             cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                             cache.homes.get(home.owner.uuid).add(home.meta.name);
                             cache.privateHomeLists.remove(home.owner.uuid);
-                            return database.setHome(home).thenApply(value ->
+                            return database.saveHome(home).thenApply(value ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                         }).join();
                     }
@@ -178,7 +178,7 @@ public class SavedPositionManager {
                     if (home.isPublic && mapHook != null) {
                         mapHook.updateHome(home);
                     }
-                    return database.setHome(home).thenApply(value ->
+                    return database.saveHome(home).thenApply(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                 }).join();
             });
@@ -226,7 +226,7 @@ public class SavedPositionManager {
             if (home.isPublic && mapHook != null) {
                 mapHook.updateHome(home);
             }
-            return database.setHome(home).thenApply(ignored -> true).join();
+            return database.saveHome(home).thenApply(ignored -> true).join();
         });
     }
 
@@ -263,7 +263,7 @@ public class SavedPositionManager {
                 return false;
             }
 
-            return database.setHome(home).thenApply(ignored -> {
+            return database.saveHome(home).thenApply(ignored -> {
                 if (isHomePublic) {
                     cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
                     cache.publicHomes.get(home.owner.username).add(home.meta.name);
@@ -307,7 +307,7 @@ public class SavedPositionManager {
                             if (mapHook != null) {
                                 mapHook.updateWarp(warp);
                             }
-                            return database.setWarp(warp).thenApply(ignored ->
+                            return database.saveWarp(warp).thenApply(ignored ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                         }).join();
                     }
@@ -389,7 +389,7 @@ public class SavedPositionManager {
                     if (mapHook != null) {
                         mapHook.updateWarp(warp);
                     }
-                    return database.setWarp(warp).thenApply(value ->
+                    return database.saveWarp(warp).thenApply(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                 }).join();
             });
@@ -436,7 +436,7 @@ public class SavedPositionManager {
             if (mapHook != null) {
                 mapHook.updateWarp(warp);
             }
-            return database.setWarp(warp).thenApply(ignored -> true).join();
+            return database.saveWarp(warp).thenApply(ignored -> true).join();
         });
     }
 

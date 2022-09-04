@@ -905,6 +905,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.runAsync(() -> getHome(home.uuid)
                 .thenAccept(existingHome -> existingHome.ifPresentOrElse(presentHome -> {
                     try {
+                        // Update the home's saved position, including metadata
                         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                                 SELECT `saved_position_id` FROM `%homes_table%`
                                 WHERE `uuid`=?;"""))) {
@@ -914,6 +915,16 @@ public class SqLiteDatabase extends Database {
                             if (resultSet.next()) {
                                 updateSavedPosition(resultSet.getInt("saved_position_id"), home, connection);
                             }
+                        }
+
+                        // Update the home privacy
+                        try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                                UPDATE `%homes_table%`
+                                SET `public`=?
+                                WHERE `uuid`=?;"""))) {
+                            statement.setBoolean(1, home.isPublic);
+                            statement.setString(2, home.uuid.toString());
+                            statement.executeUpdate();
                         }
                     } catch (SQLException e) {
                         getLogger().log(Level.SEVERE,

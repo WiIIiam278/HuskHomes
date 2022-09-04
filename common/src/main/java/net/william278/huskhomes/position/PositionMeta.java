@@ -60,11 +60,16 @@ public class PositionMeta {
      * @return The deserialized {@link Map}
      */
     private static Map<String, String> deserializeTags(@Nullable String serializedTags) {
-        if (serializedTags == null || serializedTags.isBlank()) {
-            return new HashMap<>();
+        try {
+            if (serializedTags == null || serializedTags.isBlank()) {
+                return new HashMap<>();
+            }
+            return new Gson().fromJson(serializedTags, new TypeToken<Map<String, String>>() {
+            }.getType());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return new Gson().fromJson(serializedTags, new TypeToken<Map<String, String>>() {
-        }.getType());
+        return new HashMap<>();
     }
 
     /**
@@ -74,10 +79,15 @@ public class PositionMeta {
      */
     @Nullable
     public String getSerializedTags() {
-        if (tags.isEmpty()) {
-            return null;
+        try {
+            if (tags.isEmpty()) {
+                return null;
+            }
+            return new Gson().toJson(tags);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return new Gson().toJson(tags);
+        return null;
     }
 
 }

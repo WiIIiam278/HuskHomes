@@ -264,7 +264,7 @@ public class SavedPositionManager {
             }
 
             return database.saveHome(home).thenApply(ignored -> {
-                if (isHomePublic) {
+                if (home.isPublic) {
                     cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
                     cache.publicHomes.get(home.owner.username).add(home.meta.name);
                     if (mapHook != null) {

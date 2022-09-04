@@ -1,6 +1,8 @@
 package net.william278.huskhomes.api;
 
+import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
@@ -266,6 +268,30 @@ public abstract class BaseHuskHomesAPI {
      */
     public final void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
         plugin.setRandomTeleportEngine(randomTeleportEngine);
+    }
+
+    /**
+     * Get a {@link MineDown}-formatted locale by key from the plugin {@link Locales} file
+     *
+     * @param localeKey    The key of the locale to get
+     * @param replacements Replacement strings to apply to the locale
+     * @return The {@link MineDown}-formatted locale
+     * @since 3.0
+     */
+    public final Optional<MineDown> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
+        return plugin.getLocales().getLocale(localeKey, replacements);
+    }
+
+    /**
+     * Get a raw locale string by key from the plugin {@link Locales} file
+     *
+     * @param localeKey    The key of the locale to get
+     * @param replacements Replacement strings to apply to the locale
+     * @return The raw locale string
+     * @since 3.0
+     */
+    public final Optional<String> getRawLocale(@NotNull String localeKey, @NotNull String... replacements) {
+        return plugin.getLocales().getRawLocale(localeKey, replacements);
     }
 
 }

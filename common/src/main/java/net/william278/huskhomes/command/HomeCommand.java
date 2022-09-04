@@ -25,7 +25,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
+            case 0 -> plugin.getDatabase().getHomes(onlineUser).thenAcceptAsync(homes -> {
                 // Send the home list if they have homes set. If they have just one home set, teleport the player
                 switch (homes.size()) {
                     case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);

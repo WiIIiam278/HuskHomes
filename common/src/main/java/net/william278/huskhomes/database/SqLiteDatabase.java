@@ -190,14 +190,15 @@ public class SqLiteDatabase extends Database {
     @Override
     protected int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%saved_positions_table%` (`position_id`, `name`, `description`, `timestamp`)
-                        VALUES (?,?,?,?);"""),
+                        INSERT INTO `%saved_positions_table%` (`position_id`, `name`, `description`, `tags`, `timestamp`)
+                        VALUES (?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.meta.name);
             statement.setString(3, position.meta.description);
-            statement.setTimestamp(4, Timestamp.from(position.meta.creationTime));
+            statement.setString(4, position.meta.getSerializedTags());
+            statement.setTimestamp(5, Timestamp.from(position.meta.creationTime));
             statement.executeUpdate();
 
             // Return the ID of the newly inserted row
@@ -226,11 +227,13 @@ public class SqLiteDatabase extends Database {
                 try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
                         UPDATE `%saved_positions_table%`
                         SET `name`=?,
-                        `description`=?
+                        `description`=?,
+                        `tags`=?
                         WHERE `id`=?;"""))) {
                     updateStatement.setString(1, position.meta.name);
                     updateStatement.setString(2, position.meta.description);
-                    updateStatement.setInt(3, savedPositionId);
+                    updateStatement.setString(3, position.meta.getSerializedTags());
+                    updateStatement.setInt(4, savedPositionId);
                     updateStatement.executeUpdate();
                 }
             }
@@ -337,7 +340,7 @@ public class SqLiteDatabase extends Database {
             final List<Home> userHomes = new ArrayList<>();
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -359,7 +362,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 user,
                                 resultSet.getBoolean("public")));
@@ -378,7 +382,7 @@ public class SqLiteDatabase extends Database {
             final List<Warp> warps = new ArrayList<>();
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -396,7 +400,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -413,7 +418,7 @@ public class SqLiteDatabase extends Database {
             final List<Home> userHomes = new ArrayList<>();
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -433,7 +438,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -452,7 +458,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -474,7 +480,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -493,7 +500,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                        SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                         FROM `%homes_table%`
                         INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -513,7 +520,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("home_uuid")),
                                 new User(UUID.fromString(resultSet.getString("owner_uuid")),
                                         resultSet.getString("owner_username")),
@@ -532,7 +540,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -551,7 +559,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }
@@ -567,7 +576,7 @@ public class SqLiteDatabase extends Database {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                        SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                         FROM `%warps_table%`
                         INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                         INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
@@ -586,7 +595,8 @@ public class SqLiteDatabase extends Database {
                                 new Server(resultSet.getString("server_name")),
                                 new PositionMeta(resultSet.getString("name"),
                                         resultSet.getString("description"),
-                                        resultSet.getTimestamp("timestamp").toInstant()),
+                                        resultSet.getTimestamp("timestamp").toInstant(),
+                                        resultSet.getString("tags")),
                                 UUID.fromString(resultSet.getString("warp_uuid"))));
                     }
                 }

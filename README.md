@@ -15,7 +15,7 @@ All of this is supported on standalone and cross-server setups; players can set 
 - Simple and intuitive interface; no clunky GUIs! Instead, the plugin provides a robust clickable chat menu system to view and manage homes and warps.
 - Supports teleporting to homes and players cross-server on a proxy network.
 - Teleport requests (/tpa; /tpahere; /tpaccept; /tpdeny), supported through multiple servers
-![Teleport requests screenshot](images/teleport-requests.png)
+![Teleport requests animation](images/teleport-requests-animation.gif)
 - Smart random teleport system to let your players get out into the wild quickly and safely
 - Has a /back command to let players return to their previous position, or where they died if they have the right permissions
 - Integrate your economy by configuring costs for teleporting, setting homes and random teleporting.

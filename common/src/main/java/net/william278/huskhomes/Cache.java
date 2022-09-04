@@ -4,6 +4,7 @@ import de.themoep.minedown.MineDown;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
@@ -12,10 +13,7 @@ import net.william278.paginedown.ListOptions;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -60,9 +58,14 @@ public class Cache {
     public final HashMap<UUID, PaginatedList> warpLists;
 
     /**
+     * Plugin event dispatcher
+     */
+    private final EventDispatcher eventDispatcher;
+
+    /**
      * Create a new cache
      */
-    public Cache() {
+    public Cache(@NotNull EventDispatcher eventDispatcher) {
         this.homes = new HashMap<>();
         this.publicHomes = new HashMap<>();
         this.warps = new ArrayList<>();
@@ -70,6 +73,7 @@ public class Cache {
         this.privateHomeLists = new HashMap<>();
         this.publicHomeLists = new HashMap<>();
         this.warpLists = new HashMap<>();
+        this.eventDispatcher = eventDispatcher;
     }
 
     /**
@@ -134,8 +138,11 @@ public class Cache {
     }
 
     @NotNull
-    public MineDown getHomeList(@NotNull OnlineUser onlineUser, @NotNull User listOwner, @NotNull Locales locales,
-                                @NotNull List<Home> homes, final int itemsPerPage, final int page) {
+    public Optional<MineDown> getHomeList(@NotNull OnlineUser onlineUser, @NotNull User listOwner, @NotNull Locales locales,
+                                          @NotNull List<Home> homes, final int itemsPerPage, final int page) {
+        if (eventDispatcher.dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
+            return Optional.empty();
+        }
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
                                 Locales.escapeMineDown(home.meta.name),
@@ -147,7 +154,50 @@ public class Cache {
                         "%last_item_on_page_index%", "%total_items%").orElse(""))
                 .setCommand("/huskhomes:homelist").build());
         this.privateHomeLists.put(onlineUser.uuid, homeList);
-        return homeList.getNearestValidPage(page);
+        return Optional.of(homeList.getNearestValidPage(page));
+    }
+
+    @NotNull
+    public Optional<MineDown> getPublicHomeList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
+                                                @NotNull List<Home> publicHomes, final int itemsPerPage, final int page) {
+        if (eventDispatcher.dispatchViewHomeListEvent(publicHomes, onlineUser, true).join().isCancelled()) {
+            return Optional.empty();
+        }
+        final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
+                locales.getRawLocale("public_home_list_item",
+                                Locales.escapeMineDown(home.meta.name),
+                                Locales.escapeMineDown(home.owner.username + "." + home.meta.name),
+                                Locales.escapeMineDown(home.owner.username),
+                                Locales.escapeMineDown(locales.formatDescription(home.meta.description)))
+                        .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
+                        "%first_item_on_page_index%", "%last_item_on_page_index%",
+                        "%total_items%").orElse(""))
+                .setCommand("/huskhomes:publichomelist").build());
+        publicHomeLists.put(onlineUser.uuid, publicHomeList);
+        return Optional.of(publicHomeList.getNearestValidPage(page));
+    }
+
+    @NotNull
+    public Optional<MineDown> getWarpList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
+                                          @NotNull List<Warp> warps, final boolean permissionRestrictWarps,
+                                          final int itemsPerPage, final int page) {
+        if (eventDispatcher.dispatchViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
+            return Optional.empty();
+        }
+        final PaginatedList warpList = PaginatedList.of(warps.stream()
+                .filter(warp -> !permissionRestrictWarps || onlineUser.hasPermission(warp.getPermissionNode()))
+                .map(warp ->
+                        locales.getRawLocale("warp_list_item",
+                                        Locales.escapeMineDown(warp.meta.name),
+                                        Locales.escapeMineDown(locales.formatDescription(warp.meta.description)))
+                                .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
+                        "%first_item_on_page_index%", "%last_item_on_page_index%",
+                        "%total_items%").orElse(""))
+                .setCommand("/huskhomes:warplist").build());
+        warpLists.put(onlineUser.uuid, warpList);
+        return Optional.of(warpList.getNearestValidPage(page));
     }
 
     @NotNull
@@ -167,43 +217,6 @@ public class Cache {
                                 .setHeaderFormat(locales.getRawLocale("command_list_title").orElse(""))
                                 .setItemSeparator("\n").setCommand("/huskhomes:huskhomes help").build())
                 .getNearestValidPage(page);
-    }
-
-    @NotNull
-    public MineDown getPublicHomeList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
-                                      @NotNull List<Home> publicHomes, final int itemsPerPage, final int page) {
-        final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
-                locales.getRawLocale("public_home_list_item",
-                                Locales.escapeMineDown(home.meta.name),
-                                Locales.escapeMineDown(home.owner.username + "." + home.meta.name),
-                                Locales.escapeMineDown(home.owner.username),
-                                Locales.escapeMineDown(locales.formatDescription(home.meta.description)))
-                        .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
-                .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
-                        "%first_item_on_page_index%", "%last_item_on_page_index%",
-                        "%total_items%").orElse(""))
-                .setCommand("/huskhomes:publichomelist").build());
-        publicHomeLists.put(onlineUser.uuid, publicHomeList);
-        return publicHomeList.getNearestValidPage(page);
-    }
-
-    @NotNull
-    public MineDown getWarpList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
-                                @NotNull List<Warp> warps, final boolean permissionRestrictWarps,
-                                final int itemsPerPage, final int page) {
-        final PaginatedList warpList = PaginatedList.of(warps.stream()
-                .filter(warp -> !permissionRestrictWarps || onlineUser.hasPermission(warp.getPermissionNode()))
-                .map(warp ->
-                        locales.getRawLocale("warp_list_item",
-                                        Locales.escapeMineDown(warp.meta.name),
-                                        Locales.escapeMineDown(locales.formatDescription(warp.meta.description)))
-                                .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
-                .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
-                        "%first_item_on_page_index%", "%last_item_on_page_index%",
-                        "%total_items%").orElse(""))
-                .setCommand("/huskhomes:warplist").build());
-        warpLists.put(onlineUser.uuid, warpList);
-        return warpList.getNearestValidPage(page);
     }
 
 }

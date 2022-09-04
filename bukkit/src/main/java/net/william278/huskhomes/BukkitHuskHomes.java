@@ -147,10 +147,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
 
-            // Initialize the cache
-            cache = new Cache();
-            cache.initialize(database);
-
             // Prepare the teleport manager
             this.teleportManager = new TeleportManager(this);
 
@@ -159,6 +155,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Prepare the event dispatcher
             this.eventDispatcher = new BukkitEventDispatcher(this);
+
+            // Initialize the cache
+            cache = new Cache(eventDispatcher);
+            cache.initialize(database);
 
             // Prepare the home and warp position manager
             this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher,

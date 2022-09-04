@@ -47,13 +47,17 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
             return;
         }
 
+        // Dispatch the warp list event
         plugin.getDatabase().getWarps().thenAccept(warps -> {
             if (warps.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                    plugin.getSettings().permissionRestrictWarps, plugin.getSettings().listItemsPerPage, pageNumber));
+            plugin.getCache().getWarpList(onlineUser,
+                    plugin.getLocales(), warps,
+                    plugin.getSettings().permissionRestrictWarps,
+                    plugin.getSettings().listItemsPerPage,
+                    pageNumber).ifPresent(onlineUser::sendMessage);
         });
     }
 

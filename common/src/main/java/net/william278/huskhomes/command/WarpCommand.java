@@ -26,8 +26,10 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                     plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                onlineUser.sendMessage(plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                        plugin.getSettings().permissionRestrictWarps, plugin.getSettings().listItemsPerPage, 1));
+                plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
+                                plugin.getSettings().permissionRestrictWarps,
+                                plugin.getSettings().listItemsPerPage, 1)
+                        .ifPresent(onlineUser::sendMessage);
             });
             case 1 -> {
                 final String warpName = args[0];

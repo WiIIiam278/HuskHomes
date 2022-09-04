@@ -52,8 +52,10 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
                 plugin.getLocales().getLocale("error_no_public_homes_set").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            onlineUser.sendMessage(plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(), publicHomes,
-                    plugin.getSettings().listItemsPerPage, pageNumber));
+            plugin.getCache().getPublicHomeList(onlineUser,
+                            plugin.getLocales(), publicHomes,
+                            plugin.getSettings().listItemsPerPage, pageNumber)
+                    .ifPresent(onlineUser::sendMessage);
         });
 
     }

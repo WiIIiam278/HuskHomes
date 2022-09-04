@@ -33,8 +33,9 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                     return;
                 }
 
-                onlineUser.sendMessage(plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(), publicHomes,
-                        plugin.getSettings().listItemsPerPage, 1));
+                plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(),
+                                publicHomes, plugin.getSettings().listItemsPerPage, 1)
+                        .ifPresent(onlineUser::sendMessage);
             });
             case 1 -> {
                 final String homeName = args[0];
@@ -92,7 +93,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.owner.username + "." + home.meta.name);
+                    + home.owner.username + "." + home.meta.name);
             plugin.getTeleportManager().teleport(playerToTeleport, home)
                     .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
         });
@@ -107,7 +108,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
         return args.length > 1 ? Collections.emptyList() : publicHomes
                 .stream()
                 .filter(publicHomeIdentifier -> publicHomeIdentifier.split(Pattern.quote("."))[1].toLowerCase()
-                                .startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
+                        .startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted()
                 .collect(Collectors.toList());
     }

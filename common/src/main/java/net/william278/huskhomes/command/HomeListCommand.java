@@ -74,8 +74,10 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                     }
                     return;
                 }
-                onlineUser.sendMessage(plugin.getCache().getHomeList(onlineUser, userData.user(),
-                        plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, pageNumber));
+                plugin.getCache().getHomeList(onlineUser, userData.user(),
+                                plugin.getLocales(), homes,
+                                plugin.getSettings().listItemsPerPage, pageNumber)
+                        .ifPresent(onlineUser::sendMessage);
             });
         }, () -> plugin.getLocales().getLocale("error_player_not_found", homeOwner).ifPresent(onlineUser::sendMessage)));
 
@@ -97,9 +99,9 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             StringJoiner rowJoiner = new StringJoiner("   ");
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
-                                                       + homes.size() + " homes:");
+                    + homes.size() + " homes:");
             for (int i = 1; i <= homes.size(); i++) {
-                final String home = homes.get(i-1).meta.name;
+                final String home = homes.get(i - 1).meta.name;
                 rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
                 if (i % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());

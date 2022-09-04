@@ -36,6 +36,8 @@ Too many? Don't worry; you can easily disable the commands you don't need.
 - /spawn, /rtp, /back, /huskhomes 
 - [Full list & permissions](https://william278.net/docs/huskhomes/Commands)
 ![Command list screenshot](images/command-list.png)
+![Edit home menu screenshot](images/edit-home-menu.png)
+![Teleport requests screenshot](images/teleport-requests.png)
 
 ### Requirements
 * A Spigot-based Minecraft server (1.16.5 or higher, Java 16+)

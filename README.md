@@ -39,16 +39,17 @@ Too many? Don't worry; you can easily disable the commands you don't need.
 ![Edit home menu screenshot](images/edit-home-menu.png)
 ![Teleport requests screenshot](images/teleport-requests.png)
 
+## Setup
 ### Requirements
 * A Spigot-based Minecraft server (1.16.5 or higher, Java 16+)
 * (For proxy network support) A proxy server (1.16+) and MySQL v8.0+ database
 * (For optional redis support) A Redis database v5.0+
 
-### Setup
+### Instructions
 1. Place the plugin jar file in the `/plugins/` directory of your server(s).
 2. Restart your server(s) to let HuskHomes generate its config file.
 3. Configure the plugin to your liking by editing the config file.
-    * If you are using a proxy network, you will need to configure the plugin on each server, including specifying database credentials.
+    * If you are using a proxy network, you will need to configure the plugin on each server, including specifying database credentials and enabling the `cross_server` mode.
 4. Turn on your server(s) and enjoy!
 
 ## Building

@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
     `position_id` integer      NOT NULL,
     `name`        varchar(64)  NOT NULL,
     `description` varchar(255) NOT NULL,
+    `tags`        mediumtext            DEFAULT NULL,
     `timestamp`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),

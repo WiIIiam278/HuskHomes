@@ -357,7 +357,7 @@ public abstract class BaseHuskHomesAPI {
                                                                           final boolean timedTeleport,
                                                                           @NotNull String... rtpArgs) {
         return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine()
-                .getRandomPosition(user.getPosition(), rtpArgs)
+                .getRandomPosition(user, rtpArgs)
                 .thenApply(position -> {
                     if (position.isPresent()) {
                         return teleportPlayer(user, position.get(), timedTeleport).join();

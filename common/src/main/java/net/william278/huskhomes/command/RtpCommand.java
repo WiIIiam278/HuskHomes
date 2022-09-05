@@ -61,8 +61,8 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
             final Instant currentTime = Instant.now();
             if (!isExecutorTeleporting
-                && !currentTime.isAfter(userData.get().rtpCooldown())
-                && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                    && !currentTime.isAfter(userData.get().rtpCooldown())
+                    && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                 plugin.getLocales().getLocale("error_rtp_cooldown",
                                 Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES)))
                         .ifPresent(onlineUser::sendMessage);
@@ -70,7 +70,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
 
             // Get a random position and teleport
-            plugin.getRandomTeleportEngine().getRandomPosition(userPosition, rtpArguments)
+            plugin.getRandomTeleportEngine().getRandomPosition(onlineUser, rtpArguments)
                     .thenAccept(position -> {
                         if (position.isEmpty()) {
                             plugin.getLocales().getLocale("error_rtp_randomization_timeout")
@@ -80,7 +80,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                         (isExecutorTeleporting ? plugin.getTeleportManager().timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
                                 : plugin.getTeleportManager().teleport(userToTeleport, position.get())).thenAccept(result -> {
                             if (isExecutorTeleporting &&
-                                result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                                    result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                                 plugin.getDatabase().updateUserData(new UserData(onlineUser,
                                         userData.get().homeSlots(), userData.get().ignoringTeleports(),
                                         Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
@@ -105,7 +105,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
-        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
+        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
             if (position.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
                 return;

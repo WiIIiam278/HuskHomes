@@ -39,6 +39,10 @@ Too many? Don't worry; you can easily disable the commands you don't need.
 ![Edit home menu screenshot](images/edit-home-menu.png)
 ![Teleport requests screenshot](images/teleport-requests.png)
 
+### Add-ons
+* [HuskHomesPlaceholders](https://github.com/WiIIiam278/HuskHomesPlaceholders) (A PlaceholderAPI expansion for HuskHomes)
+* [HuskHomesGUI](https://github.com/WiIIiam278/HuskHomesGUI) (GUI menus for viewing homes and warps)
+
 ## Setup
 ### Requirements
 * A Spigot-based Minecraft server (1.16.5 or higher, Java 16+)

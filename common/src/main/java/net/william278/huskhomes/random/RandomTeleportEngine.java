@@ -107,7 +107,7 @@ public abstract class RandomTeleportEngine {
     /**
      * Generates a new random {@link Location} on this server within the radius of the origin position.
      * <p>
-     * The default implementation of a {@link RandomTeleportEngine} will only invoke this message in two occasions:
+     * The default implementation of a {@link RandomTeleportEngine} will only invoke this message in three occasions:
      * <ul>
      *     <li>If the cache is empty (the arguments specified by the permission request command will be passed).</li>
      *     <li>When a position has been requested from the cache ({@link #getRandomLocation(World, String...)}, this will

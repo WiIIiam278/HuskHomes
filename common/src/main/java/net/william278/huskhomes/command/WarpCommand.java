@@ -21,7 +21,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getWarps().thenAccept(warps -> {
+            case 0 -> plugin.getDatabase().getWarps().thenAcceptAsync(warps -> {
                 if (warps.isEmpty()) {
                     plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                     return;

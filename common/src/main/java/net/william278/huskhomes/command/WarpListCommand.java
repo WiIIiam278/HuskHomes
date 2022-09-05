@@ -48,7 +48,7 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
         }
 
         // Dispatch the warp list event
-        plugin.getDatabase().getWarps().thenAccept(warps -> {
+        plugin.getDatabase().getWarps().thenAcceptAsync(warps -> {
             if (warps.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
                 return;

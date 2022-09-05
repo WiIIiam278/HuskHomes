@@ -6,9 +6,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
-import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import org.jetbrains.annotations.NotNull;
@@ -146,6 +144,28 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get a {@link Home} from the database owned by a given {@link User} with the specified name
+     *
+     * @param user     The {@link User} to get the home of
+     * @param homeName The name of the home to get
+     * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
+     * @since 3.0
+     */
+    public final CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
+        return plugin.getDatabase().getHome(user, homeName);
+    }
+
+    /**
+     * Get a {@link Home} from the database by its' unique id
+     *
+     * @param homeUuid The {@link UUID} of the home to get
+     * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
+     */
+    public final CompletableFuture<Optional<Home>> getHome(@NotNull UUID homeUuid) {
+        return plugin.getDatabase().getHome(homeUuid);
+    }
+
+    /**
      * Get a list of {@link Warp}s
      *
      * @return A {@link CompletableFuture} that will complete with a list of {@link Warp}s
@@ -153,6 +173,96 @@ public abstract class BaseHuskHomesAPI {
      */
     public final CompletableFuture<List<Warp>> getWarps() {
         return plugin.getDatabase().getWarps();
+    }
+
+    /**
+     * Get a {@link Warp} from the database with the specified name
+     *
+     * @param warpName The name of the warp to get
+     * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
+     * @since 3.0
+     */
+    public final CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
+        return plugin.getDatabase().getWarp(warpName);
+    }
+
+    /**
+     * Get a {@link Warp} from the database by its' unique id
+     *
+     * @param warpUuid The {@link UUID} of the warp to get
+     * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
+     */
+    public final CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID warpUuid) {
+        return plugin.getDatabase().getWarp(warpUuid);
+    }
+
+    /**
+     * Update the {@link PositionMeta} of a {@link Home}
+     *
+     * @param home    The {@link Home} to update
+     * @param newMeta The new {@link PositionMeta} to set
+     * @return A {@link CompletableFuture} that will complete when the {@link Home} has been updated with a
+     * {@link SavedPositionManager.SaveResult} indicating if the update was successful
+     * @since 3.0
+     */
+    public final CompletableFuture<SavedPositionManager.SaveResult> updateHomeMeta(@NotNull Home home,
+                                                                                   @NotNull PositionMeta newMeta) {
+        return plugin.getSavedPositionManager().updateHomeMeta(home, newMeta);
+    }
+
+    /**
+     * Update the position of a {@link Home}, relocating it
+     *
+     * @param home        The {@link Home} to update
+     * @param newPosition The new {@link Position} to relocate the home to
+     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the home was
+     * updated ({@code true} if it was updated; otherwise, {@code false})
+     * @since 3.0
+     */
+    public final CompletableFuture<Boolean> updateHomePosition(@NotNull Home home,
+                                                               @NotNull Position newPosition) {
+        return plugin.getSavedPositionManager().updateHomePosition(home, newPosition);
+    }
+
+    /**
+     * Update the privacy of a {@link Home}
+     *
+     * @param home     The {@link Home} to update
+     * @param isPublic Whether the home should be set to public or not
+     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the home's privacy
+     * was updated ({@code true} if it was updated; otherwise, {@code false})
+     * @since 3.0
+     */
+    public final CompletableFuture<Boolean> updateHomePrivacy(@NotNull Home home,
+                                                              final boolean isPublic) {
+        return plugin.getSavedPositionManager().updateHomePrivacy(home, isPublic);
+    }
+
+    /**
+     * Update the {@link PositionMeta} of a {@link Warp}
+     *
+     * @param warp    The {@link Warp} to update
+     * @param newMeta The new {@link PositionMeta} to set
+     * @return A {@link CompletableFuture} that will complete when the {@link Warp} has been updated with a
+     * {@link SavedPositionManager.SaveResult} indicating if the update was successful
+     * @since 3.0
+     */
+    public final CompletableFuture<SavedPositionManager.SaveResult> updateWarpMeta(@NotNull Warp warp,
+                                                                                   @NotNull PositionMeta newMeta) {
+        return plugin.getSavedPositionManager().updateWarpMeta(warp, newMeta);
+    }
+
+    /**
+     * Update the position of a {@link Warp}, relocating it
+     *
+     * @param warp        The {@link Warp} to update
+     * @param newPosition The new {@link Position} to relocate the warp to
+     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the warp was
+     * updated ({@code true} if it was updated; otherwise, {@code false})
+     */
+    public final CompletableFuture<Boolean> updateWarpPosition(@NotNull Warp warp,
+                                                               @NotNull Position newPosition) {
+        return plugin.getSavedPositionManager().updateWarpPosition(warp, newPosition);
     }
 
     /**
@@ -201,8 +311,9 @@ public abstract class BaseHuskHomesAPI {
      * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user, @NotNull Position position,
-                                                                  boolean timedTeleport) {
+    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user,
+                                                                  @NotNull Position position,
+                                                                  final boolean timedTeleport) {
         return timedTeleport ? plugin.getTeleportManager().timedTeleport(user, position)
                 : plugin.getTeleportManager().teleport(user, position);
     }
@@ -232,9 +343,11 @@ public abstract class BaseHuskHomesAPI {
      * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport,
+    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user,
+                                                                          final boolean timedTeleport,
                                                                           @NotNull String... rtpArgs) {
-        return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine().getRandomPosition(user.getPosition(), rtpArgs)
+        return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine()
+                .getRandomPosition(user.getPosition(), rtpArgs)
                 .thenApply(position -> {
                     if (position.isPresent()) {
                         return teleportPlayer(user, position.get(), timedTeleport).join();

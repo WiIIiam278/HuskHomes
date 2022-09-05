@@ -254,13 +254,14 @@ public class TeleportManager {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING);
         }
 
-        // Cancel if the player is already moving
-        if (onlineUser.isMoving()) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING);
-        }
-
         final int teleportWarmupTime = plugin.getSettings().teleportWarmupTime;
         if (!onlineUser.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node) && teleportWarmupTime > 0) {
+            // Cancel if the player is already moving
+            if (onlineUser.isMoving()) {
+                return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING);
+            }
+
+            // Carry out the timed teleport
             final TimedTeleport timedTeleport = new TimedTeleport(onlineUser, position, teleportWarmupTime);
             return processTeleportWarmup(timedTeleport).thenApplyAsync(teleport -> {
                 if (!teleport.cancelled) {

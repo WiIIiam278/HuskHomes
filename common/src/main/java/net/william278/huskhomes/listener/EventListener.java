@@ -52,7 +52,7 @@ public class EventListener {
                     if (activeTeleport.type == TeleportType.RESPAWN) {
                         final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                         if (bedPosition.isEmpty()) {
-                            plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getPluginServer()))
+                            plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
                                     .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
                             onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
                         } else {

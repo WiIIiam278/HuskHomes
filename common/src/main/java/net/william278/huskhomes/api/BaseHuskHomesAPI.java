@@ -197,6 +197,16 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get the canonical {@link Position} of the spawn point. Note that if cross-server and global spawn
+     * are enabled in the config, this may not return a position on this server.
+     *
+     * @return A {@link CompletableFuture} that will complete with the {@link Position} of the spawn point
+     */
+    public final CompletableFuture<Optional<? extends Position>> getSpawn() {
+        return CompletableFuture.supplyAsync(plugin::getSpawn);
+    }
+
+    /**
      * Update the {@link PositionMeta} of a {@link Home}
      *
      * @param home    The {@link Home} to update

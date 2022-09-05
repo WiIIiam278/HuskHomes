@@ -21,16 +21,13 @@ public class SpawnCommand extends CommandBase {
             return;
         }
 
-        CompletableFuture.supplyAsync(() -> plugin.getSettings().crossServer && plugin.getSettings().globalSpawn
-                        ? plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).join()
-                        : plugin.getServerSpawn().flatMap(spawn -> spawn.getLocation(plugin.getPluginServer())))
-                .thenAccept(position -> {
-                    if (position.isEmpty()) {
-                        plugin.getLocales().getLocale("error_spawn_not_set")
-                                .ifPresent(onlineUser::sendMessage);
-                        return;
-                    }
-                    plugin.getTeleportManager().timedTeleport(onlineUser, position.get());
-                });
+        CompletableFuture.supplyAsync(plugin::getSpawn).thenAccept(position -> {
+            if (position.isEmpty()) {
+                plugin.getLocales().getLocale("error_spawn_not_set")
+                        .ifPresent(onlineUser::sendMessage);
+                return;
+            }
+            plugin.getTeleportManager().timedTeleport(onlineUser, position.get());
+        });
     }
 }

@@ -33,7 +33,7 @@ public class CachedSpawn {
      *
      * @return The {@link Position} of the spawn
      */
-    public Optional<Position> getLocation(@NotNull Server server) {
+    public Optional<Position> getPosition(@NotNull Server server) {
         try {
             return Optional.of(new Position(x, y, z, yaw, pitch,
                     new World(worldName, UUID.fromString(worldUuid)), server));

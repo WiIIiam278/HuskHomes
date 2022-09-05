@@ -387,7 +387,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public Optional<CachedSpawn> getServerSpawn() {
+    public Optional<CachedSpawn> getLocalCachedSpawn() {
         return Optional.ofNullable(serverSpawn);
     }
 

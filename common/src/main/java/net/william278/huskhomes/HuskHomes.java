@@ -14,10 +14,7 @@ import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.Location;
-import net.william278.huskhomes.position.SavedPositionManager;
-import net.william278.huskhomes.position.Server;
-import net.william278.huskhomes.position.World;
+import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
@@ -165,11 +162,23 @@ public interface HuskHomes {
     List<Migrator> getMigrators();
 
     /**
-     * The {@link CachedSpawn} location of this server
+     * The local {@link CachedSpawn} location of this server, as cached to disk
      *
      * @return the {@link CachedSpawn} location data
+     * @see #getSpawn() for the canonical spawn point to use
      */
-    Optional<CachedSpawn> getServerSpawn();
+    Optional<CachedSpawn> getLocalCachedSpawn();
+
+    /**
+     * The canonical spawn {@link Position} of this server, if it has been set
+     *
+     * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
+     */
+    default Optional<? extends Position> getSpawn() {
+        return getSettings().crossServer && getSettings().globalSpawn
+                ? getDatabase().getWarp(getSettings().globalSpawnName).join()
+                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getPluginServer()));
+    }
 
     /**
      * Returns a future returning the latest plugin {@link Version} if the plugin is out-of-date

@@ -41,8 +41,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             plugin.getCache().updatePlayerListCache(plugin, onlineUser).join();
             final String playerToTeleport = plugin.getCache().players.stream()
                     .filter(user -> user.equalsIgnoreCase(targetPlayerToTeleport)).findFirst()
-                    .or(() -> plugin.getCache().players.stream()
-                            .filter(user -> user.toLowerCase().startsWith(targetPlayerToTeleport)).findFirst())
+                    .or(() -> Optional.ofNullable(targetPlayerToTeleport.equals("@s") ? onlineUser.username : null))
+                    .or(() -> plugin.getCache().players.stream().filter(user -> user.toLowerCase().startsWith(targetPlayerToTeleport)).findFirst())
                     .orElse(null);
 
             // Ensure the player to teleport exists
@@ -183,7 +183,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Execute the console teleport
         if (teleportTarget instanceof TargetPlayer targetPlayer) {
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username
-                                                       + " to " + targetPlayer.playerName);
+                    + " to " + targetPlayer.playerName);
             plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, targetPlayer.playerName, false);
         } else {
             final TargetPosition targetPosition = (TargetPosition) teleportTarget;
@@ -193,7 +193,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                             plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
                         } else {
                             plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username
-                                                                          + " (" + teleportResult.name() + ")");
+                                    + " (" + teleportResult.name() + ")");
                         }
                         plugin.getTeleportManager().finishTeleport(playerToTeleport, teleportResult);
                     });

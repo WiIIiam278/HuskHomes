@@ -31,6 +31,21 @@ public class Position extends Location {
     }
 
     /**
+     * Update the position to match that of another position
+     *
+     * @param newPosition The position to update to
+     */
+    public void update(@NotNull Position newPosition) {
+        this.x = newPosition.x;
+        this.y = newPosition.y;
+        this.z = newPosition.z;
+        this.yaw = newPosition.yaw;
+        this.pitch = newPosition.pitch;
+        this.world = newPosition.world;
+        this.server = newPosition.server;
+    }
+
+    /**
      * Parses the position from a set of values
      *
      * @param args       The values to parse

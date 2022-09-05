@@ -134,24 +134,6 @@ public class SavedPositionManager {
     /**
      * Tries to update an existing home with new metadata
      *
-     * @param homeOwner        the owner of the home
-     * @param existingHomeName the current name of the home to update
-     * @param newHomeMeta      the new metadata for the home
-     * @return a future supplying the {@link SaveResult}; the result of updating the home
-     */
-    public CompletableFuture<SaveResult> updateHomeMeta(@NotNull User homeOwner, @NotNull String existingHomeName,
-                                                        @NotNull PositionMeta newHomeMeta) {
-        return database.getHome(homeOwner, existingHomeName).thenApply(optionalHome -> {
-            if (optionalHome.isPresent()) {
-                return updateHomeMeta(optionalHome.get(), newHomeMeta).join();
-            }
-            return new SaveResult(SaveResult.ResultType.FAILED_DOES_NOT_EXIST, Optional.empty());
-        });
-    }
-
-    /**
-     * Tries to update an existing home with new metadata
-     *
      * @param home        the home to update
      * @param newHomeMeta the new metadata for the home
      * @return a future supplying the {@link SaveResult}; the result of updating the home
@@ -189,36 +171,12 @@ public class SavedPositionManager {
     /**
      * Tries to update the position of a {@link User}'s home
      *
-     * @param homeOwner   the owner of the home
-     * @param homeName    the name of the home
-     * @param newPosition the new position for the home
-     * @return a future supplying the {@link SaveResult}; the result of updating the home
-     */
-    public CompletableFuture<Boolean> updateHomePosition(@NotNull User homeOwner, @NotNull String homeName,
-                                                         @NotNull Position newPosition) {
-        return database.getHome(homeOwner, homeName).thenApply(optionalHome -> {
-            if (optionalHome.isPresent()) {
-                return updateHomePosition(optionalHome.get(), newPosition).join();
-            }
-            return false;
-        });
-    }
-
-    /**
-     * Tries to update the position of a {@link User}'s home
-     *
      * @param home        the home to update
      * @param newPosition the new position for the home
      * @return a future supplying the {@link SaveResult}; the result of updating the home
      */
     public CompletableFuture<Boolean> updateHomePosition(@NotNull Home home, @NotNull Position newPosition) {
-        home.x = newPosition.x;
-        home.y = newPosition.y;
-        home.z = newPosition.z;
-        home.pitch = newPosition.pitch;
-        home.yaw = newPosition.yaw;
-        home.world = newPosition.world;
-        home.server = newPosition.server;
+        home.update(newPosition);
         return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
             if (event.isCancelled()) {
                 return false;
@@ -227,25 +185,6 @@ public class SavedPositionManager {
                 mapHook.updateHome(home);
             }
             return database.saveHome(home).thenApply(ignored -> true).join();
-        });
-    }
-
-    /**
-     * Tries to change the privacy of a {@link User}'s home by given name
-     *
-     * @param homeOwner    the owner of the home
-     * @param homeName     the name of the home
-     * @param isHomePublic whether the home should be public or not
-     * @return a future supplying a boolean; {@code true} if the privacy was changed, otherwise {@code false}
-     * if the home name was invalid.
-     */
-    public CompletableFuture<Boolean> updateHomePrivacy(@NotNull User homeOwner, @NotNull String homeName,
-                                                        final boolean isHomePublic) {
-        return database.getHome(homeOwner, homeName).thenApply(optionalHome -> {
-            if (optionalHome.isPresent()) {
-                return updateHomePrivacy(optionalHome.get(), isHomePublic).join();
-            }
-            return false;
         });
     }
 
@@ -345,23 +284,6 @@ public class SavedPositionManager {
     }
 
     /**
-     * Tries to update an existing home with new metadata
-     *
-     * @param existingWarpName the current name of the home to update
-     * @param newWarpMeta      the new metadata for the home
-     * @return a future supplying the {@link SaveResult}; the result of updating the home
-     */
-    public CompletableFuture<SaveResult> updateWarpMeta(@NotNull String existingWarpName,
-                                                        @NotNull PositionMeta newWarpMeta) {
-        return database.getWarp(existingWarpName).thenApply(optionalWarp -> {
-            if (optionalWarp.isPresent()) {
-                return updateWarpMeta(optionalWarp.get(), newWarpMeta).join();
-            }
-            return new SaveResult(SaveResult.ResultType.FAILED_DOES_NOT_EXIST, Optional.empty());
-        });
-    }
-
-    /**
      * Tries to update an existing warp with new metadata
      *
      * @param warp        the warp to update
@@ -400,35 +322,12 @@ public class SavedPositionManager {
     /**
      * Tries to update the position of a warp
      *
-     * @param warpName    the name of the home
-     * @param newPosition the new position for the home
-     * @return a future supplying the {@link SaveResult}; the result of updating the home
-     */
-    public CompletableFuture<Boolean> updateWarpPosition(@NotNull String warpName,
-                                                         @NotNull Position newPosition) {
-        return database.getWarp(warpName).thenApply(optionalWarp -> {
-            if (optionalWarp.isPresent()) {
-                return updateWarpPosition(optionalWarp.get(), newPosition).join();
-            }
-            return false;
-        });
-    }
-
-    /**
-     * Tries to update the position of a warp
-     *
      * @param warp        the warp to update
      * @param newPosition the new position for the warp
      * @return a future supplying the {@link SaveResult}; the result of updating the warp
      */
     public CompletableFuture<Boolean> updateWarpPosition(@NotNull Warp warp, @NotNull Position newPosition) {
-        warp.x = newPosition.x;
-        warp.y = newPosition.y;
-        warp.z = newPosition.z;
-        warp.pitch = newPosition.pitch;
-        warp.yaw = newPosition.yaw;
-        warp.world = newPosition.world;
-        warp.server = newPosition.server;
+        warp.update(newPosition);
         return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
             if (event.isCancelled()) {
                 return false;
@@ -488,11 +387,6 @@ public class SavedPositionManager {
             SUCCESS(true),
 
             /**
-             * The home or warp was not set or updated because it does not exist
-             */
-            FAILED_DOES_NOT_EXIST(false),
-
-            /**
              * The position was not set; one by this name has already been set (for the user in the case of homes)
              */
             FAILED_DUPLICATE(false),
@@ -520,12 +414,7 @@ public class SavedPositionManager {
             /**
              * The position was not set or updated; the save event was cancelled by a plugin
              */
-            FAILED_EVENT_CANCELLED(false),
-
-            /**
-             * The position was not set or updated; an exception occurred
-             */
-            FAILED_ERROR(false);
+            FAILED_EVENT_CANCELLED(false);
 
             public final boolean successful;
 

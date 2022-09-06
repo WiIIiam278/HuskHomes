@@ -78,7 +78,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> setHome(@NotNull PositionMeta homeMeta, @NotNull User homeOwner,
                                                  @NotNull Position position) {
-        return database.getHome(homeOwner, homeMeta.name).thenApply(optionalHome ->
+        return database.getHome(homeOwner, homeMeta.name).thenApplyAsync(optionalHome ->
                 validateMeta(homeMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalHome.isEmpty()) {
                         final Home home = new Home(position, homeMeta, homeOwner);
@@ -106,7 +106,7 @@ public class SavedPositionManager {
      * if the home name was invalid.
      */
     public CompletableFuture<Boolean> deleteHome(@NotNull User homeOwner, @NotNull String homeName) {
-        return database.getHome(homeOwner, homeName).thenApply(optionalHome -> {
+        return database.getHome(homeOwner, homeName).thenApplyAsync(optionalHome -> {
             if (optionalHome.isPresent()) {
                 return eventDispatcher.dispatchHomeDeleteEvent(optionalHome.get()).thenApply(event -> {
                     if (event.isCancelled()) {
@@ -177,7 +177,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateHomePosition(@NotNull Home home, @NotNull Position newPosition) {
         home.update(newPosition);
-        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }
@@ -197,7 +197,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateHomePrivacy(@NotNull Home home, final boolean isHomePublic) {
         home.isPublic = isHomePublic;
-        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }
@@ -233,7 +233,7 @@ public class SavedPositionManager {
      * @return a future supplying the {@link SaveResult}; the result of setting the warp
      */
     public CompletableFuture<SaveResult> setWarp(@NotNull PositionMeta warpMeta, @NotNull Position position) {
-        return database.getWarp(warpMeta.name).thenApply(optionalWarp ->
+        return database.getWarp(warpMeta.name).thenApplyAsync(optionalWarp ->
                 validateMeta(warpMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalWarp.isEmpty()) {
                         final Warp warp = new Warp(position, warpMeta);
@@ -262,7 +262,7 @@ public class SavedPositionManager {
      * if the warp name was invalid.
      */
     public CompletableFuture<Boolean> deleteWarp(@NotNull String warpName) {
-        return database.getWarp(warpName).thenApply(optionalWarp -> {
+        return database.getWarp(warpName).thenApplyAsync(optionalWarp -> {
             if (optionalWarp.isPresent()) {
                 return eventDispatcher.dispatchWarpDeleteEvent(optionalWarp.get()).thenApply(event -> {
                     if (event.isCancelled()) {
@@ -328,7 +328,7 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateWarpPosition(@NotNull Warp warp, @NotNull Position newPosition) {
         warp.update(newPosition);
-        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }

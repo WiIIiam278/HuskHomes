@@ -21,9 +21,9 @@ public class RequestManager {
     private final HuskHomes plugin;
 
     /**
-     * Map of user UUIDs to a list of received teleport requests
+     * Map of user UUIDs to a queue of received teleport requests
      */
-    private final Map<UUID, List<TeleportRequest>> requests;
+    private final Map<UUID, Deque<TeleportRequest>> requests;
 
     /**
      * Set of users who are ignoring tpa requests
@@ -36,6 +36,12 @@ public class RequestManager {
         this.ignoringRequests = new HashSet<>();
     }
 
+    /**
+     * Mark a user as ignoring or listening to tpa requests
+     *
+     * @param user     the user to update
+     * @param ignoring whether the user should be ignoring requests
+     */
     public void setIgnoringRequests(@NotNull User user, boolean ignoring) {
         if (ignoring) {
             this.ignoringRequests.add(user.uuid);
@@ -44,28 +50,68 @@ public class RequestManager {
         }
     }
 
+    /**
+     * Return if a user is ignoring tpa requests
+     *
+     * @param user the user to check
+     * @return {@code true} if the user is ignoring tpa requests
+     */
     public boolean isIgnoringRequests(@NotNull User user) {
         return this.ignoringRequests.contains(user.uuid);
     }
 
+    /**
+     * Add a teleport request to a user's request queue
+     *
+     * @param request   the {@link TeleportRequest} to add
+     * @param recipient the {@link User} recipient of the request
+     */
     public void addTeleportRequest(@NotNull TeleportRequest request, @NotNull User recipient) {
-        this.requests.computeIfAbsent(recipient.uuid, uuid -> new ArrayList<>()).add(request);
+        this.requests.computeIfAbsent(recipient.uuid, uuid -> new LinkedList<>()).addFirst(request);
     }
 
-    public void removeTeleportRequest(@NotNull TeleportRequest request, @NotNull User recipient) {
-        this.requests.computeIfPresent(recipient.uuid, (uuid, set) -> {
-            set.remove(request);
-            return set.isEmpty() ? null : set;
+    /**
+     * Remove {@link TeleportRequest}(s) sent by a requester, by name, from a recipient's queue
+     *
+     * @param requesterName username of the sender of the request(s) to delete
+     * @param recipient     the {@link User} recipient of the request
+     */
+    public void removeTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
+        this.requests.computeIfPresent(recipient.uuid, (uuid, requests) -> {
+            requests.removeIf(teleportRequest -> teleportRequest.requesterName.equalsIgnoreCase(requesterName));
+            return requests.isEmpty() ? null : requests;
         });
     }
 
+    /**
+     * Get the last received teleport request for a user
+     *
+     * @param recipient the user to get the request for
+     * @return the last received request, if present
+     */
     public Optional<TeleportRequest> getLastTeleportRequest(@NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.uuid, Collections.emptyList()).stream().reduce((a, b) -> b);
+        return Optional.of(this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).getFirst());
     }
 
+    /**
+     * Returns the last non-expired teleport request received from a requester.
+     * <ol>
+     * <li>If there are no unexpired requests sent by the requester, then the last expired request is returned.</li>
+     * <li>If there are no requests at all from the requester, then an empty optional is returned.</li>
+     * </ol>
+     *
+     * @param requesterName the name of the requester
+     * @param recipient     the recipient {@link User}
+     * @return the last unexpired teleport request received from the requester, if present
+     */
     public Optional<TeleportRequest> getTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.uuid, Collections.emptyList()).stream().filter(request ->
-                request.requesterName.equals(requesterName)).findFirst();
+        return this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream()
+                .filter(request -> request.requesterName.equalsIgnoreCase(requesterName))
+                .filter(request -> !request.hasExpired())
+                .findFirst()
+                .or(() -> this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream()
+                        .filter(request -> request.requesterName.equalsIgnoreCase(requesterName))
+                        .findFirst());
     }
 
     /**
@@ -150,13 +196,20 @@ public class RequestManager {
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.type == TeleportRequest.RequestType.TPA ? "tpa" : "tpahere")
-                                      + "_request_received", request.requesterName)
+                        + "_request_received", request.requesterName)
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.requesterName)
                 .ifPresent(recipient::sendMessage);
         return Optional.of(request);
     }
 
+    /**
+     * Respond to a teleport request with the given status by name of the sender
+     *
+     * @param recipient  The user receiving the request
+     * @param senderName The name of the user sending the request
+     * @param accepted   Whether the request was accepted or not
+     */
     public void respondToTeleportRequestBySenderName(@NotNull OnlineUser recipient, @NotNull String senderName,
                                                      boolean accepted) {
         // Check the recipient is not ignoring teleport requests
@@ -175,6 +228,12 @@ public class RequestManager {
         handleRequestResponse(namedRequest.get(), recipient, accepted);
     }
 
+    /**
+     * Respond to the last received teleport request for a user, if there is one
+     *
+     * @param recipient The user receiving the request
+     * @param accepted  Whether the request should be accepted or not
+     */
     public void respondToTeleportRequest(@NotNull OnlineUser recipient, boolean accepted) {
         // Check the recipient is not ignoring teleport requests
         if (isIgnoringRequests(recipient)) {
@@ -191,9 +250,17 @@ public class RequestManager {
         handleRequestResponse(lastRequest.get(), recipient, accepted);
     }
 
+    /**
+     * Handle; respond to; a teleport request
+     *
+     * @param request   The request to handle
+     * @param recipient The recipient of the request
+     * @param accepted  Whether the request should be accepted or not
+     */
     private void handleRequestResponse(@NotNull TeleportRequest request, @NotNull OnlineUser recipient,
                                        boolean accepted) {
-        removeTeleportRequest(request, recipient);
+        // Remove the request(s) from the sender from the recipient's queue
+        removeTeleportRequest(request.requesterName, recipient);
 
         // Check if the request has expired
         if (request.hasExpired()) {
@@ -256,6 +323,12 @@ public class RequestManager {
         });
     }
 
+    /**
+     * Handle a teleport request response for a local user
+     *
+     * @param requester The user who sent the request
+     * @param request   The {@link TeleportRequest} to handle
+     */
     public void handleLocalRequestResponse(@NotNull OnlineUser requester, @NotNull TeleportRequest request) {
         boolean accepted = request.status == TeleportRequest.RequestStatus.ACCEPTED;
         plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined"),

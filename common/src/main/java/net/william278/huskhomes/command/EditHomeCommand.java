@@ -36,7 +36,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
 
             RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
                     homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
-                            .thenAccept(optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
+                            .thenAcceptAsync(optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
                                         if (!userData.getUserUuid().equals(onlineUser.uuid)) {
                                             if (!onlineUser.hasPermission(Permission.COMMAND_EDIT_HOME_OTHER.node)) {
                                                 plugin.getLocales().getLocale("error_no_permission")
@@ -58,7 +58,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                                     () -> plugin.getLocales().getLocale("error_home_invalid_other",
                                                     homeIdentifier.ownerName(), homeIdentifier.homeName())
                                             .ifPresent(onlineUser::sendMessage))),
-                    () -> plugin.getDatabase().getHome(onlineUser, homeName).thenAccept(optionalHome -> {
+                    () -> plugin.getDatabase().getHome(onlineUser, homeName).thenAcceptAsync(optionalHome -> {
                         if (optionalHome.isEmpty()) {
                             plugin.getLocales().getLocale("error_home_invalid", homeName)
                                     .ifPresent(onlineUser::sendMessage);

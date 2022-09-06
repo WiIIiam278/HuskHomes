@@ -31,7 +31,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
             final String editOperation = args.length >= 2 ? args[1] : null;
             final String editArgs = getEditArguments(args);
 
-            plugin.getDatabase().getWarp(warpName).thenAccept(optionalWarp -> {
+            plugin.getDatabase().getWarp(warpName).thenAcceptAsync(optionalWarp -> {
                 if (optionalWarp.isEmpty()) {
                     plugin.getLocales().getLocale("error_warp_invalid", warpName)
                             .ifPresent(onlineUser::sendMessage);

@@ -20,6 +20,13 @@ public class BukkitSafetyUtil {
      */
     public static Optional<Location> findSafeLocation(@NotNull World world, @NotNull org.bukkit.Location bukkitLocation,
                                                       @NotNull ChunkSnapshot chunkSnapshot) {
+        // Validate world
+        final org.bukkit.World bukkitWorld = bukkitLocation.getWorld();
+        if (bukkitWorld == null) {
+            return Optional.empty();
+        }
+
+        // Search nearby blocks for a safe, valid position
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 int chunkX = Math.abs(bukkitLocation.getBlockX() % 16) + i;
@@ -28,7 +35,7 @@ public class BukkitSafetyUtil {
                     continue;
                 }
                 int chunkY = chunkSnapshot.getHighestBlockYAt(chunkX, chunkZ);
-                if (isSafePosition(chunkSnapshot, chunkX, chunkY, chunkZ)) {
+                if (isSafePosition(chunkSnapshot, chunkX, chunkY, chunkZ, bukkitWorld)) {
                     return Optional.of(new Location(bukkitLocation.getBlockX() + i,
                             chunkY + 1.5d, bukkitLocation.getBlockZ() + j,
                             90, 0, world));
@@ -45,9 +52,18 @@ public class BukkitSafetyUtil {
      * @param chunkX        The chunk x coordinate to search at
      * @param chunkY        The chunk y coordinate to search at
      * @param chunkZ        The chunk z coordinate to search at
+     * @param world         The world to search in
      * @return True if the block is safe, false otherwise
      */
-    public static boolean isSafePosition(@NotNull ChunkSnapshot chunkSnapshot, final int chunkX, final int chunkY, final int chunkZ) {
+    public static boolean isSafePosition(@NotNull ChunkSnapshot chunkSnapshot,
+                                         final int chunkX, final int chunkY, final int chunkZ,
+                                         @NotNull org.bukkit.World world) {
+        // Check validity of the y-coordinate
+        if (chunkY < world.getMinHeight() || chunkY > world.getMaxHeight()) {
+            return false;
+        }
+
+        // Check block safety
         final Material blockType = chunkSnapshot.getBlockType(chunkX, chunkY, chunkZ);
         return switch (blockType) {
             // Special case handling for safe, un-solid blocks

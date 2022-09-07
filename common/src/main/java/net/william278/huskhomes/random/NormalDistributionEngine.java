@@ -32,9 +32,15 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     @Override
     protected @NotNull CompletableFuture<Optional<Location>> generateRandomLocation(@NotNull Location origin,
                                                                                     @NotNull String... args) {
-        return CompletableFuture.supplyAsync(() -> plugin.getSafeGroundLocation(generateLocation(origin, mean,
-                        standardDeviation, spawnRadius, radius)).join())
-                .orTimeout(5, TimeUnit.SECONDS)
+        return CompletableFuture.supplyAsync(() -> {
+                    Optional<Location> generated = plugin.getSafeGroundLocation(generateLocation(origin, mean,
+                            standardDeviation, spawnRadius, radius)).join();
+                    while (generated.isEmpty()) {
+                        generated = plugin.getSafeGroundLocation(generateLocation(origin, mean, standardDeviation,
+                                spawnRadius, radius)).join();
+                    }
+                    return generated;
+                }).orTimeout(5, TimeUnit.SECONDS)
                 .exceptionally(throwable -> Optional.empty());
     }
 

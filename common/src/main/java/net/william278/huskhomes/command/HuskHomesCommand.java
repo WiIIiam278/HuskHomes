@@ -37,6 +37,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
                         AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),
                         AboutMenu.Credit.of("anchelthe").withDescription("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Chiquis2005").withDescription("Spanish (es-es)"),
                         AboutMenu.Credit.of("Ceddix").withDescription("German, (de-de)"),
                         AboutMenu.Credit.of("Pukejoy_1").withDescription("Bulgarian (bg-bg)"))
                 .addButtons(

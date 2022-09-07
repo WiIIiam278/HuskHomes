@@ -47,7 +47,7 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
             return;
         }
 
-        plugin.getDatabase().getPublicHomes().thenAccept(publicHomes -> {
+        plugin.getDatabase().getPublicHomes().thenAcceptAsync(publicHomes -> {
             if (publicHomes.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_public_homes_set").ifPresent(onlineUser::sendMessage);
                 return;

@@ -121,7 +121,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             for (final Home toDelete : homes) {
                 homeDeletionFuture.add(plugin.getSavedPositionManager().deleteHome(homeOwner, toDelete.meta.name));
             }
-            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0])).thenRun(() ->
+            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0])).thenRunAsync(() ->
                     plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(homeDeletionFuture.size()))
                             .ifPresent(deleter::sendMessage)).join();
         });

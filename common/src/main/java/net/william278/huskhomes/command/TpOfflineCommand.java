@@ -39,8 +39,8 @@ public class TpOfflineCommand extends CommandBase implements TabCompletable {
                 plugin.getLocales().getLocale("teleporting_offline_player", targetUser)
                         .ifPresent(onlineUser::sendMessage);
                 plugin.getTeleportManager().teleport(onlineUser, offlinePosition.get()).thenAccept(
-                        result -> plugin.getTeleportManager().finishTeleport(onlineUser, result)).join();
-            }).join();
+                        result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+            });
         });
     }
 

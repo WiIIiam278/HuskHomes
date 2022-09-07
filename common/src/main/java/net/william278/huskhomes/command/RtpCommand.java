@@ -5,6 +5,7 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.Permission;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -70,25 +71,27 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
 
             // Get a random position and teleport
-            plugin.getRandomTeleportEngine().getRandomPosition(onlineUser, rtpArguments)
-                    .thenAccept(position -> {
-                        if (position.isEmpty()) {
-                            plugin.getLocales().getLocale("error_rtp_randomization_timeout")
-                                    .ifPresent(onlineUser::sendMessage);
-                            return;
-                        }
-                        (isExecutorTeleporting ? plugin.getTeleportManager().timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
-                                : plugin.getTeleportManager().teleport(userToTeleport, position.get())).thenAccept(result -> {
-                            if (isExecutorTeleporting &&
-                                    result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
-                                plugin.getDatabase().updateUserData(new UserData(onlineUser,
-                                        userData.get().homeSlots(), userData.get().ignoringTeleports(),
-                                        Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
-                            }
-                            plugin.getTeleportManager().finishTeleport(userToTeleport, result,
-                                    Settings.EconomyAction.RANDOM_TELEPORT);
-                        }).join();
-                    }).join();
+            plugin.getRandomTeleportEngine().getRandomPosition(onlineUser, rtpArguments).thenAccept(position -> {
+                if (position.isEmpty()) {
+                    plugin.getLocales().getLocale("error_rtp_randomization_timeout")
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+
+                final CompletableFuture<TeleportResult> randomTeleport = isExecutorTeleporting ? plugin.getTeleportManager()
+                        .timedTeleport(userToTeleport, position.get(), Settings.EconomyAction.RANDOM_TELEPORT)
+                        : plugin.getTeleportManager().teleport(userToTeleport, position.get());
+                randomTeleport.thenAccept(result -> {
+                    if (isExecutorTeleporting &&
+                            result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                        plugin.getDatabase().updateUserData(new UserData(onlineUser,
+                                userData.get().homeSlots(), userData.get().ignoringTeleports(),
+                                Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
+                    }
+                    plugin.getTeleportManager().finishTeleport(userToTeleport, result,
+                            Settings.EconomyAction.RANDOM_TELEPORT);
+                });
+            });
         });
     }
 

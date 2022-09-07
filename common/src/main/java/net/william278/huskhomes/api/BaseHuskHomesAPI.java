@@ -203,7 +203,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Position} of the spawn point
      */
     public final CompletableFuture<Optional<? extends Position>> getSpawn() {
-        return CompletableFuture.supplyAsync(plugin::getSpawn);
+        return plugin.getSpawn();
     }
 
     /**

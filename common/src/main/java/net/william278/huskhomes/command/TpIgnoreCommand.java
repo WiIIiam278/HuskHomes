@@ -26,7 +26,7 @@ public class TpIgnoreCommand extends CommandBase {
         plugin.getRequestManager().setIgnoringRequests(onlineUser, isIgnoringRequests);
 
         // Update value on the database and send a message
-        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(
+        plugin.getDatabase().getUserData(onlineUser.uuid).thenAcceptAsync(
                 userData -> userData.ifPresent(data -> plugin.getDatabase().updateUserData(new UserData(onlineUser,
                         data.homeSlots(), isIgnoringRequests, data.rtpCooldown())).join())).thenRun(
                 () -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),

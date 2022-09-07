@@ -197,7 +197,7 @@ public class TeleportManager {
      */
     public CompletableFuture<Optional<TeleportResult>> teleportNamedPlayers(@NotNull String playerName, @NotNull String targetPlayer,
                                                                             @NotNull OnlineUser requester, final boolean timed) {
-        return getPlayerPositionByName(requester, targetPlayer).thenApply(position -> {
+        return getPlayerPositionByName(requester, targetPlayer).thenApplyAsync(position -> {
             if (position.isEmpty()) {
                 return Optional.empty();
             }
@@ -375,7 +375,7 @@ public class TeleportManager {
     private CompletableFuture<TeleportResult> teleportCrossServer(@NotNull OnlineUser onlineUser, @NotNull Teleport teleport) {
 
         return plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
-                .thenApply(ignored -> plugin.getNetworkMessenger().sendPlayer(onlineUser, teleport.target.server)
+                .thenApplyAsync(ignored -> plugin.getNetworkMessenger().sendPlayer(onlineUser, teleport.target.server)
                         .thenApply(completed -> completed ? TeleportResult.COMPLETED_CROSS_SERVER :
                                 TeleportResult.FAILED_INVALID_SERVER)
                         .join());

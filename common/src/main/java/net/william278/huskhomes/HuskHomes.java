@@ -174,10 +174,10 @@ public interface HuskHomes {
      *
      * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
      */
-    default Optional<? extends Position> getSpawn() {
-        return getSettings().crossServer && getSettings().globalSpawn
+    default CompletableFuture<Optional<? extends Position>> getSpawn() {
+        return CompletableFuture.supplyAsync(() -> getSettings().crossServer && getSettings().globalSpawn
                 ? getDatabase().getWarp(getSettings().globalSpawnName).join()
-                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getPluginServer()));
+                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getPluginServer())));
     }
 
     /**

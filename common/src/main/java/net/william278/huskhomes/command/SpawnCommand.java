@@ -5,8 +5,6 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 public class SpawnCommand extends CommandBase {
 
     protected SpawnCommand(@NotNull HuskHomes implementor) {
@@ -21,7 +19,7 @@ public class SpawnCommand extends CommandBase {
             return;
         }
 
-        CompletableFuture.supplyAsync(plugin::getSpawn).thenAccept(position -> {
+        plugin.getSpawn().thenAccept(position -> {
             if (position.isEmpty()) {
                 plugin.getLocales().getLocale("error_spawn_not_set")
                         .ifPresent(onlineUser::sendMessage);

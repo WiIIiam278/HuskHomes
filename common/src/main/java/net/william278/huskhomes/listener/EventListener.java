@@ -41,7 +41,7 @@ public class EventListener {
                 firstUser = false;
                 plugin.fetchServer(onlineUser).join();
             }
-        }).thenRun(() -> {
+        }).thenRunAsync(() -> {
             // Ensure the player is present on the database first
             plugin.getDatabase().ensureUser(onlineUser).join();
         }).thenRun(() -> {
@@ -58,9 +58,8 @@ public class EventListener {
                         } else {
                             onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
                         }
-                        plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRun(() ->
-                                plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null))
-                                        .join()).join();
+                        plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRunAsync(() ->
+                                plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null)).join());
                         return;
                     }
 
@@ -81,7 +80,7 @@ public class EventListener {
         }).thenRun(() -> {
             // Update the cached player list
             plugin.getCache().updatePlayerListCache(plugin, onlineUser);
-        }).thenRun(() -> {
+        }).thenRunAsync(() -> {
             // Get this user's tp-ignore state and set locally
             plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
                 if (userData.isPresent()) {

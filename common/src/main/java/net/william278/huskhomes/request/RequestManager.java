@@ -139,7 +139,7 @@ public class RequestManager {
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().crossServer) {
             // Find the matching networked target
-            return plugin.getNetworkMessenger().findPlayer(requester, targetUser).thenApply(networkedTarget -> {
+            return plugin.getNetworkMessenger().findPlayer(requester, targetUser).thenApplyAsync(networkedTarget -> {
                 if (networkedTarget.isEmpty()) {
                     return Optional.empty();
                 }

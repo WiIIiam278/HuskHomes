@@ -44,7 +44,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                                                 return;
                                             }
                                         }
-                                        plugin.getDatabase().getHome(userData.user(), homeIdentifier.homeName()).thenAccept(optionalHome -> {
+                                        plugin.getDatabase().getHome(userData.user(), homeIdentifier.homeName()).thenAcceptAsync(optionalHome -> {
                                             if (optionalHome.isEmpty()) {
                                                 plugin.getLocales().getLocale("error_home_invalid_other",
                                                                 homeIdentifier.ownerName(), homeIdentifier.homeName())

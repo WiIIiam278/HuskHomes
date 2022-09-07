@@ -26,7 +26,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getPublicHomes().thenAccept(publicHomes -> {
+            case 0 -> plugin.getDatabase().getPublicHomes().thenAcceptAsync(publicHomes -> {
                 // Display the public home list if there are any public home set
                 if (publicHomes.size() == 0) {
                     plugin.getLocales().getLocale("error_no_public_homes_set").ifPresent(onlineUser::sendMessage);

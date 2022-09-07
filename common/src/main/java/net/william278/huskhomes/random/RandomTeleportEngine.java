@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +90,8 @@ public abstract class RandomTeleportEngine {
     }
 
     /**
-     * Populates the cache with new random locations, by calling {@link #generateRandomLocation(Location, String...)}
+     * Attempts to populate the cache with new random locations, by calling
+     * {@link #generateRandomLocation(Location, String...)}
      *
      * @param world     The world to populate the cache for
      * @param cacheSize The size of the cache
@@ -99,9 +99,10 @@ public abstract class RandomTeleportEngine {
      */
     private void populateCache(@NotNull World world, final int cacheSize) {
         final int amountToPopulate = Math.max(1, cacheSize) - cachedRandomLocations.get(world).size();
-        for (final AtomicInteger i = new AtomicInteger(); i.get() < amountToPopulate; i.getAndIncrement()) {
-            generateRandomLocation(new Location(0, 0, 0, 0f, 0f, world)).join()
-                    .ifPresentOrElse(location -> cachedRandomLocations.get(world).add(location), i::getAndDecrement);
+        final Location originLocation = new Location(0, 0, 0, world);
+        for (int i = 0; i < amountToPopulate; i++) {
+            generateRandomLocation(originLocation).thenAccept(location -> location
+                    .ifPresent(generated -> cachedRandomLocations.get(world).add(generated)));
         }
     }
 

@@ -1,217 +1,170 @@
-# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-# ┃      HuskHomes Locales       ┃
-# ┃    Developed by William278   ┃
-# ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-# ┣╸ See plugin about menu for international locale credits
-# ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-# ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/Translations
-edit_home_privacy_public_success: '[成功开放家](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
-edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&描述:\n&8%2%)\n'
-list_page_jumper_current_page: '[%1%](#00fb9a)'
-error_home_name_taken: '[错误:](#ff3300) [已有一个相同名称的家.](#ff7e5e)'
-tpahere_command_description: 要求其他玩家传送过来
-edit_home_privacy_public_success_other: '[成功将 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[
-  设为公开.](#00fb9a)'
-public_home_list_page_title: '[☀ 公共家:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a
-  bold)[)](#00fb9a)'
-teleporting_all_players: '[将](#00fb9a) [%1%](#00fb9a bold) [名玩家传送到您的位置…](#00fb9a)'
-list_page_jumpers: (%1%)
-warp_list_page_title: '[地标:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)'
-error_home_description_length: '[错误:](#ff3300) [家描述的长度只能包含255个字符!](#ff7e5e)'
-error_ignoring_teleport_requests: '[错误:](#ff3300) [您目前忽略传送请求.](#ff7e5e) [[停止忽略…]](#ff7e5e
-  show_text=&#ff7e5e&点击接收传送请求 run_command=/huskhomes:tpignore)'
-error_rtp_randomization_timeout: '[错误:](#ff3300) [找不到安全的随机位置传送您.](#ff7e5e)'
-edit_home_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&Coordinates:\n&8家在世界上的位置\n&8yaw:
-  %4%, pitch: %5%)\n'
-spawn_warp_default_description: 这个服务器的 /spawn 位置
-error_command_disabled: '[错误:](#ff3300) [该命令已禁用!](#ff7e5e)'
-tp_command_description: 传送到该玩家或该位置
-home_deleted: '[成功删除家](#00fb9a) [%1%](#00fb9a bold)'
-error_player_not_found: '[错误:](#ff3300) [没有找到玩家 %1%.](#ff7e5e)'
-delhome_command_description: 删除家
-teleporting_complete: '[传送成功!](#00fb9a)'
-delete_all_warps_confirm: '[警告:](#ff3300) [您确定删除这个地标?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray)
-  [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delwarp all confirm)'
-error_insufficient_funds: '[错误:](#ff3300) [您没有足够的钱. (需要: %1%)](#ff7e5e)'
-edit_home_update_description: '[成功修改 %1% 的描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a)
-  ["%2%"](gray)\n[→](white) [新的:](#00fb9a) ["%3%" ](gray)'
-edit_warp_menu_meta_edit_buttons: '[编辑:](gray) [[✎ 命名…]](#c160ff-#bb50ff show_text=&7点击使用重命名指令
-  suggest_command=/huskhomes:editwarp %1% rename )   [[ℹ 描述…]](#bb50ff-#b43fff show_text=&7点击使用编辑描述命令
-  suggest_command=/huskhomes:editwarp %1% description )'
-warp_list_item: '[[%1%]](show_text=�fb9a&%1%\n&7ℹ %2% run_command=/huskhomes:warp
-  %1%)'
-error_illegal_target_coordinates: '[错误:](#ff3300) [已取消传送, 因为它超出了可能的游戏世界限制.](#ff7e5e)'
-spawn_command_description: 传送回重生点
-tpaall_command_description: 要求所有人都传送过来
-economy_action_random_teleport: '[ℹ 花费 %1% 使用随机传送.](gray)'
-error_no_players_online: '[错误:](#ff3300) [没有在线玩家可以传送到过来.](#ff7e5e)'
-edit_home_menu_metadata_public: '[⌚ %1%](#999999-#ababab show_text=&7设置时间: \n&8设置家的时间)   [⚡
-  %2%](#ababab-#c7c7c7 show_text=&7Home ID:\n&8%3%)   [☀ 公共家](#6fff00 show_text=#fff00&隐私:
-  \n&8任何人都可以传送)'
-tpdeny_command_description: 拒绝传送请求
-error_invalid_world: '[错误:](#ff3300) [无法完成传送, 找不到目标世界.](#ff7e5e)'
-command_list_item: '[/%1%](#00fb9a show_text=&7Click to suggest command suggest_command=/%1%)   [%2%](gray
-  show_text=�fb9a&/%1%\n&7%3%)'
-edit_home_menu_privacy_button_private: '[[∅ 设为私有…]](#ff9f0f show_text=&7点击将这个家设为私有
-  run_command=/huskhomes:edithome %1% privacy -m)'
-edit_home_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7设置时间戳: \n&8当设置扭曲的时间)   [⚡
-  %2%](#ababab-#c7c7c7 show_text=&7地标ID:\n&8%3%)'
-delete_all_homes_confirm: '[警告:](#ff3300) [您确定删除这个家?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray)
-  [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delhome all confirm)'
-teleport_request_declined_confirmation: '[您拒绝了 %1% 的传送请求.](#ff7e5e)'
-list_previous_page_button: '[◀](white show_text=&7上一页 run_command=%2% %1%) '
-list_page_jumper_separator: ' '
-error_warp_description_length: '[错误:](#ff3300) [地标描述的长度只能包含255个字符!](#ff7e5e)'
-edithome_command_description: 编辑家
-teleporting_other_complete_position: '[将 %1% 传送到 ⚐ x: %2%, y: %3%, z: %4%.](#00fb9a)'
-error_warp_description_characters: '[错误:](#ff3300) [地标描述只能使用这些字符: (A-Z, 0-9, -_, 字符,
-  空格](#ff7e5e)'
-tpahere_request_sent: '[您发送了一个传送请求, 请求](#00fb9a) [%1%](#00fb9a bold) [传送过来.](#00fb9a)'
-rtp_command_description: 随机传送
-error_teleport_request_sender_not_online: '[错误:](#ff3300) [您待处理的传送请求的玩家不在线.](#ff7e5e)'
-error_no_homes_set: '[错误:](#ff3300) [您还没有设置任何家!](#ff7e5e)'
-teleporting_action_bar_warmup: '[传送到](#00fb9a) [%1%](#00fb9a bold)[…](#00fb9a)'
-error_invalid_syntax: '[错误:](#ff3300) [语法错误, 使用: %1%](#ff7e5e)'
-set_warp_success: '[成功设置地标](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
-error_no_warps_set: '[错误:](#ff3300) [没有地标!](#ff7e5e)'
-error_home_invalid_other: '[错误:](#ff3300) [%1% 没有名为 %2% 的家](#ff7e5e)'
-editwarp_command_description: 编辑地标
-teleporting_warmup_start: '[您将在](#00fb9a) [%1%](#00fb9a bold) [秒后被传送…](#00fb9a)'
-error_rtp_restricted_world: '[错误:](#ff3300) [您不能在这个世界随机传送.](#ff7e5e)'
-error_edit_home_maximum_public_homes: '[错误:](#ff3300) [您最多只能公开 %1% 个家.](#ff7e5e)'
-error_invalid_server: '[错误:](#ff3300) [无法传送, 目标服务器不存在或离线.](#ff7e5e)'
-setwarp_command_description: 设置一个带有名称的地标
-tpaccept_command_description: 接受传送请求
-home_list_page_title: '[%1% 的家:](#00fb9a) [(%2%-%3% of](#00fb9a) [%4%](#00fb9a bold)[)](#00fb9a)'
-edit_home_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=#b76ff&世界:\n&8家所在的世界)'
 teleporting_offline_player: '[正在将您传送到 %1% 上次注销的位置……](#00fb9a)'
-error_edit_home_privacy_already_public: '[错误:](#ff3300) [这个家已设置为公共.](#ff7e5e)'
-error_console_command_only: '[错误:](#ff3300) [该命令只能从服务器控制台运行.](#ff7e5e)'
-edit_warp_update_description: '[成功更改 %1% 的描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a)
-  ["%2%"](gray)\n[→](white) [新的:](#00fb9a) ["%3%" ](gray)'
-error_already_teleporting: 错误:](#ff3300) [请等待当前传送完成!](#ff7e5e)
-edit_warp_menu_title: '[查看地标的详细信息](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
-edit_warp_update_location: '[更改地标](#00fb9a) [%1%](#00fb9a bold) [到您现在的位置.](#00fb9a)'
-tpoffline_command_description: 传送到该玩家最后在线的位置
-edit_home_privacy_private_success: '[成功将](#00fb9a) [%1%](#00fb9a bold)[设为私有.](#00fb9a)'
-error_no_teleport_requests: '[错误:](#ff3300) [您没有待处理的传送请求.](#ff7e5e)'
-delete_all_warps_success: '[成功删除服务器](#00fb9a) [%1%](#00fb9a bold) [的所有地标](#00fb9a)'
-home_command_description: 传送回家
-economy_action_additional_home_slot: '[ℹ 花费 %1% 设置了一个额外的家.](gray)'
-error_warp_name_length: '[错误:](#ff3300) [地标名称最多只能包含16个字符!](#ff7e5e)'
-error_no_public_homes_set: '[错误:](#ff3300) [没有设置公共的家!](#ff7e5e)'
-error_spawn_not_set: '[错误:](#ff3300) [重生点尚未设置.](#ff7e5e)'
-error_teleport_warmup_stand_still: '[错误:](#ff3300) [在传送时您不能移动!](#ff7e5e)'
-list_page_jumper_button: '[%1%](show_text=&7跳转到 %1% 页 run_command=%2% %1%)'
-list_footer: '%1%[Page](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
-set_home_success: '[成功设置家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+teleporting_warmup_start: '[您将在](#00fb9a) [%1%](#00fb9a bold) [秒后被传送…](#00fb9a)'
 teleporting_cancelled_movement: '[传送取消——您移动了!](#ff7e5e)'
-edit_home_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=#b76ff&8世界:\n&8家所在的世界)   [☁
-  %2%](#477fff-#5286ff show_text=#b76ff&服务器: \n&8家所在的服务器)'
-edit_home_menu_privacy_button_public: '[[☀ 设为公共…]](#6fff00 show_text=&7点击公开这个家 run_command=/huskhomes:edithome
-  %1% privacy -m)'
-error_no_permission: '[错误:](#ff3300) [没有权限](#ff7e5e)'
-public_home_list_item: '[[%1%]](show_text=�fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:publichome
-  %2%)'
-tpa_command_description: 请求传送到该玩家
-edit_home_update_location: '[成功修改](#00fb9a) [%1%](#00fb9a bold) [的位置.](#00fb9a)'
-edit_warp_menu_manage_buttons: '[管理:](gray) [[❌ 删除…]](#ff3300 show_text=&7点击删除此地标\n&#ff3300&⚠
-  此操作无法撤消! suggest_command=/huskhomes:delwarp %1%)   [[⚐ 迁移…]](#ffc43b-#f5c962 show_text=&7点击将地标修改到您的位置
-  run_command=/huskhomes:editwarp %1% relocate -m)'
-error_home_description_characters: '[错误:](#ff3300) [家描述只能使用这些字符: (A-Z, 0-9, -_, 字符,
-  空格](#ff7e5e)'
-command_list_title: '[HuskHomes](#00fb9a bold) [| 指令列表](#00fb9a)'
-delete_all_homes_success: '[成功删除家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
-set_spawn_success: '[将spawn位置更新为您当前的位置.](#00fb9a)'
-return_by_death_notification: '[回到上一个位置?](gray) [[⏪ 传送…]](#00fb9a show_text=�fb9a&点击传送\n&7返回上一位置
-  run_command=/huskhomes:back)'
-teleport_request_declined: '[%1% 拒绝了您的传送请求.](#ff7e5e)'
-tpignore_on_notification: '[您当前正在忽略传送过来的请求!](gray) %1%'
-error_set_home_maximum_homes: '[错误:](#ff3300) [最多可以设置 %1% 个家!](#ff7e5e)'
-edit_home_menu_meta_edit_buttons: '[编辑:](gray) [[✎ 命名…]](#c160ff-#bb50ff show_text=&7点击使用重命名指令
-  suggest_command=/huskhomes:edithome %1% rename )   [[ℹ 描述…]](#bb50ff-#b43fff show_text=&7点击使用编辑描述命令
-  suggest_command=/huskhomes:edithome %1% description )'
-error_no_last_position: '[错误:](#ff3300) [没有上一个位置](#ff7e5e)'
-teleport_request_buttons: '[Options:](gray) [[✔ 接受…]](#00fb9a show_text=�fb9a&接受传送请求\n&8点击接受
-  %1%''s request run_command=/tpaccept %1%)   [[❌ 拒绝…]](#ff3300 show_text=&#ff3300&拒绝传送请求\n&8点击拒绝
-  %1%''s request run_command=/tpdeny %1%)'
-economy_action_make_home_public: '[ℹ 花费 %1% 将家设为公开.](gray)'
-warp_command_description: 传送到地标
-tpa_request_sent: '[您发送了一个传送请求, 要求传送到](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
-edit_home_update_description_other: '[%1% 的家 %2% 已修改描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a)
-  ["%3%"](gray)\n[→](white) [新的:](#00fb9a) ["%4%" ](gray)'
-tpaall_request_sent: '[您发送了一个传送请求, 传送到](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
-error_rtp_cooldown: '[错误:](#ff3300) [您必须等待 %1% 分钟才能再次随机传送.](#ff7e5e)'
-tpahere_request_received: '[%1%](#00fb9a bold) [请求您传送过去.](#00fb9a)'
-tpignore_toggle_on: '[您现在](#00fb9a) [忽略](#00fb9a bold) [传送过来的请求.](#00fb9a) %1%'
-edit_home_update_name: '[成功重命名 %1% →](#00fb9a) [%2%](#00fb9a bold)'
-tpignore_command_description: 忽略传送请求
-tphere_command_description: 将该玩家传送至您这里
-teleport_request_accepted_confirmation: '[您接受了 %1% 的传送请求!](#00fb9a)'
-edit_warp_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&坐标:\n&8地标在世界上的位置\n&8yaw:
-  %4%, pitch: %5%)\n'
-homelist_command_description: 您的家列表
-error_in_game_only: '[错误:](#ff3300) [该命令只能在游戏中使用.](#ff7e5e)'
-set_home_used_free_slots: '[ℹ 您用完了 %1% 个家数量. 设置一个额外的家将花费 %2%.](gray)'
-edit_home_update_location_other: '[成功修改 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[ 的位置.](#00fb9a)'
-edit_home_menu_manage_buttons: '[管理:](gray) [[❌ 删除…]](#ff3300 show_text=&7点击删除这个家\n&#ff3300&⚠
-  此操作无法撤消! suggest_command=/huskhomes:delhome %1%)   [[⚐ 迁移…]](#ffc43b-#f5c962 show_text=&7点击将这个家修改到您的位置
-  run_command=/huskhomes:edithome %1% relocate -m)   %2%'
-warp_deleted: '[成功删除地标](#00fb9a) [%1%](#00fb9a bold)'
-home_list_item: '[[%1%]](show_text=�fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:edithome
-  %2%)'
-huskhomes_command_description: 查看插件信息 & 重载配置文件
-list_next_page_button: ' [▶](white show_text=&7下一页 run_command=%2% %1%)'
-error_permission_restricted_warp: '[错误:](#ff3300) [您没有权限去传送到 %1% 这个地标!](#ff7e5e)'
-error_home_name_length: '[错误:](#ff3300) [家名称最多只能包含16个字符!](#ff7e5e)'
-edit_warp_update_name: '[成功重命名 %1% →](#00fb9a) [%2%](#00fb9a bold)'
-edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=#b76ff&世界:\n&8设置地标的世界)   [☁
-  %2%](#477fff-#5286ff show_text=#b76ff&服务器:\n&8设置地标的服务器)'
-error_home_invalid: '[错误:](#ff3300) [家 %1% 不存在](#ff7e5e)'
-error_teleport_request_self: '[错误:](#ff3300) [您不能向自己发送传送请求.](#ff7e5e)'
-tpignore_toggle_off: '[您现在](#00fb9a) [接收](#00fb9a bold) [传送过来的请求.](#00fb9a) %1%'
-list_item_divider: ' [•](gray) '
-teleport_request_accepted: '[%1% 已接受您的传送请求!](#00fb9a)'
-edit_home_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&描述:\n&8%2%)\n'
-error_teleport_request_expired: '[错误:](#ff3300) [您待处理的传送请求已过期.](#ff7e5e)'
-sethome_command_description: 设置一个带有名称的家
-error_warp_name_taken: '[错误:](#ff3300) [已有一个相同名称的地标.](#ff7e5e)'
-tpignore_toggle_button: '[[🔔 切换…]](#ffc43b show_text=&#ffc43b&点击切换:\n&7忽略/接收传入的传送请求
-  run_command=/huskhomes:tpignore)'
-edit_home_privacy_private_success_other: '[成功将 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[
-  设为私有.](#00fb9a)'
-error_no_homes_set_other: '[错误:](#ff3300) [%1% 未设置家!](#ff7e5e)'
-error_public_home_invalid: '[错误:](#ff3300) [%1% 没有 %2% 公共家.](#ff7e5e)'
-edit_home_update_name_other: '[成功重命名 %1% 的家 %2% →](#00fb9a) [%3%](#00fb9a bold)'
-error_invalid_teleport_request: '[错误:](#ff3300) [您目前没有来自 %1% 的传送请求.](#ff7e5e)'
-home_deleted_other: '[成功删除了 %1% 的家](#00fb9a) [%2%](#00fb9a bold) [.](#00fb9a)'
-back_command_description: 返回到上次传送或死亡的位置
-edit_home_menu_use_buttons: '[使用:](gray) [[⏩ 传送…]](#00fb9a show_text=&7点击传送到这个家 run_command=/huskhomes:home
-  %1%)'
+teleporting_cancelled_damage: '[传送取消——您受到了伤害!](#ff7e5e)'
+teleporting_complete: '[传送成功!](#00fb9a)'
+teleporting_action_bar_warmup: '[传送到](#00fb9a) [%1%](#00fb9a bold)[…](#00fb9a)'
 teleporting_action_bar_processing: '[传送……](#00fb9a)'
-tpall_command_description: 将所有人传送过来
-warplist_command_description: 地标列表
-tpa_request_received: '[%1%](#00fb9a bold) [请求传送到过来.](#00fb9a)'
-error_home_name_characters: '[错误:](#ff3300) [家名称只能使用这些字符: (A-Z, 0-9, -_)](#ff7e5e)'
 teleporting_action_bar_cancelled: '[传送取消!](#ff7e5e)'
 teleporting_other_complete: '[将 %1% 传送到 %2%.](#00fb9a)'
-error_edit_home_privacy_already_private: '[错误:](#ff3300) [这个家已设置为私人.](#ff7e5e)'
-edit_home_menu_title_other: '[查看 %1% 家的详细信息,](#00fb9a) [%2%](#00fb9a bold)[:](#00fb9a)'
-item_no_description: (没有说明)
-error_no_offline_position: '[错误:](#ff3300) [找不到 %1% 上次离线的位置.](#ff7e5e)'
-setspawn_command_description: 设置重生点位置
-edit_home_menu_title: '[查看您家的详细信息,](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
-teleporting_cancelled_damage: '[传送取消——您受到了伤害!](#ff7e5e)'
-list_page_jumper_group_separator: …
-edit_home_menu_metadata_private: '[⌚ %1%](#999999-#ababab show_text=&7设置时间: \n&8设置家的时间)   [⚡
-  %2%](#ababab-#c7c7c7 show_text=&7Home ID:\n&8%3%)   [∅ 私人家](#ff9f0f show_text=&#ff9f0f&隐私:
-  \n&8对所有者是私人的)'
-delwarp_command_description: 删除地标
-edit_warp_menu_use_buttons: '[使用:](gray) [[⏩ 传送…]](#00fb9a show_text=&7点击传送到地标 run_command=/huskhomes:warp
-  %1%)'
-publichome_command_description: 传送至公开的家
-error_warp_invalid: '[错误:](#ff3300) [地标 “%1%” 不存在](#ff7e5e)'
+teleporting_other_complete_position: '[将 %1% 传送到 ⚐ x: %2%, y: %3%, z: %4%.](#00fb9a)'
+teleporting_all_players: '[将](#00fb9a) [%1%](#00fb9a bold) [名玩家传送到您的位置…](#00fb9a)'
+tpa_request_sent: '[您发送了一个传送请求, 要求传送到](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
+tpahere_request_sent: '[您发送了一个传送请求, 请求](#00fb9a) [%1%](#00fb9a bold) [传送过来.](#00fb9a)'
+tpaall_request_sent: '[您发送了一个传送请求, 传送到](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+tpa_request_received: '[%1%](#00fb9a bold) [请求传送到过来.](#00fb9a)'
+tpahere_request_received: '[%1%](#00fb9a bold) [请求您传送过去.](#00fb9a)'
+teleport_request_buttons: '[选项:](gray) [[✔ 接受…]](#00fb9a show_text=&#00fb9a&接受传送请求\n&8点击接受 %1% 的请求 run_command=/tpaccept %1%)   [[❌ 拒绝…]](#ff3300 show_text=&#ff3300&拒绝传送请求\n&8点击拒绝 %1% 的请求 run_command=/tpdeny %1%)'
+teleport_request_accepted_confirmation: '[您接受了 %1% 的传送请求!](#00fb9a)'
+teleport_request_declined_confirmation: '[您拒绝了 %1% 的传送请求.](#ff7e5e)'
+teleport_request_accepted: '[%1% 已接受您的传送请求!](#00fb9a)'
+teleport_request_declined: '[%1% 拒绝了您的传送请求.](#ff7e5e)'
+tpignore_toggle_on: '[您现在](#00fb9a) [忽略](#00fb9a bold) [传送过来的请求.](#00fb9a) %1%'
+tpignore_toggle_off: '[您现在](#00fb9a) [接收](#00fb9a bold) [传送过来的请求.](#00fb9a) %1%'
+tpignore_on_notification: '[您当前正在忽略传送过来的请求!](gray) %1%'
+tpignore_toggle_button: '[[🔔 切换…]](#ffc43b show_text=&#ffc43b&点击切换:\n&7忽略/接收传入的传送请求 run_command=/huskhomes:tpignore)'
+edit_home_menu_title: '[查看家 ](#00fb9a) [%1%](#00fb9a bold)[ 的详细信息:](#00fb9a)'
+edit_home_menu_title_other: '[查看 %1% 家](#00fb9a) [%2%](#00fb9a bold)[ 的详细信息:](#00fb9a)'
+edit_home_menu_metadata_private: '[⌚ %1%](#999999-#ababab show_text=&7设置时间: \n&8设置家的时间)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Home ID:\n&8%3%)   [∅ 私人家](#ff9f0f show_text=&#ff9f0f&隐私: \n&8对所有者是私人的)'
+edit_home_menu_metadata_public: '[⌚ %1%](#999999-#ababab show_text=&7设置时间: \n&8设置家的时间)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Home ID:\n&8%3%)   [☀ 公共家](#6fff00 show_text=&#6fff00&隐私: \n&8任何人都可以传送)'
+edit_home_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&描述:\n&8%2%)\n'
+edit_home_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#b76ff&世界:\n&8家所在的世界)'
+edit_home_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#b76ff&世界:\n&8家所在的世界)   [☁ %2%](#477fff-#5286ff show_text=&#b76ff&服务器: \n&8家所在的服务器)'
+edit_home_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&坐标:\n&8家在世界上的位置\n&8偏航角: %4%, 俯仰角: %5%)\n'
+edit_home_menu_use_buttons: '[使用:](gray) [[⏩ 传送…]](#00fb9a show_text=&7点击传送到这个家 run_command=/huskhomes:home %1%)'
+edit_home_menu_manage_buttons: '[管理:](gray) [[❌ 删除…]](#ff3300 show_text=&7点击删除这个家\n&#ff3300&⚠ 此操作无法撤消! suggest_command=/huskhomes:delhome %1%)   [[⚐ 迁移…]](#ffc43b-#f5c962 show_text=&7点击将这个家修改到您的位置 run_command=/huskhomes:edithome %1% relocate -m)   %2%'
+edit_home_menu_privacy_button_public: '[[☀ 设为公共…]](#6fff00 show_text=&7点击公开这个家 run_command=/huskhomes:edithome %1% privacy -m)'
+edit_home_menu_privacy_button_private: '[[∅ 设为私有…]](#ff9f0f show_text=&7点击将这个家设为私有 run_command=/huskhomes:edithome %1% privacy -m)'
+edit_home_menu_meta_edit_buttons: '[编辑:](gray) [[✎ 命名…]](#c160ff-#bb50ff show_text=&7点击使用重命名指令 suggest_command=/huskhomes:edithome %1% rename )   [[ℹ 描述…]](#bb50ff-#b43fff show_text=&7点击使用编辑描述命令 suggest_command=/huskhomes:edithome %1% description )'
+edit_home_privacy_public_success: '[成功开放家](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
+edit_home_privacy_public_success_other: '[成功将 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[ 设为公开.](#00fb9a)'
+edit_home_privacy_private_success: '[成功将](#00fb9a) [%1%](#00fb9a bold)[设为私有.](#00fb9a)'
+edit_home_privacy_private_success_other: '[成功将 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[ 设为私有.](#00fb9a)'
+edit_home_update_location: '[成功修改](#00fb9a) [%1%](#00fb9a bold) [的位置.](#00fb9a)'
+edit_home_update_location_other: '[成功修改 %1% 的家](#00fb9a) [%2%](#00fb9a bold)[ 的位置.](#00fb9a)'
+edit_home_update_description: '[成功修改 %1% 的描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a) ["%2%"](gray)\n[→](white) [新的:](#00fb9a) ["%3%" ](gray)'
+edit_home_update_description_other: '[%1% 的家 %2% 已修改描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a) ["%3%"](gray)\n[→](white) [新的:](#00fb9a) ["%4%" ](gray)'
+edit_home_update_name: '[成功重命名 %1% →](#00fb9a) [%2%](#00fb9a bold)'
+edit_home_update_name_other: '[成功重命名 %1% 的家 %2% →](#00fb9a) [%3%](#00fb9a bold)'
+edit_warp_menu_title: '[查看地标的详细信息](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
+edit_home_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7设置时间戳: \n&8当设置扭曲的时间)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7地标ID:\n&8%3%)'
+edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&描述:\n&8%2%)\n'
 edit_warp_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=#b76ff&世界:\n&8设置地标的世界)'
+edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=#b76ff&世界:\n&8设置地标的世界)   [☁ %2%](#477fff-#5286ff show_text=&#b76ff&服务器:\n&8设置地标的服务器)'
+edit_warp_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&坐标:\n&8地标在世界上的位置\n&8偏航角: %4%, 俯仰角: %5%)\n'
+edit_warp_menu_use_buttons: '[使用:](gray) [[⏩ 传送…]](#00fb9a show_text=&7点击传送到地标 run_command=/huskhomes:warp %1%)'
+edit_warp_menu_manage_buttons: '[管理:](gray) [[❌ 删除…]](#ff3300 show_text=&7点击删除此地标\n&#ff3300&⚠ 此操作无法撤消! suggest_command=/huskhomes:delwarp %1%)   [[⚐ 迁移…]](#ffc43b-#f5c962 show_text=&7点击将地标修改到您的位置 run_command=/huskhomes:editwarp %1% relocate -m)'
+edit_warp_menu_meta_edit_buttons: '[编辑:](gray) [[✎ 命名…]](#c160ff-#bb50ff show_text=&7点击使用重命名指令 suggest_command=/huskhomes:editwarp %1% rename )   [[ℹ 描述…]](#bb50ff-#b43fff show_text=&7点击使用编辑描述命令 suggest_command=/huskhomes:editwarp %1% description )'
+edit_warp_update_location: '[更改地标](#00fb9a) [%1%](#00fb9a bold) [到您现在的位置.](#00fb9a)'
+edit_warp_update_description: '[成功更改 %1% 的描述:](#00fb9a) \n[←](white) [旧的:](#00fb9a) ["%2%"](gray)\n[→](white) [新的:](#00fb9a) ["%3%" ](gray)'
+edit_warp_update_name: '[成功重命名 %1% →](#00fb9a) [%2%](#00fb9a bold)'
+home_list_page_title: '[%1% 的家:](#00fb9a) [(%2%-%3% of](#00fb9a) [%4%](#00fb9a bold)[)](#00fb9a)'
+public_home_list_page_title: '[☀ 公共家:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)'
+warp_list_page_title: '[地标:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)'
+command_list_title: '[HuskHomes](#00fb9a bold) [| 指令列表](#00fb9a)'
+home_list_item: '[[%1%]](show_text=�fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:edithome %2%)'
+public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:publichome %2%)'
+warp_list_item: '[[%1%]](show_text=�fb9a&%1%\n&7ℹ %2% run_command=/huskhomes:warp %1%)'
+command_list_item: '[/%1%](#00fb9a show_text=&7点击建议命令 suggest_command=/%1%)   [%2%](gray show_text=&#00fb9a&/%1%\n&7%3%)'
+list_item_divider: ' [•](gray) '
+list_footer: '%1%[Page](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
+list_previous_page_button: '[◀](white show_text=&7上一页 run_command=%2% %1%) '
+list_next_page_button: ' [▶](white show_text=&7下一页 run_command=%2% %1%)'
+list_page_jumpers: (%1%)
+list_page_jumper_button: '[%1%](show_text=&7跳转到 %1% 页 run_command=%2% %1%)'
+list_page_jumper_current_page: '[%1%](#00fb9a)'
+list_page_jumper_separator: ' '
+list_page_jumper_group_separator: …
+home_deleted: '[成功删除家](#00fb9a) [%1%](#00fb9a bold)'
+home_deleted_other: '[成功删除了 %1% 的家](#00fb9a) [%2%](#00fb9a bold) [.](#00fb9a)'
+warp_deleted: '[成功删除地标](#00fb9a) [%1%](#00fb9a bold)'
+set_home_used_free_slots: '[ℹ 您用完了 %1% 个家数量. 设置一个额外的家将花费 %2%.](gray)'
+set_home_success: '[成功设置了家 ](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+set_warp_success: '[成功设置了地标](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+set_spawn_success: '[将spawn位置更新为您当前的位置.](#00fb9a)'
+spawn_warp_default_description: 这个服务器的 /spawn 位置
+item_no_description: (没有说明)
+delete_all_homes_confirm: '[警告:](#ff3300) [您确定删除这个家?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray) [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delhome all confirm)'
+delete_all_warps_confirm: '[警告:](#ff3300) [您确定删除这个地标?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray) [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delwarp all confirm)'
+delete_all_homes_success: '[成功删除家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+delete_all_warps_success: '[成功删除服务器](#00fb9a) [%1%](#00fb9a bold) [所有的地标](#00fb9a)'
+economy_action_additional_home_slot: '[ℹ 花费 %1% 设置了一个额外的家.](gray)'
+economy_action_make_home_public: '[ℹ 花费 %1% 将家设为公开.](gray)'
+economy_action_random_teleport: '[ℹ 花费 %1% 使用随机传送.](gray)'
 economy_action_back_command: '[ℹ 花费 %1% 回到上一位置.](gray)'
+return_by_death_notification: '[回到上一个位置?](gray) [[⏪ 传送…]](#00fb9a show_text=&#00fb9a&点击传送\n&7返回上一位置 run_command=/huskhomes:back)'
+error_home_name_taken: '[错误:](#ff3300) [已有一个相同名称的家.](#ff7e5e)'
+error_home_name_length: '[错误:](#ff3300) [家名称最多只能包含16个字符!](#ff7e5e)'
+error_home_name_characters: '[错误:](#ff3300) [家名称只能使用这些字符: (A-Z, 0-9, -_)](#ff7e5e)'
+error_warp_name_taken: '[错误:](#ff3300) [已有一个相同名称的地标.](#ff7e5e)'
+error_warp_name_length: '[错误:](#ff3300) [地标名称最多只能包含16个字符!](#ff7e5e)'
 error_warp_name_characters: '[错误:](#ff3300) [地标名称只能使用这些字符: (A-Z,0-9, -_)](#ff7e5e)'
+error_home_description_length: '[错误:](#ff3300) [家描述的长度只能包含255个字符!](#ff7e5e)'
+error_home_description_characters: '[错误:](#ff3300) [家描述只能使用这些字符: (A-Z, 0-9, -_, 字符, 空格](#ff7e5e)'
+error_warp_description_length: '[错误:](#ff3300) [地标描述的长度只能包含255个字符!](#ff7e5e)'
+error_warp_description_characters: '[错误:](#ff3300) [地标描述只能使用这些字符: (A-Z, 0-9, -_, 字符, 空格](#ff7e5e)'
+error_no_permission: '[错误:](#ff3300) [没有权限](#ff7e5e)'
+error_invalid_syntax: '[错误:](#ff3300) [语法错误, 使用: %1%](#ff7e5e)'
+error_already_teleporting: '错误:](#ff3300) [请等待当前传送完成!](#ff7e5e)'
+error_no_last_position: '[错误:](#ff3300) [没有上一个位置](#ff7e5e)'
+error_in_game_only: '[错误:](#ff3300) [该命令只能在游戏中使用.](#ff7e5e)'
+error_invalid_server: '[错误:](#ff3300) [无法传送, 目标服务器不存在或离线.](#ff7e5e)'
+error_home_invalid: '[错误:](#ff3300) [家 %1% 不存在](#ff7e5e)'
+error_warp_invalid: '[错误:](#ff3300) [地标 “%1%” 不存在](#ff7e5e)'
+error_insufficient_funds: '[错误:](#ff3300) [您没有足够的钱. (需要: %1%)](#ff7e5e)'
+error_edit_home_privacy_already_public: '[错误:](#ff3300) [这个家已设置为公共.](#ff7e5e)'
+error_edit_home_privacy_already_private: '[错误:](#ff3300) [这个家已设置为私人.](#ff7e5e)'
+error_no_homes_set: '[错误:](#ff3300) [您还没有设置任何家!](#ff7e5e)'
+error_no_public_homes_set: '[错误:](#ff3300) [没有设置公共的家!](#ff7e5e)'
+error_no_warps_set: '[错误:](#ff3300) [没有地标!](#ff7e5e)'
+error_public_home_invalid: '[错误:](#ff3300) [%1% 没有 %2% 公共家.](#ff7e5e)'
+error_set_home_maximum_homes: '[错误:](#ff3300) [最多可以设置 %1% 个家!](#ff7e5e)'
+error_spawn_not_set: '[错误:](#ff3300) [重生点尚未设置.](#ff7e5e)'
+error_no_teleport_requests: '[错误:](#ff3300) [您没有待处理的传送请求.](#ff7e5e)'
+error_teleport_warmup_stand_still: '[错误:](#ff3300) [在传送时您不能移动!](#ff7e5e)'
+error_teleport_request_expired: '[错误:](#ff3300) [您待处理的传送请求已过期.](#ff7e5e)'
+error_teleport_request_sender_not_online: '[错误:](#ff3300) [您待处理的传送请求的玩家不在线.](#ff7e5e)'
+error_ignoring_teleport_requests: '[错误:](#ff3300) [您目前忽略传送请求.](#ff7e5e) [[停止忽略…]](#ff7e5e show_text=&#ff7e5e&点击接收传送请求 run_command=/huskhomes:tpignore)'
+error_invalid_teleport_request: '[错误:](#ff3300) [您目前没有来自 %1% 的传送请求.](#ff7e5e)'
+error_teleport_request_self: '[错误:](#ff3300) [您不能向自己发送传送请求.](#ff7e5e)'
+error_player_not_found: '[错误:](#ff3300) [没有找到玩家 %1%.](#ff7e5e)'
+error_rtp_restricted_world: '[错误:](#ff3300) [您不能在这个世界随机传送.](#ff7e5e)'
+error_rtp_cooldown: '[错误:](#ff3300) [您必须等待 %1% 分钟才能再次随机传送.](#ff7e5e)'
+error_command_disabled: '[错误:](#ff3300) [该命令已禁用!](#ff7e5e)'
+error_console_command_only: '[错误:](#ff3300) [该命令只能从服务器控制台运行.](#ff7e5e)'
+error_rtp_randomization_timeout: '[错误:](#ff3300) [找不到安全的随机位置传送您.](#ff7e5e)'
+error_permission_restricted_warp: '[错误:](#ff3300) [您没有权限去传送到 %1% 这个地标!](#ff7e5e)'
+error_invalid_world: '[错误:](#ff3300) [无法完成传送, 找不到目标世界.](#ff7e5e)'
+error_no_offline_position: '[错误:](#ff3300) [找不到 %1% 上次离线的位置.](#ff7e5e)'
+error_no_homes_set_other: '[错误:](#ff3300) [%1% 未设置家!](#ff7e5e)'
+error_home_invalid_other: '[错误:](#ff3300) [%1% 没有名为 %2% 的家](#ff7e5e)'
+error_edit_home_maximum_public_homes: '[错误:](#ff3300) [您最多只能公开 %1% 个家.](#ff7e5e)'
+error_illegal_target_coordinates: '[错误:](#ff3300) [已取消传送, 因为它超出了可能的游戏世界限制.](#ff7e5e)'
+error_no_players_online: '[错误:](#ff3300) [没有在线玩家可以传送到过来.](#ff7e5e)'
+home_command_description: 传送回家
+sethome_command_description: 设置一个带有名称的家
+delhome_command_description: 删除家
+edithome_command_description: 编辑家
+warp_command_description: 传送到地标
+setwarp_command_description: 设置一个带有名称的地标
+delwarp_command_description: 删除地标
+editwarp_command_description: 编辑地标
+back_command_description: 返回到上次传送或死亡的位置
+homelist_command_description: 您的家列表
+warplist_command_description: 地标列表
 publichomelist_command_description: 公开家的列表
+publichome_command_description: 传送至公开的家
+tp_command_description: 传送到该玩家或该位置
+tphere_command_description: 将该玩家传送至您这里
+tpa_command_description: 请求传送到该玩家
+tpahere_command_description: 要求其他玩家传送过来
+tpaccept_command_description: 接受传送请求
+tpdeny_command_description: 拒绝传送请求
+tpignore_command_description: 忽略传送请求
+tpoffline_command_description: 传送到该玩家最后在线的位置
+rtp_command_description: 随机传送
+spawn_command_description: 传送回重生点
+setspawn_command_description: 设置重生点位置
+tpaall_command_description: 要求所有人都传送过来
+tpall_command_description: 将所有人传送过来
+huskhomes_command_description: 重载配置和语言文件

@@ -489,4 +489,14 @@ public class TeleportManager {
         return Optional.empty();
     }
 
+    /**
+     * Returns if the player is currently warming up to teleport
+     *
+     * @param uuid the player's {@link UUID}
+     * @return {@code true} if the player is warming up, {@code false} otherwise
+     */
+    public boolean isWarmingUp(@NotNull final UUID uuid) {
+        return currentlyOnWarmup.contains(uuid);
+    }
+
 }

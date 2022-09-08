@@ -99,6 +99,18 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Returns if a user is currently warming up for a timed teleport; that is, they are in the state where they
+     * must stand still and not take damage for the set amount of seconds before a teleport can be executed.
+     *
+     * @param user The {@link User} to check
+     * @return {@code true} if the user is currently warming up, otherwise {@code false}
+     * @since 3.0.2
+     */
+    public boolean isUserWarmingUp(@NotNull User user) {
+        return plugin.getTeleportManager().isWarmingUp(user.uuid);
+    }
+
+    /**
      * Save {@link UserData} to the database, updating it if data for the user already exists, or adding new user data if it doesn't.
      *
      * @param userData The {@link UserData} to save

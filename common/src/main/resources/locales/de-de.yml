@@ -159,7 +159,7 @@ tphere_command_description: Teleportiere einen Spieler zu dir
 tpa_command_description: Frage einem Spieler sich zu ihm zu teleportieren
 tpahere_command_description: Frage einem Spieler sich zu dir zu teleportieren
 tpaccept_command_description: Akzeptiere eine Teleportanfrage
-tpdeny_command_description: Lehne eine Teleportanfrage ab
+tpdecline_command_description: Lehne eine Teleportanfrage ab
 tpignore_command_description: Ignoriere einkommende Teleportanfragen
 tpoffline_command_description: Teleportiere dich an die letzte Position eines Spielers
 rtp_command_description: Teleportiere dich an eine zufällige Position

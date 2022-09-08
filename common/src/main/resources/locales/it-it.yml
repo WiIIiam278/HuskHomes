@@ -159,7 +159,7 @@ tphere_command_description: Teletrasporta un altro giocatore da te
 tpa_command_description: Richiedi ad un altro giocatore di teletrasportarti da lui
 tpahere_command_description: Richiedi ad un altro giocatore di teletrasportarsi da te
 tpaccept_command_description: Accetta una richiesta di teletrasporto
-tpdeny_command_description: Rifiuta una richiesta di teletrasporto
+tpdecline_command_description: Rifiuta una richiesta di teletrasporto
 tpignore_command_description: Ignora le richieste di teletrasporto in arrivo
 tpoffline_command_description: Teletrasportati nella posizione in cui un giocatore è uscito dal server
 rtp_command_description: Teletrasportati in una posizione a caso

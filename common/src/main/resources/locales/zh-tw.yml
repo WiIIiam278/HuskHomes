@@ -159,7 +159,7 @@ tphere_command_description: 將另一個玩家傳送至你的身邊
 tpa_command_description: 請求傳送到另一個玩家身邊
 tpahere_command_description: 請求其他玩家傳送到你的身邊
 tpaccept_command_description: 接受傳送請求
-tpdeny_command_description: 拒絕傳送請求
+tpdecline_command_description: 拒絕傳送請求
 tpignore_command_description: 忽略所有傳送請求 (切換 勿擾/正常 模式)
 tpoffline_command_description: 傳送至該玩家離線的位置
 rtp_command_description: 隨機傳送

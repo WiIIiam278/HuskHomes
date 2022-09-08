@@ -321,24 +321,45 @@ public class Settings {
      * Identifies types of databases
      */
     public enum DatabaseType {
-        MYSQL,
-        SQLITE
+        MYSQL("MySQL"),
+        SQLITE("SQLite");
+
+        @NotNull
+        public final String displayName;
+
+        DatabaseType(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
     }
 
     /**
      * Identifies types of network messenger
      */
     public enum MessengerType {
-        PLUGIN_MESSAGE,
-        REDIS
+        PLUGIN_MESSAGE("Plugin Messages"),
+        REDIS("Redis");
+
+        @NotNull
+        public final String displayName;
+
+        MessengerType(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
     }
 
     /**
      * Identifies types of supported Map plugins
      */
     public enum MappingPlugin {
-        DYNMAP,
-        BLUEMAP
+        DYNMAP("Dynmap"),
+        BLUEMAP("BlueMap");
+
+        @NotNull
+        public final String displayName;
+
+        MappingPlugin(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
     }
 
 }

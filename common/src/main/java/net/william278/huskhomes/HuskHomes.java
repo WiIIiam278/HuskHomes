@@ -337,4 +337,11 @@ public interface HuskHomes {
      */
     CompletableFuture<Boolean> reload();
 
+    /**
+     * Registers the plugin with bStats metrics
+     *
+     * @param metricsId the bStats id for the plugin
+     */
+    void registerMetrics(int metricsId);
+
 }

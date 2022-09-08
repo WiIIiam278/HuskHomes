@@ -36,6 +36,7 @@ import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.permissions.PermissionDefault;
@@ -246,11 +247,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             //todo EssentialsX
 
             // Hook into bStats metrics
-            try {
-                new Metrics(this, METRICS_ID);
-            } catch (final Exception e) {
-                getLoggingAdapter().log(Level.WARNING, "Skipped bStats metrics initialization.");
-            }
+            registerMetrics(METRICS_ID);
 
             // Check for updates
             if (settings.checkForUpdates) {
@@ -503,6 +500,26 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", throwable);
             return false;
         });
+    }
+
+    @Override
+    public void registerMetrics(int metricsId) {
+        try {
+            final Metrics metrics = new Metrics(this, metricsId);
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().crossServer)));
+            if (getSettings().crossServer) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().messengerType.displayName));
+            }
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().language.toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().databaseType.displayName));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().economy)));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook)));
+            if (getSettings().doMapHook) {
+                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().mappingPlugin.displayName));
+            }
+        } catch (Exception e) {
+            getLoggingAdapter().log(Level.WARNING, "Failed to register metrics", e);
+        }
     }
 
     // Default constructor

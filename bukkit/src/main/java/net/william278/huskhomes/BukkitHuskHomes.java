@@ -421,7 +421,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     }
 
                     // Find a safe position and return
-                    PaperLib.getChunkAtAsync(bukkitLocation).thenAccept(chunk ->
+                    PaperLib.getChunkAtAsync(bukkitLocation).thenAcceptAsync(chunk ->
                             future.complete(BukkitSafetyUtil.findSafeLocation(location.world, bukkitLocation,
                                     chunk.getChunkSnapshot()))).exceptionally(throwable -> {
                         throwable.printStackTrace();

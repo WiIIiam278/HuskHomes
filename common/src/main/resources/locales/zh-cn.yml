@@ -79,8 +79,8 @@ home_deleted: '[成功删除家](#00fb9a) [%1%](#00fb9a bold)'
 home_deleted_other: '[成功删除了 %1% 的家](#00fb9a) [%2%](#00fb9a bold) [.](#00fb9a)'
 warp_deleted: '[成功删除地标](#00fb9a) [%1%](#00fb9a bold)'
 set_home_used_free_slots: '[ℹ 您用完了 %1% 个家数量. 设置一个额外的家将花费 %2%.](gray)'
-set_home_success: '[成功设置了家 ](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
-set_warp_success: '[成功设置了地标](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+set_home_success: '[成功设置家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
+set_warp_success: '[成功设置地标](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
 set_spawn_success: '[将spawn位置更新为您当前的位置.](#00fb9a)'
 spawn_warp_default_description: 这个服务器的 /spawn 位置
 item_no_description: (没有说明)

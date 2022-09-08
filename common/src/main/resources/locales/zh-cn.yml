@@ -167,4 +167,4 @@ spawn_command_description: 传送回重生点
 setspawn_command_description: 设置重生点位置
 tpaall_command_description: 要求所有人都传送过来
 tpall_command_description: 将所有人传送过来
-huskhomes_command_description: 查看插件信息 & 重载配置文件
+huskhomes_command_description: 重载配置和语言文件

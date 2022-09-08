@@ -70,11 +70,11 @@ list_item_divider: ' [•](gray) '
 list_footer: '%1%[Page](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
 list_previous_page_button: '[◀](white show_text=&7上一页 run_command=%2% %1%) '
 list_next_page_button: ' [▶](white show_text=&7下一页 run_command=%2% %1%)'
-list_page_jumpers: (%1%)
+list_page_jumpers: '(%1%)'
 list_page_jumper_button: '[%1%](show_text=&7跳转到 %1% 页 run_command=%2% %1%)'
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
-list_page_jumper_group_separator: …
+list_page_jumper_group_separator: '…'
 home_deleted: '[成功删除家](#00fb9a) [%1%](#00fb9a bold)'
 home_deleted_other: '[成功删除了 %1% 的家](#00fb9a) [%2%](#00fb9a bold) [.](#00fb9a)'
 warp_deleted: '[成功删除地标](#00fb9a) [%1%](#00fb9a bold)'
@@ -82,8 +82,8 @@ set_home_used_free_slots: '[ℹ 您用完了 %1% 个家数量. 设置一个额�
 set_home_success: '[成功设置家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
 set_warp_success: '[成功设置地标](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
 set_spawn_success: '[将spawn位置更新为您当前的位置.](#00fb9a)'
-spawn_warp_default_description: 这个服务器的 /spawn 位置
-item_no_description: (没有说明)
+spawn_warp_default_description: '这个服务器的 /spawn 位置'
+item_no_description: '(没有说明)'
 delete_all_homes_confirm: '[警告:](#ff3300) [您确定删除这个家?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray) [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delhome all confirm)'
 delete_all_warps_confirm: '[警告:](#ff3300) [您确定删除这个地标?](#ff7e5e)\n[此操作无法撤消!](gray)\n[→](gray) [[确认]](#ff3300 show_text=&#ff3300&点击删除, 此操作无法撤消! run_command=/delwarp all confirm)'
 delete_all_homes_success: '[成功删除家](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
@@ -141,30 +141,30 @@ error_home_invalid_other: '[错误:](#ff3300) [%1% 没有名为 %2% 的家](#ff7
 error_edit_home_maximum_public_homes: '[错误:](#ff3300) [您最多只能公开 %1% 个家.](#ff7e5e)'
 error_illegal_target_coordinates: '[错误:](#ff3300) [已取消传送, 因为它超出了可能的游戏世界限制.](#ff7e5e)'
 error_no_players_online: '[错误:](#ff3300) [没有在线玩家可以传送到过来.](#ff7e5e)'
-home_command_description: 传送回家
-sethome_command_description: 设置一个带有名称的家
-delhome_command_description: 删除家
-edithome_command_description: 编辑家
-warp_command_description: 传送到地标
-setwarp_command_description: 设置一个带有名称的地标
-delwarp_command_description: 删除地标
-editwarp_command_description: 编辑地标
-back_command_description: 返回到上次传送或死亡的位置
-homelist_command_description: 您的家列表
-warplist_command_description: 地标列表
-publichomelist_command_description: 公开家的列表
-publichome_command_description: 传送至公开的家
-tp_command_description: 传送到该玩家或该位置
-tphere_command_description: 将该玩家传送至您这里
-tpa_command_description: 请求传送到该玩家
-tpahere_command_description: 要求其他玩家传送过来
-tpaccept_command_description: 接受传送请求
-tpdeny_command_description: 拒绝传送请求
-tpignore_command_description: 忽略传送请求
-tpoffline_command_description: 传送到该玩家最后在线的位置
-rtp_command_description: 随机传送
-spawn_command_description: 传送回重生点
-setspawn_command_description: 设置重生点位置
-tpaall_command_description: 要求所有人都传送过来
-tpall_command_description: 将所有人传送过来
-huskhomes_command_description: 重载配置和语言文件
+home_command_description: '传送回家'
+sethome_command_description: '设置一个带有名称的家'
+delhome_command_description: '删除家'
+edithome_command_description: '编辑家'
+warp_command_description: '传送到地标'
+setwarp_command_description: '设置一个带有名称的地标'
+delwarp_command_description: '删除地标'
+editwarp_command_description: '编辑地标'
+back_command_description: '返回到上次传送或死亡的位置'
+homelist_command_description: '您的家列表'
+warplist_command_description: '地标列表'
+publichomelist_command_description: '公开家的列表'
+publichome_command_description: '传送至公开的家'
+tp_command_description: '传送到该玩家或该位置'
+tphere_command_description: '将该玩家传送至您这里'
+tpa_command_description: '请求传送到该玩家'
+tpahere_command_description: '要求其他玩家传送过来'
+tpaccept_command_description: '接受传送请求'
+tpdeny_command_description: '拒绝传送请求'
+tpignore_command_description: '忽略传送请求'
+tpoffline_command_description: '传送到该玩家最后在线的位置'
+rtp_command_description: '随机传送'
+spawn_command_description: '传送回重生点'
+setspawn_command_description: '设置重生点位置'
+tpaall_command_description: '要求所有人都传送过来'
+tpall_command_description: '将所有人传送过来'
+huskhomes_command_description: '重载配置和语言文件'

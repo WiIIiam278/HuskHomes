@@ -33,6 +33,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         AboutMenu.Credit.of("Log1x").withDescription("Code"))
                 .addAttribution("Translators",
                         AboutMenu.Credit.of("SnivyJ").withDescription("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("ApliNi").withDescription("Simplified Chinese (zh-cn)"),
                         AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
                         AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
                         AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),

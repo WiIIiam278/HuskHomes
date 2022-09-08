@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A random teleport engine that uses a Gaussian normal distribution to generate random positions.
@@ -32,16 +31,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     @Override
     protected @NotNull CompletableFuture<Optional<Location>> generateRandomLocation(@NotNull Location origin,
                                                                                     @NotNull String... args) {
-        return CompletableFuture.supplyAsync(() -> {
-                    Optional<Location> generated = plugin.getSafeGroundLocation(generateLocation(origin, mean,
-                            standardDeviation, spawnRadius, radius)).join();
-                    while (generated.isEmpty()) {
-                        generated = plugin.getSafeGroundLocation(generateLocation(origin, mean, standardDeviation,
-                                spawnRadius, radius)).join();
-                    }
-                    return generated;
-                }).orTimeout(5, TimeUnit.SECONDS)
-                .exceptionally(throwable -> Optional.empty());
+        return plugin.getSafeGroundLocation(generateLocation(origin, mean, standardDeviation, spawnRadius, radius));
     }
 
     /**

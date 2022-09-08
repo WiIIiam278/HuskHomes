@@ -36,10 +36,10 @@ public abstract class RandomTeleportEngine {
     @NotNull
     private final List<World> worlds;
     /**
-     * The cache of random positions for each world
+     * A cache of random {@link Location}s for each random teleport world
      */
     @NotNull
-    private final Map<World, Queue<Location>> cachedRandomLocations;
+    private final Map<World, Queue<Location>> cachedPositions;
 
     /**
      * <b>(Internal use only)</b> Create a new random teleport engine, using HuskHomes config settings
@@ -54,7 +54,7 @@ public abstract class RandomTeleportEngine {
                 .filter(world -> world.environment != World.Environment.NETHER)
                 .filter(world -> !implementor.getSettings().rtpRestrictedWorlds.contains(world.name))
                 .collect(Collectors.toList());
-        this.cachedRandomLocations = new HashMap<>();
+        this.cachedPositions = new HashMap<>();
     }
 
     /**
@@ -71,7 +71,7 @@ public abstract class RandomTeleportEngine {
         this.name = name;
         this.cacheSize = 10;
         this.worlds = worlds;
-        this.cachedRandomLocations = new HashMap<>();
+        this.cachedPositions = new HashMap<>();
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class RandomTeleportEngine {
     public void initialize() {
         CompletableFuture.runAsync(() -> {
             for (final World world : worlds) {
-                cachedRandomLocations.put(world, new LinkedList<>());
+                cachedPositions.put(world, new LinkedList<>());
                 populateCache(world, cacheSize);
             }
         });
@@ -98,12 +98,17 @@ public abstract class RandomTeleportEngine {
      * @since 3.0
      */
     private void populateCache(@NotNull World world, final int cacheSize) {
-        final int amountToPopulate = Math.max(1, cacheSize) - cachedRandomLocations.get(world).size();
-        final Location originLocation = new Location(0, 0, 0, world);
-        for (int i = 0; i < amountToPopulate; i++) {
-            generateRandomLocation(originLocation).thenAccept(location -> location
-                    .ifPresent(generated -> cachedRandomLocations.get(world).add(generated)));
-        }
+        CompletableFuture.runAsync(() -> {
+            final int amountToPopulate = Math.max(1, cacheSize) - cachedPositions.get(world).size();
+            final Location originLocation = new Location(0, 0, 0, world);
+            for (int i = 0; i < amountToPopulate; i++) {
+                generateRandomLocation(originLocation)
+                        .thenAcceptAsync(location -> location
+                                .ifPresent(generated -> cachedPositions.get(world).add(generated)))
+                        .orTimeout(10, TimeUnit.SECONDS)
+                        .exceptionally(throwable -> null);
+            }
+        });
     }
 
     /**
@@ -149,14 +154,8 @@ public abstract class RandomTeleportEngine {
      */
     public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull OnlineUser onlineUser,
                                                                    @NotNull String... args) {
-        final Position userPosition = onlineUser.getPosition();
-        return getRandomLocation(userPosition.world, args).thenApply(location -> {
-            if (location.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.of(new Position(location.get().x, location.get().y, location.get().z, location.get().yaw,
-                    location.get().pitch, location.get().world, userPosition.server));
-        });
+        return getRandomLocation(onlineUser.getPosition().world, args).thenApply(location ->
+                location.map(position -> new Position(position, onlineUser.getPosition().server)));
     }
 
     /**
@@ -170,20 +169,21 @@ public abstract class RandomTeleportEngine {
      * @since 3.0
      */
     private CompletableFuture<Optional<Location>> getRandomLocation(@NotNull World world, @NotNull String... args) {
-        return CompletableFuture.supplyAsync(() -> {
-            final Optional<World> keyedWorld = cachedRandomLocations.keySet().stream()
-                    .filter(cachedWorld -> cachedWorld.uuid.equals(world.uuid)).findFirst();
-            if (keyedWorld.isPresent()) {
-                final Queue<Location> cachedWorldLocations = cachedRandomLocations.get(keyedWorld.get());
-                if (!cachedWorldLocations.isEmpty()) {
-                    populateCache(keyedWorld.get(), cacheSize);
-                    return Optional.of(cachedWorldLocations.remove());
-                } else {
-                    populateCache(keyedWorld.get(), cacheSize);
-                }
+        final Optional<World> keyedWorld = cachedPositions.keySet().stream()
+                .filter(cachedWorld -> cachedWorld.uuid.equals(world.uuid))
+                .findFirst();
+        if (keyedWorld.isPresent()) {
+            final Queue<Location> cachedWorldLocations = cachedPositions.get(keyedWorld.get());
+            if (!cachedWorldLocations.isEmpty()) {
+                populateCache(keyedWorld.get(), cacheSize);
+                return CompletableFuture.completedFuture(Optional.of(cachedWorldLocations.remove()));
+            } else {
+                populateCache(keyedWorld.get(), cacheSize);
             }
-            return generateRandomLocation(new Location(0, 0, 0, 0f, 0f, world), args).join();
-        }).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> Optional.empty());
+        }
+        return generateRandomLocation(new Location(0, 0, 0, world), args)
+                .orTimeout(5, TimeUnit.SECONDS)
+                .exceptionally(throwable -> Optional.empty());
     }
 
 }

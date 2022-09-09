@@ -134,7 +134,9 @@ public class Cache {
                 .setPageJumperGroupSeparator(locales.getRawLocale("list_page_jumper_group_separator").orElse(""))
                 .setItemSeparator(locales.getRawLocale("list_item_divider").orElse(" "))
                 .setItemsPerPage(itemsPerPage)
-                .setEscapeItemsMineDown(false);
+                .setEscapeItemsMineDown(false)
+                .setSpaceAfterHeader(false)
+                .setSpaceBeforeFooter(false);
     }
 
     @NotNull

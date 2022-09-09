@@ -14,7 +14,7 @@ tpahere_request_sent: '[您发送了一个传送请求, 请求](#00fb9a) [%1%](#
 tpaall_request_sent: '[您发送了一个传送请求, 传送到](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
 tpa_request_received: '[%1%](#00fb9a bold) [请求传送到过来.](#00fb9a)'
 tpahere_request_received: '[%1%](#00fb9a bold) [请求您传送过去.](#00fb9a)'
-teleport_request_buttons: '[选项:](gray) [[✔ 接受…]](#00fb9a show_text&=#00fb9a&接受传送请求\n&8点击接受 %1% 的请求 run_command=/tpaccept %1%)   [[❌ 拒绝…]](#ff3300 show_text=&#ff3300&拒绝传送请求\n&8点击拒绝 %1% 的请求 run_command=/tpdeny %1%)'
+teleport_request_buttons: '[选项:](gray) [[✔ 接受…]](#00fb9a show_text=&#00fb9a&接受传送请求\n&8点击接受 %1% 的请求 run_command=/tpaccept %1%)   [[❌ 拒绝…]](#ff3300 show_text=&#ff3300&拒绝传送请求\n&8点击拒绝 %1% 的请求 run_command=/tpdeny %1%)'
 teleport_request_accepted_confirmation: '[您接受了 %1% 的传送请求!](#00fb9a)'
 teleport_request_declined_confirmation: '[您拒绝了 %1% 的传送请求.](#ff7e5e)'
 teleport_request_accepted: '[%1% 已接受您的传送请求!](#00fb9a)'

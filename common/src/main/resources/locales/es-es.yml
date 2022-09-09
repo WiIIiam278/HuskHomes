@@ -74,7 +74,7 @@ list_page_jumpers: '(%1%)'
 list_page_jumper_button: '[%1%](show_text=&7Ir a la página %1% run_command=%2% %1%)'
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
-list_page_jumper_group_separator: …
+list_page_jumper_group_separator: '…'
 home_deleted: '[Ha eliminado con éxito la casa ](#00fb9a) [%1%](#00fb9a bold)'
 home_deleted_other: '[Se ha borrado con éxito la casa de %1%,](#00fb9a) [%2%](#00fb9a bold)'
 warp_deleted: '[Eliminado con éxito el warp,](#00fb9a) [%1%](#00fb9a bold)'

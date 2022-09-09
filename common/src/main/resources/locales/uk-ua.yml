@@ -70,11 +70,11 @@ list_item_divider: ' [•](gray) '
 list_footer: '\n%1%[Page](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
 list_previous_page_button: '[◀](white show_text=&7View previous page run_command=%2% %1%) '
 list_next_page_button: ' [▶](white show_text=&7View next page run_command=%2% %1%)'
-list_page_jumpers: (%1%)
+list_page_jumpers: '(%1%)'
 list_page_jumper_button: '[%1%](show_text=&7Jump to page %1% run_command=%2% %1%)'
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
-list_page_jumper_group_separator: …
+list_page_jumper_group_separator: '…'
 home_deleted: '[Successfully deleted your home,](#00fb9a) [%1%](#00fb9a bold)'
 home_deleted_other: '[Успішно видалено домівку %1%,](#00fb9a) [%2%](#00fb9a bold)'
 warp_deleted: '[Successfully deleted the warp,](#00fb9a) [%1%](#00fb9a bold)'
@@ -82,8 +82,8 @@ set_home_used_free_slots: '[ℹ You have used all %1% of your free home slots. S
 set_home_success: '[Успішно створено домівку](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Успішно створено варп](#00fb9a) [%1%](#00fb9a bold)'
 set_spawn_success: '[Updated the spawn position to your current location.](#00fb9a)'
-spawn_warp_default_description: Позиція /spawn сервера
-item_no_description: (No description)
+spawn_warp_default_description: 'Позиція /spawn сервера'
+item_no_description: '(No description)'
 delete_all_homes_confirm: '[Warning:](#ff3300) [Ви впевнені, що хочете видалити всі свої домівки?](#ff7e5e)\n[Після підтвердження відновити їх буде неможливо.](gray)\n[→](gray) [[Підтвердити]](#ff3300 show_text=&#ff3300&Натисніть, щоб підтвердити видалення. Цю дію неможливо скасувати. run_command=/delhome all confirm)'
 delete_all_warps_confirm: '[Warning:](#ff3300) [Ви впевнені, що бажаєте видалити усі варпи?] (#ff7e5e)\n[Після підтвердження відновити їх буде неможливо.](gray)\n[→](gray) [[Підтвердити]](#ff3300 show_text=&#ff3300&Натисніть, щоб підтвердити видалення. Цю дію неможливо скасувати. run_command=/delwarp all confirm)'
 delete_all_homes_success: '[Успішно видалено твої домівки](#00fb9a) [%1%](#00fb9a bold) [.](#00fb9a)'
@@ -141,30 +141,30 @@ error_home_invalid_other: '[Error:](#ff3300) [%1% does not have a home set named
 error_edit_home_maximum_public_homes: '[Помилка:](#ff3300) [Ви можете зробити публічними лише %1% домівок.](#ff7e5e)'
 error_illegal_target_coordinates: '[Error:](#ff3300) [Cancelled teleport as it exceeds the possible game world limits.](#ff7e5e)'
 error_no_players_online: '[Error:](#ff3300) [There are no players online who could teleport to you.](#ff7e5e)'
-home_command_description: Телепорт до вашої домівки
-sethome_command_description: Створити нову домівку із заданою назвою
-delhome_command_description: Видалити раніше створену доміку
-edithome_command_description: Редагувати домівку
-warp_command_description: Телепортуватися на варп
-setwarp_command_description: Встановити новий варп із заданим ім'ям
-delwarp_command_description: Видалити варп
-editwarp_command_description: Редагувати варп
-back_command_description: Повернутися на попередню позицію, або місце смерті
-homelist_command_description: Cписок моїх домівок
-warplist_command_description: Cписок варпів
-publichomelist_command_description: Cписок публічних домівок
-publichome_command_description: Телепортуватися до публічної домівки
-tp_command_description: Телепортуватися до іншого гравця чи на позицію
-tphere_command_description: Телепортувати гравця до себе
-tpa_command_description: Надіслати гравцеві запит на телепортацію
-tpahere_command_description: Надіслати гравцеві запит на телепортацію до мене
-tpaccept_command_description: Прийняти запит на телепортацію
-tpdecline_command_description: Відхилити запит на телепортацію
-tpignore_command_description: Ігнорувати вхідні запити на телепортацію
-tpoffline_command_description: Телепортуватися на позицію, де гравець востаннє був в мережі
-rtp_command_description: Телепортуватися в випадкову місцевість
-spawn_command_description: Телепортуватися на спавн
-setspawn_command_description: Встановити точку спавну
-tpaall_command_description: Надіслати усім запит на телепортацію до мене
-tpall_command_description: Телепортувати всіх до мене
-huskhomes_command_description: Переглянути інформацію про плагін та перезавантажити конфігурації
+home_command_description: 'Телепорт до вашої домівки'
+sethome_command_description: 'Створити нову домівку із заданою назвою'
+delhome_command_description: 'Видалити раніше створену доміку'
+edithome_command_description: 'Редагувати домівку'
+warp_command_description: 'Телепортуватися на варп'
+setwarp_command_description: 'Встановити новий варп із заданим ім''ям'
+delwarp_command_description: 'Видалити варп'
+editwarp_command_description: 'Редагувати варп'
+back_command_description: 'Повернутися на попередню позицію, або місце смерті'
+homelist_command_description: 'Cписок моїх домівок'
+warplist_command_description: 'Cписок варпів'
+publichomelist_command_description: 'Cписок публічних домівок'
+publichome_command_description: 'Телепортуватися до публічної домівки'
+tp_command_description: 'Телепортуватися до іншого гравця чи на позицію'
+tphere_command_description: 'Телепортувати гравця до себе'
+tpa_command_description: 'Надіслати гравцеві запит на телепортацію'
+tpahere_command_description: 'Надіслати гравцеві запит на телепортацію до мене'
+tpaccept_command_description: 'Прийняти запит на телепортацію'
+tpdecline_command_description: 'Відхилити запит на телепортацію'
+tpignore_command_description: 'Ігнорувати вхідні запити на телепортацію'
+tpoffline_command_description: 'Телепортуватися на позицію, де гравець востаннє був в мережі'
+rtp_command_description: 'Телепортуватися в випадкову місцевість'
+spawn_command_description: 'Телепортуватися на спавн'
+setspawn_command_description: 'Встановити точку спавну'
+tpaall_command_description: 'Надіслати усім запит на телепортацію до мене'
+tpall_command_description: 'Телепортувати всіх до мене'
+huskhomes_command_description: 'Переглянути інформацію про плагін та перезавантажити конфігурації'

@@ -14,7 +14,7 @@ tpahere_request_sent: '[You sent a teleport request asking](#00fb9a) [%1%](#00fb
 tpaall_request_sent: '[You sent a teleport request asking](#00fb9a) [%1%](#00fb9a bold) [player(s) to teleport to you.](#00fb9a)'
 tpa_request_received: '[%1%](#00fb9a bold) [has requested to teleport to you.](#00fb9a)'
 tpahere_request_received: '[%1%](#00fb9a bold) [has requested that you teleport to them.](#00fb9a)'
-teleport_request_buttons: '[Options:](gray) [[✔ Accept…]](#00fb9a show_text=&#00fb9a&Accept teleport request\n&8Click to accept %1%''s request run_command=/tpaccept %1%)   [[❌ Decline…]](#ff3300 show_text=&#ff3300&Decline teleport request\n&8Click to decline %1%''s request run_command=/tpdeny %1%)'
+teleport_request_buttons: '[Options:](gray) [[✔ Accept…]](#00fb9a show_text=&#00fb9a&Accept teleport request\n&8Click to accept %1%''s request run_command=/huskhomes:tpaccept %1%)   [[❌ Decline…]](#ff3300 show_text=&#ff3300&Decline teleport request\n&8Click to decline %1%''s request run_command=/huskhomes:tpdeny %1%)'
 teleport_request_accepted_confirmation: '[You accepted %1%''s teleport request!](#00fb9a)'
 teleport_request_declined_confirmation: '[You declined %1%''s teleport request.](#ff7e5e)'
 teleport_request_accepted: '[%1% has accepted your teleport request!](#00fb9a)'

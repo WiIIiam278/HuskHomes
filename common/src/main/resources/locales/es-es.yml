@@ -14,7 +14,7 @@ tpahere_request_sent: '[Has enviado una solicitud de teletransporte pidiendo a](
 tpaall_request_sent: '[Has enviado una solicitud de teletransporte a](#00fb9a) [%1%](#00fb9a bold) [jugador(es) para teletransportarse hacia ti.](#00fb9a)'
 tpa_request_received: '[%1%](#00fb9a bold) [ha solicitado teletransportarse hacia ti.](#00fb9a)'
 tpahere_request_received: '[%1%](#00fb9a bold) [ha solicitado que te teletransportes a ellos.](#00fb9a)'
-teleport_request_buttons: '[Opciones:](gray) [[✔ Aceptar…]](#00fb9a show_text=&#00fb9a&Aceptar solicitud de teletransporte\n&8Clic para aceptar la solicitud de %1%. run_command=/tpaccept %1%)   [[❌ Rechazar…]](#ff3300 show_text=&#ff3300&Decline teleport request\n&8Clic para rechazar la solicitud de %1%. run_command=/tpdeny %1%)'
+teleport_request_buttons: '[Opciones:](gray) [[✔ Aceptar…]](#00fb9a show_text=&#00fb9a&Aceptar solicitud de teletransporte\n&8Clic para aceptar la solicitud de %1%. run_command=/huskhomes:tpaccept %1%)   [[❌ Rechazar…]](#ff3300 show_text=&#ff3300&Decline teleport request\n&8Clic para rechazar la solicitud de %1%. run_command=/huskhomes:tpdeny %1%)'
 teleport_request_accepted_confirmation: '[¡Has aceptado la petición de teletransporte de %1%!](#00fb9a)'
 teleport_request_declined_confirmation: '[Has rechazado la petición de teletransporte de %1%.](#ff7e5e)'
 teleport_request_accepted: '[%1% ha aceptado su solicitud de teletransporte.](#00fb9a)'

@@ -415,6 +415,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     assert bukkitLocation.getWorld() != null;
                     if (!bukkitLocation.getWorld().getWorldBorder().isInside(bukkitLocation)) {
                         future.complete(Optional.empty());
+                        return;
                     }
 
                     // Find a safe position and return

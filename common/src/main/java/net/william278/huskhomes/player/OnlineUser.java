@@ -6,10 +6,7 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -188,6 +185,7 @@ public abstract class OnlineUser extends User {
                     return true;
                 })
                 .map(permission -> Integer.parseInt(permission.getKey().substring(nodePrefix.length())))
-                .sorted().toList();
+                .sorted(Collections.reverseOrder())
+                .toList();
     }
 }

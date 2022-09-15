@@ -454,7 +454,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             return CompletableFuture.completedFuture(null);
         }
         if (server == null) {
-            return getNetworkMessenger().getServerName(requester).thenAccept(serverName -> {
+            return getNetworkMessenger().getServerName(requester).thenAcceptAsync(serverName -> {
                 // Set the server name
                 this.server = new Server(serverName);
 

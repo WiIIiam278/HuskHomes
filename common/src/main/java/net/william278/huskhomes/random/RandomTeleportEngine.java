@@ -98,8 +98,11 @@ public abstract class RandomTeleportEngine {
      * @since 3.0
      */
     private void populateCache(@NotNull World world, final int cacheSize) {
+        if (cacheSize <= 0) {
+            return;
+        }
         CompletableFuture.runAsync(() -> {
-            final int amountToPopulate = Math.max(1, cacheSize) - cachedPositions.get(world).size();
+            final int amountToPopulate = cacheSize - cachedPositions.get(world).size();
             final Location originLocation = new Location(0, 0, 0, world);
             for (int i = 0; i < amountToPopulate; i++) {
                 generateRandomLocation(originLocation)

@@ -25,15 +25,12 @@ public abstract class MapHook extends PluginHook {
     public final boolean initialize() {
         initializeMap().thenRun(() -> {
             if (plugin.getSettings().publicHomesOnMap) {
-                plugin.getDatabase().getPublicHomes().thenAccept(homes -> homes.stream()
-                        .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(home.world.uuid)))
-                        .forEach(this::updateHome));
+                plugin.getDatabase().getLocalPublicHomes(plugin)
+                        .thenAcceptAsync(homes -> homes.forEach(this::updateHome));
             }
             if (plugin.getSettings().warpsOnMap) {
-                plugin.getDatabase().getWarps().thenAccept(warps -> warps
-                        .stream()
-                        .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(warp.world.uuid)))
-                        .forEach(this::updateWarp));
+                plugin.getDatabase().getLocalWarps(plugin)
+                        .thenAcceptAsync(warps -> warps.forEach(this::updateWarp));
             }
         });
         return true;

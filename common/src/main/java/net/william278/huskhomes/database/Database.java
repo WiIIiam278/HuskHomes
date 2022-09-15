@@ -1,5 +1,7 @@
 package net.william278.huskhomes.database;
 
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * An abstract representation of the plugin database, storing home, warp and player data.
@@ -259,11 +262,51 @@ public abstract class Database {
     public abstract CompletableFuture<List<Warp>> getWarps();
 
     /**
+     * Get a list of publicly-set {@link Warp}s on <i>this {@link Server}</i>
+     *
+     * @param plugin The plugin instance
+     * @return A future returning a list containing all {@link Warp}s set on this server
+     * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
+     */
+    public final CompletableFuture<List<Warp>> getLocalWarps(@NotNull HuskHomes plugin) {
+        try {
+            final Server server = plugin.getPluginServer();
+            return getWarps().thenApplyAsync(warps -> warps.stream()
+                    .filter(warp -> warp.server.equals(server))
+                    .collect(Collectors.toList()));
+        } catch (HuskHomesException e) {
+            return getWarps().thenApplyAsync(warps -> warps.stream()
+                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(warp.world.uuid)))
+                    .collect(Collectors.toList()));
+        }
+    }
+
+    /**
      * Get a list of all publicly-set {@link Home}s
      *
      * @return A future returning a list containing all publicly-set {@link Home}s
      */
     public abstract CompletableFuture<List<Home>> getPublicHomes();
+
+    /**
+     * Get a list of publicly-set {@link Home}s on <i>this {@link Server}</i>
+     *
+     * @param plugin The plugin instance
+     * @return A future returning a list containing all publicly-set {@link Home}s on this server
+     * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
+     */
+    public final CompletableFuture<List<Home>> getLocalPublicHomes(@NotNull HuskHomes plugin) {
+        try {
+            final Server server = plugin.getPluginServer();
+            return getPublicHomes().thenApplyAsync(homes -> homes.stream()
+                    .filter(home -> home.server.equals(server))
+                    .collect(Collectors.toList()));
+        } catch (HuskHomesException e) {
+            return plugin.getDatabase().getPublicHomes().thenApplyAsync(homes -> homes.stream()
+                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(home.world.uuid)))
+                    .collect(Collectors.toList()));
+        }
+    }
 
     /**
      * Get a {@link Home} set by a {@link User}

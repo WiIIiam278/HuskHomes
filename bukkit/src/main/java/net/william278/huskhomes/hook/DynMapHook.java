@@ -64,9 +64,7 @@ public class DynMapHook extends MapHook {
 
     @Override
     public CompletableFuture<Void> updateHome(@NotNull Home home) {
-        if (!plugin.getSettings().publicHomesOnMap) return CompletableFuture.completedFuture(null);
-        if (plugin.getWorlds().stream().noneMatch(world -> world.uuid.equals(home.world.uuid)))
-            return CompletableFuture.completedFuture(null);
+        if (!isValidPosition(home)) return CompletableFuture.completedFuture(null);
 
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeHome(home).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
@@ -86,7 +84,7 @@ public class DynMapHook extends MapHook {
 
     @Override
     public CompletableFuture<Void> removeHome(@NotNull Home home) {
-        if (!plugin.getSettings().publicHomesOnMap) return CompletableFuture.completedFuture(null);
+        if (!isValidPosition(home)) return CompletableFuture.completedFuture(null);
 
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
@@ -102,9 +100,7 @@ public class DynMapHook extends MapHook {
 
     @Override
     public CompletableFuture<Void> updateWarp(@NotNull Warp warp) {
-        if (!plugin.getSettings().warpsOnMap) return CompletableFuture.completedFuture(null);
-        if (plugin.getWorlds().stream().noneMatch(world -> world.uuid.equals(warp.world.uuid)))
-            return CompletableFuture.completedFuture(null);
+        if (!isValidPosition(warp)) return CompletableFuture.completedFuture(null);
 
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeWarp(warp).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
@@ -123,7 +119,7 @@ public class DynMapHook extends MapHook {
 
     @Override
     public CompletableFuture<Void> removeWarp(@NotNull Warp warp) {
-        if (!plugin.getSettings().warpsOnMap) return CompletableFuture.completedFuture(null);
+        if (!isValidPosition(warp)) return CompletableFuture.completedFuture(null);
 
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {

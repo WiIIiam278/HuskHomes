@@ -1,7 +1,9 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,5 +74,25 @@ public abstract class MapHook extends PluginHook {
      * @param warp the warp to remove
      */
     public abstract CompletableFuture<Void> removeWarp(@NotNull Warp warp);
+
+    /**
+     * Returns if the position is valid to be set on this server
+     *
+     * @param position the position to check
+     * @return if the position is valid
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    protected final boolean isValidPosition(@NotNull SavedPosition position) {
+        if (position instanceof Warp && !plugin.getSettings().warpsOnMap) return false;
+        if (position instanceof Home && !plugin.getSettings().publicHomesOnMap) return false;
+
+        try {
+            return position.server.equals(plugin.getPluginServer());
+        } catch (HuskHomesException e) {
+            return plugin.getWorlds().stream()
+                    .map(world -> world.uuid)
+                    .anyMatch(uuid -> uuid.equals(position.world.uuid));
+        }
+    }
 
 }

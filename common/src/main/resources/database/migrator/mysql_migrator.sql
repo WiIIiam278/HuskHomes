@@ -64,7 +64,7 @@ FROM `%source_database%`.`%source_warps_table%` AS `%source_warps_table%`
          INNER JOIN `%target_saved_positions%`
                     ON `%source_warps_table%`.`location_id` = `%target_saved_positions%`.`position_id`;
 
--- Rename old tables
+# Rename old tables
 ALTER TABLE `%source_database%`.`%source_positions_table%` RENAME TO `old_%source_positions_table%`;
 ALTER TABLE `%source_database%`.`%source_users_table%` RENAME TO `old_%source_users_table%`;
 ALTER TABLE `%source_database%`.`%source_homes_table%` RENAME TO `old_%source_homes_table%`;

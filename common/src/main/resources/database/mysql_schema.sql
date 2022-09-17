@@ -1,3 +1,9 @@
+# Set the storage engine
+SET DEFAULT_STORAGE_ENGINE = INNODB;
+
+# Enable foreign key constraints
+SET FOREIGN_KEY_CHECKS = 1;
+
 # Create the positions table if it does not exist
 CREATE TABLE IF NOT EXISTS `%positions_table%`
 (
@@ -12,7 +18,8 @@ CREATE TABLE IF NOT EXISTS `%positions_table%`
     `server_name` varchar(255) NOT NULL,
 
     PRIMARY KEY (`id`)
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
 
 # Create the players table if it does not exist
 CREATE TABLE IF NOT EXISTS `%players_table%`
@@ -30,7 +37,8 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
     FOREIGN KEY (`last_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
     FOREIGN KEY (`offline_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
     FOREIGN KEY (`respawn_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
 
 # Create the current cross-server teleports table if it does not exist
 CREATE TABLE IF NOT EXISTS `%teleports_table%`
@@ -42,7 +50,8 @@ CREATE TABLE IF NOT EXISTS `%teleports_table%`
     PRIMARY KEY (`player_uuid`),
     FOREIGN KEY (`player_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`destination_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
 
 # Create the saved positions table if it does not exist
 CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
@@ -56,7 +65,8 @@ CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
 
     PRIMARY KEY (`id`),
     FOREIGN KEY (`position_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
 
 # Create the homes table if it does not exist
 CREATE TABLE IF NOT EXISTS `%homes_table%`
@@ -69,7 +79,8 @@ CREATE TABLE IF NOT EXISTS `%homes_table%`
     PRIMARY KEY (`uuid`),
     FOREIGN KEY (`owner_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`saved_position_id`) REFERENCES `%saved_positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
 
 # Create the warps table if it does not exist
 CREATE TABLE IF NOT EXISTS `%warps_table%`
@@ -79,4 +90,5 @@ CREATE TABLE IF NOT EXISTS `%warps_table%`
 
     PRIMARY KEY (`uuid`),
     FOREIGN KEY (`saved_position_id`) REFERENCES `%saved_positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;

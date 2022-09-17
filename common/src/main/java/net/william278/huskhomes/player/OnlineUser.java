@@ -58,6 +58,14 @@ public abstract class OnlineUser extends User {
     public abstract Map<String, Boolean> getPermissions();
 
     /**
+     * Dispatch a MineDown-formatted title or subtitle to the player
+     *
+     * @param mineDown the parsed {@link MineDown} to send
+     * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
+     */
+    public abstract void sendTitle(@NotNull MineDown mineDown, boolean subTitle);
+
+    /**
      * Dispatch a MineDown-formatted action bar message to this player
      *
      * @param mineDown the parsed {@link MineDown} to send

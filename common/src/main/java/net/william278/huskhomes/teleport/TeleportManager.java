@@ -415,6 +415,8 @@ public class TeleportManager {
                             .ifPresent(message -> {
                                 switch (plugin.getSettings().teleportWarmupDisplay) {
                                     case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                    case SUBTITLE -> teleport.getPlayer().sendTitle(message, true);
+                                    case TITLE -> teleport.getPlayer().sendTitle(message, false);
                                     case MESSAGE -> teleport.getPlayer().sendMessage(message);
                                 }
                             });
@@ -423,6 +425,8 @@ public class TeleportManager {
                             .ifPresent(message -> {
                                 switch (plugin.getSettings().teleportWarmupDisplay) {
                                     case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
+                                    case SUBTITLE -> teleport.getPlayer().sendTitle(message, true);
+                                    case TITLE -> teleport.getPlayer().sendTitle(message, false);
                                     case MESSAGE -> teleport.getPlayer().sendMessage(message);
                                 }
                             });

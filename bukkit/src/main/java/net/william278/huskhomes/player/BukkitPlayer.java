@@ -1,9 +1,11 @@
 package net.william278.huskhomes.player;
 
 import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomesException;
@@ -93,13 +95,25 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
+    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
+        final String legacyText = TextComponent.toLegacyText(mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
+        player.sendTitle(subTitle ? "" : legacyText, subTitle ? legacyText : "", 10, 70, 20);
+    }
+
+    @Override
     public void sendActionBar(@NotNull MineDown mineDown) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, mineDown.replace().toComponent());
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
     }
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-        final BaseComponent[] messageComponents = mineDown.replace().toComponent();
+        final BaseComponent[] messageComponents = mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent();
         if (messageComponents.length == 0) {
             return;
         }

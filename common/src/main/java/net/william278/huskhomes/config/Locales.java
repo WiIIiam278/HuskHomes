@@ -1,7 +1,6 @@
 package net.william278.huskhomes.config;
 
 import de.themoep.minedown.MineDown;
-import de.themoep.minedown.Util;
 import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
 import org.apache.commons.text.StringEscapeUtils;
@@ -111,8 +110,7 @@ public class Locales {
             boolean isEscape = c == '\\';
             boolean isColorCode = i + 1 < string.length() && (c == 167 || c == '&');
             boolean isEvent = c == '[' || c == ']' || c == '(' || c == ')';
-            boolean isFormatting = (c == '_' || c == '*' || c == '~' || c == '?' || c == '#') && Util.isDouble(string, i);
-            if (isEscape || isColorCode || isEvent || isFormatting) {
+            if (isEscape || isColorCode || isEvent) {
                 value.append('\\');
             }
 

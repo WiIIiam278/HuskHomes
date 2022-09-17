@@ -281,7 +281,8 @@ public class Settings {
     public enum MessageDisplayType {
         MESSAGE,
         ACTION_BAR,
-        SUBTITLE
+        SUBTITLE,
+        TITLE
     }
 
     /**

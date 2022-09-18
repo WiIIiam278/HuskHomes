@@ -213,7 +213,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                     final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().maxPublicHomes,
                             plugin.getSettings().stackPermissionLimits);
                     if (existingPublicHomes.size() >= maxPublicHomes) {
-                        plugin.getLocales().getLocale("error_edit_home_maximum_public_homes")
+                        plugin.getLocales().getLocale("error_edit_home_maximum_public_homes",
+                                        Integer.toString(maxPublicHomes))
                                 .ifPresent(editor::sendMessage);
                         return;
                     }

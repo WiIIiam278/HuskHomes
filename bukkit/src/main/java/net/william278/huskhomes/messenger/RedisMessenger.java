@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Redis (Jedis) messenger implementation
  */
-public class RedisMessenger extends PluginMessenger {
+public class RedisMessenger extends BukkitPluginMessenger {
 
     /**
      * The {@link RedisWorker} that will manage the connection to the Redis database via Jedis

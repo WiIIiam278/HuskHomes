@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'redis.clients:jedis:' + jedis_version
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'com.google.guava:guava:31.1-jre'
-    compileOnly 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
+    compileOnly 'de.themoep:minedown:1.7.1-SNAPSHOT'
     compileOnly 'net.william278:Annotaml:1.0.2'
     compileOnly 'net.william278:DesertWell:1.0'
 
@@ -42,6 +42,14 @@ sponge {
         dependency("spongeapi") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
             optional(false)
+        }
+        dependency("bluemap") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(true)
+        }
+        dependency("plan") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(true)
         }
     }
 }

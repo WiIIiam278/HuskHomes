@@ -20,7 +20,7 @@ import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.messenger.NetworkMessenger;
-import net.william278.huskhomes.messenger.PluginMessenger;
+import net.william278.huskhomes.messenger.BukkitPluginMessenger;
 import net.william278.huskhomes.messenger.RedisMessenger;
 import net.william278.huskhomes.migrator.LegacyMigrator;
 import net.william278.huskhomes.migrator.Migrator;
@@ -62,8 +62,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private static final int METRICS_ID = 8430;
     private Settings settings;
     private Locales locales;
-    private BukkitLogger logger;
-    private BukkitResourceReader resourceReader;
+    private Logger logger;
+    private ResourceReader resourceReader;
     private Database database;
     private Cache cache;
     private TeleportManager teleportManager;
@@ -75,12 +75,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
-
     private List<Migrator> migrators;
-
     @Nullable
     private NetworkMessenger networkMessenger;
-
     @Nullable
     private Server server;
 
@@ -141,7 +138,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             if (getSettings().crossServer) {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
                 networkMessenger = switch (settings.messengerType) {
-                    case PLUGIN_MESSAGE -> new PluginMessenger();
+                    case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
                     case REDIS -> new RedisMessenger();
                 };
                 networkMessenger.initialize(this);

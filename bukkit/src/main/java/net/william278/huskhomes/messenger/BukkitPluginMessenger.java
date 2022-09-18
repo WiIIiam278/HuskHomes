@@ -19,7 +19,7 @@ import java.util.logging.Level;
 /**
  * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> messenger implementation
  */
-public class PluginMessenger extends NetworkMessenger implements PluginMessageListener {
+public class BukkitPluginMessenger extends NetworkMessenger implements PluginMessageListener {
 
     /**
      * The name of BungeeCord's provided plugin channel.

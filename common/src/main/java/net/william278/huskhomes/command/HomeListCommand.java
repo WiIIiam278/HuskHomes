@@ -53,8 +53,8 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
      * @param pageNumber page number to display
      */
     private void showHomeList(@NotNull OnlineUser onlineUser, @NotNull String homeOwner, int pageNumber) {
-        if (plugin.getCache().privateHomeLists.containsKey(onlineUser.uuid)) {
-            onlineUser.sendMessage(plugin.getCache().privateHomeLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+        if (plugin.getCache().privateHomeLists.containsKey(homeOwner)) {
+            onlineUser.sendMessage(plugin.getCache().privateHomeLists.get(homeOwner).getNearestValidPage(pageNumber));
             return;
         }
         plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {

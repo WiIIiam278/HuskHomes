@@ -183,6 +183,11 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         }
                     });
             case "privacy" -> {
+                if (!editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node)) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(editor::sendMessage);
+                    return;
+                }
                 boolean newIsPublic = !home.isPublic;
                 if (editArgs != null && !editArgs.isBlank()) {
                     if (editArgs.equalsIgnoreCase("private")) {

@@ -350,7 +350,7 @@ public class TeleportManager {
         plugin.getEventDispatcher().dispatchTeleportEvent(teleport);
 
         // Update the player's last position
-        if (!plugin.getSettings().backCommandSaveOnTeleportEvent) {
+        if (!plugin.getSettings().backCommandSaveOnTeleportEvent && teleportType == TeleportType.TELEPORT) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
 

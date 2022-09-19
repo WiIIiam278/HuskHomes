@@ -43,9 +43,9 @@ public class Cache {
     public final List<String> players;
 
     /**
-     * Cached lists of private homes for pagination
+     * Cached lists of private homes for pagination, mapped to the username of the home owner
      */
-    public final HashMap<UUID, PaginatedList> privateHomeLists;
+    public final HashMap<String, PaginatedList> privateHomeLists;
 
     /**
      * Cached lists of public homes for pagination
@@ -140,7 +140,7 @@ public class Cache {
     }
 
     @NotNull
-    public Optional<MineDown> getHomeList(@NotNull OnlineUser onlineUser, @NotNull User listOwner, @NotNull Locales locales,
+    public Optional<MineDown> getHomeList(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull Locales locales,
                                           @NotNull List<Home> homes, final int itemsPerPage, final int page) {
         if (eventDispatcher.dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
             return Optional.empty();
@@ -152,10 +152,10 @@ public class Cache {
                                 Locales.escapeMineDown(locales.formatDescription(home.meta.description)))
                         .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
-                        listOwner.username, "%first_item_on_page_index%",
+                        homeOwner.username, "%first_item_on_page_index%",
                         "%last_item_on_page_index%", "%total_items%").orElse(""))
                 .setCommand("/huskhomes:homelist").build());
-        this.privateHomeLists.put(onlineUser.uuid, homeList);
+        this.privateHomeLists.put(homeOwner.username, homeList);
         return Optional.of(homeList.getNearestValidPage(page));
     }
 

@@ -88,7 +88,7 @@ public class SavedPositionManager {
                             }
                             cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                             cache.homes.get(home.owner.uuid).add(home.meta.name);
-                            cache.privateHomeLists.remove(home.owner.uuid);
+                            cache.privateHomeLists.remove(home.owner.username);
                             return database.saveHome(home).thenApply(value ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                         }).join();
@@ -118,7 +118,7 @@ public class SavedPositionManager {
                             homeNames.remove(home.meta.name);
                             return homeNames;
                         });
-                        cache.privateHomeLists.remove(home.owner.uuid);
+                        cache.privateHomeLists.remove(home.owner.username);
                         cache.publicHomeLists.clear();
                         if (mapHook != null) {
                             mapHook.removeHome(home);
@@ -155,7 +155,7 @@ public class SavedPositionManager {
                         cache.homes.get(home.owner.uuid).remove(existingHomeName);
                         cache.homes.get(home.owner.uuid).add(newHomeMeta.name);
                     }
-                    cache.privateHomeLists.remove(home.owner.uuid);
+                    cache.privateHomeLists.remove(home.owner.username);
                     cache.publicHomeLists.clear();
                     if (home.isPublic && mapHook != null) {
                         mapHook.updateHome(home);
@@ -217,7 +217,7 @@ public class SavedPositionManager {
                         mapHook.removeHome(home);
                     }
                 }
-                cache.privateHomeLists.remove(home.owner.uuid);
+                cache.privateHomeLists.remove(home.owner.username);
                 cache.publicHomeLists.clear();
                 return true;
             }).join();

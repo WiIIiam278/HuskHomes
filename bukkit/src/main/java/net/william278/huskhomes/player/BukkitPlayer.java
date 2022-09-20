@@ -121,7 +121,7 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     public void sendMinecraftMessage(@NotNull String translationKey) {
-        player.spigot().sendMessage(new TranslatableComponent(translationKey));
+        audience.sendMessage(Component.translatable(translationKey));
     }
 
     @Override

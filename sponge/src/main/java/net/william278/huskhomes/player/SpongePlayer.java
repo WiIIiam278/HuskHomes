@@ -1,10 +1,12 @@
 package net.william278.huskhomes.player;
 
-import de.themoep.minedown.MineDown;
+import de.themoep.minedown.adventure.MineDown;
+import de.themoep.minedown.adventure.MineDownParser;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.SpongeHuskHomes;
@@ -85,17 +87,25 @@ public class SpongePlayer extends OnlineUser {
 
     @Override
     public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        player.sendTitlePart(subTitle ? TitlePart.SUBTITLE : TitlePart.TITLE, Component.text(mineDown.message()));
+        final Component text = mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent();
+        player.showTitle(Title.title(subTitle ? Component.empty() : text,
+                subTitle ? text : Component.empty()));
     }
 
     @Override
     public void sendActionBar(@NotNull MineDown mineDown) {
-        player.sendActionBar(Component.text(mineDown.message()));
+        player.sendActionBar(mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
     }
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-        player.sendMessage(Component.text(mineDown.message()));
+        player.sendMessage(mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
     }
 
     @Override
@@ -107,7 +117,8 @@ public class SpongePlayer extends OnlineUser {
     public void playSound(@NotNull String soundEffect) {
         try {
             player.playSound(Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER, 1, 1));
-        } catch (InvalidKeyException ignored) {}
+        } catch (InvalidKeyException ignored) {
+        }
     }
 
     @Override

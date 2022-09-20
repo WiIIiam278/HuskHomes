@@ -1,14 +1,12 @@
 package net.william278.huskhomes.util;
 
-import com.google.inject.Inject;
-import de.themoep.minedown.MineDown;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
 public class SpongeLogger extends Logger {
 
-    private org.apache.logging.log4j.Logger logger;
+    private final org.apache.logging.log4j.Logger logger;
     public SpongeLogger(@NotNull org.apache.logging.log4j.Logger logger) {
         this.logger = logger;
     }
@@ -51,14 +49,4 @@ public class SpongeLogger extends Logger {
         logger.info(message);
     }
 
-    @Override
-    public void log(@NotNull Level level, @NotNull MineDown mineDown) {
-        switch (level.getName()) {
-            case "WARNING" -> logger.warn(mineDown.toString());
-            case "SEVERE" -> logger.error(mineDown.toString());
-            case "FINE" -> logger.debug(mineDown.toString());
-            case "FINER" -> logger.trace(mineDown.toString());
-            default -> logger.info(mineDown.toString());
-        }
-    }
 }

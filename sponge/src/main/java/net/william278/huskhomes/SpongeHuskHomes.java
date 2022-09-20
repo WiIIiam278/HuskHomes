@@ -4,7 +4,8 @@ import com.google.inject.Inject;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
-import net.william278.huskhomes.command.DisabledCommand;
+import net.william278.huskhomes.command.SpongeCommand;
+import net.william278.huskhomes.command.SpongeCommandType;
 import net.william278.huskhomes.config.CachedServer;
 import net.william278.huskhomes.config.CachedSpawn;
 import net.william278.huskhomes.config.Locales;
@@ -13,10 +14,10 @@ import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.EventDispatcher;
+import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.BlueMapHook;
-import net.william278.huskhomes.hook.PlanHook;
 import net.william278.huskhomes.hook.PluginHook;
-import net.william278.huskhomes.listener.EventListener;
+import net.william278.huskhomes.listener.SpongeEventListener;
 import net.william278.huskhomes.messenger.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
@@ -33,10 +34,11 @@ import net.william278.huskhomes.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -69,14 +71,13 @@ public class SpongeHuskHomes implements HuskHomes {
     private TeleportManager teleportManager;
     private RequestManager requestManager;
     private SavedPositionManager savedPositionManager;
-    private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
     private CachedSpawn serverSpawn;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
     @Nullable
-    private NetworkMessenger networkMessenger;
+    private NetworkMessenger networkMessenger; //todo
     @Nullable
     private Server server;
 
@@ -96,7 +97,7 @@ public class SpongeHuskHomes implements HuskHomes {
         try {
             // Set the logging and resource reading adapter
             this.logger = new SpongeLogger(pluginContainer.logger());
-            //this.resourceReader = new SpongeResourceReader(this);
+            this.resourceReader = new SpongeResourceReader(pluginContainer, pluginDirectory.toFile());
 
             // Load settings and locales
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
@@ -129,7 +130,7 @@ public class SpongeHuskHomes implements HuskHomes {
 //                    case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
 //                    case REDIS -> new RedisMessenger();
 //                };
-                networkMessenger.initialize(this);
+                //networkMessenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
 
@@ -140,7 +141,7 @@ public class SpongeHuskHomes implements HuskHomes {
             this.requestManager = new RequestManager(this);
 
             // Prepare the event dispatcher
-            //this.eventDispatcher = new BukkitEventDispatcher(this);
+            this.eventDispatcher = new SpongeEventDispatcher(this);
 
             // Initialize the cache
             cache = new Cache(eventDispatcher);
@@ -151,7 +152,7 @@ public class SpongeHuskHomes implements HuskHomes {
                     settings.allowUnicodeNames, settings.allowUnicodeDescriptions);
 
             // Initialize the RTP engine with the default normal distribution engine
-            setRandomTeleportEngine(new NormalDistributionEngine(this));
+            //setRandomTeleportEngine(new NormalDistributionEngine(this));
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
@@ -178,44 +179,8 @@ public class SpongeHuskHomes implements HuskHomes {
 
             // Register events
             getLoggingAdapter().log(Level.INFO, "Registering events...");
-            //this.eventListener = new BukkitEventListener(this);
+            new SpongeEventListener(this, pluginContainer);
             getLoggingAdapter().log(Level.INFO, "Successfully registered events listener");
-
-            // Register permissions
-            getLoggingAdapter().log(Level.INFO, "Registering permissions & commands...");
-//            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(
-//                    new org.bukkit.permissions.Permission(permission.node,
-//                            switch (permission.defaultAccess) {
-//                                case EVERYONE -> PermissionDefault.TRUE;
-//                                case NOBODY -> PermissionDefault.FALSE;
-//                                case OPERATORS -> PermissionDefault.OP;
-//                            })));
-
-            // Register commands
-            this.registeredCommands = new ArrayList<>();
-//            Arrays.stream(BukkitCommandType.values()).forEach(commandType -> {
-//                final PluginCommand pluginCommand = getCommand(commandType.commandBase.command);
-//                if (pluginCommand == null) {
-//                    return;
-//                }
-//
-//                // If the command is disabled, use the disabled CommandBase
-//                if (settings.disabledCommands.stream().anyMatch(disabledCommand -> {
-//                    final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
-//                    return command.equalsIgnoreCase(commandType.commandBase.command) ||
-//                           Arrays.stream(commandType.commandBase.aliases)
-//                                   .anyMatch(alias -> alias.equalsIgnoreCase(command));
-//                })) {
-//                    new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
-//                    return;
-//                }
-//
-//                // Otherwise, register the command
-//                final CommandBase commandBase = commandType.commandBase;
-//                this.registeredCommands.add(commandBase);
-//                new BukkitCommand(commandBase, this).register(pluginCommand);
-//            });
-            getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
             // Check for updates
             if (settings.checkForUpdates) {
@@ -239,6 +204,15 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLoggingAdapter().log(Level.SEVERE, "Failed to initialize HuskHomes. The plugin will not be fully functional and you should restart your server.");
             }
         }
+    }
+
+    @Listener
+    public void onRegisterCommands(final RegisterCommandEvent<Command.Raw> event) {
+        registeredCommands = new ArrayList<>();
+        Arrays.stream(SpongeCommandType.values()).forEach(commandType -> {
+            new SpongeCommand(commandType.commandBase, this).register(event, pluginContainer);
+            registeredCommands.add(commandType.commandBase);
+        });
     }
 
     @Override
@@ -396,7 +370,34 @@ public class SpongeHuskHomes implements HuskHomes {
 
     @Override //todo
     public CompletableFuture<Boolean> reload() {
-        return null;
+        return CompletableFuture.supplyAsync(() -> {
+            // Load settings and locales
+            this.settings = Annotaml.reload(new File(pluginDirectory.toFile(), "config.yml"),
+                    new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
+            this.locales = Annotaml.reload(new File(pluginDirectory.toFile(), "messages_" + settings.language + ".yml"),
+                    Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
+                    Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
+
+            // Load cached server from file
+            if (settings.crossServer) {
+                final File serverFile = new File(pluginDirectory.toFile(), "server.yml");
+                if (serverFile.exists()) {
+                    this.server = Annotaml.load(serverFile, CachedServer.class).getServer();
+                }
+            } else {
+                this.server = new Server("server");
+            }
+
+            // Load spawn location from file
+            final File spawnFile = new File(pluginDirectory.toFile(), "spawn.yml");
+            if (spawnFile.exists()) {
+                this.serverSpawn = Annotaml.load(spawnFile, CachedSpawn.class);
+            }
+            return true;
+        }).exceptionally(throwable -> {
+            getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", throwable);
+            return false;
+        });
     }
 
     @Override

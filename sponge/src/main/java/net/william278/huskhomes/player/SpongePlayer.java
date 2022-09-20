@@ -1,6 +1,11 @@
 package net.william278.huskhomes.player;
 
 import de.themoep.minedown.MineDown;
+import net.kyori.adventure.key.InvalidKeyException;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.position.Location;
@@ -9,9 +14,9 @@ import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.SpongeAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -65,56 +70,60 @@ public class SpongePlayer extends OnlineUser {
 
     @Override
     public double getHealth() {
-        return 0;
+        return player.health().get();
     }
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        return false;
-    }
+        return true;
+    } //todo
 
     @Override
     public @NotNull Map<String, Boolean> getPermissions() {
-        return null;
+        return new HashMap<>(); //todo
     }
 
     @Override
     public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-
+        player.sendTitlePart(subTitle ? TitlePart.SUBTITLE : TitlePart.TITLE, Component.text(mineDown.message()));
     }
 
     @Override
     public void sendActionBar(@NotNull MineDown mineDown) {
-
+        player.sendActionBar(Component.text(mineDown.message()));
     }
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-
+        player.sendMessage(Component.text(mineDown.message()));
     }
 
     @Override
     public void sendMinecraftMessage(@NotNull String translationKey) {
-
+        player.sendMessage(Component.translatable(translationKey));
     }
 
     @Override
     public void playSound(@NotNull String soundEffect) {
-
+        try {
+            player.playSound(Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER, 1, 1));
+        } catch (InvalidKeyException ignored) {}
     }
 
     @Override
     public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> player.setLocation(SpongeAdapter.adaptLocation(location)
+                .orElseThrow(() -> new HuskHomesException("Failed to teleport a SpongePlayer (null)"))) ?
+                TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD);
     }
 
     @Override
     public boolean isMoving() {
-        return false;
+        return player.velocity().get().lengthSquared() > 0.0075;
     }
 
     @Override
     public boolean isVanished() {
-        return false;
+        return false; //todo
     }
 }

@@ -1,6 +1,6 @@
 package net.william278.huskhomes.config;
 
-import de.themoep.minedown.MineDown;
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
 import org.apache.commons.text.StringEscapeUtils;

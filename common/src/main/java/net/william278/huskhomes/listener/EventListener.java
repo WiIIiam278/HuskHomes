@@ -1,6 +1,6 @@
 package net.william278.huskhomes.listener;
 
-import de.themoep.minedown.MineDown;
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;

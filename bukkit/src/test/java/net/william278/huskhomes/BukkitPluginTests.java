@@ -3,7 +3,7 @@ package net.william278.huskhomes;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import de.themoep.minedown.MineDown;
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.player.BukkitPlayer;
 import org.junit.jupiter.api.AfterAll;

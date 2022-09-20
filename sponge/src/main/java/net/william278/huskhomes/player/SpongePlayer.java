@@ -7,7 +7,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.position.Location;
@@ -17,6 +16,8 @@ import net.william278.huskhomes.util.SpongeAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class SpongePlayer extends OnlineUser {
 
     @Override
     public double getHealth() {
-        return player.health().get();
+        return player.health().asImmutable().get();
     }
 
     @Override
@@ -123,9 +124,18 @@ public class SpongePlayer extends OnlineUser {
 
     @Override
     public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
-        return CompletableFuture.supplyAsync(() -> player.setLocation(SpongeAdapter.adaptLocation(location)
-                .orElseThrow(() -> new HuskHomesException("Failed to teleport a SpongePlayer (null)"))) ?
-                TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD);
+        final CompletableFuture<TeleportResult> future = new CompletableFuture<>();
+        final Task teleportTask = Task.builder().execute(() -> {
+            final Optional<ServerLocation> serverLocation = SpongeAdapter.adaptLocation(location);
+            if (serverLocation.isEmpty()) {
+                future.complete(TeleportResult.FAILED_INVALID_WORLD);
+                return;
+            }
+            player.setLocation(serverLocation.get());
+            future.complete(TeleportResult.COMPLETED_LOCALLY);
+        }).plugin(SpongeHuskHomes.getInstance().getPluginContainer()).build();
+        Sponge.server().scheduler().submit(teleportTask);
+        return future;
     }
 
     @Override

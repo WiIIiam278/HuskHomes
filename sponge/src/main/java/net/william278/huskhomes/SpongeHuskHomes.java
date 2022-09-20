@@ -215,6 +215,11 @@ public class SpongeHuskHomes implements HuskHomes {
         });
     }
 
+    @NotNull
+    public PluginContainer getPluginContainer() {
+        return pluginContainer;
+    }
+
     @Override
     public @NotNull Logger getLoggingAdapter() {
         return logger;

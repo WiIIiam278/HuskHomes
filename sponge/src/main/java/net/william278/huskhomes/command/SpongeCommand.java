@@ -82,16 +82,21 @@ public class SpongeCommand implements Command.Raw {
      * @return the assimilated {@link String} array
      */
     private String[] assimilateArguments(@NotNull ArgumentReader.Mutable arguments) {
-        return arguments.immutable().remaining().split(" ");
+        final String argumentString = arguments.immutable().remaining();
+        if (argumentString.isBlank()) {
+            return new String[0];
+        }
+        return argumentString.split(" ");
     }
 
     @Override
     public boolean canExecute(CommandCause cause) { // todo disabled commands
-        if (cause instanceof Player) {
-            return cause.hasPermission(command.permission);
-        } else {
-            return this.command instanceof ConsoleExecutable;
-        }
+        return true;
+        //        if (cause instanceof Player) {
+//            return cause.hasPermission(command.permission);
+//        } else {
+//            return this.command instanceof ConsoleExecutable;
+//        }
     }
 
     @Override

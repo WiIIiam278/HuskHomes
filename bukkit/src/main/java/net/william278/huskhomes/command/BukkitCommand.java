@@ -57,7 +57,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
                 consoleExecutable.onConsoleExecute(args);
             } else {
                 plugin.getLocales().getLocale("error_in_game_only").
-                        ifPresent(locale -> sender.spigot().sendMessage(locale.toComponent()));
+                        ifPresent(locale -> plugin.getAudiences().sender(sender).sendMessage(locale.toComponent()));
             }
         }
         return true;

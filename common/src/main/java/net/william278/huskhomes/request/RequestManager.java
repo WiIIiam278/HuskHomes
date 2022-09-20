@@ -90,7 +90,7 @@ public class RequestManager {
      * @return the last received request, if present
      */
     public Optional<TeleportRequest> getLastTeleportRequest(@NotNull User recipient) {
-        return Optional.of(this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).getFirst());
+        return this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream().findFirst();
     }
 
     /**

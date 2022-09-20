@@ -1,6 +1,7 @@
 package net.william278.huskhomes;
 
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.BukkitCommand;
@@ -81,6 +82,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Nullable
     private Server server;
 
+    // Adventure audience
+    private BukkitAudiences audiences;
+
     // Instance of the plugin
     private static BukkitHuskHomes instance;
 
@@ -102,6 +106,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Set the logging and resource reading adapter
             this.logger = new BukkitLogger(getLogger());
             this.resourceReader = new BukkitResourceReader(this);
+
+            // Create adventure audience
+            this.audiences = BukkitAudiences.create(this);
 
             // Detect if an upgrade is needed
             final BukkitUpgradeUtil upgradeData = BukkitUpgradeUtil.detect(this);
@@ -131,7 +138,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
                 throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                        "Please check the supplied database credentials in the config file");
+                                                           "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -193,8 +200,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
                 getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                        pluginHooks.stream().map(PluginHook::getHookName)
-                                .collect(Collectors.joining(", ")));
+                                                    pluginHooks.stream().map(PluginHook::getHookName)
+                                                            .collect(Collectors.joining(", ")));
             }
 
             // Register events
@@ -224,8 +231,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 if (settings.disabledCommands.stream().anyMatch(disabledCommand -> {
                     final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
                     return command.equalsIgnoreCase(commandType.commandBase.command) ||
-                            Arrays.stream(commandType.commandBase.aliases)
-                                    .anyMatch(alias -> alias.equalsIgnoreCase(command));
+                           Arrays.stream(commandType.commandBase.aliases)
+                                   .anyMatch(alias -> alias.equalsIgnoreCase(command));
                 })) {
                     new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
                     return;
@@ -252,7 +259,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 getLatestVersionIfOutdated().thenAccept(newestVersion ->
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
-                                        + " (Currently running v" + getPluginVersion() + ")")));
+                                + " (Currently running v" + getPluginVersion() + ")")));
             }
 
             // Perform automatic upgrade if detected
@@ -294,6 +301,19 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         if (networkMessenger != null) {
             networkMessenger.terminate();
         }
+        if (audiences != null) {
+            audiences.close();
+            audiences = null;
+        }
+    }
+
+    /**
+     * Returns the adventure Bukkit audiences
+     *
+     * @return The adventure Bukkit audiences
+     */
+    public BukkitAudiences getAudiences() {
+        return audiences;
     }
 
     @NotNull

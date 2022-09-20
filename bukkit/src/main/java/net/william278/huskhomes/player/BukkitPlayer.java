@@ -1,11 +1,11 @@
 package net.william278.huskhomes.player;
 
-import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
+import de.themoep.minedown.adventure.MineDown;
+import de.themoep.minedown.adventure.MineDownParser;
 import io.papermc.lib.PaperLib;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomesException;
@@ -32,10 +32,12 @@ import java.util.stream.Collectors;
 public class BukkitPlayer extends OnlineUser {
 
     private final Player player;
+    private final Audience audience;
 
     private BukkitPlayer(@NotNull Player player) {
         super(player.getUniqueId(), player.getName());
         this.player = player;
+        this.audience = BukkitHuskHomes.getInstance().getAudiences().player(player);
     }
 
     /**
@@ -96,28 +98,25 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final String legacyText = TextComponent.toLegacyText(mineDown
+        final Component text = mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-        player.sendTitle(subTitle ? "" : legacyText, subTitle ? legacyText : "", 10, 70, 20);
+                .replace().toComponent();
+        audience.showTitle(Title.title(subTitle ? Component.empty() : text,
+                subTitle ? text : Component.empty()));
     }
 
     @Override
     public void sendActionBar(@NotNull MineDown mineDown) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, mineDown
+        audience.sendActionBar(mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
                 .replace().toComponent());
     }
 
     @Override
     public void sendMessage(@NotNull MineDown mineDown) {
-        final BaseComponent[] messageComponents = mineDown
+        audience.sendMessage(mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent();
-        if (messageComponents.length == 0) {
-            return;
-        }
-        player.spigot().sendMessage(messageComponents);
+                .replace().toComponent());
     }
 
     @Override

@@ -7,7 +7,7 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-    compileOnly 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
+    compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     compileOnly 'net.kyori:adventure-platform-bukkit:' + adventure_version
     compileOnly 'redis.clients:jedis:' + jedis_version
     compileOnly 'commons-io:commons-io:2.11.0'

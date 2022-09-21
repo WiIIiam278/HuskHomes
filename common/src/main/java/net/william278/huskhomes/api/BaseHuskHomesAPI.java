@@ -411,7 +411,9 @@ public abstract class BaseHuskHomesAPI {
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
      * @return The {@link MineDown}-formatted locale
-     * @since 3.0
+     * @apiNote Since v3.0.4, this method returns a `adventure.MineDown` object, targeting
+     * <a href="https://docs.adventure.kyori.net/">Adventure</a> platforms, rather than a bungee components object.
+     * @since 3.0.4
      */
     public final Optional<MineDown> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getLocale(localeKey, replacements);

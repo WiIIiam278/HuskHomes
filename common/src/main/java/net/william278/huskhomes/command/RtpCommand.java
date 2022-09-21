@@ -61,9 +61,8 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                 return;
             }
             final Instant currentTime = Instant.now();
-            if (!isExecutorTeleporting
-                    && !currentTime.isAfter(userData.get().rtpCooldown())
-                    && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+            if (isExecutorTeleporting && !currentTime.isAfter(userData.get().rtpCooldown())
+                && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                 plugin.getLocales().getLocale("error_rtp_cooldown",
                                 Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES)))
                         .ifPresent(onlineUser::sendMessage);
@@ -83,7 +82,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                         : plugin.getTeleportManager().teleport(userToTeleport, position.get());
                 randomTeleport.thenAccept(result -> {
                     if (isExecutorTeleporting &&
-                            result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                        result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                         plugin.getDatabase().updateUserData(new UserData(onlineUser,
                                 userData.get().homeSlots(), userData.get().ignoringTeleports(),
                                 Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));

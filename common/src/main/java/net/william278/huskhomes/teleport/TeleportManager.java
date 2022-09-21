@@ -1,5 +1,6 @@
 package net.william278.huskhomes.teleport;
 
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.messenger.Message;
@@ -412,24 +413,10 @@ public class TeleportManager {
                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
                             .ifPresent(sound -> teleport.getPlayer().playSound(sound));
                     plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(teleport.timeLeft))
-                            .ifPresent(message -> {
-                                switch (plugin.getSettings().teleportWarmupDisplay) {
-                                    case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
-                                    case SUBTITLE -> teleport.getPlayer().sendTitle(message, true);
-                                    case TITLE -> teleport.getPlayer().sendTitle(message, false);
-                                    case MESSAGE -> teleport.getPlayer().sendMessage(message);
-                                }
-                            });
+                            .ifPresent(message -> sendWarmupStatusMessage(teleport.getPlayer(), message));
                 } else {
                     plugin.getLocales().getLocale("teleporting_action_bar_processing")
-                            .ifPresent(message -> {
-                                switch (plugin.getSettings().teleportWarmupDisplay) {
-                                    case ACTION_BAR -> teleport.getPlayer().sendActionBar(message);
-                                    case SUBTITLE -> teleport.getPlayer().sendTitle(message, true);
-                                    case TITLE -> teleport.getPlayer().sendTitle(message, false);
-                                    case MESSAGE -> teleport.getPlayer().sendMessage(message);
-                                }
-                            });
+                            .ifPresent(message -> sendWarmupStatusMessage(teleport.getPlayer(), message));
                 }
 
                 // Tick (decrement) the timed teleport timer
@@ -468,8 +455,8 @@ public class TeleportManager {
         if (teleport.hasTakenDamage()) {
             plugin.getLocales().getLocale("teleporting_cancelled_damage").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
-            plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
-                    teleport.getPlayer().sendActionBar(locale));
+            plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
+                    .ifPresent(message -> sendWarmupStatusMessage(teleport.getPlayer(), message));
             plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(sound -> teleport.getPlayer().playSound(sound));
             teleport.cancelled = true;
@@ -480,8 +467,8 @@ public class TeleportManager {
         if (teleport.hasMoved()) {
             plugin.getLocales().getLocale("teleporting_cancelled_movement").ifPresent(locale ->
                     teleport.getPlayer().sendMessage(locale));
-            plugin.getLocales().getLocale("teleporting_action_bar_cancelled").ifPresent(locale ->
-                    teleport.getPlayer().sendActionBar(locale));
+            plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
+                    .ifPresent(message -> sendWarmupStatusMessage(teleport.getPlayer(), message));
             plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(sound -> teleport.getPlayer().playSound(sound));
             teleport.cancelled = true;
@@ -491,6 +478,15 @@ public class TeleportManager {
         // Decrement the countdown timer
         teleport.countDown();
         return Optional.empty();
+    }
+
+    private void sendWarmupStatusMessage(@NotNull OnlineUser onlineUser, @NotNull MineDown message) {
+        switch (plugin.getSettings().teleportWarmupDisplay) {
+            case ACTION_BAR -> onlineUser.sendActionBar(message);
+            case SUBTITLE -> onlineUser.sendTitle(message, true);
+            case TITLE -> onlineUser.sendTitle(message, false);
+            case MESSAGE -> onlineUser.sendMessage(message);
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ public class EventListener {
     protected final void handlePlayerJoin(@NotNull OnlineUser onlineUser) {
         // Handle the first player joining the server
         CompletableFuture.runAsync(() -> {
-            if (firstUser) {
+            if (plugin.getSettings().crossServer && firstUser) {
                 firstUser = false;
                 plugin.fetchServer(onlineUser).join();
             }
@@ -65,16 +65,16 @@ public class EventListener {
 
                     // Teleport the player locally
                     onlineUser.teleport(activeTeleport.target, plugin.getSettings().asynchronousTeleports).thenAccept(teleportResult -> {
-                                if (!teleportResult.successful) {
-                                    plugin.getLocales().getLocale("error_invalid_world")
-                                            .ifPresent(onlineUser::sendMessage);
-                                } else {
-                                    plugin.getLocales().getLocale("teleporting_complete")
-                                            .ifPresent(onlineUser::sendMessage);
-                                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
-                                            .ifPresent(onlineUser::playSound);
-                                }
-                            }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null));
+                        if (!teleportResult.successful) {
+                            plugin.getLocales().getLocale("error_invalid_world")
+                                    .ifPresent(onlineUser::sendMessage);
+                        } else {
+                            plugin.getLocales().getLocale("teleporting_complete")
+                                    .ifPresent(onlineUser::sendMessage);
+                            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
+                                    .ifPresent(onlineUser::playSound);
+                        }
+                    }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null));
                 }));
             }
         }).thenRun(() -> {

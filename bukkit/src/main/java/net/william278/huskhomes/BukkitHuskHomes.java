@@ -51,7 +51,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -470,19 +472,31 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     public CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester) {
-        if (!getSettings().crossServer) {
+        if (!getSettings().crossServer || server != null) {
             return CompletableFuture.completedFuture(null);
         }
-        if (server == null) {
-            return getNetworkMessenger().getServerName(requester).thenAcceptAsync(serverName -> {
-                // Set the server name
-                this.server = new Server(serverName);
-
-                // Cache the server to the server.yml file
-                Annotaml.save(new CachedServer(serverName), new File(getDataFolder(), "server.yml"));
-            });
-        }
-        return CompletableFuture.completedFuture(null);
+        assert networkMessenger != null;
+        getLoggingAdapter().log(Level.INFO, "Fetching server information from the proxy...");
+        final AtomicInteger attempts = new AtomicInteger(0);
+        return CompletableFuture.runAsync(() -> {
+                    String serverName = null;
+                    while (serverName == null) {
+                        attempts.getAndIncrement();
+                        serverName = networkMessenger.getServerName(requester)
+                                .orTimeout(1, TimeUnit.SECONDS)
+                                .exceptionally(throwable -> null).join();
+                    }
+                    getLoggingAdapter().log(Level.INFO, "Successfully fetched server information from the proxy (name: "
+                                                        + serverName + ", attempts: " + attempts.get() + ")");
+                    server = new Server(serverName);
+                    Annotaml.save(new CachedServer(serverName), new File(getDataFolder(), "server.yml"));
+                })
+                .orTimeout(5, TimeUnit.SECONDS)
+                .exceptionally(throwable -> {
+                    getLoggingAdapter().log(Level.SEVERE, "Failed to fetch server name from the proxy (attempts: "
+                                                          + attempts.get() + ")", throwable);
+                    return null;
+                });
     }
 
     @Override

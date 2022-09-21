@@ -145,7 +145,9 @@ public class EventListener {
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
         // Display the return by death via /back notification
-        if (plugin.getSettings().backCommandReturnByDeath && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+        if (plugin.getSettings().backCommandReturnByDeath
+            && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
+            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getLocales().getLocale("return_by_death_notification")
                     .ifPresent(onlineUser::sendMessage);
         }

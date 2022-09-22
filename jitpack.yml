@@ -1,4 +1,4 @@
-# This file ensures jitpack builds HuskSync correctly by setting the JDK to 16
+# This file ensures jitpack builds HuskHomes correctly by setting the JDK to 16
 jdk:
   - 'openjdk16'
 before_install:

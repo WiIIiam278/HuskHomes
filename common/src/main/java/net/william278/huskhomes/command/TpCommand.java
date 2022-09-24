@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -22,23 +21,22 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        CompletableFuture.runAsync(() -> {
-            // Ensure a valid target was found
-            final Optional<TeleportTarget> teleportTarget = getTeleportTarget(args, onlineUser);
-            if (teleportTarget.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax", "/tp <target> [destination]")
-                        .ifPresent(onlineUser::sendMessage);
-                return;
-            }
+        // Ensure a valid target was found
+        final Optional<TeleportTarget> teleportTarget = getTeleportTarget(args, onlineUser);
+        if (teleportTarget.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/tp <target> [destination]")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
 
-            // Determine the player to teleport
-            final String targetPlayerToTeleport = ((teleportTarget.get() instanceof TargetPlayer) && args.length == 2)
-                    ? args[0] : ((teleportTarget.get() instanceof TargetPosition)
-                    ? args.length > 3 ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.username)
-                    : onlineUser.username : onlineUser.username);
+        // Determine the player to teleport
+        final String targetPlayerToTeleport = ((teleportTarget.get() instanceof TargetPlayer) && args.length == 2)
+                ? args[0] : ((teleportTarget.get() instanceof TargetPosition)
+                ? args.length > 3 ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.username)
+                : onlineUser.username : onlineUser.username);
 
-            // Find the online user to teleport
-            plugin.getCache().updatePlayerListCache(plugin, onlineUser).join();
+        // Find the online user to teleport
+        plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenRun(() -> {
             final String playerToTeleport = plugin.getCache().players.stream()
                     .filter(user -> user.equalsIgnoreCase(targetPlayerToTeleport)).findFirst()
                     .or(() -> Optional.ofNullable(targetPlayerToTeleport.equals("@s") ? onlineUser.username : null))
@@ -101,9 +99,6 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                                             .ifPresent(onlineUser::sendMessage);
                                 }));
             }
-        }).exceptionally(throwable -> {
-            plugin.getLoggingAdapter().log(Level.SEVERE, "An error occurred whilst executing a teleport command", throwable);
-            return null;
         });
     }
 
@@ -183,7 +178,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Execute the console teleport
         if (teleportTarget instanceof TargetPlayer targetPlayer) {
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username
-                    + " to " + targetPlayer.playerName);
+                                                       + " to " + targetPlayer.playerName);
             plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, targetPlayer.playerName, false);
         } else {
             final TargetPosition targetPosition = (TargetPosition) teleportTarget;
@@ -193,7 +188,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                             plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
                         } else {
                             plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username
-                                    + " (" + teleportResult.name() + ")");
+                                                                          + " (" + teleportResult.name() + ")");
                         }
                         plugin.getTeleportManager().finishTeleport(playerToTeleport, teleportResult);
                     });

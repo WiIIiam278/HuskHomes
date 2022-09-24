@@ -19,31 +19,32 @@ public class SetSpawnCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        CompletableFuture.supplyAsync(() -> {
-            if (args.length > 0) {
-                plugin.getLocales().getLocale("error_invalid_syntax", "/setspawn")
-                        .ifPresent(onlineUser::sendMessage);
-                return false;
-            }
-            final Position position = onlineUser.getPosition();
-            if (plugin.getSettings().crossServer && plugin.getSettings().globalSpawn) {
-                final Optional<Warp> warp = plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).join();
+        if (args.length > 0) {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/setspawn")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+
+        final Position position = onlineUser.getPosition();
+        if (plugin.getSettings().crossServer && plugin.getSettings().globalSpawn) {
+            plugin.getDatabase().getWarp(plugin.getSettings().globalSpawnName).thenApply(warp -> {
                 if (warp.isPresent()) {
-                    return plugin.getSavedPositionManager().updateWarpPosition(warp.get(), position).join();
+                    return plugin.getSavedPositionManager().updateWarpPosition(warp.get(), position);
                 } else {
                     return plugin.getSavedPositionManager().setWarp(new PositionMeta(plugin.getSettings().globalSpawnName,
-                            plugin.getLocales().getRawLocale("spawn_warp_default_description")
-                                    .orElse("")), position).join().resultType().successful;
+                                    plugin.getLocales().getRawLocale("spawn_warp_default_description").orElse("")), position)
+                            .thenApply(result -> result.resultType().successful);
                 }
-            } else {
-                plugin.setServerSpawn(position);
-                return true;
-            }
-        }).thenAccept(succeeded -> {
-            if (succeeded) {
-                plugin.getLocales().getLocale("set_spawn_success")
-                        .ifPresent(onlineUser::sendMessage);
-            }
-        });
+            }).thenAccept(result -> result.thenAccept(successful -> {
+                if (successful) {
+                    plugin.getLocales().getLocale("set_spawn_success")
+                            .ifPresent(onlineUser::sendMessage);
+                }
+            }));
+        } else {
+            plugin.setServerSpawn(position);
+            plugin.getLocales().getLocale("set_spawn_success")
+                    .ifPresent(onlineUser::sendMessage);
+        }
     }
 }

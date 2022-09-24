@@ -68,9 +68,9 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
             for (final Warp toDelete : warps) {
                 homeDeletionFuture.add(plugin.getSavedPositionManager().deleteWarp(toDelete.meta.name));
             }
-            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0])).thenRunAsync(() ->
-                    plugin.getLocales().getLocale("delete_all_warps_success", Integer.toString(homeDeletionFuture.size()))
-                            .ifPresent(deleter::sendMessage)).join();
+            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0]))
+                    .thenRun(() -> plugin.getLocales().getLocale("delete_all_warps_success",
+                            Integer.toString(homeDeletionFuture.size())).ifPresent(deleter::sendMessage));
         });
     }
 

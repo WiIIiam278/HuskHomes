@@ -82,14 +82,14 @@ public class SavedPositionManager {
                 validateMeta(homeMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalHome.isEmpty()) {
                         final Home home = new Home(position, homeMeta, homeOwner);
-                        return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+                        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
                                 return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                             }
                             cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                             cache.homes.get(home.owner.uuid).add(home.meta.name);
                             cache.privateHomeLists.remove(home.owner.username);
-                            return database.saveHome(home).thenApply(value ->
+                            return database.saveHome(home).thenApplyAsync(value ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                         }).join();
                     }
@@ -108,12 +108,12 @@ public class SavedPositionManager {
     public CompletableFuture<Boolean> deleteHome(@NotNull User homeOwner, @NotNull String homeName) {
         return database.getHome(homeOwner, homeName).thenApplyAsync(optionalHome -> {
             if (optionalHome.isPresent()) {
-                return eventDispatcher.dispatchHomeDeleteEvent(optionalHome.get()).thenApply(event -> {
+                return eventDispatcher.dispatchHomeDeleteEvent(optionalHome.get()).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return false;
                     }
                     final Home home = event.getHome();
-                    return database.deleteHome(home.uuid).thenApply(ignored -> {
+                    return database.deleteHome(home.uuid).thenApplyAsync(ignored -> {
                         cache.homes.computeIfPresent(home.owner.uuid, (ownerUUID, homeNames) -> {
                             homeNames.remove(home.meta.name);
                             return homeNames;
@@ -147,7 +147,7 @@ public class SavedPositionManager {
             return validateMeta(newHomeMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 home.meta = newHomeMeta;
-                return eventDispatcher.dispatchHomeSaveEvent(home).thenApply(event -> {
+                return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                     }
@@ -160,7 +160,7 @@ public class SavedPositionManager {
                     if (home.isPublic && mapHook != null) {
                         mapHook.updateHome(home);
                     }
-                    return database.saveHome(home).thenApply(value ->
+                    return database.saveHome(home).thenApplyAsync(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                 }).join();
             });
@@ -184,7 +184,7 @@ public class SavedPositionManager {
             if (home.isPublic && mapHook != null) {
                 mapHook.updateHome(home);
             }
-            return database.saveHome(home).thenApply(ignored -> true).join();
+            return database.saveHome(home).thenApplyAsync(ignored -> true).join();
         });
     }
 
@@ -202,7 +202,7 @@ public class SavedPositionManager {
                 return false;
             }
 
-            return database.saveHome(home).thenApply(ignored -> {
+            return database.saveHome(home).thenApplyAsync(ignored -> {
                 if (home.isPublic) {
                     cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
                     cache.publicHomes.get(home.owner.username).add(home.meta.name);
@@ -237,7 +237,7 @@ public class SavedPositionManager {
                 validateMeta(warpMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalWarp.isEmpty()) {
                         final Warp warp = new Warp(position, warpMeta);
-                        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+                        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
                                 return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                             }
@@ -246,7 +246,7 @@ public class SavedPositionManager {
                             if (mapHook != null) {
                                 mapHook.updateWarp(warp);
                             }
-                            return database.saveWarp(warp).thenApply(ignored ->
+                            return database.saveWarp(warp).thenApplyAsync(ignored ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                         }).join();
                     }
@@ -264,12 +264,12 @@ public class SavedPositionManager {
     public CompletableFuture<Boolean> deleteWarp(@NotNull String warpName) {
         return database.getWarp(warpName).thenApplyAsync(optionalWarp -> {
             if (optionalWarp.isPresent()) {
-                return eventDispatcher.dispatchWarpDeleteEvent(optionalWarp.get()).thenApply(event -> {
+                return eventDispatcher.dispatchWarpDeleteEvent(optionalWarp.get()).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return false;
                     }
                     final Warp warp = event.getWarp();
-                    return database.deleteWarp(warp.uuid).thenApply(ignored -> {
+                    return database.deleteWarp(warp.uuid).thenApplyAsync(ignored -> {
                         cache.warps.remove(warp.meta.name);
                         cache.warpLists.clear();
                         if (mapHook != null) {
@@ -299,7 +299,7 @@ public class SavedPositionManager {
             return validateMeta(newWarpMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 warp.meta = newWarpMeta;
-                return eventDispatcher.dispatchWarpSaveEvent(warp).thenApply(event -> {
+                return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                     }
@@ -311,7 +311,7 @@ public class SavedPositionManager {
                     if (mapHook != null) {
                         mapHook.updateWarp(warp);
                     }
-                    return database.saveWarp(warp).thenApply(value ->
+                    return database.saveWarp(warp).thenApplyAsync(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                 }).join();
             });
@@ -335,7 +335,7 @@ public class SavedPositionManager {
             if (mapHook != null) {
                 mapHook.updateWarp(warp);
             }
-            return database.saveWarp(warp).thenApply(ignored -> true).join();
+            return database.saveWarp(warp).thenApplyAsync(ignored -> true).join();
         });
     }
 

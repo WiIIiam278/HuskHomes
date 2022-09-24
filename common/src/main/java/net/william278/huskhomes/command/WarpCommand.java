@@ -54,21 +54,22 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: warp <player> <warp>");
             return;
         }
-        CompletableFuture.runAsync(() -> {
-            final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
-            if (playerToTeleport == null) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
-                return;
-            }
+        final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+        if (playerToTeleport == null) {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            return;
+        }
 
-            final Warp warp = plugin.getDatabase().getWarp(args[1]).join().orElse(null);
-            if (warp == null) {
+        plugin.getDatabase().getWarp(args[1]).thenAccept(optionalWarp -> {
+            if (optionalWarp.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Could not find warp '" + args[1] + "'");
                 return;
             }
+            final Warp warp = optionalWarp.get();
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.meta.name);
-            plugin.getTeleportManager().teleport(playerToTeleport, warp)
+            plugin.getTeleportManager()
+                    .teleport(playerToTeleport, warp)
                     .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
         });
     }

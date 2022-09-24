@@ -63,11 +63,10 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
 
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
-        CompletableFuture.runAsync(() -> {
-            final List<Warp> warps = plugin.getDatabase().getWarps().join();
-            StringJoiner rowJoiner = new StringJoiner("   ");
-
+        plugin.getDatabase().getWarps().thenAccept(warps -> {
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + warps.size() + " warps:");
+
+            StringJoiner rowJoiner = new StringJoiner("   ");
             for (int i = 1; i <= warps.size(); i++) {
                 final String warp = warps.get(i - 1).meta.name;
                 rowJoiner.add(warp.length() < 16 ? warp + " ".repeat(16 - warp.length()) : warp);

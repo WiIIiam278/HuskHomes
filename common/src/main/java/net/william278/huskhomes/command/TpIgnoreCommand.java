@@ -25,12 +25,12 @@ public class TpIgnoreCommand extends CommandBase {
         final boolean isIgnoringRequests = !plugin.getRequestManager().isIgnoringRequests(onlineUser);
         plugin.getRequestManager().setIgnoringRequests(onlineUser, isIgnoringRequests);
 
-        // Update value on the database and send a message
-        plugin.getDatabase().getUserData(onlineUser.uuid).thenAcceptAsync(
-                userData -> userData.ifPresent(data -> plugin.getDatabase().updateUserData(new UserData(onlineUser,
-                        data.homeSlots(), isIgnoringRequests, data.rtpCooldown())).join())).thenRun(
-                () -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
-                                plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
-                        .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale))));
+        // Update value on the database and send a message | todo: Clean this up
+        plugin.getDatabase().getUserData(onlineUser.uuid)
+                .thenAcceptAsync(userData -> userData.ifPresent(data -> plugin.getDatabase()
+                        .updateUserData(new UserData(onlineUser, data.homeSlots(), isIgnoringRequests, data.rtpCooldown()))
+                        .thenRun(() -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
+                                        plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
+                                .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale))))));
     }
 }

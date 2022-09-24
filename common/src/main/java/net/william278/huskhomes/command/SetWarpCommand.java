@@ -6,8 +6,6 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 public class SetWarpCommand extends CommandBase {
 
     protected SetWarpCommand(@NotNull HuskHomes implementor) {
@@ -17,7 +15,7 @@ public class SetWarpCommand extends CommandBase {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
-            CompletableFuture.runAsync(() -> setWarp(onlineUser, args[0]));
+            setWarp(onlineUser, args[0]);
         } else {
             plugin.getLocales().getLocale("error_invalid_syntax", "/setwarp <name>")
                     .ifPresent(onlineUser::sendMessage);

@@ -494,7 +494,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 .orTimeout(5, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
                     getLoggingAdapter().log(Level.SEVERE, "Failed to fetch server name from the proxy (attempts: "
-                                                          + attempts.get() + ")", throwable);
+                                                          + attempts.get() + ") - Is your proxy server online?", throwable);
                     return null;
                 });
     }

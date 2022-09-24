@@ -188,12 +188,12 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                             .ifPresent(editor::sendMessage);
                     return;
                 }
-                boolean newIsPublic = !home.isPublic;
+                final AtomicBoolean newIsPublic = new AtomicBoolean(!home.isPublic);
                 if (editArgs != null && !editArgs.isBlank()) {
                     if (editArgs.equalsIgnoreCase("private")) {
-                        newIsPublic = false;
+                        newIsPublic.set(false);
                     } else if (editArgs.equalsIgnoreCase("public")) {
-                        newIsPublic = true;
+                        newIsPublic.set(true);
                     } else {
                         plugin.getLocales().getLocale("error_invalid_syntax",
                                         "/edithome <name> privacy [private|public]")
@@ -201,57 +201,60 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         return;
                     }
                 }
-                final String privacyKeyedString = newIsPublic ? "public" : "private";
-
-                if (newIsPublic == home.isPublic) {
+                final String privacyKeyedString = newIsPublic.get() ? "public" : "private";
+                if (newIsPublic.get() == home.isPublic) {
                     plugin.getLocales().getLocale(
                                     "error_edit_home_privacy_already_" + privacyKeyedString)
                             .ifPresent(editor::sendMessage);
                     return;
                 }
 
-                // Perform checks if making the home public
-                if (newIsPublic && !otherOwner) {
-                    // Check against maximum public homes
-                    final List<Home> existingPublicHomes = plugin.getDatabase().getHomes(editor).join().stream()
-                            .filter(existingHome -> existingHome.isPublic).toList();
-                    final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().maxPublicHomes,
-                            plugin.getSettings().stackPermissionLimits);
-                    if (existingPublicHomes.size() >= maxPublicHomes) {
-                        plugin.getLocales().getLocale("error_edit_home_maximum_public_homes",
-                                        Integer.toString(maxPublicHomes))
-                                .ifPresent(editor::sendMessage);
-                        return;
+                // Get the homes of the editor
+                plugin.getDatabase().getHomes(editor).thenAccept(editorHomes -> {
+                    // Perform checks if making the home public
+                    if (newIsPublic.get() && !otherOwner) {
+                        // Check against maximum public homes
+                        final List<Home> existingPublicHomes = editorHomes.stream()
+                                .filter(existingHome -> existingHome.isPublic).toList();
+                        final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().maxPublicHomes,
+                                plugin.getSettings().stackPermissionLimits);
+                        if (existingPublicHomes.size() >= maxPublicHomes) {
+                            plugin.getLocales().getLocale("error_edit_home_maximum_public_homes",
+                                            Integer.toString(maxPublicHomes))
+                                    .ifPresent(editor::sendMessage);
+                            return;
+                        }
+
+                        // Check against economy
+                        if (!plugin.validateEconomyCheck(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC)) {
+                            return;
+                        }
                     }
 
-                    // Check against economy
-                    if (!plugin.validateEconomyCheck(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC)) {
-                        return;
-                    }
-                }
+                    // Execute the update
+                    plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic.get()).thenRun(() -> {
+                        if (home.owner.uuid.equals(editor.uuid)) {
+                            editor.sendMessage(plugin.getLocales().getLocale(
+                                    "edit_home_privacy_" + privacyKeyedString + "_success",
+                                    home.meta.name).orElse(new MineDown("")));
+                        } else {
+                            editor.sendMessage(plugin.getLocales().getLocale(
+                                    "edit_home_privacy_" + privacyKeyedString + "_success_other",
+                                    home.owner.username, home.meta.name).orElse(new MineDown("")));
+                        }
 
-                // Execute the update
-                plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic).join();
-                if (home.owner.uuid.equals(editor.uuid)) {
-                    editor.sendMessage(plugin.getLocales().getLocale(
-                            "edit_home_privacy_" + privacyKeyedString + "_success",
-                            home.meta.name).orElse(new MineDown("")));
-                } else {
-                    editor.sendMessage(plugin.getLocales().getLocale(
-                            "edit_home_privacy_" + privacyKeyedString + "_success_other",
-                            home.owner.username, home.meta.name).orElse(new MineDown("")));
-                }
+                        // Perform necessary economy transaction
+                        plugin.performEconomyTransaction(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC);
 
-                // Perform necessary economy transaction
-                plugin.performEconomyTransaction(editor, Settings.EconomyAction.MAKE_HOME_PUBLIC);
-
-                // Show the menu if the menu flag is set
-                if (showMenuFlag.get()) {
-                    getHomeEditorWindow(home, false, otherOwner,
-                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
-                            editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
-                            .forEach(editor::sendMessage);
-                }
+                        // Show the menu if the menu flag is set
+                        if (showMenuFlag.get()) {
+                            getHomeEditorWindow(home, false, otherOwner,
+                                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                                    editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
+                                    .forEach(editor::sendMessage);
+                        }
+                    });
+                });
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax",
                             "/edithome <name> [" + String.join("|", EDIT_HOME_COMPLETIONS) + "] [args]")

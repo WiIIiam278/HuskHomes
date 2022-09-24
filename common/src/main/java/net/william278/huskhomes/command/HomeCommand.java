@@ -30,7 +30,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                 switch (homes.size()) {
                     case 0 -> plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
                     case 1 -> plugin.getTeleportManager().timedTeleport(onlineUser, homes.get(0)).thenAccept(result ->
-                            plugin.getTeleportManager().finishTeleport(onlineUser, result)).join();
+                            plugin.getTeleportManager().finishTeleport(onlineUser, result));
                     default -> plugin.getCache().getHomeList(onlineUser, onlineUser,
                                     plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, 1)
                             .ifPresent(onlineUser::sendMessage);

@@ -196,7 +196,7 @@ public class RequestManager {
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.type == TeleportRequest.RequestType.TPA ? "tpa" : "tpahere")
-                        + "_request_received", request.requesterName)
+                                      + "_request_received", request.requesterName)
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.requesterName)
                 .ifPresent(recipient::sendMessage);
@@ -275,52 +275,54 @@ public class RequestManager {
         request.status = accepted ? TeleportRequest.RequestStatus.ACCEPTED : TeleportRequest.RequestStatus.DECLINED;
 
         // Send request response to the sender
-        CompletableFuture.runAsync(() -> {
-            final Optional<OnlineUser> localRequester = plugin.findPlayer(request.requesterName);
-            if (localRequester.isPresent()) {
-                handleLocalRequestResponse(localRequester.get(), request);
-            } else if (plugin.getSettings().crossServer) {
+        final Optional<OnlineUser> localRequester = plugin.findPlayer(request.requesterName);
+        if (localRequester.isPresent()) {
+            handleLocalRequestResponse(localRequester.get(), request);
+        } else if (plugin.getSettings().crossServer) {
+            // Ensure the sender is still online
+            plugin.getNetworkMessenger()
+                    .findPlayer(recipient, request.requesterName)
+                    .thenApplyAsync(networkedTarget -> {
+                        if (networkedTarget.isEmpty()) {
+                            plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
+                                    .ifPresent(recipient::sendMessage);
+                            return false;
+                        }
 
-                // Ensure the sender is still online
-                if (!plugin.getNetworkMessenger().findPlayer(recipient, request.requesterName).thenApply(networkedTarget -> {
-                    if (networkedTarget.isEmpty()) {
-                        plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
-                                .ifPresent(recipient::sendMessage);
-                        return false;
-                    }
+                        return plugin.getNetworkMessenger().sendMessage(recipient,
+                                        new Message(Message.MessageType.TELEPORT_REQUEST_RESPONSE,
+                                                recipient.username,
+                                                networkedTarget.get(),
+                                                MessagePayload.withTeleportRequest(request),
+                                                Message.RelayType.MESSAGE,
+                                                plugin.getSettings().clusterId))
+                                .thenApply(reply -> true)
+                                .orTimeout(3, TimeUnit.SECONDS)
+                                .exceptionally(throwable -> false).join();
+                    })
+                    .thenAccept(online -> {
+                        if (!online) {
+                            plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
+                                    .ifPresent(recipient::sendMessage);
+                        }
+                    });
+        } else {
+            plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
+                    .ifPresent(recipient::sendMessage);
+            return;
+        }
 
-                    return plugin.getNetworkMessenger().sendMessage(recipient,
-                                    new Message(Message.MessageType.TELEPORT_REQUEST_RESPONSE,
-                                            recipient.username,
-                                            networkedTarget.get(),
-                                            MessagePayload.withTeleportRequest(request),
-                                            Message.RelayType.MESSAGE,
-                                            plugin.getSettings().clusterId))
-                            .thenApply(reply -> true)
-                            .orTimeout(3, TimeUnit.SECONDS)
-                            .exceptionally(throwable -> false).join();
-                }).join()) {
-                    plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
-                            .ifPresent(recipient::sendMessage);
-                    return;
-                }
+        // If the request is a tpa here request, teleport the recipient to the sender
+        if (accepted && request.type == TeleportRequest.RequestType.TPA_HERE) {
+            // Strict /tpahere requests will teleport to where the sender was when typing the command
+            if (plugin.getSettings().strictTpaHereRequests) {
+                plugin.getTeleportManager().timedTeleport(recipient, request.requesterPosition).thenAccept(
+                        teleportResult -> plugin.getTeleportManager().finishTeleport(recipient, teleportResult));
             } else {
-                plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
-                        .ifPresent(recipient::sendMessage);
-                return;
+                plugin.getTeleportManager().teleportToPlayerByName(recipient, request.requesterName, true);
             }
+        }
 
-            // If the request is a tpa here request, teleport the recipient to the sender
-            if (accepted && request.type == TeleportRequest.RequestType.TPA_HERE) {
-                // Strict /tpahere requests will teleport to where the sender was when typing the command
-                if (plugin.getSettings().strictTpaHereRequests) {
-                    plugin.getTeleportManager().timedTeleport(recipient, request.requesterPosition).thenAccept(
-                            teleportResult -> plugin.getTeleportManager().finishTeleport(recipient, teleportResult));
-                } else {
-                    plugin.getTeleportManager().teleportToPlayerByName(recipient, request.requesterName, true);
-                }
-            }
-        });
     }
 
     /**

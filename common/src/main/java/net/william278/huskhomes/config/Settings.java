@@ -246,8 +246,8 @@ public class Settings {
     @EmbeddedYaml
     public static class ConnectionPoolOptions {
 
-        public int size = 10;
-        public int idle = 10;
+        public int size = 12;
+        public int idle = 12;
         public long lifetime = 1800000;
         public long keepalive = 0;
         public long timeout = 20000;

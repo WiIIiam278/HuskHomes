@@ -100,7 +100,7 @@ public class EventListener {
                     if (bedPosition.isEmpty()) {
                         plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
                                 .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
-                        onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
+                        onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     } else {
                         onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
                     }

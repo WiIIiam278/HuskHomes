@@ -1,12 +1,7 @@
 package net.william278.huskhomes.player;
 
-import de.themoep.minedown.adventure.MineDown;
-import de.themoep.minedown.adventure.MineDownParser;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.position.Location;
@@ -32,12 +27,10 @@ import java.util.stream.Collectors;
 public class BukkitPlayer extends OnlineUser {
 
     private final Player player;
-    private final Audience audience;
 
     private BukkitPlayer(@NotNull Player player) {
         super(player.getUniqueId(), player.getName());
         this.player = player;
-        this.audience = BukkitHuskHomes.getInstance().getAudiences().player(player);
     }
 
     /**
@@ -97,36 +90,8 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final Component text = mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent();
-        audience.showTitle(Title.title(subTitle ? Component.empty() : text,
-                subTitle ? text : Component.empty()));
-    }
-
-    @Override
-    public void sendActionBar(@NotNull MineDown mineDown) {
-        audience.sendActionBar(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMessage(@NotNull MineDown mineDown) {
-        audience.sendMessage(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMinecraftMessage(@NotNull String translationKey) {
-        player.spigot().sendMessage(new TranslatableComponent(translationKey));
-    }
-
-    @Override
-    public void playSound(@NotNull String soundEffect) {
-        player.playSound(player.getLocation(), soundEffect, 1, 1);
+    protected @NotNull Audience getAudience() {
+        return BukkitHuskHomes.getInstance().getAudiences().player(player);
     }
 
     @Override

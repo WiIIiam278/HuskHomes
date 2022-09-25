@@ -11,6 +11,8 @@ import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.util.Permission;
+import org.intellij.lang.annotations.Pattern;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +57,7 @@ public abstract class OnlineUser extends User {
      * @param node The permission node string
      * @return {@code true} if the player has the node; {@code false} otherwise
      */
-    public abstract boolean hasPermission(@NotNull String node);
+    public abstract boolean hasPermission(@NotNull @Pattern(Permission.PERMISSION_PATTERN) String node);
 
     /**
      * Returns a {@link Map} of a player's permission nodes

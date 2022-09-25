@@ -87,6 +87,7 @@ public class BukkitPlayer extends OnlineUser {
         return player.hasPermission(node);
     }
 
+
     @Override
     public @NotNull Map<String, Boolean> getPermissions() {
         return player.getEffectivePermissions().stream().collect(

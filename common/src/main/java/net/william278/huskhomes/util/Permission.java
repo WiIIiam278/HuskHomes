@@ -1,5 +1,7 @@
 package net.william278.huskhomes.util;
 
+import org.intellij.lang.annotations.Pattern;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -174,10 +176,15 @@ public enum Permission {
      */
     COMMAND_HUSKHOMES_UPDATE("huskhomes.command.huskhomes.update", DefaultAccess.OPERATORS);
 
+    public static final String PERMISSION_PATTERN = "(huskhomes\\.)?[a-z0-9_\\-*.]+";
+
+    @Pattern(Permission.PERMISSION_PATTERN)
+    @NotNull
     public final String node;
+    @NotNull
     public final DefaultAccess defaultAccess;
 
-    Permission(@NotNull String node, @NotNull DefaultAccess defaultAccess) {
+    Permission(@Subst("huskhomes.*") @NotNull String node, @NotNull DefaultAccess defaultAccess) {
         this.node = node;
         this.defaultAccess = defaultAccess;
     }

@@ -54,7 +54,7 @@ public class Settings {
     public String mySqlPassword = "pa55w0rd";
 
     @KeyPath("database.mysql.credentials.parameters")
-    public String mySqlConnectionParameters = "?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    public String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
 
     @KeyPath("database.mysql.connection_pool")
     public ConnectionPoolOptions mySqlPoolOptions = new ConnectionPoolOptions();

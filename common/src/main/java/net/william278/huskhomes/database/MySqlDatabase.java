@@ -647,8 +647,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         return CompletableFuture.runAsync(() -> {
-            // Clear the user's current teleport
             try (Connection connection = getConnection()) {
+                // Clear the user's current teleport
                 try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
                         DELETE FROM `%positions_table%`
                         WHERE `id`=(
@@ -659,13 +659,9 @@ public class MySqlDatabase extends Database {
                     deleteStatement.setString(1, user.uuid.toString());
                     deleteStatement.executeUpdate();
                 }
-            } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
-            }
 
-            // Set the user's teleport into the database (if it's not null)
-            if (teleport != null) {
-                try (Connection connection = getConnection()) {
+                // Set the user's teleport into the database (if it's not null)
+                if (teleport != null) {
                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
                             VALUES (?,?,?);"""))) {
@@ -675,9 +671,9 @@ public class MySqlDatabase extends Database {
 
                         statement.executeUpdate();
                     }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the current teleport of " + user.username, e);
                 }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
             }
         });
     }

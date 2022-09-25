@@ -3,7 +3,6 @@ package net.william278.huskhomes.command;
 import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Bukkit executor that implements and executes {@link CommandBase}s
@@ -58,8 +57,9 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
             if (this.command instanceof ConsoleExecutable consoleExecutable) {
                 consoleExecutable.onConsoleExecute(args);
             } else {
-                plugin.getLocales().getLocale("error_in_game_only")
-                        .ifPresent(locale -> plugin.getAudiences().sender(sender).sendMessage(locale.toComponent()));
+                plugin.getLoggingAdapter().log(Level.WARNING, plugin.getLocales()
+                        .getRawLocale("error_in_game_only")
+                        .orElse("Error: That command can only be run in-game."));
             }
         }
         return true;

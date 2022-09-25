@@ -107,7 +107,7 @@ error_no_permission: '[Грешка:](#ff3300) [Нямате право да и�
 error_invalid_syntax: '[Грешка:](#ff3300) [Неправилен синтаксис. Използвайте: %1%](#ff7e5e)'
 error_already_teleporting: '[Error:](#ff3300) [Please wait for the current teleport to finish!](#ff7e5e)'
 error_no_last_position: '[Грешка:](#ff3300) [Нямате последна локация, на която да се върнете!](#ff7e5e)'
-error_in_game_only: '[Error:](#ff3300) [That command can only be run in-game.](#ff7e5e)'
+error_in_game_only: 'Error: That command can only be run in-game.'
 error_invalid_server: '[Error:](#ff3300) [Failed to finish teleportation as the target server could not be found or was offline.](#ff7e5e)'
 error_home_invalid: '[Грешка:](#ff3300) [Нямате дом на име "%1%"](#ff7e5e)'
 error_warp_invalid: '[Грешка:](#ff3300) [Няма поставен уарп с името "%1%"](#ff7e5e)'

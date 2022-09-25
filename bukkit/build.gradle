@@ -5,8 +5,8 @@ dependencies {
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'me.lucko:commodore:2.2'
 
-    compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     compileOnly 'net.kyori:adventure-api:' + adventure_api_version
     compileOnly 'net.kyori:adventure-platform-bukkit:' + adventure_bukkit_platform_version

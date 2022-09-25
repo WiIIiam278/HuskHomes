@@ -107,7 +107,7 @@ error_no_permission: '[Error:](#ff3300) [No tiene permiso para ejecutar ese coma
 error_invalid_syntax: '[Error:](#ff3300) [Sintaxis incorrecta. Usa: %1%](#ff7e5e)'
 error_already_teleporting: '[Error:](#ff3300) [Por favor, espere a que el teletransporte actual termine!](#ff7e5e)'
 error_no_last_position: '[Error:](#ff3300) [¡No tienes una última posición a la que volver!](#ff7e5e)'
-error_in_game_only: '[Error:](#ff3300) [Ese comando sólo se puede ejecutar en el juego.](#ff7e5e)'
+error_in_game_only: 'Error: Ese comando sólo se puede ejecutar en el juego.'
 error_invalid_server: '[Error:](#ff3300) [No se ha podido finalizar el teletransporte porque el servidor de destino no se pudo encontrar o estaba desconectado.](#ff7e5e)'
 error_home_invalid: '[Error:](#ff3300) [Usted no tiene una casa llamada "%1%"](#ff7e5e)'
 error_warp_invalid: '[Error:](#ff3300) [No hay ningún warp llamado "%1%"](#ff7e5e)'

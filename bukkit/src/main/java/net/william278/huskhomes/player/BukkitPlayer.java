@@ -26,10 +26,15 @@ import java.util.stream.Collectors;
  */
 public class BukkitPlayer extends OnlineUser {
 
+    // Instance of the implementing plugin
+    private final BukkitHuskHomes plugin;
+
+    // The Bukkit player
     private final Player player;
 
     private BukkitPlayer(@NotNull Player player) {
         super(player.getUniqueId(), player.getName());
+        this.plugin = BukkitHuskHomes.getInstance();
         this.player = player;
     }
 
@@ -62,14 +67,14 @@ public class BukkitPlayer extends OnlineUser {
     public Position getPosition() {
         return new Position(BukkitAdapter.adaptLocation(player.getLocation())
                 .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
-                BukkitHuskHomes.getInstance().getPluginServer());
+                plugin.getPluginServer());
 
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
         return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                .map(location -> new Position(location, BukkitHuskHomes.getInstance().getPluginServer()));
+                .map(location -> new Position(location, plugin.getPluginServer()));
     }
 
     @Override
@@ -91,7 +96,7 @@ public class BukkitPlayer extends OnlineUser {
 
     @Override
     protected @NotNull Audience getAudience() {
-        return BukkitHuskHomes.getInstance().getAudiences().player(player);
+        return plugin.getAudiences().player(player);
     }
 
     @Override
@@ -105,7 +110,7 @@ public class BukkitPlayer extends OnlineUser {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ILLEGAL_COORDINATES);
         }
         final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             if (asynchronous) {
                 PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
                         .thenAccept(result -> resultCompletableFuture.complete(

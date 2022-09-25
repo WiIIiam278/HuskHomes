@@ -107,7 +107,7 @@ error_no_permission: '[Fehler:](#ff3300) [Du hast nicht die benötigten Berechti
 error_invalid_syntax: '[Fehler:](#ff3300) [Falsche Syntax. Nutze: %1%](#ff7e5e)'
 error_already_teleporting: '[Fehler:](#ff3300) [Bitte warte, bis der aktuelle Teleport beendet ist!](#ff7e5e)'
 error_no_last_position: '[Fehler:](#ff3300) [Du hast keine letzte Position, zu der du zurückkehren kannst!](#ff7e5e)'
-error_in_game_only: '[Fehler:](#ff3300) [Dieser Befehl kann nur im Spiel ausgeführt werden.](#ff7e5e)'
+error_in_game_only: 'Fehler: Dieser Befehl kann nur im Spiel ausgeführt werden.'
 error_invalid_server: '[Fehler:](#ff3300) [Die Teleportation konnte nicht beendet werden, da der Zielserver nicht gefunden werden konnte oder offline war.](#ff7e5e)'
 error_home_invalid: '[Fehler:](#ff3300) [Du hast kein Home namens "%1%"](#ff7e5e)'
 error_warp_invalid: '[Fehler:](#ff3300) [Es existiert kein Warp namens "%1%"](#ff7e5e)'

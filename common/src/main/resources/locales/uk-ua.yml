@@ -107,7 +107,7 @@ error_no_permission: '[Помилка:](#ff3300) [У тебе немає пра�
 error_invalid_syntax: '[Помилка:](#ff3300) [Неккоректне використання. Треба: %1%](#ff7e5e)'
 error_already_teleporting: '[Error:](#ff3300) [Please wait for the current teleport to finish!](#ff7e5e)'
 error_no_last_position: '[Помилка:](#ff3300) [Немає куди тебе повертати!](#ff7e5e)'
-error_in_game_only: '[Error:](#ff3300) [That command can only be run in-game.](#ff7e5e)'
+error_in_game_only: 'Error: That command can only be run in-game.'
 error_invalid_server: '[Error:](#ff3300) [Failed to finish teleportation as the target server could not be found or was offline.](#ff7e5e)'
 error_home_invalid: '[Помилка:](#ff3300) [У тебе немає домівки "%1%"](#ff7e5e)'
 error_warp_invalid: '[Помилка:](#ff3300) [Немає варпу "%1%"](#ff7e5e)'

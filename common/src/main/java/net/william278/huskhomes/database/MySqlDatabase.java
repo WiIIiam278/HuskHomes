@@ -72,13 +72,28 @@ public class MySqlDatabase extends Database {
             dataSource.setUsername(username);
             dataSource.setPassword(password);
 
-            // Set various additional parameters
+            // Set connection pool options
             dataSource.setMaximumPoolSize(poolOptions.size);
             dataSource.setMinimumIdle(poolOptions.idle);
             dataSource.setMaxLifetime(poolOptions.lifetime);
             dataSource.setKeepaliveTime(poolOptions.keepalive);
             dataSource.setConnectionTimeout(poolOptions.timeout);
             dataSource.setPoolName(DATA_POOL_NAME);
+
+            // Set additional connection pool properties
+            dataSource.setDataSourceProperties(new Properties() {{
+                put("cachePrepStmts", "true");
+                put("prepStmtCacheSize", "250");
+                put("prepStmtCacheSqlLimit", "2048");
+                put("useServerPrepStmts", "true");
+                put("useLocalSessionState", "true");
+                put("useLocalTransactionState", "true");
+                put("rewriteBatchedStatements", "true");
+                put("cacheResultSetMetadata", "true");
+                put("cacheServerConfiguration", "true");
+                put("elideSetAutoCommits", "true");
+                put("maintainTimeStats", "false");
+            }});
 
             // Prepare database schema; make tables if they don't exist
             try (Connection connection = dataSource.getConnection()) {

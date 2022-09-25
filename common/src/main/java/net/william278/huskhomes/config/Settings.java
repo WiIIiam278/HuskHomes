@@ -250,7 +250,7 @@ public class Settings {
         public int idle = 10;
         public long lifetime = 1800000;
         public long keepalive = 0;
-        public long timeout = 5000;
+        public long timeout = 20000;
 
         @SuppressWarnings("unused")
         public ConnectionPoolOptions() {

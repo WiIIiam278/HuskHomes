@@ -1,5 +1,6 @@
 package net.william278.huskhomes.config;
 
+import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,6 @@ import java.util.Optional;
 public class Settings {
 
     // Top-level settings
-
     public String language = "en-gb";
 
     public boolean checkForUpdates = true;
@@ -33,7 +33,7 @@ public class Settings {
 
 
     // Database settings
-
+    @YamlComment("Database connection settings")
     @YamlKey("database.type")
     public DatabaseType databaseType = DatabaseType.SQLITE;
 
@@ -55,6 +55,7 @@ public class Settings {
     @YamlKey("database.mysql.credentials.parameters")
     public String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
 
+    @YamlComment("MySQL connection pool properties")
     @YamlKey("database.mysql.connection_pool.size")
     public int mySqlConnectionPoolSize = 12;
 
@@ -87,7 +88,7 @@ public class Settings {
 
 
     // General settings
-
+    @YamlComment("General plugin settings")
     @YamlKey("general.max_homes")
     public int maxHomes = 10;
 
@@ -148,6 +149,7 @@ public class Settings {
 
 
     // Cross-server settings
+    @YamlComment("Enable teleporting across proxied servers. Requires MySQL")
     @YamlKey("cross_server.enabled")
     public boolean crossServer = false;
 
@@ -180,6 +182,7 @@ public class Settings {
 
 
     // Rtp command settings
+    @YamlComment("Random teleport (/rtp) command settings")
     @YamlKey("rtp.cooldown_length")
     public int rtpCooldownLength = 10;
 
@@ -203,6 +206,7 @@ public class Settings {
 
 
     // Economy settings
+    @YamlComment("Charge for certain actions (requires Vault)")
     @YamlKey("economy.enabled")
     public boolean economy = false;
 
@@ -229,6 +233,7 @@ public class Settings {
     }
 
     // Mapping plugins
+    @YamlComment("Display public homes/warps on web maps (DYNMAP, BLUEMAP)")
     @YamlKey("map_hook.enabled")
     public boolean doMapHook = false;
 
@@ -243,6 +248,7 @@ public class Settings {
 
 
     // Disabled commands
+    @YamlComment("Disabled commands (e.g. ['/home', '/warp'] to disable /home and /warp)")
     @YamlKey("disabled_commands")
     public List<String> disabledCommands = Collections.emptyList();
 

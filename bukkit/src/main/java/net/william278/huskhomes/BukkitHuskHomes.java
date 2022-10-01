@@ -49,6 +49,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -66,7 +68,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private Settings settings;
     private Locales locales;
     private BukkitLogger logger;
-    private BukkitResourceReader resourceReader;
     private Database database;
     private Cache cache;
     private TeleportManager teleportManager;
@@ -110,7 +111,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         try {
             // Set the logging and resource reading adapter
             this.logger = new BukkitLogger(getLogger());
-            this.resourceReader = new BukkitResourceReader(this);
 
             // Create adventure audience
             this.audiences = BukkitAudiences.create(this);
@@ -134,6 +134,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Initialize the database
             getLoggingAdapter().log(Level.INFO, "Attempting to establish connection to the database...");
             final Settings.DatabaseType databaseType = settings.databaseType;
+            final BukkitResourceReader resourceReader = new BukkitResourceReader(this);
             this.database = switch (databaseType == null ? Settings.DatabaseType.MYSQL : databaseType) {
                 case MYSQL -> new MySqlDatabase(settings, logger, resourceReader);
                 case SQLITE -> new SqLiteDatabase(settings, logger, resourceReader);
@@ -414,7 +415,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     public void setServerSpawn(@NotNull Location location) {
         final CachedSpawn newSpawn = new CachedSpawn(location);
         this.serverSpawn = newSpawn;
-        Annotaml.save(newSpawn, new File(getDataFolder(), "spawn.yml"));
+        try {
+            Annotaml.create(new File(getDataFolder(), "spawn.yml"), newSpawn);
+        } catch (IOException e) {
+            getLoggingAdapter().log(Level.WARNING, "Failed to save server spawn to disk", e);
+        }
 
         // Update the world spawn location, too
         BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
@@ -489,7 +494,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     getLoggingAdapter().log(Level.INFO, "Successfully fetched server information from the proxy (name: "
                                                         + serverName + ", attempts: " + attempts.get() + ")");
                     server = new Server(serverName);
-                    Annotaml.save(new CachedServer(serverName), new File(getDataFolder(), "server.yml"));
+                    try {
+                        Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
+                    } catch (IOException e) {
+                        throw new HuskHomesException("Failed to save server information", e);
+                    }
                 })
                 .orTimeout(5, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
@@ -508,27 +517,33 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public CompletableFuture<Boolean> reload() {
         return CompletableFuture.supplyAsync(() -> {
-            // Load settings and locales
-            this.settings = Annotaml.reload(new File(getDataFolder(), "config.yml"),
-                    new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
-            this.locales = Annotaml.reload(new File(getDataFolder(), "messages_" + settings.language + ".yml"),
-                    Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
-                    Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
+            try {
+                // Load settings
+                this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), new Settings()).get();
 
-            // Load cached server from file
-            if (settings.crossServer) {
-                final File serverFile = new File(getDataFolder(), "server.yml");
-                if (serverFile.exists()) {
-                    this.server = Annotaml.load(serverFile, CachedServer.class).getServer();
+                // Load locales from language preset default
+                final Locales languagePresets = Annotaml.create(Locales.class,
+                        Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
+                this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"),
+                        languagePresets).get();
+
+                // Load cached server from file
+                if (settings.crossServer) {
+                    final File serverFile = new File(getDataFolder(), "server.yml");
+                    if (serverFile.exists()) {
+                        this.server = Annotaml.create(serverFile, CachedServer.class).get().getServer();
+                    }
+                } else {
+                    this.server = new Server("server");
                 }
-            } else {
-                this.server = new Server("server");
-            }
 
-            // Load spawn location from file
-            final File spawnFile = new File(getDataFolder(), "spawn.yml");
-            if (spawnFile.exists()) {
-                this.serverSpawn = Annotaml.load(spawnFile, CachedSpawn.class);
+                // Load spawn location from file
+                final File spawnFile = new File(getDataFolder(), "spawn.yml");
+                if (spawnFile.exists()) {
+                    this.serverSpawn = Annotaml.create(spawnFile, CachedSpawn.class).get();
+                }
+            } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                throw new HuskHomesException("Failed to load config data", e);
             }
             return true;
         }).exceptionally(throwable -> {

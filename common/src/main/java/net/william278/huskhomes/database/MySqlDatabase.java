@@ -33,7 +33,15 @@ public class MySqlDatabase extends Database {
     public String password;
     public String connectionParameters;
 
-    private final Settings.ConnectionPoolOptions poolOptions;
+    public int connectionPoolSize;
+
+    public int connectionPoolIdle;
+
+    public long connectionPoolLifetime;
+
+    public long connectionPoolKeepAlive;
+
+    public long connectionPoolTimeout;
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
 
@@ -47,7 +55,11 @@ public class MySqlDatabase extends Database {
         this.username = settings.mySqlUsername;
         this.password = settings.mySqlPassword;
         this.connectionParameters = settings.mySqlConnectionParameters;
-        this.poolOptions = settings.mySqlPoolOptions;
+        this.connectionPoolSize = settings.mySqlConnectionPoolSize;
+        this.connectionPoolIdle = settings.mySqlConnectionPoolIdle;
+        this.connectionPoolLifetime = settings.mySqlConnectionPoolLifetime;
+        this.connectionPoolKeepAlive = settings.mySqlConnectionPoolKeepAlive;
+        this.connectionPoolTimeout = settings.mySqlConnectionPoolTimeout;
     }
 
     /**
@@ -73,11 +85,11 @@ public class MySqlDatabase extends Database {
             dataSource.setPassword(password);
 
             // Set connection pool options
-            dataSource.setMaximumPoolSize(poolOptions.size);
-            dataSource.setMinimumIdle(poolOptions.idle);
-            dataSource.setMaxLifetime(poolOptions.lifetime);
-            dataSource.setKeepaliveTime(poolOptions.keepalive);
-            dataSource.setConnectionTimeout(poolOptions.timeout);
+            dataSource.setMaximumPoolSize(connectionPoolSize);
+            dataSource.setMinimumIdle(connectionPoolIdle);
+            dataSource.setMaxLifetime(connectionPoolLifetime);
+            dataSource.setKeepaliveTime(connectionPoolKeepAlive);
+            dataSource.setConnectionTimeout(connectionPoolTimeout);
             dataSource.setPoolName(DATA_POOL_NAME);
 
             // Set additional connection pool properties

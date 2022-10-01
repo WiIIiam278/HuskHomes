@@ -1,8 +1,7 @@
 package net.william278.huskhomes.config;
 
-import net.william278.annotaml.EmbeddedYaml;
-import net.william278.annotaml.KeyPath;
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -35,31 +34,43 @@ public class Settings {
 
     // Database settings
 
-    @KeyPath("database.type")
+    @YamlKey("database.type")
     public DatabaseType databaseType = DatabaseType.SQLITE;
 
-    @KeyPath("database.mysql.credentials.host")
+    @YamlKey("database.mysql.credentials.host")
     public String mySqlHost = "localhost";
 
-    @KeyPath("database.mysql.credentials.port")
+    @YamlKey("database.mysql.credentials.port")
     public int mySqlPort = 3306;
 
-    @KeyPath("database.mysql.credentials.database")
+    @YamlKey("database.mysql.credentials.database")
     public String mySqlDatabase = "HuskHomes";
 
-    @KeyPath("database.mysql.credentials.username")
+    @YamlKey("database.mysql.credentials.username")
     public String mySqlUsername = "root";
 
-    @KeyPath("database.mysql.credentials.password")
+    @YamlKey("database.mysql.credentials.password")
     public String mySqlPassword = "pa55w0rd";
 
-    @KeyPath("database.mysql.credentials.parameters")
+    @YamlKey("database.mysql.credentials.parameters")
     public String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
 
-    @KeyPath("database.mysql.connection_pool")
-    public ConnectionPoolOptions mySqlPoolOptions = new ConnectionPoolOptions();
+    @YamlKey("database.mysql.connection_pool.size")
+    public int mySqlConnectionPoolSize = 12;
 
-    @KeyPath("database.table_names")
+    @YamlKey("database.mysql.connection_pool.idle")
+    public int mySqlConnectionPoolIdle = 12;
+
+    @YamlKey("database.mysql.connection_pool.lifetime")
+    public long mySqlConnectionPoolLifetime = 1800000;
+
+    @YamlKey("database.mysql.connection_pool.keepalive")
+    public long mySqlConnectionPoolKeepAlive = 0;
+
+    @YamlKey("database.mysql.connection_pool.timeout")
+    public long mySqlConnectionPoolTimeout = 20000;
+
+    @YamlKey("database.table_names")
     public Map<String, String> tableNames = Map.of(
             TableName.PLAYER_DATA.name().toLowerCase(), TableName.PLAYER_DATA.defaultName,
             TableName.POSITION_DATA.name().toLowerCase(), TableName.POSITION_DATA.defaultName,
@@ -77,51 +88,51 @@ public class Settings {
 
     // General settings
 
-    @KeyPath("general.max_homes")
+    @YamlKey("general.max_homes")
     public int maxHomes = 10;
 
-    @KeyPath("general.max_public_homes")
+    @YamlKey("general.max_public_homes")
     public int maxPublicHomes = 10;
 
-    @KeyPath("general.stack_permission_limits")
+    @YamlKey("general.stack_permission_limits")
     public boolean stackPermissionLimits = true;
 
-    @KeyPath("general.permission_restrict_warps")
+    @YamlKey("general.permission_restrict_warps")
     public boolean permissionRestrictWarps = false;
 
-    @KeyPath("general.teleport_warmup_time")
+    @YamlKey("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 
-    @KeyPath("general.teleport_warmup_display")
+    @YamlKey("general.teleport_warmup_display")
     public MessageDisplayType teleportWarmupDisplay = MessageDisplayType.ACTION_BAR;
 
-    @KeyPath("general.teleport_request_expiry_time")
+    @YamlKey("general.teleport_request_expiry_time")
     public int teleportRequestExpiryTime = 60;
-    @KeyPath("general.strict_tpa_here_requests")
+    @YamlKey("general.strict_tpa_here_requests")
     public boolean strictTpaHereRequests = true;
 
-    @KeyPath("general.allow_unicode_names")
+    @YamlKey("general.allow_unicode_names")
     public boolean allowUnicodeNames = false;
 
-    @KeyPath("general.allow_unicode_descriptions")
+    @YamlKey("general.allow_unicode_descriptions")
     public boolean allowUnicodeDescriptions = true;
 
-    @KeyPath("general.back_command_return_by_death")
+    @YamlKey("general.back_command_return_by_death")
     public boolean backCommandReturnByDeath = true;
 
-    @KeyPath("general.back_command_save_teleport_event")
+    @YamlKey("general.back_command_save_teleport_event")
     public boolean backCommandSaveOnTeleportEvent = false;
 
-    @KeyPath("general.list_items_per_page")
+    @YamlKey("general.list_items_per_page")
     public int listItemsPerPage = 12;
 
-    @KeyPath("general.asynchronous_teleports")
+    @YamlKey("general.asynchronous_teleports")
     public boolean asynchronousTeleports = true;
 
-    @KeyPath("general.play_sound_effects")
+    @YamlKey("general.play_sound_effects")
     public boolean playSoundEffects = true;
 
-    @KeyPath("general.sound_effects")
+    @YamlKey("general.sound_effects")
     public Map<String, String> soundEffects = Map.of(
             SoundEffectAction.TELEPORTATION_COMPLETE.name().toLowerCase(), SoundEffectAction.TELEPORTATION_COMPLETE.defaultSoundEffect,
             SoundEffectAction.TELEPORTATION_WARMUP.name().toLowerCase(), SoundEffectAction.TELEPORTATION_WARMUP.defaultSoundEffect,
@@ -137,68 +148,68 @@ public class Settings {
 
 
     // Cross-server settings
-    @KeyPath("cross_server.enabled")
+    @YamlKey("cross_server.enabled")
     public boolean crossServer = false;
 
-    @KeyPath("cross_server.messenger_type")
+    @YamlKey("cross_server.messenger_type")
     public MessengerType messengerType = MessengerType.PLUGIN_MESSAGE;
 
-    @KeyPath("cross_server.cluster_id")
+    @YamlKey("cross_server.cluster_id")
     public String clusterId = "";
 
-    @KeyPath("cross_server.global_spawn.enabled")
+    @YamlKey("cross_server.global_spawn.enabled")
     public boolean globalSpawn = false;
 
-    @KeyPath("cross_server.global_spawn.warp_name")
+    @YamlKey("cross_server.global_spawn.warp_name")
     public String globalSpawnName = "Spawn";
 
-    @KeyPath("cross_server.global_respawning")
+    @YamlKey("cross_server.global_respawning")
     public boolean globalRespawning = false;
 
-    @KeyPath("cross_server.redis_credentials.host")
+    @YamlKey("cross_server.redis_credentials.host")
     public String redisHost = "localhost";
 
-    @KeyPath("cross_server.redis_credentials.port")
+    @YamlKey("cross_server.redis_credentials.port")
     public int redisPort = 6379;
 
-    @KeyPath("cross_server.redis_credentials.password")
+    @YamlKey("cross_server.redis_credentials.password")
     public String redisPassword = "";
 
-    @KeyPath("cross_server.redis_credentials.use_ssl")
+    @YamlKey("cross_server.redis_credentials.use_ssl")
     public boolean redisUseSsl = false;
 
 
     // Rtp command settings
-    @KeyPath("rtp.cooldown_length")
+    @YamlKey("rtp.cooldown_length")
     public int rtpCooldownLength = 10;
 
-    @KeyPath("rtp.radius")
+    @YamlKey("rtp.radius")
     public int rtpRadius = 5000;
 
-    @KeyPath("rtp.spawn_radius")
+    @YamlKey("rtp.spawn_radius")
     public int rtpSpawnRadius = 500;
 
-    @KeyPath("rtp.distribution_mean")
+    @YamlKey("rtp.distribution_mean")
     public float rtpDistributionMean = 0.75f;
 
-    @KeyPath("rtp.distribution_deviation")
+    @YamlKey("rtp.distribution_deviation")
     public float rtpDistributionStandardDeviation = 2f;
 
-    @KeyPath("rtp.location_cache_size")
+    @YamlKey("rtp.location_cache_size")
     public int rtpLocationCacheSize = 10;
 
-    @KeyPath("rtp.restricted_worlds")
+    @YamlKey("rtp.restricted_worlds")
     public List<String> rtpRestrictedWorlds = List.of("world_nether", "world_the_end");
 
 
     // Economy settings
-    @KeyPath("economy.enabled")
+    @YamlKey("economy.enabled")
     public boolean economy = false;
 
-    @KeyPath("economy.free_home_slots")
+    @YamlKey("economy.free_home_slots")
     public int freeHomeSlots = 5;
 
-    @KeyPath("economy.costs")
+    @YamlKey("economy.costs")
     public Map<String, Double> economyCosts = Map.of(
             EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyAction.ADDITIONAL_HOME_SLOT.defaultCost,
             EconomyAction.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyAction.MAKE_HOME_PUBLIC.defaultCost,
@@ -218,43 +229,25 @@ public class Settings {
     }
 
     // Mapping plugins
-    @KeyPath("map_hook.enabled")
+    @YamlKey("map_hook.enabled")
     public boolean doMapHook = false;
 
-    @KeyPath("map_hook.map_plugin")
+    @YamlKey("map_hook.map_plugin")
     public MappingPlugin mappingPlugin = MappingPlugin.DYNMAP;
 
-    @KeyPath("map_hook.show_public_homes")
+    @YamlKey("map_hook.show_public_homes")
     public boolean publicHomesOnMap = true;
 
-    @KeyPath("map_hook.show_warps")
+    @YamlKey("map_hook.show_warps")
     public boolean warpsOnMap = true;
 
 
     // Disabled commands
-    @KeyPath("disabled_commands")
+    @YamlKey("disabled_commands")
     public List<String> disabledCommands = Collections.emptyList();
 
     @SuppressWarnings("unused")
     public Settings() {
-    }
-
-
-    /**
-     * Options for use in establishing pooled connections to a database
-     */
-    @EmbeddedYaml
-    public static class ConnectionPoolOptions {
-
-        public int size = 12;
-        public int idle = 12;
-        public long lifetime = 1800000;
-        public long keepalive = 0;
-        public long timeout = 20000;
-
-        @SuppressWarnings("unused")
-        public ConnectionPoolOptions() {
-        }
     }
 
     /**

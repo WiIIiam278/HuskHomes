@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 
 /**
@@ -66,7 +67,11 @@ public class BukkitUpgradeUtil {
         settings.mySqlUsername = mySqlUsername;
         settings.mySqlPassword = mySqlPassword;
         settings.mySqlConnectionParameters = mySqlParams;
-        Annotaml.save(settings, new File(plugin.getDataFolder(), "config.yml"));
+        try {
+            Annotaml.create(new File(plugin.getDataFolder(), "config.yml"), settings);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to upgrade HuskHomes settings from a legacy version", e);
+        }
     }
 
     @Nullable

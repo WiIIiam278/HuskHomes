@@ -11,12 +11,11 @@ softdepend:
   - BlueMap
   - Plan
 libraries:
-  - 'net.kyori:adventure-platform-bukkit:${adventure_bukkit_platform_version}'
-  - 'net.kyori:adventure-api:${adventure_api_version}'
   - 'redis.clients:jedis:${jedis_version}'
   - 'mysql:mysql-connector-java:${mysql_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
   - 'org.apache.commons:commons-text:${commons_text_version}'
+  - 'net.kyori:adventure-platform-bukkit:${adventure_bukkit_version}'
 
 commands:
   home:

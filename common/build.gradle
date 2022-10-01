@@ -33,6 +33,7 @@ shadowJar {
     relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
     relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
+    relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 }

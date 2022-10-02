@@ -120,7 +120,10 @@ public class EventListener {
                         plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
                                 .ifPresent(onlineUser::playSound);
                     }
-                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null));
+                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null)).exceptionally(throwable -> {
+                    plugin.getLoggingAdapter().log(Level.SEVERE, "An error occurred while teleporting an inbound player", throwable);
+                    return null;
+                });
             });
         }
         return CompletableFuture.completedFuture(null);

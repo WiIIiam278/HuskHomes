@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * Cross-platform teleportation manager
@@ -371,15 +372,24 @@ public class TeleportManager {
      * @return future completing when the teleport is complete with a {@link TeleportResult}.
      * Successful cross-server teleports will return {@link TeleportResult#COMPLETED_CROSS_SERVER}.
      * <p>Note that cross-server teleports will return with a {@link TeleportResult#FAILED_INVALID_SERVER} result if the
-     * target server is not online
+     * target server is not online, or connection timed out
      */
     private CompletableFuture<TeleportResult> teleportCrossServer(@NotNull OnlineUser onlineUser, @NotNull Teleport teleport) {
 
-        return plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
-                .thenApplyAsync(ignored -> plugin.getNetworkMessenger().sendPlayer(onlineUser, teleport.target.server)
-                        .thenApply(completed -> completed ? TeleportResult.COMPLETED_CROSS_SERVER :
-                                TeleportResult.FAILED_INVALID_SERVER)
-                        .join());
+        final CompletableFuture<TeleportResult> teleportFuture = new CompletableFuture<>();
+        plugin.getDatabase().setCurrentTeleport(teleport.player, teleport)
+                .thenApply(ignored -> plugin.getNetworkMessenger()
+                        .sendPlayer(onlineUser, teleport.target.server)
+                        .thenApply(completed -> completed ? TeleportResult.COMPLETED_CROSS_SERVER
+                                : TeleportResult.FAILED_INVALID_SERVER))
+                .orTimeout(10, TimeUnit.SECONDS)
+                .exceptionally(throwable -> {
+                    plugin.getLoggingAdapter().log(Level.WARNING, "Cross-server teleport timed out for " + onlineUser.username);
+                    plugin.getDatabase().setCurrentTeleport(teleport.player, null);
+                    return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_SERVER);
+                })
+                .thenAccept(result -> result.thenAcceptAsync(teleportFuture::complete));
+        return teleportFuture;
     }
 
     /**

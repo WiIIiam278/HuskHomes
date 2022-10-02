@@ -1,6 +1,7 @@
 package net.william278.huskhomes.config;
 
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
@@ -25,7 +26,9 @@ public class CachedSpawn {
     public double z;
     public float yaw;
     public float pitch;
+    @YamlKey("world_name")
     public String worldName;
+    @YamlKey("world_uuid")
     public String worldUuid;
 
     /**

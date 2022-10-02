@@ -499,8 +499,6 @@ public class MySqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to query a player's home", e);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             return Optional.empty();
         });

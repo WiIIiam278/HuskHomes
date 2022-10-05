@@ -12,7 +12,6 @@ version "$ext.plugin_version-${versionMetadata()}"
 
 ext {
     set 'version', version.toString()
-    set 'adventure_bukkit_version', adventure_bukkit_version.toString()
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()

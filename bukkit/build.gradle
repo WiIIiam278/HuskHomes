@@ -4,11 +4,11 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'me.lucko:commodore:2.2'
+    implementation 'net.kyori:adventure-platform-bukkit:4.1.2'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
-    compileOnly 'net.kyori:adventure-platform-bukkit:' + adventure_bukkit_version
     compileOnly 'redis.clients:jedis:' + jedis_version
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'com.google.guava:guava:31.1-jre'
@@ -19,7 +19,7 @@ dependencies {
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
     testImplementation 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
-    testImplementation 'net.kyori:adventure-platform-bukkit:' + adventure_bukkit_version
+    testImplementation 'net.kyori:adventure-platform-bukkit:4.1.2'
     testImplementation 'redis.clients:jedis:' + jedis_version
     testImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     testImplementation 'mysql:mysql-connector-java:' + mysql_driver_version
@@ -42,6 +42,7 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
+    relocate 'net.kyori', 'net.william278.huskhomes.libraries'
 
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'

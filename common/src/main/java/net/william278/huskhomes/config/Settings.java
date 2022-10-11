@@ -27,8 +27,10 @@ public class Settings {
     // Top-level settings
     public String language = "en-gb";
 
+    @YamlKey("check_for_updates")
     public boolean checkForUpdates = true;
 
+    @YamlKey("debug_logging")
     public boolean debugLogging = false;
 
 

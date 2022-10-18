@@ -60,7 +60,9 @@ public class Teleport {
     @NotNull
     public final Set<Settings.EconomyAction> economyActions;
 
-    // Internal constructor -- use TeleportBuilder to instantiate a teleport
+    /**
+     * <b>Internal</b> - use TeleportBuilder to instantiate a teleport
+     */
     protected Teleport(@Nullable User teleporter, @NotNull OnlineUser executor, @Nullable Position target,
                        @NotNull TeleportType type, @NotNull Set<Settings.EconomyAction> economyActions,
                        @NotNull HuskHomes plugin) {

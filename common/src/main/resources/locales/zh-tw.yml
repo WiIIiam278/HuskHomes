@@ -141,6 +141,8 @@ error_home_invalid_other: '[錯誤:](#ff3300) [%1% 沒有名為 %2% 的家](#ff7
 error_edit_home_maximum_public_homes: '[錯誤:](#ff3300) [您最多只能公開 %1% 個家.](#ff7e5e)'
 error_illegal_target_coordinates: '[錯誤:](#ff3300) [已取消傳送, 因為它超出了可能的遊戲世界限制.](#ff7e5e)'
 error_no_players_online: '[錯誤:](#ff3300) [沒有在線玩家可以傳送過來.](#ff7e5e)'
+error_teleport_target_not_resolved: '[Error:](#ff3300) [Cancelled teleport as a target position could not be found.](#ff7e5e)'
+error_teleport_teleporter_not_resolved: '[Error:](#ff3300) [Cancelled teleport as the user to teleport could not be found](#ff7e5e)'
 home_command_description: '傳送回家或顯示所有家'
 sethome_command_description: '設置一個新的家'
 delhome_command_description: '刪除家'

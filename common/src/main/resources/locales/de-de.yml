@@ -141,6 +141,8 @@ error_home_invalid_other: '[Fehler:](#ff3300) [%1% hat kein Home namens "%2%"!](
 error_edit_home_maximum_public_homes: '[Fehler:](#ff3300) [Du kannst maximal %1% Home(s) öffentlich sichtbar machen.](#ff7e5e)'
 error_illegal_target_coordinates: '[Fehler:](#ff3300) [Teleportation abgebrochen, da sie die möglichen Grenzen der Spielwelt überschreitet.](#ff7e5e)'
 error_no_players_online: '[Fehler:](#ff3300) [Es sind keine Spieler online, die sich zu dir teleportieren könnten.](#ff7e5e)'
+error_teleport_target_not_resolved: '[Error:](#ff3300) [Cancelled teleport as a target position could not be found.](#ff7e5e)'
+error_teleport_teleporter_not_resolved: '[Error:](#ff3300) [Cancelled teleport as the user to teleport could not be found](#ff7e5e)'
 home_command_description: 'Teleportiere dich zu einem deiner Homes'
 sethome_command_description: 'Setze ein neues Home mit dem angegebenen Namen'
 delhome_command_description: 'Lösche ein Home, welches du vorher gesetzt hast'

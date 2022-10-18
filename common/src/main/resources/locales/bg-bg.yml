@@ -141,6 +141,8 @@ error_home_invalid_other: '[Error:](#ff3300) [%1% does not have a home set named
 error_edit_home_maximum_public_homes: '[Грешка:](#ff3300) [Можете да правите максимум до %1% публичен(и) дом(ове).](#ff7e5e)'
 error_illegal_target_coordinates: '[Error:](#ff3300) [Cancelled teleport as it exceeds the possible game world limits.](#ff7e5e)'
 error_no_players_online: '[Error:](#ff3300) [There are no players online who could teleport to you.](#ff7e5e)'
+error_teleport_target_not_resolved: '[Error:](#ff3300) [Cancelled teleport as a target position could not be found.](#ff7e5e)'
+error_teleport_teleporter_not_resolved: '[Error:](#ff3300) [Cancelled teleport as the user to teleport could not be found](#ff7e5e)'
 home_command_description: 'Телепортирайте се до някой от Вашите домове'
 sethome_command_description: 'Поставете нов дом с дадено име'
 delhome_command_description: 'Изтриете дом, който преди сте поставили'

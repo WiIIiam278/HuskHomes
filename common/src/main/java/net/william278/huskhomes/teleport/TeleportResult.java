@@ -55,12 +55,12 @@ public enum TeleportResult {
     /**
      * Returns if the {@link Teleport} failed because the teleporter could not be resolved or was offline
      */
-    FAILED_TELEPORTER_NOT_RESOLVED(false), //todo error message
+    FAILED_TELEPORTER_NOT_RESOLVED(false, "error_teleport_target_not_resolved"),
 
     /**
      * Returns if the {@link Teleport} failed because the target {@link Position} could not be resolved
      */
-    FAILED_TARGET_NOT_RESOLVED(false), //todo error message
+    FAILED_TARGET_NOT_RESOLVED(false, "error_teleport_teleporter_not_resolved"),
 
     /**
      * Returns if the teleport was cancelled, for example if a {@link TimedTeleport} in progress is cancelled

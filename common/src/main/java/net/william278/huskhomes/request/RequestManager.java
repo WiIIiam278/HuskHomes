@@ -216,7 +216,8 @@ public class RequestManager {
                                                      boolean accepted) {
         // Check the recipient is not ignoring teleport requests
         if (isIgnoringRequests(recipient)) {
-            plugin.getLocales().getLocale("error_ignoring_teleport_requests").ifPresent(recipient::sendMessage);
+            plugin.getLocales().getLocale("error_ignoring_teleport_requests")
+                    .ifPresent(recipient::sendMessage);
             return;
         }
 
@@ -239,14 +240,16 @@ public class RequestManager {
     public void respondToTeleportRequest(@NotNull OnlineUser recipient, boolean accepted) {
         // Check the recipient is not ignoring teleport requests
         if (isIgnoringRequests(recipient)) {
-            plugin.getLocales().getLocale("error_ignoring_teleport_requests").ifPresent(recipient::sendMessage);
+            plugin.getLocales().getLocale("error_ignoring_teleport_requests")
+                    .ifPresent(recipient::sendMessage);
             return;
         }
 
         // Get the latest request and handle the response
         final Optional<TeleportRequest> lastRequest = getLastTeleportRequest(recipient);
         if (lastRequest.isEmpty()) {
-            plugin.getLocales().getLocale("error_no_teleport_requests").ifPresent(recipient::sendMessage);
+            plugin.getLocales().getLocale("error_no_teleport_requests")
+                    .ifPresent(recipient::sendMessage);
             return;
         }
         handleRequestResponse(lastRequest.get(), recipient, accepted);

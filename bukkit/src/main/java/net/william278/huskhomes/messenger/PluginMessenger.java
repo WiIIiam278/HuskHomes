@@ -32,64 +32,82 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
      */
     private static final String BUNGEE_PLUGIN_CHANNEL_NAME = "BungeeCord";
 
+    /**
+     * Number of ticks to wait before sending a plugin message.
+     * </p>
+     * This is needed because it is not possible to have players dispatch plugin messages in certain circumstance,
+     * such as on the tick that they join the server.
+     */
+    private static final long PLUGIN_MESSAGE_DELAY_TICKS = 1L;
+
     @Override
     public void initialize(@NotNull HuskHomes implementor) {
         super.initialize(implementor);
 
         // Register HuskHomes messaging channel
-        Bukkit.getMessenger().registerIncomingPluginChannel((BukkitHuskHomes) implementor, BUNGEE_PLUGIN_CHANNEL_NAME, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel((BukkitHuskHomes) implementor, BUNGEE_PLUGIN_CHANNEL_NAME);
+        Bukkit.getMessenger().registerIncomingPluginChannel((BukkitHuskHomes) implementor,
+                BUNGEE_PLUGIN_CHANNEL_NAME, this);
+        Bukkit.getMessenger().registerOutgoingPluginChannel((BukkitHuskHomes) implementor,
+                BUNGEE_PLUGIN_CHANNEL_NAME);
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> getOnlinePlayerNames(@NotNull OnlineUser requester) {
+        final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         onlinePlayerNamesRequest = new CompletableFuture<>();
-        final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
-        pluginMessageWriter.writeUTF("PlayerList");
-        pluginMessageWriter.writeUTF("ALL");
-        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
-                BUNGEE_PLUGIN_CHANNEL_NAME,
-                pluginMessageWriter.toByteArray());
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
+            pluginMessageWriter.writeUTF("PlayerList");
+            pluginMessageWriter.writeUTF("ALL");
+            ((BukkitPlayer) requester).sendPluginMessage(plugin,
+                    BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+        }, PLUGIN_MESSAGE_DELAY_TICKS);
         return onlinePlayerNamesRequest;
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String> getServerName(@NotNull OnlineUser requester) {
-        serverNameRequest = new CompletableFuture<>();
-        final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
-        pluginMessageWriter.writeUTF("GetServer");
-        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
-                BUNGEE_PLUGIN_CHANNEL_NAME,
-                pluginMessageWriter.toByteArray());
+        final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            serverNameRequest = new CompletableFuture<>();
+            final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
+            pluginMessageWriter.writeUTF("GetServer");
+            ((BukkitPlayer) requester).sendPluginMessage(plugin,
+                    BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+        }, PLUGIN_MESSAGE_DELAY_TICKS);
         return serverNameRequest;
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester) {
-        onlineServersRequest = new CompletableFuture<>();
-        final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
-        pluginMessageWriter.writeUTF("GetServers");
-        ((BukkitPlayer) requester).sendPluginMessage((BukkitHuskHomes) plugin,
-                BUNGEE_PLUGIN_CHANNEL_NAME,
-                pluginMessageWriter.toByteArray());
+        final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            onlineServersRequest = new CompletableFuture<>();
+            final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
+            pluginMessageWriter.writeUTF("GetServers");
+            ((BukkitPlayer) requester).sendPluginMessage(plugin,
+                    BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+        }, PLUGIN_MESSAGE_DELAY_TICKS);
         return onlineServersRequest;
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<Boolean> sendPlayer(@NotNull OnlineUser onlineUser, @NotNull Server server) {
+        final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         return getOnlineServers(onlineUser).thenApplyAsync(onlineServers -> {
             for (String onlineServerName : onlineServers) {
                 if (onlineServerName.equals(server.name)) {
-                    final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
-                    pluginMessageWriter.writeUTF("Connect");
-                    pluginMessageWriter.writeUTF(server.name);
-                    ((BukkitPlayer) onlineUser).sendPluginMessage((BukkitHuskHomes) plugin,
-                            BUNGEE_PLUGIN_CHANNEL_NAME,
-                            pluginMessageWriter.toByteArray());
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
+                        pluginMessageWriter.writeUTF("Connect");
+                        pluginMessageWriter.writeUTF(server.name);
+                        ((BukkitPlayer) onlineUser).sendPluginMessage(plugin,
+                                BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+                    });
                     return true;
                 }
             }
@@ -112,7 +130,8 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
     @SuppressWarnings("UnstableApiUsage")
     private void sendPluginMessage(@NotNull BukkitPlayer player, @NotNull Message message) {
-        CompletableFuture.runAsync(() -> {
+        final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
             messageWriter.writeUTF("ForwardToPlayer");
             messageWriter.writeUTF(message.targetPlayer);
@@ -131,9 +150,8 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
             }
 
             // Send the written message
-            player.sendPluginMessage((BukkitHuskHomes) plugin,
-                    BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
-        });
+            player.sendPluginMessage(plugin, BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
+        }, PLUGIN_MESSAGE_DELAY_TICKS);
     }
 
     @Override

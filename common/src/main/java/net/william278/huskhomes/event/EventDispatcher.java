@@ -17,7 +17,7 @@ public interface EventDispatcher {
 
     void dispatchTeleportEvent(@NotNull Teleport teleport);
 
-    CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration);
+    CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(TimedTeleport teleport, int duration);
 
     CompletableFuture<IHomeSaveEvent> dispatchHomeSaveEvent(@NotNull Home home);
 

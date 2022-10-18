@@ -3,6 +3,7 @@ package net.william278.huskhomes.messenger;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.teleport.Teleport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -149,8 +150,9 @@ public abstract class NetworkMessenger {
             switch (message.type) {
                 case TELEPORT_TO_POSITION_REQUEST -> {
                     if (message.payload.position != null) {
-                        message.payload = MessagePayload.withTeleportResult(plugin.getTeleportManager()
-                                .teleport(receiver, message.payload.position).join());
+                        message.payload = MessagePayload.withTeleportResult(Teleport.builder(plugin, receiver)
+                                .setTarget(message.payload.position)
+                                .toTeleport().join().execute().join());
                     } else {
                         message.payload = MessagePayload.empty();
                     }

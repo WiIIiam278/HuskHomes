@@ -34,7 +34,6 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
-import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -70,7 +69,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private BukkitLogger logger;
     private Database database;
     private Cache cache;
-    private TeleportManager teleportManager;
     private RequestManager requestManager;
     private SavedPositionManager savedPositionManager;
     private EventListener eventListener;
@@ -134,10 +132,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Initialize the database
             getLoggingAdapter().log(Level.INFO, "Attempting to establish connection to the database...");
             final Settings.DatabaseType databaseType = settings.databaseType;
-            final BukkitResourceReader resourceReader = new BukkitResourceReader(this);
             this.database = switch (databaseType == null ? Settings.DatabaseType.MYSQL : databaseType) {
-                case MYSQL -> new MySqlDatabase(settings, logger, resourceReader);
-                case SQLITE -> new SqLiteDatabase(settings, logger, resourceReader);
+                case MYSQL -> new MySqlDatabase(this);
+                case SQLITE -> new SqLiteDatabase(this);
             };
             initialized.set(this.database.initialize());
             if (initialized.get()) {
@@ -157,9 +154,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 networkMessenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
-
-            // Prepare the teleport manager
-            this.teleportManager = new TeleportManager(this);
 
             // Prepare the request manager
             this.requestManager = new RequestManager(this);
@@ -356,12 +350,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public Cache getCache() {
         return cache;
-    }
-
-    @NotNull
-    @Override
-    public TeleportManager getTeleportManager() {
-        return teleportManager;
     }
 
     @Override

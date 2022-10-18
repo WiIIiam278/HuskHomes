@@ -2,7 +2,10 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +46,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                 RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
                         homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
                                 .thenAccept(optionalUserData -> optionalUserData.ifPresentOrElse(
-                                        userData -> plugin.getTeleportManager().teleportToHomeByName(onlineUser, userData.user(), homeIdentifier.homeName()),
+                                        userData -> teleportToNamedHome(onlineUser, userData.user(), homeIdentifier.homeName()),
                                         () -> plugin.getLocales().getLocale("error_home_invalid_other", homeIdentifier.ownerName(), homeIdentifier.homeName())
                                                 .ifPresent(onlineUser::sendMessage))),
                         () -> plugin.getDatabase().getPublicHomes().thenAccept(publicHomes -> {
@@ -51,7 +54,9 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                             final List<Home> homeMatches = publicHomes.stream()
                                     .filter(home -> home.meta.name.equalsIgnoreCase(homeName)).toList();
                             if ((long) homeMatches.size() == 1) {
-                                plugin.getTeleportManager().teleportToHome(onlineUser, homeMatches.get(0));
+                                Teleport.builder(plugin, onlineUser)
+                                        .setTarget(homeMatches.get(0))
+                                        .toTimedTeleport().thenAccept(TimedTeleport::execute);
                             } else {
                                 plugin.getLocales().getLocale("error_invalid_syntax", "/publichome [<owner_name>.<home_name>]")
                                         .ifPresent(onlineUser::sendMessage);
@@ -61,6 +66,32 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/publichome [<owner_name>.<home_name>]")
                     .ifPresent(onlineUser::sendMessage);
         }
+    }
+
+    private void teleportToNamedHome(@NotNull OnlineUser teleporter, @NotNull User owner, @NotNull String homeName) {
+        final boolean otherHome = owner.uuid.equals(teleporter.uuid);
+        plugin.getDatabase()
+                .getHome(owner, homeName)
+                .thenAccept(homeResult -> homeResult.ifPresentOrElse(home -> {
+                    if (otherHome && !home.isPublic) {
+                        if (!teleporter.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
+                            plugin.getLocales().getLocale("error_no_permission")
+                                    .ifPresent(teleporter::sendMessage);
+                        }
+                    }
+                    Teleport.builder(plugin, teleporter)
+                            .setTarget(home)
+                            .toTimedTeleport()
+                            .thenAccept(TimedTeleport::execute);
+                }, () -> {
+                    if (otherHome) {
+                        plugin.getLocales().getLocale("error_home_invalid", homeName)
+                                .ifPresent(teleporter::sendMessage);
+                    } else {
+                        plugin.getLocales().getLocale("error_home_invalid_other", owner.username, homeName)
+                                .ifPresent(teleporter::sendMessage);
+                    }
+                }));
     }
 
     @Override
@@ -93,9 +124,11 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                    + home.owner.username + "." + home.meta.name);
-            plugin.getTeleportManager().teleport(playerToTeleport, home)
-                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
+                                                       + home.owner.username + "." + home.meta.name);
+            Teleport.builder(plugin, playerToTeleport)
+                    .setTarget(home)
+                    .toTeleport()
+                    .thenAccept(Teleport::execute);
         });
     }
 

@@ -29,7 +29,7 @@ public class BukkitEventDispatcher implements EventDispatcher {
     }
 
     @Override
-    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(TimedTeleport teleport, int duration) {
         final CompletableFuture<ITeleportWarmupEvent> dispatchFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             final TeleportWarmupEvent event = new TeleportWarmupEvent(teleport, duration);

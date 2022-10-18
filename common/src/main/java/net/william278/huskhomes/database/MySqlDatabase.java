@@ -1,14 +1,13 @@
 package net.william278.huskhomes.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
-import net.william278.huskhomes.util.Logger;
-import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,32 +33,27 @@ public class MySqlDatabase extends Database {
     public String connectionParameters;
 
     public int connectionPoolSize;
-
     public int connectionPoolIdle;
-
     public long connectionPoolLifetime;
-
     public long connectionPoolKeepAlive;
-
     public long connectionPoolTimeout;
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
-
     private HikariDataSource dataSource;
 
-    public MySqlDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
-        super(settings, logger, resourceReader);
-        this.host = settings.mySqlHost;
-        this.port = settings.mySqlPort;
-        this.database = settings.mySqlDatabase;
-        this.username = settings.mySqlUsername;
-        this.password = settings.mySqlPassword;
-        this.connectionParameters = settings.mySqlConnectionParameters;
-        this.connectionPoolSize = settings.mySqlConnectionPoolSize;
-        this.connectionPoolIdle = settings.mySqlConnectionPoolIdle;
-        this.connectionPoolLifetime = settings.mySqlConnectionPoolLifetime;
-        this.connectionPoolKeepAlive = settings.mySqlConnectionPoolKeepAlive;
-        this.connectionPoolTimeout = settings.mySqlConnectionPoolTimeout;
+    public MySqlDatabase(@NotNull HuskHomes plugin) {
+        super(plugin);
+        this.host = plugin.getSettings().mySqlHost;
+        this.port = plugin.getSettings().mySqlPort;
+        this.database = plugin.getSettings().mySqlDatabase;
+        this.username = plugin.getSettings().mySqlUsername;
+        this.password = plugin.getSettings().mySqlPassword;
+        this.connectionParameters = plugin.getSettings().mySqlConnectionParameters;
+        this.connectionPoolSize = plugin.getSettings().mySqlConnectionPoolSize;
+        this.connectionPoolIdle = plugin.getSettings().mySqlConnectionPoolIdle;
+        this.connectionPoolLifetime = plugin.getSettings().mySqlConnectionPoolLifetime;
+        this.connectionPoolKeepAlive = plugin.getSettings().mySqlConnectionPoolKeepAlive;
+        this.connectionPoolTimeout = plugin.getSettings().mySqlConnectionPoolTimeout;
     }
 
     /**
@@ -617,7 +611,7 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user) {
+    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull OnlineUser onlineUser) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -625,24 +619,27 @@ public class MySqlDatabase extends Database {
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                         WHERE `player_uuid`=?"""))) {
-                    statement.setString(1, user.uuid.toString());
+                    statement.setString(1, onlineUser.uuid.toString());
 
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
-                        return Optional.of(new Teleport(user,
-                                new Position(resultSet.getDouble("x"),
+                        return Optional.of(Teleport.builder(plugin, onlineUser)
+                                .setTarget(new Position(resultSet.getDouble("x"),
                                         resultSet.getDouble("y"),
                                         resultSet.getDouble("z"),
                                         resultSet.getFloat("yaw"),
                                         resultSet.getFloat("pitch"),
                                         new World(resultSet.getString("world_name"),
                                                 UUID.fromString(resultSet.getString("world_uuid"))),
-                                        new Server(resultSet.getString("server_name"))),
-                                TeleportType.getTeleportType(resultSet.getInt("type")).orElse(TeleportType.TELEPORT)));
+                                        new Server(resultSet.getString("server_name"))))
+                                .setType(TeleportType.getTeleportType(resultSet.getInt("type"))
+                                        .orElse(TeleportType.TELEPORT))
+                                .toTeleport()
+                                .join());
                     }
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + user.username, e);
+                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.username, e);
             }
             return Optional.empty();
         });
@@ -686,7 +683,7 @@ public class MySqlDatabase extends Database {
                 }
 
                 // Set the user's teleport into the database (if it's not null)
-                if (teleport != null) {
+                if (teleport != null && teleport.target != null) {
                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
                             VALUES (?,?,?);"""))) {

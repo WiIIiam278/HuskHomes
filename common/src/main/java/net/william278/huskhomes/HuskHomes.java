@@ -17,12 +17,12 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
-import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -99,14 +99,6 @@ public interface HuskHomes {
      */
     @NotNull
     Cache getCache();
-
-    /**
-     * The {@link TeleportManager} that manages player teleports
-     *
-     * @return the plugin {@link TeleportManager}
-     */
-    @NotNull
-    TeleportManager getTeleportManager();
 
     /**
      * The {@link RequestManager} that manages player requests
@@ -305,6 +297,14 @@ public interface HuskHomes {
      */
     @Nullable
     InputStream getResource(@NotNull String name);
+
+    /**
+     * Returns the plugin data folder containing the plugin config, etc
+     *
+     * @return the plugin data folder
+     */
+    @NotNull
+    File getDataFolder();
 
     /**
      * Returns a list of worlds on the server

@@ -5,6 +5,8 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,21 +63,21 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
             // Execute the teleport
             if (teleportTarget.get() instanceof TargetPlayer targetPlayer) {
-                // Handle player teleport targets
-                plugin.getTeleportManager()
-                        .teleportNamedPlayers(playerToTeleport, targetPlayer.playerName, onlineUser, false)
-                        .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
-                                result -> {
-                                    if (!result.successful) {
-                                        plugin.getTeleportManager().finishTeleport(onlineUser, result);
-                                        return;
-                                    }
-                                    plugin.getLocales().getLocale("teleporting_other_complete",
-                                                    playerToTeleport, targetPlayer.playerName)
-                                            .ifPresent(onlineUser::sendMessage);
-                                },
-                                () -> plugin.getLocales().getLocale("error_player_not_found", targetPlayer.playerName)
-                                        .ifPresent(onlineUser::sendMessage)));
+                // Carry out the teleport to a player, by name
+                Teleport.builder(plugin, onlineUser)
+                        .setTeleporter(playerToTeleport)
+                        .setTarget(targetPlayer.playerName)
+                        .toTeleport()
+                        .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+                            if (result.successful) {
+                                plugin.getLocales().getLocale("teleporting_other_complete",
+                                                playerToTeleport, targetPlayer.playerName)
+                                        .ifPresent(onlineUser::sendMessage);
+                            } else {
+                                plugin.getLocales().getLocale("error_player_not_found", targetPlayer.playerName)
+                                        .ifPresent(onlineUser::sendMessage);
+                            }
+                        }));
             } else if (teleportTarget.get() instanceof TargetPosition targetPosition) {
                 // Handle coordinate teleport targets
                 if (!onlineUser.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node)) {
@@ -83,21 +85,22 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     return;
                 }
 
-                plugin.getTeleportManager()
-                        .teleportPlayerByName(playerToTeleport, targetPosition.position, onlineUser, false)
-                        .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresent(
-                                result -> {
-                                    if (!result.successful || playerToTeleport.equalsIgnoreCase(onlineUser.username)) {
-                                        plugin.getTeleportManager().finishTeleport(onlineUser, result);
-                                        return;
-                                    }
-                                    plugin.getLocales().getLocale("teleporting_other_complete_position",
-                                                    playerToTeleport,
-                                                    Integer.toString((int) targetPosition.position.x),
-                                                    Integer.toString((int) targetPosition.position.y),
-                                                    Integer.toString((int) targetPosition.position.z))
-                                            .ifPresent(onlineUser::sendMessage);
-                                }));
+                // Carry out the teleport to a position
+                Teleport.builder(plugin, onlineUser)
+                        .setTeleporter(playerToTeleport)
+                        .setTarget(targetPosition.position)
+                        .toTeleport()
+                        .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+                            if (!result.successful || playerToTeleport.equalsIgnoreCase(onlineUser.username)) {
+                                return;
+                            }
+                            plugin.getLocales().getLocale("teleporting_other_complete_position",
+                                            playerToTeleport,
+                                            Integer.toString((int) targetPosition.position.x),
+                                            Integer.toString((int) targetPosition.position.y),
+                                            Integer.toString((int) targetPosition.position.z))
+                                    .ifPresent(onlineUser::sendMessage);
+                        }));
             }
         });
     }
@@ -176,23 +179,20 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         }
 
         // Execute the console teleport
+        final TeleportBuilder builder = Teleport.builder(plugin, playerToTeleport)
+                .setTeleporter(playerToTeleport.username);
         if (teleportTarget instanceof TargetPlayer targetPlayer) {
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username
-                                                       + " to " + targetPlayer.playerName);
-            plugin.getTeleportManager().teleportToPlayerByName(playerToTeleport, targetPlayer.playerName, false);
+            builder.setTarget(targetPlayer.playerName);
         } else {
-            final TargetPosition targetPosition = (TargetPosition) teleportTarget;
-            plugin.getTeleportManager().teleport(playerToTeleport, targetPosition.position)
-                    .thenAccept(teleportResult -> {
-                        if (teleportResult.successful) {
-                            plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
-                        } else {
-                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username
-                                                                          + " (" + teleportResult.name() + ")");
-                        }
-                        plugin.getTeleportManager().finishTeleport(playerToTeleport, teleportResult);
-                    });
+            builder.setTarget(((TargetPosition) teleportTarget).position);
         }
+        builder.toTeleport().thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+            if (result.successful) {
+                plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
+            } else {
+                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username + " to " + teleportTarget);
+            }
+        }));
     }
 
     @Override

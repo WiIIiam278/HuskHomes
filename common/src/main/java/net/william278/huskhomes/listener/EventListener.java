@@ -2,9 +2,9 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -99,10 +99,10 @@ public class EventListener {
                     final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                     if (bedPosition.isEmpty()) {
                         plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
-                                .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
+                                .ifPresent(position -> onlineUser.teleportLocally(position, plugin.getSettings().asynchronousTeleports));
                         onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     } else {
-                        onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
+                        onlineUser.teleportLocally(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
                     }
                     plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRunAsync(() ->
                             plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null)));
@@ -110,20 +110,13 @@ public class EventListener {
                 }
 
                 // Teleport the player locally
-                onlineUser.teleport(teleport.get().target, plugin.getSettings().asynchronousTeleports).thenAccept(teleportResult -> {
-                    if (!teleportResult.successful) {
-                        plugin.getLocales().getLocale("error_invalid_world")
-                                .ifPresent(onlineUser::sendMessage);
-                    } else {
-                        plugin.getLocales().getLocale("teleporting_complete")
-                                .ifPresent(onlineUser::sendMessage);
-                        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
-                                .ifPresent(onlineUser::playSound);
-                    }
-                }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null)).exceptionally(throwable -> {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "An error occurred while teleporting an inbound player", throwable);
-                    return null;
-                });
+                teleport.get().execute()
+                        .thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
+                        .exceptionally(throwable -> {
+                            plugin.getLoggingAdapter().log(Level.SEVERE,
+                                    "An error occurred while teleporting an inbound player", throwable);
+                            return null;
+                        });
             });
         }
         return CompletableFuture.completedFuture(null);
@@ -181,8 +174,11 @@ public class EventListener {
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
             plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
                 if (!respawnPosition.server.equals(plugin.getPluginServer())) {
-                    plugin.getTeleportManager().teleport(onlineUser, respawnPosition, TeleportType.RESPAWN).thenAccept(
-                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                    Teleport.builder(plugin, onlineUser)
+                            .setType(TeleportType.RESPAWN)
+                            .setTarget(respawnPosition)
+                            .toTeleport()
+                            .thenAccept(Teleport::execute);
                 }
             }));
         }

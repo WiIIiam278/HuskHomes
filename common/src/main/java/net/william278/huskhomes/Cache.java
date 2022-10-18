@@ -9,6 +9,7 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.paginedown.ListOptions;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,11 @@ public class Cache {
     public final HashMap<UUID, PaginatedList> warpLists;
 
     /**
+     * Cached user UUIDs currently on warmup countdowns for {@link TimedTeleport}s
+     */
+    public final HashSet<UUID> currentlyOnWarmup;
+
+    /**
      * Plugin event dispatcher
      */
     private final EventDispatcher eventDispatcher;
@@ -73,6 +79,7 @@ public class Cache {
         this.privateHomeLists = new HashMap<>();
         this.publicHomeLists = new HashMap<>();
         this.warpLists = new HashMap<>();
+        this.currentlyOnWarmup = new HashSet<>();
         this.eventDispatcher = eventDispatcher;
     }
 
@@ -113,6 +120,17 @@ public class Cache {
                     .toList());
             return CompletableFuture.completedFuture(players);
         }
+    }
+
+    /**
+     * Returns if the given user is currently warming up to teleport to a home.
+     *
+     * @param userUuid The user to check.
+     * @return If the user is currently warming up.
+     * @since 3.1
+     */
+    public boolean isWarmingUp(@NotNull UUID userUuid) {
+        return this.currentlyOnWarmup.contains(userUuid);
     }
 
     @NotNull

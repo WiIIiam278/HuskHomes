@@ -5,6 +5,8 @@ import net.william278.huskhomes.messenger.Message;
 import net.william278.huskhomes.messenger.MessagePayload;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -316,10 +318,15 @@ public class RequestManager {
         if (accepted && request.type == TeleportRequest.RequestType.TPA_HERE) {
             // Strict /tpahere requests will teleport to where the sender was when typing the command
             if (plugin.getSettings().strictTpaHereRequests) {
-                plugin.getTeleportManager().timedTeleport(recipient, request.requesterPosition).thenAccept(
-                        teleportResult -> plugin.getTeleportManager().finishTeleport(recipient, teleportResult));
+                Teleport.builder(plugin, recipient)
+                        .setTarget(request.requesterPosition)
+                        .toTimedTeleport()
+                        .thenAccept(TimedTeleport::execute);
             } else {
-                plugin.getTeleportManager().teleportToPlayerByName(recipient, request.requesterName, true);
+                Teleport.builder(plugin, recipient)
+                        .setTarget(request.requesterName)
+                        .toTimedTeleport()
+                        .thenAccept(TimedTeleport::execute);
             }
         }
 
@@ -338,7 +345,10 @@ public class RequestManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.type == TeleportRequest.RequestType.TPA)) {
-            plugin.getTeleportManager().teleportToPlayerByName(requester, request.recipientName, true);
+            Teleport.builder(plugin, requester)
+                    .setTarget(request.recipientName)
+                    .toTimedTeleport()
+                    .thenAccept(TimedTeleport::execute);
         }
     }
 

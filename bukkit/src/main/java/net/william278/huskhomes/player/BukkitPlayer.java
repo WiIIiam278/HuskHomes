@@ -101,7 +101,7 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
+    public CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous) {
         final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
         if (bukkitLocation.isEmpty()) {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_WORLD);

@@ -139,12 +139,12 @@ public abstract class OnlineUser extends User {
     protected abstract Audience getAudience();
 
     /**
-     * Teleport a player to the specified {@link Location}
+     * Teleport a player to the specified local {@link Location}
      *
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous);
+    public abstract CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous);
 
     /**
      * Returns if a player is moving (i.e. they have momentum)

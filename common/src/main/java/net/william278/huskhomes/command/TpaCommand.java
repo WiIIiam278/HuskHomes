@@ -20,20 +20,22 @@ public class TpaCommand extends CommandBase implements TabCompletable {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
-            plugin.getRequestManager().sendTeleportRequest(onlineUser, args[0], TeleportRequest.RequestType.TPA).thenAccept(sent -> {
-                if (sent.isPresent()) {
-                    plugin.getLocales().getLocale("tpa_request_sent", sent.get().getRecipientName())
-                            .ifPresent(onlineUser::sendMessage);
-                } else {
-                    if (plugin.findPlayer(args[0]).isPresent()) {
-                        plugin.getLocales().getLocale("error_teleport_request_self")
-                                .ifPresent(onlineUser::sendMessage);
-                        return;
-                    }
-                    plugin.getLocales().getLocale("error_player_not_found", args[0])
-                            .ifPresent(onlineUser::sendMessage);
-                }
-            });
+            plugin.getRequestManager()
+                    .sendTeleportRequest(onlineUser, args[0], TeleportRequest.RequestType.TPA)
+                    .thenAccept(sent -> {
+                        if (sent.isPresent()) {
+                            plugin.getLocales().getLocale("tpa_request_sent", sent.get().getRecipientName())
+                                    .ifPresent(onlineUser::sendMessage);
+                        } else {
+                            if (plugin.findPlayer(args[0]).isPresent()) {
+                                plugin.getLocales().getLocale("error_teleport_request_self")
+                                        .ifPresent(onlineUser::sendMessage);
+                                return;
+                            }
+                            plugin.getLocales().getLocale("error_player_not_found", args[0])
+                                    .ifPresent(onlineUser::sendMessage);
+                        }
+                    });
         } else {
             plugin.getLocales().getLocale("error_invalid_syntax", "/tpa <player>")
                     .ifPresent(onlineUser::sendMessage);

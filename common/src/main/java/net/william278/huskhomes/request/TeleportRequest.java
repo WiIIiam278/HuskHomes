@@ -78,15 +78,40 @@ public class TeleportRequest {
         return recipientName;
     }
 
+    /**
+     * Types of teleport requests ({@code /tpa} or {@code /tpahere})
+     */
     public enum RequestType {
+        /**
+         * The request is a {@code /tpa} request, where the requester is requesting to teleport <i>to</i> the recipient
+         */
         TPA,
+        /**
+         * The request is a {@code /tpahere} request, where the requester is requesting that the recipient teleport <i>to them</i>
+         */
         TPA_HERE
     }
 
+    /**
+     * The current status of a teleport request
+     */
     protected enum RequestStatus {
+        /**
+         * The request is currently pending and can be accepted or declined
+         */
         PENDING,
+        /**
+         * The teleport request has been accepted by the recipient and teleportation will commence
+         */
         ACCEPTED,
+        /**
+         * The teleport request has been declined by the recipient
+         */
         DECLINED,
+        /**
+         * The recipient was ignoring teleport requests at the time it was sent;
+         * the request has been automatically declined
+         */
         IGNORED
     }
 

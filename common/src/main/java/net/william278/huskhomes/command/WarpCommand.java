@@ -3,12 +3,13 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,15 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             });
             case 1 -> {
                 final String warpName = args[0];
-                plugin.getTeleportManager().teleportToWarpByName(onlineUser, warpName);
+                plugin.getDatabase()
+                        .getWarp(warpName)
+                        .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp ->
+                                        Teleport.builder(plugin, onlineUser)
+                                                .setTarget(warp)
+                                                .toTimedTeleport()
+                                                .thenAccept(TimedTeleport::execute),
+                                () -> plugin.getLocales().getLocale("error_warp_invalid", warpName)
+                                        .ifPresent(onlineUser::sendMessage)));
             }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", "/warp [name]")
                     .ifPresent(onlineUser::sendMessage);
@@ -68,9 +77,10 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             final Warp warp = optionalWarp.get();
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.meta.name);
-            plugin.getTeleportManager()
-                    .teleport(playerToTeleport, warp)
-                    .thenAccept(result -> plugin.getTeleportManager().finishTeleport(playerToTeleport, result));
+            Teleport.builder(plugin, playerToTeleport)
+                    .setTarget(warp)
+                    .toTimedTeleport()
+                    .thenAccept(TimedTeleport::execute);
         });
     }
 

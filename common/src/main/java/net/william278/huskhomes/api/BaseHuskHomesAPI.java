@@ -7,6 +7,8 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import org.jetbrains.annotations.NotNull;
@@ -107,7 +109,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0.2
      */
     public boolean isUserWarmingUp(@NotNull User user) {
-        return plugin.getTeleportManager().isWarmingUp(user.uuid);
+        return plugin.getCache().isWarmingUp(user.uuid);
     }
 
     /**
@@ -323,6 +325,18 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get a {@link TeleportBuilder} to construct and dispatch a (timed) teleport
+     *
+     * @param onlineUser The {@link OnlineUser} to teleport
+     * @return A {@link TeleportBuilder} to construct and dispatch a (timed) teleport
+     * @since 3.1
+     */
+    @NotNull
+    public final TeleportBuilder teleportBuilder(@NotNull OnlineUser onlineUser) {
+        return Teleport.builder(plugin, onlineUser);
+    }
+
+    /**
      * Attempt to teleport an {@link OnlineUser} to a target {@link Position}
      *
      * @param user          The {@link OnlineUser} to teleport
@@ -336,8 +350,10 @@ public abstract class BaseHuskHomesAPI {
     public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user,
                                                                   @NotNull Position position,
                                                                   final boolean timedTeleport) {
-        return timedTeleport ? plugin.getTeleportManager().timedTeleport(user, position)
-                : plugin.getTeleportManager().teleport(user, position);
+        final TeleportBuilder builder = teleportBuilder(user).setTarget(position);
+        return timedTeleport
+                ? builder.toTimedTeleport().thenApplyAsync(teleport -> teleport.execute().join())
+                : builder.toTeleport().thenApplyAsync(teleport -> teleport.execute().join());
     }
 
     /**

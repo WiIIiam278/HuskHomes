@@ -68,7 +68,7 @@ public class Settings {
     public long mySqlConnectionPoolLifetime = 1800000;
 
     @YamlKey("database.mysql.connection_pool.keepalive")
-    public long mySqlConnectionPoolKeepAlive = 0;
+    public long mySqlConnectionPoolKeepAlive = 30000;
 
     @YamlKey("database.mysql.connection_pool.timeout")
     public long mySqlConnectionPoolTimeout = 20000;

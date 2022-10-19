@@ -40,17 +40,17 @@ public class TimedTeleport extends Teleport {
      * @return a {@link CompletableFuture} that completes when the teleport is complete or has been cancelled
      */
     @Override
-    public CompletableFuture<TeleportResult> execute() {
+    public CompletableFuture<CompletedTeleport> execute() {
         // If the target has not been resolved, fail the teleport
         if (target == null) {
-            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_TARGET_NOT_RESOLVED)
-                    .thenApply(resultState -> TeleportResult.from(resultState, this));
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_TARGET_NOT_RESOLVED)
+                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
 
         // Check if the teleporter is already warming up to teleport
         if (plugin.getCache().currentlyOnWarmup.contains(teleporter.uuid)) {
-            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_ALREADY_TELEPORTING)
-                    .thenApply(resultState -> TeleportResult.from(resultState, this));
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING)
+                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
 
         // Check if the teleporter can bypass warmup
@@ -61,21 +61,21 @@ public class TimedTeleport extends Teleport {
         // Check economy actions
         for (Settings.EconomyAction economyAction : economyActions) {
             if (!plugin.validateEconomyCheck(executor, economyAction)) {
-                return CompletableFuture.completedFuture(TeleportResult.ResultState.CANCELLED_ECONOMY)
-                        .thenApply(resultState -> TeleportResult.from(resultState, this));
+                return CompletableFuture.completedFuture(TeleportResult.CANCELLED_ECONOMY)
+                        .thenApply(resultState -> CompletedTeleport.from(resultState, this));
             }
         }
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {
-            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_MOVING)
-                    .thenApply(resultState -> TeleportResult.from(resultState, this));
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING)
+                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
 
         // Process the warmup and execute the teleport
         return process().thenApplyAsync(ignored -> {
             if (cancelled) {
-                return TeleportResult.from(TeleportResult.ResultState.CANCELLED, this);
+                return CompletedTeleport.from(TeleportResult.CANCELLED, this);
             }
             return super.execute().join();
         });

@@ -101,24 +101,24 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public CompletableFuture<TeleportResult.ResultState> teleportLocally(@NotNull Location location, boolean asynchronous) {
+    public CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous) {
         final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
         if (bukkitLocation.isEmpty()) {
-            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_INVALID_WORLD);
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_WORLD);
         }
         assert bukkitLocation.get().getWorld() != null;
         if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
-            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_ILLEGAL_COORDINATES);
+            return CompletableFuture.completedFuture(TeleportResult.FAILED_ILLEGAL_COORDINATES);
         }
-        final CompletableFuture<TeleportResult.ResultState> resultCompletableFuture = new CompletableFuture<>();
+        final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (asynchronous) {
                 PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
                         .thenAccept(result -> resultCompletableFuture.complete(
-                                result ? TeleportResult.ResultState.COMPLETED_LOCALLY : TeleportResult.ResultState.FAILED_INVALID_WORLD));
+                                result ? TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD));
             } else {
                 player.teleport(bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                resultCompletableFuture.complete(TeleportResult.ResultState.COMPLETED_LOCALLY);
+                resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
             }
         });
         return resultCompletableFuture;

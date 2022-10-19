@@ -343,15 +343,15 @@ public abstract class BaseHuskHomesAPI {
      * @param position      The {@link Position} to teleport the user to
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
      *                      for a period of time)
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult.ResultState} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult.ResultState#successful} will be {@code true}.
+     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
+     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
      */
     @Deprecated(since = "3.1")
-    public final CompletableFuture<TeleportResult.ResultState> teleportPlayer(@NotNull OnlineUser user,
-                                                                              @NotNull Position position,
-                                                                              final boolean timedTeleport) {
+    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user,
+                                                                  @NotNull Position position,
+                                                                  final boolean timedTeleport) {
         final TeleportBuilder builder = teleportBuilder(user).setTarget(position);
         return timedTeleport
                 ? builder.toTimedTeleport().thenApplyAsync(teleport -> teleport.execute().join().getState())
@@ -363,13 +363,13 @@ public abstract class BaseHuskHomesAPI {
      *
      * @param user     The {@link OnlineUser} to teleport
      * @param position The {@link Position} to teleport the user to
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult.ResultState} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult.ResultState#successful} will be {@code true}.
+     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
+     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
      */
     @Deprecated(since = "3.1")
-    public final CompletableFuture<TeleportResult.ResultState> teleportPlayer(@NotNull OnlineUser user, @NotNull Position position) {
+    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user, @NotNull Position position) {
         return teleportPlayer(user, position, false);
     }
 
@@ -381,13 +381,13 @@ public abstract class BaseHuskHomesAPI {
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
      *                      for a period of time)
      * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult.ResultState} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult.ResultState#successful} will be {@code true}.
+     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
+     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult.ResultState> randomlyTeleportPlayer(@NotNull OnlineUser user,
-                                                                                      final boolean timedTeleport,
-                                                                                      @NotNull String... rtpArgs) {
+    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user,
+                                                                          final boolean timedTeleport,
+                                                                          @NotNull String... rtpArgs) {
         return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine()
                 .getRandomPosition(user, rtpArgs)
                 .thenApply(position -> {
@@ -401,7 +401,7 @@ public abstract class BaseHuskHomesAPI {
                                 : builder.toTeleport()
                                 .thenApplyAsync(teleport -> teleport.execute().join().getState()).join();
                     } else {
-                        return TeleportResult.ResultState.CANCELLED;
+                        return TeleportResult.CANCELLED;
                     }
                 }).join());
     }
@@ -411,11 +411,11 @@ public abstract class BaseHuskHomesAPI {
      * generated by the current {@link RandomTeleportEngine}
      *
      * @param user The {@link OnlineUser} to teleport
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult.ResultState} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult.ResultState#successful} will be {@code true}.
+     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
+     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult.ResultState> randomlyTeleportPlayer(@NotNull OnlineUser user) {
+    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user) {
         return randomlyTeleportPlayer(user, false);
     }
 

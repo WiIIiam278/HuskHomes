@@ -86,7 +86,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                 teleportFuture.thenAccept(teleport -> teleport.execute()
                         .thenAccept(result -> {
                             if (isExecutorTeleporting &&
-                                result.successful && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
+                                result.successful() && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
                                 plugin.getDatabase().updateUserData(new UserData(onlineUser,
                                         userData.get().homeSlots(), userData.get().ignoringTeleports(),
                                         Instant.now().plus(plugin.getSettings().rtpCooldownLength, ChronoUnit.MINUTES)));
@@ -118,7 +118,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                     .setTarget(position.get())
                     .toTeleport()
                     .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                        if (result.successful) {
+                        if (result.successful()) {
                             plugin.getLoggingAdapter().log(Level.INFO, "Teleported " + foundUser.get().username + " to a random position.");
                         } else {
                             plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().username + " to a random position.");

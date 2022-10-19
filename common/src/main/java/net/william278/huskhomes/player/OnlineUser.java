@@ -144,7 +144,7 @@ public abstract class OnlineUser extends User {
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous);
+    public abstract CompletableFuture<TeleportResult.ResultState> teleportLocally(@NotNull Location location, boolean asynchronous);
 
     /**
      * Returns if a player is moving (i.e. they have momentum)

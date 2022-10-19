@@ -69,9 +69,10 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         .setTarget(targetPlayer.playerName)
                         .toTeleport()
                         .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                            if (result.successful) {
-                                plugin.getLocales().getLocale("teleporting_other_complete",
-                                                playerToTeleport, targetPlayer.playerName)
+                            if (result.successful()) {
+                                result.getTeleporter()
+                                        .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
+                                                teleporter.username, targetPlayer.playerName))
                                         .ifPresent(onlineUser::sendMessage);
                             } else {
                                 plugin.getLocales().getLocale("error_player_not_found", targetPlayer.playerName)
@@ -91,14 +92,16 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         .setTarget(targetPosition.position)
                         .toTeleport()
                         .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                            if (!result.successful || playerToTeleport.equalsIgnoreCase(onlineUser.username)) {
+                            if (!result.successful() || playerToTeleport.equalsIgnoreCase(onlineUser.username) || result.getDestination().isEmpty()) {
                                 return;
                             }
-                            plugin.getLocales().getLocale("teleporting_other_complete_position",
-                                            playerToTeleport,
-                                            Integer.toString((int) targetPosition.position.x),
-                                            Integer.toString((int) targetPosition.position.y),
-                                            Integer.toString((int) targetPosition.position.z))
+                            final Position destination = result.getDestination().get();
+                            result.getTeleporter()
+                                    .flatMap(teleporter -> plugin.getLocales()
+                                            .getLocale("teleporting_other_complete", teleporter.username,
+                                                    Integer.toString((int) destination.x),
+                                                    Integer.toString((int) destination.y),
+                                                    Integer.toString((int) destination.z)))
                                     .ifPresent(onlineUser::sendMessage);
                         }));
             }
@@ -187,7 +190,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             builder.setTarget(((TargetPosition) teleportTarget).position);
         }
         builder.toTeleport().thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-            if (result.successful) {
+            if (result.successful()) {
                 plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
             } else {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username + " to " + teleportTarget);

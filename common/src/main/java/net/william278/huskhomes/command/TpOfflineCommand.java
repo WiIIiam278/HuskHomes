@@ -43,7 +43,7 @@ public class TpOfflineCommand extends CommandBase implements TabCompletable {
                         .setTarget(offlinePosition.get())
                         .toTeleport()
                         .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                            if (result.successful) {
+                            if (result.successful()) {
                                 plugin.getLocales().getLocale("teleporting_offline_complete", targetUser)
                                         .ifPresent(onlineUser::sendMessage);
                             }

@@ -43,12 +43,14 @@ public class TimedTeleport extends Teleport {
     public CompletableFuture<TeleportResult> execute() {
         // If the target has not been resolved, fail the teleport
         if (target == null) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_TARGET_NOT_RESOLVED);
+            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_TARGET_NOT_RESOLVED)
+                    .thenApply(resultState -> TeleportResult.from(resultState, this));
         }
 
         // Check if the teleporter is already warming up to teleport
         if (plugin.getCache().currentlyOnWarmup.contains(teleporter.uuid)) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING);
+            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_ALREADY_TELEPORTING)
+                    .thenApply(resultState -> TeleportResult.from(resultState, this));
         }
 
         // Check if the teleporter can bypass warmup
@@ -59,19 +61,21 @@ public class TimedTeleport extends Teleport {
         // Check economy actions
         for (Settings.EconomyAction economyAction : economyActions) {
             if (!plugin.validateEconomyCheck(executor, economyAction)) {
-                return CompletableFuture.completedFuture(TeleportResult.CANCELLED_ECONOMY);
+                return CompletableFuture.completedFuture(TeleportResult.ResultState.CANCELLED_ECONOMY)
+                        .thenApply(resultState -> TeleportResult.from(resultState, this));
             }
         }
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING);
+            return CompletableFuture.completedFuture(TeleportResult.ResultState.FAILED_MOVING)
+                    .thenApply(resultState -> TeleportResult.from(resultState, this));
         }
 
         // Process the warmup and execute the teleport
         return process().thenApplyAsync(ignored -> {
             if (cancelled) {
-                return TeleportResult.CANCELLED;
+                return TeleportResult.from(TeleportResult.ResultState.CANCELLED, this);
             }
             return super.execute().join();
         });

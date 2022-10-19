@@ -32,9 +32,10 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                     .setTarget(onlineUser.getPosition())
                     .toTeleport()
                     .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                        if (result.successful) {
-                            plugin.getLocales().getLocale("teleporting_other_complete",
-                                            targetPlayerName, onlineUser.username)
+                        if (result.successful()) {
+                            result.getTeleporter()
+                                    .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
+                                            teleporter.username, onlineUser.username))
                                     .ifPresent(onlineUser::sendMessage);
                         }
                     }));

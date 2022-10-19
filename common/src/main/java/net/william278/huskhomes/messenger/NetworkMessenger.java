@@ -152,7 +152,7 @@ public abstract class NetworkMessenger {
                     if (message.payload.position != null) {
                         message.payload = MessagePayload.withTeleportResult(Teleport.builder(plugin, receiver)
                                 .setTarget(message.payload.position)
-                                .toTeleport().join().execute().join());
+                                .toTeleport().join().execute().join().getState());
                     } else {
                         message.payload = MessagePayload.empty();
                     }

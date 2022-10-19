@@ -38,7 +38,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
      * This is needed because it is not possible to have players dispatch plugin messages in certain circumstance,
      * such as on the tick that they join the server.
      */
-    private static final long PLUGIN_MESSAGE_DELAY_TICKS = 1L;
+    private static final long PLUGIN_MESSAGE_DELAY_TICKS = 3L;
 
     @Override
     public void initialize(@NotNull HuskHomes implementor) {
@@ -70,8 +70,8 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String> getServerName(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
+        serverNameRequest = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            serverNameRequest = new CompletableFuture<>();
             final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
             pluginMessageWriter.writeUTF("GetServer");
             ((BukkitPlayer) requester).sendPluginMessage(plugin,
@@ -84,8 +84,8 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
+        onlineServersRequest = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            onlineServersRequest = new CompletableFuture<>();
             final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
             pluginMessageWriter.writeUTF("GetServers");
             ((BukkitPlayer) requester).sendPluginMessage(plugin,

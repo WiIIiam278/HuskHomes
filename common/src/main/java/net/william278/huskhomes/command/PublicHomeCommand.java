@@ -69,7 +69,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     private void teleportToNamedHome(@NotNull OnlineUser teleporter, @NotNull User owner, @NotNull String homeName) {
-        final boolean otherHome = owner.uuid.equals(teleporter.uuid);
+        final boolean otherHome = !owner.uuid.equals(teleporter.uuid);
         plugin.getDatabase()
                 .getHome(owner, homeName)
                 .thenAccept(homeResult -> homeResult.ifPresentOrElse(home -> {
@@ -77,6 +77,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                         if (!teleporter.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
                             plugin.getLocales().getLocale("error_no_permission")
                                     .ifPresent(teleporter::sendMessage);
+                            return;
                         }
                     }
                     Teleport.builder(plugin, teleporter)
@@ -85,10 +86,10 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                             .thenAccept(TimedTeleport::execute);
                 }, () -> {
                     if (otherHome) {
-                        plugin.getLocales().getLocale("error_home_invalid", homeName)
+                        plugin.getLocales().getLocale("error_home_invalid_other", owner.username, homeName)
                                 .ifPresent(teleporter::sendMessage);
                     } else {
-                        plugin.getLocales().getLocale("error_home_invalid_other", owner.username, homeName)
+                        plugin.getLocales().getLocale("error_home_invalid", homeName)
                                 .ifPresent(teleporter::sendMessage);
                     }
                 }));

@@ -98,7 +98,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                             final Position destination = result.getDestination().get();
                             result.getTeleporter()
                                     .flatMap(teleporter -> plugin.getLocales()
-                                            .getLocale("teleporting_other_complete", teleporter.username,
+                                            .getLocale("teleporting_other_complete_position", teleporter.username,
                                                     Integer.toString((int) destination.x),
                                                     Integer.toString((int) destination.y),
                                                     Integer.toString((int) destination.z)))

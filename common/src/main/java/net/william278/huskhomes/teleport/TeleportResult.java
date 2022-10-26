@@ -22,7 +22,7 @@ public enum TeleportResult {
     /**
      * Returns if the {@link Teleport} was completed cross-server
      */
-    COMPLETED_CROSS_SERVER(true, "teleporting_complete"),
+    COMPLETED_CROSS_SERVER(true),
 
     /**
      * Returns if the {@link Teleport} failed because the user is already teleporting

@@ -3,8 +3,8 @@ package net.william278.huskhomes.messenger;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Server;
@@ -13,6 +13,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -55,7 +57,8 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> getOnlinePlayerNames(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
-        onlinePlayerNamesRequest = new CompletableFuture<>();
+        final CompletableFuture<String[]> future = new CompletableFuture<>();
+        onlinePlayerNamesRequests.add(future);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
             pluginMessageWriter.writeUTF("PlayerList");
@@ -63,35 +66,39 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
             ((BukkitPlayer) requester).sendPluginMessage(plugin,
                     BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
         }, PLUGIN_MESSAGE_DELAY_TICKS);
-        return onlinePlayerNamesRequest;
+        return future;
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String> getServerName(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
-        serverNameRequest = new CompletableFuture<>();
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        serverNameRequests.add(future);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
             pluginMessageWriter.writeUTF("GetServer");
             ((BukkitPlayer) requester).sendPluginMessage(plugin,
-                    BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+                    BUNGEE_PLUGIN_CHANNEL_NAME,
+                    pluginMessageWriter.toByteArray());
         }, PLUGIN_MESSAGE_DELAY_TICKS);
-        return serverNameRequest;
+        return future;
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
-        onlineServersRequest = new CompletableFuture<>();
+        final CompletableFuture<String[]> future = new CompletableFuture<>();
+        onlineServersRequests.add(future);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
             pluginMessageWriter.writeUTF("GetServers");
             ((BukkitPlayer) requester).sendPluginMessage(plugin,
-                    BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
+                    BUNGEE_PLUGIN_CHANNEL_NAME,
+                    pluginMessageWriter.toByteArray());
         }, PLUGIN_MESSAGE_DELAY_TICKS);
-        return onlineServersRequest;
+        return future;
     }
 
     @Override
@@ -99,17 +106,20 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     public CompletableFuture<Boolean> sendPlayer(@NotNull OnlineUser onlineUser, @NotNull Server server) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         return getOnlineServers(onlineUser).thenApplyAsync(onlineServers -> {
-            for (String onlineServerName : onlineServers) {
-                if (onlineServerName.equals(server.name)) {
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
-                        pluginMessageWriter.writeUTF("Connect");
-                        pluginMessageWriter.writeUTF(server.name);
-                        ((BukkitPlayer) onlineUser).sendPluginMessage(plugin,
-                                BUNGEE_PLUGIN_CHANNEL_NAME, pluginMessageWriter.toByteArray());
-                    });
-                    return true;
-                }
+            final Optional<String> targetServer = Arrays.stream(onlineServers)
+                    .filter(serverName -> serverName.equals(server.name))
+                    .findFirst();
+
+            if (targetServer.isPresent()) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    final ByteArrayDataOutput pluginMessageWriter = ByteStreams.newDataOutput();
+                    pluginMessageWriter.writeUTF("Connect");
+                    pluginMessageWriter.writeUTF(server.name);
+                    ((BukkitPlayer) onlineUser).sendPluginMessage(plugin,
+                            BUNGEE_PLUGIN_CHANNEL_NAME,
+                            pluginMessageWriter.toByteArray());
+                });
+                return true;
             }
             return false;
         });
@@ -138,19 +148,20 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
             messageWriter.writeUTF(NETWORK_MESSAGE_CHANNEL);
 
             // Write the plugin message
-            try (ByteArrayOutputStream messageByteOutputStream = new ByteArrayOutputStream()) {
+            try (final ByteArrayOutputStream messageByteOutputStream = new ByteArrayOutputStream()) {
                 try (DataOutputStream messageDataOutputStream = new DataOutputStream(messageByteOutputStream)) {
                     messageDataOutputStream.writeUTF(message.toJson());
                     messageWriter.writeShort(messageByteOutputStream.toByteArray().length);
                     messageWriter.write(messageByteOutputStream.toByteArray());
                 }
             } catch (IOException e) {
-                plugin.getLoggingAdapter().log(Level.SEVERE,
-                        "An error occurred dispatching a plugin message", e);
+                plugin.getLoggingAdapter().log(Level.SEVERE, "An error occurred dispatching a plugin message", e);
             }
 
             // Send the written message
-            player.sendPluginMessage(plugin, BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
+            player.sendPluginMessage(plugin,
+                    BUNGEE_PLUGIN_CHANNEL_NAME,
+                    messageWriter.toByteArray());
         }, PLUGIN_MESSAGE_DELAY_TICKS);
     }
 
@@ -192,22 +203,16 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
             }
             case "GetServer" -> {
                 final String serverName = pluginMessage.readUTF();
-                if (serverNameRequest != null) {
-                    serverNameRequest.completeAsync(() -> serverName);
-                }
+                serverNameRequests.forEach(future -> future.complete(serverName));
             }
             case "PlayerList" -> {
                 pluginMessage.readUTF(); // Read the server name (unused)
                 final String[] playerNames = pluginMessage.readUTF().split(", ");
-                if (onlinePlayerNamesRequest != null) {
-                    onlinePlayerNamesRequest.completeAsync(() -> playerNames);
-                }
+                onlinePlayerNamesRequests.forEach(future -> future.complete(playerNames));
             }
             case "GetServers" -> {
                 final String[] serverNames = pluginMessage.readUTF().split(", ");
-                if (onlineServersRequest != null) {
-                    onlineServersRequest.completeAsync(() -> serverNames);
-                }
+                onlineServersRequests.forEach(future -> future.complete(serverNames));
             }
         }
     }

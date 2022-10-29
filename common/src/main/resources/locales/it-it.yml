@@ -1,4 +1,4 @@
-offline_player: '[Teletrasporto nel punto in cui %1% è uscito l''ultima volta…](#00fb9a)'
+teleporting_offline_player: '[Teletrasporto nel punto in cui %1% è uscito l''ultima volta…](#00fb9a)'
 teleporting_warmup_start: '[Verrai teletrasportato tra](#00fb9a) [%1%](#00fb9a bold) [secondi, non muoverti…](#00fb9a)'
 teleporting_cancelled_movement: '[Teletrasporto cancellato, ti sei mosso!](#ff7e5e)'
 teleporting_cancelled_damage: '[Teletrasporto cancellato, hai preso danno!](#ff7e5e)'

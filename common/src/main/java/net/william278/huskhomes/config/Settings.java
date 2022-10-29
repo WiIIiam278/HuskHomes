@@ -103,6 +103,9 @@ public class Settings {
     @YamlKey("general.permission_restrict_warps")
     public boolean permissionRestrictWarps = false;
 
+    @YamlKey("general.overwrite_existing_homes_warps")
+    public boolean overwriteExistingHomesWarps = true;
+
     @YamlKey("general.teleport_warmup_time")
     public int teleportWarmupTime = 5;
 

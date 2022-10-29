@@ -6,6 +6,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
+import net.william278.huskhomes.config.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Cross-platform manager for validating homes and warps and updating them as neccessary
+ * Cross-platform manager for validating homes and warps and updating them as necessary
  */
 public class SavedPositionManager {
 
@@ -108,7 +109,7 @@ public class SavedPositionManager {
                                 if (mapHook != null && existingHome.isPublic) {
                                     mapHook.updateHome(existingHome);
                                 }
-                                return new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(existingHome));
+                                return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingHome));
                             }
                             return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                         }).join();
@@ -279,7 +280,7 @@ public class SavedPositionManager {
                                 if (mapHook != null) {
                                     mapHook.updateWarp(existingWarp);
                                 }
-                                return new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(existingWarp));
+                                return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingWarp));
                             }
                             return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                         }).join();
@@ -423,7 +424,21 @@ public class SavedPositionManager {
             SUCCESS(true),
 
             /**
+             * A home or warp was attempted to be set, but one already exists with the same name (for the user in the
+             * case of homes), so the existing position was updated instead.
+             * <p>
+             *
+             * @implNote This will only fire if the {@link Settings#overwriteExistingHomesWarps} config value is
+             * set to {@code true}
+             */
+            SUCCESS_OVERWRITTEN(true),
+
+            /**
              * The position was not set; one by this name has already been set (for the user in the case of homes)
+             * <p>
+             *
+             * @implNote This will only fire if the {@link Settings#overwriteExistingHomesWarps} config value is
+             * set to {@code false}
              */
             FAILED_DUPLICATE(false),
 

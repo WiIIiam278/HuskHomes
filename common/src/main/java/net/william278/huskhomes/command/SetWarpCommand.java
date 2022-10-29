@@ -31,6 +31,11 @@ public class SetWarpCommand extends CommandBase {
                         yield plugin.getLocales().getLocale("set_warp_success",
                                 setResult.savedPosition().get().meta.name);
                     }
+                    case SUCCESS_OVERWRITTEN -> {
+                        assert setResult.savedPosition().isPresent();
+                        yield plugin.getLocales().getLocale("edit_warp_update_location",
+                                setResult.savedPosition().get().meta.name);
+                    }
                     case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_warp_name_taken");
                     case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_warp_name_length");
                     case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_warp_name_characters");

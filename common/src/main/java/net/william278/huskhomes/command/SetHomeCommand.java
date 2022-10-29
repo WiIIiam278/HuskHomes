@@ -105,6 +105,11 @@ public class SetHomeCommand extends CommandBase {
                                 }
                                 yield plugin.getLocales().getLocale("set_home_success", setResult.savedPosition().get().meta.name);
                             }
+                            case SUCCESS_OVERWRITTEN -> {
+                                assert setResult.savedPosition().isPresent();
+                                yield plugin.getLocales().getLocale("edit_home_update_location",
+                                        setResult.savedPosition().get().meta.name);
+                            }
                             case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_home_name_taken");
                             case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_home_name_length");
                             case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_home_name_characters");

@@ -22,19 +22,19 @@ public abstract class NetworkMessenger {
     protected HashMap<UUID, CompletableFuture<Message>> processingMessages;
 
     /**
-     * Future for processing {@link #getServerName(OnlineUser)} requests
+     * List of pending futures for processing {@link #getServerName(OnlineUser)} requests
      */
-    protected CompletableFuture<String> serverNameRequest;
+    protected List<CompletableFuture<String>> serverNameRequests;
 
     /**
-     * Future for processing {@link #getOnlinePlayerNames(OnlineUser)} requests
+     * List of pending futures for processing {@link #getOnlinePlayerNames(OnlineUser)} requests
      */
-    protected CompletableFuture<String[]> onlinePlayerNamesRequest;
+    protected List<CompletableFuture<String[]>> onlinePlayerNamesRequests;
 
     /**
-     * Future for processing {@link #getOnlineServers(OnlineUser)} requests
+     * List of pending futures for processing {@link #getOnlineServers(OnlineUser)} requests
      */
-    protected CompletableFuture<String[]> onlineServersRequest;
+    protected List<CompletableFuture<String[]>> onlineServersRequests;
 
     /**
      * ID of the HuskHomes network cluster this server is on
@@ -53,6 +53,9 @@ public abstract class NetworkMessenger {
      */
     public void initialize(@NotNull HuskHomes implementor) {
         this.processingMessages = new HashMap<>();
+        this.serverNameRequests = new ArrayList<>();
+        this.onlinePlayerNamesRequests = new ArrayList<>();
+        this.onlineServersRequests = new ArrayList<>();
         this.clusterId = implementor.getSettings().clusterId;
         this.plugin = implementor;
     }

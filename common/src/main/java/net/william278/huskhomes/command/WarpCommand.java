@@ -6,6 +6,7 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,11 +37,20 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                 final String warpName = args[0];
                 plugin.getDatabase()
                         .getWarp(warpName)
-                        .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp ->
-                                        Teleport.builder(plugin, onlineUser)
-                                                .setTarget(warp)
-                                                .toTimedTeleport()
-                                                .thenAccept(TimedTeleport::execute),
+                        .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp -> {
+                                    if (plugin.getSettings().permissionRestrictWarps) {
+                                        @Subst("huskhomes.command.warp") final String warpPermission = Permission.COMMAND_WARP + "." + warp.meta.name;
+                                        if (!onlineUser.hasPermission(Permission.COMMAND_SET_WARP.node) && !onlineUser.hasPermission(warpPermission)) {
+                                            plugin.getLocales().getLocale("error_no_permission")
+                                                    .ifPresent(onlineUser::sendMessage);
+                                            return;
+                                        }
+                                    }
+                                    Teleport.builder(plugin, onlineUser)
+                                            .setTarget(warp)
+                                            .toTimedTeleport()
+                                            .thenAccept(TimedTeleport::execute);
+                                },
                                 () -> plugin.getLocales().getLocale("error_warp_invalid", warpName)
                                         .ifPresent(onlineUser::sendMessage)));
             }

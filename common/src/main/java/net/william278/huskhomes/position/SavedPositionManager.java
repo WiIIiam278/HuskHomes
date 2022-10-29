@@ -6,6 +6,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
+import net.william278.huskhomes.config.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Cross-platform manager for validating homes and warps and updating them as neccessary
+ * Cross-platform manager for validating homes and warps and updating them as necessary
  */
 public class SavedPositionManager {
 
@@ -49,13 +50,20 @@ public class SavedPositionManager {
      */
     private final boolean allowUnicodeDescriptions;
 
+    /**
+     * Whether to automatically relocate existing homes and warps when a user tries to set a home/warp with the same name
+     */
+    private final boolean overwriteExistingHomesWarps;
+
     public SavedPositionManager(@NotNull Database database, @NotNull Cache cache, @NotNull EventDispatcher eventDispatcher,
-                                boolean allowUnicodeNames, boolean allowUnicodeDescriptions) {
+                                boolean allowUnicodeNames, boolean allowUnicodeDescriptions,
+                                boolean overwriteExistingHomesWarps) {
         this.database = database;
         this.cache = cache;
         this.eventDispatcher = eventDispatcher;
         this.allowUnicodeNames = allowUnicodeNames;
         this.allowUnicodeDescriptions = allowUnicodeDescriptions;
+        this.overwriteExistingHomesWarps = overwriteExistingHomesWarps;
     }
 
     /**
@@ -81,6 +89,7 @@ public class SavedPositionManager {
         return database.getHome(homeOwner, homeMeta.name).thenApplyAsync(optionalHome ->
                 validateMeta(homeMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalHome.isEmpty()) {
+                        // Handle setting a new home
                         final Home home = new Home(position, homeMeta, homeOwner);
                         return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
@@ -91,6 +100,18 @@ public class SavedPositionManager {
                             cache.privateHomeLists.remove(home.owner.username);
                             return database.saveHome(home).thenApplyAsync(value ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
+                        }).join();
+                    } else if (overwriteExistingHomesWarps) {
+                        // Handle overwriting existing homes if the option is enabled
+                        final Home existingHome = optionalHome.get();
+                        updateHomePosition(existingHome, position).thenApplyAsync(result -> {
+                            if (result) {
+                                if (mapHook != null && existingHome.isPublic) {
+                                    mapHook.updateHome(existingHome);
+                                }
+                                return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingHome));
+                            }
+                            return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                         }).join();
                     }
                     return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
@@ -202,6 +223,7 @@ public class SavedPositionManager {
                 return false;
             }
 
+            // Save the home to database and propagate updates to cache and map hook
             return database.saveHome(home).thenApplyAsync(ignored -> {
                 if (home.isPublic) {
                     cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
@@ -236,6 +258,7 @@ public class SavedPositionManager {
         return database.getWarp(warpMeta.name).thenApplyAsync(optionalWarp ->
                 validateMeta(warpMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalWarp.isEmpty()) {
+                        // Handle setting new warps
                         final Warp warp = new Warp(position, warpMeta);
                         return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
@@ -248,6 +271,18 @@ public class SavedPositionManager {
                             }
                             return database.saveWarp(warp).thenApplyAsync(ignored ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
+                        }).join();
+                    } else if (overwriteExistingHomesWarps) {
+                        // Handle overwriting existing warps if the option is enabled
+                        final Warp existingWarp = optionalWarp.get();
+                        updateWarpPosition(existingWarp, position).thenApplyAsync(result -> {
+                            if (result) {
+                                if (mapHook != null) {
+                                    mapHook.updateWarp(existingWarp);
+                                }
+                                return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingWarp));
+                            }
+                            return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                         }).join();
                     }
                     return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
@@ -268,6 +303,8 @@ public class SavedPositionManager {
                     if (event.isCancelled()) {
                         return false;
                     }
+
+                    // Delete the warp from database and propagate updates to cache and map hook
                     final Warp warp = event.getWarp();
                     return database.deleteWarp(warp.uuid).thenApplyAsync(ignored -> {
                         cache.warps.remove(warp.meta.name);
@@ -387,7 +424,21 @@ public class SavedPositionManager {
             SUCCESS(true),
 
             /**
+             * A home or warp was attempted to be set, but one already exists with the same name (for the user in the
+             * case of homes), so the existing position was updated instead.
+             * <p>
+             *
+             * @implNote This will only fire if the {@link Settings#overwriteExistingHomesWarps} config value is
+             * set to {@code true}
+             */
+            SUCCESS_OVERWRITTEN(true),
+
+            /**
              * The position was not set; one by this name has already been set (for the user in the case of homes)
+             * <p>
+             *
+             * @implNote This will only fire if the {@link Settings#overwriteExistingHomesWarps} config value is
+             * set to {@code false}
              */
             FAILED_DUPLICATE(false),
 

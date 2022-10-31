@@ -38,14 +38,18 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                 plugin.getDatabase()
                         .getWarp(warpName)
                         .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp -> {
+                                    // Handle permission restrictions
                                     if (plugin.getSettings().permissionRestrictWarps) {
-                                        @Subst("huskhomes.command.warp") final String warpPermission = Permission.COMMAND_WARP + "." + warp.meta.name;
-                                        if (!onlineUser.hasPermission(Permission.COMMAND_SET_WARP.node) && !onlineUser.hasPermission(warpPermission)) {
+                                        @Subst("huskhomes.command.warp")
+                                        final String warpPermission = Permission.COMMAND_WARP.node + "." + warp.meta.name;
+
+                                        if (!onlineUser.hasPermission(warpPermission) && !onlineUser.hasPermission(Permission.COMMAND_SET_WARP.node)) {
                                             plugin.getLocales().getLocale("error_no_permission")
                                                     .ifPresent(onlineUser::sendMessage);
                                             return;
                                         }
                                     }
+
                                     Teleport.builder(plugin, onlineUser)
                                             .setTarget(warp)
                                             .toTimedTeleport()

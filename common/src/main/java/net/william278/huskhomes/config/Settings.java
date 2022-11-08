@@ -216,7 +216,7 @@ public class Settings {
     public boolean economy = false;
 
     @YamlComment("Use this currency for payments (works only with RedisEconomy), defaults to Vault currency")
-    @YamlKey("economy.currency_name")
+    @YamlKey("economy.redis_economy_name")
     public String redis_economy_name = "vault";
 
     @YamlKey("economy.free_home_slots")

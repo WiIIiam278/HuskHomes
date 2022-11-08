@@ -7,19 +7,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class RedisEconomyHook extends VaultEconomyHook {
 
-
     public RedisEconomyHook(@NotNull HuskHomes implementor) {
         super(implementor);
     }
-
 
     @Override
     public boolean initialize() throws HuskHomesInitializationException {
         RedisEconomyAPI api = RedisEconomyAPI.getAPI();
         if (api != null) {
             economy = api.getCurrencyByName(plugin.getSettings().redis_economy_name);
-            if (economy != null)
+            if (economy != null) {
                 return true;
+            }
         }
         return super.initialize();
     }

@@ -174,9 +174,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
-            if (settings.economy && Bukkit.getPluginManager().getPlugin("Vault") != null) {
-                pluginHooks.add(new VaultEconomyHook(this));
-            }
+            if(settings.economy)
+                if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
+                    pluginHooks.add(new RedisEconomyHook(this));
+                }else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                    pluginHooks.add(new VaultEconomyHook(this));
+                }
             if (settings.doMapHook) {
                 switch (settings.mappingPlugin) {
                     case DYNMAP -> {

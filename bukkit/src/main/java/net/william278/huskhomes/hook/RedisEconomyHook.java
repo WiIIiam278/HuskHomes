@@ -15,11 +15,12 @@ public class RedisEconomyHook extends VaultEconomyHook {
 
     @Override
     public boolean initialize() throws HuskHomesInitializationException {
-        RedisEconomyAPI api=RedisEconomyAPI.getAPI();
-        if(api!=null){
-            economy=api.getCurrencyByName(plugin.getSettings().currencyName);
-            return true;
-        }else
-            return super.initialize();
+        RedisEconomyAPI api = RedisEconomyAPI.getAPI();
+        if (api != null) {
+            economy = api.getCurrencyByName(plugin.getSettings().redis_economy_name);
+            if (economy != null)
+                return true;
+        }
+        return super.initialize();
     }
 }

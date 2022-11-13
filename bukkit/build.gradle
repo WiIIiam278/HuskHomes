@@ -15,6 +15,7 @@ dependencies {
     compileOnly 'net.william278:Annotaml:2.0'
     compileOnly 'net.william278:DesertWell:1.1'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+    compileOnly 'com.github.Emibergo02:RedisEconomy:2.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'

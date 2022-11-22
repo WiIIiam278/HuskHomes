@@ -1,6 +1,7 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
@@ -32,4 +33,7 @@ public interface EventDispatcher {
 
     CompletableFuture<IWarpListEvent> dispatchViewWarpListEvent(@NotNull List<Warp> homes, @NotNull OnlineUser user);
 
+    CompletableFuture<IDeleteAllHomesEvent> dispatchDeleteAllHomesEvent(@NotNull User user);
+
+    CompletableFuture<IDeleteAllWarpsEvent> dispatchDeleteAllWarpsEvent();
 }

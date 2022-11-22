@@ -2,15 +2,12 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class DelWarpCommand extends CommandBase implements TabCompletable {
@@ -30,7 +27,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
                             .ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                if (warpName.equals("all")) {
+                if (warpName.equalsIgnoreCase("all")) {
                     deleteAllWarps(onlineUser, confirm);
                     return;
                 }
@@ -51,26 +48,21 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
      * @param confirm whether to skip the confirmation prompt
      */
     private void deleteAllWarps(@NotNull OnlineUser deleter, final boolean confirm) {
-        plugin.getDatabase().getWarps().thenAccept(warps -> {
-            if (warps.isEmpty()) {
+        if (!confirm) {
+            plugin.getLocales().getLocale("delete_all_warps_confirm")
+                    .ifPresent(deleter::sendMessage);
+            return;
+        }
+
+        plugin.getSavedPositionManager().deleteAllWarps().thenAccept(deleted -> {
+            if (deleted == 0) {
                 plugin.getLocales().getLocale("error_no_warps_set")
                         .ifPresent(deleter::sendMessage);
                 return;
             }
 
-            if (!confirm) {
-                plugin.getLocales().getLocale("confirm_delete_all_warps")
-                        .ifPresent(deleter::sendMessage);
-                return;
-            }
-
-            final List<CompletableFuture<Boolean>> homeDeletionFuture = new ArrayList<>();
-            for (final Warp toDelete : warps) {
-                homeDeletionFuture.add(plugin.getSavedPositionManager().deleteWarp(toDelete.meta.name));
-            }
-            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0]))
-                    .thenRun(() -> plugin.getLocales().getLocale("delete_all_warps_success",
-                            Integer.toString(homeDeletionFuture.size())).ifPresent(deleter::sendMessage));
+            plugin.getLocales().getLocale("delete_all_warps_success", Integer.toString(deleted))
+                    .ifPresent(deleter::sendMessage);
         });
     }
 

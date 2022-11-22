@@ -152,6 +152,20 @@ public class SavedPositionManager {
         });
     }
 
+    public CompletableFuture<Integer> deleteAllHomes(@NotNull User user) {
+        return CompletableFuture.supplyAsync(() -> eventDispatcher.dispatchDeleteAllHomesEvent(user).join().isCancelled())
+                .thenApply(cancelled -> database.deleteAllHomes(user)
+                        .thenApply(result -> {
+                            cache.homes.remove(user.uuid);
+                            cache.privateHomeLists.remove(user.username);
+                            cache.publicHomeLists.clear();
+                            if (mapHook != null) {
+                                mapHook.clearHomes(user);
+                            }
+                            return result;
+                        }).join());
+    }
+
     /**
      * Tries to update an existing home with new metadata
      *
@@ -318,6 +332,18 @@ public class SavedPositionManager {
             }
             return false;
         });
+    }
+
+    public CompletableFuture<Integer> deleteAllWarps() {
+        return CompletableFuture.supplyAsync(() -> eventDispatcher.dispatchDeleteAllWarpsEvent().join().isCancelled())
+                .thenApply(cancelled -> database.deleteAllWarps()
+                        .thenApply(result -> {
+                            cache.warps.clear();
+                            if (mapHook != null) {
+                                mapHook.clearWarps();
+                            }
+                            return result;
+                        }).join());
     }
 
     /**

@@ -1012,6 +1012,32 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public CompletableFuture<Integer> deleteAllHomes(@NotNull User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%homes_table%`
+                                WHERE `owner_uuid`=?
+                            )
+                        );"""))) {
+
+                    statement.setString(1, user.uuid.toString());
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.username + " from the database", e);
+            }
+            return 0;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> deleteWarp(@NotNull UUID uuid) {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -1033,6 +1059,29 @@ public class SqLiteDatabase extends Database {
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to delete a warp from the database", e);
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAllWarps() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%warps_table%`
+                            )
+                        );"""))) {
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all warps from the database", e);
+            }
+            return 0;
         });
     }
 

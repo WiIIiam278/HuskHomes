@@ -2,6 +2,7 @@ package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.HuskHomesException;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -61,6 +62,14 @@ public abstract class MapHook extends PluginHook {
     public abstract CompletableFuture<Void> removeHome(@NotNull Home home);
 
     /**
+     * Clears homes owned by a player from the map
+     *
+     * @param user the player whose homes to clear
+     * @return a {@link CompletableFuture} that completes when the homes have been cleared
+     */
+    public abstract CompletableFuture<Void> clearHomes(@NotNull User user);
+
+    /**
      * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't
      *
      * @param warp the warp to update
@@ -74,6 +83,13 @@ public abstract class MapHook extends PluginHook {
      * @param warp the warp to remove
      */
     public abstract CompletableFuture<Void> removeWarp(@NotNull Warp warp);
+
+    /**
+     * Clears all warps from the map
+     *
+     * @return a {@link CompletableFuture} that completes when the warps have been cleared
+     */
+    public abstract CompletableFuture<Void> clearWarps();
 
     /**
      * Returns if the position is valid to be set on this server

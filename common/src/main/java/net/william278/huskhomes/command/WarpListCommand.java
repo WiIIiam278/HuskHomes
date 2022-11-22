@@ -2,13 +2,10 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class WarpListCommand extends CommandBase implements ConsoleExecutable {
@@ -66,13 +63,13 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
         plugin.getDatabase().getWarps().thenAccept(warps -> {
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + warps.size() + " warps:");
 
-            StringJoiner rowJoiner = new StringJoiner("   ");
-            for (int i = 1; i <= warps.size(); i++) {
-                final String warp = warps.get(i - 1).meta.name;
+            StringJoiner rowJoiner = new StringJoiner("\t");
+            for (int i = 0; i < warps.size(); i++) {
+                final String warp = warps.get(i).meta.name;
                 rowJoiner.add(warp.length() < 16 ? warp + " ".repeat(16 - warp.length()) : warp);
-                if (i % 3 == 0) {
+                if ((i + 1) % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
-                    rowJoiner = new StringJoiner("   ");
+                    rowJoiner = new StringJoiner("\t");
                 }
             }
             plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());

@@ -96,16 +96,16 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                 return;
             }
             final List<Home> homes = plugin.getDatabase().getHomes(userData.get().user()).join();
-            StringJoiner rowJoiner = new StringJoiner("   ");
+            StringJoiner rowJoiner = new StringJoiner("\t");
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
                     + homes.size() + " homes:");
-            for (int i = 1; i <= homes.size(); i++) {
-                final String home = homes.get(i - 1).meta.name;
+            for (int i = 0; i < homes.size(); i++) {
+                final String home = homes.get(i).meta.name;
                 rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
-                if (i % 3 == 0) {
+                if ((i + 1) % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
-                    rowJoiner = new StringJoiner("   ");
+                    rowJoiner = new StringJoiner("\t");
                 }
             }
             plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());

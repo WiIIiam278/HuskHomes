@@ -30,7 +30,7 @@ public class TimedTeleport extends Teleport {
         this.plugin = plugin;
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
-        this.timeLeft = warmupTime;
+        this.timeLeft = Math.max(warmupTime, 0);
         this.teleporter = teleporter;
     }
 
@@ -47,15 +47,15 @@ public class TimedTeleport extends Teleport {
                     .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
 
+        // Check if the teleporter can bypass warmup
+        if (timeLeft == 0 || teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
+            return super.execute();
+        }
+
         // Check if the teleporter is already warming up to teleport
         if (plugin.getCache().currentlyOnWarmup.contains(teleporter.uuid)) {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING)
                     .thenApply(resultState -> CompletedTeleport.from(resultState, this));
-        }
-
-        // Check if the teleporter can bypass warmup
-        if (teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
-            return super.execute();
         }
 
         // Check economy actions

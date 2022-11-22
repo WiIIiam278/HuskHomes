@@ -18,6 +18,11 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        if (args.length == 0) {
+            plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
         if (args.length <= 2) {
             final String warpName = args[0];
             final boolean confirm = args.length == 2 && args[1].equalsIgnoreCase("confirm");

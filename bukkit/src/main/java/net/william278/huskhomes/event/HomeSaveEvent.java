@@ -24,6 +24,7 @@ public class HomeSaveEvent extends Event implements IHomeSaveEvent, Cancellable 
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

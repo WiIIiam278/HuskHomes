@@ -24,6 +24,7 @@ public class HomeDeleteEvent extends Event implements IHomeDeleteEvent, Cancella
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

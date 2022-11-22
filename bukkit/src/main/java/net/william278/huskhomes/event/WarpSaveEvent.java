@@ -24,6 +24,7 @@ public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable 
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

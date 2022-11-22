@@ -25,8 +25,8 @@ public class TimedTeleport extends Teleport {
 
     protected TimedTeleport(@NotNull OnlineUser teleporter, @NotNull OnlineUser executor, @NotNull Position target,
                             @NotNull TeleportType type, int warmupTime, @NotNull Set<Settings.EconomyAction> economyActions,
-                            @NotNull HuskHomes plugin) {
-        super(teleporter, executor, target, type, economyActions, plugin);
+                            final boolean updateLastPosition, @NotNull HuskHomes plugin) {
+        super(teleporter, executor, target, type, economyActions, updateLastPosition, plugin);
         this.plugin = plugin;
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();

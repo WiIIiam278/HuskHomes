@@ -634,6 +634,7 @@ public class MySqlDatabase extends Database {
                                         new Server(resultSet.getString("server_name"))))
                                 .setType(TeleportType.getTeleportType(resultSet.getInt("type"))
                                         .orElse(TeleportType.TELEPORT))
+                                .doUpdateLastPosition(false)
                                 .toTeleport()
                                 .join());
                     }

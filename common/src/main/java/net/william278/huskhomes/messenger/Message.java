@@ -24,7 +24,7 @@ public class Message {
     public MessageType type;
 
     /**
-     * The kind of message this is - {@link RelayType#MESSAGE} or a {@link RelayType#REPLY} to a message.
+     * Represents the context under which this message is being relayed; an outbound {@link RelayType#MESSAGE} or a {@link RelayType#REPLY} to one.
      */
     @SerializedName("relay_type")
     @NotNull
@@ -91,7 +91,13 @@ public class Message {
      * Identifies the source of the message being relayed - a {@link RelayType#MESSAGE} or a {@link RelayType#REPLY} to a message.
      */
     public enum RelayType {
+        /**
+         * An outbound message to/from a server
+         */
         MESSAGE,
+        /**
+         * A reply to an outbound message
+         */
         REPLY
     }
 

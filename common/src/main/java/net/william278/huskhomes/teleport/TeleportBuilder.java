@@ -226,12 +226,12 @@ public class TeleportBuilder {
                             return Optional.empty();
                         }
                         return plugin.getNetworkMessenger()
-                                .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST, executor.username,
-                                        playerName, MessagePayload.empty(), Message.RelayType.MESSAGE,
-                                        plugin.getSettings().clusterId))
+                                .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST,
+                                        executor.username, playerName, MessagePayload.empty(),
+                                        Message.RelayType.MESSAGE, plugin.getSettings().clusterId))
                                 .orTimeout(3, TimeUnit.SECONDS)
                                 .exceptionally(throwable -> null)
-                                .thenApply(reply -> Optional.ofNullable(reply.payload.position)).join();
+                                .thenApply(reply -> Optional.ofNullable(reply == null ? null : reply.payload.position)).join();
                     });
         }
         return CompletableFuture.supplyAsync(Optional::empty);

@@ -3,11 +3,11 @@ package net.william278.huskhomes.random;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -19,11 +19,6 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     protected final int spawnRadius;
     private final float mean;
     private final float standardDeviation;
-    private final int cacheSize;
-
-    // Cache of random positions
-    @NotNull
-    private final Map<UUID, LinkedList<Position>> cache;
 
     public NormalDistributionEngine(@NotNull HuskHomes implementor) {
         super(implementor, "Normal Distribution");
@@ -31,16 +26,6 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
         this.spawnRadius = implementor.getSettings().rtpSpawnRadius;
         this.mean = implementor.getSettings().rtpDistributionMean;
         this.standardDeviation = implementor.getSettings().rtpDistributionStandardDeviation;
-        this.cacheSize = implementor.getSettings().rtpLocationCacheSize;
-        this.cache = new HashMap<>();
-
-        // Prepare cache
-        for (final World world : implementor.getWorlds()) {
-            if (implementor.getSettings().rtpRestrictedWorlds.contains(world.name)) {
-                continue;
-            }
-            cache.put(world.uuid, new LinkedList<>());
-        }
     }
 
     /**
@@ -52,7 +37,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
      */
     @NotNull
     protected static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
-                                             float spawnRadius, float maxRadius) {
+                                               float spawnRadius, float maxRadius) {
         // Generate random values
         final float radius = generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
         final float angle = generateRandomAngle();
@@ -100,34 +85,18 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
         return (float) (Math.random() * 360);
     }
 
-    /**
-     * Populate the cache with a set of random locations
-     */
-    private void populateCache(@NotNull World world) {
-        final Server server = plugin.getPluginServer();
-        while (cache.size() < cacheSize) {
-            generateSafeLocation(world).thenAccept(location -> location
-                    .ifPresent(value -> cache.getOrDefault(world.uuid, new LinkedList<>())
-                            .addLast(new Position(value, server))));
-        }
-    }
 
     @Override
-    public CompletableFuture<Position> findRandomPosition(@NotNull World world, @NotNull String[] args) {
-        CompletableFuture<Position> position;
-        if (!cache.getOrDefault(world.uuid, new LinkedList<>()).isEmpty()) {
-            position = CompletableFuture.completedFuture(cache.get(world.uuid).removeFirst());
-        } else {
-            position = CompletableFuture.supplyAsync(() -> {
-                Optional<Location> resolved = Optional.empty();
-                while (resolved.isEmpty()) {
-                    resolved = generateSafeLocation(world).join();
-                }
-                return new Position(resolved.get(), plugin.getPluginServer());
-            });
+    public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {
+        Optional<Location> location = generateSafeLocation(world).join();
+        int attempts = 0;
+        while (location.isEmpty()) {
+            location = generateSafeLocation(world).join();
+            if (attempts > randomTimeout) {
+                return CompletableFuture.completedFuture(null);
+            }
         }
-
-        CompletableFuture.runAsync(() -> populateCache(world));
-        return position;
+        return CompletableFuture.completedFuture(location.map(resolved ->
+                new Position(resolved, plugin.getPluginServer())));
     }
 }

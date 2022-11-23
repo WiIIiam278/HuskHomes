@@ -1,0 +1,25 @@
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃      Unsafe /rtp Blocks      ┃
+# ┃    Developed by William278   ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+unsafe_blocks:
+  - 'minecraft:water'
+  - 'minecraft:lava'
+  - 'minecraft:fire'
+  - 'minecraft:flowing_water'
+  - 'minecraft:flowing_lava'
+  - 'minecraft:standing_sign'
+  - 'minecraft:wall_sign'
+  - 'minecraft:chest'
+  - 'minecraft:trapped_chest'
+  - 'minecraft:ender_chest'
+  - 'minecraft:bed'
+  - 'minecraft:jungle_leaves'
+  - 'minecraft:spruce_leaves'
+  - 'minecraft:bedrock'
+  - 'minecraft:powder_snow'
+  - 'minecraft:air'
+  - 'minecraft:cave_air'
+  - 'minecraft:void_air'
+  - 'minecraft:pointed_dripstone'
+  - 'minecraft:cactus'

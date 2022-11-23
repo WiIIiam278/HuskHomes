@@ -203,9 +203,6 @@ public class Settings {
     @YamlKey("rtp.distribution_deviation")
     public float rtpDistributionStandardDeviation = 2f;
 
-    @YamlKey("rtp.location_cache_size")
-    public int rtpLocationCacheSize = 10;
-
     @YamlKey("rtp.restricted_worlds")
     public List<String> rtpRestrictedWorlds = List.of("world_nether", "world_the_end");
 

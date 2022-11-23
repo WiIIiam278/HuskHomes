@@ -358,7 +358,15 @@ public interface HuskHomes {
      *
      * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
      */
-    CompletableFuture<Boolean> reload();
+    boolean reload();
+
+    /**
+     * Returns if the block, by provided identifier, is unsafe
+     *
+     * @param blockId The block identifier (e.g. {@code minecraft:stone})
+     * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
+     */
+    boolean isBlockUnsafe(@NotNull String blockId);
 
     /**
      * Registers the plugin with bStats metrics

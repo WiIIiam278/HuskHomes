@@ -38,6 +38,8 @@ import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
@@ -49,6 +51,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -73,10 +76,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
     private CachedSpawn serverSpawn;
+    private UnsafeBlocks unsafeBlocks;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
-
     private List<Migrator> migrators;
 
     @Nullable
@@ -117,7 +120,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Load settings and locales
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
-            initialized.set(reload().join());
+            initialized.set(reload());
             if (initialized.get()) {
                 logger.showDebugLogs(settings.debugLogging);
                 if (upgradeData != null) {
@@ -139,8 +142,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             if (initialized.get()) {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
-                throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                                                           "Please check the supplied database credentials in the config file");
+                throw new HuskHomesInitializationException("Failed to establish a connection to the database. " + "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -165,8 +167,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             cache.initialize(database);
 
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher,
-                    settings.allowUnicodeNames, settings.allowUnicodeDescriptions, settings.overwriteExistingHomesWarps);
+            this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher, settings.allowUnicodeNames, settings.allowUnicodeDescriptions, settings.overwriteExistingHomesWarps);
 
             // Initialize the RTP engine with the default normal distribution engine
             setRandomTeleportEngine(new NormalDistributionEngine(this));
@@ -202,9 +203,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
-                getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                                                    pluginHooks.stream().map(PluginHook::getHookName)
-                                                            .collect(Collectors.joining(", ")));
+                getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream().map(PluginHook::getHookName).collect(Collectors.joining(", ")));
             }
 
             // Register events
@@ -214,13 +213,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Register permissions
             getLoggingAdapter().log(Level.INFO, "Registering permissions & commands...");
-            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(
-                    new org.bukkit.permissions.Permission(permission.node,
-                            switch (permission.defaultAccess) {
-                                case EVERYONE -> PermissionDefault.TRUE;
-                                case NOBODY -> PermissionDefault.FALSE;
-                                case OPERATORS -> PermissionDefault.OP;
-                            })));
+            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(new org.bukkit.permissions.Permission(permission.node, switch (permission.defaultAccess) {
+                case EVERYONE -> PermissionDefault.TRUE;
+                case NOBODY -> PermissionDefault.FALSE;
+                case OPERATORS -> PermissionDefault.OP;
+            })));
 
             // Register commands
             this.registeredCommands = new ArrayList<>();
@@ -233,9 +230,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 // If the command is disabled, use the disabled CommandBase
                 if (settings.disabledCommands.stream().anyMatch(disabledCommand -> {
                     final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
-                    return command.equalsIgnoreCase(commandType.commandBase.command) ||
-                           Arrays.stream(commandType.commandBase.aliases)
-                                   .anyMatch(alias -> alias.equalsIgnoreCase(command));
+                    return command.equalsIgnoreCase(commandType.commandBase.command) || Arrays.stream(commandType.commandBase.aliases).anyMatch(alias -> alias.equalsIgnoreCase(command));
                 })) {
                     new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
                     return;
@@ -259,10 +254,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Check for updates
             if (settings.checkForUpdates) {
                 getLoggingAdapter().log(Level.INFO, "Checking for updates...");
-                getLatestVersionIfOutdated().thenAccept(newestVersion ->
-                        newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
-                                "An update is available for HuskHomes, v" + newVersion
-                                + " (Currently running v" + getPluginVersion() + ")")));
+                getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getPluginVersion() + ")")));
             }
 
             // Perform automatic upgrade if detected
@@ -328,8 +320,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @NotNull
     @Override
     public List<OnlineUser> getOnlinePlayers() {
-        return Bukkit.getOnlinePlayers().stream().map(
-                player -> (OnlineUser) BukkitPlayer.adapt(player)).toList();
+        return Bukkit.getOnlinePlayers().stream().map(player -> (OnlineUser) BukkitPlayer.adapt(player)).toList();
     }
 
     @NotNull
@@ -345,7 +336,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public @NotNull Database getDatabase() {
+    @NotNull
+    public Database getDatabase() {
         return database;
     }
 
@@ -356,7 +348,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public @NotNull RequestManager getRequestManager() {
+    @NotNull
+    public RequestManager getRequestManager() {
         return requestManager;
     }
 
@@ -387,7 +380,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public @NotNull EventDispatcher getEventDispatcher() {
+    @NotNull
+    public EventDispatcher getEventDispatcher() {
         return eventDispatcher;
     }
 
@@ -419,41 +413,55 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public @NotNull Set<PluginHook> getPluginHooks() {
+    @NotNull
+    public Set<PluginHook> getPluginHooks() {
         return pluginHooks;
     }
 
     @Override
     public CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location) {
-        final CompletableFuture<Optional<Location>> future = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(getInstance(), () -> BukkitAdapter.adaptLocation(location).ifPresentOrElse(
-                bukkitLocation -> {
-                    // Validate the location is within the world's border
-                    assert bukkitLocation.getWorld() != null;
-                    if (!bukkitLocation.getWorld().getWorldBorder().isInside(bukkitLocation)) {
-                        future.complete(Optional.empty());
-                        return;
-                    }
+        final org.bukkit.Location bukkitLocation = BukkitAdapter.adaptLocation(location).orElse(null);
+        if (bukkitLocation == null || bukkitLocation.getWorld() == null) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
 
-                    // Find a safe position and return
-                    PaperLib.getChunkAtAsync(bukkitLocation).thenAcceptAsync(chunk ->
-                            future.complete(BukkitSafetyUtil.findSafeLocation(location.world, bukkitLocation,
-                                    chunk.getChunkSnapshot()))).exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    });
-                },
-                () -> future.complete(Optional.empty())));
-        return future;
+        final CompletableFuture<Optional<Location>> locationFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(this, () -> PaperLib.getChunkAtAsync(bukkitLocation).thenApply(chunk -> {
+            final ChunkSnapshot snapshot = chunk.getChunkSnapshot();
+            final int chunkX = bukkitLocation.getBlockX() & 0xF;
+            final int chunkZ = bukkitLocation.getBlockZ() & 0xF;
+
+            for (int dX = -1; dX <= 2; dX++) {
+                for (int dZ = -1; dZ <= 2; dZ++) {
+                    final int x = chunkX + dX;
+                    final int z = chunkZ + dZ;
+                    if (x < 0 || x >= 16 || z < 0 || z >= 16) {
+                        continue;
+                    }
+                    final int y = snapshot.getHighestBlockYAt(x, z);
+                    final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
+                    if (!isBlockUnsafe(blockType.getKey().toString())) {
+                        Bukkit.broadcastMessage("✔ Safe block: " + blockType.getKey());
+                        return new Location((location.x + dX) + 0.5d, y + 1.25d, (location.z + dZ) + 0.5d, location.world);
+                    } else {
+                        Bukkit.broadcastMessage("❌ Unsafe block: " + blockType.getKey());
+                    }
+                }
+            }
+            return null;
+        }).thenAccept(resolved -> locationFuture.complete(Optional.ofNullable(resolved))));
+        return locationFuture;
     }
 
     @Override
-    public @NotNull Version getPluginVersion() {
+    @NotNull
+    public Version getPluginVersion() {
         return Version.fromString(getDescription().getVersion(), "-");
     }
 
     @Override
-    public @NotNull List<CommandBase> getCommands() {
+    @NotNull
+    public List<CommandBase> getCommands() {
         return registeredCommands;
     }
 
@@ -471,70 +479,69 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         if (!getSettings().crossServer || this.server != null) {
             return CompletableFuture.completedFuture(null);
         }
-        return getNetworkMessenger()
-                .fetchServerName(requester)
-                .orTimeout(5, TimeUnit.SECONDS)
-                .exceptionally(throwable -> null)
-                .thenAccept(serverName -> {
-                    if (serverName == null) {
-                        throw new HuskHomesException("GetServer plugin message call operation timed out");
-                    }
-                    try {
-                        this.server = new Server(serverName);
-                        Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
-                        getLoggingAdapter().log(Level.INFO, "Successfully cached server name to disk (" + serverName + ")");
-                    } catch (IOException e) {
-                        throw new HuskHomesException("Failed to write cached server name to disk", e);
-                    }
-                })
-                .exceptionally(throwable -> {
-                    getLoggingAdapter().log(Level.SEVERE, "Failed to fetch and cache server name", throwable);
-                    return null;
-                });
-    }
-
-    @Override
-    public @NotNull List<World> getWorlds() {
-        return getServer().getWorlds().stream().filter(world -> BukkitAdapter.adaptWorld(world).isPresent())
-                .map(world -> BukkitAdapter.adaptWorld(world).orElse(null)).collect(Collectors.toList());
-    }
-
-    @Override
-    public CompletableFuture<Boolean> reload() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                // Load settings
-                this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), new Settings()).get();
-
-                // Load locales from language preset default
-                final Locales languagePresets = Annotaml.create(Locales.class,
-                        Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
-                this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"),
-                        languagePresets).get();
-
-                // Load cached server from file
-                if (settings.crossServer) {
-                    final File serverFile = new File(getDataFolder(), "server.yml");
-                    if (serverFile.exists()) {
-                        this.server = Annotaml.create(serverFile, CachedServer.class).get().getServer();
-                    }
-                } else {
-                    this.server = new Server("server");
-                }
-
-                // Load spawn location from file
-                final File spawnFile = new File(getDataFolder(), "spawn.yml");
-                if (spawnFile.exists()) {
-                    this.serverSpawn = Annotaml.create(spawnFile, CachedSpawn.class).get();
-                }
-            } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new HuskHomesException("Failed to load config data", e);
+        return getNetworkMessenger().fetchServerName(requester).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> null).thenAccept(serverName -> {
+            if (serverName == null) {
+                throw new HuskHomesException("GetServer plugin message call operation timed out");
             }
-            return true;
+            try {
+                this.server = new Server(serverName);
+                Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
+                getLoggingAdapter().log(Level.INFO, "Successfully cached server name to disk (" + serverName + ")");
+            } catch (IOException e) {
+                throw new HuskHomesException("Failed to write cached server name to disk", e);
+            }
         }).exceptionally(throwable -> {
-            getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", throwable);
-            return false;
+            getLoggingAdapter().log(Level.SEVERE, "Failed to fetch and cache server name", throwable);
+            return null;
         });
+    }
+
+    @Override
+    @NotNull
+    public List<World> getWorlds() {
+        return getServer().getWorlds().stream().filter(world -> BukkitAdapter.adaptWorld(world).isPresent()).map(world -> BukkitAdapter.adaptWorld(world).orElse(null)).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean reload() {
+        try {
+            // Load settings
+            this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), new Settings()).get();
+
+            // Load locales from language preset default
+            final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
+            this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"), languagePresets).get();
+
+            // Load cached server from file
+            if (settings.crossServer) {
+                final File serverFile = new File(getDataFolder(), "server.yml");
+                if (serverFile.exists()) {
+                    this.server = Annotaml.create(serverFile, CachedServer.class).get().getServer();
+                }
+            } else {
+                this.server = new Server("server");
+            }
+
+            // Load spawn location from file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists()) {
+                this.serverSpawn = Annotaml.create(spawnFile, CachedSpawn.class).get();
+            }
+
+            // Load unsafe blocks from resources
+            final InputStream blocksResource = getResource("safety/unsafe_blocks.yml");
+            this.unsafeBlocks = Annotaml.create(new UnsafeBlocks(), Objects.requireNonNull(blocksResource)).get();
+
+            return true;
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            getLoggingAdapter().log(Level.SEVERE, "Failed to reload HuskHomes config or messages file", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isBlockUnsafe(@NotNull String blockId) {
+        return unsafeBlocks.isUnsafe(blockId);
     }
 
     @Override
@@ -565,8 +572,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
     // Super constructor for unit testing
     @SuppressWarnings("unused")
-    protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
-                              @NotNull File dataFolder, @NotNull File file) {
+    protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
     }
 

@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public abstract class RandomTeleportEngine {
 
@@ -18,7 +17,7 @@ public abstract class RandomTeleportEngine {
     public final String name;
 
     /**
-     * How long before {@link #getRandomPosition} future calls time out
+     * How many attempts to allow {@link #getRandomPosition} lookups before timing out
      */
     public long randomTimeout = 8;
 
@@ -45,15 +44,6 @@ public abstract class RandomTeleportEngine {
     }
 
     /**
-     * Finds a random position in the {@link World}
-     *
-     * @param world The world to find a random position in
-     * @param args  The arguments to pass to the random teleport engine
-     * @return A {@link CompletableFuture} containing the random position
-     */
-    public abstract CompletableFuture<Position> findRandomPosition(@NotNull World world, @NotNull String[] args);
-
-    /**
      * Gets a random position in the {@link World}, supplying a future to be completed with the optional position
      * is found, or empty if the operation times out
      *
@@ -62,11 +52,6 @@ public abstract class RandomTeleportEngine {
      * @return A {@link CompletableFuture} containing the random position, if one was found before the
      * {@link #randomTimeout operation timed out}
      */
-    public final CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {
-        return findRandomPosition(world, args)
-                .orTimeout(Math.max(1, randomTimeout), TimeUnit.SECONDS)
-                .exceptionally(e -> null)
-                .thenApplyAsync(Optional::ofNullable);
-    }
+    public abstract CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args);
 
 }

@@ -86,13 +86,11 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                             .ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                plugin.reload().thenAccept(reloaded -> {
-                    if (!reloaded) {
-                        onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
-                        return;
-                    }
-                    onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
-                });
+                if (!plugin.reload()) {
+                    onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
+                    return;
+                }
+                onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
             }
             case "update" -> {
                 if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_UPDATE.node)) {
@@ -135,13 +133,13 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                                 (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
                                 + " - " + command.getDescription()));
             }
-            case "reload" -> plugin.reload().thenAccept(reloaded -> {
-                if (!reloaded) {
+            case "reload" -> {
+                if (!plugin.reload()) {
                     plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to reload the plugin.");
                     return;
                 }
                 plugin.getLoggingAdapter().log(Level.INFO, "Reloaded config & message files.");
-            });
+            }
             case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
                     newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
                                     "An update is available for HuskHomes, v" + newVersion

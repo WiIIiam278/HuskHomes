@@ -384,7 +384,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
         this.randomTeleportEngine = randomTeleportEngine;
-        this.randomTeleportEngine.initialize();
     }
 
     @Override
@@ -425,7 +424,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     }
 
     @Override
-    public CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location) {
+    public CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location) {
         final CompletableFuture<Optional<Location>> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(getInstance(), () -> BukkitAdapter.adaptLocation(location).ifPresentOrElse(
                 bukkitLocation -> {

@@ -155,7 +155,7 @@ public interface HuskHomes {
     RandomTeleportEngine getRandomTeleportEngine();
 
     /**
-     * Set the {@link RandomTeleportEngine} to use and initialize it, calling {@link RandomTeleportEngine#initialize()}
+     * Sets the {@link RandomTeleportEngine} to be used for processing random teleports
      *
      * @param randomTeleportEngine the {@link RandomTeleportEngine} to use
      */
@@ -291,7 +291,7 @@ public interface HuskHomes {
      * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
      * possible to find one
      */
-    CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location);
+    CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location);
 
     /**
      * Returns the {@link Server} the plugin is on

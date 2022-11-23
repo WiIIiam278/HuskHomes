@@ -2,10 +2,12 @@ package net.william278.huskhomes.random;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -13,11 +15,15 @@ import java.util.concurrent.CompletableFuture;
  */
 public class NormalDistributionEngine extends RandomTeleportEngine {
 
-    private final HuskHomes plugin;
     protected final int radius;
     protected final int spawnRadius;
     private final float mean;
     private final float standardDeviation;
+    private final int cacheSize;
+
+    // Cache of random positions
+    @NotNull
+    private final Map<UUID, LinkedList<Position>> cache;
 
     public NormalDistributionEngine(@NotNull HuskHomes implementor) {
         super(implementor, "Normal Distribution");
@@ -25,24 +31,28 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
         this.spawnRadius = implementor.getSettings().rtpSpawnRadius;
         this.mean = implementor.getSettings().rtpDistributionMean;
         this.standardDeviation = implementor.getSettings().rtpDistributionStandardDeviation;
-        this.plugin = implementor;
-    }
+        this.cacheSize = implementor.getSettings().rtpLocationCacheSize;
+        this.cache = new HashMap<>();
 
-    @Override
-    protected @NotNull CompletableFuture<Optional<Location>> generateRandomLocation(@NotNull Location origin,
-                                                                                    @NotNull String... args) {
-        return plugin.getSafeGroundLocation(generateLocation(origin, mean, standardDeviation, spawnRadius, radius));
+        // Prepare cache
+        for (final World world : implementor.getWorlds()) {
+            if (implementor.getSettings().rtpRestrictedWorlds.contains(world.name)) {
+                continue;
+            }
+            cache.put(world.uuid, new LinkedList<>());
+        }
     }
 
     /**
-     * Generate a location through a randomized normally-distributed radius and random angle using the mean and
+     * Generate a {@link Location} through a randomized normally-distributed radius and random angle using the mean and
      * standard deviation, about the origin position.
      *
      * @param origin The origin position
      * @return A generated location
      */
-    protected static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
-                                               float spawnRadius, float maxRadius) {
+    @NotNull
+    private static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
+                                             float spawnRadius, float maxRadius) {
         // Generate random values
         final float radius = generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
         final float angle = generateRandomAngle();
@@ -53,6 +63,17 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
 
         return new Location(origin.x + x, 128, origin.z + z,
                 origin.yaw, origin.pitch, origin.world);
+    }
+
+    /**
+     * Generate a safe ground-level {@link Location} through a randomized normally-distributed radius and random angle
+     *
+     * @param world The world to generate the location in
+     * @return A generated location
+     */
+    private CompletableFuture<Optional<Location>> generateSafeLocation(@NotNull World world) {
+        return plugin.resolveSafeGroundLocation(generateLocation(
+                getOrigin(world), mean, standardDeviation, spawnRadius, radius));
     }
 
     /**
@@ -77,5 +98,36 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
      */
     private static float generateRandomAngle() {
         return (float) (Math.random() * 360);
+    }
+
+    /**
+     * Populate the cache with a set of random locations
+     */
+    private void populateCache(@NotNull World world) {
+        final Server server = plugin.getPluginServer();
+        while (cache.size() < cacheSize) {
+            generateSafeLocation(world).thenAccept(location -> location
+                    .ifPresent(value -> cache.getOrDefault(world.uuid, new LinkedList<>())
+                            .addLast(new Position(value, server))));
+        }
+    }
+
+    @Override
+    public CompletableFuture<Position> findRandomPosition(@NotNull World world, @NotNull String[] args) {
+        CompletableFuture<Position> position;
+        if (!cache.getOrDefault(world.uuid, new LinkedList<>()).isEmpty()) {
+            position = CompletableFuture.completedFuture(cache.get(world.uuid).removeFirst());
+        } else {
+            position = CompletableFuture.supplyAsync(() -> {
+                Optional<Location> resolved = Optional.empty();
+                while (resolved.isEmpty()) {
+                    resolved = generateSafeLocation(world).join();
+                }
+                return new Position(resolved.get(), plugin.getPluginServer());
+            });
+        }
+
+        CompletableFuture.runAsync(() -> populateCache(world));
+        return position;
     }
 }

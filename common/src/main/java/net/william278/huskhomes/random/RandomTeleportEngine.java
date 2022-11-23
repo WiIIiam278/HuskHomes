@@ -13,6 +13,9 @@ public abstract class RandomTeleportEngine {
     @NotNull
     protected final HuskHomes plugin;
 
+    /**
+     * The name of the random teleport engine
+     */
     @NotNull
     public final String name;
 
@@ -45,12 +48,12 @@ public abstract class RandomTeleportEngine {
 
     /**
      * Gets a random position in the {@link World}, supplying a future to be completed with the optional position
-     * is found, or empty if the operation times out
+     * is found, or empty if the operation times out after a number of attempts.
      *
      * @param world The world to find a random position in
      * @param args  The arguments to pass to the random teleport engine
-     * @return A {@link CompletableFuture} containing the random position, if one was found before the
-     * {@link #randomTimeout operation timed out}
+     * @return A {@link CompletableFuture} containing the random position, if one is found in
+     * {@link #randomTimeout configured number of attempts}
      */
     public abstract CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args);
 

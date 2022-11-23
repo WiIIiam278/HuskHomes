@@ -39,15 +39,14 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     protected static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
                                                float spawnRadius, float maxRadius) {
         // Generate random values
-        final float radius = generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
-        final float angle = generateRandomAngle();
+        final float radius = getDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
+        final float angle = getRandomAngle();
 
         // Calculate corresponding x and z
         final float z = (float) (radius * Math.cos(angle));
         final float x = (float) (radius * Math.sin(angle));
 
-        return new Location(origin.x + x, 128, origin.z + z,
-                origin.yaw, origin.pitch, origin.world);
+        return new Location(Math.round(origin.x) + x, 128d, Math.round(origin.z) + z, origin.world);
     }
 
     /**
@@ -67,11 +66,11 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
      *
      * @return the generated radius
      */
-    private static float generateNormallyDistributedRadius(float mean, float standardDeviation,
-                                                           float spawnRadius, float maxRadius) {
+    private static float getDistributedRadius(float mean, float standardDeviation,
+                                              float spawnRadius, float maxRadius) {
         double value = (new Random().nextGaussian() * mean + standardDeviation) * maxRadius;
         if (value < spawnRadius || value > maxRadius) {
-            return generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
+            return getDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
         }
         return (float) value;
     }
@@ -81,10 +80,9 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
      *
      * @return a random angle in the range [0, 360]
      */
-    private static float generateRandomAngle() {
+    private static float getRandomAngle() {
         return (float) (Math.random() * 360);
     }
-
 
     @Override
     public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {

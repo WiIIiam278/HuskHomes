@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manages {@link TeleportRequest}s between players
@@ -148,26 +147,25 @@ public class RequestManager {
 
                 // Use the network messenger to send the request
                 request.recipientName = networkedTarget.get();
-                return Optional.ofNullable(plugin.getNetworkMessenger().sendMessage(requester,
-                                new Message(Message.MessageType.TELEPORT_REQUEST,
-                                        requester.username,
-                                        networkedTarget.get(),
-                                        MessagePayload.withTeleportRequest(request),
-                                        Message.RelayType.MESSAGE,
-                                        plugin.getSettings().clusterId))
-                        .orTimeout(3, TimeUnit.SECONDS)
-                        .exceptionally(throwable -> null)
+                return plugin.getNetworkMessenger()
+                        .sendMessage(requester, new Message(Message.MessageType.TELEPORT_REQUEST,
+                                requester.username,
+                                networkedTarget.get(),
+                                MessagePayload.withTeleportRequest(request),
+                                Message.RelayType.MESSAGE,
+                                plugin.getSettings().clusterId))
                         .thenApply(reply -> {
-                            if (reply == null || reply.payload.teleportRequest == null) {
-                                return null;
-                            }
-
-                            // If the message was ignored by the recipient, return false
-                            if (reply.payload.teleportRequest.status == TeleportRequest.RequestStatus.PENDING) {
-                                return request;
+                            if (reply.isPresent()) {
+                                final TeleportRequest result = reply.get().payload.teleportRequest;
+                                if (result == null || result.status == TeleportRequest.RequestStatus.IGNORED) {
+                                    return null;
+                                }
+                                return result;
                             }
                             return null;
-                        }).join());
+                        })
+                        .thenApply(Optional::ofNullable)
+                        .join();
             });
         }
         return CompletableFuture.completedFuture(Optional.empty());
@@ -294,16 +292,15 @@ public class RequestManager {
                             return false;
                         }
 
-                        return plugin.getNetworkMessenger().sendMessage(recipient,
-                                        new Message(Message.MessageType.TELEPORT_REQUEST_RESPONSE,
-                                                recipient.username,
-                                                networkedTarget.get(),
-                                                MessagePayload.withTeleportRequest(request),
-                                                Message.RelayType.MESSAGE,
-                                                plugin.getSettings().clusterId))
-                                .thenApply(reply -> true)
-                                .orTimeout(3, TimeUnit.SECONDS)
-                                .exceptionally(throwable -> false).join();
+                        return plugin.getNetworkMessenger()
+                                .sendMessage(recipient, new Message(Message.MessageType.TELEPORT_REQUEST_RESPONSE,
+                                        recipient.username,
+                                        networkedTarget.get(),
+                                        MessagePayload.withTeleportRequest(request),
+                                        Message.RelayType.MESSAGE,
+                                        plugin.getSettings().clusterId))
+                                .thenApply(Optional::isPresent)
+                                .join();
                     })
                     .thenAccept(online -> {
                         if (!online) {

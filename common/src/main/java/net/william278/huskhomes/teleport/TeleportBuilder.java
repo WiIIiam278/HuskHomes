@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -237,7 +236,7 @@ public class TeleportBuilder {
         if (plugin.getSettings().crossServer) {
             return plugin.getNetworkMessenger()
                     .findPlayer(executor, playerName)
-                    .thenApply(foundPlayer -> {
+                    .thenApplyAsync(foundPlayer -> {
                         if (foundPlayer.isEmpty()) {
                             return Optional.empty();
                         }
@@ -245,9 +244,7 @@ public class TeleportBuilder {
                                 .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST,
                                         executor.username, playerName, MessagePayload.empty(),
                                         Message.RelayType.MESSAGE, plugin.getSettings().clusterId))
-                                .orTimeout(3, TimeUnit.SECONDS)
-                                .exceptionally(throwable -> null)
-                                .thenApply(reply -> Optional.ofNullable(reply == null ? null : reply.payload.position)).join();
+                                .thenApply(reply -> reply.map(message -> message.payload.position)).join();
                     });
         }
         return CompletableFuture.supplyAsync(Optional::empty);

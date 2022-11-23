@@ -71,7 +71,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public CompletableFuture<String> getServerName(@NotNull OnlineUser requester) {
+    public CompletableFuture<String> fetchServerName(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         final CompletableFuture<String> future = new CompletableFuture<>();
         serverNameRequests.add(future);
@@ -87,7 +87,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester) {
+    public CompletableFuture<String[]> fetchOnlineServerList(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         final CompletableFuture<String[]> future = new CompletableFuture<>();
         onlineServersRequests.add(future);
@@ -105,7 +105,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<Boolean> sendPlayer(@NotNull OnlineUser onlineUser, @NotNull Server server) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
-        return getOnlineServers(onlineUser).thenApplyAsync(onlineServers -> {
+        return fetchOnlineServerList(onlineUser).thenApplyAsync(onlineServers -> {
             final Optional<String> targetServer = Arrays.stream(onlineServers)
                     .filter(serverName -> serverName.equals(server.name))
                     .findFirst();
@@ -126,7 +126,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    public CompletableFuture<Message> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
+    public CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message) {
         final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
         processingMessages.put(message.uuid, repliedMessage);
         sendPluginMessage((BukkitPlayer) sender, message);

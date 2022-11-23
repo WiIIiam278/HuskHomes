@@ -223,13 +223,14 @@ public class Teleport {
                                 MessagePayload.withPosition(target),
                                 Message.RelayType.MESSAGE,
                                 plugin.getSettings().clusterId))
-                .orTimeout(3, TimeUnit.SECONDS)
-                .exceptionally(throwable -> null)
                 .thenApply(result -> {
-                    if (result == null || result.payload.resultState == null) {
-                        return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;
+                    if (result.isPresent()) {
+                        final Message reply = result.get();
+                        if (reply.payload.resultState != null) {
+                            return reply.payload.resultState;
+                        }
                     }
-                    return result.payload.resultState;
+                    return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;
                 });
     }
 

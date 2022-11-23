@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -71,7 +72,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public CompletableFuture<String> getServerName(@NotNull OnlineUser requester) {
+    public CompletableFuture<String> fetchServerName(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         final CompletableFuture<String> future = new CompletableFuture<>();
         serverNameRequests.add(future);
@@ -87,7 +88,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester) {
+    public CompletableFuture<String[]> fetchOnlineServerList(@NotNull OnlineUser requester) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         final CompletableFuture<String[]> future = new CompletableFuture<>();
         onlineServersRequests.add(future);
@@ -105,7 +106,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<Boolean> sendPlayer(@NotNull OnlineUser onlineUser, @NotNull Server server) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
-        return getOnlineServers(onlineUser).thenApplyAsync(onlineServers -> {
+        return fetchOnlineServerList(onlineUser).thenApplyAsync(onlineServers -> {
             final Optional<String> targetServer = Arrays.stream(onlineServers)
                     .filter(serverName -> serverName.equals(server.name))
                     .findFirst();
@@ -126,7 +127,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    public CompletableFuture<Message> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
+    public CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message) {
         final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
         processingMessages.put(message.uuid, repliedMessage);
         sendPluginMessage((BukkitPlayer) sender, message);
@@ -172,7 +173,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({"UnstableApiUsage", "ForLoopReplaceableByForEach"})
     public void onPluginMessageReceived(@NotNull String channel, @NotNull org.bukkit.entity.Player player,
                                         final byte[] messageBytes) {
         if (!channel.equals(BUNGEE_PLUGIN_CHANNEL_NAME)) {
@@ -203,18 +204,29 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
             }
             case "GetServer" -> {
                 final String serverName = pluginMessage.readUTF();
-                serverNameRequests.forEach(future -> future.complete(serverName));
+                for (int i = 0; i < serverNameRequests.size(); i++) {
+                    final CompletableFuture<String> future = serverNameRequests.get(i);
+                    future.complete(serverName);
+                }
+                serverNameRequests.clear();
             }
             case "PlayerList" -> {
                 pluginMessage.readUTF(); // Read the server name (unused)
-                final String[] playerNames = pluginMessage.readUTF().split(", ");
-                onlinePlayerNamesRequests.forEach(future -> future.complete(playerNames));
+                handleArrayPluginMessage(pluginMessage, onlinePlayerNamesRequests);
             }
-            case "GetServers" -> {
-                final String[] serverNames = pluginMessage.readUTF().split(", ");
-                onlineServersRequests.forEach(future -> future.complete(serverNames));
-            }
+            case "GetServers" -> handleArrayPluginMessage(pluginMessage, onlineServersRequests);
         }
+    }
+
+    @SuppressWarnings("ForLoopReplaceableByForEach")
+    private void handleArrayPluginMessage(@NotNull ByteArrayDataInput pluginMessage,
+                                          @NotNull List<CompletableFuture<String[]>> requests) {
+        final String[] fetchedData = pluginMessage.readUTF().split(", ");
+        for (int i = 0; i < requests.size(); i++) {
+            final CompletableFuture<String[]> request = requests.get(i);
+            request.complete(fetchedData);
+        }
+        requests.clear();
     }
 
 }

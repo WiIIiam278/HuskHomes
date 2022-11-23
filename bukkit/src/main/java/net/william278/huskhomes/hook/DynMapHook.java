@@ -3,13 +3,14 @@ package net.william278.huskhomes.hook;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BukkitCommandType;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
-import org.dynmap.markers.GenericMarker;
+import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +70,7 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeHome(home).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).createMarker(
-                            home.uuid.toString(), home.meta.name, home.world.name,
+                            home.owner.uuid + ":" + home.uuid, home.meta.name, home.world.name,
                             home.x, home.y, home.z, dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false)
                     .setDescription(MarkerInformationPopup.create(home.meta.name)
                             .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
@@ -88,14 +89,25 @@ public class DynMapHook extends MapHook {
 
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
-            dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).getMarkers()
-                    .stream()
-                    .filter(marker -> marker.getMarkerID().equals(home.uuid.toString()))
+            dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).getMarkers().stream()
+                    .filter(marker -> marker.getMarkerID().equals(home.owner.uuid + ":" + home.uuid))
                     .findFirst()
-                    .ifPresent(GenericMarker::deleteMarker);
+                    .ifPresent(Marker::deleteMarker);
             removedFuture.complete(null);
         });
         return removedFuture;
+    }
+
+    @Override
+    public CompletableFuture<Void> clearHomes(@NotNull User user) {
+        final CompletableFuture<Void> clearedFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
+            dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).getMarkers().stream()
+                    .filter(marker -> marker.getMarkerID().startsWith(user.uuid.toString()))
+                    .forEach(Marker::deleteMarker);
+            clearedFuture.complete(null);
+        });
+        return clearedFuture;
     }
 
     @Override
@@ -123,14 +135,24 @@ public class DynMapHook extends MapHook {
 
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
-            dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).getMarkers()
-                    .stream()
+            dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).getMarkers().stream()
                     .filter(marker -> marker.getMarkerID().equals(warp.uuid.toString()))
                     .findFirst()
-                    .ifPresent(GenericMarker::deleteMarker);
+                    .ifPresent(Marker::deleteMarker);
             removedFuture.complete(null);
         }));
         return removedFuture;
+    }
+
+    @Override
+    public CompletableFuture<Void> clearWarps() {
+        final CompletableFuture<Void> clearedFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
+            dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).getMarkers()
+                    .forEach(Marker::deleteMarker);
+            clearedFuture.complete(null);
+        });
+        return clearedFuture;
     }
 
     /**

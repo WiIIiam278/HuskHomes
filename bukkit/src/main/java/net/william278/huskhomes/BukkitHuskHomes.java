@@ -54,7 +54,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -468,34 +467,29 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         return server;
     }
 
+    @Override
     public CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester) {
-        if (!getSettings().crossServer || server != null) {
+        if (!getSettings().crossServer || this.server != null) {
             return CompletableFuture.completedFuture(null);
         }
-        assert networkMessenger != null;
-        getLoggingAdapter().log(Level.INFO, "Fetching server information from the proxy...");
-        final AtomicInteger attempts = new AtomicInteger(0);
-        return CompletableFuture.runAsync(() -> {
-                    String serverName = null;
-                    while (serverName == null) {
-                        attempts.getAndIncrement();
-                        serverName = networkMessenger.getServerName(requester)
-                                .orTimeout(1, TimeUnit.SECONDS)
-                                .exceptionally(throwable -> null).join();
+        return getNetworkMessenger()
+                .fetchServerName(requester)
+                .orTimeout(5, TimeUnit.SECONDS)
+                .exceptionally(throwable -> null)
+                .thenAccept(serverName -> {
+                    if (serverName == null) {
+                        throw new HuskHomesException("GetServer plugin message call operation timed out");
                     }
-                    getLoggingAdapter().log(Level.INFO, "Successfully fetched server information from the proxy (name: "
-                                                        + serverName + ", attempts: " + attempts.get() + ")");
-                    server = new Server(serverName);
                     try {
+                        this.server = new Server(serverName);
                         Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
+                        getLoggingAdapter().log(Level.INFO, "Successfully cached server name to disk (" + serverName + ")");
                     } catch (IOException e) {
-                        throw new HuskHomesException("Failed to save server information", e);
+                        throw new HuskHomesException("Failed to write cached server name to disk", e);
                     }
                 })
-                .orTimeout(5, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
-                    getLoggingAdapter().log(Level.SEVERE, "Failed to fetch server name from the proxy (attempts: "
-                                                          + attempts.get() + ") - Is your proxy server online?", throwable);
+                    getLoggingAdapter().log(Level.SEVERE, "Failed to fetch and cache server name", throwable);
                     return null;
                 });
     }

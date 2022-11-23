@@ -90,7 +90,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             return;
         }
         CompletableFuture.runAsync(() -> {
-            final OnlineUser playerToTeleport = plugin.findPlayer(args[0]).orElse(null);
+            final OnlineUser playerToTeleport = plugin.findOnlinePlayer(args[0]).orElse(null);
             if (playerToTeleport == null) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
                 return;

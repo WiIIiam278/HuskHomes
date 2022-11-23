@@ -31,7 +31,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                 plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
                 return;
             }
-            Optional<OnlineUser> foundUser = plugin.findPlayer(args[0]);
+            final Optional<OnlineUser> foundUser = plugin.findOnlinePlayer(args[0]);
             if (foundUser.isEmpty()) {
                 plugin.getLocales().getLocale("error_player_not_found", args[0])
                         .ifPresent(onlineUser::sendMessage);
@@ -102,7 +102,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: rtp [player]");
             return;
         }
-        final Optional<OnlineUser> foundUser = plugin.findPlayer(args[0]);
+        final Optional<OnlineUser> foundUser = plugin.findOnlinePlayer(args[0]);
         if (foundUser.isEmpty()) {
             plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
             return;

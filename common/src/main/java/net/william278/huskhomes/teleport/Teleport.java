@@ -61,17 +61,23 @@ public class Teleport {
     public final Set<Settings.EconomyAction> economyActions;
 
     /**
+     * Whether to update the {@link #teleporter teleporter}'s last position (i.e. their {@code /back} position)
+     */
+    public final boolean updateLastPosition;
+
+    /**
      * <b>Internal</b> - use TeleportBuilder to instantiate a teleport
      */
     protected Teleport(@Nullable User teleporter, @NotNull OnlineUser executor, @Nullable Position target,
                        @NotNull TeleportType type, @NotNull Set<Settings.EconomyAction> economyActions,
-                       @NotNull HuskHomes plugin) {
+                       final boolean updateLastPosition, @NotNull HuskHomes plugin) {
         this.teleporter = teleporter;
         this.executor = executor;
         this.target = target;
         this.type = type;
         this.economyActions = economyActions;
         this.plugin = plugin;
+        this.updateLastPosition = updateLastPosition;
     }
 
     /**
@@ -167,7 +173,7 @@ public class Teleport {
 
         // Dispatch the teleport event and update the player's last position
         plugin.getEventDispatcher().dispatchTeleportEvent(this);
-        if (!plugin.getSettings().backCommandSaveOnTeleportEvent && type == TeleportType.TELEPORT) {
+        if (updateLastPosition && !plugin.getSettings().backCommandSaveOnTeleportEvent && type == TeleportType.TELEPORT) {
             plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
         }
 
@@ -217,13 +223,14 @@ public class Teleport {
                                 MessagePayload.withPosition(target),
                                 Message.RelayType.MESSAGE,
                                 plugin.getSettings().clusterId))
-                .orTimeout(3, TimeUnit.SECONDS)
-                .exceptionally(throwable -> null)
                 .thenApply(result -> {
-                    if (result == null || result.payload.resultState == null) {
-                        return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;
+                    if (result.isPresent()) {
+                        final Message reply = result.get();
+                        if (reply.payload.resultState != null) {
+                            return reply.payload.resultState;
+                        }
                     }
-                    return result.payload.resultState;
+                    return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;
                 });
     }
 

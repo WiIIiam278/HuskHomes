@@ -6,6 +6,7 @@ import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.POIMarker;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
@@ -73,7 +74,7 @@ public class BlueMapHook extends MapHook {
                 blueMapAPI -> getBlueMapWorld(blueMapAPI, home.world)).ifPresent(blueMapWorld -> blueMapWorld.getMaps()
                 .forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().put(home.uuid.toString(),
+                            markerSet.getMarkers().put(home.owner.uuid + ":" + home.uuid,
                                     POIMarker.toBuilder()
                                             .label("/phome" + home.owner.username + "." + home.meta.name)
                                             .position((int) home.x, (int) home.y, (int) home.z)
@@ -91,9 +92,22 @@ public class BlueMapHook extends MapHook {
         BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, home.world))
                 .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().remove(home.uuid.toString());
+                            markerSet.getMarkers().remove(home.owner.uuid + ":" + home.uuid);
                             return markerSet;
                         })));
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> clearHomes(@NotNull User user) {
+        BlueMapAPI.getInstance().ifPresent((BlueMapAPI blueMapAPI) -> blueMapAPI.getWorlds()
+                .forEach(blueMapWorld -> blueMapWorld.getMaps()
+                        .forEach(blueMapMap -> blueMapMap.getMarkerSets()
+                                .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
+                                    markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(user.uuid.toString()));
+                                    return markerSet;
+                                }))));
+
         return CompletableFuture.completedFuture(null);
     }
 
@@ -125,6 +139,19 @@ public class BlueMapHook extends MapHook {
                             markerSet.getMarkers().remove(warp.uuid.toString());
                             return markerSet;
                         })));
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> clearWarps() {
+        BlueMapAPI.getInstance().ifPresent((BlueMapAPI blueMapAPI) -> blueMapAPI.getWorlds()
+                .forEach(blueMapWorld -> blueMapWorld.getMaps()
+                        .forEach(blueMapMap -> blueMapMap.getMarkerSets()
+                                .computeIfPresent(blueMapWorld.getId() + ":" + WARPS_MARKER_SET_ID, (s, markerSet) -> {
+                                    markerSet.getMarkers().clear();
+                                    return markerSet;
+                                }))));
+
         return CompletableFuture.completedFuture(null);
     }
 

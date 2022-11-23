@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -57,6 +56,11 @@ public class TeleportBuilder {
      */
     private TeleportType type = TeleportType.TELEPORT;
 
+    /**
+     * Whether this teleport should update the user's last position (i.e. their {@code /back} position)
+     */
+    private boolean updateLastPosition = true;
+
     protected TeleportBuilder(@NotNull HuskHomes plugin, @NotNull OnlineUser executor) {
         this.plugin = plugin;
         this.executor = executor;
@@ -83,7 +87,7 @@ public class TeleportBuilder {
      */
     public TeleportBuilder setTeleporter(@NotNull String teleporterUsername) {
         this.teleporter = CompletableFuture.supplyAsync(() -> plugin
-                .findPlayer(teleporterUsername)
+                .findOnlinePlayer(teleporterUsername)
                 .map(onlineUser -> (User) onlineUser)
                 .or(() -> {
                     if (plugin.getSettings().crossServer) {
@@ -169,6 +173,17 @@ public class TeleportBuilder {
     }
 
     /**
+     * Set whether this teleport should update the user's last position (i.e. their {@code /back} position)
+     *
+     * @param updateLastPosition Whether this teleport should update the user's last position
+     * @return The {@link TeleportBuilder} instance
+     */
+    public TeleportBuilder doUpdateLastPosition(boolean updateLastPosition) {
+        this.updateLastPosition = updateLastPosition;
+        return this;
+    }
+
+    /**
      * Resolve the teleporter and target, and construct as an instantly-completing {@link Teleport}
      *
      * @return The constructed {@link Teleport}
@@ -178,7 +193,7 @@ public class TeleportBuilder {
             final User teleporter = this.teleporter.join();
             final Position target = this.target.join();
 
-            return new Teleport(teleporter, executor, target, type, economyActions, plugin);
+            return new Teleport(teleporter, executor, target, type, economyActions, updateLastPosition, plugin);
         }).exceptionally(e -> {
             plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to create teleport", e);
             return null;
@@ -200,7 +215,7 @@ public class TeleportBuilder {
                 throw new IllegalStateException("Timed teleports can only be executed for local users");
             }
 
-            return new TimedTeleport(onlineUser, executor, target, type, warmupTime, economyActions, plugin);
+            return new TimedTeleport(onlineUser, executor, target, type, warmupTime, economyActions, updateLastPosition, plugin);
         }).exceptionally(e -> {
             plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to create timed teleport", e);
             return null;
@@ -214,24 +229,22 @@ public class TeleportBuilder {
      * @return future optionally supplying the player's position, if the player could be found
      */
     private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull String playerName) {
-        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
+        final Optional<OnlineUser> localPlayer = plugin.findOnlinePlayer(playerName);
         if (localPlayer.isPresent()) {
             return CompletableFuture.supplyAsync(() -> Optional.of(localPlayer.get().getPosition()));
         }
         if (plugin.getSettings().crossServer) {
             return plugin.getNetworkMessenger()
                     .findPlayer(executor, playerName)
-                    .thenApply(foundPlayer -> {
+                    .thenApplyAsync(foundPlayer -> {
                         if (foundPlayer.isEmpty()) {
                             return Optional.empty();
                         }
                         return plugin.getNetworkMessenger()
-                                .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST, executor.username,
-                                        playerName, MessagePayload.empty(), Message.RelayType.MESSAGE,
-                                        plugin.getSettings().clusterId))
-                                .orTimeout(3, TimeUnit.SECONDS)
-                                .exceptionally(throwable -> null)
-                                .thenApply(reply -> Optional.ofNullable(reply.payload.position)).join();
+                                .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST,
+                                        executor.username, playerName, MessagePayload.empty(),
+                                        Message.RelayType.MESSAGE, plugin.getSettings().clusterId))
+                                .thenApply(reply -> reply.map(message -> message.payload.position)).join();
                     });
         }
         return CompletableFuture.supplyAsync(Optional::empty);

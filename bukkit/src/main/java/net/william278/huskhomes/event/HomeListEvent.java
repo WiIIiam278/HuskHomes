@@ -31,6 +31,7 @@ public class HomeListEvent extends Event implements IHomeListEvent, Cancellable 
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

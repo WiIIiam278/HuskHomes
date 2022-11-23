@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public abstract class NetworkMessenger {
 
@@ -22,7 +24,7 @@ public abstract class NetworkMessenger {
     protected HashMap<UUID, CompletableFuture<Message>> processingMessages;
 
     /**
-     * List of pending futures for processing {@link #getServerName(OnlineUser)} requests
+     * List of pending futures for processing {@link #fetchServerName(OnlineUser)} requests
      */
     protected List<CompletableFuture<String>> serverNameRequests;
 
@@ -32,7 +34,7 @@ public abstract class NetworkMessenger {
     protected List<CompletableFuture<String[]>> onlinePlayerNamesRequests;
 
     /**
-     * List of pending futures for processing {@link #getOnlineServers(OnlineUser)} requests
+     * List of pending futures for processing {@link #fetchOnlineServerList(OnlineUser)} requests
      */
     protected List<CompletableFuture<String[]>> onlineServersRequests;
 
@@ -45,6 +47,11 @@ public abstract class NetworkMessenger {
      * The implementing HuskHomes plugin instance
      */
     protected HuskHomes plugin;
+
+    /**
+     * The time-to-live of a message before it expires and the {@link CompletableFuture} is cancelled
+     */
+    private final long MESSAGE_TIME_OUT = 5L;
 
     /**
      * Initialize the network messenger
@@ -93,7 +100,7 @@ public abstract class NetworkMessenger {
      * @param requester {@link OnlineUser} to send the request
      * @return Future returning the name of this server on the network
      */
-    public abstract CompletableFuture<String> getServerName(@NotNull OnlineUser requester);
+    public abstract CompletableFuture<String> fetchServerName(@NotNull OnlineUser requester);
 
     /**
      * Fetch a list of online server names proxy
@@ -101,7 +108,7 @@ public abstract class NetworkMessenger {
      * @param requester {@link OnlineUser} to send the request
      * @return Future returning a {@link List} of online servers connected to the proxy network
      */
-    public abstract CompletableFuture<String[]> getOnlineServers(@NotNull OnlineUser requester);
+    public abstract CompletableFuture<String[]> fetchOnlineServerList(@NotNull OnlineUser requester);
 
     /**
      * Send a {@link OnlineUser} to a target {@link Server} on the proxy network
@@ -113,12 +120,34 @@ public abstract class NetworkMessenger {
     public abstract CompletableFuture<Boolean> sendPlayer(@NotNull OnlineUser onlineUser, @NotNull Server server);
 
     /**
-     * Send a network {@link Message} to a target player on the proxy
+     * Send a network message
      *
-     * @param message The {@link Message} to send
+     * @param sender  {@link OnlineUser} sending the message
+     * @param message {@link Message} to send
+     * @return Future returning the {@link Message} sent, that will time out after
+     * @apiNote This method invokes {@link #dispatchMessage(OnlineUser, Message)}, applying a time-to-live timeOut
+     */
+    public final CompletableFuture<Optional<Message>> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
+        return dispatchMessage(sender, message)
+                .orTimeout(MESSAGE_TIME_OUT, TimeUnit.SECONDS)
+                .exceptionally(e -> {
+                    plugin.getLoggingAdapter().log(Level.WARNING, "Message dispatch after " + MESSAGE_TIME_OUT + " seconds", e);
+                    return null;
+                })
+                .thenApply(result -> {
+                    processingMessages.remove(message.uuid);
+                    return Optional.ofNullable(result);
+                });
+    }
+
+    /**
+     * Dispatch a {@link Message} via the appropriate handler
+     *
+     * @param sender  The {@link OnlineUser} that sent the {@link Message}
+     * @param message The {@link Message} to dispatch
      * @return A future containing a reply to the {@link Message} that was sent
      */
-    public abstract CompletableFuture<Message> sendMessage(@NotNull OnlineUser sender, @NotNull Message message);
+    protected abstract CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message);
 
     /**
      * Send a reply to a received {@link Message}
@@ -142,14 +171,23 @@ public abstract class NetworkMessenger {
                 if (processingMessages.containsKey(message.uuid)) {
                     final Message finalMessage = message;
                     processingMessages.get(message.uuid).completeAsync(() -> finalMessage);
+                    return;
                 }
+                plugin.getLoggingAdapter().log(Level.WARNING, "Received a reply to a message that was not sent by this server");
             }
         }
     }
 
+    /**
+     * Handle different message types, executed needed operations and dispatches a reply message
+     * to the sender
+     *
+     * @param receiver The {@link OnlineUser} receiving the message
+     * @param message  The received {@link Message}
+     * @return A future containing the reply {@link Message}
+     */
     private CompletableFuture<Message> prepareReply(@NotNull final OnlineUser receiver, @NotNull final Message message) {
         return CompletableFuture.supplyAsync(() -> {
-            // Handle different message types and apply changes for reply message
             switch (message.type) {
                 case TELEPORT_TO_POSITION_REQUEST -> {
                     if (message.payload.position != null) {
@@ -176,13 +214,27 @@ public abstract class NetworkMessenger {
                     }
                 }
             }
-
-            // Prepare reply message
-            message.targetPlayer = message.sender;
-            message.sender = receiver.username;
-            message.relayType = Message.RelayType.REPLY;
             return message;
+        }).exceptionally(exception -> {
+            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to prepare message reply", exception);
+            message.payload = MessagePayload.empty();
+            return message;
+        }).thenApply(reply -> {
+            formatReplyMessage(message, receiver);
+            return reply;
         });
+    }
+
+    /**
+     * Prepare a {@link Message} to be sent as a reply to a received {@link Message}
+     *
+     * @param message  The received {@link Message}
+     * @param receiver The {@link OnlineUser} receiving the message
+     */
+    private void formatReplyMessage(@NotNull Message message, @NotNull OnlineUser receiver) {
+        message.targetPlayer = message.sender;
+        message.sender = receiver.username;
+        message.relayType = Message.RelayType.REPLY;
     }
 
     /**

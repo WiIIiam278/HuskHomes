@@ -27,18 +27,27 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                 return;
             }
             final String targetPlayerName = args[0];
-            Teleport.builder(plugin, onlineUser)
-                    .setTeleporter(targetPlayerName)
-                    .setTarget(onlineUser.getPosition())
-                    .toTeleport()
-                    .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                        if (result.successful()) {
-                            result.getTeleporter()
-                                    .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
-                                            teleporter.username, onlineUser.username))
-                                    .ifPresent(onlineUser::sendMessage);
-                        }
-                    }));
+            plugin.findPlayer(onlineUser, targetPlayerName).thenAccept(teleporterName -> {
+                if (teleporterName.isEmpty()) {
+                    plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+
+                Teleport.builder(plugin, onlineUser)
+                        .setTeleporter(teleporterName.get())
+                        .setTarget(onlineUser.getPosition())
+                        .toTeleport()
+                        .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+                            if (result.successful()) {
+                                result.getTeleporter()
+                                        .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
+                                                teleporter.username, onlineUser.username))
+                                        .ifPresent(onlineUser::sendMessage);
+                            }
+                        }));
+            });
+
         });
     }
 

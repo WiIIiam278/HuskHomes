@@ -53,7 +53,7 @@ public class RedisMessenger extends PluginMessenger {
     }
 
     @Override
-    public CompletableFuture<Message> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
+    public CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message) {
         final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
         processingMessages.put(message.uuid, repliedMessage);
         redisWorker.sendMessage(message);

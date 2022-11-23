@@ -444,12 +444,27 @@ public abstract class Database {
     public abstract CompletableFuture<Void> deleteHome(@NotNull UUID uuid);
 
     /**
+     * Deletes all {@link Home}s of a {@link User} from the home table on the database.
+     *
+     * @param user The {@link User} to delete all homes of
+     * @return A future returning an integer; the number of deleted homes
+     */
+    public abstract CompletableFuture<Integer> deleteAllHomes(@NotNull User user);
+
+    /**
      * Deletes a {@link Warp} by the given unique id from the warp table on the database.
      *
      * @param uuid {@link UUID} of the warp to delete
      * @return A future returning void when complete
      */
     public abstract CompletableFuture<Void> deleteWarp(@NotNull UUID uuid);
+
+    /**
+     * Deletes all {@link Warp}s set on the database table
+     *
+     * @return A future returning an integer; the number of deleted warps
+     */
+    public abstract CompletableFuture<Integer> deleteAllWarps();
 
     /**
      * Close any remaining connection to the database source

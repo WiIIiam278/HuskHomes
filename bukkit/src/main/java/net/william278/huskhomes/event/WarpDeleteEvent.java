@@ -24,6 +24,7 @@ public class WarpDeleteEvent extends Event implements IWarpDeleteEvent, Cancella
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

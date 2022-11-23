@@ -24,6 +24,7 @@ public class TeleportWarmupEvent extends Event implements ITeleportWarmupEvent, 
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

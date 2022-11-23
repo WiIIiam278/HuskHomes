@@ -51,7 +51,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
      * @return A generated location
      */
     @NotNull
-    private static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
+    protected static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
                                              float spawnRadius, float maxRadius) {
         // Generate random values
         final float radius = generateNormallyDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);

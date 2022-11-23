@@ -53,19 +53,42 @@ public interface HuskHomes {
     List<OnlineUser> getOnlinePlayers();
 
     /**
-     * Finds a {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
+     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
      *
      * @param playerName the name of the player to find
      * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
      */
     @NotNull
-    default Optional<OnlineUser> findPlayer(@NotNull String playerName) {
+    default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
         return getOnlinePlayers().stream()
                 .filter(user -> user.username.equalsIgnoreCase(playerName))
                 .findFirst()
                 .or(() -> getOnlinePlayers().stream()
                         .filter(user -> user.username.toLowerCase().startsWith(playerName.toLowerCase()))
                         .findFirst());
+    }
+
+    /**
+     * Looks for a player logged in either on this server or the network of connected servers, by approximate name.
+     * Auto-completes partially typed names for the closest match.
+     *
+     * @param requester        the player requesting the player to be found
+     * @param targetPlayerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    @NotNull
+    default CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String targetPlayerName) {
+        if (requester.username.equalsIgnoreCase(targetPlayerName)) {
+            return CompletableFuture.completedFuture(Optional.of(requester.username));
+        }
+        final Optional<OnlineUser> localPlayer = findOnlinePlayer(targetPlayerName);
+        if (localPlayer.isPresent()) {
+            return CompletableFuture.completedFuture(Optional.of(localPlayer.get().username));
+        }
+        if (getSettings().crossServer) {
+            return getNetworkMessenger().findPlayer(requester, targetPlayerName);
+        }
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     /**

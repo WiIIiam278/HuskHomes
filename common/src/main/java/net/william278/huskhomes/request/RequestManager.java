@@ -128,7 +128,7 @@ public class RequestManager {
                                                                             @NotNull TeleportRequest.RequestType requestType) {
         final TeleportRequest request = new TeleportRequest(requester, requestType,
                 Instant.now().getEpochSecond() + plugin.getSettings().teleportRequestExpiryTime);
-        final Optional<OnlineUser> localTarget = plugin.findPlayer(targetUser);
+        final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().uuid.equals(requester.uuid)) {
                 return CompletableFuture.completedFuture(Optional.empty());
@@ -278,7 +278,7 @@ public class RequestManager {
         request.status = accepted ? TeleportRequest.RequestStatus.ACCEPTED : TeleportRequest.RequestStatus.DECLINED;
 
         // Send request response to the sender
-        final Optional<OnlineUser> localRequester = plugin.findPlayer(request.requesterName);
+        final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.requesterName);
         if (localRequester.isPresent()) {
             handleLocalRequestResponse(localRequester.get(), request);
         } else if (plugin.getSettings().crossServer) {

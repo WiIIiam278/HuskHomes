@@ -87,7 +87,7 @@ public class TeleportBuilder {
      */
     public TeleportBuilder setTeleporter(@NotNull String teleporterUsername) {
         this.teleporter = CompletableFuture.supplyAsync(() -> plugin
-                .findPlayer(teleporterUsername)
+                .findOnlinePlayer(teleporterUsername)
                 .map(onlineUser -> (User) onlineUser)
                 .or(() -> {
                     if (plugin.getSettings().crossServer) {
@@ -229,7 +229,7 @@ public class TeleportBuilder {
      * @return future optionally supplying the player's position, if the player could be found
      */
     private CompletableFuture<Optional<Position>> getPlayerPosition(@NotNull String playerName) {
-        final Optional<OnlineUser> localPlayer = plugin.findPlayer(playerName);
+        final Optional<OnlineUser> localPlayer = plugin.findOnlinePlayer(playerName);
         if (localPlayer.isPresent()) {
             return CompletableFuture.supplyAsync(() -> Optional.of(localPlayer.get().getPosition()));
         }

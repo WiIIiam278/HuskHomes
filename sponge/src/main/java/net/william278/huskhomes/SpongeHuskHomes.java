@@ -29,8 +29,10 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
-import net.william278.huskhomes.teleport.TeleportManager;
-import net.william278.huskhomes.util.*;
+import net.william278.huskhomes.util.Logger;
+import net.william278.huskhomes.util.SpongeAdapter;
+import net.william278.huskhomes.util.SpongeLogger;
+import net.william278.huskhomes.util.UnsafeBlocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
@@ -43,11 +45,14 @@ import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -65,14 +70,13 @@ public class SpongeHuskHomes implements HuskHomes {
     private Settings settings;
     private Locales locales;
     private Logger logger;
-    private ResourceReader resourceReader;
     private Database database;
     private Cache cache;
-    private TeleportManager teleportManager;
     private RequestManager requestManager;
     private SavedPositionManager savedPositionManager;
     private RandomTeleportEngine randomTeleportEngine;
     private CachedSpawn serverSpawn;
+    private UnsafeBlocks unsafeBlocks;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
@@ -95,13 +99,12 @@ public class SpongeHuskHomes implements HuskHomes {
         // Initialize HuskHomes
         final AtomicBoolean initialized = new AtomicBoolean(true);
         try {
-            // Set the logging and resource reading adapter
+            // Prepare the logging adapter
             this.logger = new SpongeLogger(pluginContainer.logger());
-            this.resourceReader = new SpongeResourceReader(pluginContainer, pluginDirectory.toFile());
 
             // Load settings and locales
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
-            initialized.set(reload().join());
+            initialized.set(reload());
             if (initialized.get()) {
                 getLoggingAdapter().log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
             } else {
@@ -112,30 +115,28 @@ public class SpongeHuskHomes implements HuskHomes {
             getLoggingAdapter().log(Level.INFO, "Attempting to establish connection to the database...");
             final Settings.DatabaseType databaseType = settings.databaseType;
             this.database = switch (databaseType == null ? Settings.DatabaseType.MYSQL : databaseType) {
-                case MYSQL -> new MySqlDatabase(settings, logger, resourceReader);
-                case SQLITE -> new SqLiteDatabase(settings, logger, resourceReader);
+                case MYSQL -> new MySqlDatabase(this);
+                case SQLITE -> new SqLiteDatabase(this);
             };
             initialized.set(this.database.initialize());
             if (initialized.get()) {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
                 throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                                                           "Please check the supplied database credentials in the config file");
+                        "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
             if (getSettings().crossServer) {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
-//                networkMessenger = switch (settings.messengerType) {
-//                    case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
-//                    case REDIS -> new RedisMessenger();
-//                };
-                //networkMessenger.initialize(this);
+                //todo
+                /*networkMessenger = switch (settings.messengerType) {
+                    case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
+                    case REDIS -> new RedisMessenger();
+                };
+                networkMessenger.initialize(this);*/
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
-
-            // Prepare the teleport manager
-            this.teleportManager = new TeleportManager(this);
 
             // Prepare the request manager
             this.requestManager = new RequestManager(this);
@@ -149,10 +150,11 @@ public class SpongeHuskHomes implements HuskHomes {
 
             // Prepare the home and warp position manager
             this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher,
-                    settings.allowUnicodeNames, settings.allowUnicodeDescriptions);
+                    settings.allowUnicodeNames, settings.allowUnicodeDescriptions,
+                    settings.overwriteExistingHomesWarps);
 
             // Initialize the RTP engine with the default normal distribution engine
-            //setRandomTeleportEngine(new NormalDistributionEngine(this));
+            setRandomTeleportEngine(new NormalDistributionEngine(this));
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
@@ -173,8 +175,8 @@ public class SpongeHuskHomes implements HuskHomes {
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
                 getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                                                    pluginHooks.stream().map(PluginHook::getHookName)
-                                                            .collect(Collectors.joining(", ")));
+                        pluginHooks.stream().map(PluginHook::getHookName)
+                                .collect(Collectors.joining(", ")));
             }
 
             // Register events
@@ -188,7 +190,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLatestVersionIfOutdated().thenAccept(newestVersion ->
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
-                                + " (Currently running v" + getPluginVersion() + ")")));
+                                        + " (Currently running v" + getPluginVersion() + ")")));
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -253,11 +255,6 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull TeleportManager getTeleportManager() {
-        return teleportManager;
-    }
-
-    @Override
     public @NotNull RequestManager getRequestManager() {
         return requestManager;
     }
@@ -283,7 +280,6 @@ public class SpongeHuskHomes implements HuskHomes {
     @Override
     public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
         this.randomTeleportEngine = randomTeleportEngine;
-        this.randomTeleportEngine.initialize();
     }
 
     @Override
@@ -303,11 +299,16 @@ public class SpongeHuskHomes implements HuskHomes {
         return Optional.ofNullable(serverSpawn);
     }
 
+
     @Override
     public void setServerSpawn(@NotNull Location location) {
         final CachedSpawn newSpawn = new CachedSpawn(location);
         this.serverSpawn = newSpawn;
-        Annotaml.save(newSpawn, new File(pluginDirectory.toFile(), "spawn.yml"));
+        try {
+            Annotaml.create(new File(getDataFolder(), "spawn.yml"), newSpawn);
+        } catch (IOException e) {
+            getLoggingAdapter().log(Level.WARNING, "Failed to save server spawn to disk", e);
+        }
 
         // Update the world spawn location, too
         SpongeAdapter.adaptLocation(location).ifPresent(spongeLocation ->
@@ -320,7 +321,7 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location) {
+    public CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location) {
         return null;
     }
 
@@ -334,25 +335,35 @@ public class SpongeHuskHomes implements HuskHomes {
 
     @Override
     public CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester) {
-        if (!getSettings().crossServer) {
+        if (!getSettings().crossServer || this.server != null) {
             return CompletableFuture.completedFuture(null);
         }
-        if (server == null) {
-            return getNetworkMessenger().getServerName(requester).thenAcceptAsync(serverName -> {
-                // Set the server name
+        return getNetworkMessenger().fetchServerName(requester).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> null).thenAccept(serverName -> {
+            if (serverName == null) {
+                throw new HuskHomesException("GetServer plugin message call operation timed out");
+            }
+            try {
                 this.server = new Server(serverName);
-
-                // Cache the server to the server.yml file
-                Annotaml.save(new CachedServer(serverName), new File(pluginDirectory.toFile(), "server.yml"));
-            });
-        }
-        return CompletableFuture.completedFuture(null);
+                Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
+                getLoggingAdapter().log(Level.INFO, "Successfully cached server name to disk (" + serverName + ")");
+            } catch (IOException e) {
+                throw new HuskHomesException("Failed to write cached server name to disk", e);
+            }
+        }).exceptionally(throwable -> {
+            getLoggingAdapter().log(Level.SEVERE, "Failed to fetch and cache server name", throwable);
+            return null;
+        });
     }
 
     @Override
     public @Nullable InputStream getResource(@NotNull String name) {
         return pluginContainer.openResource(URI.create(name))
                 .orElse(null);
+    }
+
+    @Override
+    public @NotNull File getDataFolder() {
+        return pluginDirectory.toFile();
     }
 
     @Override
@@ -374,35 +385,45 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override //todo
-    public CompletableFuture<Boolean> reload() {
-        return CompletableFuture.supplyAsync(() -> {
-            // Load settings and locales
-            this.settings = Annotaml.reload(new File(pluginDirectory.toFile(), "config.yml"),
-                    new Settings(), Annotaml.LoaderOptions.builder().copyDefaults(true));
-            this.locales = Annotaml.reload(new File(pluginDirectory.toFile(), "messages_" + settings.language + ".yml"),
-                    Objects.requireNonNull(resourceReader.getResource("locales/" + settings.language + ".yml")),
-                    Locales.class, Annotaml.LoaderOptions.builder().copyDefaults(true));
+    public boolean reload() {
+        try {
+            // Load settings
+            this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), new Settings()).get();
+
+            // Load locales from language preset default
+            final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
+            this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"), languagePresets).get();
 
             // Load cached server from file
             if (settings.crossServer) {
-                final File serverFile = new File(pluginDirectory.toFile(), "server.yml");
+                final File serverFile = new File(getDataFolder(), "server.yml");
                 if (serverFile.exists()) {
-                    this.server = Annotaml.load(serverFile, CachedServer.class).getServer();
+                    this.server = Annotaml.create(serverFile, CachedServer.class).get().getServer();
                 }
             } else {
                 this.server = new Server("server");
             }
 
             // Load spawn location from file
-            final File spawnFile = new File(pluginDirectory.toFile(), "spawn.yml");
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
             if (spawnFile.exists()) {
-                this.serverSpawn = Annotaml.load(spawnFile, CachedSpawn.class);
+                this.serverSpawn = Annotaml.create(spawnFile, CachedSpawn.class).get();
             }
+
+            // Load unsafe blocks from resources
+            final InputStream blocksResource = getResource("safety/unsafe_blocks.yml");
+            this.unsafeBlocks = Annotaml.create(new UnsafeBlocks(), Objects.requireNonNull(blocksResource)).get();
+
             return true;
-        }).exceptionally(throwable -> {
-            getLoggingAdapter().log(Level.SEVERE, "Failed to load data from the config", throwable);
-            return false;
-        });
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            getLoggingAdapter().log(Level.SEVERE, "Failed to reload HuskHomes config or messages file", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isBlockUnsafe(@NotNull String blockId) {
+        return unsafeBlocks.isUnsafe(blockId);
     }
 
     @Override

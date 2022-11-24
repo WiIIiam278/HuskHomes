@@ -1,12 +1,6 @@
 package net.william278.huskhomes.player;
 
-import de.themoep.minedown.adventure.MineDown;
-import de.themoep.minedown.adventure.MineDownParser;
-import net.kyori.adventure.key.InvalidKeyException;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
+import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.position.Location;
@@ -19,13 +13,14 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.server.ServerLocation;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpongePlayer extends OnlineUser {
 
+    // The Sponge player
     private final Player player;
 
     private SpongePlayer(@NotNull Player player) {
@@ -64,11 +59,12 @@ public class SpongePlayer extends OnlineUser {
     @Override
     public Optional<Position> getBedSpawnPosition() {
         return Optional.empty();
-//        player.get(Keys.RESPAWN_LOCATIONS).map(val -> {
-//            val.get();
-//        }).map(Position::new);
-//        return SpongeAdapter.adaptLocation(player.profile().properties())
-//                .map(position -> new Position(position, SpongeHuskHomes.getInstance().getPluginServer()));
+        //todo
+/*        player.get(Keys.RESPAWN_LOCATIONS).map(val -> {
+            val.get();
+        }).map(Position::new);
+        return SpongeAdapter.adaptLocation(player.profile().properties())
+                .map(position -> new Position(position, SpongeHuskHomes.getInstance().getPluginServer()));*/
     }
 
     @Override
@@ -82,48 +78,19 @@ public class SpongePlayer extends OnlineUser {
     } //todo
 
     @Override
-    public @NotNull Map<String, Boolean> getPermissions() {
-        return new HashMap<>(); //todo
+    @NotNull
+    public Map<String, Boolean> getPermissions() {
+        return Collections.emptyMap(); // todo
     }
 
     @Override
-    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final Component text = mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent();
-        player.showTitle(Title.title(subTitle ? Component.empty() : text,
-                subTitle ? text : Component.empty()));
+    @NotNull
+    protected Audience getAudience() {
+        return player;
     }
 
     @Override
-    public void sendActionBar(@NotNull MineDown mineDown) {
-        player.sendActionBar(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMessage(@NotNull MineDown mineDown) {
-        player.sendMessage(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMinecraftMessage(@NotNull String translationKey) {
-        player.sendMessage(Component.translatable(translationKey));
-    }
-
-    @Override
-    public void playSound(@NotNull String soundEffect) {
-        try {
-            player.playSound(Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER, 1, 1));
-        } catch (InvalidKeyException ignored) {
-        }
-    }
-
-    @Override
-    public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
+    public CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous) {
         final CompletableFuture<TeleportResult> future = new CompletableFuture<>();
         final Task teleportTask = Task.builder().execute(() -> {
             final Optional<ServerLocation> serverLocation = SpongeAdapter.adaptLocation(location);

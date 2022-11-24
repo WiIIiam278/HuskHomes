@@ -21,9 +21,8 @@ dependencies {
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
-    compileOnly 'net.william278:Annotaml:1.0.2'
-    compileOnly 'net.william278:DesertWell:1.0'
-
+    compileOnly 'net.william278:Annotaml:2.0'
+    compileOnly 'net.william278:DesertWell:1.1'
 }
 
 sponge {

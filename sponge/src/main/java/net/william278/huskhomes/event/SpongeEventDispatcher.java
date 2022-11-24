@@ -2,6 +2,7 @@ package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
@@ -179,5 +180,15 @@ public class SpongeEventDispatcher implements EventDispatcher {
                 return false;
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<IDeleteAllHomesEvent> dispatchDeleteAllHomesEvent(@NotNull User user) {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<IDeleteAllWarpsEvent> dispatchDeleteAllWarpsEvent() {
+        return null;
     }
 }

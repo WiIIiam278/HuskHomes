@@ -1,5 +1,6 @@
 package net.william278.huskhomes.util;
 
+import net.kyori.adventure.key.Key;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +24,8 @@ public class UnsafeBlocks {
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
      */
     public boolean isUnsafe(@NotNull String blockId) {
-        if (!blockId.startsWith("minecraft:")) {
-            blockId = "minecraft:" + blockId;
+        if (!blockId.startsWith(Key.MINECRAFT_NAMESPACE + ":")) {
+            blockId = Key.MINECRAFT_NAMESPACE + ":" + blockId;
         }
         return unsafeBlocks.contains(blockId);
     }

@@ -36,7 +36,7 @@ sponge {
         displayName("HuskHomes")
         version(project.version.toString())
         entrypoint("net.william278.huskhomes.SpongeHuskHomes")
-        description("HuskHomes on Sponge")
+        description(project.description.toString())
         links {
             homepage("https://william278.net/project/huskhomes")
             source("https://github.com/WiIIiam278/HuskHomes2")

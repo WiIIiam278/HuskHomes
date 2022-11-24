@@ -23,7 +23,7 @@ public class MessagePayload {
      */
     @Nullable
     @SerializedName("teleport_result")
-    public TeleportResult teleportResult;
+    public TeleportResult resultState;
 
     /**
      * A teleport request field
@@ -58,13 +58,13 @@ public class MessagePayload {
     /**
      * Returns a payload containing a {@link TeleportResult}
      *
-     * @param teleportResult the teleport to send
+     * @param resultState the teleport to send
      * @return a payload containing the teleport result
      */
     @NotNull
-    public static MessagePayload withTeleportResult(@NotNull TeleportResult teleportResult) {
+    public static MessagePayload withTeleportResult(@NotNull TeleportResult resultState) {
         final MessagePayload payload = new MessagePayload();
-        payload.teleportResult = teleportResult;
+        payload.resultState = resultState;
         return payload;
     }
 

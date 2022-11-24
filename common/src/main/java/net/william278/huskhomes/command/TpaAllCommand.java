@@ -19,6 +19,12 @@ public class TpaAllCommand extends CommandBase {
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        if (plugin.getRequestManager().isIgnoringRequests(onlineUser)) {
+            plugin.getLocales().getLocale("error_ignoring_teleport_requests")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+
         if (args.length != 0) {
             plugin.getLocales().getLocale("error_invalid_syntax", "/tpaall")
                     .ifPresent(onlineUser::sendMessage);

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class VaultEconomyHook extends EconomyHook {
 
-    private Economy economy;
+    protected Economy economy;
 
     public VaultEconomyHook(@NotNull HuskHomes implementor) {
         super(implementor, "Vault (Economy)");

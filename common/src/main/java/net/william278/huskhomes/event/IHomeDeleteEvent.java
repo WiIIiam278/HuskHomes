@@ -4,7 +4,7 @@ import net.william278.huskhomes.position.Home;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a home is deleted
+ * Representation of an event that fires when a single home is deleted
  */
 public interface IHomeDeleteEvent extends CancellableEvent {
 

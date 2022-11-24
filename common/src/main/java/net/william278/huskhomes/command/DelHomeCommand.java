@@ -3,7 +3,6 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class DelHomeCommand extends CommandBase implements TabCompletable {
@@ -76,7 +74,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
                     plugin.getLocales().getLocale("home_deleted", homeName).ifPresent(deleter::sendMessage);
                     return;
                 }
-                if (homeName.equals("all")) {
+                if (homeName.equalsIgnoreCase("all")) {
                     deleteAllHomes(deleter, homeOwner, delHomeAllConfirm);
                     return;
                 }
@@ -86,7 +84,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
                     plugin.getLocales().getLocale("home_deleted_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
                     return;
                 }
-                if (homeName.equals("all")) {
+                if (homeName.equalsIgnoreCase("all")) {
                     deleteAllHomes(deleter, homeOwner, delHomeAllConfirm);
                     return;
                 }
@@ -104,26 +102,21 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
      */
     private void deleteAllHomes(@NotNull OnlineUser deleter, @NotNull User homeOwner,
                                 final boolean confirm) {
-        plugin.getDatabase().getHomes(homeOwner).thenAccept(homes -> {
-            if (homes.isEmpty()) {
+        if (!confirm) {
+            plugin.getLocales().getLocale("delete_all_homes_confirm")
+                    .ifPresent(deleter::sendMessage);
+            return;
+        }
+
+        plugin.getSavedPositionManager().deleteAllHomes(homeOwner).thenAccept(deleted -> {
+            if (deleted == 0) {
                 plugin.getLocales().getLocale("error_no_warps_set")
                         .ifPresent(deleter::sendMessage);
                 return;
             }
 
-            if (!confirm) {
-                plugin.getLocales().getLocale("delete_all_homes_confirm")
-                        .ifPresent(deleter::sendMessage);
-                return;
-            }
-
-            final List<CompletableFuture<Boolean>> homeDeletionFuture = new ArrayList<>();
-            for (final Home toDelete : homes) {
-                homeDeletionFuture.add(plugin.getSavedPositionManager().deleteHome(homeOwner, toDelete.meta.name));
-            }
-            CompletableFuture.allOf(homeDeletionFuture.toArray(new CompletableFuture[0])).thenRunAsync(() ->
-                    plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(homeDeletionFuture.size()))
-                            .ifPresent(deleter::sendMessage)).join();
+            plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(deleted))
+                    .ifPresent(deleter::sendMessage);
         });
     }
 

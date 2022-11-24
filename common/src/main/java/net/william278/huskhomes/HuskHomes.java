@@ -17,12 +17,12 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
-import net.william278.huskhomes.teleport.TeleportManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -53,19 +53,42 @@ public interface HuskHomes {
     List<OnlineUser> getOnlinePlayers();
 
     /**
-     * Finds a {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
+     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
      *
      * @param playerName the name of the player to find
      * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
      */
     @NotNull
-    default Optional<OnlineUser> findPlayer(@NotNull String playerName) {
+    default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
         return getOnlinePlayers().stream()
                 .filter(user -> user.username.equalsIgnoreCase(playerName))
                 .findFirst()
                 .or(() -> getOnlinePlayers().stream()
                         .filter(user -> user.username.toLowerCase().startsWith(playerName.toLowerCase()))
                         .findFirst());
+    }
+
+    /**
+     * Looks for a player logged in either on this server or the network of connected servers, by approximate name.
+     * Auto-completes partially typed names for the closest match.
+     *
+     * @param requester        the player requesting the player to be found
+     * @param targetPlayerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    @NotNull
+    default CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String targetPlayerName) {
+        if (requester.username.equalsIgnoreCase(targetPlayerName)) {
+            return CompletableFuture.completedFuture(Optional.of(requester.username));
+        }
+        final Optional<OnlineUser> localPlayer = findOnlinePlayer(targetPlayerName);
+        if (localPlayer.isPresent()) {
+            return CompletableFuture.completedFuture(Optional.of(localPlayer.get().username));
+        }
+        if (getSettings().crossServer) {
+            return getNetworkMessenger().findPlayer(requester, targetPlayerName);
+        }
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     /**
@@ -101,14 +124,6 @@ public interface HuskHomes {
     Cache getCache();
 
     /**
-     * The {@link TeleportManager} that manages player teleports
-     *
-     * @return the plugin {@link TeleportManager}
-     */
-    @NotNull
-    TeleportManager getTeleportManager();
-
-    /**
      * The {@link RequestManager} that manages player requests
      *
      * @return the plugin {@link RequestManager}
@@ -140,7 +155,7 @@ public interface HuskHomes {
     RandomTeleportEngine getRandomTeleportEngine();
 
     /**
-     * Set the {@link RandomTeleportEngine} to use and initialize it, calling {@link RandomTeleportEngine#initialize()}
+     * Sets the {@link RandomTeleportEngine} to be used for processing random teleports
      *
      * @param randomTeleportEngine the {@link RandomTeleportEngine} to use
      */
@@ -276,7 +291,7 @@ public interface HuskHomes {
      * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
      * possible to find one
      */
-    CompletableFuture<Optional<Location>> getSafeGroundLocation(@NotNull Location location);
+    CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location);
 
     /**
      * Returns the {@link Server} the plugin is on
@@ -307,6 +322,14 @@ public interface HuskHomes {
     InputStream getResource(@NotNull String name);
 
     /**
+     * Returns the plugin data folder containing the plugin config, etc
+     *
+     * @return the plugin data folder
+     */
+    @NotNull
+    File getDataFolder();
+
+    /**
      * Returns a list of worlds on the server
      *
      * @return a list of worlds on the server
@@ -335,7 +358,15 @@ public interface HuskHomes {
      *
      * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
      */
-    CompletableFuture<Boolean> reload();
+    boolean reload();
+
+    /**
+     * Returns if the block, by provided identifier, is unsafe
+     *
+     * @param blockId The block identifier (e.g. {@code minecraft:stone})
+     * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
+     */
+    boolean isBlockUnsafe(@NotNull String blockId);
 
     /**
      * Registers the plugin with bStats metrics

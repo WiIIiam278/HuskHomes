@@ -1,11 +1,9 @@
-# Builds and tests the project with Gradle
+# Builds, tests the project with Gradle and uploads to Modrinth
 name: Java CI
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ 'master' ]
 
 permissions:
   contents: read

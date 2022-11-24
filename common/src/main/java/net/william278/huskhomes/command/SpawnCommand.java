@@ -2,6 +2,8 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +27,9 @@ public class SpawnCommand extends CommandBase {
                         .ifPresent(onlineUser::sendMessage);
                 return;
             }
-            plugin.getTeleportManager().timedTeleport(onlineUser, position.get());
+            Teleport.builder(plugin, onlineUser)
+                    .setTarget(position.get())
+                    .toTimedTeleport().thenAccept(TimedTeleport::execute);
         });
     }
 }

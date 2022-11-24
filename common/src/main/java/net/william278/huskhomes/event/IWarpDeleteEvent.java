@@ -4,7 +4,7 @@ import net.william278.huskhomes.position.Warp;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a warp is deleted
+ * Representation of an event that fires when a single warp is deleted
  */
 public interface IWarpDeleteEvent extends CancellableEvent {
 

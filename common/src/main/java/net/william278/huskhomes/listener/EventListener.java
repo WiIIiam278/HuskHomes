@@ -2,9 +2,9 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -36,72 +36,90 @@ public class EventListener {
      */
     protected final void handlePlayerJoin(@NotNull OnlineUser onlineUser) {
         // Handle the first player joining the server
-        CompletableFuture.runAsync(() -> {
-            if (firstUser) {
-                firstUser = false;
-                plugin.fetchServer(onlineUser).join();
-            }
-        }).thenRunAsync(() -> {
-            // Ensure the player is present on the database first
-            plugin.getDatabase().ensureUser(onlineUser).join();
-        }).thenRun(() -> {
-            // If the server is in proxy mode, check if the player is teleporting cross-server and handle
-            if (plugin.getSettings().crossServer) {
-                plugin.getDatabase().getCurrentTeleport(onlineUser).thenAccept(teleport -> teleport.ifPresent(activeTeleport -> {
-                    // Handle cross-server respawn
-                    if (activeTeleport.type == TeleportType.RESPAWN) {
-                        final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
-                        if (bedPosition.isEmpty()) {
-                            plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
-                                    .ifPresent(position -> onlineUser.teleport(position, plugin.getSettings().asynchronousTeleports));
-                            onlineUser.sendMinecraftMessage("block.minecraft.spawn.not_valid");
-                        } else {
-                            onlineUser.teleport(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
+        cacheServer(onlineUser).thenRun(() -> plugin.getDatabase().ensureUser(onlineUser)
+                // Handle cross-server checks
+                .thenRun(() -> handleInboundTeleport(onlineUser).thenRun(() -> {
+                    // Update the cached player list
+                    plugin.getCache().updatePlayerListCache(plugin, onlineUser);
+                }).thenRun(() -> {
+                    // Get this user's tp-ignore state and set locally
+                    plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
+                        if (userData.isPresent()) {
+                            final boolean ignoringRequests = userData.get().ignoringTeleports();
+                            plugin.getRequestManager().setIgnoringRequests(onlineUser, ignoringRequests);
+
+                            // Send a reminder message if they are still ignoring requests
+                            if (ignoringRequests) {
+                                plugin.getLocales().getRawLocale("tpignore_on_notification",
+                                                plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
+                                        .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
+                            }
                         }
-                        plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRunAsync(() ->
-                                plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null)).join());
-                        return;
-                    }
+                    }).thenRun(() -> {
+                        // Cache this user's homes
+                        plugin.getDatabase()
+                                .getHomes(onlineUser)
+                                .thenAccept(homes -> plugin.getCache().homes.put(onlineUser.uuid, homes.stream()
+                                        .map(home -> home.meta.name)
+                                        .collect(Collectors.toList())));
+                    });
+                })));
+    }
 
-                    // Teleport the player locally
-                    onlineUser.teleport(activeTeleport.target, plugin.getSettings().asynchronousTeleports).thenAccept(teleportResult -> {
-                                if (!teleportResult.successful) {
-                                    plugin.getLocales().getLocale("error_invalid_world")
-                                            .ifPresent(onlineUser::sendMessage);
-                                } else {
-                                    plugin.getLocales().getLocale("teleporting_complete")
-                                            .ifPresent(onlineUser::sendMessage);
-                                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
-                                            .ifPresent(onlineUser::playSound);
-                                }
-                            }).thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null));
-                }));
-            }
-        }).thenRun(() -> {
-            // Update the cached player list
-            plugin.getCache().updatePlayerListCache(plugin, onlineUser);
-        }).thenRunAsync(() -> {
-            // Get this user's tp-ignore state and set locally
-            plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
-                if (userData.isPresent()) {
-                    final boolean ignoringRequests = userData.get().ignoringTeleports();
-                    plugin.getRequestManager().setIgnoringRequests(onlineUser, ignoringRequests);
+    /**
+     * Ensure the server data has been cached locally
+     *
+     * @param onlineUser user to handle the checks for
+     * @return a future returning void when done
+     */
+    private CompletableFuture<Void> cacheServer(@NotNull OnlineUser onlineUser) {
+        if (plugin.getSettings().crossServer && firstUser) {
+            firstUser = false;
+            return plugin.fetchServer(onlineUser);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
 
-                    // Send a reminder message if they are still ignoring requests
-                    if (ignoringRequests) {
-                        plugin.getLocales().getRawLocale("tpignore_on_notification",
-                                        plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
-                                .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
-                    }
+    /**
+     * Handle inbound cross-server teleports
+     *
+     * @param onlineUser user to handle the checks for
+     * @return a future returning void when done
+     */
+    private CompletableFuture<Void> handleInboundTeleport(@NotNull OnlineUser onlineUser) {
+        // If the server is in proxy mode, check if the player is teleporting cross-server and handle
+        if (plugin.getSettings().crossServer) {
+            return plugin.getDatabase().getCurrentTeleport(onlineUser).thenAccept(teleport -> {
+                if (teleport.isEmpty()) {
+                    return;
                 }
-            }).join();
-        }).thenRun(() -> {
-            // Cache this user's homes
-            plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> plugin.getCache().homes.put(onlineUser.uuid,
-                    homes.stream()
-                            .map(home -> home.meta.name)
-                            .collect(Collectors.toList()))).join();
-        });
+
+                // Handle cross-server respawn
+                if (teleport.get().type == TeleportType.RESPAWN) {
+                    final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
+                    if (bedPosition.isEmpty()) {
+                        plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
+                                .ifPresent(position -> onlineUser.teleportLocally(position, plugin.getSettings().asynchronousTeleports));
+                        onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
+                    } else {
+                        onlineUser.teleportLocally(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
+                    }
+                    plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRunAsync(() ->
+                            plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null)));
+                    return;
+                }
+
+                // Teleport the player locally
+                teleport.get().execute()
+                        .thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
+                        .exceptionally(throwable -> {
+                            plugin.getLoggingAdapter().log(Level.SEVERE,
+                                    "An error occurred while teleporting an inbound player", throwable);
+                            return null;
+                        });
+            });
+        }
+        return CompletableFuture.completedFuture(null);
     }
 
     /**
@@ -145,7 +163,9 @@ public class EventListener {
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
         // Display the return by death via /back notification
-        if (plugin.getSettings().backCommandReturnByDeath && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+        if (plugin.getSettings().backCommandReturnByDeath
+            && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
+            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getLocales().getLocale("return_by_death_notification")
                     .ifPresent(onlineUser::sendMessage);
         }
@@ -154,8 +174,11 @@ public class EventListener {
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
             plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
                 if (!respawnPosition.server.equals(plugin.getPluginServer())) {
-                    plugin.getTeleportManager().teleport(onlineUser, respawnPosition, TeleportType.RESPAWN).thenAccept(
-                            result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                    Teleport.builder(plugin, onlineUser)
+                            .setType(TeleportType.RESPAWN)
+                            .setTarget(respawnPosition)
+                            .toTeleport()
+                            .thenAccept(Teleport::execute);
                 }
             }));
         }
@@ -172,8 +195,7 @@ public class EventListener {
 
         plugin.getDatabase().getUserData(onlineUser.uuid)
                 .thenAccept(userData -> userData.ifPresent(data -> plugin.getDatabase()
-                        .setLastPosition(data.user(), sourcePosition).join()))
-                .join();
+                        .setLastPosition(data.user(), sourcePosition)));
     }
 
     /**
@@ -184,7 +206,7 @@ public class EventListener {
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
-            plugin.getDatabase().setRespawnPosition(onlineUser, position).join();
+            plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
     }
 

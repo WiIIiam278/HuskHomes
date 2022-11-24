@@ -64,18 +64,18 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
     public void onConsoleExecute(@NotNull String[] args) {
         CompletableFuture.runAsync(() -> {
             final List<Home> homes = plugin.getDatabase().getPublicHomes().join();
-            StringJoiner rowJoiner = new StringJoiner("   ");
+            StringJoiner rowJoiner = new StringJoiner("\t");
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
-            for (int i = 1; i <= homes.size(); i++) {
-                final String ownerUsername = homes.get(i - 1).owner.username;
-                final String homeName = homes.get(i - 1).meta.name;
+            for (int i = 0; i < homes.size(); i++) {
+                final String ownerUsername = homes.get(i).owner.username;
+                final String homeName = homes.get(i).meta.name;
                 final String home = ownerUsername + "." + homeName;
                 int spacingSize = (16 - ownerUsername.length()) + 17;
                 rowJoiner.add(home.length() < spacingSize ? home + " ".repeat(spacingSize - home.length()) : home);
-                if (i % 3 == 0) {
+                if ((i + 1) % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
-                    rowJoiner = new StringJoiner("   ");
+                    rowJoiner = new StringJoiner("\t");
                 }
             }
             plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());

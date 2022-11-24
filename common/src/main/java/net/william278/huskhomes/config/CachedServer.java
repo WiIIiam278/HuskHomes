@@ -1,6 +1,7 @@
 package net.william278.huskhomes.config;
 
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import net.william278.huskhomes.position.Server;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +15,7 @@ public class CachedServer {
     /**
      * Name of the server (must match proxy config ID)
      */
+    @YamlKey("server_name")
     public String serverName;
 
     public CachedServer(@NotNull String serverName) {

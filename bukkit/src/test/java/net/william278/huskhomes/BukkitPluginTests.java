@@ -54,6 +54,32 @@ public class BukkitPluginTests {
     }
 
     @Test
+    public void testMessageFormatting() {
+        PlayerMock player = server.addPlayer();
+
+        final MineDown simpleLocale = plugin.getLocales()
+                .getLocale("error_in_game_only")
+                .orElseThrow(() -> new HuskHomesException("Failed to load locale"));
+        final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
+                .orElseThrow(() -> new HuskHomesException("Failed to load raw locale"));
+        BukkitPlayer.adapt(player).sendMessage(simpleLocale);
+        player.assertSaid(simpleLocaleText);
+    }
+
+    @Test
+    public void testMessageDispatching() {
+        PlayerMock player = server.addPlayer();
+
+        final MineDown locale = plugin.getLocales()
+                .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
+                .orElseThrow(() -> new HuskHomesException("Failed to load locale"));
+        BukkitPlayer.adapt(player).sendActionBar(locale);
+        BukkitPlayer.adapt(player).sendMessage(locale);
+        BukkitPlayer.adapt(player).sendTitle(locale, false);
+        BukkitPlayer.adapt(player).sendTitle(locale, true);
+    }
+
+    @Test
     public void testLocalesLoading() {
         final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
         Assertions.assertTrue(rawLocales.size() > 0);

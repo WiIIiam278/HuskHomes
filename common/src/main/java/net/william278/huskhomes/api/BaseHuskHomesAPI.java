@@ -7,8 +7,10 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
-import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.random.RandomTeleportEngine;
+import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -107,7 +109,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0.2
      */
     public boolean isUserWarmingUp(@NotNull User user) {
-        return plugin.getTeleportManager().isWarmingUp(user.uuid);
+        return plugin.getCache().isWarmingUp(user.uuid);
     }
 
     /**
@@ -323,6 +325,18 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get a {@link TeleportBuilder} to construct and dispatch a (timed) teleport
+     *
+     * @param onlineUser The {@link OnlineUser} to teleport
+     * @return A {@link TeleportBuilder} to construct and dispatch a (timed) teleport
+     * @since 3.1
+     */
+    @NotNull
+    public final TeleportBuilder teleportBuilder(@NotNull OnlineUser onlineUser) {
+        return Teleport.builder(plugin, onlineUser);
+    }
+
+    /**
      * Attempt to teleport an {@link OnlineUser} to a target {@link Position}
      *
      * @param user          The {@link OnlineUser} to teleport
@@ -332,12 +346,16 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
      * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
+     * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
      */
+    @Deprecated(since = "3.1")
     public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user,
                                                                   @NotNull Position position,
                                                                   final boolean timedTeleport) {
-        return timedTeleport ? plugin.getTeleportManager().timedTeleport(user, position)
-                : plugin.getTeleportManager().teleport(user, position);
+        final TeleportBuilder builder = teleportBuilder(user).setTarget(position);
+        return timedTeleport
+                ? builder.toTimedTeleport().thenApplyAsync(teleport -> teleport.execute().join().getState())
+                : builder.toTeleport().thenApplyAsync(teleport -> teleport.execute().join().getState());
     }
 
     /**
@@ -348,7 +366,9 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
      * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
+     * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
      */
+    @Deprecated(since = "3.1")
     public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user, @NotNull Position position) {
         return teleportPlayer(user, position, false);
     }
@@ -369,10 +389,17 @@ public abstract class BaseHuskHomesAPI {
                                                                           final boolean timedTeleport,
                                                                           @NotNull String... rtpArgs) {
         return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine()
-                .getRandomPosition(user, rtpArgs)
+                .getRandomPosition(user.getPosition().world, rtpArgs)
                 .thenApply(position -> {
                     if (position.isPresent()) {
-                        return teleportPlayer(user, position.get(), timedTeleport).join();
+                        final TeleportBuilder builder = Teleport.builder(plugin, user)
+                                .setTarget(position.get());
+
+                        return timedTeleport
+                                ? builder.toTimedTeleport()
+                                .thenApplyAsync(teleport -> teleport.execute().join().getState()).join()
+                                : builder.toTeleport()
+                                .thenApplyAsync(teleport -> teleport.execute().join().getState()).join();
                     } else {
                         return TeleportResult.CANCELLED;
                     }
@@ -411,7 +438,9 @@ public abstract class BaseHuskHomesAPI {
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
      * @return The {@link MineDown}-formatted locale
-     * @since 3.0
+     * @apiNote Since v3.0.4, this method returns a `adventure.MineDown` object, targeting
+     * <a href="https://docs.adventure.kyori.net/">Adventure</a> platforms, rather than a bungee components object.
+     * @since 3.0.4
      */
     public final Optional<MineDown> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getLocale(localeKey, replacements);

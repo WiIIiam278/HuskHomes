@@ -12,7 +12,6 @@ version "$ext.plugin_version-${versionMetadata()}"
 
 ext {
     set 'version', version.toString()
-    set 'adventure_version', adventure_version.toString()
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
@@ -43,8 +42,8 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
     }
 
     test {
@@ -106,6 +105,13 @@ logger.lifecycle("Building HuskHomes ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    // Get if there is a tag for this commit
+    def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
+    if (tag != null) {
+        return ''
+    }
+
+    // Otherwise, get the last commit hash and if it's a clean head
     if (grgit == null) {
         return System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
     }

@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,19 +27,27 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                 return;
             }
             final String targetPlayerName = args[0];
-            plugin.getTeleportManager().teleportPlayerByName(targetPlayerName, onlineUser.getPosition(), onlineUser, false)
-                    .thenAccept(resultIfPlayerExists -> resultIfPlayerExists.ifPresentOrElse(
-                            result -> {
-                                if (result.successful) {
-                                    plugin.getLocales().getLocale("teleporting_other_complete",
-                                                    targetPlayerName, onlineUser.username)
-                                            .ifPresent(onlineUser::sendMessage);
-                                    return;
-                                }
-                                plugin.getTeleportManager().finishTeleport(onlineUser, result);
-                            },
-                            () -> plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
-                                    .ifPresent(onlineUser::sendMessage)));
+            plugin.findPlayer(onlineUser, targetPlayerName).thenAccept(teleporterName -> {
+                if (teleporterName.isEmpty()) {
+                    plugin.getLocales().getLocale("error_player_not_found", targetPlayerName)
+                            .ifPresent(onlineUser::sendMessage);
+                    return;
+                }
+
+                Teleport.builder(plugin, onlineUser)
+                        .setTeleporter(teleporterName.get())
+                        .setTarget(onlineUser.getPosition())
+                        .toTeleport()
+                        .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+                            if (result.successful()) {
+                                result.getTeleporter()
+                                        .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
+                                                teleporter.username, onlineUser.username))
+                                        .ifPresent(onlineUser::sendMessage);
+                            }
+                        }));
+            });
+
         });
     }
 

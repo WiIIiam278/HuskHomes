@@ -1,21 +1,22 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.player.User;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable {
+public class DeleteAllHomesEvent extends Event implements IDeleteAllHomesEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final Warp warp;
 
     private boolean cancelled;
 
-    public WarpSaveEvent(@NotNull Warp warp) {
-        this.warp = warp;
+    @NotNull
+    private final User homeOwner;
+
+    public DeleteAllHomesEvent(@NotNull User homeOwner) {
+        this.homeOwner = homeOwner;
     }
 
     @NotNull
@@ -40,7 +41,7 @@ public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable 
     }
 
     @Override
-    public @NotNull Warp getWarp() {
-        return warp;
+    public @NotNull User getHomeOwner() {
+        return homeOwner;
     }
 }

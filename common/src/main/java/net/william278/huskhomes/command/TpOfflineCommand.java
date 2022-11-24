@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,8 +39,15 @@ public class TpOfflineCommand extends CommandBase implements TabCompletable {
                 }
                 plugin.getLocales().getLocale("teleporting_offline_player", targetUser)
                         .ifPresent(onlineUser::sendMessage);
-                plugin.getTeleportManager().teleport(onlineUser, offlinePosition.get()).thenAccept(
-                        result -> plugin.getTeleportManager().finishTeleport(onlineUser, result));
+                Teleport.builder(plugin, onlineUser)
+                        .setTarget(offlinePosition.get())
+                        .toTeleport()
+                        .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
+                            if (result.successful()) {
+                                plugin.getLocales().getLocale("teleporting_offline_complete", targetUser)
+                                        .ifPresent(onlineUser::sendMessage);
+                            }
+                        }));
             });
         });
     }

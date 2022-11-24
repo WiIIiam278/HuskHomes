@@ -1,12 +1,7 @@
 package net.william278.huskhomes.player;
 
-import de.themoep.minedown.adventure.MineDown;
-import de.themoep.minedown.adventure.MineDownParser;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.position.Location;
@@ -31,13 +26,16 @@ import java.util.stream.Collectors;
  */
 public class BukkitPlayer extends OnlineUser {
 
+    // Instance of the implementing plugin
+    private final BukkitHuskHomes plugin;
+
+    // The Bukkit player
     private final Player player;
-    private final Audience audience;
 
     private BukkitPlayer(@NotNull Player player) {
         super(player.getUniqueId(), player.getName());
+        this.plugin = BukkitHuskHomes.getInstance();
         this.player = player;
-        this.audience = BukkitHuskHomes.getInstance().getAudiences().player(player);
     }
 
     /**
@@ -69,14 +67,14 @@ public class BukkitPlayer extends OnlineUser {
     public Position getPosition() {
         return new Position(BukkitAdapter.adaptLocation(player.getLocation())
                 .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
-                BukkitHuskHomes.getInstance().getPluginServer());
+                plugin.getPluginServer());
 
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
         return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                .map(location -> new Position(location, BukkitHuskHomes.getInstance().getPluginServer()));
+                .map(location -> new Position(location, plugin.getPluginServer()));
     }
 
     @Override
@@ -89,6 +87,7 @@ public class BukkitPlayer extends OnlineUser {
         return player.hasPermission(node);
     }
 
+
     @Override
     public @NotNull Map<String, Boolean> getPermissions() {
         return player.getEffectivePermissions().stream().collect(
@@ -97,40 +96,12 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     @Override
-    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final Component text = mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent();
-        audience.showTitle(Title.title(subTitle ? Component.empty() : text,
-                subTitle ? text : Component.empty()));
+    protected @NotNull Audience getAudience() {
+        return plugin.getAudiences().player(player);
     }
 
     @Override
-    public void sendActionBar(@NotNull MineDown mineDown) {
-        audience.sendActionBar(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMessage(@NotNull MineDown mineDown) {
-        audience.sendMessage(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
-    }
-
-    @Override
-    public void sendMinecraftMessage(@NotNull String translationKey) {
-        audience.sendMessage(Component.translatable(translationKey));
-    }
-
-    @Override
-    public void playSound(@NotNull String soundEffect) {
-        player.playSound(player.getLocation(), soundEffect, 1, 1);
-    }
-
-    @Override
-    public CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous) {
+    public CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous) {
         final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
         if (bukkitLocation.isEmpty()) {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_WORLD);
@@ -140,7 +111,7 @@ public class BukkitPlayer extends OnlineUser {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ILLEGAL_COORDINATES);
         }
         final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(BukkitHuskHomes.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             if (asynchronous) {
                 PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
                         .thenAccept(result -> resultCompletableFuture.complete(

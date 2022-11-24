@@ -2,6 +2,7 @@ package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
@@ -29,7 +30,7 @@ public class BukkitEventDispatcher implements EventDispatcher {
     }
 
     @Override
-    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(TimedTeleport teleport, int duration) {
         final CompletableFuture<ITeleportWarmupEvent> dispatchFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             final TeleportWarmupEvent event = new TeleportWarmupEvent(teleport, duration);
@@ -100,6 +101,28 @@ public class BukkitEventDispatcher implements EventDispatcher {
         final CompletableFuture<IWarpListEvent> dispatchFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             final WarpListEvent event = new WarpListEvent(warps, user);
+            Bukkit.getPluginManager().callEvent(event);
+            dispatchFuture.complete(event);
+        });
+        return dispatchFuture;
+    }
+
+    @Override
+    public CompletableFuture<IDeleteAllHomesEvent> dispatchDeleteAllHomesEvent(@NotNull User user) {
+        final CompletableFuture<IDeleteAllHomesEvent> dispatchFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            final DeleteAllHomesEvent event = new DeleteAllHomesEvent(user);
+            Bukkit.getPluginManager().callEvent(event);
+            dispatchFuture.complete(event);
+        });
+        return dispatchFuture;
+    }
+
+    @Override
+    public CompletableFuture<IDeleteAllWarpsEvent> dispatchDeleteAllWarpsEvent() {
+        final CompletableFuture<IDeleteAllWarpsEvent> dispatchFuture = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            final DeleteAllWarpsEvent event = new DeleteAllWarpsEvent();
             Bukkit.getPluginManager().callEvent(event);
             dispatchFuture.complete(event);
         });

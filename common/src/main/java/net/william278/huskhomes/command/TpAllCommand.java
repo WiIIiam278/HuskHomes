@@ -2,6 +2,8 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +37,12 @@ public class TpAllCommand extends CommandBase {
                     .ifPresent(onlineUser::sendMessage);
 
             // Teleport every player
-            players.forEach(playerName -> plugin.getTeleportManager()
-                    .teleportPlayerByName(playerName, onlineUser.getPosition(), onlineUser, false));
+            final Position targetPosition = onlineUser.getPosition();
+            players.forEach(playerName -> Teleport.builder(plugin, onlineUser)
+                    .setTeleporter(playerName)
+                    .setTarget(targetPosition)
+                    .toTeleport()
+                    .thenAccept(Teleport::execute));
         });
 
     }

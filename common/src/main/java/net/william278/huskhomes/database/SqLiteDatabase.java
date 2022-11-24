@@ -1,13 +1,12 @@
 package net.william278.huskhomes.database;
 
-import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
-import net.william278.huskhomes.util.Logger;
-import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteConfig;
@@ -43,9 +42,9 @@ public class SqLiteDatabase extends Database {
     private Connection connection;
 
 
-    public SqLiteDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
-        super(settings, logger, resourceReader);
-        this.databaseFile = new File(resourceReader.getDataFolder(), DATABASE_FILE_NAME);
+    public SqLiteDatabase(@NotNull HuskHomes implementor) {
+        super(implementor);
+        this.databaseFile = new File(implementor.getDataFolder(), DATABASE_FILE_NAME);
     }
 
     private Connection getConnection() throws SQLException {
@@ -608,7 +607,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user) {
+    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull OnlineUser onlineUser) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -616,24 +615,28 @@ public class SqLiteDatabase extends Database {
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                         WHERE `player_uuid`=?"""))) {
-                    statement.setString(1, user.uuid.toString());
+                    statement.setString(1, onlineUser.uuid.toString());
 
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
-                        return Optional.of(new Teleport(user,
-                                new Position(resultSet.getDouble("x"),
+                        return Optional.of(Teleport.builder(plugin, onlineUser)
+                                .setTarget(new Position(resultSet.getDouble("x"),
                                         resultSet.getDouble("y"),
                                         resultSet.getDouble("z"),
                                         resultSet.getFloat("yaw"),
                                         resultSet.getFloat("pitch"),
                                         new World(resultSet.getString("world_name"),
                                                 UUID.fromString(resultSet.getString("world_uuid"))),
-                                        new Server(resultSet.getString("server_name"))),
-                                TeleportType.getTeleportType(resultSet.getInt("type")).orElse(TeleportType.TELEPORT)));
+                                        new Server(resultSet.getString("server_name"))))
+                                .setType(TeleportType.getTeleportType(resultSet.getInt("type"))
+                                        .orElse(TeleportType.TELEPORT))
+                                .doUpdateLastPosition(false)
+                                .toTeleport()
+                                .join());
                     }
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + user.username, e);
+                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.username, e);
             }
             return Optional.empty();
         });
@@ -680,7 +683,7 @@ public class SqLiteDatabase extends Database {
             }
 
             // Set the user's teleport into the database (if it's not null)
-            if (teleport != null) {
+            if (teleport != null && teleport.target != null) {
                 try {
                     try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
@@ -1010,6 +1013,32 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public CompletableFuture<Integer> deleteAllHomes(@NotNull User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%homes_table%`
+                                WHERE `owner_uuid`=?
+                            )
+                        );"""))) {
+
+                    statement.setString(1, user.uuid.toString());
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.username + " from the database", e);
+            }
+            return 0;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> deleteWarp(@NotNull UUID uuid) {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -1031,6 +1060,29 @@ public class SqLiteDatabase extends Database {
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to delete a warp from the database", e);
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAllWarps() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%warps_table%`
+                            )
+                        );"""))) {
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all warps from the database", e);
+            }
+            return 0;
         });
     }
 

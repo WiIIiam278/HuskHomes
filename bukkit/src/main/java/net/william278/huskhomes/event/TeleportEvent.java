@@ -26,6 +26,7 @@ public class TeleportEvent extends Event implements ITeleportEvent {
         return HANDLER_LIST;
     }
 
+    @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }

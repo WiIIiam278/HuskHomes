@@ -35,6 +35,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         AboutMenu.Credit.of("SnivyJ").withDescription("Simplified Chinese (zh-cn)"),
                         AboutMenu.Credit.of("ApliNi").withDescription("Simplified Chinese (zh-cn)"),
                         AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("davgo0103").withDescription("Traditional Chinese (zh-tw)"),
                         AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
                         AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),
                         AboutMenu.Credit.of("anchelthe").withDescription("Spanish (es-es)"),
@@ -85,13 +86,11 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                             .ifPresent(onlineUser::sendMessage);
                     return;
                 }
-                plugin.reload().thenAccept(reloaded -> {
-                    if (!reloaded) {
-                        onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
-                        return;
-                    }
-                    onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
-                });
+                if (!plugin.reload()) {
+                    onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
+                    return;
+                }
+                onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
             }
             case "update" -> {
                 if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_UPDATE.node)) {
@@ -103,10 +102,10 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         newestVersion.ifPresentOrElse(
                                 newVersion -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
-                                                + " (v" + newVersion + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
+                                                     + " (v" + newVersion + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
                                 () -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
-                                                + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)"))));
+                                                     + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)"))));
             }
             case "migrate" -> plugin.getLocales().getLocale("error_console_command_only")
                     .ifPresent(onlineUser::sendMessage);
@@ -131,23 +130,23 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         .stream().filter(command -> command instanceof ConsoleExecutable)
                         .forEach(command -> plugin.getLoggingAdapter().log(Level.INFO,
                                 command.command +
-                                        (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
-                                        + " - " + command.getDescription()));
+                                (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
+                                + " - " + command.getDescription()));
             }
-            case "reload" -> plugin.reload().thenAccept(reloaded -> {
-                if (!reloaded) {
+            case "reload" -> {
+                if (!plugin.reload()) {
                     plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to reload the plugin.");
                     return;
                 }
                 plugin.getLoggingAdapter().log(Level.INFO, "Reloaded config & message files.");
-            });
+            }
             case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
                     newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
                                     "An update is available for HuskHomes, v" + newVersion
-                                            + " (Running v" + plugin.getPluginVersion() + ")"),
+                                    + " (Running v" + plugin.getPluginVersion() + ")"),
                             () -> plugin.getLoggingAdapter().log(Level.INFO,
                                     "HuskHomes is up to date" +
-                                            " (Running v" + plugin.getPluginVersion() + ")")));
+                                    " (Running v" + plugin.getPluginVersion() + ")")));
             case "migrate" -> {
                 if (args.length < 2) {
                     plugin.getLoggingAdapter().log(Level.INFO,
@@ -177,7 +176,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                 }, () -> {
                     plugin.getLoggingAdapter().log(Level.INFO,
                             "Please specify a valid migrator.\n" +
-                                    "If a migrator is not available, please verify that you meet the prerequisites to use it.");
+                            "If a migrator is not available, please verify that you meet the prerequisites to use it.");
                     logMigratorsList();
                 });
             }
@@ -187,9 +186,9 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
     private void logMigratorsList() {
         plugin.getLoggingAdapter().log(Level.INFO,
                 "List of available migrators:\nMigrator ID / Migrator Name:\n" +
-                        plugin.getMigrators().stream()
-                                .map(migrator -> migrator.getIdentifier() + " - " + migrator.getName())
-                                .collect(Collectors.joining("\n")));
+                plugin.getMigrators().stream()
+                        .map(migrator -> migrator.getIdentifier() + " - " + migrator.getName())
+                        .collect(Collectors.joining("\n")));
     }
 
     private void sendAboutMenu(@NotNull OnlineUser onlineUser) {

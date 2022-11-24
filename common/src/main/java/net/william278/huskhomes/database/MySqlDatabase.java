@@ -1,14 +1,13 @@
 package net.william278.huskhomes.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
-import net.william278.huskhomes.util.Logger;
-import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,21 +32,28 @@ public class MySqlDatabase extends Database {
     public String password;
     public String connectionParameters;
 
-    private final Settings.ConnectionPoolOptions poolOptions;
+    public int connectionPoolSize;
+    public int connectionPoolIdle;
+    public long connectionPoolLifetime;
+    public long connectionPoolKeepAlive;
+    public long connectionPoolTimeout;
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
-
     private HikariDataSource dataSource;
 
-    public MySqlDatabase(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
-        super(settings, logger, resourceReader);
-        this.host = settings.mySqlHost;
-        this.port = settings.mySqlPort;
-        this.database = settings.mySqlDatabase;
-        this.username = settings.mySqlUsername;
-        this.password = settings.mySqlPassword;
-        this.connectionParameters = settings.mySqlConnectionParameters;
-        this.poolOptions = settings.mySqlPoolOptions;
+    public MySqlDatabase(@NotNull HuskHomes plugin) {
+        super(plugin);
+        this.host = plugin.getSettings().mySqlHost;
+        this.port = plugin.getSettings().mySqlPort;
+        this.database = plugin.getSettings().mySqlDatabase;
+        this.username = plugin.getSettings().mySqlUsername;
+        this.password = plugin.getSettings().mySqlPassword;
+        this.connectionParameters = plugin.getSettings().mySqlConnectionParameters;
+        this.connectionPoolSize = plugin.getSettings().mySqlConnectionPoolSize;
+        this.connectionPoolIdle = plugin.getSettings().mySqlConnectionPoolIdle;
+        this.connectionPoolLifetime = plugin.getSettings().mySqlConnectionPoolLifetime;
+        this.connectionPoolKeepAlive = plugin.getSettings().mySqlConnectionPoolKeepAlive;
+        this.connectionPoolTimeout = plugin.getSettings().mySqlConnectionPoolTimeout;
     }
 
     /**
@@ -72,13 +78,28 @@ public class MySqlDatabase extends Database {
             dataSource.setUsername(username);
             dataSource.setPassword(password);
 
-            // Set various additional parameters
-            dataSource.setMaximumPoolSize(poolOptions.size);
-            dataSource.setMinimumIdle(poolOptions.idle);
-            dataSource.setMaxLifetime(poolOptions.lifetime);
-            dataSource.setKeepaliveTime(poolOptions.keepalive);
-            dataSource.setConnectionTimeout(poolOptions.timeout);
+            // Set connection pool options
+            dataSource.setMaximumPoolSize(connectionPoolSize);
+            dataSource.setMinimumIdle(connectionPoolIdle);
+            dataSource.setMaxLifetime(connectionPoolLifetime);
+            dataSource.setKeepaliveTime(connectionPoolKeepAlive);
+            dataSource.setConnectionTimeout(connectionPoolTimeout);
             dataSource.setPoolName(DATA_POOL_NAME);
+
+            // Set additional connection pool properties
+            dataSource.setDataSourceProperties(new Properties() {{
+                put("cachePrepStmts", "true");
+                put("prepStmtCacheSize", "250");
+                put("prepStmtCacheSqlLimit", "2048");
+                put("useServerPrepStmts", "true");
+                put("useLocalSessionState", "true");
+                put("useLocalTransactionState", "true");
+                put("rewriteBatchedStatements", "true");
+                put("cacheResultSetMetadata", "true");
+                put("cacheServerConfiguration", "true");
+                put("elideSetAutoCommits", "true");
+                put("maintainTimeStats", "false");
+            }});
 
             // Prepare database schema; make tables if they don't exist
             try (Connection connection = dataSource.getConnection()) {
@@ -472,8 +493,6 @@ public class MySqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to query a player's home", e);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             return Optional.empty();
         });
@@ -592,7 +611,7 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user) {
+    public CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull OnlineUser onlineUser) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -600,24 +619,28 @@ public class MySqlDatabase extends Database {
                         FROM `%teleports_table%`
                         INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                         WHERE `player_uuid`=?"""))) {
-                    statement.setString(1, user.uuid.toString());
+                    statement.setString(1, onlineUser.uuid.toString());
 
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
-                        return Optional.of(new Teleport(user,
-                                new Position(resultSet.getDouble("x"),
+                        return Optional.of(Teleport.builder(plugin, onlineUser)
+                                .setTarget(new Position(resultSet.getDouble("x"),
                                         resultSet.getDouble("y"),
                                         resultSet.getDouble("z"),
                                         resultSet.getFloat("yaw"),
                                         resultSet.getFloat("pitch"),
                                         new World(resultSet.getString("world_name"),
                                                 UUID.fromString(resultSet.getString("world_uuid"))),
-                                        new Server(resultSet.getString("server_name"))),
-                                TeleportType.getTeleportType(resultSet.getInt("type")).orElse(TeleportType.TELEPORT)));
+                                        new Server(resultSet.getString("server_name"))))
+                                .setType(TeleportType.getTeleportType(resultSet.getInt("type"))
+                                        .orElse(TeleportType.TELEPORT))
+                                .doUpdateLastPosition(false)
+                                .toTeleport()
+                                .join());
                     }
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + user.username, e);
+                getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.username, e);
             }
             return Optional.empty();
         });
@@ -647,8 +670,8 @@ public class MySqlDatabase extends Database {
     @Override
     public CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         return CompletableFuture.runAsync(() -> {
-            // Clear the user's current teleport
             try (Connection connection = getConnection()) {
+                // Clear the user's current teleport
                 try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
                         DELETE FROM `%positions_table%`
                         WHERE `id`=(
@@ -659,13 +682,9 @@ public class MySqlDatabase extends Database {
                     deleteStatement.setString(1, user.uuid.toString());
                     deleteStatement.executeUpdate();
                 }
-            } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
-            }
 
-            // Set the user's teleport into the database (if it's not null)
-            if (teleport != null) {
-                try (Connection connection = getConnection()) {
+                // Set the user's teleport into the database (if it's not null)
+                if (teleport != null && teleport.target != null) {
                     try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                             INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
                             VALUES (?,?,?);"""))) {
@@ -675,9 +694,9 @@ public class MySqlDatabase extends Database {
 
                         statement.executeUpdate();
                     }
-                } catch (SQLException e) {
-                    getLogger().log(Level.SEVERE, "Failed to set the current teleport of " + user.username, e);
                 }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
             }
         });
     }
@@ -994,6 +1013,32 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
+    public CompletableFuture<Integer> deleteAllHomes(@NotNull User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%homes_table%`
+                                WHERE `owner_uuid`=?
+                            )
+                        );"""))) {
+
+                    statement.setString(1, user.uuid.toString());
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.username + " from the database", e);
+            }
+            return 0;
+        });
+    }
+
+    @Override
     public CompletableFuture<Void> deleteWarp(@NotNull UUID uuid) {
         return CompletableFuture.runAsync(() -> {
             try (Connection connection = getConnection()) {
@@ -1015,6 +1060,29 @@ public class MySqlDatabase extends Database {
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE, "Failed to delete a warp from the database", e);
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Integer> deleteAllWarps() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                        DELETE FROM `%positions_table%`
+                        WHERE `%positions_table%`.`id` IN (
+                            SELECT `position_id`
+                            FROM `%saved_positions_table%`
+                            WHERE `%saved_positions_table%`.`id` IN (
+                                SELECT `saved_position_id`
+                                FROM `%warps_table%`
+                            )
+                        );"""))) {
+                    return statement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                getLogger().log(Level.SEVERE, "Failed to delete all warps from the database", e);
+            }
+            return 0;
         });
     }
 

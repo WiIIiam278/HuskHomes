@@ -3,12 +3,12 @@ package net.william278.huskhomes.database;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Logger;
-import net.william278.huskhomes.util.ResourceReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,10 +17,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -104,6 +101,11 @@ public abstract class Database {
     protected final String teleportsTableName;
 
     /**
+     * Instance of the implementing plugin
+     */
+    protected final HuskHomes plugin;
+
+    /**
      * Logger instance used for database error logging
      */
     private final Logger logger;
@@ -117,8 +119,6 @@ public abstract class Database {
         return logger;
     }
 
-    private final ResourceReader resourceReader;
-
     /**
      * Loads SQL table creation schema statements from a resource file as a string array
      *
@@ -128,8 +128,8 @@ public abstract class Database {
      */
     protected final String[] getSchemaStatements(@NotNull String schemaFileName) throws IOException {
         return formatStatementTables(
-                new String(resourceReader.getResource(schemaFileName)
-                        .readAllBytes(), StandardCharsets.UTF_8))
+                new String(Objects.requireNonNull(plugin.getResource(schemaFileName)).readAllBytes(),
+                        StandardCharsets.UTF_8))
                 .split(";");
     }
 
@@ -150,19 +150,19 @@ public abstract class Database {
     }
 
     /**
-     * Create a database instance with specified table data {@link Settings}
+     * Create a database instance, pulling table names from the plugin config
      *
-     * @param settings {@link Settings} to fetch database configuration data from
+     * @param implementor the implementing plugin instance
      */
-    protected Database(@NotNull Settings settings, @NotNull Logger logger, @NotNull ResourceReader resourceReader) {
-        this.playerTableName = settings.getTableName(Settings.TableName.PLAYER_DATA);
-        this.positionsTableName = settings.getTableName(Settings.TableName.POSITION_DATA);
-        this.savedPositionsTableName = settings.getTableName(Settings.TableName.SAVED_POSITION_DATA);
-        this.homesTableName = settings.getTableName(Settings.TableName.HOME_DATA);
-        this.warpsTableName = settings.getTableName(Settings.TableName.WARP_DATA);
-        this.teleportsTableName = settings.getTableName(Settings.TableName.TELEPORT_DATA);
-        this.logger = logger;
-        this.resourceReader = resourceReader;
+    protected Database(@NotNull HuskHomes implementor) {
+        this.plugin = implementor;
+        this.playerTableName = implementor.getSettings().getTableName(Settings.TableName.PLAYER_DATA);
+        this.positionsTableName = implementor.getSettings().getTableName(Settings.TableName.POSITION_DATA);
+        this.savedPositionsTableName = implementor.getSettings().getTableName(Settings.TableName.SAVED_POSITION_DATA);
+        this.homesTableName = implementor.getSettings().getTableName(Settings.TableName.HOME_DATA);
+        this.warpsTableName = implementor.getSettings().getTableName(Settings.TableName.WARP_DATA);
+        this.teleportsTableName = implementor.getSettings().getTableName(Settings.TableName.TELEPORT_DATA);
+        this.logger = implementor.getLoggingAdapter();
     }
 
     /**
@@ -342,12 +342,12 @@ public abstract class Database {
     public abstract CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID uuid);
 
     /**
-     * Get the current {@link Teleport} being executed by the specified {@link User}
+     * Get the current {@link Teleport} being executed by the specified {@link OnlineUser}
      *
-     * @param user The {@link User} to check
+     * @param onlineUser The {@link OnlineUser} to check
      * @return A future returning an optional with the {@link Teleport} present if they are teleporting cross-server
      */
-    public abstract CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull User user);
+    public abstract CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull OnlineUser onlineUser);
 
     /**
      * Updates a user in the database with new {@link UserData}
@@ -444,12 +444,27 @@ public abstract class Database {
     public abstract CompletableFuture<Void> deleteHome(@NotNull UUID uuid);
 
     /**
+     * Deletes all {@link Home}s of a {@link User} from the home table on the database.
+     *
+     * @param user The {@link User} to delete all homes of
+     * @return A future returning an integer; the number of deleted homes
+     */
+    public abstract CompletableFuture<Integer> deleteAllHomes(@NotNull User user);
+
+    /**
      * Deletes a {@link Warp} by the given unique id from the warp table on the database.
      *
      * @param uuid {@link UUID} of the warp to delete
      * @return A future returning void when complete
      */
     public abstract CompletableFuture<Void> deleteWarp(@NotNull UUID uuid);
+
+    /**
+     * Deletes all {@link Warp}s set on the database table
+     *
+     * @return A future returning an integer; the number of deleted warps
+     */
+    public abstract CompletableFuture<Integer> deleteAllWarps();
 
     /**
      * Close any remaining connection to the database source

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.config;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.annotaml.RootedMap;
 import net.william278.annotaml.YamlFile;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.WordUtils;
@@ -15,7 +14,7 @@ import java.util.Optional;
 /**
  * Loaded locales used by the plugin to display styled messages
  */
-@YamlFile(header = """
+@YamlFile(rootedMap = true, header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
         ┃      HuskHomes Locales       ┃
         ┃    Developed by William278   ┃
@@ -25,7 +24,9 @@ import java.util.Optional;
         ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/Translations""")
 public class Locales {
 
-    @RootedMap
+    /**
+     * The raw set of locales loaded from yaml
+     */
     public Map<String, String> rawLocales = new HashMap<>();
 
     /**

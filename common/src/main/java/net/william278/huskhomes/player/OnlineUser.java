@@ -1,9 +1,19 @@
 package net.william278.huskhomes.player;
 
 import de.themoep.minedown.adventure.MineDown;
+import de.themoep.minedown.adventure.MineDownParser;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.InvalidKeyException;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.util.Permission;
+import org.intellij.lang.annotations.Pattern;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -47,7 +57,7 @@ public abstract class OnlineUser extends User {
      * @param node The permission node string
      * @return {@code true} if the player has the node; {@code false} otherwise
      */
-    public abstract boolean hasPermission(@NotNull String node);
+    public abstract boolean hasPermission(@NotNull @Pattern(Permission.PERMISSION_PATTERN) String node);
 
     /**
      * Returns a {@link Map} of a player's permission nodes
@@ -63,14 +73,22 @@ public abstract class OnlineUser extends User {
      * @param mineDown the parsed {@link MineDown} to send
      * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
      */
-    public abstract void sendTitle(@NotNull MineDown mineDown, boolean subTitle);
+    public final void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
+        getAudience().sendTitlePart(subTitle ? TitlePart.SUBTITLE : TitlePart.TITLE, mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
+    }
 
     /**
      * Dispatch a MineDown-formatted action bar message to this player
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
-    public abstract void sendActionBar(@NotNull MineDown mineDown);
+    public final void sendActionBar(@NotNull MineDown mineDown) {
+        getAudience().sendActionBar(mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
+    }
 
 
     /**
@@ -78,29 +96,55 @@ public abstract class OnlineUser extends User {
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
-    public abstract void sendMessage(@NotNull MineDown mineDown);
+    public final void sendMessage(@NotNull MineDown mineDown) {
+        getAudience().sendMessage(mineDown
+                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
+                .replace().toComponent());
+    }
 
     /**
      * Dispatch a Minecraft translatable keyed-message to this player
      *
      * @param translationKey the translation key of the message to send
+     * @implNote This method is intended for use with Minecraft's built-in translation keys. If the key is invalid,
+     * it will be substituted with {@code minecraft:block.minecraft.spawn.not_valid}
      */
-    public abstract void sendMinecraftMessage(@NotNull String translationKey);
+    public final void sendTranslatableMessage(@Subst(Key.MINECRAFT_NAMESPACE + "block.minecraft.spawn.not_valid")
+                                              @NotNull String translationKey) {
+        getAudience().sendMessage(Component.translatable(translationKey));
+    }
 
     /**
      * Play the specified sound to this player
      *
      * @param soundEffect the sound effect to play. If the sound name is invalid, the sound will not play
+     * @implNote If the key is invalid, it will be substituted with {@code minecraft:block.note_block.banjo}
      */
-    public abstract void playSound(@NotNull String soundEffect);
+    public final void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
+                                @NotNull String soundEffect) throws IllegalArgumentException {
+        try {
+            getAudience().playSound(Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER,
+                    1.0f, 1.0f), Sound.Emitter.self());
+        } catch (InvalidKeyException e) {
+            throw new IllegalArgumentException("Invalid sound effect name: " + soundEffect);
+        }
+    }
 
     /**
-     * Teleport a player to the specified {@link Location}
+     * Get the adventure {@link Audience} for this player
+     *
+     * @return the adventure {@link Audience} for this player
+     */
+    @NotNull
+    protected abstract Audience getAudience();
+
+    /**
+     * Teleport a player to the specified local {@link Location}
      *
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract CompletableFuture<TeleportResult> teleport(@NotNull Location location, boolean asynchronous);
+    public abstract CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous);
 
     /**
      * Returns if a player is moving (i.e. they have momentum)

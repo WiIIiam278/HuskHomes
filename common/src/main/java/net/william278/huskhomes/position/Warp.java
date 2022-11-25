@@ -1,5 +1,7 @@
 package net.william278.huskhomes.position;
 
+import net.william278.huskhomes.util.Permission;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -26,7 +28,15 @@ public class Warp extends SavedPosition {
     }
 
     @NotNull
+    @Subst("huskhomes.command.warp")
     public String getPermissionNode() {
-        return "huskhomes.warp." + meta.name.toLowerCase();
+        return getPermissionNode(meta.name);
     }
+
+    @NotNull
+    @Subst("huskhomes.command.warp")
+    public static String getPermissionNode(@NotNull String warp) {
+        return Permission.COMMAND_WARP + "." + warp;
+    }
+
 }

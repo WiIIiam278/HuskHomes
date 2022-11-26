@@ -40,8 +40,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                         .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp -> {
                                     // Handle permission restrictions
                                     if (plugin.getSettings().permissionRestrictWarps) {
-                                        @Subst("huskhomes.command.warp")
-                                        final String warpPermission = Permission.COMMAND_WARP.node + "." + warp.meta.name;
+                                        @Subst("huskhomes.command.warp") final String warpPermission = Permission.COMMAND_WARP.node + "." + warp.meta.name;
 
                                         if (!onlineUser.hasPermission(warpPermission) && !onlineUser.hasPermission(Permission.COMMAND_SET_WARP.node)) {
                                             plugin.getLocales().getLocale("error_no_permission")
@@ -66,6 +65,8 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return plugin.getCache().warps.stream()
+                .filter(s -> user == null || plugin.getSettings().permissionRestrictWarps && !user.hasPermission(
+                        Permission.COMMAND_SET_WARP.node) && user.hasPermission(Warp.getPermissionNode(s)))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted()
                 .collect(Collectors.toList());

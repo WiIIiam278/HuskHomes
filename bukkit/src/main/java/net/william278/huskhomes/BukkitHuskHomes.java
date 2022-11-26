@@ -441,10 +441,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     final int y = snapshot.getHighestBlockYAt(x, z);
                     final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
                     if (!isBlockUnsafe(blockType.getKey().toString())) {
-                        Bukkit.broadcastMessage("✔ Safe block: " + blockType.getKey());
                         return new Location((location.x + dX) + 0.5d, y + 1.25d, (location.z + dZ) + 0.5d, location.world);
-                    } else {
-                        Bukkit.broadcastMessage("❌ Unsafe block: " + blockType.getKey());
                     }
                 }
             }

@@ -70,6 +70,8 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             }
 
             // Get a random position and teleport
+            plugin.getLocales().getLocale("teleporting_random_generation")
+                    .ifPresent(onlineUser::sendMessage);
             plugin.getRandomTeleportEngine().getRandomPosition(onlineUser.getPosition().world, rtpArguments).thenAccept(position -> {
                 if (position.isEmpty()) {
                     plugin.getLocales().getLocale("error_rtp_randomization_timeout")

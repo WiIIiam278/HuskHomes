@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class HomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
     protected HomeCommand(@NotNull HuskHomes implementor) {
-        super("home", Permission.COMMAND_HOME, implementor);
+        super("home", "<name>", Permission.COMMAND_HOME, implementor);
     }
 
     @Override
@@ -51,8 +51,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                                                 .ifPresent(onlineUser::sendMessage))),
                         () -> teleportToNamedHome(onlineUser, onlineUser, homeName));
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/home [name]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 

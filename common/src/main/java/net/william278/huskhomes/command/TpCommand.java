@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
     protected TpCommand(@NotNull HuskHomes implementor) {
-        super("tp", Permission.COMMAND_TP, implementor, "tpo");
+        super("tp", "<target> [destination]", Permission.COMMAND_TP, implementor, "tpo");
     }
 
     @Override
@@ -26,8 +26,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Ensure a valid target was found
         final Optional<TeleportTarget> teleportTarget = getTeleportTarget(args, onlineUser);
         if (teleportTarget.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tp <target> [destination]")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
 

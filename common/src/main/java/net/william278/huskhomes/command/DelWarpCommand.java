@@ -13,14 +13,13 @@ import java.util.stream.Collectors;
 public class DelWarpCommand extends CommandBase implements TabCompletable {
 
     protected DelWarpCommand(@NotNull HuskHomes implementor) {
-        super("delwarp", Permission.COMMAND_DELETE_WARP, implementor);
+        super("delwarp", "<name>", Permission.COMMAND_DELETE_WARP, implementor);
     }
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
         if (args.length <= 2) {
@@ -40,10 +39,9 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
                 plugin.getLocales().getLocale("error_warp_invalid", warpName)
                         .ifPresent(onlineUser::sendMessage);
             });
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+        onlineUser.sendMessage(getSyntaxErrorMessage());
     }
 
     /**

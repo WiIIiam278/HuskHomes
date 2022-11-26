@@ -26,8 +26,7 @@ public class TpRespondCommand extends CommandBase implements TabCompletable {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length > 1) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/" + command + " [player]")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
 

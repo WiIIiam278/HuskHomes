@@ -9,17 +9,16 @@ import org.jetbrains.annotations.NotNull;
 public class SetWarpCommand extends CommandBase {
 
     protected SetWarpCommand(@NotNull HuskHomes implementor) {
-        super("setwarp", Permission.COMMAND_SET_WARP, implementor);
+        super("setwarp", "<name>", Permission.COMMAND_SET_WARP, implementor);
     }
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length == 1) {
             setWarp(onlineUser, args[0]);
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/setwarp <name>")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+        onlineUser.sendMessage(getSyntaxErrorMessage());
     }
 
     private void setWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {

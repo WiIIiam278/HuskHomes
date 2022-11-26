@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SetHomeCommand extends CommandBase {
 
     protected SetHomeCommand(@NotNull HuskHomes implementor) {
-        super("sethome", Permission.COMMAND_SET_HOME, implementor);
+        super("sethome", "[name]", Permission.COMMAND_SET_HOME, implementor);
     }
 
     @Override
@@ -26,14 +26,12 @@ public class SetHomeCommand extends CommandBase {
                 case 0 -> {
                     if (homes.isEmpty()) {
                         setHome(onlineUser, "home", homes);
-                    } else {
-                        plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                                .ifPresent(onlineUser::sendMessage);
+                        return;
                     }
+                    onlineUser.sendMessage(getSyntaxErrorMessage());
                 }
                 case 1 -> setHome(onlineUser, args[0], homes);
-                default -> plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                        .ifPresent(onlineUser::sendMessage);
+                default -> onlineUser.sendMessage(getSyntaxErrorMessage());
             }
         });
     }

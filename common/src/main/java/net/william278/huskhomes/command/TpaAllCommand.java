@@ -26,8 +26,7 @@ public class TpaAllCommand extends CommandBase {
         }
 
         if (args.length != 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tpaall")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
 

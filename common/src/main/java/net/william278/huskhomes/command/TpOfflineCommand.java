@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 public class TpOfflineCommand extends CommandBase implements TabCompletable {
 
     protected TpOfflineCommand(@NotNull HuskHomes implementor) {
-        super("tpoffline", Permission.COMMAND_TPOFFLINE, implementor);
+        super("tpoffline", "<player>", Permission.COMMAND_TPOFFLINE, implementor);
     }
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length != 1) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tpoffline <player>")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
         final String targetUser = args[0];

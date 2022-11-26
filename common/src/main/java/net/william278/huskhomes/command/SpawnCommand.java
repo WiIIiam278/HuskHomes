@@ -16,8 +16,7 @@ public class SpawnCommand extends CommandBase {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         if (args.length > 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/spawn")
-                    .ifPresent(onlineUser::sendMessage);
+            onlineUser.sendMessage(getSyntaxErrorMessage());
             return;
         }
 

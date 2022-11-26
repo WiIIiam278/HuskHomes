@@ -24,7 +24,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
     private final String[] EDIT_HOME_COMPLETIONS = {"rename", "description", "relocate", "privacy"};
 
     public EditHomeCommand(@NotNull HuskHomes implementor) {
-        super("edithome", Permission.COMMAND_EDIT_HOME, implementor);
+        super("edithome", "<name> [rename|description|relocate|privacy] [args]", Permission.COMMAND_EDIT_HOME, implementor);
     }
 
     @Override
@@ -67,11 +67,11 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         editHome(optionalHome.get(), onlineUser, editOperation, editArgs);
                     })
             );
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/edithome <name> [" + String.join("|", EDIT_HOME_COMPLETIONS) + "] [args]")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+        plugin.getLocales().getLocale("error_invalid_syntax",
+                        "/edithome <name> [" + String.join("|", EDIT_HOME_COMPLETIONS) + "] [args]")
+                .ifPresent(onlineUser::sendMessage);
     }
 
     /**
@@ -336,7 +336,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
-                                                  + (home.isPublic ? "private" : "public"), escapedName)
+                                            + (home.isPublic ? "private" : "public"), escapedName)
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",

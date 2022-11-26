@@ -21,7 +21,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
     private final String[] EDIT_WARP_COMPLETIONS = {"rename", "description", "relocate"};
 
     protected EditWarpCommand(@NotNull HuskHomes implementor) {
-        super("editwarp", Permission.COMMAND_EDIT_WARP, implementor);
+        super("editwarp", "<name> [rename|description|relocate] [args]", Permission.COMMAND_EDIT_WARP, implementor);
     }
 
     @Override

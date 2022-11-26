@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class TpaHereCommand extends CommandBase implements TabCompletable {
 
     protected TpaHereCommand(@NotNull HuskHomes implementor) {
-        super("tpahere", Permission.COMMAND_TPAHERE, implementor);
+        super("tpahere", "<player>", Permission.COMMAND_TPAHERE, implementor);
     }
 
     @Override
@@ -44,10 +44,9 @@ public class TpaHereCommand extends CommandBase implements TabCompletable {
                         plugin.getLocales().getLocale("tpahere_request_sent", sent.get().getRecipientName())
                                 .ifPresent(onlineUser::sendMessage);
                     });
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tpahere <player>")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+        onlineUser.sendMessage(getSyntaxErrorMessage());
     }
 
     @Override

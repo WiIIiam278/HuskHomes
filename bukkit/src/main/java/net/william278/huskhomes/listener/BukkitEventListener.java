@@ -2,11 +2,9 @@ package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.entity.Player;
@@ -16,8 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
 
 public class BukkitEventListener extends EventListener implements Listener {
 
@@ -69,17 +65,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (!(event.getClickedBlock().getBlockData() instanceof Bed
               || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) return;
 
-        final Location location = event.getPlayer().getBedSpawnLocation();
-        if (location == null) return;
-
-        // Update the player's respawn location
-        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
-            final OnlineUser onlineUser = BukkitPlayer.adapt(event.getPlayer());
-            super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
-                    adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
-                    adaptedLocation.yaw, adaptedLocation.pitch,
-                    adaptedLocation.world, plugin.getPluginServer()));
-        });
+        super.handlePlayerUpdateSpawnPoint(BukkitPlayer.adapt(event.getPlayer()));
     }
 
 }

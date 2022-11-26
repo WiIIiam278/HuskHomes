@@ -202,11 +202,11 @@ public class EventListener {
      * Handle when an {@link OnlineUser}'s spawn point is updated
      *
      * @param onlineUser the {@link OnlineUser} whose spawn point was updated
-     * @param position   the new spawn point
      */
-    protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
+    protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser) {
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
-            plugin.getDatabase().setRespawnPosition(onlineUser, position);
+            onlineUser.getBedSpawnPosition().ifPresent(position -> plugin.getDatabase()
+                    .setRespawnPosition(onlineUser, position));
         }
     }
 

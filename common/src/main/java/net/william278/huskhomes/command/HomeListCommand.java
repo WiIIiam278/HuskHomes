@@ -16,7 +16,7 @@ import java.util.logging.Level;
 public class HomeListCommand extends CommandBase implements ConsoleExecutable {
 
     protected HomeListCommand(@NotNull HuskHomes implementor) {
-        super("homelist", Permission.COMMAND_HOME, implementor, "homes");
+        super("homelist", "[page]", Permission.COMMAND_HOME, implementor, "homes");
     }
 
     @Override
@@ -40,8 +40,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                             .ifPresent(onlineUser::sendMessage);
                 }
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/homelist [page]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 

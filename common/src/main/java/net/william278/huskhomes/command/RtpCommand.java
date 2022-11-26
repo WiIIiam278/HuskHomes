@@ -20,7 +20,7 @@ import java.util.logging.Level;
 public class RtpCommand extends CommandBase implements ConsoleExecutable {
 
     protected RtpCommand(@NotNull HuskHomes implementor) {
-        super("rtp", Permission.COMMAND_RTP, implementor);
+        super("rtp", "[player]", Permission.COMMAND_RTP, implementor);
     }
 
     @Override

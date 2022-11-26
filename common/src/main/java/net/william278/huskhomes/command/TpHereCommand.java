@@ -15,15 +15,14 @@ import java.util.stream.Collectors;
 public class TpHereCommand extends CommandBase implements TabCompletable {
 
     protected TpHereCommand(@NotNull HuskHomes implementor) {
-        super("tphere", Permission.COMMAND_TPHERE, implementor, "tpohere");
+        super("tphere", "<player>", Permission.COMMAND_TPHERE, implementor, "tpohere");
     }
 
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         CompletableFuture.runAsync(() -> {
             if (args.length != 1) {
-                plugin.getLocales().getLocale("error_invalid_syntax", "/tphere <player>")
-                        .ifPresent(onlineUser::sendMessage);
+                onlineUser.sendMessage(getSyntaxErrorMessage());
                 return;
             }
             final String targetPlayerName = args[0];

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class PublicHomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
     protected PublicHomeCommand(@NotNull HuskHomes implementor) {
-        super("publichome", Permission.COMMAND_PUBLIC_HOME, implementor, "phome");
+        super("publichome", "[<owner_name>.<home_name>]", Permission.COMMAND_PUBLIC_HOME, implementor, "phome");
     }
 
     @Override
@@ -57,14 +57,12 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                                 Teleport.builder(plugin, onlineUser)
                                         .setTarget(homeMatches.get(0))
                                         .toTimedTeleport().thenAccept(TimedTeleport::execute);
-                            } else {
-                                plugin.getLocales().getLocale("error_invalid_syntax", "/publichome [<owner_name>.<home_name>]")
-                                        .ifPresent(onlineUser::sendMessage);
+                                return;
                             }
+                            onlineUser.sendMessage(getSyntaxErrorMessage());
                         }));
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/publichome [<owner_name>.<home_name>]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 
@@ -125,7 +123,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.owner.username + "." + home.meta.name);
+                    + home.owner.username + "." + home.meta.name);
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)
                     .toTeleport()

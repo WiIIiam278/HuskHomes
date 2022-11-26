@@ -9,21 +9,24 @@ import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.util.SpongeAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.util.RespawnLocation;
 import org.spongepowered.api.world.server.ServerLocation;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpongePlayer extends OnlineUser {
 
-    // The Sponge player
-    private final Player player;
+    // The Sponge ServerPlayer
+    private final ServerPlayer player;
 
-    private SpongePlayer(@NotNull Player player) {
+    private SpongePlayer(@NotNull ServerPlayer player) {
         super(player.uniqueId(), player.name());
         this.player = player;
     }
@@ -35,7 +38,7 @@ public class SpongePlayer extends OnlineUser {
      * @return the adapted {@link OnlineUser}
      */
     @NotNull
-    public static SpongePlayer adapt(@NotNull Player player) {
+    public static SpongePlayer adapt(@NotNull ServerPlayer player) {
         return new SpongePlayer(player);
     }
 
@@ -52,19 +55,18 @@ public class SpongePlayer extends OnlineUser {
     @Override
     public Position getPosition() {
         return new Position(SpongeAdapter.adaptLocation(player.serverLocation())
-                .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
+                .orElseThrow(() -> new HuskHomesException("Failed to get the position of a SpongePlayer (null)")),
                 SpongeHuskHomes.getInstance().getPluginServer());
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
-        return Optional.empty();
-        //todo
-/*        player.get(Keys.RESPAWN_LOCATIONS).map(val -> {
-            val.get();
-        }).map(Position::new);
-        return SpongeAdapter.adaptLocation(player.profile().properties())
-                .map(position -> new Position(position, SpongeHuskHomes.getInstance().getPluginServer()));*/
+        // Resolve the player's RespawnLocation from the world-key map and adapt as location
+        return player.get(Keys.RESPAWN_LOCATIONS)
+                .flatMap(resourceMap -> resourceMap.values().stream().findFirst())
+                .flatMap(RespawnLocation::asLocation)
+                .flatMap(SpongeAdapter::adaptLocation)
+                .map(location -> new Position(location, SpongeHuskHomes.getInstance().getPluginServer()));
     }
 
     @Override
@@ -74,13 +76,13 @@ public class SpongePlayer extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        return true;
-    } //todo
+        return player.hasPermission(node);
+    }
 
     @Override
     @NotNull
     public Map<String, Boolean> getPermissions() {
-        return Collections.emptyMap(); // todo
+        return player.transientSubjectData().permissions(SubjectData.GLOBAL_CONTEXT);
     }
 
     @Override
@@ -110,8 +112,9 @@ public class SpongePlayer extends OnlineUser {
         return player.velocity().get().lengthSquared() > 0.0075;
     }
 
+    //todo -- not sure if there even exist sponge vanish plugins or if they adhere to the same "set a meta key lmao" standard
     @Override
     public boolean isVanished() {
-        return false; //todo
+        return false;
     }
 }

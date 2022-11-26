@@ -21,7 +21,7 @@ commands:
   home:
     usage: /home <name>
   sethome:
-    usage: /sethome <name>
+    usage: /sethome [name]
   homelist:
     usage: /homelist [page]
     aliases: [homes]

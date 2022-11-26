@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class TpaCommand extends CommandBase implements TabCompletable {
 
     protected TpaCommand(@NotNull HuskHomes implementor) {
-        super("tpa", Permission.COMMAND_TPA, implementor);
+        super("tpa", "<player>", Permission.COMMAND_TPA, implementor);
     }
 
     @Override
@@ -44,10 +44,9 @@ public class TpaCommand extends CommandBase implements TabCompletable {
                         plugin.getLocales().getLocale("tpa_request_sent", sent.get().getRecipientName())
                                 .ifPresent(onlineUser::sendMessage);
                     });
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tpa <player>")
-                    .ifPresent(onlineUser::sendMessage);
+            return;
         }
+        onlineUser.sendMessage(getSyntaxErrorMessage());
     }
 
     @Override

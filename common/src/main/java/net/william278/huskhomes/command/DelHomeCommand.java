@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class DelHomeCommand extends CommandBase implements TabCompletable {
 
     protected DelHomeCommand(@NotNull HuskHomes implementor) {
-        super("delhome", Permission.COMMAND_DELETE_HOME, implementor);
+        super("delhome", "<name>", Permission.COMMAND_DELETE_HOME, implementor);
     }
 
     @Override
@@ -25,10 +25,9 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             plugin.getDatabase().getHomes(onlineUser).thenAccept(homes -> {
                 if (homes.size() == 1) {
                     homes.stream().findFirst().ifPresent(home -> deletePlayerHome(onlineUser, onlineUser, home.meta.name, false));
-                } else {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
-                            .ifPresent(onlineUser::sendMessage);
+                    return;
                 }
+                onlineUser.sendMessage(getSyntaxErrorMessage());
             });
             return;
         }
@@ -54,8 +53,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             return;
         }
 
-        plugin.getLocales().getLocale("error_invalid_syntax", "/delhome <name>")
-                .ifPresent(onlineUser::sendMessage);
+        onlineUser.sendMessage(getSyntaxErrorMessage());
     }
 
     /**

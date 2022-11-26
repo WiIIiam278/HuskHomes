@@ -11,7 +11,7 @@ import java.util.logging.Level;
 public class WarpListCommand extends CommandBase implements ConsoleExecutable {
 
     protected WarpListCommand(@NotNull HuskHomes implementor) {
-        super("warplist", Permission.COMMAND_WARP, implementor, "warps");
+        super("warplist", "[page]", Permission.COMMAND_WARP, implementor, "warps");
     }
 
     @Override
@@ -23,12 +23,10 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
                     int pageNumber = Integer.parseInt(args[0]);
                     showWarpList(onlineUser, pageNumber);
                 } catch (NumberFormatException e) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/warplist [page]")
-                            .ifPresent(onlineUser::sendMessage);
+                    onlineUser.sendMessage(getSyntaxErrorMessage());
                 }
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/warplist [page]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 

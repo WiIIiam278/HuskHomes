@@ -1,6 +1,6 @@
 package net.william278.huskhomes.command;
 
-import net.kyori.adventure.identity.Identity;
+import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.player.SpongePlayer;
@@ -9,14 +9,12 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.ArgumentParseException;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.plugin.PluginContainer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,26 +46,26 @@ public class SpongeCommand implements Command.Raw {
     }
 
     @Override
-    public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
-        if (cause.root() instanceof Player player) {
+    public CommandResult process(@NotNull CommandCause cause, @NotNull ArgumentReader.Mutable arguments) {
+        if (cause.root() instanceof ServerPlayer player) {
             this.command.onExecute(SpongePlayer.adapt(player), assimilateArguments(arguments));
         } else {
             if (this.command instanceof ConsoleExecutable consoleExecutable) {
                 consoleExecutable.onConsoleExecute(assimilateArguments(arguments));
             } else {
-                plugin.getLocales().getRawLocale("error_in_game_only").
-                        ifPresent(locale -> cause.sendMessage(Identity.nil(), Component.text(locale)));
+                return CommandResult.error(plugin.getLocales()
+                        .getLocale("error_in_game_only")
+                        .orElse(new MineDown("Error: That command can only be run in-game."))
+                        .toComponent());
             }
         }
-        return CommandResult.builder()
-                .result(200)
-                .build();
+        return CommandResult.success();
     }
 
     @Override
-    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
+    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) {
         if (this.command instanceof TabCompletable tabCompletable) {
-            final SpongePlayer spongePlayer = cause.root() instanceof Player player ? SpongePlayer.adapt(player) : null;
+            final SpongePlayer spongePlayer = cause.root() instanceof ServerPlayer player ? SpongePlayer.adapt(player) : null;
             return tabCompletable.onTabComplete(assimilateArguments(arguments), spongePlayer).stream()
                     .map(CommandCompletion::of)
                     .toList();
@@ -90,27 +88,25 @@ public class SpongeCommand implements Command.Raw {
     }
 
     @Override
-    public boolean canExecute(CommandCause cause) { // todo disabled commands
-        return true;
-        //        if (cause instanceof Player) {
-//            return cause.hasPermission(command.permission);
-//        } else {
-//            return this.command instanceof ConsoleExecutable;
-//        }
+    public boolean canExecute(@NotNull CommandCause cause) {
+        if (cause instanceof ServerPlayer player) {
+            return player.hasPermission(command.permission);
+        }
+        return this.command instanceof ConsoleExecutable;
     }
 
     @Override
-    public Optional<Component> shortDescription(CommandCause cause) {
+    public Optional<Component> shortDescription(@NotNull CommandCause cause) {
         return Optional.of(Component.text(command.getDescription()));
     }
 
     @Override
-    public Optional<Component> extendedDescription(CommandCause cause) {
+    public Optional<Component> extendedDescription(@NotNull CommandCause cause) {
         return shortDescription(cause);
     }
 
     @Override
-    public Component usage(CommandCause cause) {
-        return Component.text("");
+    public Component usage(@NotNull CommandCause cause) {
+        return Component.text(command.getUsage());
     }
 }

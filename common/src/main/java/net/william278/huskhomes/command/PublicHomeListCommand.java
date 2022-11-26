@@ -14,7 +14,7 @@ import java.util.logging.Level;
 public class PublicHomeListCommand extends CommandBase implements ConsoleExecutable {
 
     protected PublicHomeListCommand(@NotNull HuskHomes implementor) {
-        super("publichomelist", Permission.COMMAND_HOME, implementor, "phomelist", "phomes");
+        super("publichomelist", "[page]", Permission.COMMAND_HOME, implementor, "phomelist", "phomes");
     }
 
     @Override
@@ -26,12 +26,10 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
                     int pageNumber = Integer.parseInt(args[0]);
                     showPublicHomeList(onlineUser, pageNumber);
                 } catch (NumberFormatException e) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/publichomelist [page]")
-                            .ifPresent(onlineUser::sendMessage);
+                    onlineUser.sendMessage(getSyntaxErrorMessage());
                 }
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/publichomelist [page]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 

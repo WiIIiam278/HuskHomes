@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class WarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
 
     protected WarpCommand(@NotNull HuskHomes implementor) {
-        super("warp", Permission.COMMAND_WARP, implementor);
+        super("warp", "[name]", Permission.COMMAND_WARP, implementor);
     }
 
     @Override
@@ -57,8 +57,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                                 () -> plugin.getLocales().getLocale("error_warp_invalid", warpName)
                                         .ifPresent(onlineUser::sendMessage)));
             }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/warp [name]")
-                    .ifPresent(onlineUser::sendMessage);
+            default -> onlineUser.sendMessage(getSyntaxErrorMessage());
         }
     }
 

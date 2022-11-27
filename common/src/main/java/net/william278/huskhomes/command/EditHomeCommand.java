@@ -85,7 +85,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
     private void editHome(@NotNull Home home, @NotNull OnlineUser editor,
                           @Nullable String editOperation, @Nullable String editArgs) {
         final AtomicBoolean showMenuFlag = new AtomicBoolean(false);
-        final boolean otherOwner = !editor.uuid.equals(home.owner.uuid);
+        final boolean otherOwner = !editor.equals(home.owner);
 
         if (editOperation == null) {
             getHomeEditorWindow(home, true, otherOwner,
@@ -119,7 +119,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                 plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(newHomeName, home.meta.description))
                         .thenAccept(renameResult -> (switch (renameResult.resultType()) {
                             case SUCCESS -> {
-                                if (home.owner.uuid.equals(editor.uuid)) {
+                                if (home.owner.equals(editor)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_name",
                                             oldHomeName, newHomeName);
                                 } else {
@@ -140,7 +140,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                 plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> {
-                                if (home.owner.uuid.equals(editor.uuid)) {
+                                if (home.owner.equals(editor)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_description",
                                             home.meta.name,
                                             oldHomeDescription.isBlank() ? plugin.getLocales()
@@ -166,7 +166,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             }
             case "relocate" ->
                     plugin.getSavedPositionManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
-                        if (home.owner.uuid.equals(editor.uuid)) {
+                        if (home.owner.equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
                                     home.meta.name).orElse(new MineDown("")));
                         } else {
@@ -233,7 +233,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
 
                     // Execute the update
                     plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic.get()).thenRun(() -> {
-                        if (home.owner.uuid.equals(editor.uuid)) {
+                        if (home.owner.equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale(
                                     "edit_home_privacy_" + privacyKeyedString + "_success",
                                     home.meta.name).orElse(new MineDown("")));

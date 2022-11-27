@@ -56,7 +56,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
     }
 
     private void teleportToNamedHome(@NotNull OnlineUser teleporter, @NotNull User owner, @NotNull String homeName) {
-        final boolean otherHome = !owner.uuid.equals(teleporter.uuid);
+        final boolean otherHome = !owner.equals(teleporter);
         plugin.getDatabase()
                 .getHome(owner, homeName)
                 .thenAccept(homeResult -> homeResult.ifPresentOrElse(home -> {

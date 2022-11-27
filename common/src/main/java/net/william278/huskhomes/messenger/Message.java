@@ -102,7 +102,7 @@ public class Message {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@NotNull Object other) {
         if (other instanceof Message message) {
             return message.uuid.equals(this.uuid);
         }

@@ -163,6 +163,7 @@ public class Cache {
         if (eventDispatcher.dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
             return Optional.empty();
         }
+        final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.username : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
                                 Locales.escapeMineDown(home.meta.name),
@@ -172,7 +173,7 @@ public class Cache {
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         homeOwner.username, "%first_item_on_page_index%",
                         "%last_item_on_page_index%", "%total_items%").orElse(""))
-                .setCommand("/huskhomes:homelist").build());
+                .setCommand("/huskhomes:homelist" + homeListArguments).build());
         this.privateHomeLists.put(homeOwner.username, homeList);
         return Optional.of(homeList.getNearestValidPage(page));
     }
@@ -200,18 +201,15 @@ public class Cache {
 
     @NotNull
     public Optional<MineDown> getWarpList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
-                                          @NotNull List<Warp> warps, final boolean permissionRestrictWarps,
-                                          final int itemsPerPage, final int page) {
+                                          @NotNull List<Warp> warps, final int itemsPerPage, final int page) {
         if (eventDispatcher.dispatchViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
             return Optional.empty();
         }
         final PaginatedList warpList = PaginatedList.of(warps.stream()
-                .filter(warp -> !permissionRestrictWarps || onlineUser.hasPermission(warp.getPermissionNode()))
-                .map(warp ->
-                        locales.getRawLocale("warp_list_item",
-                                        Locales.escapeMineDown(warp.meta.name),
-                                        Locales.escapeMineDown(locales.formatDescription(warp.meta.description)))
-                                .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                .map(warp -> locales.getRawLocale("warp_list_item",
+                                Locales.escapeMineDown(warp.meta.name),
+                                Locales.escapeMineDown(locales.formatDescription(warp.meta.description)))
+                        .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
                         "%total_items%").orElse(""))

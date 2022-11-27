@@ -67,7 +67,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
     private void deletePlayerHome(@NotNull OnlineUser deleter, @NotNull User homeOwner, @NotNull String homeName,
                                   final boolean delHomeAllConfirm) {
         plugin.getSavedPositionManager().deleteHome(homeOwner, homeName).thenAccept(deleted -> {
-            if (deleter.uuid.equals(homeOwner.uuid)) {
+            if (deleter.equals(homeOwner)) {
                 if (deleted) {
                     plugin.getLocales().getLocale("home_deleted", homeName).ifPresent(deleter::sendMessage);
                     return;

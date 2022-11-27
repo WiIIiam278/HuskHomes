@@ -276,7 +276,7 @@ public abstract class Database {
                     .collect(Collectors.toList()));
         } catch (HuskHomesException e) {
             return getWarps().thenApplyAsync(warps -> warps.stream()
-                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(warp.world.uuid)))
+                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.world)))
                     .collect(Collectors.toList()));
         }
     }
@@ -303,7 +303,7 @@ public abstract class Database {
                     .collect(Collectors.toList()));
         } catch (HuskHomesException e) {
             return plugin.getDatabase().getPublicHomes().thenApplyAsync(homes -> homes.stream()
-                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.uuid.equals(home.world.uuid)))
+                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.world)))
                     .collect(Collectors.toList()));
         }
     }

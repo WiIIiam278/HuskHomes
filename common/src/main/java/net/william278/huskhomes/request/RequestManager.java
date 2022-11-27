@@ -130,7 +130,7 @@ public class RequestManager {
                 Instant.now().getEpochSecond() + plugin.getSettings().teleportRequestExpiryTime);
         final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
         if (localTarget.isPresent()) {
-            if (localTarget.get().uuid.equals(requester.uuid)) {
+            if (localTarget.get().equals(requester)) {
                 return CompletableFuture.completedFuture(Optional.empty());
             }
             request.recipientName = localTarget.get().username;

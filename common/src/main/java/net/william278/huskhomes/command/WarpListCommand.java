@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class WarpListCommand extends CommandBase implements ConsoleExecutable {
 
@@ -45,17 +46,19 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
         }
 
         // Dispatch the warp list event
-        plugin.getDatabase().getWarps().thenAcceptAsync(warps -> {
-            if (warps.isEmpty()) {
-                plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
-                return;
-            }
-            plugin.getCache().getWarpList(onlineUser,
-                    plugin.getLocales(), warps,
-                    plugin.getSettings().permissionRestrictWarps,
-                    plugin.getSettings().listItemsPerPage,
-                    pageNumber).ifPresent(onlineUser::sendMessage);
-        });
+        plugin.getDatabase().getWarps()
+                .thenApply(warps -> warps.stream()
+                        .filter(warp -> warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser))
+                        .collect(Collectors.toList()))
+                .thenAccept(warps -> {
+                    if (warps.isEmpty()) {
+                        plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
+                        return;
+                    }
+                    plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
+                                    plugin.getSettings().listItemsPerPage, pageNumber)
+                            .ifPresent(onlineUser::sendMessage);
+                });
     }
 
     @Override

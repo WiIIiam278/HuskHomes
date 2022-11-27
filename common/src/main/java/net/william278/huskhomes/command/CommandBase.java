@@ -3,6 +3,8 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
+import org.intellij.lang.annotations.Pattern;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,6 +28,7 @@ public abstract class CommandBase {
      * The permission node required to use this command
      */
     @NotNull
+    @Pattern(Permission.PERMISSION_PATTERN)
     public final String permission;
 
     /**
@@ -34,8 +37,8 @@ public abstract class CommandBase {
     @NotNull
     protected final HuskHomes plugin;
 
-    protected CommandBase(@NotNull String command, @NotNull Permission permission, @NotNull HuskHomes implementor,
-                          @NotNull String... aliases) {
+    protected CommandBase(@NotNull String command, @NotNull @Subst("huskhomes") Permission permission,
+                          @NotNull HuskHomes implementor, @NotNull String... aliases) {
         this.command = command;
         this.permission = permission.node;
         this.plugin = implementor;

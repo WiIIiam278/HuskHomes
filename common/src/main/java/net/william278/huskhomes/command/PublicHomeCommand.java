@@ -69,7 +69,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     private void teleportToNamedHome(@NotNull OnlineUser teleporter, @NotNull User owner, @NotNull String homeName) {
-        final boolean otherHome = !owner.uuid.equals(teleporter.uuid);
+        final boolean otherHome = !owner.equals(teleporter);
         plugin.getDatabase()
                 .getHome(owner, homeName)
                 .thenAccept(homeResult -> homeResult.ifPresentOrElse(home -> {
@@ -114,7 +114,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                             .orElse(null)),
                     () -> matchedHome.set(plugin.getDatabase().getPublicHomes().join()
                             .stream()
-                            .filter(home -> home.owner.uuid.equals(playerToTeleport.uuid) && home.meta.name.equalsIgnoreCase(args[1]))
+                            .filter(home -> home.owner.equals(playerToTeleport) && home.meta.name.equalsIgnoreCase(args[1]))
                             .findFirst()
                             .orElse(null)));
 

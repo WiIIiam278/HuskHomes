@@ -134,7 +134,7 @@ public class EventListener {
         // Update the cached player list using another online player if possible
         plugin.getOnlinePlayers()
                 .stream()
-                .filter(onlinePlayer -> !onlinePlayer.uuid.equals(onlineUser.uuid))
+                .filter(onlinePlayer -> !onlinePlayer.equals(onlineUser))
                 .findAny()
                 .ifPresent(updater -> plugin.getCache().updatePlayerListCache(plugin, updater));
 

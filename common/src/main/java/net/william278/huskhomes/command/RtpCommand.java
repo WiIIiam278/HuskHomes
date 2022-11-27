@@ -54,7 +54,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         final OnlineUser userToTeleport = target;
-        final boolean isExecutorTeleporting = userToTeleport.uuid.equals(onlineUser.uuid);
+        final boolean isExecutorTeleporting = userToTeleport.equals(onlineUser);
         plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
             // Check the user is not still on /rtp cooldown
             if (userData.isEmpty()) {

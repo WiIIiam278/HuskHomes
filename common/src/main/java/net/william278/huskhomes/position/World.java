@@ -38,6 +38,7 @@ public class World {
         this.environment = environment;
     }
 
+    @SuppressWarnings("unused")
     public World() {
     }
 
@@ -51,4 +52,11 @@ public class World {
         CUSTOM
     }
 
+    @Override
+    public boolean equals(@NotNull Object obj) {
+        if (obj instanceof World world) {
+            return world.uuid.equals(uuid);
+        }
+        return super.equals(obj);
+    }
 }

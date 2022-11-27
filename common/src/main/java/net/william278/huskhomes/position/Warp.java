@@ -1,5 +1,6 @@
 package net.william278.huskhomes.position;
 
+import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -27,16 +28,40 @@ public class Warp extends SavedPosition {
         super(position, meta);
     }
 
-    @NotNull
-    @Subst("huskhomes.command.warp")
-    public String getPermissionNode() {
-        return getPermissionNode(meta.name);
-    }
-
+    /**
+     * Get the permission node for a warp
+     *
+     * @param warp The warp name
+     * @return The permission node
+     */
     @NotNull
     @Subst("huskhomes.command.warp")
     public static String getPermissionNode(@NotNull String warp) {
         return Permission.COMMAND_WARP + "." + warp;
+    }
+
+    /**
+     * Check if a {@link OnlineUser} has permission to teleport to this warp
+     *
+     * @param restrictWarps Whether to restrict warps to permission nodes
+     * @param user          The {@link OnlineUser} to check
+     * @return true if the user has permission to teleport to this warp
+     */
+    public boolean hasPermission(boolean restrictWarps, @NotNull OnlineUser user) {
+        return hasPermission(restrictWarps, user, meta.name);
+    }
+
+    /**
+     * Check if a {@link OnlineUser} has permission to teleport to this warp
+     *
+     * @param restrictWarps Whether to restrict warps to permission nodes
+     * @param user          The {@link OnlineUser} to check
+     * @param warp          The warp name to check
+     * @return true if the user has permission to teleport to this warp
+     */
+    public static boolean hasPermission(boolean restrictWarps, @NotNull OnlineUser user, @NotNull String warp) {
+        return !restrictWarps || (user.hasPermission(Permission.COMMAND_SET_WARP.node)
+                                  || user.hasPermission(getPermissionNode(warp)));
     }
 
 }

@@ -6,7 +6,6 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
-import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,30 +22,30 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> plugin.getDatabase().getWarps().thenAcceptAsync(warps -> {
-                if (warps.isEmpty()) {
-                    plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                plugin.getSettings().permissionRestrictWarps,
-                                plugin.getSettings().listItemsPerPage, 1)
-                        .ifPresent(onlineUser::sendMessage);
-            });
+            case 0 -> plugin.getDatabase().getWarps()
+                    .thenApply(warps -> warps.stream()
+                            .filter(warp -> warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser))
+                            .collect(Collectors.toList()))
+                    .thenAccept(warps -> {
+                        if (warps.isEmpty()) {
+                            plugin.getLocales().getLocale("error_no_warps_set")
+                                    .ifPresent(onlineUser::sendMessage);
+                            return;
+                        }
+                        plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
+                                        plugin.getSettings().listItemsPerPage, 1)
+                                .ifPresent(onlineUser::sendMessage);
+                    });
             case 1 -> {
                 final String warpName = args[0];
                 plugin.getDatabase()
                         .getWarp(warpName)
                         .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp -> {
                                     // Handle permission restrictions
-                                    if (plugin.getSettings().permissionRestrictWarps) {
-                                        @Subst("huskhomes.command.warp") final String warpPermission = Permission.COMMAND_WARP.node + "." + warp.meta.name;
-
-                                        if (!onlineUser.hasPermission(warpPermission) && !onlineUser.hasPermission(Permission.COMMAND_SET_WARP.node)) {
-                                            plugin.getLocales().getLocale("error_no_permission")
-                                                    .ifPresent(onlineUser::sendMessage);
-                                            return;
-                                        }
+                                    if (!warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser)) {
+                                        plugin.getLocales().getLocale("error_no_permission")
+                                                .ifPresent(onlineUser::sendMessage);
+                                        return;
                                     }
 
                                     Teleport.builder(plugin, onlineUser)
@@ -65,8 +64,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return plugin.getCache().warps.stream()
-                .filter(s -> user == null || plugin.getSettings().permissionRestrictWarps && !user.hasPermission(
-                        Permission.COMMAND_SET_WARP.node) && user.hasPermission(Warp.getPermissionNode(s)))
+                .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().permissionRestrictWarps, user, s))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted()
                 .collect(Collectors.toList());

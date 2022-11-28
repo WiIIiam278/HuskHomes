@@ -18,10 +18,13 @@ import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.BlueMapHook;
+import net.william278.huskhomes.hook.PlanHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.listener.SpongeEventListener;
 import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
+import net.william278.huskhomes.network.SpongePluginMessenger;
+import net.william278.huskhomes.network.SpongeRedisMessenger;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.SpongePlayer;
 import net.william278.huskhomes.position.Location;
@@ -132,12 +135,11 @@ public class SpongeHuskHomes implements HuskHomes {
             // Initialize the network messenger if proxy mode is enabled
             if (getSettings().crossServer) {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
-                //todo
-                /*networkMessenger = switch (settings.messengerType) {
-                    case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
-                    case REDIS -> new RedisMessenger();
+                networkMessenger = switch (settings.messengerType) {
+                    case PLUGIN_MESSAGE -> new SpongePluginMessenger();
+                    case REDIS -> new SpongeRedisMessenger();
                 };
-                networkMessenger.initialize(this);*/
+                networkMessenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
 
@@ -170,9 +172,9 @@ public class SpongeHuskHomes implements HuskHomes {
                 }
                 getMapHook().ifPresent(mapHook -> savedPositionManager.setMapHook(mapHook));
             }
-            game.pluginManager().plugin("bluemap").ifPresent(planPlugin -> {
-                pluginHooks.add(new BlueMapHook(this));
-                getLoggingAdapter().log(Level.INFO, "Successfully hooked into BlueMap");
+            game.pluginManager().plugin("plan").ifPresent(planPlugin -> {
+                pluginHooks.add(new PlanHook(this));
+                getLoggingAdapter().log(Level.INFO, "Successfully hooked into Plan");
             });
 
             if (pluginHooks.size() > 0) {

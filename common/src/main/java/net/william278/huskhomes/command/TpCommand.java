@@ -39,7 +39,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Find the online user to teleport
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenRun(() -> {
             // Get the list of potential teleports, filtered against vanished players, but ensuring the executor is in the list
-            final List<String> players =  plugin.getCache().players;
+            final List<String> players = plugin.getCache().players;
             if (!players.contains(onlineUser.username)) {
                 players.add(onlineUser.username);
             }
@@ -205,7 +205,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         final boolean serveCoordinateCompletions = user != null && user.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node);
         switch (args.length) {
             case 0, 1 -> {

@@ -7,9 +7,9 @@ import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.player.UserData;
 import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 

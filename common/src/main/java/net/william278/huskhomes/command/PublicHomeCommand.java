@@ -123,7 +123,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                    + home.owner.username + "." + home.meta.name);
+                                                       + home.owner.username + "." + home.meta.name);
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)
                     .toTeleport()
@@ -132,7 +132,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         // Return every public home name as username.home_name from the cache
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().publicHomes.forEach((ownerName, homeNames) ->

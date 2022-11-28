@@ -66,8 +66,8 @@ public abstract class CommandBase {
      * @param usage       The command usage parameter string, excluding the alias
      * @param aliases     Additional alias input strings for this command
      */
-    protected CommandBase(@NotNull String command, @NotNull String usage, @NotNull Permission permission, @NotNull HuskHomes implementor,
-                          @NotNull String... aliases) {
+    protected CommandBase(@NotNull String command, @NotNull String usage, @NotNull Permission permission,
+                          @NotNull HuskHomes implementor, @NotNull String... aliases) {
         this.command = command;
         this.usage = usage;
         this.permission = permission.node;

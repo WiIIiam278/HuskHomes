@@ -1,12 +1,12 @@
 package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.Cache;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
-import net.william278.huskhomes.config.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,6 +1,6 @@
 package net.william278.huskhomes.messenger;
 
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 

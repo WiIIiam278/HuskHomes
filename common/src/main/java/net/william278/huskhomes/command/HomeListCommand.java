@@ -98,7 +98,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             StringJoiner rowJoiner = new StringJoiner("\t");
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
-                    + homes.size() + " homes:");
+                                                       + homes.size() + " homes:");
             for (int i = 0; i < homes.size(); i++) {
                 final String home = homes.get(i).meta.name;
                 rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);

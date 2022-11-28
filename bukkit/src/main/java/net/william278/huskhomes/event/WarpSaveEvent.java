@@ -40,7 +40,8 @@ public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable 
     }
 
     @Override
-    public @NotNull Warp getWarp() {
+    @NotNull
+    public Warp getWarp() {
         return warp;
     }
 }

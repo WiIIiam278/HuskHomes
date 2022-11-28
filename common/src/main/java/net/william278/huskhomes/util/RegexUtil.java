@@ -1,10 +1,10 @@
 package net.william278.huskhomes.util;
 
-import java.util.Optional;
-import java.util.regex.Pattern;
-
 import net.william278.huskhomes.position.PositionMeta;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Provides a number of utility regular expressions for checking home name patterns

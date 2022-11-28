@@ -1,6 +1,7 @@
 package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.player.SpongePlayer;
@@ -9,7 +10,6 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
@@ -31,7 +31,8 @@ public class SpongeCommand implements Command.Raw {
      */
     private final SpongeHuskHomes plugin;
 
-    public SpongeCommand(@NotNull CommandBase command, @NotNull SpongeHuskHomes implementor) {
+    public SpongeCommand(@NotNull CommandBase command,
+                         @NotNull SpongeHuskHomes implementor) {
         this.command = command;
         this.plugin = implementor;
     }
@@ -89,9 +90,10 @@ public class SpongeCommand implements Command.Raw {
 
     @Override
     public boolean canExecute(@NotNull CommandCause cause) {
-        if (cause instanceof ServerPlayer player) {
+        if (cause.root() instanceof ServerPlayer player) {
             return player.hasPermission(command.permission);
         }
+        cause.sendMessage(Identity.nil(), Component.text("Error: console executable check???."));
         return this.command instanceof ConsoleExecutable;
     }
 

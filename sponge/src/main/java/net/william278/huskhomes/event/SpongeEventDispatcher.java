@@ -31,7 +31,8 @@ public class SpongeEventDispatcher implements EventDispatcher {
             }
 
             @Override
-            public @NotNull TimedTeleport getTimedTeleport() {
+            @NotNull
+            public TimedTeleport getTimedTeleport() {
                 return teleport;
             }
 
@@ -51,7 +52,8 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IHomeSaveEvent> dispatchHomeSaveEvent(@NotNull Home home) {
         return CompletableFuture.completedFuture(new IHomeSaveEvent() {
             @Override
-            public @NotNull Home getHome() {
+            @NotNull
+            public Home getHome() {
                 return home;
             }
 
@@ -71,7 +73,8 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IHomeDeleteEvent> dispatchHomeDeleteEvent(@NotNull Home home) {
         return CompletableFuture.completedFuture(new IHomeDeleteEvent() {
             @Override
-            public @NotNull Home getHome() {
+            @NotNull
+            public Home getHome() {
                 return home;
             }
 
@@ -91,7 +94,8 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IWarpSaveEvent> dispatchWarpSaveEvent(@NotNull Warp warp) {
         return CompletableFuture.completedFuture(new IWarpSaveEvent() {
             @Override
-            public @NotNull Warp getWarp() {
+            @NotNull
+            public Warp getWarp() {
                 return warp;
             }
 
@@ -111,7 +115,8 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IWarpDeleteEvent> dispatchWarpDeleteEvent(@NotNull Warp warp) {
         return CompletableFuture.completedFuture(new IWarpDeleteEvent() {
             @Override
-            public @NotNull Warp getWarp() {
+            @NotNull
+            public Warp getWarp() {
                 return warp;
             }
 
@@ -131,12 +136,14 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IHomeListEvent> dispatchViewHomeListEvent(@NotNull List<Home> homes, @NotNull OnlineUser user, boolean publicHomeList) {
         return CompletableFuture.completedFuture(new IHomeListEvent() {
             @Override
-            public @NotNull List<Home> getHomes() {
+            @NotNull
+            public List<Home> getHomes() {
                 return homes;
             }
 
             @Override
-            public @NotNull OnlineUser getOnlineUser() {
+            @NotNull
+            public OnlineUser getOnlineUser() {
                 return user;
             }
 
@@ -161,12 +168,14 @@ public class SpongeEventDispatcher implements EventDispatcher {
     public CompletableFuture<IWarpListEvent> dispatchViewWarpListEvent(@NotNull List<Warp> homes, @NotNull OnlineUser user) {
         return CompletableFuture.completedFuture(new IWarpListEvent() {
             @Override
-            public @NotNull List<Warp> getWarps() {
+            @NotNull
+            public List<Warp> getWarps() {
                 return homes;
             }
 
             @Override
-            public @NotNull OnlineUser getOnlineUser() {
+            @NotNull
+            public OnlineUser getOnlineUser() {
                 return user;
             }
 

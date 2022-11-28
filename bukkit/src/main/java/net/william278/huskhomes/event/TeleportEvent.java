@@ -16,7 +16,8 @@ public class TeleportEvent extends Event implements ITeleportEvent {
     }
 
     @Override
-    public @NotNull Teleport getTeleport() {
+    @NotNull
+    public Teleport getTeleport() {
         return teleport;
     }
 

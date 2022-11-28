@@ -40,7 +40,8 @@ public class HomeDeleteEvent extends Event implements IHomeDeleteEvent, Cancella
     }
 
     @Override
-    public @NotNull Home getHome() {
+    @NotNull
+    public Home getHome() {
         return home;
     }
 }

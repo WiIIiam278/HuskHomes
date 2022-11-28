@@ -336,7 +336,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
-                                            + (home.isPublic ? "private" : "public"), escapedName)
+                                                  + (home.isPublic ? "private" : "public"), escapedName)
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",
@@ -346,7 +346,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         if (user == null) {
             return Collections.emptyList();
         }

@@ -119,7 +119,8 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         if (user == null) {
             return Collections.emptyList();
         }

@@ -40,7 +40,8 @@ public class HomeSaveEvent extends Event implements IHomeSaveEvent, Cancellable 
     }
 
     @Override
-    public @NotNull Home getHome() {
+    @NotNull
+    public Home getHome() {
         return home;
     }
 }

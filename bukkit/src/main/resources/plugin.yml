@@ -24,44 +24,44 @@ commands:
     usage: /sethome [name]
   homelist:
     usage: /homelist [page]
-    aliases: [homes]
+    aliases: [ homes ]
   delhome:
     usage: /delhome <name>
   edithome:
     usage: /edithome <name> [rename|description|relocate|privacy] [args]
   publichome:
     usage: /publichome [<owner_name>.<home_name>]
-    aliases:  [phome]
+    aliases: [ phome ]
   publichomelist:
     usage: /publichomelist [page]
-    aliases:  [phomelist, phomes]
+    aliases: [ phomelist, phomes ]
   warp:
     usage: /warp <name>
   setwarp:
     usage: /setwarp <name>
   warplist:
     usage: /warplist [page]
-    aliases: [warps]
+    aliases: [ warps ]
   delwarp:
     usage: /delwarp <name>
   editwarp:
     usage: /editwarp <name> [rename|description|relocate] [args]
   tp:
     usage: /tp <target> [destination]
-    aliases: [tpo]
+    aliases: [ tpo ]
   tphere:
     usage: /tphere <player>
-    aliases: [tpohere]
+    aliases: [ tpohere ]
   tpa:
     usage: /tpa <player>
   tpahere:
     usage: /tpahere <player>
   tpaccept:
     usage: /tpaccept [player]
-    aliases: [tpyes]
+    aliases: [ tpyes ]
   tpdecline:
     usage: /tpdecline [player]
-    aliases: [tpdeny, tpno]
+    aliases: [ tpdeny, tpno ]
   rtp:
     usage: /rtp [player]
   tpignore:

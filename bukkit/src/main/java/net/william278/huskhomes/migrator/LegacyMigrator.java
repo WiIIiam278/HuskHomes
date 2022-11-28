@@ -155,12 +155,14 @@ public class LegacyMigrator extends Migrator {
     }
 
     @Override
-    public @NotNull String getIdentifier() {
+    @NotNull
+    public String getIdentifier() {
         return "legacy";
     }
 
     @Override
-    public @NotNull String getName() {
+    @NotNull
+    public String getName() {
         return "HuskHomes Legacy (v2.x)";
     }
 

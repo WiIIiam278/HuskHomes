@@ -89,7 +89,8 @@ public class BukkitPlayer extends OnlineUser {
 
 
     @Override
-    public @NotNull Map<String, Boolean> getPermissions() {
+    @NotNull
+    public Map<String, Boolean> getPermissions() {
         return player.getEffectivePermissions().stream().collect(
                 Collectors.toMap(PermissionAttachmentInfo::getPermission,
                         PermissionAttachmentInfo::getValue, (a, b) -> b));

@@ -7,6 +7,7 @@ import java.util.logging.Level;
 public class SpongeLogger extends Logger {
 
     private final org.apache.logging.log4j.Logger logger;
+
     public SpongeLogger(@NotNull org.apache.logging.log4j.Logger logger) {
         this.logger = logger;
     }

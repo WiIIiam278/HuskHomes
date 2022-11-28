@@ -1,6 +1,8 @@
 package net.william278.huskhomes;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
@@ -29,18 +31,19 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
-import net.william278.huskhomes.util.Logger;
-import net.william278.huskhomes.util.SpongeAdapter;
-import net.william278.huskhomes.util.SpongeLogger;
-import net.william278.huskhomes.util.UnsafeBlocks;
+import net.william278.huskhomes.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -80,6 +83,7 @@ public class SpongeHuskHomes implements HuskHomes {
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
+    private Map<String, PermissionDescription> registeredPermissions;
     @Nullable
     private NetworkMessenger networkMessenger; //todo
     @Nullable
@@ -123,7 +127,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
                 throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                        "Please check the supplied database credentials in the config file");
+                                                           "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -175,9 +179,30 @@ public class SpongeHuskHomes implements HuskHomes {
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
                 getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                        pluginHooks.stream().map(PluginHook::getHookName)
-                                .collect(Collectors.joining(", ")));
+                                                    pluginHooks.stream().map(PluginHook::getHookName)
+                                                            .collect(Collectors.joining(", ")));
             }
+
+            // Register permission nodes
+            registeredPermissions = new HashMap<>();
+            Sponge.serviceProvider().provide(PermissionService.class).ifPresent(service ->
+                    Arrays.stream(Permission.values()).forEach(permission -> {
+                        final PermissionDescription.Builder builder = service
+                                .newDescriptionBuilder(getPluginContainer())
+                                .description(Component.text("https://william278.net/docs/huskhomes/commands/")
+                                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL,
+                                                "https://william278.net/docs/huskhomes/commands/")))
+                                .id(permission.node)
+                                .defaultValue(switch (permission.defaultAccess) {
+                                    case EVERYONE -> Tristate.TRUE;
+                                    case OPERATORS -> Tristate.UNDEFINED;
+                                    case NOBODY -> Tristate.FALSE;
+                                });
+                        if (permission.defaultAccess == Permission.DefaultAccess.OPERATORS) {
+                            builder.assign(PermissionDescription.ROLE_ADMIN, true);
+                        }
+                        registeredPermissions.put(permission.node, builder.register());
+                    }));
 
             // Register events
             getLoggingAdapter().log(Level.INFO, "Registering events...");
@@ -190,7 +215,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLatestVersionIfOutdated().thenAccept(newestVersion ->
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
-                                        + " (Currently running v" + getPluginVersion() + ")")));
+                                + " (Currently running v" + getPluginVersion() + ")")));
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -223,49 +248,58 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull Logger getLoggingAdapter() {
+    @NotNull
+    public Logger getLoggingAdapter() {
         return logger;
     }
 
     @Override
-    public @NotNull List<OnlineUser> getOnlinePlayers() {
+    @NotNull
+    public List<OnlineUser> getOnlinePlayers() {
         return game.server().onlinePlayers().stream()
                 .map(SpongePlayer::adapt)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public @NotNull Settings getSettings() {
+    @NotNull
+    public Settings getSettings() {
         return settings;
     }
 
     @Override
-    public @NotNull Locales getLocales() {
+    @NotNull
+    public Locales getLocales() {
         return locales;
     }
 
     @Override
-    public @NotNull Database getDatabase() {
+    @NotNull
+    public Database getDatabase() {
         return database;
     }
 
     @Override
-    public @NotNull Cache getCache() {
+    @NotNull
+    public Cache getCache() {
         return cache;
     }
 
     @Override
-    public @NotNull RequestManager getRequestManager() {
+    @NotNull
+    public RequestManager getRequestManager() {
         return requestManager;
     }
 
     @Override
-    public @NotNull SavedPositionManager getSavedPositionManager() {
+    @NotNull
+    public SavedPositionManager getSavedPositionManager() {
         return savedPositionManager;
     }
 
     @Override
-    public @NotNull NetworkMessenger getNetworkMessenger() throws HuskHomesException {
+    @NotNull
+    public NetworkMessenger getNetworkMessenger() throws HuskHomesException {
         if (networkMessenger == null) {
             throw new HuskHomesException("Attempted to access network messenger when it was not initialized");
         }
@@ -273,7 +307,8 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull RandomTeleportEngine getRandomTeleportEngine() {
+    @NotNull
+    public RandomTeleportEngine getRandomTeleportEngine() {
         return randomTeleportEngine;
     }
 
@@ -283,7 +318,8 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull EventDispatcher getEventDispatcher() {
+    @NotNull
+    public EventDispatcher getEventDispatcher() {
         return eventDispatcher;
     }
 
@@ -316,7 +352,8 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull Set<PluginHook> getPluginHooks() {
+    @NotNull
+    public Set<PluginHook> getPluginHooks() {
         return pluginHooks;
     }
 
@@ -326,7 +363,8 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull Server getPluginServer() throws HuskHomesException {
+    @NotNull
+    public Server getPluginServer() throws HuskHomesException {
         if (server == null) {
             throw new HuskHomesException("Attempted to access server when it was not initialized");
         }
@@ -356,18 +394,21 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @Nullable InputStream getResource(@NotNull String name) {
+    @Nullable
+    public InputStream getResource(@NotNull String name) {
         return pluginContainer.openResource(URI.create(name))
                 .orElse(null);
     }
 
     @Override
-    public @NotNull File getDataFolder() {
+    @NotNull
+    public File getDataFolder() {
         return pluginDirectory.toFile();
     }
 
     @Override
-    public @NotNull List<World> getWorlds() {
+    @NotNull
+    public List<World> getWorlds() {
         return game.server().worldManager().worlds()
                 .stream()
                 .map(world -> new World(world.key().toString(), world.uniqueId()))
@@ -375,16 +416,18 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Override
-    public @NotNull Version getPluginVersion() {
+    @NotNull
+    public Version getPluginVersion() {
         return Version.fromString(pluginContainer.metadata().version().toString(), "-");
     }
 
     @Override
-    public @NotNull List<CommandBase> getCommands() {
+    @NotNull
+    public List<CommandBase> getCommands() {
         return registeredCommands;
     }
 
-    @Override //todo
+    @Override
     public boolean reload() {
         try {
             // Load settings

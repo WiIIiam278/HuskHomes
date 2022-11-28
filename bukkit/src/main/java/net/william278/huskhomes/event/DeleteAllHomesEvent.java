@@ -41,7 +41,8 @@ public class DeleteAllHomesEvent extends Event implements IDeleteAllHomesEvent, 
     }
 
     @Override
-    public @NotNull User getHomeOwner() {
+    @NotNull
+    public User getHomeOwner() {
         return homeOwner;
     }
 }

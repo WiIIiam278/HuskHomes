@@ -22,7 +22,7 @@ import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.messenger.BukkitPluginMessenger;
 import net.william278.huskhomes.messenger.NetworkMessenger;
-import net.william278.huskhomes.messenger.RedisMessenger;
+import net.william278.huskhomes.messenger.BukkitRedisMessenger;
 import net.william278.huskhomes.migrator.LegacyMigrator;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.BukkitPlayer;
@@ -151,7 +151,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
                 networkMessenger = switch (settings.messengerType) {
                     case PLUGIN_MESSAGE -> new BukkitPluginMessenger();
-                    case REDIS -> new RedisMessenger();
+                    case REDIS -> new BukkitRedisMessenger();
                 };
                 networkMessenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");

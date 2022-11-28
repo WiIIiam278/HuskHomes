@@ -117,4 +117,9 @@ public class SpongePlayer extends OnlineUser {
     public boolean isVanished() {
         return false;
     }
+
+    @NotNull
+    public ServerPlayer getPlayer() {
+        return player;
+    }
 }

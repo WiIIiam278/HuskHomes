@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
@@ -12,10 +12,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Base interface for redis-based network messenger implementations
+ */
 public interface RedisMessenger {
 
     @NotNull
     HashMap<UUID, CompletableFuture<Message>> getProcessingMessages();
+
     @NotNull
     RedisWorker getRedisWorker();
 
@@ -60,10 +64,6 @@ public interface RedisMessenger {
 
     @NotNull
     NetworkMessenger getNetworkMessenger();
-
-    default void sendRedisReply(@NotNull OnlineUser replier, @NotNull Message reply) {
-        getRedisWorker().sendMessage(reply);
-    }
 
     default void terminateRedis() {
         getRedisWorker().terminate();

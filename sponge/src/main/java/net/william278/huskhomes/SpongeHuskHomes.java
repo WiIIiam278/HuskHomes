@@ -20,7 +20,7 @@ import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.BlueMapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.listener.SpongeEventListener;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.SpongePlayer;
@@ -83,7 +83,6 @@ public class SpongeHuskHomes implements HuskHomes {
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
-    private Map<String, PermissionDescription> registeredPermissions;
     @Nullable
     private NetworkMessenger networkMessenger; //todo
     @Nullable
@@ -127,7 +126,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
                 throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                                                           "Please check the supplied database credentials in the config file");
+                        "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -179,12 +178,11 @@ public class SpongeHuskHomes implements HuskHomes {
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
                 getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                                                    pluginHooks.stream().map(PluginHook::getHookName)
-                                                            .collect(Collectors.joining(", ")));
+                        pluginHooks.stream().map(PluginHook::getHookName)
+                                .collect(Collectors.joining(", ")));
             }
 
             // Register permission nodes
-            registeredPermissions = new HashMap<>();
             Sponge.serviceProvider().provide(PermissionService.class).ifPresent(service ->
                     Arrays.stream(Permission.values()).forEach(permission -> {
                         final PermissionDescription.Builder builder = service
@@ -201,7 +199,6 @@ public class SpongeHuskHomes implements HuskHomes {
                         if (permission.defaultAccess == Permission.DefaultAccess.OPERATORS) {
                             builder.assign(PermissionDescription.ROLE_ADMIN, true);
                         }
-                        registeredPermissions.put(permission.node, builder.register());
                     }));
 
             // Register events
@@ -215,7 +212,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLatestVersionIfOutdated().thenAccept(newestVersion ->
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
-                                + " (Currently running v" + getPluginVersion() + ")")));
+                                        + " (Currently running v" + getPluginVersion() + ")")));
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());

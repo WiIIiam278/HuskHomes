@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
@@ -26,17 +26,20 @@ public class BukkitRedisMessenger extends BukkitPluginMessenger implements Redis
     }
 
     @Override
-    public @NotNull HashMap<UUID, CompletableFuture<Message>> getProcessingMessages() {
+    @NotNull
+    public HashMap<UUID, CompletableFuture<Message>> getProcessingMessages() {
         return processingMessages;
     }
 
     @Override
-    public @NotNull RedisWorker getRedisWorker() {
+    @NotNull
+    public RedisWorker getRedisWorker() {
         return redisWorker;
     }
 
     @Override
-    public @NotNull String getNetworkMessagingChannel() {
+    @NotNull
+    public String getNetworkMessagingChannel() {
         return NETWORK_MESSAGE_CHANNEL;
     }
 
@@ -46,13 +49,14 @@ public class BukkitRedisMessenger extends BukkitPluginMessenger implements Redis
     }
 
     @Override
-    public @NotNull NetworkMessenger getNetworkMessenger() {
+    @NotNull
+    public NetworkMessenger getNetworkMessenger() {
         return this;
     }
 
     @Override
     public void sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
-        this.sendRedisReply(replier, reply);
+        this.getRedisWorker().sendMessage(reply);
     }
 
     @Override

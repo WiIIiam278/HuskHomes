@@ -1,8 +1,8 @@
 package net.william278.huskhomes.redis;
 
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.NetworkMessenger;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

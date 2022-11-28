@@ -1,7 +1,7 @@
 package net.william278.huskhomes;
 
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.SpongePlayer;
 import net.william278.huskhomes.position.Server;

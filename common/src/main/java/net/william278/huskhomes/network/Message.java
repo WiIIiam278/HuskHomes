@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;

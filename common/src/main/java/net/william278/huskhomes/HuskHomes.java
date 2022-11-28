@@ -11,7 +11,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.*;

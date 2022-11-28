@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;

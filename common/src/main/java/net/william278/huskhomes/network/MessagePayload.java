@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.position.Position;

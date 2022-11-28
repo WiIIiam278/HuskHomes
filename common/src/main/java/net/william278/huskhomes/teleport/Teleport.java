@@ -2,8 +2,8 @@ package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.MessagePayload;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.MessagePayload;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;

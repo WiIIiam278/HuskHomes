@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -25,6 +24,14 @@ import java.util.stream.Collectors;
  * Bukkit implementation of an {@link OnlineUser}
  */
 public class BukkitPlayer extends OnlineUser {
+
+    /**
+     * Number of ticks to wait before {@link #sendPluginMessage(String, byte[]) sending a plugin message}.
+     * </p>
+     * This is needed because it is not possible to have players dispatch plugin messages in certain circumstance,
+     * such as on the tick that they join the server.
+     */
+    private static final long PLUGIN_MESSAGE_DISPATCH_DELAY = 3L;
 
     // Instance of the implementing plugin
     private final BukkitHuskHomes plugin;
@@ -143,9 +150,13 @@ public class BukkitPlayer extends OnlineUser {
 
     /**
      * Send a Bukkit plugin message
+     *
+     * @implNote This is dispatched after {@link #PLUGIN_MESSAGE_DISPATCH_DELAY a delay} to ensure that the player
+     * is ready to send receive messages
      */
-    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, final byte[] message) {
-        player.sendPluginMessage(source, channel, message);
+    public void sendPluginMessage(@NotNull String channel, final byte[] message) {
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> player.sendPluginMessage(plugin, channel, message), PLUGIN_MESSAGE_DISPATCH_DELAY);
     }
 
     /**

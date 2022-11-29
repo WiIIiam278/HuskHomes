@@ -71,18 +71,23 @@ public class SetHomeCommand extends CommandBase {
                 final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().freeHomeSlots,
                         plugin.getSettings().stackPermissionLimits);
                 if (fetchedData.isPresent()) {
+                    final Settings.EconomyAction action = Settings.EconomyAction.ADDITIONAL_HOME_SLOT;
                     newSlotNeeded.set((currentHomes.size() + 1) > (freeHomes + fetchedData.get().homeSlots()));
 
                     // If a new slot is needed, validate the user has enough funds to purchase one
                     if (newSlotNeeded.get()) {
-                        if (!plugin.validateEconomyCheck(onlineUser, Settings.EconomyAction.ADDITIONAL_HOME_SLOT)) {
+                        if (!plugin.validateEconomyCheck(onlineUser, action)) {
                             return;
                         }
                         userDataToUpdate.set(new UserData(onlineUser, (currentHomes.size() + 1) - freeHomes,
                                 fetchedData.get().ignoringTeleports(), fetchedData.get().rtpCooldown()));
                     } else {
                         if (currentHomes.size() == freeHomes) {
-                            plugin.getLocales().getLocale("set_home_used_free_slots", Integer.toString(freeHomes))
+                            plugin.getEconomyHook()
+                                    .flatMap(economyHook -> plugin.getSettings().getEconomyCost(action)
+                                            .map(economyHook::formatCurrency))
+                                    .flatMap(formatted -> plugin.getLocales().getLocale("set_home_used_free_slots",
+                                            Integer.toString(freeHomes), formatted))
                                     .ifPresent(onlineUser::sendMessage);
                         }
                     }

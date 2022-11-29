@@ -227,16 +227,35 @@ public interface HuskHomes {
     Set<PluginHook> getPluginHooks();
 
     /**
+     * Finds the {@link PluginHook} of the given class instance from the set of active {@link PluginHook}s
+     *
+     * @param hookClass the class of the {@link PluginHook} to get
+     * @param <H>       the type of the {@link PluginHook}
+     * @return the {@link PluginHook} instance, or an empty {@link Optional} if not found
+     */
+    default <H extends PluginHook> Optional<H> getHook(@NotNull Class<H> hookClass) {
+        return getPluginHooks().stream()
+                .filter(hook -> hook.getClass().isInstance(hookClass))
+                .findFirst()
+                .map(hookClass::cast);
+    }
+
+    /**
      * Gets the {@link MapHook} being used to display public homes and warps on a web map, if there is one, and it is enabled
      *
-     * @return the {@link MapHook} being used, if there is one, and it is enabled
+     * @return the {@link MapHook} optionally being used
      */
     default Optional<MapHook> getMapHook() {
-        return getSettings().doMapHook ? getPluginHooks()
-                .stream()
-                .filter(pluginHook -> pluginHook instanceof MapHook)
-                .findFirst()
-                .map(hook -> (MapHook) hook) : Optional.empty();
+        return getSettings().doMapHook ? getHook(MapHook.class) : Optional.empty();
+    }
+
+    /**
+     * Gets the {@link EconomyHook} being used to charge players for commands, if there is one, and it is enabled
+     *
+     * @return the {@link EconomyHook} optionally being used
+     */
+    default Optional<EconomyHook> getEconomyHook() {
+        return getSettings().economy ? getHook(EconomyHook.class) : Optional.empty();
     }
 
     /**
@@ -250,8 +269,7 @@ public interface HuskHomes {
     default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
-            final Optional<EconomyHook> hook = getPluginHooks().stream().filter(pluginHook ->
-                    pluginHook instanceof EconomyHook).findFirst().map(pluginHook -> (EconomyHook) pluginHook);
+            final Optional<EconomyHook> hook = getEconomyHook();
             if (hook.isPresent()) {
                 if (cost.get() > hook.get().getPlayerBalance(player)) {
                     getLocales().getLocale("error_insufficient_funds", hook.get().formatCurrency(cost.get()))
@@ -274,8 +292,7 @@ public interface HuskHomes {
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
 
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
-            final Optional<EconomyHook> hook = getPluginHooks().stream().filter(pluginHook ->
-                    pluginHook instanceof EconomyHook).findFirst().map(pluginHook -> (EconomyHook) pluginHook);
+            final Optional<EconomyHook> hook = getEconomyHook();
             if (hook.isPresent()) {
                 hook.get().changePlayerBalance(player, -cost.get());
                 getLocales().getLocale(action.confirmationLocaleId, hook.get().formatCurrency(cost.get()))

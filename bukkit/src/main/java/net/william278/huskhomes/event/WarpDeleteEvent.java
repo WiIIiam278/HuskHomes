@@ -18,8 +18,8 @@ public class WarpDeleteEvent extends Event implements IWarpDeleteEvent, Cancella
         this.warp = warp;
     }
 
-    @NotNull
     @Override
+    @NotNull
     public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
@@ -40,7 +40,8 @@ public class WarpDeleteEvent extends Event implements IWarpDeleteEvent, Cancella
     }
 
     @Override
-    public @NotNull Warp getWarp() {
+    @NotNull
+    public Warp getWarp() {
         return warp;
     }
 }

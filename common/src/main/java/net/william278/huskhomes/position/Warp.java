@@ -37,7 +37,7 @@ public class Warp extends SavedPosition {
     @NotNull
     @Subst("huskhomes.command.warp")
     public static String getPermissionNode(@NotNull String warp) {
-        return Permission.COMMAND_WARP + "." + warp.toLowerCase();
+        return Permission.COMMAND_WARP.node + "." + warp.toLowerCase();
     }
 
     /**

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.player.SpongePlayer;
@@ -91,9 +90,8 @@ public class SpongeCommand implements Command.Raw {
     @Override
     public boolean canExecute(@NotNull CommandCause cause) {
         if (cause.root() instanceof ServerPlayer player) {
-            return player.hasPermission(command.permission);
+            return player.hasPermission(this.command.permission);
         }
-        cause.sendMessage(Identity.nil(), Component.text("Error: console executable check???."));
         return this.command instanceof ConsoleExecutable;
     }
 

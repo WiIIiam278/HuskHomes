@@ -9,7 +9,6 @@ import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,24 +62,17 @@ public class SqLiteDatabase extends Database {
                 getLogger().log(Level.INFO, "Created the SQLite database file");
             }
 
-            // Specify use of the JDBC SQLite driver
-            Class.forName("org.sqlite.JDBC");
-
-            // Set SQLite database properties
-            SQLiteConfig config = new SQLiteConfig();
-            config.enforceForeignKeys(true);
-            config.setEncoding(SQLiteConfig.Encoding.UTF8);
-            config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
-
             // Establish the connection
-            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
+            connection = fetchDriverConnection(databaseFile);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "An exception occurred creating the database file", e);
         } catch (SQLException e) {
             getLogger().log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
-        } catch (ClassNotFoundException e) {
-            getLogger().log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
         }
+    }
+
+    protected Connection fetchDriverConnection(@NotNull File databaseFile) throws SQLException {
+        return DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath());
     }
 
     @Override

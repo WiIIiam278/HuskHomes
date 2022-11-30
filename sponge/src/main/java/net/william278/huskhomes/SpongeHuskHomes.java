@@ -14,6 +14,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
+import net.william278.huskhomes.database.SpongeSqLiteDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.event.SpongeEventDispatcher;
@@ -21,8 +22,8 @@ import net.william278.huskhomes.hook.BlueMapHook;
 import net.william278.huskhomes.hook.PlanHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.listener.SpongeEventListener;
-import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.migrator.Migrator;
+import net.william278.huskhomes.network.NetworkMessenger;
 import net.william278.huskhomes.network.SpongePluginMessenger;
 import net.william278.huskhomes.network.SpongeRedisMessenger;
 import net.william278.huskhomes.player.OnlineUser;
@@ -38,14 +39,14 @@ import net.william278.huskhomes.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -87,7 +88,7 @@ public class SpongeHuskHomes implements HuskHomes {
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
     @Nullable
-    private NetworkMessenger networkMessenger; //todo
+    private NetworkMessenger networkMessenger;
     @Nullable
     private Server server;
 
@@ -122,14 +123,14 @@ public class SpongeHuskHomes implements HuskHomes {
             final Settings.DatabaseType databaseType = settings.databaseType;
             this.database = switch (databaseType == null ? Settings.DatabaseType.MYSQL : databaseType) {
                 case MYSQL -> new MySqlDatabase(this);
-                case SQLITE -> new SqLiteDatabase(this);
+                case SQLITE -> new SpongeSqLiteDatabase(this, pluginContainer);
             };
             initialized.set(this.database.initialize());
             if (initialized.get()) {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
                 throw new HuskHomesInitializationException("Failed to establish a connection to the database. " +
-                        "Please check the supplied database credentials in the config file");
+                                                           "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -177,32 +178,6 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLoggingAdapter().log(Level.INFO, "Successfully hooked into Plan");
             });
 
-            if (pluginHooks.size() > 0) {
-                pluginHooks.forEach(PluginHook::initialize);
-                getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
-                        pluginHooks.stream().map(PluginHook::getHookName)
-                                .collect(Collectors.joining(", ")));
-            }
-
-            // Register permission nodes
-            Sponge.serviceProvider().provide(PermissionService.class).ifPresent(service ->
-                    Arrays.stream(Permission.values()).forEach(permission -> {
-                        final PermissionDescription.Builder builder = service
-                                .newDescriptionBuilder(getPluginContainer())
-                                .description(Component.text("https://william278.net/docs/huskhomes/commands/")
-                                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL,
-                                                "https://william278.net/docs/huskhomes/commands/")))
-                                .id(permission.node)
-                                .defaultValue(switch (permission.defaultAccess) {
-                                    case EVERYONE -> Tristate.TRUE;
-                                    case OPERATORS -> Tristate.UNDEFINED;
-                                    case NOBODY -> Tristate.FALSE;
-                                });
-                        if (permission.defaultAccess == Permission.DefaultAccess.OPERATORS) {
-                            builder.assign(PermissionDescription.ROLE_ADMIN, true);
-                        }
-                    }));
-
             // Register events
             getLoggingAdapter().log(Level.INFO, "Registering events...");
             new SpongeEventListener(this, pluginContainer);
@@ -214,7 +189,7 @@ public class SpongeHuskHomes implements HuskHomes {
                 getLatestVersionIfOutdated().thenAccept(newestVersion ->
                         newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING,
                                 "An update is available for HuskHomes, v" + newVersion
-                                        + " (Currently running v" + getPluginVersion() + ")")));
+                                + " (Currently running v" + getPluginVersion() + ")")));
             }
         } catch (HuskHomesInitializationException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -233,12 +208,52 @@ public class SpongeHuskHomes implements HuskHomes {
     }
 
     @Listener
+    public void onServerStarting(final StartingEngineEvent<org.spongepowered.api.Server> event) {
+        int registeredNodes = 0;
+        final String HELP_URL = "https://william278.net/docs/huskhomes/commands/";
+
+        // Register permission nodes
+        for (Permission permission : Permission.values()) {
+            final PermissionDescription.Builder builder = event.game().server()
+                    .serviceProvider().permissionService()
+                    .newDescriptionBuilder(pluginContainer).id(permission.node)
+                    .description(Component.text(HELP_URL).clickEvent(ClickEvent
+                            .clickEvent(ClickEvent.Action.OPEN_URL, HELP_URL)));
+
+            // Set default access level
+            switch (permission.defaultAccess) {
+                case NOBODY -> builder.defaultValue(Tristate.FALSE);
+                case EVERYONE -> builder.defaultValue(Tristate.TRUE)
+                        .assign(PermissionDescription.ROLE_USER, true);
+                case OPERATORS -> builder.defaultValue(Tristate.FALSE)
+                        .assign(PermissionDescription.ROLE_ADMIN, true);
+            }
+            builder.register();
+            registeredNodes += builder.register() != null ? 1 : 0;
+        }
+        getLoggingAdapter().log(Level.INFO, "Registered " + registeredNodes + " permission nodes");
+    }
+
+    @Listener
+    public void onServerStarted(final StartedEngineEvent<org.spongepowered.api.Server> event) {
+        // Initialize hooks
+        if (pluginHooks.size() > 0) {
+            pluginHooks.forEach(PluginHook::initialize);
+            getLoggingAdapter().log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " +
+                                                pluginHooks.stream().map(PluginHook::getHookName)
+                                                        .collect(Collectors.joining(", ")));
+        }
+    }
+
+    @Listener
     public void onRegisterCommands(final RegisterCommandEvent<Command.Raw> event) {
+        // Register commands
         registeredCommands = new ArrayList<>();
         Arrays.stream(SpongeCommandType.values()).forEach(commandType -> {
             new SpongeCommand(commandType.commandBase, this).register(event, pluginContainer);
             registeredCommands.add(commandType.commandBase);
         });
+        getLoggingAdapter().log(Level.INFO, "Registered " + registeredCommands.size() + " commands");
     }
 
     @NotNull

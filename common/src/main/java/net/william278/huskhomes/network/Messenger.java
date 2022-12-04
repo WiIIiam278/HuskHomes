@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public abstract class NetworkMessenger {
+public abstract class Messenger implements AutoCloseable {
 
     /**
      * Name of the network message channel for HuskHomes messages
@@ -21,7 +21,7 @@ public abstract class NetworkMessenger {
     /**
      * Map of message UUIDs to messages being processed
      */
-    protected HashMap<UUID, CompletableFuture<Message>> processingMessages;
+    protected HashMap<UUID, CompletableFuture<Request>> processingMessages;
 
     /**
      * List of pending futures for processing {@link #fetchServerName(OnlineUser)} requests
@@ -123,54 +123,54 @@ public abstract class NetworkMessenger {
      * Send a network message
      *
      * @param sender  {@link OnlineUser} sending the message
-     * @param message {@link Message} to send
-     * @return Future returning the {@link Message} sent, that will time out after
-     * @apiNote This method invokes {@link #dispatchMessage(OnlineUser, Message)}, applying a time-to-live timeOut
+     * @param request {@link Request} to send
+     * @return Future returning the {@link Request} sent, that will time out after
+     * @apiNote This method invokes {@link #dispatchMessage(OnlineUser, Request)}, applying a time-to-live timeOut
      */
-    public final CompletableFuture<Optional<Message>> sendMessage(@NotNull OnlineUser sender, @NotNull Message message) {
-        return dispatchMessage(sender, message)
+    protected final CompletableFuture<Optional<Request>> sendMessage(@NotNull OnlineUser sender, @NotNull Request request) {
+        return dispatchMessage(sender, request)
                 .orTimeout(MESSAGE_TIME_OUT, TimeUnit.SECONDS)
                 .exceptionally(e -> {
                     plugin.getLoggingAdapter().log(Level.WARNING, "Message dispatch after " + MESSAGE_TIME_OUT + " seconds", e);
                     return null;
                 })
                 .thenApply(result -> {
-                    processingMessages.remove(message.uuid);
+                    processingMessages.remove(request.getUuid());
                     return Optional.ofNullable(result);
                 });
     }
 
     /**
-     * Dispatch a {@link Message} via the appropriate handler
+     * Dispatch a {@link Request} via the appropriate handler
      *
-     * @param sender  The {@link OnlineUser} that sent the {@link Message}
-     * @param message The {@link Message} to dispatch
-     * @return A future containing a reply to the {@link Message} that was sent
+     * @param sender  The {@link OnlineUser} that sent the {@link Request}
+     * @param request The {@link Request} to dispatch
+     * @return A future containing a reply to the {@link Request} that was sent
      */
-    protected abstract CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message);
+    protected abstract CompletableFuture<Request> dispatchMessage(@NotNull OnlineUser sender, @NotNull Request request);
 
     /**
-     * Send a reply to a received {@link Message}
+     * Send a reply to a received {@link Request}
      *
-     * @param reply The reply {@link Message} to send
+     * @param reply The reply {@link Request} to send
      */
-    protected abstract void sendReply(@NotNull OnlineUser replier, @NotNull Message reply);
+    protected abstract void sendReply(@NotNull OnlineUser replier, @NotNull Request reply);
 
     /**
-     * Handle and action received network {@link Message}s
+     * Handle and action received network {@link Request}s
      *
      * @param receiver The online {@link OnlineUser} receiving the message
-     * @param message  The received {@link Message}
+     * @param request  The received {@link Request}
      */
-    protected final void handleMessage(@NotNull OnlineUser receiver, @NotNull Message message) {
-        switch (message.relayType) {
+    protected final void handleMessage(@NotNull OnlineUser receiver, @NotNull Request request) {
+        switch (request.getRelayType()) {
             // Handle a message and send reply
-            case MESSAGE -> prepareReply(receiver, message).thenAccept(reply -> sendReply(receiver, message));
+            case MESSAGE -> handleRequest(receiver, request);
             // Handle a reply message
             case REPLY -> {
-                if (processingMessages.containsKey(message.uuid)) {
-                    final Message finalMessage = message;
-                    processingMessages.get(message.uuid).completeAsync(() -> finalMessage);
+                if (processingMessages.containsKey(request.getUuid())) {
+                    final Request finalRequest = request;
+                    processingMessages.get(request.getUuid()).completeAsync(() -> finalRequest);
                     return;
                 }
                 plugin.getLoggingAdapter().log(Level.WARNING, "Received a reply to a message that was not sent by this server");
@@ -183,63 +183,47 @@ public abstract class NetworkMessenger {
      * to the sender
      *
      * @param receiver The {@link OnlineUser} receiving the message
-     * @param message  The received {@link Message}
-     * @return A future containing the reply {@link Message}
+     * @param request  The received {@link Request}
      */
-    private CompletableFuture<Message> prepareReply(@NotNull final OnlineUser receiver, @NotNull final Message message) {
-        return CompletableFuture.supplyAsync(() -> {
-            switch (message.type) {
-                case TELEPORT_TO_POSITION_REQUEST -> {
-                    if (message.payload.position != null) {
-                        message.payload = MessagePayload.withTeleportResult(Teleport.builder(plugin, receiver)
-                                .setTarget(message.payload.position)
-                                .toTeleport().join().execute().join().getState());
-                    } else {
-                        message.payload = MessagePayload.empty();
-                    }
+    private void handleRequest(@NotNull OnlineUser receiver, @NotNull Request request) {
+        switch (request.getType()) {
+            case TELEPORT_TO_POSITION_REQUEST -> {
+                if (request.getPayload().position != null) {
+                    Teleport.builder(plugin, receiver)
+                            .setTarget(request.getPayload().position).toTeleport()
+                            .thenAccept(teleport -> teleport.execute()
+                                    .thenAccept(result -> request.reply(receiver,
+                                            Payload.withTeleportResult(result.getState()), plugin)));
+                    return;
                 }
-                case POSITION_REQUEST -> message.payload = MessagePayload.withPosition(receiver.getPosition());
-                case TELEPORT_REQUEST -> {
-                    if (message.payload.teleportRequest != null) {
-                        plugin.getRequestManager().sendLocalTeleportRequest(message.payload.teleportRequest, receiver);
-                    } else {
-                        message.payload = MessagePayload.empty();
-                    }
-                }
-                case TELEPORT_REQUEST_RESPONSE -> {
-                    if (message.payload.teleportRequest != null) {
-                        plugin.getRequestManager().handleLocalRequestResponse(receiver, message.payload.teleportRequest);
-                    } else {
-                        message.payload = MessagePayload.empty();
-                    }
-                }
+                request.reply(receiver, Payload.empty(), plugin);
             }
-            return message;
-        }).exceptionally(exception -> {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to prepare message reply", exception);
-            message.payload = MessagePayload.empty();
-            return message;
-        }).thenApply(reply -> {
-            formatReplyMessage(message, receiver);
-            return reply;
-        });
-    }
-
-    /**
-     * Prepare a {@link Message} to be sent as a reply to a received {@link Message}
-     *
-     * @param message  The received {@link Message}
-     * @param receiver The {@link OnlineUser} receiving the message
-     */
-    private void formatReplyMessage(@NotNull Message message, @NotNull OnlineUser receiver) {
-        message.targetPlayer = message.sender;
-        message.sender = receiver.username;
-        message.relayType = Message.RelayType.REPLY;
+            case POSITION_REQUEST -> request.reply(receiver, Payload.withPosition(receiver.getPosition()), plugin);
+            case TELEPORT_REQUEST -> {
+                if (request.getPayload().teleportRequest != null) {
+                    request.reply(receiver, plugin.getRequestManager()
+                            .sendLocalTeleportRequest(request.getPayload().teleportRequest, receiver)
+                            .map(Payload::withTeleportRequest)
+                            .orElse(Payload.empty()), plugin);
+                    return;
+                }
+                request.reply(receiver, Payload.empty(), plugin);
+            }
+            case TELEPORT_REQUEST_RESPONSE -> {
+                if (request.getPayload().teleportRequest != null) {
+                    plugin.getRequestManager().handleLocalRequestResponse(receiver, request.getPayload().teleportRequest);
+                    request.reply(receiver, plugin);
+                    return;
+                }
+                request.reply(receiver, Payload.empty(), plugin);
+            }
+        }
     }
 
     /**
      * Close the network messenger
      */
-    public abstract void terminate();
+    @Override
+    public abstract void close();
 
 }

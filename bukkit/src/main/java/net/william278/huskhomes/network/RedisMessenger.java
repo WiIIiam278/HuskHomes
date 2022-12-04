@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
@@ -36,15 +36,15 @@ public class RedisMessenger extends PluginMessenger {
                         if (!channel.equals(NETWORK_MESSAGE_CHANNEL)) {
                             return;
                         }
-                        final Message message = Message.fromJson(encodedMessage);
-                        if (!message.clusterId.equals(clusterId)) {
+                        final Request request = Request.fromJson(encodedMessage);
+                        if (!request.getClusterId().equals(clusterId)) {
                             return;
                         }
-                        final Optional<BukkitPlayer> receiver = BukkitPlayer.get(message.targetPlayer);
+                        final Optional<BukkitPlayer> receiver = BukkitPlayer.get(request.getTargetPlayer());
                         if (receiver.isEmpty()) {
                             return;
                         }
-                        handleMessage(receiver.get(), message);
+                        handleMessage(receiver.get(), request);
                     }
                 }, NETWORK_MESSAGE_CHANNEL);
             }
@@ -53,21 +53,21 @@ public class RedisMessenger extends PluginMessenger {
     }
 
     @Override
-    public CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message) {
-        final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
-        processingMessages.put(message.uuid, repliedMessage);
-        redisWorker.sendMessage(message);
+    public CompletableFuture<Request> dispatchMessage(@NotNull OnlineUser sender, @NotNull Request request) {
+        final CompletableFuture<Request> repliedMessage = new CompletableFuture<>();
+        processingMessages.put(request.getUuid(), repliedMessage);
+        redisWorker.sendMessage(request);
         return repliedMessage;
     }
 
     @Override
-    protected void sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
+    protected void sendReply(@NotNull OnlineUser replier, @NotNull Request reply) {
         redisWorker.sendMessage(reply);
     }
 
     @Override
-    public void terminate() {
+    public void close() {
         redisWorker.terminate();
-        super.terminate();
+        super.close();
     }
 }

@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -23,7 +23,7 @@ import java.util.logging.Level;
 /**
  * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> messenger implementation
  */
-public class PluginMessenger extends NetworkMessenger implements PluginMessageListener {
+public class PluginMessenger extends Messenger implements PluginMessageListener {
 
     /**
      * The name of BungeeCord's provided plugin channel.
@@ -108,30 +108,30 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    public CompletableFuture<Message> dispatchMessage(@NotNull OnlineUser sender, @NotNull Message message) {
-        final CompletableFuture<Message> repliedMessage = new CompletableFuture<>();
-        processingMessages.put(message.uuid, repliedMessage);
-        sendPluginMessage((BukkitPlayer) sender, message);
+    public CompletableFuture<Request> dispatchMessage(@NotNull OnlineUser sender, @NotNull Request request) {
+        final CompletableFuture<Request> repliedMessage = new CompletableFuture<>();
+        processingMessages.put(request.getUuid(), repliedMessage);
+        sendPluginMessage((BukkitPlayer) sender, request);
         return repliedMessage;
     }
 
     @Override
-    protected void sendReply(@NotNull OnlineUser replier, @NotNull Message reply) {
+    protected void sendReply(@NotNull OnlineUser replier, @NotNull Request reply) {
         sendPluginMessage((BukkitPlayer) replier, reply);
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private void sendPluginMessage(@NotNull BukkitPlayer player, @NotNull Message message) {
+    private void sendPluginMessage(@NotNull BukkitPlayer player, @NotNull Request request) {
         final BukkitHuskHomes plugin = (BukkitHuskHomes) this.plugin;
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
         messageWriter.writeUTF("ForwardToPlayer");
-        messageWriter.writeUTF(message.targetPlayer);
+        messageWriter.writeUTF(request.getTargetPlayer());
         messageWriter.writeUTF(NETWORK_MESSAGE_CHANNEL);
 
         // Write the plugin message
         try (final ByteArrayOutputStream messageByteOutputStream = new ByteArrayOutputStream()) {
             try (DataOutputStream messageDataOutputStream = new DataOutputStream(messageByteOutputStream)) {
-                messageDataOutputStream.writeUTF(message.toJson());
+                messageDataOutputStream.writeUTF(request.toJson());
                 messageWriter.writeShort(messageByteOutputStream.toByteArray().length);
                 messageWriter.write(messageByteOutputStream.toByteArray());
             }
@@ -145,7 +145,7 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
     }
 
     @Override
-    public void terminate() {
+    public void close() {
         Bukkit.getMessenger().unregisterIncomingPluginChannel((BukkitHuskHomes) plugin);
         Bukkit.getMessenger().unregisterIncomingPluginChannel((BukkitHuskHomes) plugin);
     }
@@ -167,14 +167,14 @@ public class PluginMessenger extends NetworkMessenger implements PluginMessageLi
 
                 // Read the message in byte-by-byte and parse it
                 try (DataInputStream messageReader = new DataInputStream(new ByteArrayInputStream(messageBody))) {
-                    final Message message = Message.fromJson(messageReader.readUTF());
+                    final Request request = Request.fromJson(messageReader.readUTF());
 
                     // Ignore plugin messages to other clusters
-                    if (!message.clusterId.equals(clusterId)) {
+                    if (!request.getClusterId().equals(clusterId)) {
                         return;
                     }
 
-                    handleMessage(BukkitPlayer.adapt(player), message);
+                    handleMessage(BukkitPlayer.adapt(player), request);
                 } catch (IOException e) {
                     plugin.getLoggingAdapter().log(Level.SEVERE,
                             "Failed to read an inbound plugin message", e);

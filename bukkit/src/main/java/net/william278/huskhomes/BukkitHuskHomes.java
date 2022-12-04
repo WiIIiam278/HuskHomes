@@ -20,9 +20,9 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
-import net.william278.huskhomes.messenger.NetworkMessenger;
-import net.william278.huskhomes.messenger.PluginMessenger;
-import net.william278.huskhomes.messenger.RedisMessenger;
+import net.william278.huskhomes.network.Messenger;
+import net.william278.huskhomes.network.PluginMessenger;
+import net.william278.huskhomes.network.RedisMessenger;
 import net.william278.huskhomes.migrator.LegacyMigrator;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.BukkitPlayer;
@@ -83,7 +83,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private List<Migrator> migrators;
 
     @Nullable
-    private NetworkMessenger networkMessenger;
+    private Messenger messenger;
 
     @Nullable
     private Server server;
@@ -148,11 +148,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Initialize the network messenger if proxy mode is enabled
             if (getSettings().crossServer) {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
-                networkMessenger = switch (settings.messengerType) {
+                messenger = switch (settings.messengerType) {
                     case PLUGIN_MESSAGE -> new PluginMessenger();
                     case REDIS -> new RedisMessenger();
                 };
-                networkMessenger.initialize(this);
+                messenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
 
@@ -293,8 +293,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         if (database != null) {
             database.terminate();
         }
-        if (networkMessenger != null) {
-            networkMessenger.terminate();
+        if (messenger != null) {
+            messenger.close();
         }
         if (audiences != null) {
             audiences.close();
@@ -361,11 +361,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
     @NotNull
     @Override
-    public NetworkMessenger getNetworkMessenger() {
-        if (networkMessenger == null) {
+    public Messenger getMessenger() {
+        if (messenger == null) {
             throw new HuskHomesException("Attempted to access network messenger when it was not initialized");
         }
-        return networkMessenger;
+        return messenger;
     }
 
     @NotNull
@@ -476,7 +476,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         if (!getSettings().crossServer || this.server != null) {
             return CompletableFuture.completedFuture(null);
         }
-        return getNetworkMessenger().fetchServerName(requester).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> null).thenAccept(serverName -> {
+        return getMessenger().fetchServerName(requester).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> null).thenAccept(serverName -> {
             if (serverName == null) {
                 throw new HuskHomesException("GetServer plugin message call operation timed out");
             }

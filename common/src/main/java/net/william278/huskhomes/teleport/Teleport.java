@@ -2,8 +2,8 @@ package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.MessagePayload;
+import net.william278.huskhomes.network.Request;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
@@ -187,7 +187,7 @@ public class Teleport {
         plugin.getDatabase()
                 .setCurrentTeleport(teleporter, this)
                 .thenApply(ignored -> plugin
-                        .getNetworkMessenger()
+                        .getMessenger()
                         .sendPlayer(teleporter, target.server)
                         .thenApply(completed -> completed
                                 ? TeleportResult.COMPLETED_CROSS_SERVER
@@ -215,19 +215,16 @@ public class Teleport {
         assert teleporter != null;
 
         // Send a network message to a user on another server to teleport them to the target position
-        return plugin.getNetworkMessenger()
-                .sendMessage(executor,
-                        new Message(Message.MessageType.TELEPORT_TO_POSITION_REQUEST,
-                                executor.username,
-                                teleporter.username,
-                                MessagePayload.withPosition(target),
-                                Message.RelayType.MESSAGE,
-                                plugin.getSettings().clusterId))
+        return Request.builder()
+                .withType(Request.MessageType.TELEPORT_TO_POSITION_REQUEST)
+                .withPayload(Payload.withPosition(target))
+                .withTargetPlayer(teleporter.username)
+                .build().send(executor, plugin)
                 .thenApply(result -> {
                     if (result.isPresent()) {
-                        final Message reply = result.get();
-                        if (reply.payload.resultState != null) {
-                            return reply.payload.resultState;
+                        final Request reply = result.get();
+                        if (reply.getPayload().resultState != null) {
+                            return reply.getPayload().resultState;
                         }
                     }
                     return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;

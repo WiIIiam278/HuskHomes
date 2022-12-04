@@ -106,7 +106,7 @@ public class Cache {
      */
     public CompletableFuture<List<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
         if (plugin.getSettings().crossServer) {
-            return plugin.getNetworkMessenger().getOnlinePlayerNames(requester).thenApply(returnedPlayerList -> {
+            return plugin.getMessenger().getOnlinePlayerNames(requester).thenApply(returnedPlayerList -> {
                 players.clear();
                 players.addAll(List.of(returnedPlayerList));
                 return players;

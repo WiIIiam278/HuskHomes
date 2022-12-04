@@ -1,8 +1,8 @@
 package net.william278.huskhomes.redis;
 
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.Request;
+import net.william278.huskhomes.network.Messenger;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -43,10 +43,10 @@ public class RedisWorker {
         }
     }
 
-    public CompletableFuture<Void> sendMessage(@NotNull Message message) {
+    public CompletableFuture<Void> sendMessage(@NotNull Request request) {
         return CompletableFuture.runAsync(() -> {
             try (Jedis jedis = jedisPool.getResource()) {
-                jedis.publish(NetworkMessenger.NETWORK_MESSAGE_CHANNEL, message.toJson());
+                jedis.publish(Messenger.NETWORK_MESSAGE_CHANNEL, request.toJson());
             }
         });
     }

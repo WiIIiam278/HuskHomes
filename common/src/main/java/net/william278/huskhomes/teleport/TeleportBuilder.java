@@ -2,8 +2,7 @@ package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.MessagePayload;
+import net.william278.huskhomes.network.Request;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Location;
@@ -91,7 +90,7 @@ public class TeleportBuilder {
                 .map(onlineUser -> (User) onlineUser)
                 .or(() -> {
                     if (plugin.getSettings().crossServer) {
-                        return plugin.getNetworkMessenger()
+                        return plugin.getMessenger()
                                 .findPlayer(executor, teleporterUsername).join()
                                 .map(username -> new User(UUID.randomUUID(), username));
                     }
@@ -234,17 +233,17 @@ public class TeleportBuilder {
             return CompletableFuture.supplyAsync(() -> Optional.of(localPlayer.get().getPosition()));
         }
         if (plugin.getSettings().crossServer) {
-            return plugin.getNetworkMessenger()
+            return plugin.getMessenger()
                     .findPlayer(executor, playerName)
                     .thenApplyAsync(foundPlayer -> {
                         if (foundPlayer.isEmpty()) {
                             return Optional.empty();
                         }
-                        return plugin.getNetworkMessenger()
-                                .sendMessage(executor, new Message(Message.MessageType.POSITION_REQUEST,
-                                        executor.username, playerName, MessagePayload.empty(),
-                                        Message.RelayType.MESSAGE, plugin.getSettings().clusterId))
-                                .thenApply(reply -> reply.map(message -> message.payload.position)).join();
+                        return Request.builder()
+                                .withType(Request.MessageType.POSITION_REQUEST)
+                                .withTargetPlayer(playerName)
+                                .build().send(executor, plugin)
+                                .thenApply(reply -> reply.map(message -> message.getPayload().position)).join();
                     });
         }
         return CompletableFuture.supplyAsync(Optional::empty);

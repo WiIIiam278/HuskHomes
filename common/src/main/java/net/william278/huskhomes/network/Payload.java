@@ -1,4 +1,4 @@
-package net.william278.huskhomes.messenger;
+package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.position.Position;
@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a payload sent in a cross-server {@link Message}
+ * Represents a payload sent in a cross-server {@link Request}
  */
-public class MessagePayload {
+public class Payload {
 
     /**
      * A position field
@@ -38,8 +38,8 @@ public class MessagePayload {
      * @return an empty payload
      */
     @NotNull
-    public static MessagePayload empty() {
-        return new MessagePayload();
+    public static Payload empty() {
+        return new Payload();
     }
 
     /**
@@ -49,8 +49,8 @@ public class MessagePayload {
      * @return a payload containing the position
      */
     @NotNull
-    public static MessagePayload withPosition(@NotNull Position position) {
-        final MessagePayload payload = new MessagePayload();
+    public static Payload withPosition(@NotNull Position position) {
+        final Payload payload = new Payload();
         payload.position = position;
         return payload;
     }
@@ -62,8 +62,8 @@ public class MessagePayload {
      * @return a payload containing the teleport result
      */
     @NotNull
-    public static MessagePayload withTeleportResult(@NotNull TeleportResult resultState) {
-        final MessagePayload payload = new MessagePayload();
+    public static Payload withTeleportResult(@NotNull TeleportResult resultState) {
+        final Payload payload = new Payload();
         payload.resultState = resultState;
         return payload;
     }
@@ -75,13 +75,13 @@ public class MessagePayload {
      * @return a payload containing the teleport request
      */
     @NotNull
-    public static MessagePayload withTeleportRequest(@NotNull TeleportRequest teleportRequest) {
-        final MessagePayload payload = new MessagePayload();
+    public static Payload withTeleportRequest(@NotNull TeleportRequest teleportRequest) {
+        final Payload payload = new Payload();
         payload.teleportRequest = teleportRequest;
         return payload;
     }
 
-    private MessagePayload() {
+    private Payload() {
     }
 
 }

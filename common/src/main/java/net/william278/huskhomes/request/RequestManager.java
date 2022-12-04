@@ -1,8 +1,8 @@
 package net.william278.huskhomes.request;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.messenger.Message;
-import net.william278.huskhomes.messenger.MessagePayload;
+import net.william278.huskhomes.network.Request;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.teleport.Teleport;
@@ -140,23 +140,21 @@ public class RequestManager {
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().crossServer) {
             // Find the matching networked target
-            return plugin.getNetworkMessenger().findPlayer(requester, targetUser).thenApplyAsync(networkedTarget -> {
+            return plugin.getMessenger().findPlayer(requester, targetUser).thenApplyAsync(networkedTarget -> {
                 if (networkedTarget.isEmpty()) {
                     return Optional.empty();
                 }
 
                 // Use the network messenger to send the request
                 request.recipientName = networkedTarget.get();
-                return plugin.getNetworkMessenger()
-                        .sendMessage(requester, new Message(Message.MessageType.TELEPORT_REQUEST,
-                                requester.username,
-                                networkedTarget.get(),
-                                MessagePayload.withTeleportRequest(request),
-                                Message.RelayType.MESSAGE,
-                                plugin.getSettings().clusterId))
+                return Request.builder()
+                        .withType(Request.MessageType.TELEPORT_REQUEST)
+                        .withPayload(Payload.withTeleportRequest(request))
+                        .withTargetPlayer(networkedTarget.get())
+                        .build().send(requester, plugin)
                         .thenApply(reply -> {
                             if (reply.isPresent()) {
-                                final TeleportRequest result = reply.get().payload.teleportRequest;
+                                final TeleportRequest result = reply.get().getPayload().teleportRequest;
                                 if (result == null || result.status == TeleportRequest.RequestStatus.IGNORED) {
                                     return null;
                                 }
@@ -196,7 +194,7 @@ public class RequestManager {
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.type == TeleportRequest.RequestType.TPA ? "tpa" : "tpahere")
-                                      + "_request_received", request.requesterName)
+                        + "_request_received", request.requesterName)
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.requesterName)
                 .ifPresent(recipient::sendMessage);
@@ -283,7 +281,7 @@ public class RequestManager {
             handleLocalRequestResponse(localRequester.get(), request);
         } else if (plugin.getSettings().crossServer) {
             // Ensure the sender is still online
-            plugin.getNetworkMessenger()
+            plugin.getMessenger()
                     .findPlayer(recipient, request.requesterName)
                     .thenApplyAsync(networkedTarget -> {
                         if (networkedTarget.isEmpty()) {
@@ -292,13 +290,11 @@ public class RequestManager {
                             return false;
                         }
 
-                        return plugin.getNetworkMessenger()
-                                .sendMessage(recipient, new Message(Message.MessageType.TELEPORT_REQUEST_RESPONSE,
-                                        recipient.username,
-                                        networkedTarget.get(),
-                                        MessagePayload.withTeleportRequest(request),
-                                        Message.RelayType.MESSAGE,
-                                        plugin.getSettings().clusterId))
+                        return Request.builder()
+                                .withType(Request.MessageType.TELEPORT_REQUEST_RESPONSE)
+                                .withPayload(Payload.withTeleportRequest(request))
+                                .withTargetPlayer(networkedTarget.get())
+                                .build().send(recipient, plugin)
                                 .thenApply(Optional::isPresent)
                                 .join();
                     })

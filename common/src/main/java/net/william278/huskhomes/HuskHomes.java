@@ -11,7 +11,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
-import net.william278.huskhomes.messenger.NetworkMessenger;
+import net.william278.huskhomes.network.Messenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.*;
@@ -86,7 +86,7 @@ public interface HuskHomes {
             return CompletableFuture.completedFuture(Optional.of(localPlayer.get().username));
         }
         if (getSettings().crossServer) {
-            return getNetworkMessenger().findPlayer(requester, targetPlayerName);
+            return getMessenger().findPlayer(requester, targetPlayerName);
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }
@@ -139,12 +139,12 @@ public interface HuskHomes {
     SavedPositionManager getSavedPositionManager();
 
     /**
-     * The {@link NetworkMessenger} that sends cross-network messages
+     * The {@link Messenger} that sends cross-network messages
      *
-     * @return the {@link NetworkMessenger} implementation
+     * @return the {@link Messenger} implementation
      */
     @NotNull
-    NetworkMessenger getNetworkMessenger() throws HuskHomesException;
+    Messenger getMessenger() throws HuskHomesException;
 
     /**
      * The {@link RandomTeleportEngine} that manages random teleports

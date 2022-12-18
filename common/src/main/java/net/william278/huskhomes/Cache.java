@@ -41,7 +41,7 @@ public class Cache {
     /**
      * Cached player list
      */
-    public final List<String> players;
+    public final Set<String> players;
 
     /**
      * Cached lists of private homes for pagination, mapped to the username of the home owner
@@ -75,7 +75,7 @@ public class Cache {
         this.homes = new HashMap<>();
         this.publicHomes = new HashMap<>();
         this.warps = new ArrayList<>();
-        this.players = new ArrayList<>();
+        this.players = new HashSet<>();
         this.privateHomeLists = new HashMap<>();
         this.publicHomeLists = new HashMap<>();
         this.warpLists = new HashMap<>();
@@ -104,22 +104,23 @@ public class Cache {
      *
      * @param plugin the implementing plugin
      */
-    public CompletableFuture<List<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
+    public CompletableFuture<Set<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
+        players.clear();
+        players.addAll(plugin.getOnlinePlayers()
+                .stream()
+                .filter(player -> !player.isVanished())
+                .map(onlineUser -> onlineUser.username)
+                .toList());
+
         if (plugin.getSettings().crossServer) {
-            return plugin.getMessenger().getOnlinePlayerNames(requester).thenApply(returnedPlayerList -> {
-                players.clear();
-                players.addAll(List.of(returnedPlayerList));
-                return players;
-            });
-        } else {
-            players.clear();
-            players.addAll(plugin.getOnlinePlayers()
-                    .stream()
-                    .filter(player -> !player.isVanished())
-                    .map(onlineUser -> onlineUser.username)
-                    .toList());
-            return CompletableFuture.completedFuture(players);
+            return plugin.getMessenger()
+                    .getOnlinePlayerNames(requester)
+                    .thenApply(networkedPlayers -> {
+                        players.addAll(Set.of(networkedPlayers));
+                        return players;
+                    });
         }
+        return CompletableFuture.completedFuture(players);
     }
 
     /**

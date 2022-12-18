@@ -40,10 +40,8 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Find the online user to teleport
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenRun(() -> {
             // Get the list of potential teleports, filtered against vanished players, but ensuring the executor is in the list
-            final List<String> players =  plugin.getCache().players;
-            if (!players.contains(onlineUser.username)) {
-                players.add(onlineUser.username);
-            }
+            final Set<String> players =  plugin.getCache().players;
+            players.add(onlineUser.username);
 
             // Find the player to teleport
             final String playerToTeleport = players.stream()

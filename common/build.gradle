@@ -11,7 +11,7 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'org.jetbrains:annotations:23.1.0'
+    compileOnly 'org.jetbrains:annotations:24.0.0'
     compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'redis.clients:jedis:' + jedis_version
     compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version

@@ -252,6 +252,16 @@ public class Settings {
     @YamlKey("map_hook.show_warps")
     public boolean warpsOnMap = true;
 
+    @YamlComment("The html string of dynmap can be edited here. If you don't know what it is, don't use it")
+    @YamlKey("map_hook.dynmap_custom_html.enabled")
+    public boolean dynmapCustomHtml = false;
+
+    @YamlKey("map_hook.dynmap_custom_html.home_html")
+    public String dynmapCustomHtml_homeHtml = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Owner: </span>%owner%<br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
+
+    @YamlKey("map_hook.dynmap_custom_html.home_warp")
+    public String dynmapCustomHtml_warpHtml = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
+
 
     // Disabled commands
     @YamlComment("Disabled commands (e.g. ['/home', '/warp'] to disable /home and /warp)")

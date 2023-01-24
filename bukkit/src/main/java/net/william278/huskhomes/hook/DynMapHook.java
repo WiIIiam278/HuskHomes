@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
+import static org.apache.commons.lang.StringEscapeUtils.unescapeHtml;
+
 /**
  * Hook to display warps and public homes on Dynmap
  */
@@ -69,15 +71,27 @@ public class DynMapHook extends MapHook {
 
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeHome(home).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
-            dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).createMarker(
-                            home.owner.uuid + ":" + home.uuid, home.meta.name, home.world.name,
-                            home.x, home.y, home.z, dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false)
-                    .setDescription(MarkerInformationPopup.create(home.meta.name)
+            String html;
+            // config.enable
+            if (plugin.getSettings().dynmapCustomHtml) {
+                html = plugin.getSettings().dynmapCustomHtml_homeHtml
+                        .replace("%icon_name%", PUBLIC_HOME_MARKER_IMAGE_NAME)
+                        .replace("%name%", unescapeHtml(home.meta.name))
+                        .replace("%owner%", unescapeHtml(home.owner.username))
+                        .replace("%description%", unescapeHtml(plugin.getLocales().formatDescription(home.meta.description)))
+                        .replace("%command%", BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command +" "+ unescapeHtml(home.meta.name));
+            } else {
+                html = MarkerInformationPopup.create(home.meta.name)
                             .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
                             .addField("Owner", home.owner.username)
                             .addField("Description", plugin.getLocales().formatDescription(home.meta.description))
                             .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.meta.name)
-                            .toHtml());
+                            .toHtml();
+            }
+            dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).createMarker(
+                    home.owner.uuid + ":" + home.uuid, home.meta.name, home.world.name,
+                    home.x, home.y, home.z,
+                    dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false).setDescription(html);
             updatedFuture.complete(null);
         }));
         return updatedFuture;
@@ -116,18 +130,30 @@ public class DynMapHook extends MapHook {
 
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeWarp(warp).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
-            dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).createMarker(
-                            warp.uuid.toString(), warp.meta.name, warp.world.name,
-                            warp.x, warp.y, warp.z, dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false)
-                    .setDescription(MarkerInformationPopup.create(warp.meta.name)
+            String html;
+            // Enable config
+            if (plugin.getSettings().dynmapCustomHtml) {
+                html = plugin.getSettings().dynmapCustomHtml_warpHtml
+                        .replace("%icon_name%", WARP_MARKER_IMAGE_NAME)
+                        .replace("%name%", unescapeHtml(warp.meta.name))
+                        .replace("%description%", unescapeHtml(plugin.getLocales().formatDescription(warp.meta.description)))
+                        .replace("%command%", BukkitCommandType.WARP_COMMAND.commandBase.command +" "+ unescapeHtml(warp.meta.name));
+            } else {
+                html = MarkerInformationPopup.create(warp.meta.name)
                             .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
                             .addField("Description", plugin.getLocales().formatDescription(warp.meta.description))
                             .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.meta.name)
-                            .toHtml());
+                            .toHtml();
+            }
+            dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).createMarker(
+                    warp.uuid.toString(), warp.meta.name, warp.world.name,
+                    warp.x, warp.y, warp.z,
+                    dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false).setDescription(html);
             updatedFuture.complete(null);
         }));
         return updatedFuture;
     }
+
 
     @Override
     public CompletableFuture<Void> removeWarp(@NotNull Warp warp) {
@@ -211,5 +237,4 @@ public class DynMapHook extends MapHook {
             return html.toString();
         }
     }
-
 }

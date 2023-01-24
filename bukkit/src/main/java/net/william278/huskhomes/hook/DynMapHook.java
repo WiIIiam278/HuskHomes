@@ -81,11 +81,11 @@ public class DynMapHook extends MapHook {
                         .replace("%command%", BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command +" "+ unescapeHtml(home.meta.name));
             } else {
                 html = MarkerInformationPopup.create(home.meta.name)
-                            .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
-                            .addField("Owner", home.owner.username)
-                            .addField("Description", plugin.getLocales().formatDescription(home.meta.description))
-                            .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.meta.name)
-                            .toHtml();
+                        .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
+                        .addField("Owner", home.owner.username)
+                        .addField("Description", plugin.getLocales().formatDescription(home.meta.description))
+                        .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.meta.name)
+                        .toHtml();
             }
             dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).createMarker(
                     home.owner.uuid + ":" + home.uuid, home.meta.name, home.world.name,
@@ -138,10 +138,10 @@ public class DynMapHook extends MapHook {
                         .replace("%command%", BukkitCommandType.WARP_COMMAND.commandBase.command +" "+ unescapeHtml(warp.meta.name));
             } else {
                 html = MarkerInformationPopup.create(warp.meta.name)
-                            .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
-                            .addField("Description", plugin.getLocales().formatDescription(warp.meta.description))
-                            .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.meta.name)
-                            .toHtml();
+                        .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
+                        .addField("Description", plugin.getLocales().formatDescription(warp.meta.description))
+                        .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.meta.name)
+                        .toHtml();
             }
             dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).createMarker(
                     warp.uuid.toString(), warp.meta.name, warp.world.name,

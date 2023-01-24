@@ -256,11 +256,11 @@ public class Settings {
     @YamlKey("map_hook.dynmap_custom_html.enabled")
     public boolean dynmapCustomHtml = false;
 
-    @YamlKey("map_hook.dynmap_custom_html.home_html")
-    public String dynmapCustomHtml_homeHtml = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Owner: </span>%owner%<br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
+    @YamlKey("map_hook.dynmap_custom_html.home")
+    public String dynmapCustomHtml_home = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Owner: </span>%owner%<br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
 
-    @YamlKey("map_hook.dynmap_custom_html.home_warp")
-    public String dynmapCustomHtml_warpHtml = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
+    @YamlKey("map_hook.dynmap_custom_html.warp")
+    public String dynmapCustomHtml_warp = "<div><img src=\"/tiles/_markers_/%icon_name%.png\">&nbsp;<span style=\"font-weight:bold\">%name%</span><br><span style=\"font-weight:bold\">Description: </span>%description%<br><span style=\"font-weight:bold\">Command: </span>/%command%<br></div>";
 
 
     // Disabled commands

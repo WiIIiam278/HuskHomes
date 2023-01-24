@@ -72,9 +72,8 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeHome(home).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             String html;
-            // config.enable
             if (plugin.getSettings().dynmapCustomHtml) {
-                html = plugin.getSettings().dynmapCustomHtml_homeHtml
+                html = plugin.getSettings().dynmapCustomHtml_home
                         .replace("%icon_name%", PUBLIC_HOME_MARKER_IMAGE_NAME)
                         .replace("%name%", unescapeHtml(home.meta.name))
                         .replace("%owner%", unescapeHtml(home.owner.username))
@@ -131,9 +130,8 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeWarp(warp).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             String html;
-            // Enable config
             if (plugin.getSettings().dynmapCustomHtml) {
-                html = plugin.getSettings().dynmapCustomHtml_warpHtml
+                html = plugin.getSettings().dynmapCustomHtml_warp
                         .replace("%icon_name%", WARP_MARKER_IMAGE_NAME)
                         .replace("%name%", unescapeHtml(warp.meta.name))
                         .replace("%description%", unescapeHtml(plugin.getLocales().formatDescription(warp.meta.description)))

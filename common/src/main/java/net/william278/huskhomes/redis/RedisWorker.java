@@ -1,12 +1,10 @@
 package net.william278.huskhomes.redis;
 
+import io.lettuce.core.RedisClient;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.network.Request;
 import net.william278.huskhomes.network.Messenger;
+import net.william278.huskhomes.network.Request;
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +20,8 @@ public class RedisWorker {
     public String password;
 
     public boolean ssl;
-    public JedisPool jedisPool;
+
+    private RedisImpl redisImpl;
 
     public RedisWorker(@NotNull Settings settings) {
         this.host = settings.redisHost;
@@ -36,18 +35,20 @@ public class RedisWorker {
      * Initialize the JedisPool connection
      */
     public void initialize() {
+        RedisClient client;
         if (password.isEmpty()) {
-            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, ssl);
+            client = RedisClient.create("redis://" + host + ":" + port);
         } else {
-            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, password, ssl);
+            client = RedisClient.create("redis://" + password + "@" + host + ":" + port);
         }
+        redisImpl = new RedisImpl(client);
     }
 
     public CompletableFuture<Void> sendMessage(@NotNull Request request) {
         return CompletableFuture.runAsync(() -> {
-            try (Jedis jedis = jedisPool.getResource()) {
-                jedis.publish(Messenger.NETWORK_MESSAGE_CHANNEL, request.toJson());
-            }
+
+            redisImpl.getConnectionAsync(c -> c.publish(Messenger.NETWORK_MESSAGE_CHANNEL, request.toJson()));
+
         });
     }
 
@@ -55,10 +56,10 @@ public class RedisWorker {
      * Close the JedisPool connection
      */
     public void terminate() {
-        if (jedisPool != null) {
-            if (!jedisPool.isClosed()) {
-                jedisPool.close();
-            }
-        }
+        redisImpl.close();
+    }
+
+    public RedisImpl getRedisImpl() {
+        return redisImpl;
     }
 }

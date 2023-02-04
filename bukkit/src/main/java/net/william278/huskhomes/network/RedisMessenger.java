@@ -4,9 +4,8 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.redis.RedisWorker;
+import net.william278.huskhomes.redis.redisdata.RedisPubSub;
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPubSub;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -28,11 +27,13 @@ public class RedisMessenger extends PluginMessenger {
         redisWorker = new RedisWorker(implementor.getSettings());
         redisWorker.initialize();
 
-        new Thread(() -> {
-            try (Jedis jedis = redisWorker.jedisPool.getResource()) {
-                jedis.subscribe(new JedisPubSub() {
+        CompletableFuture.runAsync(() -> {
+            redisWorker.getRedisImpl().getPubSubConnection(connection -> {
+
+
+                connection.addListener(new RedisPubSub<>() {
                     @Override
-                    public void onMessage(String channel, String encodedMessage) {
+                    public void message(String channel, String encodedMessage) {
                         if (!channel.equals(NETWORK_MESSAGE_CHANNEL)) {
                             return;
                         }
@@ -46,9 +47,9 @@ public class RedisMessenger extends PluginMessenger {
                         }
                         handleMessage(receiver.get(), request);
                     }
-                }, NETWORK_MESSAGE_CHANNEL);
-            }
-        }, "Redis Subscriber").start();
+                });
+            });
+        });
 
     }
 

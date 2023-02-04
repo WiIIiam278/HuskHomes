@@ -46,7 +46,6 @@ public class RedisWorker {
 
     public CompletableFuture<Void> sendMessage(@NotNull Request request) {
         return CompletableFuture.runAsync(() -> {
-
             redisImpl.getConnectionAsync(c -> c.publish(Messenger.NETWORK_MESSAGE_CHANNEL, request.toJson()));
 
         });

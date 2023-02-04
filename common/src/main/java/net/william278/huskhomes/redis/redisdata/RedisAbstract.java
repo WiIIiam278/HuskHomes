@@ -4,12 +4,11 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import lombok.AllArgsConstructor;
 
 import java.util.concurrent.*;
 import java.util.function.Function;
 
-@AllArgsConstructor
+
 public abstract class RedisAbstract {
 
     protected static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();

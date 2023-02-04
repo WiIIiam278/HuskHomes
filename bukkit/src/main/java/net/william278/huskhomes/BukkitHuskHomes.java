@@ -213,7 +213,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Register permissions
             getLoggingAdapter().log(Level.INFO, "Registering permissions & commands...");
-            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(new org.bukkit.permissions.Permission(permission.node, switch (permission.defaultAccess) {
+
+//            System.out.println(getServer().getPluginManager().getPermissions().stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
+
+            Arrays.stream(Permission.values()).filter(p -> getServer().getPluginManager().getPermission(p.node) == null).forEach(permission -> getServer().getPluginManager().addPermission(new org.bukkit.permissions.Permission(permission.node, switch (permission.defaultAccess) {
                 case EVERYONE -> PermissionDefault.TRUE;
                 case NOBODY -> PermissionDefault.FALSE;
                 case OPERATORS -> PermissionDefault.OP;
@@ -300,6 +303,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             audiences.close();
             audiences = null;
         }
+
+        Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().removePermission(permission.name()));
     }
 
     /**

@@ -48,6 +48,8 @@ public class RedisMessenger extends PluginMessenger {
                         handleMessage(receiver.get(), request);
                     }
                 });
+
+                connection.async().subscribe(NETWORK_MESSAGE_CHANNEL);
             });
         });
 

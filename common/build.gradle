@@ -10,7 +10,6 @@ dependencies {
     implementation('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'
     }
-    implementation 'org.projectlombok:lombok:1.18.22'
 
     compileOnly 'org.jetbrains:annotations:23.1.0'
     compileOnly 'com.google.guava:guava:31.1-jre'

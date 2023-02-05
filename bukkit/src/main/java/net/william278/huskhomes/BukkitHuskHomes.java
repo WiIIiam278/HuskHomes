@@ -214,8 +214,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Register permissions
             getLoggingAdapter().log(Level.INFO, "Registering permissions & commands...");
 
-//            System.out.println(getServer().getPluginManager().getPermissions().stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
-
             Arrays.stream(Permission.values()).filter(p -> getServer().getPluginManager().getPermission(p.node) == null).forEach(permission -> getServer().getPluginManager().addPermission(new org.bukkit.permissions.Permission(permission.node, switch (permission.defaultAccess) {
                 case EVERYONE -> PermissionDefault.TRUE;
                 case NOBODY -> PermissionDefault.FALSE;

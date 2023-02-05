@@ -26,10 +26,6 @@ public abstract class RedisAbstract {
         return executorService.schedule(() -> function.apply(roundRobinConnectionPool.get()), timeout, timeUnit);
     }
 
-//    public <T> CompletionStage<T> getConnectionAsync(Function<RedisAsyncCommands<String, Object>, CompletionStage<T>> redisCallBack) {
-//        return redisCallBack.apply(roundRobinConnectionPool.get().async());
-//    }
-
     public <T> CompletionStage<T> getBinaryConnectionAsync(Function<RedisAsyncCommands<String, Object>, CompletionStage<T>> redisCallBack) {
         return redisCallBack.apply(roundRobinConnectionPool.get().async());
     }
@@ -53,11 +49,6 @@ public abstract class RedisAbstract {
     public void getPubSubConnection(RedisCallBack.PubSub redisCallBack) {
         redisCallBack.useConnection(lettuceRedisClient.connectPubSub());
     }
-//    public void getPubSubConnection(RedisCallBack.PubSub redisCallBack) {
-//        try (StatefulRedisPubSubConnection<String, String> connection = lettuceRedisClient.connectPubSub()) {
-//            redisCallBack.useConnection(connection);
-//        }
-//    }
 
     public StatefulRedisConnection<String, String> getUnclosedConnection() {
         return lettuceRedisClient.connect();

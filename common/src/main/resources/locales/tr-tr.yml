@@ -53,7 +53,7 @@ edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&Açık
 edit_warp_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#3b76ff&Dünya:\n&8Warpın ayarlandığı dünya'
 edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#3b76ff&Dünya:\n&8Warpın ayarlandığı dünya)   [☁ %2%](#477fff-#5286ff show_text=&#3b76ff&Sunucu:\n&8Warpın ayarlandığı sunucu)'
 edit_warp_menu_coordinates: '[⚐ x: %1%, y: %2%, z: %3%](#ffc43b-#f5c962 show_text=&#ffc43b&Koordinatlar:\n&8Warpın dünyadaki konumu\n&8yaw: %4%, pitch: %5%)\n'
-edit_warp_menu_use_buttons: '[Use:](gray) [[⏩ Işınlanma…]](#00fb9a show_text=&7Bu warp'a ışınlanmak için tıklayın run_command=/huskhomes:warp %1%)'
+edit_warp_menu_use_buttons: '[Use:](gray) [[⏩ Işınlanma…]](#00fb9a show_text=&7Bu warpa ışınlanmak için tıklayın run_command=/huskhomes:warp %1%)'
 edit_warp_menu_manage_buttons: '[Yönet:](gray) [[❌ Sil…]](#ff3300 show_text=&7Bu warpı silmek için tıklayın\n&#ff3300&⚠ Bu geri alınamaz! suggest_command=/huskhomes:delwarp %1%)   [[⚐ Taşı…]](#ffc43b-#f5c962 show_text=&7Bu warpı konumunuza taşımak için tıklayın run_command=/huskhomes:editwarp %1% relocate -m)'
 edit_warp_menu_meta_edit_buttons: '[Düzenle:](gray) [[✎ Yeniden isimlendir…]](#c160ff-#bb50ff show_text=&7Yeniden adlandırma komutunu önermek için tıklayın suggest_command=/huskhomes:editwarp %1% rename )   [[ℹ Açıklama…]](#bb50ff-#b43fff show_text=&7Açıklamayı düzenle komutunu önermek için tıklayın suggest_command=/huskhomes:editwarp %1% description )'
 edit_warp_update_location: '[Warp](#00fb9a) [%1%](#00fb9a bold) [mevcut konumunuza yeniden yerleştirildi.](#00fb9a)'
@@ -68,14 +68,14 @@ public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run
 warp_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %2% run_command=/huskhomes:warp %1%)'
 command_list_item: '[/%1%](#00fb9a show_text=&7Komut önermek için tıklayın suggest_command=/%1%)   [%2%](gray show_text=&#00fb9a&/%1%\n&7%3%)'
 list_item_divider: ' [•](gray) '
-list_footer: \n%1%[Sayfa](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%
+list_footer: '\n%1%[Sayfa](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
 list_previous_page_button: '[◀](white show_text=&7Önceki sayfayı görüntüle run_command=%2% %1%) '
 list_next_page_button: ' [▶](white show_text=&7Sonraki sayfayı görüntüle run_command=%2% %1%)'
-list_page_jumpers: (%1%)
+list_page_jumpers: '(%1%)'
 list_page_jumper_button: '[%1%](show_text=&7Sayfaya atla %1% run_command=%2% %1%)'
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
-list_page_jumper_group_separator: …
+list_page_jumper_group_separator: '…'
 home_deleted: '[%1%](#00fb9a bold) [eviniz başarıyla silindi](#00fb9a)'
 home_deleted_other: '[%1% adlı oyuncunun evi](#00fb9a) [%2%](#00fb9a bold) [tarafından başarıyla silindi](#00fb9a)'
 warp_deleted: '[%1%](#00fb9a bold) [warp başarıyla silindi](#00fb9a)'
@@ -83,8 +83,8 @@ set_home_used_free_slots: '[ℹ Ücretsiz giriş yuvalarınızın %1% tamamını
 set_home_success: '[%1%](#00fb9a bold) [adında yeni bir ev başarıyla ayarlandı](#00fb9a)'
 set_warp_success: '[%1%](#00fb9a bold) [adında yeni bir warp başarıyla ayarlandı](#00fb9a)'
 set_spawn_success: '[Spawn konumu mevcut konumunuzla güncellendi.](#00fb9a)'
-spawn_warp_default_description: Sunucunun /spawn konumu
-item_no_description: (Açıklama yok)
+spawn_warp_default_description: 'Sunucunun /spawn konumu'
+item_no_description: '(Açıklama yok)'
 delete_all_homes_confirm: '[Uyarı:](#ff3300) [Tüm evlerinizi silmek istediğinizden emin misiniz?](#ff7e5e)\n[Onayladıktan sonra, onları kurtarmak mümkün olmayacak.](gray)\n[→](gray) [[Onayla]](#ff3300 show_text=&#ff3300&Silme işlemini onaylamak için tıklayın. Bu geri alınamaz. run_command=/delhome all confirm)'
 delete_all_warps_confirm: '[Uyarı:](#ff3300) [Tüm warpları silmek istediğinizden emin misiniz?](#ff7e5e)\n[Onayladıktan sonra, onları kurtarmak mümkün olmayacak.](gray)\n[→](gray) [[Onayla]](#ff3300 show_text=&#ff3300&Silme işlemini onaylamak için tıklayın. Bu geri alınamaz. run_command=/delwarp all confirm)'
 delete_all_homes_success: '[Başarıyla](#00fb9a) [%1%](#00fb9a bold) [ev(ler) silindi.](#00fb9a)'

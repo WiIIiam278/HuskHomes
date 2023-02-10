@@ -144,30 +144,30 @@ error_illegal_target_coordinates: '[Hata:](#ff3300) [Olası oyun dünyası sın�
 error_no_players_online: '[Hata:](#ff3300) [Size ışınlanabilecek çevrimiçi oyuncu yok.](#ff7e5e)'
 error_teleport_target_not_resolved: '[Hata:](#ff3300) [Hedef konum bulunamadığından ışınlanma iptal edildi.](#ff7e5e)'
 error_teleport_teleporter_not_resolved: '[Hata:](#ff3300) [Işınlanacak kullanıcı bulunamadığından ışınlanma iptal edildi](#ff7e5e)'
-home_command_description: Evlerinizden birine ışınlar
-sethome_command_description: Verilen adla yeni bir ev ayarlar
-delhome_command_description: Önceden ayarladığınız bir evi siler
-edithome_command_description: Evlerinizden birini düzenler
-warp_command_description: Bir warpa ışınlar
-setwarp_command_description: Verilen ad ile yeni bir warp ayarlar
-delwarp_command_description: Warpları siler
-editwarp_command_description: Warpları düzenler
-back_command_description: Önceki konumunuza veya öldüğünüz yere dönüdürür
-homelist_command_description: Evlerinizin bir listesini alır
-warplist_command_description: Warp listesini görünütler
-publichomelist_command_description: Herkese açık evlerin listesini görüntüler
-publichome_command_description: Herkese açık bir eve ışınlar
-tp_command_description: Başka bir oyuncuya veya konuma ışınlar
-tphere_command_description: Başka bir oyuncuyu sana ışınlar
-tpa_command_description: Başka bir oyuncuya ışınlanma isteği atar
-tpahere_command_description: Başka bir oyuncunun size ışınlanmasını ister
-tpaccept_command_description: Bir ışınlanma isteğini kabul eder
-tpdecline_command_description: Bir ışınlanma isteğini reddeder
-tpignore_command_description: Gelen ışınlanma isteklerini yoksayar
-tpoffline_command_description: Bir oyuncunun en son çevrimiçi olduğu yere ışınlar
-rtp_command_description: Vahşi doğaya rastgele ışınlar
-spawn_command_description: Spawna ışınlar
-setspawn_command_description: Işınlanma komudunu ayarlar
-tpaall_command_description: Herkesin size ışınlanmasını ister
-tpall_command_description: Herkesi konumunuza ışınlar
-huskhomes_command_description: Eklenti bilgilerini görüntüleyin ve yapılandırmaları yeniden yükler
+home_command_description: 'Evlerinizden birine ışınlar'
+sethome_command_description: 'Verilen adla yeni bir ev ayarlar'
+delhome_command_description: 'Önceden ayarladığınız bir evi siler'
+edithome_command_description: 'Evlerinizden birini düzenler'
+warp_command_description: 'Bir warpa ışınlar'
+setwarp_command_description: 'Verilen ad ile yeni bir warp ayarlar'
+delwarp_command_description: 'Warpları siler'
+editwarp_command_description: 'Warpları düzenler'
+back_command_description: 'Önceki konumunuza veya öldüğünüz yere dönüdürür'
+homelist_command_description: 'Evlerinizin bir listesini alır'
+warplist_command_description: 'Warp listesini görünütler'
+publichomelist_command_description: 'Herkese açık evlerin listesini görüntüler'
+publichome_command_description: 'Herkese açık bir eve ışınlar'
+tp_command_description: 'Başka bir oyuncuya veya konuma ışınlar'
+tphere_command_description: 'Başka bir oyuncuyu sana ışınlar'
+tpa_command_description: 'Başka bir oyuncuya ışınlanma isteği atar'
+tpahere_command_description: 'Başka bir oyuncunun size ışınlanmasını ister'
+tpaccept_command_description: 'Bir ışınlanma isteğini kabul eder'
+tpdecline_command_description: 'Bir ışınlanma isteğini reddeder'
+tpignore_command_description: 'Gelen ışınlanma isteklerini yoksayar'
+tpoffline_command_description: 'Bir oyuncunun en son çevrimiçi olduğu yere ışınlar'
+rtp_command_description: 'Vahşi doğaya rastgele ışınlar'
+spawn_command_description: 'Spawna ışınlar'
+setspawn_command_description: 'Işınlanma komudunu ayarlar'
+tpaall_command_description: 'Herkesin size ışınlanmasını ister'
+tpall_command_description: 'Herkesi konumunuza ışınlar'
+huskhomes_command_description: 'Eklenti bilgilerini görüntüleyin ve yapılandırmaları yeniden yükler'

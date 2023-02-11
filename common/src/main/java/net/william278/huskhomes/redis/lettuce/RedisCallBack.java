@@ -1,4 +1,4 @@
-package net.william278.huskhomes.redis.redisdata;
+package net.william278.huskhomes.redis.lettuce;
 
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;

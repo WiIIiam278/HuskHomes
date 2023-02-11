@@ -4,7 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.redis.RedisWorker;
-import net.william278.huskhomes.redis.redisdata.RedisPubSub;
+import net.william278.huskhomes.redis.lettuce.RedisPubSub;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class RedisMessenger extends PluginMessenger {
         redisWorker = new RedisWorker(implementor.getSettings());
         redisWorker.initialize();
 
-        CompletableFuture.runAsync(() -> {
+        new Thread(() -> {
             redisWorker.getRedisImpl().getPubSubConnection(connection -> {
 
 
@@ -51,7 +51,7 @@ public class RedisMessenger extends PluginMessenger {
 
                 connection.async().subscribe(NETWORK_MESSAGE_CHANNEL);
             });
-        });
+        }).start();
 
     }
 

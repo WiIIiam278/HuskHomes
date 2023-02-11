@@ -12,7 +12,6 @@ softdepend:
   - BlueMap
   - Plan
 libraries:
-#  - 'redis.clients:jedis:${jedis_version}'
   - 'io.lettuce:lettuce-core:${lettuce_version}'
   - 'mysql:mysql-connector-java:${mysql_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'

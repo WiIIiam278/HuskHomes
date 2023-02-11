@@ -1,4 +1,4 @@
-package net.william278.huskhomes.redis.redisdata;
+package net.william278.huskhomes.redis.lettuce;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -9,14 +9,14 @@ import java.util.concurrent.*;
 import java.util.function.Function;
 
 
-public abstract class RedisAbstract {
+public abstract class RedisBase {
 
     protected static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private final RoundRobinConnectionPool<String, Object> roundRobinConnectionPool;
     private final RoundRobinConnectionPool<String, String> roundRobinConnectionPoolString;
     protected RedisClient lettuceRedisClient;
 
-    public RedisAbstract(RedisClient lettuceRedisClient) {
+    public RedisBase(RedisClient lettuceRedisClient) {
         this.lettuceRedisClient = lettuceRedisClient;
         this.roundRobinConnectionPool = new RoundRobinConnectionPool<>(() -> lettuceRedisClient.connect(new SerializedObjectCodec()), 5);
         this.roundRobinConnectionPoolString = new RoundRobinConnectionPool<>(lettuceRedisClient::connect, 2);
@@ -38,7 +38,6 @@ public abstract class RedisAbstract {
         return redisCallBack.apply(roundRobinConnectionPoolString.get().async());
     }
 
-    //Get pubsub
     public StatefulRedisPubSubConnection<String, Object> getBinaryPubSubConnection() {
         return lettuceRedisClient.connectPubSub(new SerializedObjectCodec());
     }

@@ -24,11 +24,6 @@ public abstract class Messenger implements AutoCloseable {
     protected HashMap<UUID, CompletableFuture<Request>> processingMessages;
 
     /**
-     * List of pending futures for processing {@link #fetchServerName(OnlineUser)} requests
-     */
-    protected List<CompletableFuture<String>> serverNameRequests;
-
-    /**
      * List of pending futures for processing {@link #getOnlinePlayerNames(OnlineUser)} requests
      */
     protected List<CompletableFuture<String[]>> onlinePlayerNamesRequests;
@@ -60,7 +55,6 @@ public abstract class Messenger implements AutoCloseable {
      */
     public void initialize(@NotNull HuskHomes implementor) {
         this.processingMessages = new HashMap<>();
-        this.serverNameRequests = new ArrayList<>();
         this.onlinePlayerNamesRequests = new ArrayList<>();
         this.onlineServersRequests = new ArrayList<>();
         this.clusterId = implementor.getSettings().clusterId;
@@ -93,14 +87,6 @@ public abstract class Messenger implements AutoCloseable {
                                 .filter(user -> user.toLowerCase().startsWith(playerName))
                                 .findFirst()));
     }
-
-    /**
-     * Fetch the name of this server on the proxy network
-     *
-     * @param requester {@link OnlineUser} to send the request
-     * @return Future returning the name of this server on the network
-     */
-    public abstract CompletableFuture<String> fetchServerName(@NotNull OnlineUser requester);
 
     /**
      * Fetch a list of online server names proxy

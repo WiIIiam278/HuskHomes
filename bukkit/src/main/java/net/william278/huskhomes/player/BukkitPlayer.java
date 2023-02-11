@@ -74,14 +74,14 @@ public class BukkitPlayer extends OnlineUser {
     public Position getPosition() {
         return new Position(BukkitAdapter.adaptLocation(player.getLocation())
                 .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
-                plugin.getPluginServer());
+                plugin.getServerName());
 
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
         return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                .map(location -> new Position(location, plugin.getPluginServer()));
+                .map(location -> new Position(location, plugin.getServerName()));
     }
 
     @Override

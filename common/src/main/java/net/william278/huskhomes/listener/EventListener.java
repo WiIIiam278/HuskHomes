@@ -22,9 +22,6 @@ public class EventListener {
     @NotNull
     protected final HuskHomes plugin;
 
-    // Indicates if the first user has joined yet
-    private boolean firstUser = true;
-
     protected EventListener(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
     }
@@ -36,7 +33,7 @@ public class EventListener {
      */
     protected final void handlePlayerJoin(@NotNull OnlineUser onlineUser) {
         // Handle the first player joining the server
-        cacheServer(onlineUser).thenRun(() -> plugin.getDatabase().ensureUser(onlineUser)
+        plugin.getDatabase().ensureUser(onlineUser)
                 // Handle cross-server checks
                 .thenRun(() -> handleInboundTeleport(onlineUser).thenRun(() -> {
                     // Update the cached player list
@@ -63,21 +60,7 @@ public class EventListener {
                                         .map(home -> home.meta.name)
                                         .collect(Collectors.toList())));
                     });
-                })));
-    }
-
-    /**
-     * Ensure the server data has been cached locally
-     *
-     * @param onlineUser user to handle the checks for
-     * @return a future returning void when done
-     */
-    private CompletableFuture<Void> cacheServer(@NotNull OnlineUser onlineUser) {
-        if (plugin.getSettings().crossServer && firstUser) {
-            firstUser = false;
-            return plugin.fetchServer(onlineUser);
-        }
-        return CompletableFuture.completedFuture(null);
+                }));
     }
 
     /**
@@ -98,7 +81,7 @@ public class EventListener {
                 if (teleport.get().type == TeleportType.RESPAWN) {
                     final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                     if (bedPosition.isEmpty()) {
-                        plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getPluginServer()))
+                        plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getServerName()))
                                 .ifPresent(position -> onlineUser.teleportLocally(position, plugin.getSettings().asynchronousTeleports));
                         onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     } else {
@@ -173,7 +156,7 @@ public class EventListener {
         // Respawn the player cross-server if needed
         if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
             plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
-                if (!respawnPosition.server.equals(plugin.getPluginServer())) {
+                if (!respawnPosition.server.equals(plugin.getServerName())) {
                     Teleport.builder(plugin, onlineUser)
                             .setType(TeleportType.RESPAWN)
                             .setTarget(respawnPosition)

@@ -192,7 +192,7 @@ public interface HuskHomes {
     default CompletableFuture<Optional<? extends Position>> getSpawn() {
         return CompletableFuture.supplyAsync(() -> getSettings().crossServer && getSettings().globalSpawn
                 ? getDatabase().getWarp(getSettings().globalSpawnName).join()
-                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getPluginServer())));
+                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getServerName())));
     }
 
     /**
@@ -314,20 +314,9 @@ public interface HuskHomes {
      * Returns the {@link Server} the plugin is on
      *
      * @return The {@link Server} object
-     * @throws HuskHomesException If the server has not been initialized
      */
     @NotNull
-    Server getPluginServer() throws HuskHomesException;
-
-    /**
-     * Fetches the name of this server if {@link Server} is {@code null} by querying the proxy
-     *
-     * @param requester The {@link OnlineUser} to carry out the proxy request
-     * @return a future completing when the server has been fetched
-     * @implNote If cross-server mode is disabled, or the server has already been pulled from the server.yml cache file,
-     * the future will return immediately
-     */
-    CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester);
+    Server getServerName();
 
     /**
      * Returns a resource read from the plugin resources folder

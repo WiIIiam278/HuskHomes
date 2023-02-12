@@ -178,7 +178,7 @@ public class Teleport {
         }
 
         // If the target position is local, finalize economy transactions and teleport the player
-        if (!plugin.getSettings().crossServer || target.server.equals(plugin.getPluginServer())) {
+        if (!plugin.getSettings().crossServer || target.server.equals(plugin.getServerName())) {
             return teleporter.teleportLocally(target, plugin.getSettings().asynchronousTeleports);
         }
 

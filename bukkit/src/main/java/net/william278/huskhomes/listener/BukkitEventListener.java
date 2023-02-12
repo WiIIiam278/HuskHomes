@@ -17,8 +17,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 public class BukkitEventListener extends EventListener implements Listener {
 
     public BukkitEventListener(@NotNull BukkitHuskHomes huskHomes) {
@@ -57,7 +55,7 @@ public class BukkitEventListener extends EventListener implements Listener {
 
         final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
         BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
-                handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getPluginServer())));
+                handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getServerName())));
     }
 
     //todo When defining paper-plugin.yml files gets merged, use the PlayerSetSpawnEvent in the paper module
@@ -78,7 +76,7 @@ public class BukkitEventListener extends EventListener implements Listener {
             super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
                     adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
                     adaptedLocation.yaw, adaptedLocation.pitch,
-                    adaptedLocation.world, plugin.getPluginServer()));
+                    adaptedLocation.world, plugin.getServerName()));
         });
     }
 

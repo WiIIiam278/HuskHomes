@@ -94,6 +94,6 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
                 return Optional.empty();
             }
         }
-        return location.map(resolved -> new Position(resolved, plugin.getPluginServer()));
+        return location.map(resolved -> new Position(resolved, plugin.getServerName()));
     }
 }

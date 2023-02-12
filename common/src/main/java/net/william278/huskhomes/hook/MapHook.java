@@ -103,7 +103,7 @@ public abstract class MapHook extends PluginHook {
         if (position instanceof Home && !plugin.getSettings().publicHomesOnMap) return false;
 
         try {
-            return position.server.equals(plugin.getPluginServer());
+            return position.server.equals(plugin.getServerName());
         } catch (HuskHomesException e) {
             return plugin.getWorlds().stream()
                     .map(world -> world.uuid)

@@ -114,7 +114,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public Server getServer() {
-        return plugin.getPluginServer();
+        return plugin.getServerName();
     }
 
 }

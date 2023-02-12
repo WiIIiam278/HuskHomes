@@ -61,18 +61,6 @@ public class PluginMessenger extends Messenger implements PluginMessageListener 
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public CompletableFuture<String> fetchServerName(@NotNull OnlineUser requester) {
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        final BukkitPlayer dispatcher = ((BukkitPlayer) requester);
-        serverNameRequests.add(future);
-        final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
-        messageWriter.writeUTF("GetServer");
-        dispatcher.sendPluginMessage(BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
-        return future;
-    }
-
-    @Override
-    @SuppressWarnings("UnstableApiUsage")
     public CompletableFuture<String[]> fetchOnlineServerList(@NotNull OnlineUser requester) {
         final CompletableFuture<String[]> future = new CompletableFuture<>();
         final BukkitPlayer dispatcher = ((BukkitPlayer) requester);
@@ -151,7 +139,7 @@ public class PluginMessenger extends Messenger implements PluginMessageListener 
     }
 
     @Override
-    @SuppressWarnings({"UnstableApiUsage", "ForLoopReplaceableByForEach"})
+    @SuppressWarnings({"UnstableApiUsage"})
     public void onPluginMessageReceived(@NotNull String channel, @NotNull org.bukkit.entity.Player player,
                                         final byte[] messageBytes) {
         if (!channel.equals(BUNGEE_PLUGIN_CHANNEL_NAME)) {
@@ -179,14 +167,6 @@ public class PluginMessenger extends Messenger implements PluginMessageListener 
                     plugin.getLoggingAdapter().log(Level.SEVERE,
                             "Failed to read an inbound plugin message", e);
                 }
-            }
-            case "GetServer" -> {
-                final String serverName = pluginMessage.readUTF();
-                for (int i = 0; i < serverNameRequests.size(); i++) {
-                    final CompletableFuture<String> future = serverNameRequests.get(i);
-                    future.complete(serverName);
-                }
-                serverNameRequests.clear();
             }
             case "PlayerList" -> {
                 pluginMessage.readUTF(); // Read the server name (unused)

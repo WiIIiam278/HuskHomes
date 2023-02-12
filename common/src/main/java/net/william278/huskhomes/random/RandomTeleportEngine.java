@@ -50,10 +50,10 @@ public abstract class RandomTeleportEngine {
                     if (!spawn.worldUuid.equals(world.uuid.toString())) {
                         return Optional.empty();
                     }
-                    return spawn.getPosition(plugin.getPluginServer());
+                    return spawn.getPosition(plugin.getServerName());
                 })
                 .orElse(new Position(0d, 128d, 0d, 0f, 0f,
-                        world, plugin.getPluginServer()));
+                        world, plugin.getServerName()));
     }
 
     /**

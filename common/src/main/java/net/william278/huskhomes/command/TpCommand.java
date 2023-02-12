@@ -179,7 +179,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         Double.parseDouble(args[3]),
                         0f, 0f,
                         args.length >= 5 ? new World(args[4], UUID.randomUUID()) : plugin.getWorlds().get(0),
-                        args.length == 6 ? new Server(args[5]) : plugin.getPluginServer()));
+                        args.length == 6 ? new Server(args[5]) : plugin.getServerName()));
             } catch (NumberFormatException e) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: tp <player> <x> <y> <z> [world] [server]");
                 return;

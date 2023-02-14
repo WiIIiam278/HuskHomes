@@ -118,7 +118,7 @@ public class TeleportBuilder {
      * @return The {@link TeleportBuilder} instance
      */
     public TeleportBuilder setTarget(@NotNull Location location) {
-        this.target = CompletableFuture.completedFuture(new Position(location, plugin.getPluginServer()));
+        this.target = CompletableFuture.completedFuture(new Position(location, plugin.getServerName()));
         return this;
     }
 

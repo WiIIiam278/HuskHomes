@@ -1,24 +1,36 @@
 package net.william278.huskhomes.position;
 
+import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a server on a proxied network
  */
+@YamlFile(header = """
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃ Server ID cache. Must match  ┃
+        ┃ server name in proxy config. ┃
+        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
 public class Server {
+
+    /**
+     * Default (unknown) server identifier
+     */
+    public static final Server DEFAULT = new Server();
 
     /**
      * Proxy-defined name of this server
      */
-    public String name;
+    @YamlKey("server_name")
+    public String name = "server";
 
-    public Server(@Nullable String name) {
-        this.name = (name != null ? name : "server");
+    public Server(@NotNull String name) {
+        this.name = name;
     }
 
     @SuppressWarnings("unused")
-    public Server() {
+    private Server() {
     }
 
     @Override

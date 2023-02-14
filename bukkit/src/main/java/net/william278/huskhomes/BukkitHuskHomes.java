@@ -8,7 +8,6 @@ import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.command.DisabledCommand;
-import net.william278.huskhomes.config.CachedServer;
 import net.william278.huskhomes.config.CachedSpawn;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
@@ -55,7 +54,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -81,12 +79,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
     private List<Migrator> migrators;
+    private Server server;
 
     @Nullable
     private Messenger messenger;
-
-    @Nullable
-    private Server server;
 
     // Adventure audience
     private BukkitAudiences audiences;
@@ -167,7 +163,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             cache.initialize(database);
 
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher, settings.allowUnicodeNames, settings.allowUnicodeDescriptions, settings.overwriteExistingHomesWarps);
+            this.savedPositionManager = new SavedPositionManager(this);
 
             // Initialize the RTP engine with the default normal distribution engine
             setRandomTeleportEngine(new NormalDistributionEngine(this));
@@ -195,7 +191,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                         }
                     }
                 }
-                getMapHook().ifPresent(mapHook -> savedPositionManager.setMapHook(mapHook));
             }
             if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
                 pluginHooks.add(new PlanHook(this));
@@ -247,7 +242,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Prepare migrators
             this.migrators = new ArrayList<>();
             this.migrators.add(new LegacyMigrator(this));
-            //todo EssentialsX
 
             // Hook into bStats metrics
             registerMetrics(METRICS_ID);
@@ -467,33 +461,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
     @Override
     @NotNull
-    public Server getPluginServer() throws HuskHomesException {
-        if (server == null) {
-            throw new HuskHomesException("Attempted to access server when it was not initialized");
-        }
+    public Server getServerName() {
         return server;
-    }
-
-    @Override
-    public CompletableFuture<Void> fetchServer(@NotNull OnlineUser requester) {
-        if (!getSettings().crossServer || this.server != null) {
-            return CompletableFuture.completedFuture(null);
-        }
-        return getMessenger().fetchServerName(requester).orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> null).thenAccept(serverName -> {
-            if (serverName == null) {
-                throw new HuskHomesException("GetServer plugin message call operation timed out");
-            }
-            try {
-                this.server = new Server(serverName);
-                Annotaml.create(new File(getDataFolder(), "server.yml"), new CachedServer(serverName));
-                getLoggingAdapter().log(Level.INFO, "Successfully cached server name to disk (" + serverName + ")");
-            } catch (IOException e) {
-                throw new HuskHomesException("Failed to write cached server name to disk", e);
-            }
-        }).exceptionally(throwable -> {
-            getLoggingAdapter().log(Level.SEVERE, "Failed to fetch and cache server name", throwable);
-            return null;
-        });
     }
 
     @Override
@@ -512,14 +481,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
             this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"), languagePresets).get();
 
-            // Load cached server from file
+            // Load server from file
             if (settings.crossServer) {
-                final File serverFile = new File(getDataFolder(), "server.yml");
-                if (serverFile.exists()) {
-                    this.server = Annotaml.create(serverFile, CachedServer.class).get().getServer();
-                }
+                this.server = Annotaml.create(new File(getDataFolder(), "server.yml"), Server.DEFAULT).get();
             } else {
-                this.server = new Server("server");
+                this.server = Server.DEFAULT;
             }
 
             // Load spawn location from file

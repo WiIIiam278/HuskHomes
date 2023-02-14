@@ -270,7 +270,7 @@ public abstract class Database {
      */
     public final CompletableFuture<List<Warp>> getLocalWarps(@NotNull HuskHomes plugin) {
         try {
-            final Server server = plugin.getPluginServer();
+            final Server server = plugin.getServerName();
             return getWarps().thenApplyAsync(warps -> warps.stream()
                     .filter(warp -> warp.server.equals(server))
                     .collect(Collectors.toList()));
@@ -297,7 +297,7 @@ public abstract class Database {
      */
     public final CompletableFuture<List<Home>> getLocalPublicHomes(@NotNull HuskHomes plugin) {
         try {
-            final Server server = plugin.getPluginServer();
+            final Server server = plugin.getServerName();
             return getPublicHomes().thenApplyAsync(homes -> homes.stream()
                     .filter(home -> home.server.equals(server))
                     .collect(Collectors.toList()));

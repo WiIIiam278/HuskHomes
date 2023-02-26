@@ -33,8 +33,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                             return;
                         }
                         plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                        plugin.getSettings().listItemsPerPage, 1)
-                                .ifPresent(onlineUser::sendMessage);
+                                plugin.getSettings().listItemsPerPage, 1).thenAccept(mex -> mex.ifPresent(onlineUser::sendMessage));
                     });
             case 1 -> {
                 final String warpName = args[0];

@@ -37,8 +37,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                 }
 
                 plugin.getCache().getPublicHomeList(onlineUser, plugin.getLocales(),
-                                publicHomes, plugin.getSettings().listItemsPerPage, 1)
-                        .ifPresent(onlineUser::sendMessage);
+                                publicHomes, plugin.getSettings().listItemsPerPage, 1).thenAccept(mex -> mex.ifPresent(onlineUser::sendMessage));
             });
             case 1 -> {
                 final String homeName = args[0];

@@ -36,8 +36,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                             .setTarget(homes.get(0))
                             .toTimedTeleport().thenAccept(TimedTeleport::execute);
                     default -> plugin.getCache().getHomeList(onlineUser, onlineUser,
-                                    plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, 1)
-                            .ifPresent(onlineUser::sendMessage);
+                                    plugin.getLocales(), homes, plugin.getSettings().listItemsPerPage, 1).thenAccept(mex -> mex.ifPresent(onlineUser::sendMessage));
                 }
             });
             case 1 -> {

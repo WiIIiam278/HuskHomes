@@ -54,8 +54,7 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
             }
             plugin.getCache().getPublicHomeList(onlineUser,
                             plugin.getLocales(), publicHomes,
-                            plugin.getSettings().listItemsPerPage, pageNumber)
-                    .ifPresent(onlineUser::sendMessage);
+                            plugin.getSettings().listItemsPerPage, pageNumber).thenAccept(mex -> mex.ifPresent(onlineUser::sendMessage));
         });
 
     }

@@ -56,8 +56,7 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
                         return;
                     }
                     plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                    plugin.getSettings().listItemsPerPage, pageNumber)
-                            .ifPresent(onlineUser::sendMessage);
+                                    plugin.getSettings().listItemsPerPage, pageNumber).thenAccept(mex -> mex.ifPresent(onlineUser::sendMessage));
                 });
     }
 

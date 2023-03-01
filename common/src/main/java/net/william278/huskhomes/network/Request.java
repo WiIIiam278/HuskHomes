@@ -157,14 +157,14 @@ public class Request {
 
     public CompletableFuture<Optional<Request>> send(@NotNull OnlineUser sender, @NotNull HuskHomes plugin) {
         this.sender = sender.username;
-        this.clusterId = plugin.getSettings().clusterId;
+        this.clusterId = plugin.getSettings().getClusterId();
         return plugin.getMessenger().sendMessage(sender, this);
     }
 
     public void reply(@NotNull OnlineUser sender, @NotNull Payload payload, @NotNull HuskHomes plugin) {
         this.targetPlayer = this.sender;
         this.sender = sender.username;
-        this.clusterId = plugin.getSettings().clusterId;
+        this.clusterId = plugin.getSettings().getClusterId();
         this.payload = payload;
         this.relayType = RelayType.REPLY;
         plugin.getMessenger().sendReply(sender, this);

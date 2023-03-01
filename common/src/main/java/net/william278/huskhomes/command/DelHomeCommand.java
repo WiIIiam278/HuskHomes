@@ -68,7 +68,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
      */
     private void deletePlayerHome(@NotNull OnlineUser deleter, @NotNull User homeOwner, @NotNull String homeName,
                                   final boolean delHomeAllConfirm) {
-        plugin.getSavedPositionManager().deleteHome(homeOwner, homeName).thenAccept(deleted -> {
+        plugin.getManager().deleteHome(homeOwner, homeName).thenAccept(deleted -> {
             if (deleter.equals(homeOwner)) {
                 if (deleted) {
                     plugin.getLocales().getLocale("home_deleted", homeName).ifPresent(deleter::sendMessage);
@@ -108,7 +108,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             return;
         }
 
-        plugin.getSavedPositionManager().deleteAllHomes(homeOwner).thenAccept(deleted -> {
+        plugin.getManager().deleteAllHomes(homeOwner).thenAccept(deleted -> {
             if (deleted == 0) {
                 plugin.getLocales().getLocale("error_no_warps_set")
                         .ifPresent(deleter::sendMessage);

@@ -76,7 +76,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
                 }
                 plugin.getCache().getHomeList(onlineUser, userData.user(),
                                 plugin.getLocales(), homes,
-                                plugin.getSettings().listItemsPerPage, pageNumber)
+                                plugin.getSettings().getListItemsPerPage(), pageNumber)
                         .ifPresent(onlineUser::sendMessage);
             });
         }, () -> plugin.getLocales().getLocale("error_player_not_found", homeOwner).ifPresent(onlineUser::sendMessage)));

@@ -23,7 +23,7 @@ public class SetWarpCommand extends CommandBase {
     }
 
     private void setWarp(@NotNull OnlineUser onlineUser, @NotNull String warpName) {
-        plugin.getSavedPositionManager().setWarp(
+        plugin.getManager().setWarp(
                 new PositionMeta(warpName, ""), onlineUser.getPosition()).thenAccept(setResult ->
                 (switch (setResult.resultType()) {
                     case SUCCESS -> {

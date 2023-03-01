@@ -14,7 +14,7 @@ public class RedisEconomyHook extends VaultEconomyHook {
     public boolean initialize()  {
         RedisEconomyAPI api = RedisEconomyAPI.getAPI();
         if (api != null) {
-            economy = api.getCurrencyByName(plugin.getSettings().redisEconomyName);
+            economy = api.getCurrencyByName(plugin.getSettings().getRedisEconomyName());
             if (economy != null) {
                 return true;
             }

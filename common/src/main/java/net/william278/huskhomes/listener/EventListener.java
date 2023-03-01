@@ -71,7 +71,7 @@ public class EventListener {
      */
     private CompletableFuture<Void> handleInboundTeleport(@NotNull OnlineUser onlineUser) {
         // If the server is in proxy mode, check if the player is teleporting cross-server and handle
-        if (plugin.getSettings().crossServer) {
+        if (plugin.getSettings().isCrossServer()) {
             return plugin.getDatabase().getCurrentTeleport(onlineUser).thenAccept(teleport -> {
                 if (teleport.isEmpty()) {
                     return;
@@ -82,10 +82,10 @@ public class EventListener {
                     final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                     if (bedPosition.isEmpty()) {
                         plugin.getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(plugin.getServerName()))
-                                .ifPresent(position -> onlineUser.teleportLocally(position, plugin.getSettings().asynchronousTeleports));
+                                .ifPresent(position -> onlineUser.teleportLocally(position, plugin.getSettings().isAsynchronousTeleports()));
                         onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     } else {
-                        onlineUser.teleportLocally(bedPosition.get(), plugin.getSettings().asynchronousTeleports);
+                        onlineUser.teleportLocally(bedPosition.get(), plugin.getSettings().isAsynchronousTeleports());
                     }
                     plugin.getDatabase().setCurrentTeleport(onlineUser, null).thenRunAsync(() ->
                             plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null)));
@@ -133,7 +133,7 @@ public class EventListener {
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         // Set the player's last position to where they died
-        if (plugin.getSettings().backCommandReturnByDeath
+        if (plugin.getSettings().isBackCommandReturnByDeath()
             && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
@@ -146,7 +146,7 @@ public class EventListener {
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
         // Display the return by death via /back notification
-        if (plugin.getSettings().backCommandReturnByDeath
+        if (plugin.getSettings().isBackCommandReturnByDeath()
             && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
             && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getLocales().getLocale("return_by_death_notification")
@@ -154,7 +154,7 @@ public class EventListener {
         }
 
         // Respawn the player cross-server if needed
-        if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
+        if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning()) {
             plugin.getDatabase().getRespawnPosition(onlineUser).thenAccept(position -> position.ifPresent(respawnPosition -> {
                 if (!respawnPosition.server.equals(plugin.getServerName())) {
                     Teleport.builder(plugin, onlineUser)
@@ -174,7 +174,7 @@ public class EventListener {
      * @param sourcePosition the source {@link Position} they came from
      */
     protected final void handlePlayerTeleport(@NotNull OnlineUser onlineUser, @NotNull Position sourcePosition) {
-        if (!plugin.getSettings().backCommandSaveOnTeleportEvent) return;
+        if (!plugin.getSettings().isBackCommandSaveOnTeleportEvent()) return;
 
         plugin.getDatabase().getUserData(onlineUser.uuid)
                 .thenAccept(userData -> userData.ifPresent(data -> plugin.getDatabase()
@@ -188,7 +188,7 @@ public class EventListener {
      * @param position   the new spawn point
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-        if (plugin.getSettings().crossServer && plugin.getSettings().globalRespawning) {
+        if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
     }

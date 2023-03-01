@@ -127,7 +127,7 @@ public class RequestManager {
     public CompletableFuture<Optional<TeleportRequest>> sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
                                                                             @NotNull TeleportRequest.RequestType requestType) {
         final TeleportRequest request = new TeleportRequest(requester, requestType,
-                Instant.now().getEpochSecond() + plugin.getSettings().teleportRequestExpiryTime);
+                Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime());
         final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().equals(requester)) {
@@ -138,7 +138,7 @@ public class RequestManager {
         }
 
         // If the player couldn't be found locally, send the request cross-server
-        if (plugin.getSettings().crossServer) {
+        if (plugin.getSettings().isCrossServer()) {
             // Find the matching networked target
             return plugin.getMessenger().findPlayer(requester, targetUser).thenApplyAsync(networkedTarget -> {
                 if (networkedTarget.isEmpty()) {
@@ -279,7 +279,7 @@ public class RequestManager {
         final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.requesterName);
         if (localRequester.isPresent()) {
             handleLocalRequestResponse(localRequester.get(), request);
-        } else if (plugin.getSettings().crossServer) {
+        } else if (plugin.getSettings().isCrossServer()) {
             // Ensure the sender is still online
             plugin.getMessenger()
                     .findPlayer(recipient, request.requesterName)
@@ -313,7 +313,7 @@ public class RequestManager {
         // If the request is a tpa here request, teleport the recipient to the sender
         if (accepted && request.type == TeleportRequest.RequestType.TPA_HERE) {
             // Strict /tpahere requests will teleport to where the sender was when typing the command
-            if (plugin.getSettings().strictTpaHereRequests) {
+            if (plugin.getSettings().isStrictTpaHereRequests()) {
                 Teleport.builder(plugin, recipient)
                         .setTarget(request.requesterPosition)
                         .toTimedTeleport()

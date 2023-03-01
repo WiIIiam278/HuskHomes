@@ -116,7 +116,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
 
                 final String oldHomeName = home.meta.name;
                 final String newHomeName = editArgs;
-                plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(newHomeName, home.meta.description))
+                plugin.getManager().updateHomeMeta(home, new PositionMeta(newHomeName, home.meta.description))
                         .thenAccept(renameResult -> (switch (renameResult.resultType()) {
                             case SUCCESS -> {
                                 if (home.owner.equals(editor)) {
@@ -137,7 +137,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                 final String oldHomeDescription = home.meta.description;
                 final String newDescription = editArgs != null ? editArgs : "";
 
-                plugin.getSavedPositionManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
+                plugin.getManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> {
                                 if (home.owner.equals(editor)) {
@@ -165,7 +165,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         }).ifPresent(editor::sendMessage));
             }
             case "relocate" ->
-                    plugin.getSavedPositionManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
+                    plugin.getManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
                         if (home.owner.equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
                                     home.meta.name).orElse(new MineDown("")));
@@ -216,8 +216,8 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         // Check against maximum public homes
                         final List<Home> existingPublicHomes = editorHomes.stream()
                                 .filter(existingHome -> existingHome.isPublic).toList();
-                        final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().maxPublicHomes,
-                                plugin.getSettings().stackPermissionLimits);
+                        final int maxPublicHomes = editor.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),
+                                plugin.getSettings().doStackPermissionLimits());
                         if (existingPublicHomes.size() >= maxPublicHomes) {
                             plugin.getLocales().getLocale("error_edit_home_maximum_public_homes",
                                             Integer.toString(maxPublicHomes))
@@ -232,7 +232,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                     }
 
                     // Execute the update
-                    plugin.getSavedPositionManager().updateHomePrivacy(home, newIsPublic.get()).thenRun(() -> {
+                    plugin.getManager().updateHomePrivacy(home, newIsPublic.get()).thenRun(() -> {
                         if (home.owner.equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale(
                                     "edit_home_privacy_" + privacyKeyedString + "_success",
@@ -313,7 +313,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         .ifPresent(this::add);
             }
 
-            if (!plugin.getSettings().crossServer) {
+            if (!plugin.getSettings().isCrossServer()) {
                 plugin.getLocales().getLocale("edit_home_menu_world", home.world.name)
                         .ifPresent(this::add);
             } else {

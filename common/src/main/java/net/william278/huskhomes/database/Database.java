@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -167,7 +166,7 @@ public abstract class Database {
     /**
      * Initialize the database and ensure tables are present; create tables if they do not exist.
      *
-     * @return A future returning void when complete
+     * @return {@code true} if done successfully
      */
     public abstract boolean initialize();
 
@@ -175,9 +174,8 @@ public abstract class Database {
      * Execute a MySQL script file read as an InputStream
      *
      * @param inputStream The input stream to read the script from
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> runScript(@NotNull InputStream inputStream,
+    public abstract void runScript(@NotNull InputStream inputStream,
                                                       @NotNull Map<String, String> replacements);
 
     /**
@@ -224,9 +222,8 @@ public abstract class Database {
      * Ensure a {@link User} has a {@link UserData} entry in the database and that their username is up-to-date
      *
      * @param user The {@link User} to ensure
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> ensureUser(@NotNull User user);
+    public abstract void ensureUser(@NotNull User user);
 
     /**
      * Get {@link UserData} for a user by their Minecraft username (<i>case-insensitive</i>)
@@ -234,7 +231,7 @@ public abstract class Database {
      * @param name Username of the {@link UserData} to get (<i>case-insensitive</i>)
      * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<UserData>> getUserDataByName(@NotNull String name);
+    public abstract Optional<UserData> getUserDataByName(@NotNull String name);
 
     /**
      * Get {@link UserData} for a user by their Minecraft account {@link UUID}
@@ -242,7 +239,7 @@ public abstract class Database {
      * @param uuid Minecraft account {@link UUID} of the {@link UserData} to get
      * @return A future returning an optional with the {@link UserData} present if they exist
      */
-    public abstract CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid);
+    public abstract Optional<UserData> getUserData(@NotNull UUID uuid);
 
 
     /**
@@ -251,14 +248,14 @@ public abstract class Database {
      * @param user {@link User} to get the homes of
      * @return A future returning void when complete
      */
-    public abstract CompletableFuture<List<Home>> getHomes(@NotNull User user);
+    public abstract List<Home> getHomes(@NotNull User user);
 
     /**
      * Get a list of all {@link Warp}s that have been set
      *
      * @return A future returning a list containing all {@link Warp}s
      */
-    public abstract CompletableFuture<List<Warp>> getWarps();
+    public abstract List<Warp> getWarps();
 
     /**
      * Get a list of publicly-set {@link Warp}s on <i>this {@link Server}</i>
@@ -267,16 +264,16 @@ public abstract class Database {
      * @return A future returning a list containing all {@link Warp}s set on this server
      * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
      */
-    public final CompletableFuture<List<Warp>> getLocalWarps(@NotNull HuskHomes plugin) {
+    public final List<Warp> getLocalWarps(@NotNull HuskHomes plugin) {
         try {
             final Server server = plugin.getServerName();
-            return getWarps().thenApplyAsync(warps -> warps.stream()
+            return getWarps().stream()
                     .filter(warp -> warp.server.equals(server))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         } catch (IllegalStateException e) {
-            return getWarps().thenApplyAsync(warps -> warps.stream()
+            return getWarps().stream()
                     .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.world)))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         }
     }
 
@@ -285,7 +282,7 @@ public abstract class Database {
      *
      * @return A future returning a list containing all publicly-set {@link Home}s
      */
-    public abstract CompletableFuture<List<Home>> getPublicHomes();
+    public abstract List<Home> getPublicHomes();
 
     /**
      * Get a list of publicly-set {@link Home}s on <i>this {@link Server}</i>
@@ -294,16 +291,16 @@ public abstract class Database {
      * @return A future returning a list containing all publicly-set {@link Home}s on this server
      * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
      */
-    public final CompletableFuture<List<Home>> getLocalPublicHomes(@NotNull HuskHomes plugin) {
+    public final List<Home> getLocalPublicHomes(@NotNull HuskHomes plugin) {
         try {
             final Server server = plugin.getServerName();
-            return getPublicHomes().thenApplyAsync(homes -> homes.stream()
+            return getPublicHomes().stream()
                     .filter(home -> home.server.equals(server))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         } catch (IllegalStateException e) {
-            return plugin.getDatabase().getPublicHomes().thenApplyAsync(homes -> homes.stream()
+            return plugin.getDatabase().getPublicHomes().stream()
                     .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.world)))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         }
     }
 
@@ -314,7 +311,7 @@ public abstract class Database {
      * @param homeName The <i>case-insensitive</i> name of the home to get
      * @return A future returning an optional with the {@link Home} present if it exists
      */
-    public abstract CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName);
+    public abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName);
 
     /**
      * Get a {@link Home} by its unique id
@@ -322,7 +319,7 @@ public abstract class Database {
      * @param uuid the {@link UUID} of the home to get
      * @return A future returning an optional with the {@link Home} present if it exists
      */
-    public abstract CompletableFuture<Optional<Home>> getHome(@NotNull UUID uuid);
+    public abstract Optional<Home> getHome(@NotNull UUID uuid);
 
     /**
      * Get a {@link Warp} with the given name (<i>case-insensitive</i>)
@@ -330,7 +327,7 @@ public abstract class Database {
      * @param warpName The <i>case-insensitive</i> name of the warp to get
      * @return A future returning an optional with the {@link Warp} present if it exists
      */
-    public abstract CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName);
+    public abstract Optional<Warp> getWarp(@NotNull String warpName);
 
     /**
      * Get a {@link Warp} by its unique id
@@ -338,7 +335,7 @@ public abstract class Database {
      * @param uuid the {@link UUID} of the warp to get
      * @return A future returning an optional with the {@link Warp} present if it exists
      */
-    public abstract CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID uuid);
+    public abstract Optional<Warp> getWarp(@NotNull UUID uuid);
 
     /**
      * Get the current {@link Teleport} being executed by the specified {@link OnlineUser}
@@ -346,15 +343,14 @@ public abstract class Database {
      * @param onlineUser The {@link OnlineUser} to check
      * @return A future returning an optional with the {@link Teleport} present if they are teleporting cross-server
      */
-    public abstract CompletableFuture<Optional<Teleport>> getCurrentTeleport(@NotNull OnlineUser onlineUser);
+    public abstract Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser);
 
     /**
      * Updates a user in the database with new {@link UserData}
      *
      * @param userData The {@link UserData} to update
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> updateUserData(@NotNull UserData userData);
+    public abstract void updateUserData(@NotNull UserData userData);
 
     /**
      * Sets or clears the current {@link Teleport} being executed by a {@link User}
@@ -362,9 +358,8 @@ public abstract class Database {
      * @param user     The {@link User} to set the current teleport of.
      *                 Pass as {@code null} to clear the player's current teleport.<p>
      * @param teleport The {@link Teleport} to set as their current cross-server teleport
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport);
+    public abstract void setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport);
 
     /**
      * Get the last teleport {@link Position} of a specified {@link User}
@@ -372,16 +367,15 @@ public abstract class Database {
      * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getLastPosition(@NotNull User user);
+    public abstract Optional<Position> getLastPosition(@NotNull User user);
 
     /**
      * Sets the last teleport {@link Position} of a {@link User}
      *
      * @param user     The {@link User} to set the last position of
      * @param position The {@link Position} to set as their last position
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setLastPosition(@NotNull User user, @NotNull Position position);
+    public abstract void setLastPosition(@NotNull User user, @NotNull Position position);
 
     /**
      * Get the offline {@link Position} of a specified {@link User}
@@ -389,16 +383,15 @@ public abstract class Database {
      * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getOfflinePosition(@NotNull User user);
+    public abstract Optional<Position> getOfflinePosition(@NotNull User user);
 
     /**
      * Sets the offline {@link Position} of a {@link User}
      *
      * @param user     The {@link User} to set the offline position of
      * @param position The {@link Position} to set as their offline position
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setOfflinePosition(@NotNull User user, @NotNull Position position);
+    public abstract void setOfflinePosition(@NotNull User user, @NotNull Position position);
 
     /**
      * Get the respawn {@link Position} of a specified {@link User}
@@ -406,7 +399,7 @@ public abstract class Database {
      * @param user The {@link User} to check
      * @return A future returning an optional with the {@link Position} present if it has been set
      */
-    public abstract CompletableFuture<Optional<Position>> getRespawnPosition(@NotNull User user);
+    public abstract Optional<Position> getRespawnPosition(@NotNull User user);
 
     /**
      * Sets or clears the respawn {@link Position} of a {@link User}
@@ -414,33 +407,29 @@ public abstract class Database {
      * @param user     The {@link User} to set the respawn position of
      * @param position The {@link Position} to set as their respawn position
      *                 Pass as {@code null} to clear the player's current respawn position.<p>
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> setRespawnPosition(@NotNull User user, @Nullable Position position);
+    public abstract void setRespawnPosition(@NotNull User user, @Nullable Position position);
 
     /**
      * Sets or updates a {@link Home} into the home data table on the database.
      *
      * @param home The {@link Home} to set - or update - in the database.
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> saveHome(@NotNull Home home);
+    public abstract void saveHome(@NotNull Home home);
 
     /**
      * Sets or updates a {@link Warp} into the warp data table on the database.
      *
      * @param warp The {@link Warp} to set - or update - in the database.
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> saveWarp(@NotNull Warp warp);
+    public abstract void saveWarp(@NotNull Warp warp);
 
     /**
      * Deletes a {@link Home} by the given unique id from the home table on the database.
      *
      * @param uuid {@link UUID} of the home to delete
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> deleteHome(@NotNull UUID uuid);
+    public abstract void deleteHome(@NotNull UUID uuid);
 
     /**
      * Deletes all {@link Home}s of a {@link User} from the home table on the database.
@@ -448,22 +437,21 @@ public abstract class Database {
      * @param user The {@link User} to delete all homes of
      * @return A future returning an integer; the number of deleted homes
      */
-    public abstract CompletableFuture<Integer> deleteAllHomes(@NotNull User user);
+    public abstract int deleteAllHomes(@NotNull User user);
 
     /**
      * Deletes a {@link Warp} by the given unique id from the warp table on the database.
      *
      * @param uuid {@link UUID} of the warp to delete
-     * @return A future returning void when complete
      */
-    public abstract CompletableFuture<Void> deleteWarp(@NotNull UUID uuid);
+    public abstract void deleteWarp(@NotNull UUID uuid);
 
     /**
      * Deletes all {@link Warp}s set on the database table
      *
      * @return A future returning an integer; the number of deleted warps
      */
-    public abstract CompletableFuture<Integer> deleteAllWarps();
+    public abstract int deleteAllWarps();
 
     /**
      * Close any remaining connection to the database source

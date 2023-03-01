@@ -26,7 +26,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
         if (args.length <= 2) {
             final String warpName = args[0];
             final boolean confirm = args.length == 2 && args[1].equalsIgnoreCase("confirm");
-            plugin.getSavedPositionManager().deleteWarp(warpName).thenAccept(deleted -> {
+            plugin.getManager().deleteWarp(warpName).thenAccept(deleted -> {
                 if (deleted) {
                     plugin.getLocales().getLocale("warp_deleted", warpName)
                             .ifPresent(onlineUser::sendMessage);
@@ -59,7 +59,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
             return;
         }
 
-        plugin.getSavedPositionManager().deleteAllWarps().thenAccept(deleted -> {
+        plugin.getManager().deleteAllWarps().thenAccept(deleted -> {
             if (deleted == 0) {
                 plugin.getLocales().getLocale("error_no_warps_set")
                         .ifPresent(deleter::sendMessage);

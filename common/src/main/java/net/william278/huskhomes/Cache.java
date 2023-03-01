@@ -112,7 +112,7 @@ public class Cache {
                 .map(onlineUser -> onlineUser.username)
                 .toList());
 
-        if (plugin.getSettings().crossServer) {
+        if (plugin.getSettings().isCrossServer()) {
             return plugin.getMessenger()
                     .getOnlinePlayerNames(requester)
                     .thenApply(networkedPlayers -> {

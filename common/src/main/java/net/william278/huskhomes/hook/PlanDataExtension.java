@@ -50,7 +50,7 @@ public class PlanDataExtension implements DataExtension {
             hidden = true
     )
     public boolean getHasUserData(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join().isPresent();
+        return database.getUserData(uuid).isPresent();
     }
 
     @NumberProvider(
@@ -62,8 +62,8 @@ public class PlanDataExtension implements DataExtension {
     )
     @Conditional("hasData")
     public long getHomeCount(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join()
-                .map(userData -> (long) database.getHomes(userData.user()).join().size())
+        return database.getUserData(uuid)
+                .map(userData -> (long) database.getHomes(userData.user()).size())
                 .orElse(0L);
     }
 
@@ -76,8 +76,8 @@ public class PlanDataExtension implements DataExtension {
     )
     @Conditional("hasData")
     public long getPublicHomeCount(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join()
-                .map(userData -> database.getHomes(userData.user()).join()
+        return database.getUserData(uuid)
+                .map(userData -> database.getHomes(userData.user())
                         .stream().filter(home -> home.isPublic).count())
                 .orElse(0L);
     }
@@ -91,7 +91,7 @@ public class PlanDataExtension implements DataExtension {
     )
     @Conditional("hasData")
     public long getPurchasedHomeSlots(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join()
+        return database.getUserData(uuid)
                 .map(userData -> (long) userData.homeSlots())
                 .orElse(0L);
     }
@@ -105,7 +105,7 @@ public class PlanDataExtension implements DataExtension {
     )
     @Conditional("hasData")
     public boolean isIgnoringTeleportRequests(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join()
+        return database.getUserData(uuid)
                 .map(UserData::ignoringTeleports)
                 .orElse(false);
     }
@@ -119,11 +119,11 @@ public class PlanDataExtension implements DataExtension {
     )
     @Conditional("hasData")
     public String getOfflinePosition(@NotNull UUID uuid) {
-        return database.getUserData(uuid).join()
-                .map(userData -> database.getOfflinePosition(userData.user()).join()
+        return database.getUserData(uuid)
+                .map(userData -> database.getOfflinePosition(userData.user())
                         .map(position -> "x: " + (int) position.x + ", y: " + (int) position.y + ", z: " + (int) position.z
-                                         + " (" + position.world.name +
-                                         ((crossServer) ? "/" + position.server.name + ")" : ")"))
+                                + " (" + position.world.name +
+                                ((crossServer) ? "/" + position.server.name + ")" : ")"))
                         .orElse(UNKNOWN_STRING))
                 .orElse(UNKNOWN_STRING);
     }

@@ -48,7 +48,7 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
         // Dispatch the warp list event
         plugin.getDatabase().getWarps()
                 .thenApply(warps -> warps.stream()
-                        .filter(warp -> warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser))
+                        .filter(warp -> warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), onlineUser))
                         .collect(Collectors.toList()))
                 .thenAccept(warps -> {
                     if (warps.isEmpty()) {
@@ -56,7 +56,7 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
                         return;
                     }
                     plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                    plugin.getSettings().listItemsPerPage, pageNumber)
+                                    plugin.getSettings().getListItemsPerPage(), pageNumber)
                             .ifPresent(onlineUser::sendMessage);
                 });
     }

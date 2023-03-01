@@ -11,6 +11,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
+import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Messenger;
 import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.OnlineUser;
@@ -19,6 +20,8 @@ import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.util.TaskRunner;
+import net.william278.huskhomes.util.Validator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes {
+public interface HuskHomes extends TaskRunner {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -85,7 +88,7 @@ public interface HuskHomes {
         if (localPlayer.isPresent()) {
             return CompletableFuture.completedFuture(Optional.of(localPlayer.get().username));
         }
-        if (getSettings().crossServer) {
+        if (getSettings().isCrossServer()) {
             return getMessenger().findPlayer(requester, targetPlayerName);
         }
         return CompletableFuture.completedFuture(Optional.empty());
@@ -128,15 +131,24 @@ public interface HuskHomes {
      *
      * @return the plugin {@link RequestManager}
      */
-    @NotNull RequestManager getRequestManager();
+    @NotNull
+    RequestManager getRequestManager();
 
     /**
-     * The {@link SavedPositionManager} that manages setting homes and warps
+     * The {@link Validator} for validating thome names and descriptions
      *
-     * @return the {@link SavedPositionManager} implementation
+     * @return the {@link Validator} instance
      */
     @NotNull
-    SavedPositionManager getSavedPositionManager();
+    Validator getValidator();
+
+    /**
+     * The {@link Manager} that manages home, warp and user data
+     *
+     * @return the {@link Manager} implementation
+     */
+    @NotNull
+    Manager getManager();
 
     /**
      * The {@link Messenger} that sends cross-network messages
@@ -189,10 +201,10 @@ public interface HuskHomes {
      *
      * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
      */
-    default CompletableFuture<Optional<? extends Position>> getSpawn() {
-        return CompletableFuture.supplyAsync(() -> getSettings().crossServer && getSettings().globalSpawn
-                ? getDatabase().getWarp(getSettings().globalSpawnName).join()
-                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getServerName())));
+    default Optional<? extends Position> getSpawn() {
+        return getSettings().isCrossServer() && getSettings().isGlobalSpawn()
+                ? getDatabase().getWarp(getSettings().getGlobalSpawnName())
+                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getServerName()));
     }
 
     /**
@@ -246,7 +258,7 @@ public interface HuskHomes {
      * @return the {@link MapHook} optionally being used
      */
     default Optional<MapHook> getMapHook() {
-        return getSettings().doMapHook ? getHook(MapHook.class) : Optional.empty();
+        return getSettings().isDoMapHook() ? getHook(MapHook.class) : Optional.empty();
     }
 
     /**
@@ -255,7 +267,7 @@ public interface HuskHomes {
      * @return the {@link EconomyHook} optionally being used
      */
     default Optional<EconomyHook> getEconomyHook() {
-        return getSettings().economy ? getHook(EconomyHook.class) : Optional.empty();
+        return getSettings().isEconomy() ? getHook(EconomyHook.class) : Optional.empty();
     }
 
     /**
@@ -288,7 +300,7 @@ public interface HuskHomes {
      * @param action the action to deduct the cost from if needed
      */
     default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
-        if (!getSettings().economy) return;
+        if (!getSettings().isEconomy()) return;
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
 
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {

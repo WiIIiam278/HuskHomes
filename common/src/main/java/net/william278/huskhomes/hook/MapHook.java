@@ -26,13 +26,15 @@ public abstract class MapHook extends PluginHook {
     @Override
     public final boolean initialize() {
         initializeMap().thenRun(() -> {
-            if (plugin.getSettings().publicHomesOnMap) {
-                plugin.getDatabase().getLocalPublicHomes(plugin)
-                        .thenAcceptAsync(homes -> homes.forEach(this::updateHome));
+            if (plugin.getSettings().isPublicHomesOnMap()) {
+                plugin.getDatabase()
+                        .getLocalPublicHomes(plugin)
+                        .forEach(this::updateHome);
             }
-            if (plugin.getSettings().warpsOnMap) {
-                plugin.getDatabase().getLocalWarps(plugin)
-                        .thenAcceptAsync(warps -> warps.forEach(this::updateWarp));
+            if (plugin.getSettings().isWarpsOnMap()) {
+                plugin.getDatabase()
+                        .getLocalWarps(plugin)
+                        .forEach(this::updateWarp);
             }
         });
         return true;
@@ -98,8 +100,8 @@ public abstract class MapHook extends PluginHook {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean isValidPosition(@NotNull SavedPosition position) {
-        if (position instanceof Warp && !plugin.getSettings().warpsOnMap) return false;
-        if (position instanceof Home && !plugin.getSettings().publicHomesOnMap) return false;
+        if (position instanceof Warp && !plugin.getSettings().isWarpsOnMap()) return false;
+        if (position instanceof Home && !plugin.getSettings().isPublicHomesOnMap()) return false;
 
         try {
             return position.server.equals(plugin.getServerName());

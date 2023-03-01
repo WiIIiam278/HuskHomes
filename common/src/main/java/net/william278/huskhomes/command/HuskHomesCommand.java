@@ -78,7 +78,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                     }
                 }
                 onlineUser.sendMessage(plugin.getCache().getCommandList(onlineUser,
-                        plugin.getLocales(), plugin.getCommands(), plugin.getSettings().listItemsPerPage, page));
+                        plugin.getLocales(), plugin.getCommands(), plugin.getSettings().getListItemsPerPage(), page));
             }
             case "reload" -> {
                 if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_RELOAD.node)) {

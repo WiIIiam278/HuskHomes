@@ -24,7 +24,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
         switch (args.length) {
             case 0 -> plugin.getDatabase().getWarps()
                     .thenApply(warps -> warps.stream()
-                            .filter(warp -> warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser))
+                            .filter(warp -> warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), onlineUser))
                             .collect(Collectors.toList()))
                     .thenAccept(warps -> {
                         if (warps.isEmpty()) {
@@ -33,7 +33,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                             return;
                         }
                         plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                        plugin.getSettings().listItemsPerPage, 1)
+                                        plugin.getSettings().getListItemsPerPage(), 1)
                                 .ifPresent(onlineUser::sendMessage);
                     });
             case 1 -> {
@@ -42,7 +42,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
                         .getWarp(warpName)
                         .thenAccept(warpResult -> warpResult.ifPresentOrElse(warp -> {
                                     // Handle permission restrictions
-                                    if (!warp.hasPermission(plugin.getSettings().permissionRestrictWarps, onlineUser)) {
+                                    if (!warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), onlineUser)) {
                                         plugin.getLocales().getLocale("error_no_permission")
                                                 .ifPresent(onlineUser::sendMessage);
                                         return;
@@ -64,7 +64,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return plugin.getCache().warps.stream()
-                .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().permissionRestrictWarps, user, s))
+                .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user, s))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted()
                 .collect(Collectors.toList());

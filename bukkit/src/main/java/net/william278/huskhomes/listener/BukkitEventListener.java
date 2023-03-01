@@ -62,7 +62,7 @@ public class BukkitEventListener extends EventListener implements Listener {
     // (https://jd.papermc.io/paper/1.19/com/destroystokyo/paper/event/player/PlayerSetSpawnEvent.html)
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
-        if (!(plugin.getSettings().crossServer && plugin.getSettings().globalRespawning)) return;
+        if (!(plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
         if (event.getClickedBlock() == null) return;
         if (!(event.getClickedBlock().getBlockData() instanceof Bed
               || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) return;

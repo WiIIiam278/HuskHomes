@@ -57,7 +57,7 @@ public abstract class Messenger implements AutoCloseable {
         this.processingMessages = new HashMap<>();
         this.onlinePlayerNamesRequests = new ArrayList<>();
         this.onlineServersRequests = new ArrayList<>();
-        this.clusterId = implementor.getSettings().clusterId;
+        this.clusterId = implementor.getSettings().getClusterId();
         this.plugin = implementor;
     }
 

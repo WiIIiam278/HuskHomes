@@ -25,10 +25,10 @@ public class RedisWorker {
     public JedisPool jedisPool;
 
     public RedisWorker(@NotNull Settings settings) {
-        this.host = settings.redisHost;
-        this.port = settings.redisPort;
-        this.password = settings.redisPassword != null ? settings.redisPassword : "";
-        this.ssl = settings.redisUseSsl && !(this.host.equalsIgnoreCase("localhost")
+        this.host = settings.getRedisHost();
+        this.port = settings.getRedisPort();
+        this.password = settings.getRedisPassword() != null ? settings.getRedisPassword() : "";
+        this.ssl = settings.isRedisUseSsl() && !(this.host.equalsIgnoreCase("localhost")
                                              || this.host.equalsIgnoreCase("127.0.0.1"));
     }
 

@@ -22,10 +22,10 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
 
     public NormalDistributionEngine(@NotNull HuskHomes implementor) {
         super(implementor, "Normal Distribution");
-        this.radius = implementor.getSettings().rtpRadius;
-        this.spawnRadius = implementor.getSettings().rtpSpawnRadius;
-        this.mean = implementor.getSettings().rtpDistributionMean;
-        this.standardDeviation = implementor.getSettings().rtpDistributionStandardDeviation;
+        this.radius = implementor.getSettings().getRtpRadius();
+        this.spawnRadius = implementor.getSettings().getRtpSpawnRadius();
+        this.mean = implementor.getSettings().getRtpDistributionMean();
+        this.standardDeviation = implementor.getSettings().getRtpDistributionStandardDeviation();
     }
 
     /**
@@ -85,7 +85,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     @Override
-    protected Optional<Position> generatePosition(@NotNull World world, @NotNull String[] args) {
+    protected Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args) {
         Optional<Location> location = generateSafeLocation(world).join();
         int attempts = 0;
         while (location.isEmpty()) {

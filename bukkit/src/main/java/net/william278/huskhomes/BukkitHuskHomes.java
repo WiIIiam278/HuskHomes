@@ -19,6 +19,7 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
+import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Messenger;
 import net.william278.huskhomes.network.PluginMessenger;
 import net.william278.huskhomes.network.RedisMessenger;
@@ -27,7 +28,6 @@ import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Location;
-import net.william278.huskhomes.position.SavedPositionManager;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
+public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTaskRunner {
 
     /**
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
@@ -70,7 +70,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     private Database database;
     private Cache cache;
     private RequestManager requestManager;
-    private SavedPositionManager savedPositionManager;
+    private Validator validator;
+    private Manager manager;
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
     private CachedSpawn serverSpawn;
@@ -118,7 +119,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
             initialized.set(reload());
             if (initialized.get()) {
-                logger.showDebugLogs(settings.debugLogging);
+                logger.showDebugLogs(settings.doDebugLogging());
                 if (upgradeData != null) {
                     upgradeData.upgradeSettings(settings);
                 }
@@ -129,7 +130,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
 
             // Initialize the database
             getLoggingAdapter().log(Level.INFO, "Attempting to establish connection to the database...");
-            final Settings.DatabaseType databaseType = settings.databaseType;
+            final Settings.DatabaseType databaseType = settings.getDatabaseType();
             this.database = switch (databaseType == null ? Settings.DatabaseType.MYSQL : databaseType) {
                 case MYSQL -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
@@ -142,15 +143,18 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             }
 
             // Initialize the network messenger if proxy mode is enabled
-            if (getSettings().crossServer) {
+            if (getSettings().isCrossServer()) {
                 getLoggingAdapter().log(Level.INFO, "Initializing the network messenger...");
-                messenger = switch (settings.messengerType) {
+                messenger = switch (settings.getMessengerType()) {
                     case PLUGIN_MESSAGE -> new PluginMessenger();
                     case REDIS -> new RedisMessenger();
                 };
                 messenger.initialize(this);
                 getLoggingAdapter().log(Level.INFO, "Successfully initialized the network messenger.");
             }
+
+            // Prepare the validator
+            this.validator = new Validator(this);
 
             // Prepare the request manager
             this.requestManager = new RequestManager(this);
@@ -163,22 +167,22 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             cache.initialize(database);
 
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(this);
+            this.manager = new Manager(this);
 
             // Initialize the RTP engine with the default normal distribution engine
             setRandomTeleportEngine(new NormalDistributionEngine(this));
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
-            if (settings.economy) {
+            if (settings.isEconomy()) {
                 if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
                     pluginHooks.add(new RedisEconomyHook(this));
                 } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                     pluginHooks.add(new VaultEconomyHook(this));
                 }
             }
-            if (settings.doMapHook) {
-                switch (settings.mappingPlugin) {
+            if (settings.isDoMapHook()) {
+                switch (settings.getMappingPlugin()) {
                     case DYNMAP -> {
                         final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
                         if (dynmapPlugin != null) {
@@ -223,7 +227,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 }
 
                 // If the command is disabled, use the disabled CommandBase
-                if (settings.disabledCommands.stream().anyMatch(disabledCommand -> {
+                if (settings.getDisabledCommands().stream().anyMatch(disabledCommand -> {
                     final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
                     return command.equalsIgnoreCase(commandType.commandBase.command) || Arrays.stream(commandType.commandBase.aliases).anyMatch(alias -> alias.equalsIgnoreCase(command));
                 })) {
@@ -246,7 +250,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             registerMetrics(METRICS_ID);
 
             // Check for updates
-            if (settings.checkForUpdates) {
+            if (settings.doCheckForUpdates()) {
                 getLoggingAdapter().log(Level.INFO, "Checking for updates...");
                 getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getPluginVersion() + ")")));
             }
@@ -347,10 +351,16 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
         return requestManager;
     }
 
+    @Override
+    @NotNull
+    public Validator getValidator() {
+        return validator;
+    }
+
     @NotNull
     @Override
-    public SavedPositionManager getSavedPositionManager() {
-        return savedPositionManager;
+    public Manager getManager() {
+        return manager;
     }
 
     @NotNull
@@ -478,11 +488,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get();
 
             // Load locales from language preset default
-            final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + settings.language + ".yml"))).get();
-            this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.language + ".yml"), languagePresets).get();
+            final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + settings.getLanguage() + ".yml"))).get();
+            this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.getLanguage() + ".yml"), languagePresets).get();
 
             // Load server from file
-            if (settings.crossServer) {
+            if (settings.isCrossServer()) {
                 this.server = Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get();
             } else {
                 this.server = Server.getDefault();
@@ -514,20 +524,26 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     public void registerMetrics(int metricsId) {
         try {
             final Metrics metrics = new Metrics(this, metricsId);
-            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().crossServer)));
-            if (getSettings().crossServer) {
-                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().messengerType.displayName));
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().isCrossServer())));
+            if (getSettings().isCrossServer()) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getMessengerType().displayName));
             }
-            metrics.addCustomChart(new SimplePie("language", () -> getSettings().language.toLowerCase()));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().databaseType.displayName));
-            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().economy)));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook)));
-            if (getSettings().doMapHook) {
-                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().mappingPlugin.displayName));
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().displayName));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().isEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().isDoMapHook())));
+            if (getSettings().isDoMapHook()) {
+                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMappingPlugin().displayName));
             }
         } catch (Exception e) {
             getLoggingAdapter().log(Level.WARNING, "Failed to register metrics", e);
         }
+    }
+
+    @Override
+    @NotNull
+    public HuskHomes getPlugin() {
+        return this;
     }
 
     // Default constructor
@@ -541,5 +557,4 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
     }
-
 }

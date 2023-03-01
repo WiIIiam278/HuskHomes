@@ -173,13 +173,13 @@ public class Teleport {
 
         // Dispatch the teleport event and update the player's last position
         plugin.getEventDispatcher().dispatchTeleportEvent(this);
-        if (updateLastPosition && !plugin.getSettings().backCommandSaveOnTeleportEvent && type == TeleportType.TELEPORT) {
+        if (updateLastPosition && !plugin.getSettings().isBackCommandSaveOnTeleportEvent() && type == TeleportType.TELEPORT) {
             plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
         }
 
         // If the target position is local, finalize economy transactions and teleport the player
-        if (!plugin.getSettings().crossServer || target.server.equals(plugin.getServerName())) {
-            return teleporter.teleportLocally(target, plugin.getSettings().asynchronousTeleports);
+        if (!plugin.getSettings().isCrossServer() || target.server.equals(plugin.getServerName())) {
+            return teleporter.teleportLocally(target, plugin.getSettings().isAsynchronousTeleports());
         }
 
         // If the target position is on another server, execute a cross-server teleport

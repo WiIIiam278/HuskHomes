@@ -25,12 +25,12 @@ public class LegacyMigrator extends Migrator {
 
     public LegacyMigrator(@NotNull HuskHomes implementor) {
         super(implementor);
-        this.sourceDatabaseType = implementor.getSettings().databaseType;
-        this.sourceMySqlHost = implementor.getSettings().mySqlHost;
-        this.sourceMySqlPort = implementor.getSettings().mySqlPort;
-        this.sourceMySqlDatabase = implementor.getSettings().mySqlDatabase;
-        this.sourceMySqlUsername = implementor.getSettings().mySqlUsername;
-        this.sourceMySqlPassword = implementor.getSettings().mySqlPassword;
+        this.sourceDatabaseType = implementor.getSettings().getDatabaseType();
+        this.sourceMySqlHost = implementor.getSettings().getMySqlHost();
+        this.sourceMySqlPort = implementor.getSettings().getMySqlPort();
+        this.sourceMySqlDatabase = implementor.getSettings().getMySqlDatabase();
+        this.sourceMySqlUsername = implementor.getSettings().getMySqlUsername();
+        this.sourceMySqlPassword = implementor.getSettings().getMySqlPassword();
     }
 
     public LegacyMigrator(@NotNull HuskHomes implementor, @NotNull BukkitUpgradeUtil bukkitUpgradeUtil) {
@@ -57,9 +57,9 @@ public class LegacyMigrator extends Migrator {
                 return true;
             }
 
-            if (sourceDatabaseType == plugin.getSettings().databaseType
-                && sourceMySqlHost.equals(plugin.getSettings().mySqlHost)
-                && sourceMySqlPort == plugin.getSettings().mySqlPort) {
+            if (sourceDatabaseType == plugin.getSettings().getDatabaseType()
+                && sourceMySqlHost.equals(plugin.getSettings().getMySqlHost())
+                && sourceMySqlPort == plugin.getSettings().getMySqlPort()) {
                 migrateMySqlDatabase();
                 return true;
             }

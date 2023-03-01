@@ -2,10 +2,13 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class SpawnCommand extends CommandBase {
 
@@ -21,15 +24,15 @@ public class SpawnCommand extends CommandBase {
             return;
         }
 
-        plugin.getSpawn().thenAccept(position -> {
-            if (position.isEmpty()) {
-                plugin.getLocales().getLocale("error_spawn_not_set")
-                        .ifPresent(onlineUser::sendMessage);
-                return;
-            }
-            Teleport.builder(plugin, onlineUser)
-                    .setTarget(position.get())
-                    .toTimedTeleport().thenAccept(TimedTeleport::execute);
-        });
+        final Optional<? extends Position> spawn = plugin.getSpawn();
+        if (spawn.isEmpty()) {
+            plugin.getLocales().getLocale("error_spawn_not_set")
+                    .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+        Teleport.builder(plugin, onlineUser)
+                .setTarget(spawn.get())
+                .toTimedTeleport()
+                .thenAccept(TimedTeleport::execute);
     }
 }

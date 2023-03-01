@@ -39,11 +39,11 @@ public class BlueMapHook extends MapHook {
             // Create marker sets
             plugin.getWorlds().forEach(world -> blueMapAPI.getWorld(world.uuid)
                     .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(map -> {
-                        if (plugin.getSettings().publicHomesOnMap) {
+                        if (plugin.getSettings().isPublicHomesOnMap()) {
                             map.getMarkerSets().put(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID,
                                     MarkerSet.builder().label("Public Homes").build());
                         }
-                        if (plugin.getSettings().warpsOnMap) {
+                        if (plugin.getSettings().isWarpsOnMap()) {
                             map.getMarkerSets().put(blueMapWorld.getId() + ":" + WARPS_MARKER_SET_ID,
                                     MarkerSet.builder().label("Warps").build());
                         }

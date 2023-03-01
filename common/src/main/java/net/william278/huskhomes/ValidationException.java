@@ -9,11 +9,10 @@ public class ValidationException extends IllegalArgumentException {
     }
 
     public enum ValidationError {
-        NAME_LENGTH,
+        NOT_FOUND,
         NAME_TAKEN,
-        NAME_CHARACTERS,
-        NAME_RESERVED,
-        DESCRIPTION_LENGTH,
-        DESCRIPTION_CHARACTERS
+        NAME_INVALID,
+        DESCRIPTION_INVALID
     }
+
 }

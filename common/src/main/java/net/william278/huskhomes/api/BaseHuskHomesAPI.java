@@ -47,7 +47,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid) {
-        return plugin.getDatabase().getUserData(uuid);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUserData(uuid));
     }
 
     /**
@@ -58,7 +58,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<UserData>> getUserData(@NotNull String username) {
-        return plugin.getDatabase().getUserDataByName(username);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUserDataByName(username));
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserLastPosition(@NotNull User user) {
-        return plugin.getDatabase().getLastPosition(user);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLastPosition(user));
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserOfflinePosition(@NotNull User user) {
-        return plugin.getDatabase().getOfflinePosition(user);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getOfflinePosition(user));
     }
 
     /**
@@ -94,10 +94,10 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserRespawnPosition(@NotNull User user) {
-        if (!plugin.getSettings().crossServer || plugin.getSettings().globalRespawning) {
+        if (!plugin.getSettings().isCrossServer() || plugin.getSettings().isGlobalRespawning()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return plugin.getDatabase().getRespawnPosition(user);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user));
     }
 
     /**
@@ -119,8 +119,8 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete when the data has been saved
      * @since 3.0
      */
-    public final CompletableFuture<Void> saveUserData(@NotNull UserData userData) {
-        return plugin.getDatabase().updateUserData(userData);
+    public final void saveUserData(@NotNull UserData userData) {
+        plugin.runAsync(() -> plugin.getDatabase().updateUserData(userData));
     }
 
     /**
@@ -130,7 +130,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with a list of {@link Home}s set by the user
      */
     public final CompletableFuture<List<Home>> getUserHomes(@NotNull User user) {
-        return plugin.getDatabase().getHomes(user);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHomes(user));
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<List<Home>> getPublicHomes() {
-        return plugin.getDatabase().getPublicHomes();
+        return plugin.supplyAsync(() -> plugin.getDatabase().getPublicHomes());
     }
 
     /**
@@ -166,7 +166,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
-        return plugin.getDatabase().getHome(user, homeName);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(user, homeName));
     }
 
     /**
@@ -176,7 +176,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull UUID homeUuid) {
-        return plugin.getDatabase().getHome(homeUuid);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(homeUuid));
     }
 
     /**
@@ -186,7 +186,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<List<Warp>> getWarps() {
-        return plugin.getDatabase().getWarps();
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarps());
     }
 
     /**
@@ -197,7 +197,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
-        return plugin.getDatabase().getWarp(warpName);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpName));
     }
 
     /**
@@ -207,7 +207,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID warpUuid) {
-        return plugin.getDatabase().getWarp(warpUuid);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpUuid));
     }
 
     /**
@@ -217,76 +217,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Position} of the spawn point
      */
     public final CompletableFuture<Optional<? extends Position>> getSpawn() {
-        return plugin.getSpawn();
-    }
-
-    /**
-     * Update the {@link PositionMeta} of a {@link Home}
-     *
-     * @param home    The {@link Home} to update
-     * @param newMeta The new {@link PositionMeta} to set
-     * @return A {@link CompletableFuture} that will complete when the {@link Home} has been updated with a
-     * {@link SavedPositionManager.SaveResult} indicating if the update was successful
-     * @since 3.0
-     */
-    public final CompletableFuture<SavedPositionManager.SaveResult> updateHomeMeta(@NotNull Home home,
-                                                                                   @NotNull PositionMeta newMeta) {
-        return plugin.getSavedPositionManager().updateHomeMeta(home, newMeta);
-    }
-
-    /**
-     * Update the position of a {@link Home}, relocating it
-     *
-     * @param home        The {@link Home} to update
-     * @param newPosition The new {@link Position} to relocate the home to
-     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the home was
-     * updated ({@code true} if it was updated; otherwise, {@code false})
-     * @since 3.0
-     */
-    public final CompletableFuture<Boolean> updateHomePosition(@NotNull Home home,
-                                                               @NotNull Position newPosition) {
-        return plugin.getSavedPositionManager().updateHomePosition(home, newPosition);
-    }
-
-    /**
-     * Update the privacy of a {@link Home}
-     *
-     * @param home     The {@link Home} to update
-     * @param isPublic Whether the home should be set to public or not
-     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the home's privacy
-     * was updated ({@code true} if it was updated; otherwise, {@code false})
-     * @since 3.0
-     */
-    public final CompletableFuture<Boolean> updateHomePrivacy(@NotNull Home home,
-                                                              final boolean isPublic) {
-        return plugin.getSavedPositionManager().updateHomePrivacy(home, isPublic);
-    }
-
-    /**
-     * Update the {@link PositionMeta} of a {@link Warp}
-     *
-     * @param warp    The {@link Warp} to update
-     * @param newMeta The new {@link PositionMeta} to set
-     * @return A {@link CompletableFuture} that will complete when the {@link Warp} has been updated with a
-     * {@link SavedPositionManager.SaveResult} indicating if the update was successful
-     * @since 3.0
-     */
-    public final CompletableFuture<SavedPositionManager.SaveResult> updateWarpMeta(@NotNull Warp warp,
-                                                                                   @NotNull PositionMeta newMeta) {
-        return plugin.getSavedPositionManager().updateWarpMeta(warp, newMeta);
-    }
-
-    /**
-     * Update the position of a {@link Warp}, relocating it
-     *
-     * @param warp        The {@link Warp} to update
-     * @param newPosition The new {@link Position} to relocate the warp to
-     * @return A {@link CompletableFuture} that will complete with a boolean indicating if the warp was
-     * updated ({@code true} if it was updated; otherwise, {@code false})
-     */
-    public final CompletableFuture<Boolean> updateWarpPosition(@NotNull Warp warp,
-                                                               @NotNull Position newPosition) {
-        return plugin.getSavedPositionManager().updateWarpPosition(warp, newPosition);
+        return plugin.supplyAsync(plugin::getSpawn);
     }
 
     /**
@@ -297,7 +228,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getMaxHomeSlots(@NotNull OnlineUser user) {
-        return user.getMaxHomes(plugin.getSettings().maxHomes, plugin.getSettings().stackPermissionLimits);
+        return user.getMaxHomes(plugin.getSettings().getMaxHomes(), plugin.getSettings().doStackPermissionLimits());
     }
 
     /**
@@ -310,7 +241,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getFreeHomeSlots(@NotNull OnlineUser user) {
-        return user.getFreeHomes(plugin.getSettings().freeHomeSlots, plugin.getSettings().stackPermissionLimits);
+        return user.getFreeHomes(plugin.getSettings().getFreeHomeSlots(), plugin.getSettings().doStackPermissionLimits());
     }
 
     /**
@@ -321,7 +252,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getMaxPublicHomeSlots(@NotNull OnlineUser user) {
-        return user.getMaxPublicHomes(plugin.getSettings().maxPublicHomes, plugin.getSettings().stackPermissionLimits);
+        return user.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(), plugin.getSettings().doStackPermissionLimits());
     }
 
     /**
@@ -388,22 +319,19 @@ public abstract class BaseHuskHomesAPI {
     public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user,
                                                                           final boolean timedTeleport,
                                                                           @NotNull String... rtpArgs) {
-        return CompletableFuture.supplyAsync(() -> plugin.getRandomTeleportEngine()
+        return plugin.supplyAsync(() -> plugin.getRandomTeleportEngine()
                 .getRandomPosition(user.getPosition().world, rtpArgs)
-                .thenApply(position -> {
-                    if (position.isPresent()) {
-                        final TeleportBuilder builder = Teleport.builder(plugin, user)
-                                .setTarget(position.get());
+                .map(position -> {
+                    final TeleportBuilder builder = Teleport.builder(plugin, user)
+                            .setTarget(position);
+                    return timedTeleport
+                            ? builder.toTimedTeleport()
+                            .thenApplyAsync(teleport -> teleport.execute().join().getState()).join()
+                            : builder.toTeleport()
+                            .thenApplyAsync(teleport -> teleport.execute().join().getState()).join();
 
-                        return timedTeleport
-                                ? builder.toTimedTeleport()
-                                .thenApplyAsync(teleport -> teleport.execute().join().getState()).join()
-                                : builder.toTeleport()
-                                .thenApplyAsync(teleport -> teleport.execute().join().getState()).join();
-                    } else {
-                        return TeleportResult.CANCELLED;
-                    }
-                }).join());
+                })
+                .orElse(TeleportResult.CANCELLED));
     }
 
     /**

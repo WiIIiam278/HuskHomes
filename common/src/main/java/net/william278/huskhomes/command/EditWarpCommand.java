@@ -85,7 +85,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
 
                 final String oldWarpName = warp.meta.name;
                 final String newWarpName = editArgs;
-                plugin.getSavedPositionManager().updateWarpMeta(warp, new PositionMeta(newWarpName, warp.meta.description))
+                plugin.getManager().updateWarpMeta(warp, new PositionMeta(newWarpName, warp.meta.description))
                         .thenAccept(renameResult -> (switch (renameResult.resultType()) {
                             case SUCCESS ->
                                     plugin.getLocales().getLocale("edit_warp_update_name", oldWarpName, newWarpName);
@@ -99,7 +99,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                 final String oldWarpDescription = warp.meta.description;
                 final String newDescription = editArgs != null ? editArgs : "";
 
-                plugin.getSavedPositionManager().updateWarpMeta(warp, new PositionMeta(warp.meta.name, newDescription))
+                plugin.getManager().updateWarpMeta(warp, new PositionMeta(warp.meta.name, newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> plugin.getLocales().getLocale("edit_warp_update_description",
                                     warp.meta.name,
@@ -115,7 +115,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                         }).ifPresent(editor::sendMessage));
             }
             case "relocate" ->
-                    plugin.getSavedPositionManager().updateWarpPosition(warp, editor.getPosition()).thenRun(() -> {
+                    plugin.getManager().updateWarpPosition(warp, editor.getPosition()).thenRun(() -> {
                         editor.sendMessage(plugin.getLocales().getLocale("edit_warp_update_location",
                                 warp.meta.name).orElse(new MineDown("")));
 
@@ -175,7 +175,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                         .ifPresent(this::add);
             }
 
-            if (!plugin.getSettings().crossServer) {
+            if (!plugin.getSettings().isCrossServer()) {
                 plugin.getLocales().getLocale("edit_warp_menu_world", warp.world.name).ifPresent(this::add);
             } else {
                 plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.world.name, warp.server.name).ifPresent(this::add);

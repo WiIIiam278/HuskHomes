@@ -89,7 +89,7 @@ public class TeleportBuilder {
                 .findOnlinePlayer(teleporterUsername)
                 .map(onlineUser -> (User) onlineUser)
                 .or(() -> {
-                    if (plugin.getSettings().crossServer) {
+                    if (plugin.getSettings().isCrossServer()) {
                         return plugin.getMessenger()
                                 .findPlayer(executor, teleporterUsername).join()
                                 .map(username -> new User(UUID.randomUUID(), username));
@@ -208,7 +208,7 @@ public class TeleportBuilder {
         return CompletableFuture.supplyAsync(() -> {
             final User teleporter = this.teleporter.join();
             final Position target = this.target.join();
-            final int warmupTime = plugin.getSettings().teleportWarmupTime;
+            final int warmupTime = plugin.getSettings().getTeleportWarmupTime();
 
             if (!(teleporter instanceof OnlineUser onlineUser)) {
                 throw new IllegalStateException("Timed teleports can only be executed for local users");
@@ -232,7 +232,7 @@ public class TeleportBuilder {
         if (localPlayer.isPresent()) {
             return CompletableFuture.supplyAsync(() -> Optional.of(localPlayer.get().getPosition()));
         }
-        if (plugin.getSettings().crossServer) {
+        if (plugin.getSettings().isCrossServer()) {
             return plugin.getMessenger()
                     .findPlayer(executor, playerName)
                     .thenApplyAsync(foundPlayer -> {

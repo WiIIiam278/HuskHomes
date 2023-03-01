@@ -37,7 +37,7 @@ public class DynMapHook extends MapHook {
     protected CompletableFuture<Void> initializeMap() {
         return CompletableFuture.runAsync(() -> {
             final MarkerAPI markerAPI = dynmapAPI.getMarkerAPI();
-            if (plugin.getSettings().publicHomesOnMap) {
+            if (plugin.getSettings().isPublicHomesOnMap()) {
                 markerAPI.getMarkerIcons().stream()
                         .filter(markerIcon -> markerIcon.getMarkerIconID().equals(PUBLIC_HOME_MARKER_IMAGE_NAME))
                         .findFirst()
@@ -47,7 +47,7 @@ public class DynMapHook extends MapHook {
                 markerAPI.createMarkerSet(PUBLIC_HOMES_MARKER_SET_ID,
                         "Public Homes", dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             }
-            if (plugin.getSettings().warpsOnMap) {
+            if (plugin.getSettings().isWarpsOnMap()) {
                 markerAPI.getMarkerIcons().stream()
                         .filter(markerIcon -> markerIcon.getMarkerIconID().equals(WARP_MARKER_IMAGE_NAME))
                         .findFirst()

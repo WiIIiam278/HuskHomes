@@ -55,7 +55,7 @@ public class SetHomeCommand extends CommandBase {
      */
     private void setHome(@NotNull OnlineUser onlineUser, @NotNull String homeName, @NotNull List<Home> currentHomes) {
         // Check against maximum homes
-        final int maxHomes = onlineUser.getMaxHomes(plugin.getSettings().maxHomes, plugin.getSettings().stackPermissionLimits);
+        final int maxHomes = onlineUser.getMaxHomes(plugin.getSettings().getMaxHomes(), plugin.getSettings().doStackPermissionLimits());
         if (currentHomes.size() >= maxHomes) {
             plugin.getLocales().getLocale("error_set_home_maximum_homes", Integer.toString(maxHomes))
                     .ifPresent(onlineUser::sendMessage);
@@ -67,9 +67,9 @@ public class SetHomeCommand extends CommandBase {
             // Check against economy if needed
             final AtomicBoolean newSlotNeeded = new AtomicBoolean(false);
             final AtomicReference<UserData> userDataToUpdate = new AtomicReference<>(null);
-            if (plugin.getSettings().economy) {
-                final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().freeHomeSlots,
-                        plugin.getSettings().stackPermissionLimits);
+            if (plugin.getSettings().isEconomy()) {
+                final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().getFreeHomeSlots(),
+                        plugin.getSettings().doStackPermissionLimits());
                 if (fetchedData.isPresent()) {
                     final Settings.EconomyAction action = Settings.EconomyAction.ADDITIONAL_HOME_SLOT;
                     newSlotNeeded.set((currentHomes.size() + 1) > (freeHomes + fetchedData.get().homeSlots()));
@@ -95,7 +95,7 @@ public class SetHomeCommand extends CommandBase {
             }
 
             // Set the home in the saved position manager
-            plugin.getSavedPositionManager()
+            plugin.getManager()
                     .setHome(new PositionMeta(homeName, ""), onlineUser, onlineUser.getPosition())
                     .thenAccept(setResult -> {
                         // Display feedback of the result of the set operation

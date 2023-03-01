@@ -124,7 +124,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                 }
                 getLoggingAdapter().log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
             } else {
-                throw new HuskHomesInitializationException("Failed to load plugin configuration settings and/or locales");
+                throw new IllegalStateException("Failed to load plugin configuration settings and/or locales");
             }
 
             // Initialize the database
@@ -138,7 +138,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             if (initialized.get()) {
                 getLoggingAdapter().log(Level.INFO, "Successfully established a connection to the database");
             } else {
-                throw new HuskHomesInitializationException("Failed to establish a connection to the database. " + "Please check the supplied database credentials in the config file");
+                throw new IllegalStateException("Failed to establish a connection to the database. " + "Please check the supplied database credentials in the config file");
             }
 
             // Initialize the network messenger if proxy mode is enabled
@@ -262,7 +262,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                     }
                 });
             }
-        } catch (HuskHomesInitializationException exception) {
+        } catch (IllegalStateException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
             initialized.set(false);
         } catch (Exception exception) {
@@ -357,7 +357,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
     @Override
     public Messenger getMessenger() {
         if (messenger == null) {
-            throw new HuskHomesException("Attempted to access network messenger when it was not initialized");
+            throw new IllegalStateException("Attempted to access network messenger when it was not initialized");
         }
         return messenger;
     }

@@ -144,7 +144,7 @@ public interface HuskHomes {
      * @return the {@link Messenger} implementation
      */
     @NotNull
-    Messenger getMessenger() throws HuskHomesException;
+    Messenger getMessenger();
 
     /**
      * The {@link RandomTeleportEngine} that manages random teleports

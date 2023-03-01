@@ -3,7 +3,6 @@ package net.william278.huskhomes.hook;
 import com.djrapitops.plan.capability.CapabilityService;
 import com.djrapitops.plan.extension.ExtensionService;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.HuskHomesInitializationException;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +24,7 @@ public class PlanHook extends PluginHook {
     }
 
     @Override
-    public boolean initialize() throws HuskHomesInitializationException {
+    public boolean initialize()  {
         if (!areAllCapabilitiesAvailable()) {
             return false;
         }

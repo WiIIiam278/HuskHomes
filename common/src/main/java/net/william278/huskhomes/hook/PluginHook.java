@@ -1,7 +1,6 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.HuskHomesInitializationException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,9 +32,8 @@ public abstract class PluginHook {
      * Initialize the hook and return {@code true} if it could be enabled
      *
      * @return {@code true} if the hook could be enabled
-     * @throws HuskHomesInitializationException if an exception occurred enabling the hook
      */
-    public abstract boolean initialize() throws HuskHomesInitializationException;
+    public abstract boolean initialize() ;
 
     @NotNull
     public String getHookName() {

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
@@ -274,7 +273,7 @@ public abstract class Database {
             return getWarps().thenApplyAsync(warps -> warps.stream()
                     .filter(warp -> warp.server.equals(server))
                     .collect(Collectors.toList()));
-        } catch (HuskHomesException e) {
+        } catch (IllegalStateException e) {
             return getWarps().thenApplyAsync(warps -> warps.stream()
                     .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.world)))
                     .collect(Collectors.toList()));
@@ -301,7 +300,7 @@ public abstract class Database {
             return getPublicHomes().thenApplyAsync(homes -> homes.stream()
                     .filter(home -> home.server.equals(server))
                     .collect(Collectors.toList()));
-        } catch (HuskHomesException e) {
+        } catch (IllegalStateException e) {
             return plugin.getDatabase().getPublicHomes().thenApplyAsync(homes -> homes.stream()
                     .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.world)))
                     .collect(Collectors.toList()));

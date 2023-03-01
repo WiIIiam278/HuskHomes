@@ -3,7 +3,6 @@ package net.william278.huskhomes.player;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
@@ -73,7 +72,7 @@ public class BukkitPlayer extends OnlineUser {
     @Override
     public Position getPosition() {
         return new Position(BukkitAdapter.adaptLocation(player.getLocation())
-                .orElseThrow(() -> new HuskHomesException("Failed to get the position of a BukkitPlayer (null)")),
+                .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
                 plugin.getServerName());
 
     }

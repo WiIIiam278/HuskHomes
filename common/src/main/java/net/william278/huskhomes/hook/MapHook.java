@@ -1,7 +1,6 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.HuskHomesException;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
@@ -104,7 +103,7 @@ public abstract class MapHook extends PluginHook {
 
         try {
             return position.server.equals(plugin.getServerName());
-        } catch (HuskHomesException e) {
+        } catch (IllegalStateException e) {
             return plugin.getWorlds().stream()
                     .map(world -> world.uuid)
                     .anyMatch(uuid -> uuid.equals(position.world.uuid));

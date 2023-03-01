@@ -1,14 +1,12 @@
 package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.Cache;
-import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.event.EventDispatcher;
+import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.util.RegexUtil;
-import net.william278.huskhomes.config.Settings;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -19,60 +17,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class SavedPositionManager {
 
-    /**
-     * The {@link Database} implementation used to add homes to the database
-     */
-    private final Database database;
+    private final HuskHomes plugin;
 
-    /**
-     * The {@link Cache} the holds cached home and warp data, updated when setting home
-     */
-    private final Cache cache;
-
-    /**
-     * The {@link EventDispatcher} used to dispatch save and delete events
-     */
-    private final EventDispatcher eventDispatcher;
-
-    /**
-     * The {@link MapHook} used to update the map when a home or warp is set
-     */
-    @Nullable
-    private MapHook mapHook;
-
-    /**
-     * Whether to allow unicode characters in SavedPosition names
-     */
-    private final boolean allowUnicodeNames;
-
-    /**
-     * Whether to allow unicode characters in SavedPosition descriptions
-     */
-    private final boolean allowUnicodeDescriptions;
-
-    /**
-     * Whether to automatically relocate existing homes and warps when a user tries to set a home/warp with the same name
-     */
-    private final boolean overwriteExistingHomesWarps;
-
-    public SavedPositionManager(@NotNull Database database, @NotNull Cache cache, @NotNull EventDispatcher eventDispatcher,
-                                boolean allowUnicodeNames, boolean allowUnicodeDescriptions,
-                                boolean overwriteExistingHomesWarps) {
-        this.database = database;
-        this.cache = cache;
-        this.eventDispatcher = eventDispatcher;
-        this.allowUnicodeNames = allowUnicodeNames;
-        this.allowUnicodeDescriptions = allowUnicodeDescriptions;
-        this.overwriteExistingHomesWarps = overwriteExistingHomesWarps;
-    }
-
-    /**
-     * Set the {@link MapHook} used to update the map when a home or warp is set
-     *
-     * @param mapHook the {@link MapHook} to set
-     */
-    public void setMapHook(@NotNull MapHook mapHook) {
-        this.mapHook = mapHook;
+    public SavedPositionManager(@NotNull HuskHomes plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -86,29 +34,31 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> setHome(@NotNull PositionMeta homeMeta, @NotNull User homeOwner,
                                                  @NotNull Position position) {
-        return database.getHome(homeOwner, homeMeta.name).thenApplyAsync(optionalHome ->
+        return plugin.getDatabase().getHome(homeOwner, homeMeta.name).thenApplyAsync(optionalHome ->
                 validateMeta(homeMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalHome.isEmpty()) {
                         // Handle setting a new home
                         final Home home = new Home(position, homeMeta, homeOwner);
-                        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
+                        return plugin.getEventDispatcher().dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
                                 return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                             }
+                            final Cache cache = plugin.getCache();
                             cache.homes.putIfAbsent(home.owner.uuid, new ArrayList<>());
                             cache.homes.get(home.owner.uuid).add(home.meta.name);
                             cache.privateHomeLists.remove(home.owner.username);
-                            return database.saveHome(home).thenApplyAsync(value ->
+                            return plugin.getDatabase().saveHome(home).thenApplyAsync(value ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                         }).join();
-                    } else if (overwriteExistingHomesWarps) {
+                    } else if (plugin.getSettings().overwriteExistingHomesWarps) {
                         // Handle overwriting existing homes if the option is enabled
                         final Home existingHome = optionalHome.get();
                         updateHomePosition(existingHome, position).thenApplyAsync(result -> {
                             if (result) {
-                                if (mapHook != null && existingHome.isPublic) {
-                                    mapHook.updateHome(existingHome);
+                                if (existingHome.isPublic) {
+                                    plugin.getMapHook().ifPresent(hook -> hook.updateHome(existingHome));
                                 }
+
                                 return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingHome));
                             }
                             return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
@@ -127,23 +77,22 @@ public class SavedPositionManager {
      * if the home name was invalid.
      */
     public CompletableFuture<Boolean> deleteHome(@NotNull User homeOwner, @NotNull String homeName) {
-        return database.getHome(homeOwner, homeName).thenApplyAsync(optionalHome -> {
+        return plugin.getDatabase().getHome(homeOwner, homeName).thenApplyAsync(optionalHome -> {
             if (optionalHome.isPresent()) {
-                return eventDispatcher.dispatchHomeDeleteEvent(optionalHome.get()).thenApplyAsync(event -> {
+                return plugin.getEventDispatcher().dispatchHomeDeleteEvent(optionalHome.get()).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return false;
                     }
                     final Home home = event.getHome();
-                    return database.deleteHome(home.uuid).thenApplyAsync(ignored -> {
+                    return plugin.getDatabase().deleteHome(home.uuid).thenApplyAsync(ignored -> {
+                        final Cache cache = plugin.getCache();
                         cache.homes.computeIfPresent(home.owner.uuid, (ownerUUID, homeNames) -> {
                             homeNames.remove(home.meta.name);
                             return homeNames;
                         });
                         cache.privateHomeLists.remove(home.owner.username);
                         cache.publicHomeLists.clear();
-                        if (mapHook != null) {
-                            mapHook.removeHome(home);
-                        }
+                        plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
                         return true;
                     }).join();
                 }).join();
@@ -153,15 +102,14 @@ public class SavedPositionManager {
     }
 
     public CompletableFuture<Integer> deleteAllHomes(@NotNull User user) {
-        return CompletableFuture.supplyAsync(() -> eventDispatcher.dispatchDeleteAllHomesEvent(user).join().isCancelled())
-                .thenApply(cancelled -> database.deleteAllHomes(user)
+        return CompletableFuture.supplyAsync(() -> plugin.getEventDispatcher().dispatchDeleteAllHomesEvent(user).join().isCancelled())
+                .thenApply(cancelled -> plugin.getDatabase().deleteAllHomes(user)
                         .thenApply(result -> {
+                            final Cache cache = plugin.getCache();
                             cache.homes.remove(user.uuid);
                             cache.privateHomeLists.remove(user.username);
                             cache.publicHomeLists.clear();
-                            if (mapHook != null) {
-                                mapHook.clearHomes(user);
-                            }
+                            plugin.getMapHook().ifPresent(hook -> hook.clearHomes(user));
                             return result;
                         }).join());
     }
@@ -175,27 +123,28 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> updateHomeMeta(@NotNull Home home, @NotNull PositionMeta newHomeMeta) {
         return CompletableFuture.supplyAsync(() -> {
-            if (!home.meta.name.equals(newHomeMeta.name) && database.getHome(home.owner, newHomeMeta.name).join().isPresent()) {
+            if (!home.meta.name.equals(newHomeMeta.name) && plugin.getDatabase().getHome(home.owner, newHomeMeta.name).join().isPresent()) {
                 return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
             }
             final String existingHomeName = home.meta.name;
             return validateMeta(newHomeMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 home.meta = newHomeMeta;
-                return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
+                return plugin.getEventDispatcher().dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                     }
+                    final Cache cache = plugin.getCache();
                     if (!existingHomeName.equals(newHomeMeta.name)) {
                         cache.homes.get(home.owner.uuid).remove(existingHomeName);
                         cache.homes.get(home.owner.uuid).add(newHomeMeta.name);
                     }
                     cache.privateHomeLists.remove(home.owner.username);
                     cache.publicHomeLists.clear();
-                    if (home.isPublic && mapHook != null) {
-                        mapHook.updateHome(home);
+                    if (home.isPublic) {
+                        plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
                     }
-                    return database.saveHome(home).thenApplyAsync(value ->
+                    return plugin.getDatabase().saveHome(home).thenApplyAsync(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(home))).join();
                 }).join();
             });
@@ -212,14 +161,14 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateHomePosition(@NotNull Home home, @NotNull Position newPosition) {
         home.update(newPosition);
-        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
+        return plugin.getEventDispatcher().dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }
-            if (home.isPublic && mapHook != null) {
-                mapHook.updateHome(home);
+            if (home.isPublic) {
+                plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
             }
-            return database.saveHome(home).thenApplyAsync(ignored -> true).join();
+            return plugin.getDatabase().saveHome(home).thenApplyAsync(ignored -> true).join();
         });
     }
 
@@ -232,26 +181,23 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateHomePrivacy(@NotNull Home home, final boolean isHomePublic) {
         home.isPublic = isHomePublic;
-        return eventDispatcher.dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
+        return plugin.getEventDispatcher().dispatchHomeSaveEvent(home).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }
 
             // Save the home to database and propagate updates to cache and map hook
-            return database.saveHome(home).thenApplyAsync(ignored -> {
+            return plugin.getDatabase().saveHome(home).thenApplyAsync(ignored -> {
+                final Cache cache = plugin.getCache();
                 if (home.isPublic) {
                     cache.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
                     cache.publicHomes.get(home.owner.username).add(home.meta.name);
-                    if (mapHook != null) {
-                        mapHook.updateHome(home);
-                    }
+                    plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
                 } else {
                     if (cache.publicHomes.containsKey(home.owner.username)) {
                         cache.publicHomes.get(home.owner.username).remove(home.meta.name);
                     }
-                    if (mapHook != null) {
-                        mapHook.removeHome(home);
-                    }
+                    plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
                 }
                 cache.privateHomeLists.remove(home.owner.username);
                 cache.publicHomeLists.clear();
@@ -269,31 +215,28 @@ public class SavedPositionManager {
      * @return a future supplying the {@link SaveResult}; the result of setting the warp
      */
     public CompletableFuture<SaveResult> setWarp(@NotNull PositionMeta warpMeta, @NotNull Position position) {
-        return database.getWarp(warpMeta.name).thenApplyAsync(optionalWarp ->
+        return plugin.getDatabase().getWarp(warpMeta.name).thenApplyAsync(optionalWarp ->
                 validateMeta(warpMeta).map(resultType -> new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                     if (optionalWarp.isEmpty()) {
                         // Handle setting new warps
                         final Warp warp = new Warp(position, warpMeta);
-                        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
+                        return plugin.getEventDispatcher().dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
                             if (event.isCancelled()) {
                                 return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                             }
+                            final Cache cache = plugin.getCache();
                             cache.warps.add(warp.meta.name);
                             cache.warpLists.clear();
-                            if (mapHook != null) {
-                                mapHook.updateWarp(warp);
-                            }
-                            return database.saveWarp(warp).thenApplyAsync(ignored ->
+                            plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+                            return plugin.getDatabase().saveWarp(warp).thenApplyAsync(ignored ->
                                     new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                         }).join();
-                    } else if (overwriteExistingHomesWarps) {
+                    } else if (plugin.getSettings().overwriteExistingHomesWarps) {
                         // Handle overwriting existing warps if the option is enabled
                         final Warp existingWarp = optionalWarp.get();
                         updateWarpPosition(existingWarp, position).thenApplyAsync(result -> {
                             if (result) {
-                                if (mapHook != null) {
-                                    mapHook.updateWarp(existingWarp);
-                                }
+                                plugin.getMapHook().ifPresent(hook -> hook.updateWarp(existingWarp));
                                 return new SaveResult(SaveResult.ResultType.SUCCESS_OVERWRITTEN, Optional.of(existingWarp));
                             }
                             return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
@@ -311,21 +254,20 @@ public class SavedPositionManager {
      * if the warp name was invalid.
      */
     public CompletableFuture<Boolean> deleteWarp(@NotNull String warpName) {
-        return database.getWarp(warpName).thenApplyAsync(optionalWarp -> {
+        return plugin.getDatabase().getWarp(warpName).thenApplyAsync(optionalWarp -> {
             if (optionalWarp.isPresent()) {
-                return eventDispatcher.dispatchWarpDeleteEvent(optionalWarp.get()).thenApplyAsync(event -> {
+                return plugin.getEventDispatcher().dispatchWarpDeleteEvent(optionalWarp.get()).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return false;
                     }
 
                     // Delete the warp from database and propagate updates to cache and map hook
                     final Warp warp = event.getWarp();
-                    return database.deleteWarp(warp.uuid).thenApplyAsync(ignored -> {
+                    return plugin.getDatabase().deleteWarp(warp.uuid).thenApplyAsync(ignored -> {
+                        final Cache cache = plugin.getCache();
                         cache.warps.remove(warp.meta.name);
                         cache.warpLists.clear();
-                        if (mapHook != null) {
-                            mapHook.removeWarp(warp);
-                        }
+                        plugin.getMapHook().ifPresent(hook -> hook.removeWarp(warp));
                         return true;
                     }).join();
                 }).join();
@@ -335,13 +277,12 @@ public class SavedPositionManager {
     }
 
     public CompletableFuture<Integer> deleteAllWarps() {
-        return CompletableFuture.supplyAsync(() -> eventDispatcher.dispatchDeleteAllWarpsEvent().join().isCancelled())
-                .thenApply(cancelled -> database.deleteAllWarps()
+        return CompletableFuture.supplyAsync(() -> plugin.getEventDispatcher().dispatchDeleteAllWarpsEvent().join().isCancelled())
+                .thenApply(cancelled -> plugin.getDatabase().deleteAllWarps()
                         .thenApply(result -> {
-                            cache.warps.clear();
-                            if (mapHook != null) {
-                                mapHook.clearWarps();
-                            }
+                            plugin.getCache().warps.clear();
+                            plugin.getCache().warpLists.clear();
+                            plugin.getMapHook().ifPresent(MapHook::clearWarps);
                             return result;
                         }).join());
     }
@@ -355,26 +296,26 @@ public class SavedPositionManager {
      */
     public CompletableFuture<SaveResult> updateWarpMeta(@NotNull Warp warp, @NotNull PositionMeta newWarpMeta) {
         return CompletableFuture.supplyAsync(() -> {
-            if (!warp.meta.name.equals(newWarpMeta.name) && database.getWarp(newWarpMeta.name).join().isPresent()) {
+            if (!warp.meta.name.equals(newWarpMeta.name) && plugin.getDatabase().getWarp(newWarpMeta.name).join().isPresent()) {
                 return new SaveResult(SaveResult.ResultType.FAILED_DUPLICATE, Optional.empty());
             }
             final String existingWarpName = warp.meta.name;
             return validateMeta(newWarpMeta).map(resultType ->
                     new SaveResult(resultType, Optional.empty())).orElseGet(() -> {
                 warp.meta = newWarpMeta;
-                return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
+                return plugin.getEventDispatcher().dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
                     if (event.isCancelled()) {
                         return new SaveResult(SaveResult.ResultType.FAILED_EVENT_CANCELLED, Optional.empty());
                     }
+
+                    final Cache cache = plugin.getCache();
                     if (!existingWarpName.equals(newWarpMeta.name)) {
                         cache.warps.remove(existingWarpName);
                         cache.warps.add(newWarpMeta.name);
                     }
                     cache.warpLists.clear();
-                    if (mapHook != null) {
-                        mapHook.updateWarp(warp);
-                    }
-                    return database.saveWarp(warp).thenApplyAsync(value ->
+                    plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+                    return plugin.getDatabase().saveWarp(warp).thenApplyAsync(value ->
                             new SaveResult(SaveResult.ResultType.SUCCESS, Optional.of(warp))).join();
                 }).join();
             });
@@ -391,14 +332,12 @@ public class SavedPositionManager {
      */
     public CompletableFuture<Boolean> updateWarpPosition(@NotNull Warp warp, @NotNull Position newPosition) {
         warp.update(newPosition);
-        return eventDispatcher.dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
+        return plugin.getEventDispatcher().dispatchWarpSaveEvent(warp).thenApplyAsync(event -> {
             if (event.isCancelled()) {
                 return false;
             }
-            if (mapHook != null) {
-                mapHook.updateWarp(warp);
-            }
-            return database.saveWarp(warp).thenApplyAsync(ignored -> true).join();
+            plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+            return plugin.getDatabase().saveWarp(warp).thenApplyAsync(ignored -> true).join();
         });
     }
 
@@ -413,7 +352,7 @@ public class SavedPositionManager {
         if (positionMeta.name.length() > 16) {
             return Optional.of(SaveResult.ResultType.FAILED_NAME_LENGTH);
         }
-        if (!allowUnicodeNames) {
+        if (!plugin.getSettings().allowUnicodeNames) {
             if (!RegexUtil.NAME_PATTERN.matcher(positionMeta.name).matches()) {
                 return Optional.of(SaveResult.ResultType.FAILED_NAME_CHARACTERS);
             }
@@ -424,7 +363,7 @@ public class SavedPositionManager {
         if (positionMeta.description.length() > 255) {
             return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_LENGTH);
         }
-        if (!allowUnicodeDescriptions) {
+        if (!plugin.getSettings().allowUnicodeDescriptions) {
             if (!RegexUtil.DESCRIPTION_PATTERN.matcher(positionMeta.description).matches()) {
                 return Optional.of(SaveResult.ResultType.FAILED_DESCRIPTION_CHARACTERS);
             }

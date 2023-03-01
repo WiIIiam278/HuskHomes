@@ -163,7 +163,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             cache.initialize(database);
 
             // Prepare the home and warp position manager
-            this.savedPositionManager = new SavedPositionManager(database, cache, eventDispatcher, settings.allowUnicodeNames, settings.allowUnicodeDescriptions, settings.overwriteExistingHomesWarps);
+            this.savedPositionManager = new SavedPositionManager(this);
 
             // Initialize the RTP engine with the default normal distribution engine
             setRandomTeleportEngine(new NormalDistributionEngine(this));
@@ -191,7 +191,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
                         }
                     }
                 }
-                getMapHook().ifPresent(mapHook -> savedPositionManager.setMapHook(mapHook));
             }
             if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
                 pluginHooks.add(new PlanHook(this));
@@ -242,7 +241,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             // Prepare migrators
             this.migrators = new ArrayList<>();
             this.migrators.add(new LegacyMigrator(this));
-            //todo EssentialsX
 
             // Hook into bStats metrics
             registerMetrics(METRICS_ID);

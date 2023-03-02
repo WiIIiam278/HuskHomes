@@ -145,14 +145,14 @@ public class MySqlDatabase extends Database {
                         VALUES (?,?,?,?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setDouble(1, position.x);
-            statement.setDouble(2, position.y);
-            statement.setDouble(3, position.z);
-            statement.setFloat(4, position.yaw);
-            statement.setFloat(5, position.pitch);
-            statement.setString(6, position.world.name);
-            statement.setString(7, position.world.uuid.toString());
-            statement.setString(8, position.server.name);
+            statement.setDouble(1, position.getX());
+            statement.setDouble(2, position.getY());
+            statement.setDouble(3, position.getZ());
+            statement.setFloat(4, position.getYaw());
+            statement.setFloat(5, position.getPitch());
+            statement.setString(6, position.getWorld().getName());
+            statement.setString(7, position.getWorld().getUuid().toString());
+            statement.setString(8, position.getServer().getName());
             statement.executeUpdate();
 
             final ResultSet resultSet = statement.getGeneratedKeys();
@@ -176,14 +176,14 @@ public class MySqlDatabase extends Database {
                 `world_name`=?,
                 `server_name`=?
                 WHERE `id`=?"""))) {
-            statement.setDouble(1, position.x);
-            statement.setDouble(2, position.y);
-            statement.setDouble(3, position.z);
-            statement.setFloat(4, position.yaw);
-            statement.setFloat(5, position.pitch);
-            statement.setString(6, position.world.uuid.toString());
-            statement.setString(7, position.world.name);
-            statement.setString(8, position.server.name);
+            statement.setDouble(1, position.getX());
+            statement.setDouble(2, position.getY());
+            statement.setDouble(3, position.getZ());
+            statement.setFloat(4, position.getYaw());
+            statement.setFloat(5, position.getPitch());
+            statement.setString(6, position.getWorld().getUuid().toString());
+            statement.setString(7, position.getWorld().getName());
+            statement.setString(8, position.getServer().getName());
             statement.setDouble(9, positionId);
             statement.executeUpdate();
         }
@@ -197,10 +197,10 @@ public class MySqlDatabase extends Database {
                 Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, setPosition(position, connection));
-            statement.setString(2, position.meta.name);
-            statement.setString(3, position.meta.description);
-            statement.setString(4, position.meta.getSerializedTags());
-            statement.setTimestamp(5, Timestamp.from(position.meta.creationTime));
+            statement.setString(2, position.getMeta().getName());
+            statement.setString(3, position.getMeta().getDescription());
+            statement.setString(4, position.getMeta().getSerializedTags());
+            statement.setTimestamp(5, Timestamp.from(position.getMeta().getCreationTime()));
             statement.executeUpdate();
 
             final ResultSet resultSet = statement.getGeneratedKeys();
@@ -230,9 +230,9 @@ public class MySqlDatabase extends Database {
                         `description`=?,
                         `tags`=?
                         WHERE `id`=?;"""))) {
-                    updateStatement.setString(1, position.meta.name);
-                    updateStatement.setString(2, position.meta.description);
-                    updateStatement.setString(3, position.meta.getSerializedTags());
+                    updateStatement.setString(1, position.getMeta().getName());
+                    updateStatement.setString(2, position.getMeta().getDescription());
+                    updateStatement.setString(3, position.getMeta().getSerializedTags());
                     updateStatement.setInt(4, savedPositionId);
                     updateStatement.executeUpdate();
                 }
@@ -866,13 +866,13 @@ public class MySqlDatabase extends Database {
 
     @Override
     public void saveHome(@NotNull Home home) {
-        getHome(home.uuid).ifPresentOrElse(presentHome -> {
+        getHome(home.getUuid()).ifPresentOrElse(presentHome -> {
             try (Connection connection = getConnection()) {
                 // Update the home's saved position, including metadata
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `saved_position_id` FROM `%homes_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setString(1, home.uuid.toString());
+                    statement.setString(1, home.getUuid().toString());
 
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
@@ -885,41 +885,41 @@ public class MySqlDatabase extends Database {
                         UPDATE `%homes_table%`
                         SET `public`=?
                         WHERE `uuid`=?;"""))) {
-                    statement.setBoolean(1, home.isPublic);
-                    statement.setString(2, home.uuid.toString());
+                    statement.setBoolean(1, home.isPublic());
+                    statement.setString(2, home.getUuid().toString());
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE,
-                        "Failed to update a home in the database for " + home.owner.username, e);
+                        "Failed to update a home in the database for " + home.getOwner().username, e);
             }
         }, () -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         INSERT INTO `%homes_table%` (`uuid`, `saved_position_id`, `owner_uuid`, `public`)
                         VALUES (?,?,?,?);"""))) {
-                    statement.setString(1, home.uuid.toString());
+                    statement.setString(1, home.getUuid().toString());
                     statement.setInt(2, setSavedPosition(home, connection));
-                    statement.setString(3, home.owner.uuid.toString());
-                    statement.setBoolean(4, home.isPublic);
+                    statement.setString(3, home.getOwner().uuid.toString());
+                    statement.setBoolean(4, home.isPublic());
 
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE,
-                        "Failed to set a home to the database for " + home.owner.username, e);
+                        "Failed to set a home to the database for " + home.getOwner().username, e);
             }
         });
     }
 
     @Override
     public void saveWarp(@NotNull Warp warp) {
-        getWarp(warp.uuid).ifPresentOrElse(presentWarp -> {
+        getWarp(warp.getUuid()).ifPresentOrElse(presentWarp -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         SELECT `saved_position_id` FROM `%warps_table%`
                         WHERE `uuid`=?;"""))) {
-                    statement.setString(1, warp.uuid.toString());
+                    statement.setString(1, warp.getUuid().toString());
 
                     final ResultSet resultSet = statement.executeQuery();
                     if (resultSet.next()) {
@@ -934,7 +934,7 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         INSERT INTO `%warps_table%` (`uuid`, `saved_position_id`)
                         VALUES (?,?);"""))) {
-                    statement.setString(1, warp.uuid.toString());
+                    statement.setString(1, warp.getUuid().toString());
                     statement.setInt(2, setSavedPosition(warp, connection));
 
                     statement.executeUpdate();

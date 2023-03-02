@@ -19,15 +19,15 @@ public final class BukkitAdapter {
      * @return the adapted {@link Location}
      */
     public static Optional<org.bukkit.Location> adaptLocation(@NotNull Location location) {
-        org.bukkit.World world = Bukkit.getWorld(location.world.name);
+        org.bukkit.World world = Bukkit.getWorld(location.getWorld().getName());
         if (world == null) {
-            world = Bukkit.getWorld(location.world.uuid);
+            world = Bukkit.getWorld(location.getWorld().getUuid());
         }
         if (world == null) {
             return Optional.empty();
         }
-        return Optional.of(new org.bukkit.Location(world, location.x, location.y, location.z,
-                location.yaw, location.pitch));
+        return Optional.of(new org.bukkit.Location(world, location.getX(), location.getY(), location.getZ(),
+                location.getYaw(), location.getPitch()));
     }
 
     /**

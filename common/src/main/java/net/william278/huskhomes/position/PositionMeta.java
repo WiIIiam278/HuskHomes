@@ -8,49 +8,32 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents metadata about a {@link Position}, used in {@link SavedPosition} implementations
  */
 public class PositionMeta {
 
-    /**
-     * The name of a position
-     */
-    @NotNull
-    public String name;
-
-    /**
-     * A description of a position
-     */
-    @NotNull
-    public String description;
-
-    /**
-     * Map of metadata tags for a position
-     */
-    @NotNull
-    public Map<String, String> tags;
-
-    /**
-     * The time the position was created
-     */
-    @NotNull
-    public Instant creationTime;
+    private String name;
+    @Nullable
+    private String description;
+    private Map<String, String> tags;
+    private Instant creationTime;
 
     public PositionMeta(@NotNull String name, @NotNull String description, @NotNull Instant creationTime,
                         @Nullable String serializedTags) {
-        this.name = name;
-        this.description = description;
-        this.creationTime = creationTime;
-        this.tags = deserializeTags(serializedTags);
+        this.setName(name);
+        this.setDescription(description);
+        this.setCreationTime(creationTime);
+        this.setTags(deserializeTags(serializedTags));
     }
 
     public PositionMeta(@NotNull String name, @NotNull String description) {
-        this.name = name;
-        this.description = description;
-        this.creationTime = Instant.now();
-        this.tags = new HashMap<>();
+        this.setName(name);
+        this.setDescription(description);
+        this.setCreationTime(Instant.now());
+        this.setTags(new HashMap<>());
     }
 
     /**
@@ -80,14 +63,59 @@ public class PositionMeta {
     @Nullable
     public String getSerializedTags() {
         try {
-            if (tags.isEmpty()) {
+            if (getTags().isEmpty()) {
                 return null;
             }
-            return new Gson().toJson(tags);
+            return new Gson().toJson(getTags());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * The name of a position
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * A description of a position
+     */
+    @NotNull
+    public String getDescription() {
+        return Optional.ofNullable(description).orElse("");
+    }
+
+    public void setDescription(@Nullable String description) {
+        this.description = description;
+    }
+
+    /**
+     * Map of metadata tags for a position
+     */
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
+    /**
+     * The time the position was created
+     */
+    @NotNull
+    public Instant getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Instant creationTime) {
+        this.creationTime = creationTime;
+    }
 }

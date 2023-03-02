@@ -53,7 +53,7 @@ public class TimedTeleport extends Teleport {
         }
 
         // Check if the teleporter is already warming up to teleport
-        if (plugin.getCache().currentlyOnWarmup.contains(teleporter.uuid)) {
+        if (plugin.getCache().getCurrentlyOnWarmup().contains(teleporter.uuid)) {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING)
                     .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
@@ -98,7 +98,7 @@ public class TimedTeleport extends Teleport {
             }
 
             // Mark the player as warming up and display the message
-            plugin.getCache().currentlyOnWarmup.add(teleporter.uuid);
+            plugin.getCache().getCurrentlyOnWarmup().add(teleporter.uuid);
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
@@ -118,7 +118,7 @@ public class TimedTeleport extends Teleport {
 
                 // Tick (decrement) the timed teleport timer and end it if done
                 if (tickWarmup()) {
-                    plugin.getCache().currentlyOnWarmup.remove(teleporter.uuid);
+                    plugin.getCache().getCurrentlyOnWarmup().remove(teleporter.uuid);
                     timedTeleportFuture.complete(null);
                     executor.shutdown();
                 }
@@ -195,9 +195,9 @@ public class TimedTeleport extends Teleport {
      */
     private boolean hasTeleporterMoved() {
         final double maxMovementDistance = 0.1d;
-        double movementDistance = Math.abs(startLocation.x - teleporter.getPosition().x) +
-                                  Math.abs(startLocation.y - teleporter.getPosition().y) +
-                                  Math.abs(startLocation.z - teleporter.getPosition().z);
+        double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX()) +
+                                  Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
+                                  Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
     }
 

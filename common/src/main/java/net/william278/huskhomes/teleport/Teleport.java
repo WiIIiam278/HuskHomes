@@ -178,27 +178,24 @@ public class Teleport {
         }
 
         // If the target position is local, finalize economy transactions and teleport the player
-        if (!plugin.getSettings().isCrossServer() || target.server.equals(plugin.getServerName())) {
+        if (!plugin.getSettings().isCrossServer() || target.getServer().equals(plugin.getServerName())) {
             return teleporter.teleportLocally(target, plugin.getSettings().isAsynchronousTeleports());
         }
 
         // If the target position is on another server, execute a cross-server teleport
         final CompletableFuture<TeleportResult> teleportFuture = new CompletableFuture<>();
-        plugin.getDatabase()
-                .setCurrentTeleport(teleporter, this)
-                .thenApply(ignored -> plugin
-                        .getMessenger()
-                        .sendPlayer(teleporter, target.server)
-                        .thenApply(completed -> completed
-                                ? TeleportResult.COMPLETED_CROSS_SERVER
-                                : TeleportResult.FAILED_INVALID_SERVER))
+        plugin.getDatabase().setCurrentTeleport(teleporter, this);
+        plugin.getMessenger()
+                .sendPlayer(teleporter, target.getServer())
+                .thenApply(completed -> completed
+                        ? TeleportResult.COMPLETED_CROSS_SERVER
+                        : TeleportResult.FAILED_INVALID_SERVER)
                 .orTimeout(10, TimeUnit.SECONDS)
                 .exceptionally(throwable -> {
                     plugin.getLoggingAdapter().log(Level.WARNING, "Cross-server teleport timed out for " + teleporter.username);
                     plugin.getDatabase().setCurrentTeleport(teleporter, null);
-                    return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_SERVER);
-                })
-                .thenAccept(result -> result.thenAcceptAsync(teleportFuture::complete));
+                    return TeleportResult.FAILED_INVALID_SERVER;
+                });
         return teleportFuture;
     }
 

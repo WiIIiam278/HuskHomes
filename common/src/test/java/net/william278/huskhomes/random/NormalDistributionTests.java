@@ -25,8 +25,8 @@ public class NormalDistributionTests {
         final double[] xValues = new double[locations.size()];
         final double[] zValues = new double[locations.size()];
         for (int i = 0; i < locations.size(); i++) {
-            xValues[i] = locations.get(i).x;
-            zValues[i] = locations.get(i).z;
+            xValues[i] = locations.get(i).getX();
+            zValues[i] = locations.get(i).getZ();
         }
         final Plot plot = Plot.plot(Plot.plotOpts()
                         .title("RTP Normal Distribution demo")

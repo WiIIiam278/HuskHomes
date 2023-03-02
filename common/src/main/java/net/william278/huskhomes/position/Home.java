@@ -10,16 +10,8 @@ import java.util.UUID;
  */
 public class Home extends SavedPosition {
 
-    /**
-     * The {@link User} who owns this home
-     */
-    @NotNull
-    public final User owner;
-
-    /**
-     * {@code true} if this home is public
-     */
-    public boolean isPublic;
+    private final User owner;
+    private boolean isPublic;
 
     public Home(double x, double y, double z, float yaw, float pitch,
                 @NotNull World world, @NotNull Server server,
@@ -27,13 +19,31 @@ public class Home extends SavedPosition {
                 @NotNull User owner, boolean isPublic) {
         super(x, y, z, yaw, pitch, world, server, positionMeta, uuid);
         this.owner = owner;
-        this.isPublic = isPublic;
+        this.setPublic(isPublic);
     }
 
     public Home(@NotNull Position position, @NotNull PositionMeta meta, @NotNull User owner) {
         super(position, meta);
         this.owner = owner;
-        this.isPublic = false;
+        this.setPublic(false);
     }
 
+    /**
+     * The {@link User} who owns this home
+     */
+    @NotNull
+    public User getOwner() {
+        return owner;
+    }
+
+    /**
+     * {@code true} if this home is public
+     */
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
+    }
 }

@@ -57,7 +57,7 @@ public abstract class OnlineUser extends User {
      * @param node The permission node string
      * @return {@code true} if the player has the node; {@code false} otherwise
      */
-    public abstract boolean hasPermission(@NotNull @Pattern(Permission.PERMISSION_PATTERN) String node);
+    public abstract boolean hasPermission(@NotNull String node);
 
     /**
      * Returns a {@link Map} of a player's permission nodes

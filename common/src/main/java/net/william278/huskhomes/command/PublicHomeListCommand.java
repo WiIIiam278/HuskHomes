@@ -42,8 +42,8 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
      * @param pageNumber page number to display
      */
     private void showPublicHomeList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().publicHomeLists.containsKey(onlineUser.uuid)) {
-            onlineUser.sendMessage(plugin.getCache().publicHomeLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+        if (plugin.getCache().getPublicHomeLists().containsKey(onlineUser.uuid)) {
+            onlineUser.sendMessage(plugin.getCache().getPublicHomeLists().get(onlineUser.uuid).getNearestValidPage(pageNumber));
             return;
         }
 
@@ -68,8 +68,8 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
             for (int i = 0; i < homes.size(); i++) {
-                final String ownerUsername = homes.get(i).owner.username;
-                final String homeName = homes.get(i).meta.name;
+                final String ownerUsername = homes.get(i).getOwner().username;
+                final String homeName = homes.get(i).getMeta().getName();
                 final String home = ownerUsername + "." + homeName;
                 int spacingSize = (16 - ownerUsername.length()) + 17;
                 rowJoiner.add(home.length() < spacingSize ? home + " ".repeat(spacingSize - home.length()) : home);

@@ -46,7 +46,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
         final float z = (float) (radius * Math.cos(angle));
         final float x = (float) (radius * Math.sin(angle));
 
-        return new Location(Math.round(origin.x) + x, 128d, Math.round(origin.z) + z, origin.world);
+        return new Location(Math.round(origin.getX()) + x, 128d, Math.round(origin.getZ()) + z, origin.getWorld());
     }
 
     /**
@@ -85,7 +85,7 @@ public class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     @Override
-    protected Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args) {
+    public Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args) {
         Optional<Location> location = generateSafeLocation(world).join();
         int attempts = 0;
         while (location.isEmpty()) {

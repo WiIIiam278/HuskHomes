@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 public class ValidationException extends IllegalArgumentException {
 
     public ValidationException(@NotNull ValidationError error) {
-        super("Error validating position: " + error.toString());
+        super("Error validating position: " + error.name());
     }
 
     public enum ValidationError {

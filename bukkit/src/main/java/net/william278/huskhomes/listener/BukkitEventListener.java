@@ -74,9 +74,9 @@ public class BukkitEventListener extends EventListener implements Listener {
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
             final OnlineUser onlineUser = BukkitPlayer.adapt(event.getPlayer());
             super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
-                    adaptedLocation.x, adaptedLocation.y, adaptedLocation.z,
-                    adaptedLocation.yaw, adaptedLocation.pitch,
-                    adaptedLocation.world, plugin.getServerName()));
+                    adaptedLocation.getX(), adaptedLocation.getY(), adaptedLocation.getZ(),
+                    adaptedLocation.getYaw(), adaptedLocation.getPitch(),
+                    adaptedLocation.getWorld(), plugin.getServerName()));
         });
     }
 

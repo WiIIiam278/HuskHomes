@@ -17,27 +17,25 @@ import java.nio.file.Path;
 public class Server {
 
     /**
-     * Default (unknown) server identifier
+     * Default server identifier
      */
+    @NotNull
     public static Server getDefault() {
         final Server server = new Server();
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));
-            server.name = serverDirectory.getFileName().toString().trim();
+            server.setName(serverDirectory.getFileName().toString().trim());
         } catch (Exception e) {
-            server.name = "server";
+            server.setName("server");
         }
         return server;
     }
 
-    /**
-     * Proxy-defined name of this server
-     */
     @YamlKey("server_name")
-    public String name = getDefault().name;
+    private String name = getDefault().getName();
 
     public Server(@NotNull String name) {
-        this.name = name;
+        this.setName(name);
     }
 
     private Server() {
@@ -47,9 +45,20 @@ public class Server {
     public boolean equals(@NotNull Object other) {
         // If the name of this server matches another, the servers are the same.
         if (other instanceof Server server) {
-            return server.name.equalsIgnoreCase(this.name);
+            return server.getName().equalsIgnoreCase(this.getName());
         }
         return super.equals(other);
     }
 
+    /**
+     * Proxy-defined name of this server
+     */
+    @NotNull
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

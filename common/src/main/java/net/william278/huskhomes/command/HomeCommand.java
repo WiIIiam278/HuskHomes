@@ -111,7 +111,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             }
 
             plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.owner.username + "." + home.meta.name);
+                                                       + home.getOwner().username + "." + home.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)
                     .toTeleport()
@@ -124,7 +124,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
         if (user == null) {
             return Collections.emptyList();
         }
-        return args.length > 1 ? Collections.emptyList() : plugin.getCache().homes
+        return args.length > 1 ? Collections.emptyList() : plugin.getCache().getHomes()
                 .getOrDefault(user.uuid, new ArrayList<>())
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))

@@ -268,11 +268,11 @@ public abstract class Database {
         try {
             final Server server = plugin.getServerName();
             return getWarps().stream()
-                    .filter(warp -> warp.server.equals(server))
+                    .filter(warp -> warp.getServer().equals(server))
                     .collect(Collectors.toList());
         } catch (IllegalStateException e) {
             return getWarps().stream()
-                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.world)))
+                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.getWorld())))
                     .collect(Collectors.toList());
         }
     }
@@ -295,11 +295,11 @@ public abstract class Database {
         try {
             final Server server = plugin.getServerName();
             return getPublicHomes().stream()
-                    .filter(home -> home.server.equals(server))
+                    .filter(home -> home.getServer().equals(server))
                     .collect(Collectors.toList());
         } catch (IllegalStateException e) {
             return plugin.getDatabase().getPublicHomes().stream()
-                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.world)))
+                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.getWorld())))
                     .collect(Collectors.toList());
         }
     }

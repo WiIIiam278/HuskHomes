@@ -33,7 +33,7 @@ public class TpaAllCommand extends CommandBase {
 
         // Determine players to teleport and teleport them
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenAccept(playerList -> {
-            final List<String> players = plugin.getCache().players.stream()
+            final List<String> players = plugin.getCache().getPlayers().stream()
                     .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
             if (players.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);

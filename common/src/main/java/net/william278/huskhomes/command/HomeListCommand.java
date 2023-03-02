@@ -53,8 +53,8 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
      * @param pageNumber page number to display
      */
     private void showHomeList(@NotNull OnlineUser onlineUser, @NotNull String homeOwner, int pageNumber) {
-        if (plugin.getCache().privateHomeLists.containsKey(homeOwner)) {
-            onlineUser.sendMessage(plugin.getCache().privateHomeLists.get(homeOwner).getNearestValidPage(pageNumber));
+        if (plugin.getCache().getPrivateHomeLists().containsKey(homeOwner)) {
+            onlineUser.sendMessage(plugin.getCache().getPrivateHomeLists().get(homeOwner).getNearestValidPage(pageNumber));
             return;
         }
         plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {
@@ -101,7 +101,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
                     + homes.size() + " homes:");
             for (int i = 0; i < homes.size(); i++) {
-                final String home = homes.get(i).meta.name;
+                final String home = homes.get(i).getMeta().getName();
                 rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
                 if ((i + 1) % 3 == 0) {
                     plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());

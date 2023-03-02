@@ -9,23 +9,14 @@ import java.util.UUID;
  */
 public abstract class SavedPosition extends Position implements Comparable<SavedPosition> {
 
-    /**
-     * Metadata about this position (name, description)
-     */
-    @NotNull
-    public PositionMeta meta;
-
-    /**
-     * A unique ID representing this position
-     */
-    @NotNull
-    public final UUID uuid;
+    private PositionMeta meta;
+    private final UUID uuid;
 
     protected SavedPosition(double x, double y, double z, float yaw, float pitch,
                             @NotNull World world, @NotNull Server server,
                             @NotNull PositionMeta meta, @NotNull UUID uuid) {
         super(x, y, z, yaw, pitch, world, server);
-        this.meta = meta;
+        this.setMeta(meta);
         this.uuid = uuid;
     }
 
@@ -36,15 +27,43 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
      * @param meta     {@link PositionMeta} information about this position
      */
     protected SavedPosition(@NotNull Position position, @NotNull PositionMeta meta) {
-        super(position.x, position.y, position.z, position.yaw, position.pitch,
-                position.world, position.server);
-        this.meta = meta;
+        super(position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch(),
+                position.getWorld(), position.getServer());
+        this.setMeta(meta);
         this.uuid = UUID.randomUUID();
     }
 
     // Compare based on names for alphabetical sorting
     @Override
     public int compareTo(@NotNull SavedPosition o) {
-        return this.meta.name.compareTo(o.meta.name);
+        return this.getMeta().getName().compareTo(o.getMeta().getName());
+    }
+
+    /**
+     * Metadata about this position (name, description)
+     */
+    @NotNull
+    public PositionMeta getMeta() {
+        return meta;
+    }
+
+    public void setMeta(@NotNull PositionMeta meta) {
+        this.meta = meta;
+    }
+
+    /**
+     * The name of this position. Shortcut for {@link #getMeta()}.{@link PositionMeta#getName()}
+     */
+    @NotNull
+    public String getName() {
+        return getMeta().getName();
+    }
+
+    /**
+     * A unique ID representing this position
+     */
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
     }
 }

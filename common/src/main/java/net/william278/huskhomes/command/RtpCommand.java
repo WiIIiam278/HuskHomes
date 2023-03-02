@@ -42,7 +42,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         final Position userPosition = target.getPosition();
         final String[] rtpArguments = args.length >= 1 ? ArrayUtils.subarray(args, 1, args.length) : args;
         if (plugin.getSettings().getRtpRestrictedWorlds().stream()
-                .anyMatch(worldName -> worldName.equals(userPosition.world.name))) {
+                .anyMatch(worldName -> worldName.equals(userPosition.getWorld().getName()))) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
                     .ifPresent(onlineUser::sendMessage);
             return;
@@ -73,7 +73,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             plugin.getLocales().getLocale("teleporting_random_generation")
                     .ifPresent(onlineUser::sendMessage);
 
-            final Optional<Position> position = plugin.getRandomTeleportEngine().getRandomPosition(onlineUser.getPosition().world, rtpArguments);
+            final Optional<Position> position = plugin.getRandomTeleportEngine().getRandomPosition(onlineUser.getPosition().getWorld(), rtpArguments);
             if (position.isEmpty()) {
                 plugin.getLocales().getLocale("error_rtp_randomization_timeout")
                         .ifPresent(onlineUser::sendMessage);
@@ -111,7 +111,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
-        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition().world, ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
+        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition().getWorld(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
             if (position.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
                 return;

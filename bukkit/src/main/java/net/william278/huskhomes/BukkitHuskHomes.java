@@ -163,8 +163,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             this.eventDispatcher = new BukkitEventDispatcher(this);
 
             // Initialize the cache
-            cache = new Cache(eventDispatcher);
-            cache.initialize(database);
+            this.cache = new Cache(this);
 
             // Prepare the home and warp position manager
             this.manager = new Manager(this);
@@ -445,7 +444,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                     final int y = snapshot.getHighestBlockYAt(x, z);
                     final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
                     if (!isBlockUnsafe(blockType.getKey().toString())) {
-                        return new Location((location.x + dX) + 0.5d, y + 1.25d, (location.z + dZ) + 0.5d, location.world);
+                        return new Location((location.getX() + dX) + 0.5d, y + 1.25d, (location.getZ() + dZ) + 0.5d, location.getWorld());
                     }
                 }
             }

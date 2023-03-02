@@ -43,8 +43,8 @@ public class RequestTests {
         Assertions.assertNotNull(readRequest.getPayload().position);
 
         assert readRequest.getPayload().position != null && DUMMY_PAYLOAD.getPayload().position != null;
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.x, readRequest.getPayload().position.x);
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.y, readRequest.getPayload().position.y);
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.z, readRequest.getPayload().position.z);
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getX(), readRequest.getPayload().position.getX());
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getY(), readRequest.getPayload().position.getY());
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getZ(), readRequest.getPayload().position.getZ());
     }
 }

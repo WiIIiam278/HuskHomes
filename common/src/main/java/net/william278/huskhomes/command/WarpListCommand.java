@@ -40,8 +40,8 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
      * @param pageNumber page number to display
      */
     private void showWarpList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().warpLists.containsKey(onlineUser.uuid)) {
-            onlineUser.sendMessage(plugin.getCache().warpLists.get(onlineUser.uuid).getNearestValidPage(pageNumber));
+        if (plugin.getCache().getWarpLists().containsKey(onlineUser.uuid)) {
+            onlineUser.sendMessage(plugin.getCache().getWarpLists().get(onlineUser.uuid).getNearestValidPage(pageNumber));
             return;
         }
 

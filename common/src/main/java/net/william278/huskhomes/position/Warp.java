@@ -48,7 +48,7 @@ public class Warp extends SavedPosition {
      * @return true if the user has permission to teleport to this warp
      */
     public boolean hasPermission(boolean restrictWarps, @NotNull OnlineUser user) {
-        return hasPermission(restrictWarps, user, meta.name);
+        return hasPermission(restrictWarps, user, getMeta().getName());
     }
 
     /**

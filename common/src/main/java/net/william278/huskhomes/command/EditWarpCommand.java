@@ -83,9 +83,9 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                     return;
                 }
 
-                final String oldWarpName = warp.meta.name;
+                final String oldWarpName = warp.getMeta().getName();
                 final String newWarpName = editArgs;
-                plugin.getManager().updateWarpMeta(warp, new PositionMeta(newWarpName, warp.meta.description))
+                plugin.getManager().updateWarpMeta(warp, new PositionMeta(newWarpName, warp.getMeta().getDescription()))
                         .thenAccept(renameResult -> (switch (renameResult.resultType()) {
                             case SUCCESS ->
                                     plugin.getLocales().getLocale("edit_warp_update_name", oldWarpName, newWarpName);
@@ -96,13 +96,13 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                         }).ifPresent(editor::sendMessage));
             }
             case "description" -> {
-                final String oldWarpDescription = warp.meta.description;
+                final String oldWarpDescription = warp.getMeta().getDescription();
                 final String newDescription = editArgs != null ? editArgs : "";
 
-                plugin.getManager().updateWarpMeta(warp, new PositionMeta(warp.meta.name, newDescription))
+                plugin.getManager().updateWarpMeta(warp, new PositionMeta(warp.getMeta().getName(), newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> plugin.getLocales().getLocale("edit_warp_update_description",
-                                    warp.meta.name,
+                                    warp.getMeta().getName(),
                                     oldWarpDescription.isBlank() ? plugin.getLocales()
                                             .getRawLocale("item_no_description").orElse("N/A") : oldWarpDescription,
                                     newDescription.isBlank() ? plugin.getLocales()
@@ -117,7 +117,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
             case "relocate" ->
                     plugin.getManager().updateWarpPosition(warp, editor.getPosition()).thenRun(() -> {
                         editor.sendMessage(plugin.getLocales().getLocale("edit_warp_update_location",
-                                warp.meta.name).orElse(new MineDown("")));
+                                warp.getMeta().getName()).orElse(new MineDown("")));
 
                         // Show the menu if the menu flag is set
                         if (showMenuFlag.get()) {
@@ -156,43 +156,43 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                                                final boolean showTeleportButton) {
         return new ArrayList<>() {{
             if (showTitle) {
-                plugin.getLocales().getLocale("edit_warp_menu_title", warp.meta.name)
+                plugin.getLocales().getLocale("edit_warp_menu_title", warp.getMeta().getName())
                         .ifPresent(this::add);
             }
 
             plugin.getLocales().getLocale("edit_warp_menu_metadata",
                             DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
-                                    .format(warp.meta.creationTime.atZone(ZoneId.systemDefault())),
-                            warp.uuid.toString().split(Pattern.quote("-"))[0],
-                            warp.uuid.toString())
+                                    .format(warp.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                            warp.getUuid().toString().split(Pattern.quote("-"))[0],
+                            warp.getUuid().toString())
                     .ifPresent(this::add);
 
-            if (warp.meta.description.length() > 0) {
+            if (warp.getMeta().getDescription().length() > 0) {
                 plugin.getLocales().getLocale("edit_warp_menu_description",
-                                warp.meta.description.length() > 50
-                                        ? warp.meta.description.substring(0, 49).trim() + "…" : warp.meta.description,
-                                plugin.getLocales().formatDescription(warp.meta.description))
+                                warp.getMeta().getDescription().length() > 50
+                                        ? warp.getMeta().getDescription().substring(0, 49).trim() + "…" : warp.getMeta().getDescription(),
+                                plugin.getLocales().formatDescription(warp.getMeta().getDescription()))
                         .ifPresent(this::add);
             }
 
             if (!plugin.getSettings().isCrossServer()) {
-                plugin.getLocales().getLocale("edit_warp_menu_world", warp.world.name).ifPresent(this::add);
+                plugin.getLocales().getLocale("edit_warp_menu_world", warp.getWorld().getName()).ifPresent(this::add);
             } else {
-                plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.world.name, warp.server.name).ifPresent(this::add);
+                plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.getWorld().getName(), warp.getServer().getName()).ifPresent(this::add);
             }
 
             plugin.getLocales().getLocale("edit_warp_menu_coordinates",
-                            String.format("%.1f", warp.x), String.format("%.1f", warp.y), String.format("%.1f", warp.z),
-                            String.format("%.2f", warp.yaw), String.format("%.2f", warp.pitch))
+                            String.format("%.1f", warp.getX()), String.format("%.1f", warp.getY()), String.format("%.1f", warp.getZ()),
+                            String.format("%.2f", warp.getYaw()), String.format("%.2f", warp.getPitch()))
                     .ifPresent(this::add);
 
             if (showTeleportButton) {
-                plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.meta.name)
+                plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.getMeta().getName())
                         .ifPresent(this::add);
             }
-            plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.meta.name)
+            plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.getMeta().getName())
                     .ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.meta.name)
+            plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.getMeta().getName())
                     .ifPresent(this::add);
         }};
     }
@@ -200,7 +200,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
         return switch (args.length) {
-            case 0, 1 -> plugin.getCache().warps
+            case 0, 1 -> plugin.getCache().getWarps()
                     .stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                     .sorted()

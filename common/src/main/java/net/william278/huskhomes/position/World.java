@@ -3,6 +3,7 @@ package net.william278.huskhomes.position;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -10,36 +11,60 @@ import java.util.UUID;
  */
 public class World {
 
+    private String name;
+    private UUID uuid;
+    @Nullable
+    private Environment environment;
+
+    public World(@NotNull String name, @NotNull UUID uuid) {
+        this.setName(name);
+        this.setUuid(uuid);
+    }
+
+    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment) {
+        this.setName(name);
+        this.setUuid(uuid);
+        this.setEnvironment(environment);
+    }
+
+    @SuppressWarnings("unused")
+    public World() {
+    }
+
     /**
      * The name of this world, as defined by the world directory name
      */
-    public String name;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * UUID of this world, as defined by the {@code uid.dat} file in the world directory
      */
-    public UUID uuid;
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 
     /**
      * Environment of the world ({@link Environment#OVERWORLD}, {@link Environment#NETHER}, {@link Environment#THE_END},
      * or {@link Environment#CUSTOM})
      */
-    @Nullable
-    public Environment environment;
-
-    public World(@NotNull String name, @NotNull UUID uuid) {
-        this.name = name;
-        this.uuid = uuid;
+    @NotNull
+    public Environment getEnvironment() {
+        return Optional.ofNullable(environment).orElse(Environment.OVERWORLD);
     }
 
-    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment) {
-        this.name = name;
-        this.uuid = uuid;
+    public void setEnvironment(@Nullable Environment environment) {
         this.environment = environment;
-    }
-
-    @SuppressWarnings("unused")
-    public World() {
     }
 
     /**
@@ -55,7 +80,7 @@ public class World {
     @Override
     public boolean equals(@NotNull Object obj) {
         if (obj instanceof World world) {
-            return world.uuid.equals(uuid);
+            return world.getUuid().equals(getUuid());
         }
         return super.equals(obj);
     }

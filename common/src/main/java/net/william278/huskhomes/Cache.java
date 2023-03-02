@@ -4,7 +4,6 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
@@ -23,79 +22,35 @@ import java.util.stream.Collectors;
  */
 public class Cache {
 
-    /**
-     * Cached home names - maps a {@link UUID} to a list of their homes
-     */
-    public final HashMap<UUID, List<String>> homes;
-
-    /**
-     * Cached home names - maps a username to a list of their public homes
-     */
-    public final HashMap<String, List<String>> publicHomes;
-
-    /**
-     * Cached warp names
-     */
-    public final List<String> warps;
-
-    /**
-     * Cached player list
-     */
-    public final Set<String> players;
-
-    /**
-     * Cached lists of private homes for pagination, mapped to the username of the home owner
-     */
-    public final HashMap<String, PaginatedList> privateHomeLists;
-
-    /**
-     * Cached lists of public homes for pagination
-     */
-    public final HashMap<UUID, PaginatedList> publicHomeLists;
-
-    /**
-     * Cached lists of warps for pagination
-     */
-    public final HashMap<UUID, PaginatedList> warpLists;
-
-    /**
-     * Cached user UUIDs currently on warmup countdowns for {@link TimedTeleport}s
-     */
-    public final HashSet<UUID> currentlyOnWarmup;
-
-    /**
-     * Plugin event dispatcher
-     */
-    private final EventDispatcher eventDispatcher;
+    private final HuskHomes plugin;
+    private final Map<UUID, List<String>> homes = new HashMap<>();
+    private final Map<String, List<String>> publicHomes = new HashMap<>();
+    private final List<String> warps = new ArrayList<>();
+    private final Set<String> players = new HashSet<>();
+    private final Map<String, PaginatedList> privateHomeLists = new HashMap<>();
+    private final Map<UUID, PaginatedList> publicHomeLists = new HashMap<>();
+    private final Map<UUID, PaginatedList> warpLists = new HashMap<>();
+    private final Set<UUID> currentlyOnWarmup = new HashSet<>();
 
     /**
      * Create a new cache
      */
-    public Cache(@NotNull EventDispatcher eventDispatcher) {
-        this.homes = new HashMap<>();
-        this.publicHomes = new HashMap<>();
-        this.warps = new ArrayList<>();
-        this.players = new HashSet<>();
-        this.privateHomeLists = new HashMap<>();
-        this.publicHomeLists = new HashMap<>();
-        this.warpLists = new HashMap<>();
-        this.currentlyOnWarmup = new HashSet<>();
-        this.eventDispatcher = eventDispatcher;
+    public Cache(@NotNull HuskHomes plugin) {
+        this.plugin = plugin;
+        this.initialize();
     }
 
     /**
-     * Initialize the cache, request basic data to load into memory
-     *
-     * @param database the database to load data from
+     * Initialize the cache with public home and warp names
      */
-    public void initialize(@NotNull Database database) {
-        CompletableFuture.runAsync(() -> {
-            database.getPublicHomes().thenAccept(publicHomeList -> publicHomeList.forEach(home -> {
-                this.publicHomes.putIfAbsent(home.owner.username, new ArrayList<>());
-                this.publicHomes.get(home.owner.username).add(home.meta.name);
-            }));
-            database.getWarps().thenAccept(warpsList -> warpsList.forEach(warp ->
-                    this.warps.add(warp.meta.name)));
+    public void initialize() {
+        final Database database = plugin.getDatabase();
+        plugin.runAsync(() -> {
+            database.getPublicHomes().forEach(home -> {
+                this.getPublicHomes().putIfAbsent(home.getOwner().username, new ArrayList<>());
+                this.getPublicHomes().get(home.getOwner().username).add(home.getMeta().getName());
+            });
+            database.getWarps().forEach(warp -> this.getWarps().add(warp.getMeta().getName()));
         });
     }
 
@@ -105,8 +60,8 @@ public class Cache {
      * @param plugin the implementing plugin
      */
     public CompletableFuture<Set<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
-        players.clear();
-        players.addAll(plugin.getOnlinePlayers()
+        getPlayers().clear();
+        getPlayers().addAll(plugin.getOnlinePlayers()
                 .stream()
                 .filter(player -> !player.isVanished())
                 .map(onlineUser -> onlineUser.username)
@@ -116,11 +71,11 @@ public class Cache {
             return plugin.getMessenger()
                     .getOnlinePlayerNames(requester)
                     .thenApply(networkedPlayers -> {
-                        players.addAll(Set.of(networkedPlayers));
-                        return players;
+                        getPlayers().addAll(Set.of(networkedPlayers));
+                        return getPlayers();
                     });
         }
-        return CompletableFuture.completedFuture(players);
+        return CompletableFuture.completedFuture(getPlayers());
     }
 
     /**
@@ -131,7 +86,7 @@ public class Cache {
      * @since 3.1
      */
     public boolean isWarmingUp(@NotNull UUID userUuid) {
-        return this.currentlyOnWarmup.contains(userUuid);
+        return this.getCurrentlyOnWarmup().contains(userUuid);
     }
 
     @NotNull
@@ -161,61 +116,61 @@ public class Cache {
     @NotNull
     public Optional<MineDown> getHomeList(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull Locales locales,
                                           @NotNull List<Home> homes, final int itemsPerPage, final int page) {
-        if (eventDispatcher.dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
+        if (plugin.getEventDispatcher().dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
             return Optional.empty();
         }
         final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.username : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
-                                Locales.escapeMineDown(home.meta.name),
-                                Locales.escapeMineDown(home.owner.username + "." + home.meta.name),
-                                Locales.escapeMineDown(locales.formatDescription(home.meta.description)))
-                        .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                                Locales.escapeMineDown(home.getMeta().getName()),
+                                Locales.escapeMineDown(home.getOwner().username + "." + home.getMeta().getName()),
+                                Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
+                        .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         homeOwner.username, "%first_item_on_page_index%",
                         "%last_item_on_page_index%", "%total_items%").orElse(""))
                 .setCommand("/huskhomes:homelist" + homeListArguments).build());
-        this.privateHomeLists.put(homeOwner.username, homeList);
+        this.getPrivateHomeLists().put(homeOwner.username, homeList);
         return Optional.of(homeList.getNearestValidPage(page));
     }
 
     @NotNull
     public Optional<MineDown> getPublicHomeList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
                                                 @NotNull List<Home> publicHomes, final int itemsPerPage, final int page) {
-        if (eventDispatcher.dispatchViewHomeListEvent(publicHomes, onlineUser, true).join().isCancelled()) {
+        if (plugin.getEventDispatcher().dispatchViewHomeListEvent(publicHomes, onlineUser, true).join().isCancelled()) {
             return Optional.empty();
         }
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
                 locales.getRawLocale("public_home_list_item",
-                                Locales.escapeMineDown(home.meta.name),
-                                Locales.escapeMineDown(home.owner.username + "." + home.meta.name),
-                                Locales.escapeMineDown(home.owner.username),
-                                Locales.escapeMineDown(locales.formatDescription(home.meta.description)))
-                        .orElse(home.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                                Locales.escapeMineDown(home.getMeta().getName()),
+                                Locales.escapeMineDown(home.getOwner().username + "." + home.getMeta().getName()),
+                                Locales.escapeMineDown(home.getOwner().username),
+                                Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
+                        .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
                         "%total_items%").orElse(""))
                 .setCommand("/huskhomes:publichomelist").build());
-        publicHomeLists.put(onlineUser.uuid, publicHomeList);
+        getPublicHomeLists().put(onlineUser.uuid, publicHomeList);
         return Optional.of(publicHomeList.getNearestValidPage(page));
     }
 
     @NotNull
     public Optional<MineDown> getWarpList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
                                           @NotNull List<Warp> warps, final int itemsPerPage, final int page) {
-        if (eventDispatcher.dispatchViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
+        if (plugin.getEventDispatcher().dispatchViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
             return Optional.empty();
         }
         final PaginatedList warpList = PaginatedList.of(warps.stream()
                 .map(warp -> locales.getRawLocale("warp_list_item",
-                                Locales.escapeMineDown(warp.meta.name),
-                                Locales.escapeMineDown(locales.formatDescription(warp.meta.description)))
-                        .orElse(warp.meta.name)).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
+                                Locales.escapeMineDown(warp.getMeta().getName()),
+                                Locales.escapeMineDown(locales.formatDescription(warp.getMeta().getDescription())))
+                        .orElse(warp.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
                         "%total_items%").orElse(""))
                 .setCommand("/huskhomes:warplist").build());
-        warpLists.put(onlineUser.uuid, warpList);
+        getWarpLists().put(onlineUser.uuid, warpList);
         return Optional.of(warpList.getNearestValidPage(page));
     }
 
@@ -238,4 +193,59 @@ public class Cache {
                 .getNearestValidPage(page);
     }
 
+    /**
+     * Cached home names - maps a {@link UUID} to a list of their homes
+     */
+    public Map<UUID, List<String>> getHomes() {
+        return homes;
+    }
+
+    /**
+     * Cached home names - maps a username to a list of their public homes
+     */
+    public Map<String, List<String>> getPublicHomes() {
+        return publicHomes;
+    }
+
+    /**
+     * Cached warp names
+     */
+    public List<String> getWarps() {
+        return warps;
+    }
+
+    /**
+     * Cached player list
+     */
+    public Set<String> getPlayers() {
+        return players;
+    }
+
+    /**
+     * Cached lists of private homes for pagination, mapped to the username of the home owner
+     */
+    public Map<String, PaginatedList> getPrivateHomeLists() {
+        return privateHomeLists;
+    }
+
+    /**
+     * Cached lists of public homes for pagination
+     */
+    public Map<UUID, PaginatedList> getPublicHomeLists() {
+        return publicHomeLists;
+    }
+
+    /**
+     * Cached lists of warps for pagination
+     */
+    public Map<UUID, PaginatedList> getWarpLists() {
+        return warpLists;
+    }
+
+    /**
+     * Cached user UUIDs currently on warmup countdowns for {@link TimedTeleport}s
+     */
+    public Set<UUID> getCurrentlyOnWarmup() {
+        return currentlyOnWarmup;
+    }
 }

@@ -35,9 +35,9 @@ public class BlueMapHook extends MapHook {
     @Override
     protected CompletableFuture<Void> initializeMap() {
         final CompletableFuture<Void> initializedFuture = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> BlueMapAPI.onEnable(blueMapAPI -> {
+        plugin.runAsync(() -> BlueMapAPI.onEnable(blueMapAPI -> {
             // Create marker sets
-            plugin.getWorlds().forEach(world -> blueMapAPI.getWorld(world.uuid)
+            plugin.getWorlds().forEach(world -> blueMapAPI.getWorld(world.getUuid())
                     .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(map -> {
                         if (plugin.getSettings().isPublicHomesOnMap()) {
                             map.getMarkerSets().put(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID,
@@ -71,13 +71,13 @@ public class BlueMapHook extends MapHook {
         if (!isValidPosition(home)) return CompletableFuture.completedFuture(null);
 
         return removeHome(home).thenRun(() -> BlueMapAPI.getInstance().flatMap(
-                blueMapAPI -> getBlueMapWorld(blueMapAPI, home.world)).ifPresent(blueMapWorld -> blueMapWorld.getMaps()
+                blueMapAPI -> getBlueMapWorld(blueMapAPI, home.getWorld())).ifPresent(blueMapWorld -> blueMapWorld.getMaps()
                 .forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().put(home.owner.uuid + ":" + home.uuid,
+                            markerSet.getMarkers().put(home.getOwner().uuid + ":" + home.getUuid(),
                                     POIMarker.toBuilder()
-                                            .label("/phome" + home.owner.username + "." + home.meta.name)
-                                            .position((int) home.x, (int) home.y, (int) home.z)
+                                            .label("/phome" + home.getOwner().username + "." + home.getMeta().getName())
+                                            .position((int) home.getX(), (int) home.getY(), (int) home.getZ())
                                             .icon(publicHomeMarkerIconPath, Vector2i.from(25, 25))
                                             .maxDistance(5000)
                                             .build());
@@ -89,10 +89,10 @@ public class BlueMapHook extends MapHook {
     public CompletableFuture<Void> removeHome(@NotNull Home home) {
         if (!isValidPosition(home)) return CompletableFuture.completedFuture(null);
 
-        BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, home.world))
+        BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, home.getWorld()))
                 .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().remove(home.owner.uuid + ":" + home.uuid);
+                            markerSet.getMarkers().remove(home.getOwner().uuid + ":" + home.getUuid());
                             return markerSet;
                         })));
         return CompletableFuture.completedFuture(null);
@@ -115,13 +115,13 @@ public class BlueMapHook extends MapHook {
     public CompletableFuture<Void> updateWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) return CompletableFuture.completedFuture(null);
 
-        return removeWarp(warp).thenRun(() -> BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, warp.world))
+        return removeWarp(warp).thenRun(() -> BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, warp.getWorld()))
                 .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + WARPS_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().put(warp.uuid.toString(),
+                            markerSet.getMarkers().put(warp.getUuid().toString(),
                                     POIMarker.toBuilder()
-                                            .label("/warp " + warp.meta.name)
-                                            .position((int) warp.x, (int) warp.y, (int) warp.z)
+                                            .label("/warp " + warp.getMeta().getName())
+                                            .position((int) warp.getX(), (int) warp.getY(), (int) warp.getZ())
                                             .icon(warpMarkerIconPath, Vector2i.from(25, 25))
                                             .maxDistance(10000)
                                             .build());
@@ -133,10 +133,10 @@ public class BlueMapHook extends MapHook {
     public CompletableFuture<Void> removeWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) return CompletableFuture.completedFuture(null);
 
-        BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, warp.world))
+        BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, warp.getWorld()))
                 .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + WARPS_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().remove(warp.uuid.toString());
+                            markerSet.getMarkers().remove(warp.getUuid().toString());
                             return markerSet;
                         })));
         return CompletableFuture.completedFuture(null);
@@ -163,10 +163,10 @@ public class BlueMapHook extends MapHook {
      */
     @NotNull
     private Optional<BlueMapWorld> getBlueMapWorld(@NotNull BlueMapAPI blueMapAPI, @NotNull World world) {
-        if (world.uuid.equals(new UUID(0, 0))) {
-            return blueMapAPI.getWorld(world.name);
+        if (world.getUuid().equals(new UUID(0, 0))) {
+            return blueMapAPI.getWorld(world.getName());
         } else {
-            return blueMapAPI.getWorld(world.uuid);
+            return blueMapAPI.getWorld(world.getUuid());
         }
     }
 }

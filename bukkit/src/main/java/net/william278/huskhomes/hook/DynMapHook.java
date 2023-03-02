@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Hook to display warps and public homes on Dynmap
@@ -35,7 +34,8 @@ public class DynMapHook extends MapHook {
 
     @Override
     protected CompletableFuture<Void> initializeMap() {
-        return CompletableFuture.runAsync(() -> {
+        final CompletableFuture<Void> initializedFuture = new CompletableFuture<>();
+        plugin.runAsync(() -> {
             final MarkerAPI markerAPI = dynmapAPI.getMarkerAPI();
             if (plugin.getSettings().isPublicHomesOnMap()) {
                 markerAPI.getMarkerIcons().stream()
@@ -57,10 +57,9 @@ public class DynMapHook extends MapHook {
                 markerAPI.createMarkerSet(WARPS_MARKER_SET_ID,
                         "Warps", dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
             }
-        }).exceptionally(throwable -> {
-            plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to initialize Dynmap integration", throwable);
-            return null;
+            initializedFuture.complete(null);
         });
+        return initializedFuture;
     }
 
     @Override
@@ -70,13 +69,13 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeHome(home).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).createMarker(
-                            home.owner.uuid + ":" + home.uuid, home.meta.name, home.world.name,
-                            home.x, home.y, home.z, dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false)
-                    .setDescription(MarkerInformationPopup.create(home.meta.name)
+                            home.getOwner().uuid + ":" + home.getUuid(), home.getMeta().getName(), home.getWorld().getName(),
+                            home.getX(), home.getY(), home.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), false)
+                    .setDescription(MarkerInformationPopup.create(home.getMeta().getName())
                             .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
-                            .addField("Owner", home.owner.username)
-                            .addField("Description", plugin.getLocales().formatDescription(home.meta.description))
-                            .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.meta.name)
+                            .addField("Owner", home.getOwner().username)
+                            .addField("Description", plugin.getLocales().formatDescription(home.getMeta().getDescription()))
+                            .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));
@@ -90,7 +89,7 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).getMarkers().stream()
-                    .filter(marker -> marker.getMarkerID().equals(home.owner.uuid + ":" + home.uuid))
+                    .filter(marker -> marker.getMarkerID().equals(home.getOwner().uuid + ":" + home.getUuid()))
                     .findFirst()
                     .ifPresent(Marker::deleteMarker);
             removedFuture.complete(null);
@@ -117,12 +116,12 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> updatedFuture = new CompletableFuture<>();
         removeWarp(warp).thenRun(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).createMarker(
-                            warp.uuid.toString(), warp.meta.name, warp.world.name,
-                            warp.x, warp.y, warp.z, dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false)
-                    .setDescription(MarkerInformationPopup.create(warp.meta.name)
+                            warp.getUuid().toString(), warp.getMeta().getName(), warp.getWorld().getName(),
+                            warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false)
+                    .setDescription(MarkerInformationPopup.create(warp.getMeta().getName())
                             .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
-                            .addField("Description", plugin.getLocales().formatDescription(warp.meta.description))
-                            .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.meta.name)
+                            .addField("Description", plugin.getLocales().formatDescription(warp.getMeta().getDescription()))
+                            .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));
@@ -136,7 +135,7 @@ public class DynMapHook extends MapHook {
         final CompletableFuture<Void> removedFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).getMarkers().stream()
-                    .filter(marker -> marker.getMarkerID().equals(warp.uuid.toString()))
+                    .filter(marker -> marker.getMarkerID().equals(warp.getUuid().toString()))
                     .findFirst()
                     .ifPresent(Marker::deleteMarker);
             removedFuture.complete(null);

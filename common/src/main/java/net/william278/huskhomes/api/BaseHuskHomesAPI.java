@@ -143,7 +143,7 @@ public abstract class BaseHuskHomesAPI {
      */
     public final CompletableFuture<List<Home>> getUserPublicHomes(@NotNull User user) {
         return getUserHomes(user).thenApply(homes -> homes.stream()
-                .filter(home -> home.isPublic)
+                .filter(home -> home.isPublic())
                 .collect(Collectors.toList()));
     }
 
@@ -320,7 +320,7 @@ public abstract class BaseHuskHomesAPI {
                                                                           final boolean timedTeleport,
                                                                           @NotNull String... rtpArgs) {
         return plugin.supplyAsync(() -> plugin.getRandomTeleportEngine()
-                .getRandomPosition(user.getPosition().world, rtpArgs)
+                .getRandomPosition(user.getPosition().getWorld(), rtpArgs)
                 .map(position -> {
                     final TeleportBuilder builder = Teleport.builder(plugin, user)
                             .setTarget(position);

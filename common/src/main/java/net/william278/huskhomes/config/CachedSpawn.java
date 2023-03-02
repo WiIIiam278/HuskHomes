@@ -51,13 +51,13 @@ public class CachedSpawn {
      * @param location The {@link Location} of the spawn
      */
     public CachedSpawn(@NotNull Location location) {
-        this.x = location.x;
-        this.y = location.y;
-        this.z = location.z;
-        this.yaw = location.yaw;
-        this.pitch = location.pitch;
-        this.worldName = location.world.name;
-        this.worldUuid = location.world.uuid.toString();
+        this.x = location.getX();
+        this.y = location.getY();
+        this.z = location.getZ();
+        this.yaw = location.getYaw();
+        this.pitch = location.getPitch();
+        this.worldName = location.getWorld().getName();
+        this.worldUuid = location.getWorld().getUuid().toString();
     }
 
     @SuppressWarnings("unused")

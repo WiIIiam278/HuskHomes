@@ -29,13 +29,13 @@ public class HomesManager {
 
         final Home home = existingHome
                 .map(existing -> {
-                    existing.x = position.x;
-                    existing.y = position.y;
-                    existing.z = position.z;
-                    existing.world = position.world;
-                    existing.server = position.server;
-                    existing.yaw = position.yaw;
-                    existing.pitch = position.pitch;
+                    existing.setX(position.getX());
+                    existing.setY(position.getY());
+                    existing.setZ(position.getZ());
+                    existing.setWorld(position.getWorld());
+                    existing.setServer(position.getServer());
+                    existing.setYaw(position.getYaw());
+                    existing.setPitch(position.getPitch());
                     return existing;
                 })
                 .orElse(new Home(position, new PositionMeta(name, ""), owner));
@@ -47,7 +47,7 @@ public class HomesManager {
         if (home.isEmpty()) {
             throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
         }
-        plugin.getDatabase().deleteHome(home.get().uuid);
+        plugin.getDatabase().deleteHome(home.get().getUuid());
     }
 
     public void relocateHome(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
@@ -65,7 +65,7 @@ public class HomesManager {
         }
 
         final Home home = optionalHome.get();
-        home.meta.name = newName;
+        home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
     }
 
@@ -80,7 +80,7 @@ public class HomesManager {
         }
 
         final Home home = optionalHome.get();
-        home.meta.description = description;
+        home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
     }
 
@@ -91,7 +91,7 @@ public class HomesManager {
         }
 
         final Home home = optionalHome.get();
-        home.isPublic = isPublic;
+        home.setPublic(isPublic);
         plugin.getDatabase().saveHome(home);
     }
 

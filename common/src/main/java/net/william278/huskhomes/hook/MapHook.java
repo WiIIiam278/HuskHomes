@@ -5,6 +5,7 @@ import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -104,11 +105,11 @@ public abstract class MapHook extends PluginHook {
         if (position instanceof Home && !plugin.getSettings().isPublicHomesOnMap()) return false;
 
         try {
-            return position.server.equals(plugin.getServerName());
+            return position.getServer().equals(plugin.getServerName());
         } catch (IllegalStateException e) {
             return plugin.getWorlds().stream()
-                    .map(world -> world.uuid)
-                    .anyMatch(uuid -> uuid.equals(position.world.uuid));
+                    .map(World::getUuid)
+                    .anyMatch(uuid -> uuid.equals(position.getWorld().getUuid()));
         }
     }
 

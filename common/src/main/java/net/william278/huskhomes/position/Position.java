@@ -10,24 +10,21 @@ import java.util.UUID;
  */
 public class Position extends Location {
 
-    /**
-     * The {@link Server} the position is on
-     */
-    public Server server;
+    private Server server;
 
     public Position(double x, double y, double z, float yaw, float pitch,
                     @NotNull World world, @NotNull Server server) {
         super(x, y, z, yaw, pitch, world);
-        this.server = server;
+        this.setServer(server);
     }
 
     public Position(@NotNull Location location, @NotNull Server server) {
-        super(location.x, location.y, location.z, location.yaw, location.pitch, location.world);
-        this.server = server;
+        super(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), location.getWorld());
+        this.setServer(server);
     }
 
     @SuppressWarnings("unused")
-    public Position() {
+    private Position() {
     }
 
     /**
@@ -36,13 +33,13 @@ public class Position extends Location {
      * @param newPosition The position to update to
      */
     public void update(@NotNull Position newPosition) {
-        this.x = newPosition.x;
-        this.y = newPosition.y;
-        this.z = newPosition.z;
-        this.yaw = newPosition.yaw;
-        this.pitch = newPosition.pitch;
-        this.world = newPosition.world;
-        this.server = newPosition.server;
+        this.setX(newPosition.getX());
+        this.setY(newPosition.getY());
+        this.setZ(newPosition.getZ());
+        this.setYaw(newPosition.getYaw());
+        this.setPitch(newPosition.getPitch());
+        this.setWorld(newPosition.getWorld());
+        this.setServer(newPosition.getServer());
     }
 
     /**
@@ -60,12 +57,12 @@ public class Position extends Location {
 
         // Parse, handle relatives, and return, catching NumberFormatExceptions and returning an empty optional
         try {
-            final double x = parseCoordinate(args[0], relativeTo.x);
-            final double y = parseCoordinate(args[1], relativeTo.y);
-            final double z = parseCoordinate(args[2], relativeTo.z);
-            final World world = args.length > 3 ? new World(args[3], UUID.randomUUID()) : relativeTo.world;
-            final Server server = args.length > 4 ? new Server(args[4]) : relativeTo.server;
-            return Optional.of(new Position(x, y, z, relativeTo.yaw, relativeTo.pitch, world, server));
+            final double x = parseCoordinate(args[0], relativeTo.getX());
+            final double y = parseCoordinate(args[1], relativeTo.getY());
+            final double z = parseCoordinate(args[2], relativeTo.getZ());
+            final World world = args.length > 3 ? new World(args[3], UUID.randomUUID()) : relativeTo.getWorld();
+            final Server server = args.length > 4 ? new Server(args[4]) : relativeTo.getServer();
+            return Optional.of(new Position(x, y, z, relativeTo.getYaw(), relativeTo.getPitch(), world, server));
         } catch (NumberFormatException ignored) {
             return Optional.empty();
         }
@@ -90,5 +87,16 @@ public class Position extends Location {
         } else {
             return Double.parseDouble(value);
         }
+    }
+
+    /**
+     * The {@link Server} the position is on
+     */
+    public Server getServer() {
+        return server;
+    }
+
+    public void setServer(Server server) {
+        this.server = server;
     }
 }

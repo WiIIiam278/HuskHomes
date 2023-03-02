@@ -63,7 +63,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
-        return plugin.getCache().warps.stream()
+        return plugin.getCache().getWarps().stream()
                 .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user, s))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))
                 .sorted()
@@ -89,7 +89,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             }
             final Warp warp = optionalWarp.get();
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.meta.name);
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(warp)
                     .toTimedTeleport()

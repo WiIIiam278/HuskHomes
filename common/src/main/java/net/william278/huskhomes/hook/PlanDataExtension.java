@@ -78,7 +78,7 @@ public class PlanDataExtension implements DataExtension {
     public long getPublicHomeCount(@NotNull UUID uuid) {
         return database.getUserData(uuid)
                 .map(userData -> database.getHomes(userData.user())
-                        .stream().filter(home -> home.isPublic).count())
+                        .stream().filter(home -> home.isPublic()).count())
                 .orElse(0L);
     }
 
@@ -121,9 +121,9 @@ public class PlanDataExtension implements DataExtension {
     public String getOfflinePosition(@NotNull UUID uuid) {
         return database.getUserData(uuid)
                 .map(userData -> database.getOfflinePosition(userData.user())
-                        .map(position -> "x: " + (int) position.x + ", y: " + (int) position.y + ", z: " + (int) position.z
-                                + " (" + position.world.name +
-                                ((crossServer) ? "/" + position.server.name + ")" : ")"))
+                        .map(position -> "x: " + (int) position.getX() + ", y: " + (int) position.getY() + ", z: " + (int) position.getZ()
+                                + " (" + position.getWorld().getName() +
+                                ((crossServer) ? "/" + position.getServer().getName() + ")" : ")"))
                         .orElse(UNKNOWN_STRING))
                 .orElse(UNKNOWN_STRING);
     }

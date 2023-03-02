@@ -2,8 +2,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.ValidationException;
-import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.position.Warp;
@@ -29,13 +27,13 @@ public class WarpsManager {
 
         final Warp warp = existingWarp
                 .map(existing -> {
-                    existing.x = position.x;
-                    existing.y = position.y;
-                    existing.z = position.z;
-                    existing.world = position.world;
-                    existing.server = position.server;
-                    existing.yaw = position.yaw;
-                    existing.pitch = position.pitch;
+                    existing.setX(position.getX());
+                    existing.setY(position.getY());
+                    existing.setZ(position.getZ());
+                    existing.setWorld(position.getWorld());
+                    existing.setServer(position.getServer());
+                    existing.setYaw(position.getYaw());
+                    existing.setPitch(position.getPitch());
                     return existing;
                 })
                 .orElse(new Warp(position, new PositionMeta(name, "")));
@@ -47,7 +45,7 @@ public class WarpsManager {
         if (warp.isEmpty()) {
             throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
         }
-        plugin.getDatabase().deleteWarp(warp.get().uuid);
+        plugin.getDatabase().deleteWarp(warp.get().getUuid());
     }
 
     public void relocateWarp(@NotNull String name, @NotNull Position position) {
@@ -65,7 +63,7 @@ public class WarpsManager {
         }
 
         final Warp warp = optionalWarp.get();
-        warp.meta.name = newName;
+        warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
     }
 
@@ -76,7 +74,7 @@ public class WarpsManager {
         }
 
         final Warp warp = optionalWarp.get();
-        warp.meta.description = description;
+        warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
     }
 

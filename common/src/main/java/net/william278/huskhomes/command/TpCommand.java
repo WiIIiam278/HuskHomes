@@ -40,14 +40,14 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Find the online user to teleport
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenRun(() -> {
             // Get the list of potential teleports, filtered against vanished players, but ensuring the executor is in the list
-            final Set<String> players =  plugin.getCache().players;
+            final Set<String> players = plugin.getCache().getPlayers();
             players.add(onlineUser.username);
 
             // Find the player to teleport
             final String playerToTeleport = players.stream()
                     .filter(user -> user.equalsIgnoreCase(targetPlayerToTeleport)).findFirst()
                     .or(() -> Optional.ofNullable(targetPlayerToTeleport.equals("@s") ? onlineUser.username : null))
-                    .or(() -> plugin.getCache().players.stream().filter(user -> user.toLowerCase().startsWith(targetPlayerToTeleport)).findFirst())
+                    .or(() -> plugin.getCache().getPlayers().stream().filter(user -> user.toLowerCase().startsWith(targetPlayerToTeleport)).findFirst())
                     .orElse(null);
 
             // Ensure the player to teleport exists
@@ -104,9 +104,9 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                             result.getTeleporter()
                                     .flatMap(teleporter -> plugin.getLocales()
                                             .getLocale("teleporting_other_complete_position", teleporter.username,
-                                                    Integer.toString((int) destination.x),
-                                                    Integer.toString((int) destination.y),
-                                                    Integer.toString((int) destination.z)))
+                                                    Integer.toString((int) destination.getX()),
+                                                    Integer.toString((int) destination.getY()),
+                                                    Integer.toString((int) destination.getZ())))
                                     .ifPresent(onlineUser::sendMessage);
                         }));
             }
@@ -211,11 +211,11 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                 final ArrayList<String> completions = new ArrayList<>();
                 completions.addAll(serveCoordinateCompletions
                         ? List.of("~", "~ ~", "~ ~ ~",
-                        Integer.toString((int) user.getPosition().x),
-                        ((int) user.getPosition().x + " " + (int) user.getPosition().y),
-                        ((int) user.getPosition().x + " " + (int) user.getPosition().y + " " + (int) user.getPosition().z))
+                        Integer.toString((int) user.getPosition().getX()),
+                        ((int) user.getPosition().getX() + " " + (int) user.getPosition().getY()),
+                        ((int) user.getPosition().getX() + " " + (int) user.getPosition().getY() + " " + (int) user.getPosition().getZ()))
                         : Collections.emptyList());
-                completions.addAll(plugin.getCache().players);
+                completions.addAll(plugin.getCache().getPlayers());
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -226,16 +226,16 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     if (user == null) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
-                    completions.addAll(List.of("~ ~", (int) user.getPosition().y + " " + (int) user.getPosition().z));
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().getY())));
+                    completions.addAll(List.of("~ ~", (int) user.getPosition().getY() + " " + (int) user.getPosition().getZ()));
                 } else {
                     completions.addAll(serveCoordinateCompletions
                             ? List.of("~", "~ ~", "~ ~ ~",
-                            Integer.toString((int) user.getPosition().x),
-                            ((int) user.getPosition().x + " " + (int) user.getPosition().y),
-                            ((int) user.getPosition().x + " " + (int) user.getPosition().y + " " + (int) user.getPosition().z))
+                            Integer.toString((int) user.getPosition().getX()),
+                            ((int) user.getPosition().getX() + " " + (int) user.getPosition().getY()),
+                            ((int) user.getPosition().getX() + " " + (int) user.getPosition().getY() + " " + (int) user.getPosition().getZ()))
                             : Collections.emptyList());
-                    completions.addAll(plugin.getCache().players);
+                    completions.addAll(plugin.getCache().getPlayers());
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
@@ -247,13 +247,13 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().getZ())));
                 } else if (isCoordinate(args[1])) {
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().y)));
-                    completions.addAll(List.of("~ ~", (int) user.getPosition().y + " " + (int) user.getPosition().z));
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().getY())));
+                    completions.addAll(List.of("~ ~", (int) user.getPosition().getY() + " " + (int) user.getPosition().getZ()));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[2].toLowerCase()))
@@ -265,7 +265,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().z)));
+                    completions.addAll(List.of("~", Integer.toString((int) user.getPosition().getZ())));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[3].toLowerCase()))

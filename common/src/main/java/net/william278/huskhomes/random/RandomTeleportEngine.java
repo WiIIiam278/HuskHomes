@@ -6,7 +6,6 @@ import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents an engine for generating random position targets
@@ -46,7 +45,7 @@ public abstract class RandomTeleportEngine {
     protected final Position getOrigin(@NotNull World world) {
         return plugin.getLocalCachedSpawn()
                 .flatMap(spawn -> {
-                    if (!spawn.worldUuid.equals(world.uuid.toString())) {
+                    if (!spawn.worldUuid.equals(world.getUuid().toString())) {
                         return Optional.empty();
                     }
                     return spawn.getPosition(plugin.getServerName());

@@ -85,7 +85,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
     private void editHome(@NotNull Home home, @NotNull OnlineUser editor,
                           @Nullable String editOperation, @Nullable String editArgs) {
         final AtomicBoolean showMenuFlag = new AtomicBoolean(false);
-        final boolean otherOwner = !editor.equals(home.owner);
+        final boolean otherOwner = !editor.equals(home.getOwner());
 
         if (editOperation == null) {
             getHomeEditorWindow(home, true, otherOwner,
@@ -114,17 +114,17 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                     return;
                 }
 
-                final String oldHomeName = home.meta.name;
+                final String oldHomeName = home.getMeta().getName();
                 final String newHomeName = editArgs;
-                plugin.getManager().updateHomeMeta(home, new PositionMeta(newHomeName, home.meta.description))
+                plugin.getManager().updateHomeMeta(home, new PositionMeta(newHomeName, home.getMeta().getDescription()))
                         .thenAccept(renameResult -> (switch (renameResult.resultType()) {
                             case SUCCESS -> {
-                                if (home.owner.equals(editor)) {
+                                if (home.getOwner().equals(editor)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_name",
                                             oldHomeName, newHomeName);
                                 } else {
                                     yield plugin.getLocales().getLocale("edit_home_update_name_other",
-                                            home.owner.username, oldHomeName, newHomeName);
+                                            home.getOwner().username, oldHomeName, newHomeName);
                                 }
                             }
                             case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_home_name_taken");
@@ -134,23 +134,23 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         }).ifPresent(editor::sendMessage));
             }
             case "description" -> {
-                final String oldHomeDescription = home.meta.description;
+                final String oldHomeDescription = home.getMeta().getDescription();
                 final String newDescription = editArgs != null ? editArgs : "";
 
-                plugin.getManager().updateHomeMeta(home, new PositionMeta(home.meta.name, newDescription))
+                plugin.getManager().updateHomeMeta(home, new PositionMeta(home.getMeta().getName(), newDescription))
                         .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
                             case SUCCESS -> {
-                                if (home.owner.equals(editor)) {
+                                if (home.getOwner().equals(editor)) {
                                     yield plugin.getLocales().getLocale("edit_home_update_description",
-                                            home.meta.name,
+                                            home.getMeta().getName(),
                                             oldHomeDescription.isBlank() ? plugin.getLocales()
                                                     .getRawLocale("item_no_description").orElse("N/A") : oldHomeDescription,
                                             newDescription.isBlank() ? plugin.getLocales()
                                                     .getRawLocale("item_no_description").orElse("N/A") : newDescription);
                                 } else {
                                     yield plugin.getLocales().getLocale("edit_home_update_description_other",
-                                            home.owner.username,
-                                            home.meta.name,
+                                            home.getOwner().username,
+                                            home.getMeta().getName(),
                                             oldHomeDescription.isBlank() ? plugin.getLocales()
                                                     .getRawLocale("item_no_description").orElse("N/A") : oldHomeDescription,
                                             newDescription.isBlank() ? plugin.getLocales()
@@ -166,12 +166,12 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             }
             case "relocate" ->
                     plugin.getManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
-                        if (home.owner.equals(editor)) {
+                        if (home.getOwner().equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
-                                    home.meta.name).orElse(new MineDown("")));
+                                    home.getMeta().getName()).orElse(new MineDown("")));
                         } else {
                             editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location_other",
-                                    home.owner.username, home.meta.name).orElse(new MineDown("")));
+                                    home.getOwner().username, home.getMeta().getName()).orElse(new MineDown("")));
                         }
 
                         // Show the menu if the menu flag is set
@@ -188,7 +188,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                             .ifPresent(editor::sendMessage);
                     return;
                 }
-                final AtomicBoolean newIsPublic = new AtomicBoolean(!home.isPublic);
+                final AtomicBoolean newIsPublic = new AtomicBoolean(!home.isPublic());
                 if (editArgs != null && !editArgs.isBlank()) {
                     if (editArgs.equalsIgnoreCase("private")) {
                         newIsPublic.set(false);
@@ -202,7 +202,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                     }
                 }
                 final String privacyKeyedString = newIsPublic.get() ? "public" : "private";
-                if (newIsPublic.get() == home.isPublic) {
+                if (newIsPublic.get() == home.isPublic()) {
                     plugin.getLocales().getLocale(
                                     "error_edit_home_privacy_already_" + privacyKeyedString)
                             .ifPresent(editor::sendMessage);
@@ -233,14 +233,14 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
 
                     // Execute the update
                     plugin.getManager().updateHomePrivacy(home, newIsPublic.get()).thenRun(() -> {
-                        if (home.owner.equals(editor)) {
+                        if (home.getOwner().equals(editor)) {
                             editor.sendMessage(plugin.getLocales().getLocale(
                                     "edit_home_privacy_" + privacyKeyedString + "_success",
-                                    home.meta.name).orElse(new MineDown("")));
+                                    home.getMeta().getName()).orElse(new MineDown("")));
                         } else {
                             editor.sendMessage(plugin.getLocales().getLocale(
                                     "edit_home_privacy_" + privacyKeyedString + "_success_other",
-                                    home.owner.username, home.meta.name).orElse(new MineDown("")));
+                                    home.getOwner().username, home.getMeta().getName()).orElse(new MineDown("")));
                         }
 
                         // Perform necessary economy transaction
@@ -290,43 +290,43 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
         return new ArrayList<>() {{
             if (showTitle) {
                 if (!otherViewer) {
-                    plugin.getLocales().getLocale("edit_home_menu_title", home.meta.name)
+                    plugin.getLocales().getLocale("edit_home_menu_title", home.getMeta().getName())
                             .ifPresent(this::add);
                 } else {
-                    plugin.getLocales().getLocale("edit_home_menu_title_other", home.owner.username, home.meta.name)
+                    plugin.getLocales().getLocale("edit_home_menu_title_other", home.getOwner().username, home.getMeta().getName())
                             .ifPresent(this::add);
                 }
             }
 
-            plugin.getLocales().getLocale("edit_home_menu_metadata_" + (!home.isPublic ? "private" : "public"),
+            plugin.getLocales().getLocale("edit_home_menu_metadata_" + (!home.isPublic() ? "private" : "public"),
                             DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
-                                    .format(home.meta.creationTime.atZone(ZoneId.systemDefault())),
-                            home.uuid.toString().split(Pattern.quote("-"))[0],
-                            home.uuid.toString())
+                                    .format(home.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                            home.getUuid().toString().split(Pattern.quote("-"))[0],
+                            home.getUuid().toString())
                     .ifPresent(this::add);
 
-            if (home.meta.description.length() > 0) {
+            if (home.getMeta().getDescription().length() > 0) {
                 plugin.getLocales().getLocale("edit_home_menu_description",
-                                home.meta.description.length() > 50
-                                        ? home.meta.description.substring(0, 49).trim() + "…" : home.meta.description,
-                                plugin.getLocales().formatDescription(home.meta.description))
+                                home.getMeta().getDescription().length() > 50
+                                        ? home.getMeta().getDescription().substring(0, 49).trim() + "…" : home.getMeta().getDescription(),
+                                plugin.getLocales().formatDescription(home.getMeta().getDescription()))
                         .ifPresent(this::add);
             }
 
             if (!plugin.getSettings().isCrossServer()) {
-                plugin.getLocales().getLocale("edit_home_menu_world", home.world.name)
+                plugin.getLocales().getLocale("edit_home_menu_world", home.getWorld().getName())
                         .ifPresent(this::add);
             } else {
-                plugin.getLocales().getLocale("edit_home_menu_world_server", home.world.name, home.server.name)
+                plugin.getLocales().getLocale("edit_home_menu_world_server", home.getWorld().getName(), home.getServer().getName())
                         .ifPresent(this::add);
             }
 
             plugin.getLocales().getLocale("edit_home_menu_coordinates",
-                            String.format("%.1f", home.x), String.format("%.1f", home.y), String.format("%.1f", home.z),
-                            String.format("%.2f", home.yaw), String.format("%.2f", home.pitch))
+                            String.format("%.1f", home.getX()), String.format("%.1f", home.getY()), String.format("%.1f", home.getZ()),
+                            String.format("%.2f", home.getYaw()), String.format("%.2f", home.getPitch()))
                     .ifPresent(this::add);
 
-            final String formattedName = home.owner.username + "." + home.meta.name;
+            final String formattedName = home.getOwner().username + "." + home.getMeta().getName();
             if (showTeleportButton) {
                 plugin.getLocales().getLocale("edit_home_menu_use_buttons",
                                 formattedName)
@@ -336,7 +336,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
-                                                  + (home.isPublic ? "private" : "public"), escapedName)
+                                                  + (home.isPublic() ? "private" : "public"), escapedName)
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",
@@ -351,7 +351,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
             return Collections.emptyList();
         }
         return switch (args.length) {
-            case 0, 1 -> plugin.getCache().homes.getOrDefault(user.uuid, new ArrayList<>())
+            case 0, 1 -> plugin.getCache().getHomes().getOrDefault(user.uuid, new ArrayList<>())
                     .stream()
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                     .sorted()

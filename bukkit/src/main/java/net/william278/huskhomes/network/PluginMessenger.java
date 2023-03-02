@@ -78,18 +78,18 @@ public class PluginMessenger extends Messenger implements PluginMessageListener 
         return fetchOnlineServerList(onlineUser).thenApply(onlineServers -> {
             // Ensure the server is online
             final Optional<String> targetServer = Arrays.stream(onlineServers)
-                    .filter(serverName -> serverName.equals(server.name))
+                    .filter(serverName -> serverName.equals(server.getName()))
                     .findFirst();
             if (targetServer.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING,
-                        "Failed to send " + dispatcher.username + " to " + server.name + "; server offline?");
+                        "Failed to send " + dispatcher.username + " to " + server.getName() + "; server offline?");
                 return false;
             }
 
             // Send player to target server
             final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
             messageWriter.writeUTF("Connect");
-            messageWriter.writeUTF(server.name);
+            messageWriter.writeUTF(server.getName());
             dispatcher.sendPluginMessage(BUNGEE_PLUGIN_CHANNEL_NAME, messageWriter.toByteArray());
             return true;
         });

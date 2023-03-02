@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.request.TeleportRequest;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public class TpaHereCommand extends CommandBase implements TabCompletable {
                     .sendTeleportRequest(onlineUser, args[0], TeleportRequest.RequestType.TPA_HERE)
                     .thenAccept(sent -> {
                         if (sent.isEmpty()) {
-                            if (args[0].equalsIgnoreCase(onlineUser.username)) {
+                            if (args[0].equalsIgnoreCase(onlineUser.getUsername())) {
                                 plugin.getLocales().getLocale("error_teleport_request_self")
                                         .ifPresent(onlineUser::sendMessage);
                                 return;

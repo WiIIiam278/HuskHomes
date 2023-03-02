@@ -3,7 +3,8 @@ package net.william278.huskhomes.teleport;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public class TimedTeleport extends Teleport {
     private boolean cancelled = false;
 
     protected TimedTeleport(@NotNull OnlineUser teleporter, @NotNull OnlineUser executor, @NotNull Position target,
-                            @NotNull TeleportType type, int warmupTime, @NotNull Set<Settings.EconomyAction> economyActions,
+                            @NotNull TeleportType type, int warmupTime, @NotNull Set<EconomyHook.EconomyAction> economyActions,
                             final boolean updateLastPosition, @NotNull HuskHomes plugin) {
         super(teleporter, executor, target, type, economyActions, updateLastPosition, plugin);
         this.plugin = plugin;
@@ -53,13 +54,13 @@ public class TimedTeleport extends Teleport {
         }
 
         // Check if the teleporter is already warming up to teleport
-        if (plugin.getCache().getCurrentlyOnWarmup().contains(teleporter.uuid)) {
+        if (plugin.getCache().getCurrentlyOnWarmup().contains(teleporter.getUuid())) {
             return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING)
                     .thenApply(resultState -> CompletedTeleport.from(resultState, this));
         }
 
         // Check economy actions
-        for (Settings.EconomyAction economyAction : economyActions) {
+        for (EconomyHook.EconomyAction economyAction : economyActions) {
             if (!plugin.validateEconomyCheck(executor, economyAction)) {
                 return CompletableFuture.completedFuture(TeleportResult.CANCELLED_ECONOMY)
                         .thenApply(resultState -> CompletedTeleport.from(resultState, this));
@@ -98,7 +99,7 @@ public class TimedTeleport extends Teleport {
             }
 
             // Mark the player as warming up and display the message
-            plugin.getCache().getCurrentlyOnWarmup().add(teleporter.uuid);
+            plugin.getCache().getCurrentlyOnWarmup().add(teleporter.getUuid());
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
@@ -118,7 +119,7 @@ public class TimedTeleport extends Teleport {
 
                 // Tick (decrement) the timed teleport timer and end it if done
                 if (tickWarmup()) {
-                    plugin.getCache().getCurrentlyOnWarmup().remove(teleporter.uuid);
+                    plugin.getCache().getCurrentlyOnWarmup().remove(teleporter.getUuid());
                     timedTeleportFuture.complete(null);
                     executor.shutdown();
                 }

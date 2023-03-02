@@ -1,10 +1,10 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Request;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
@@ -43,12 +43,12 @@ public class TeleportBuilder {
     private CompletableFuture<Position> target;
 
     /**
-     * List of {@link Settings.EconomyAction}s to check against.
+     * List of {@link EconomyHook.EconomyAction}s to check against.
      * <p>
      * Note that these are checked against the <i>{@link #executor executor}</i> of the teleport;
      * not necessarily the one doing the teleporting
      */
-    private final Set<Settings.EconomyAction> economyActions = new HashSet<>();
+    private final Set<EconomyHook.EconomyAction> economyActions = new HashSet<>();
 
     /**
      * The type of teleport. Defaults to {@link TeleportType#TELEPORT}
@@ -85,18 +85,7 @@ public class TeleportBuilder {
      * @return The {@link TeleportBuilder} instance
      */
     public TeleportBuilder setTeleporter(@NotNull String teleporterUsername) {
-        this.teleporter = CompletableFuture.supplyAsync(() -> plugin
-                .findOnlinePlayer(teleporterUsername)
-                .map(onlineUser -> (User) onlineUser)
-                .or(() -> {
-                    if (plugin.getSettings().isCrossServer()) {
-                        return plugin.getMessenger()
-                                .findPlayer(executor, teleporterUsername).join()
-                                .map(username -> new User(UUID.randomUUID(), username));
-                    }
-                    return Optional.empty();
-                })
-                .orElse(null));
+        this.teleporter = teleporterUsername;
         return this;
     }
 
@@ -148,12 +137,12 @@ public class TeleportBuilder {
     /**
      * Set the economy actions to check against during the teleport
      *
-     * @param economyActions The {@link Settings.EconomyAction}s to check against
+     * @param economyActions The {@link EconomyHook.EconomyAction}s to check against
      * @return The {@link TeleportBuilder} instance
      * @implNote These are checked against the <i>{@link #executor executor}</i> of the teleport;
      * not necessarily the one doing the teleporting
      */
-    public TeleportBuilder setEconomyActions(@NotNull Set<Settings.EconomyAction> economyActions) {
+    public TeleportBuilder setEconomyActions(@NotNull Set<EconomyHook.EconomyAction> economyActions) {
         this.economyActions.addAll(economyActions);
         return this;
     }
@@ -161,12 +150,12 @@ public class TeleportBuilder {
     /**
      * Set the economy actions to check against during the teleport
      *
-     * @param economyActions The {@link Settings.EconomyAction}s to check against
+     * @param economyActions The {@link EconomyHook.EconomyAction}s to check against
      * @return The {@link TeleportBuilder} instance
      * @implNote These are checked against the <i>{@link #executor executor}</i> of the teleport;
      * not necessarily the one doing the teleporting
      */
-    public TeleportBuilder setEconomyActions(@NotNull Settings.EconomyAction... economyActions) {
+    public TeleportBuilder setEconomyActions(@NotNull EconomyHook.EconomyAction... economyActions) {
         this.economyActions.addAll(Arrays.asList(economyActions));
         return this;
     }
@@ -243,7 +232,7 @@ public class TeleportBuilder {
                                 .withType(Request.MessageType.POSITION_REQUEST)
                                 .withTargetPlayer(playerName)
                                 .build().send(executor, plugin)
-                                .thenApply(reply -> reply.map(message -> message.getPayload().position)).join();
+                                .thenApply(reply -> reply.map(message -> message.getPayload().getPosition())).join();
                     });
         }
         return CompletableFuture.supplyAsync(Optional::empty);

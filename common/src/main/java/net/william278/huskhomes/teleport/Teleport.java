@@ -2,18 +2,18 @@ package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.network.Request;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Represents a teleport in the process of being executed
@@ -55,10 +55,10 @@ public class Teleport {
     public final TeleportType type;
 
     /**
-     * {@link Settings.EconomyAction}s to be checked against the {@link #executor executor}'s balance
+     * {@link EconomyHook.EconomyAction}s to be checked against the {@link #executor executor}'s balance
      */
     @NotNull
-    public final Set<Settings.EconomyAction> economyActions;
+    public final Set<EconomyHook.EconomyAction> economyActions;
 
     /**
      * Whether to update the {@link #teleporter teleporter}'s last position (i.e. their {@code /back} position)
@@ -69,7 +69,7 @@ public class Teleport {
      * <b>Internal</b> - use TeleportBuilder to instantiate a teleport
      */
     protected Teleport(@Nullable User teleporter, @NotNull OnlineUser executor, @Nullable Position target,
-                       @NotNull TeleportType type, @NotNull Set<Settings.EconomyAction> economyActions,
+                       @NotNull TeleportType type, @NotNull Set<EconomyHook.EconomyAction> economyActions,
                        final boolean updateLastPosition, @NotNull HuskHomes plugin) {
         this.teleporter = teleporter;
         this.executor = executor;
@@ -112,7 +112,7 @@ public class Teleport {
         }
 
         // Check economy actions
-        for (Settings.EconomyAction economyAction : economyActions) {
+        for (EconomyHook.EconomyAction economyAction : economyActions) {
             if (!plugin.validateEconomyCheck(executor, economyAction)) {
                 return CompletableFuture.completedFuture(TeleportResult.CANCELLED_ECONOMY)
                         .thenApply(resultState -> CompletedTeleport.from(resultState, this));
@@ -183,20 +183,9 @@ public class Teleport {
         }
 
         // If the target position is on another server, execute a cross-server teleport
-        final CompletableFuture<TeleportResult> teleportFuture = new CompletableFuture<>();
         plugin.getDatabase().setCurrentTeleport(teleporter, this);
-        plugin.getMessenger()
-                .sendPlayer(teleporter, target.getServer())
-                .thenApply(completed -> completed
-                        ? TeleportResult.COMPLETED_CROSS_SERVER
-                        : TeleportResult.FAILED_INVALID_SERVER)
-                .orTimeout(10, TimeUnit.SECONDS)
-                .exceptionally(throwable -> {
-                    plugin.getLoggingAdapter().log(Level.WARNING, "Cross-server teleport timed out for " + teleporter.username);
-                    plugin.getDatabase().setCurrentTeleport(teleporter, null);
-                    return TeleportResult.FAILED_INVALID_SERVER;
-                });
-        return teleportFuture;
+        plugin.getMessenger().changeServer(teleporter, target.getServer());
+        return CompletableFuture.completedFuture(TeleportResult.COMPLETED_CROSS_SERVER);
     }
 
     /**
@@ -212,20 +201,13 @@ public class Teleport {
         assert teleporter != null;
 
         // Send a network message to a user on another server to teleport them to the target position
-        return Request.builder()
-                .withType(Request.MessageType.TELEPORT_TO_POSITION_REQUEST)
-                .withPayload(Payload.withPosition(target))
-                .withTargetPlayer(teleporter.username)
-                .build().send(executor, plugin)
-                .thenApply(result -> {
-                    if (result.isPresent()) {
-                        final Request reply = result.get();
-                        if (reply.getPayload().resultState != null) {
-                            return reply.getPayload().resultState;
-                        }
-                    }
-                    return TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED;
-                });
+        return Message.builder()
+                .type(Message.Type.TELEPORT_TO_POSITION_REQUEST)
+                .payload(Payload.withPosition(target))
+                .target(teleporter.getUsername())
+                .build().send(plugin.getMessenger(), executor)
+                .thenApply(result -> Optional.ofNullable(result.getPayload().getResultState())
+                        .orElse(TeleportResult.FAILED_TELEPORTER_NOT_RESOLVED));
     }
 
 }

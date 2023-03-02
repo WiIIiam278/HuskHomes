@@ -1,8 +1,8 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -22,11 +22,11 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
     @Override
     public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
         switch (args.length) {
-            case 0 -> showHomeList(onlineUser, onlineUser.username, 1);
+            case 0 -> showHomeList(onlineUser, onlineUser.getUsername(), 1);
             case 1 -> {
                 try {
                     int pageNumber = Integer.parseInt(args[0]);
-                    showHomeList(onlineUser, onlineUser.username, pageNumber);
+                    showHomeList(onlineUser, onlineUser.getUsername(), pageNumber);
                 } catch (NumberFormatException e) {
                     showHomeList(onlineUser, args[0], 1);
                 }
@@ -58,7 +58,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             return;
         }
         plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {
-            if (!userData.getUserUuid().equals(onlineUser.uuid)) {
+            if (!userData.getUserUuid().equals(onlineUser.getUuid())) {
                 if (!onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
                     plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
                     return;
@@ -98,7 +98,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             final List<Home> homes = plugin.getDatabase().getHomes(userData.get().user()).join();
             StringJoiner rowJoiner = new StringJoiner("\t");
 
-            plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().username + "'s "
+            plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().getUsername() + "'s "
                     + homes.size() + " homes:");
             for (int i = 0; i < homes.size(); i++) {
                 final String home = homes.get(i).getMeta().getName();

@@ -1,7 +1,7 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -113,4 +113,18 @@ public abstract class MapHook extends PluginHook {
         }
     }
 
+    /**
+     * Identifies types of supported Map plugins
+     */
+    public enum MappingPlugin {
+        DYNMAP("Dynmap"),
+        BLUEMAP("BlueMap");
+
+        @NotNull
+        public final String displayName;
+
+        MappingPlugin(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
+    }
 }

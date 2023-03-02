@@ -2,8 +2,8 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,7 @@ public class TpIgnoreCommand extends CommandBase {
         plugin.getRequestManager().setIgnoringRequests(onlineUser, isIgnoringRequests);
 
         // Update value on the database and send a message | todo: Clean this up
-        plugin.getDatabase().getUserData(onlineUser.uuid)
+        plugin.getDatabase().getUserData(onlineUser.getUuid())
                 .thenAcceptAsync(userData -> userData.ifPresent(data -> plugin.getDatabase()
                         .updateUserData(new UserData(onlineUser, data.homeSlots(), isIgnoringRequests, data.rtpCooldown()))
                         .thenRun(() -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),

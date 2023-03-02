@@ -6,7 +6,7 @@ import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.UserData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

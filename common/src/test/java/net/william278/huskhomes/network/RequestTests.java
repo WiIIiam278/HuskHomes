@@ -40,11 +40,11 @@ public class RequestTests {
 
         final Request readRequest = Request.fromJson(DUMMY_PAYLOAD.toJson());
         Assertions.assertEquals(DUMMY_PAYLOAD.getUuid(), readRequest.getUuid());
-        Assertions.assertNotNull(readRequest.getPayload().position);
+        Assertions.assertNotNull(readRequest.getPayload().getPosition());
 
-        assert readRequest.getPayload().position != null && DUMMY_PAYLOAD.getPayload().position != null;
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getX(), readRequest.getPayload().position.getX());
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getY(), readRequest.getPayload().position.getY());
-        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().position.getZ(), readRequest.getPayload().position.getZ());
+        assert readRequest.getPayload().getPosition() != null && DUMMY_PAYLOAD.getPayload().getPosition() != null;
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().getPosition().getX(), readRequest.getPayload().getPosition().getX());
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().getPosition().getY(), readRequest.getPayload().getPosition().getY());
+        Assertions.assertEquals(DUMMY_PAYLOAD.getPayload().getPosition().getZ(), readRequest.getPayload().getPosition().getZ());
     }
 }

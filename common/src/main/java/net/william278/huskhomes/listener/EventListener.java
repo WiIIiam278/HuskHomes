@@ -2,7 +2,7 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
@@ -41,7 +41,7 @@ public class EventListener {
             }
 
             // Set their ignoring requests state
-            plugin.getDatabase().getUserData(onlineUser.uuid).ifPresent(userData -> {
+            plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
                 final boolean ignoringRequests = userData.ignoringTeleports();
                 plugin.getRequestManager().setIgnoringRequests(onlineUser, ignoringRequests);
 
@@ -54,7 +54,7 @@ public class EventListener {
             });
 
             // Cache this user's homes
-            plugin.getCache().getHomes().put(onlineUser.uuid, plugin.getDatabase()
+            plugin.getCache().getHomes().put(onlineUser.getUuid(), plugin.getDatabase()
                     .getHomes(onlineUser).stream()
                     .map(Home::getName)
                     .toList());
@@ -72,7 +72,7 @@ public class EventListener {
                 final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                 if (bedPosition.isEmpty()) {
                     plugin.getLocalCachedSpawn()
-                            .flatMap(spawn -> spawn.getPosition(plugin.getServerName()))
+                            .map(spawn -> spawn.getPosition(plugin.getServerName()))
                             .ifPresent(position -> onlineUser.teleportLocally(position,
                                     plugin.getSettings().isAsynchronousTeleports()));
                     onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
@@ -100,10 +100,10 @@ public class EventListener {
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
         // Remove this user's home cache
-        plugin.getCache().getHomes().remove(onlineUser.uuid);
+        plugin.getCache().getHomes().remove(onlineUser.getUuid());
 
         // Update the cached player list using another online player if possible
-        plugin.getOnlinePlayers()
+        plugin.getOnlineUsers()
                 .stream()
                 .filter(onlinePlayer -> !onlinePlayer.equals(onlineUser))
                 .findAny()
@@ -168,7 +168,7 @@ public class EventListener {
             return;
         }
 
-        plugin.runAsync(() -> plugin.getDatabase().getUserData(onlineUser.uuid)
+        plugin.runAsync(() -> plugin.getDatabase().getUserData(onlineUser.getUuid())
                 .ifPresent(data -> plugin.getDatabase().setLastPosition(data.user(), sourcePosition)));
     }
 
@@ -188,7 +188,7 @@ public class EventListener {
      * Handle when the plugin is disabling (server is shutting down)
      */
     public final void handlePluginDisable() {
-        plugin.getLoggingAdapter().log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getPluginVersion());
+        plugin.getLoggingAdapter().log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getVersion());
     }
 
 }

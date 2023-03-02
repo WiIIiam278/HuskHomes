@@ -1,9 +1,9 @@
 package net.william278.huskhomes.api;
 
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
@@ -53,7 +53,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(@NotNull Player player) {
-        return BukkitPlayer.adapt(player);
+        return BukkitUser.adapt(player);
     }
 
     /**
@@ -65,7 +65,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public Player getPlayer(@NotNull OnlineUser user) {
-        return ((BukkitPlayer) user).getPlayer();
+        return ((BukkitUser) user).getPlayer();
     }
 
     /**
@@ -102,7 +102,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      * @since 3.0
      */
     @Nullable
-    public Position adaptPosition(@NotNull org.bukkit.Location location, @NotNull Server server) {
+    public Position adaptPosition(@NotNull org.bukkit.Location location, @NotNull String server) {
         return new Position(Objects.requireNonNull(adaptLocation(location)), server);
     }
 
@@ -110,10 +110,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      * Get the {@link Server}, containing the ID of the server the plugin is running on
      *
      * @return the {@link Server}
-     * @since 3.0
+     * @since 4.0
      */
     @NotNull
-    public Server getServer() {
+    public String getServer() {
         return plugin.getServerName();
     }
 

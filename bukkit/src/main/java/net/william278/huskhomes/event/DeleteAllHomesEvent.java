@@ -1,6 +1,6 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

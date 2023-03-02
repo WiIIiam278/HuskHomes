@@ -3,8 +3,8 @@ package net.william278.huskhomes.hook;
 import net.milkbowl.vault.economy.Economy;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.OnlineUser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
@@ -33,13 +33,13 @@ public class VaultEconomyHook extends EconomyHook {
 
     @Override
     public double getPlayerBalance(@NotNull OnlineUser player) {
-        return economy.getBalance(((BukkitPlayer) player).getPlayer());
+        return economy.getBalance(((BukkitUser) player).getPlayer());
     }
 
     @Override
     public void changePlayerBalance(@NotNull OnlineUser player, double amount) {
         if (amount != 0d) {
-            final Player bukkitPlayer = ((BukkitPlayer) player).getPlayer();
+            final Player bukkitPlayer = ((BukkitUser) player).getPlayer();
             final double currentBalance = getPlayerBalance(player);
             final double amountToChange = Math.abs(currentBalance - Math.max(0d, currentBalance + amount));
             if (amount < 0d) {

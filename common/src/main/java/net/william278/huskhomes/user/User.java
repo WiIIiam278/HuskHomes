@@ -1,4 +1,4 @@
-package net.william278.huskhomes.player;
+package net.william278.huskhomes.user;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -10,10 +10,10 @@ import java.util.UUID;
 public class User {
 
     @NotNull
-    public final UUID uuid;
+    private final UUID uuid;
 
     @NotNull
-    public final String username;
+    private final String username;
 
     /**
      * Get a user from a {@link UUID} and username
@@ -29,8 +29,18 @@ public class User {
     @Override
     public boolean equals(@NotNull Object obj) {
         if (obj instanceof User user) {
-            return user.uuid.equals(uuid);
+            return user.getUuid().equals(getUuid());
         }
         return super.equals(obj);
+    }
+
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    @NotNull
+    public String getUsername() {
+        return username;
     }
 }

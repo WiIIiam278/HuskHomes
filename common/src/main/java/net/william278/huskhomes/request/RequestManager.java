@@ -3,8 +3,8 @@ package net.william278.huskhomes.request;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.network.Request;
 import net.william278.huskhomes.network.Payload;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import org.jetbrains.annotations.NotNull;
@@ -45,9 +45,9 @@ public class RequestManager {
      */
     public void setIgnoringRequests(@NotNull User user, boolean ignoring) {
         if (ignoring) {
-            this.ignoringRequests.add(user.uuid);
+            this.ignoringRequests.add(user.getUuid());
         } else {
-            this.ignoringRequests.remove(user.uuid);
+            this.ignoringRequests.remove(user.getUuid());
         }
     }
 
@@ -58,7 +58,7 @@ public class RequestManager {
      * @return {@code true} if the user is ignoring tpa requests
      */
     public boolean isIgnoringRequests(@NotNull User user) {
-        return this.ignoringRequests.contains(user.uuid);
+        return this.ignoringRequests.contains(user.getUuid());
     }
 
     /**
@@ -68,7 +68,7 @@ public class RequestManager {
      * @param recipient the {@link User} recipient of the request
      */
     public void addTeleportRequest(@NotNull TeleportRequest request, @NotNull User recipient) {
-        this.requests.computeIfAbsent(recipient.uuid, uuid -> new LinkedList<>()).addFirst(request);
+        this.requests.computeIfAbsent(recipient.getUuid(), uuid -> new LinkedList<>()).addFirst(request);
     }
 
     /**
@@ -78,7 +78,7 @@ public class RequestManager {
      * @param recipient     the {@link User} recipient of the request
      */
     public void removeTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
-        this.requests.computeIfPresent(recipient.uuid, (uuid, requests) -> {
+        this.requests.computeIfPresent(recipient.getUuid(), (uuid, requests) -> {
             requests.removeIf(teleportRequest -> teleportRequest.requesterName.equalsIgnoreCase(requesterName));
             return requests.isEmpty() ? null : requests;
         });
@@ -91,7 +91,7 @@ public class RequestManager {
      * @return the last received request, if present
      */
     public Optional<TeleportRequest> getLastTeleportRequest(@NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream().findFirst();
+        return this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream().findFirst();
     }
 
     /**
@@ -106,11 +106,11 @@ public class RequestManager {
      * @return the last unexpired teleport request received from the requester, if present
      */
     public Optional<TeleportRequest> getTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream()
+        return this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream()
                 .filter(request -> request.requesterName.equalsIgnoreCase(requesterName))
                 .filter(request -> !request.hasExpired())
                 .findFirst()
-                .or(() -> this.requests.getOrDefault(recipient.uuid, new LinkedList<>()).stream()
+                .or(() -> this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream()
                         .filter(request -> request.requesterName.equalsIgnoreCase(requesterName))
                         .findFirst());
     }
@@ -133,7 +133,7 @@ public class RequestManager {
             if (localTarget.get().equals(requester)) {
                 return CompletableFuture.completedFuture(Optional.empty());
             }
-            request.recipientName = localTarget.get().username;
+            request.recipientName = localTarget.get().getUsername();
             return CompletableFuture.completedFuture(sendLocalTeleportRequest(request, localTarget.get()));
         }
 
@@ -154,7 +154,7 @@ public class RequestManager {
                         .build().send(requester, plugin)
                         .thenApply(reply -> {
                             if (reply.isPresent()) {
-                                final TeleportRequest result = reply.get().getPayload().teleportRequest;
+                                final TeleportRequest result = reply.get().getPayload().getTeleportRequest();
                                 if (result == null || result.status == TeleportRequest.RequestStatus.IGNORED) {
                                     return null;
                                 }

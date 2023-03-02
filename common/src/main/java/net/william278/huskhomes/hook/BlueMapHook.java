@@ -6,7 +6,7 @@ import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.POIMarker;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
@@ -74,9 +74,9 @@ public class BlueMapHook extends MapHook {
                 blueMapAPI -> getBlueMapWorld(blueMapAPI, home.getWorld())).ifPresent(blueMapWorld -> blueMapWorld.getMaps()
                 .forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().put(home.getOwner().uuid + ":" + home.getUuid(),
+                            markerSet.getMarkers().put(home.getOwner().getUuid() + ":" + home.getUuid(),
                                     POIMarker.toBuilder()
-                                            .label("/phome" + home.getOwner().username + "." + home.getMeta().getName())
+                                            .label("/phome" + home.getOwner().getUsername() + "." + home.getMeta().getName())
                                             .position((int) home.getX(), (int) home.getY(), (int) home.getZ())
                                             .icon(publicHomeMarkerIconPath, Vector2i.from(25, 25))
                                             .maxDistance(5000)
@@ -92,7 +92,7 @@ public class BlueMapHook extends MapHook {
         BlueMapAPI.getInstance().flatMap(blueMapAPI -> getBlueMapWorld(blueMapAPI, home.getWorld()))
                 .ifPresent(blueMapWorld -> blueMapWorld.getMaps().forEach(blueMapMap -> blueMapMap.getMarkerSets()
                         .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                            markerSet.getMarkers().remove(home.getOwner().uuid + ":" + home.getUuid());
+                            markerSet.getMarkers().remove(home.getOwner().getUuid() + ":" + home.getUuid());
                             return markerSet;
                         })));
         return CompletableFuture.completedFuture(null);
@@ -104,7 +104,7 @@ public class BlueMapHook extends MapHook {
                 .forEach(blueMapWorld -> blueMapWorld.getMaps()
                         .forEach(blueMapMap -> blueMapMap.getMarkerSets()
                                 .computeIfPresent(blueMapWorld.getId() + ":" + PUBLIC_HOMES_MARKER_SET_ID, (s, markerSet) -> {
-                                    markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(user.uuid.toString()));
+                                    markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(user.getUuid().toString()));
                                     return markerSet;
                                 }))));
 

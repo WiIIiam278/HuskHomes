@@ -3,6 +3,10 @@ package net.william278.huskhomes.config;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
+import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.hook.MapHook;
+import net.william278.huskhomes.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -38,7 +42,7 @@ public class Settings {
     // Database settings
     @YamlComment("Database connection settings")
     @YamlKey("database.type")
-    private DatabaseType databaseType = DatabaseType.SQLITE;
+    private Database.DatabaseType databaseType = Database.DatabaseType.SQLITE;
 
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
@@ -76,17 +80,17 @@ public class Settings {
 
     @YamlKey("database.table_names")
     private Map<String, String> tableNames = Map.of(
-            TableName.PLAYER_DATA.name().toLowerCase(), TableName.PLAYER_DATA.defaultName,
-            TableName.POSITION_DATA.name().toLowerCase(), TableName.POSITION_DATA.defaultName,
-            TableName.SAVED_POSITION_DATA.name().toLowerCase(), TableName.SAVED_POSITION_DATA.defaultName,
-            TableName.HOME_DATA.name().toLowerCase(), TableName.HOME_DATA.defaultName,
-            TableName.WARP_DATA.name().toLowerCase(), TableName.WARP_DATA.defaultName,
-            TableName.TELEPORT_DATA.name().toLowerCase(), TableName.TELEPORT_DATA.defaultName
+            Database.TableName.PLAYER_DATA.name().toLowerCase(), Database.TableName.PLAYER_DATA.getDefaultName(),
+            Database.TableName.POSITION_DATA.name().toLowerCase(), Database.TableName.POSITION_DATA.getDefaultName(),
+            Database.TableName.SAVED_POSITION_DATA.name().toLowerCase(), Database.TableName.SAVED_POSITION_DATA.getDefaultName(),
+            Database.TableName.HOME_DATA.name().toLowerCase(), Database.TableName.HOME_DATA.getDefaultName(),
+            Database.TableName.WARP_DATA.name().toLowerCase(), Database.TableName.WARP_DATA.getDefaultName(),
+            Database.TableName.TELEPORT_DATA.name().toLowerCase(), Database.TableName.TELEPORT_DATA.getDefaultName()
     );
 
     @NotNull
-    public String getTableName(@NotNull TableName tableName) {
-        return Optional.ofNullable(getTableNames().get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
+    public String getTableName(@NotNull Database.TableName tableName) {
+        return Optional.ofNullable(getTableNames().get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
     }
 
 
@@ -160,7 +164,7 @@ public class Settings {
     private boolean crossServer = false;
 
     @YamlKey("cross_server.messenger_type")
-    private MessengerType messengerType = MessengerType.PLUGIN_MESSAGE;
+    private Broker.Type messageBrokerType = Broker.Type.PLUGIN_MESSAGE;
 
     @YamlKey("cross_server.cluster_id")
     private String clusterId = "";
@@ -222,13 +226,13 @@ public class Settings {
 
     @YamlKey("economy.costs")
     private Map<String, Double> economyCosts = Map.of(
-            EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyAction.ADDITIONAL_HOME_SLOT.defaultCost,
-            EconomyAction.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyAction.MAKE_HOME_PUBLIC.defaultCost,
-            EconomyAction.RANDOM_TELEPORT.name().toLowerCase(), EconomyAction.RANDOM_TELEPORT.defaultCost,
-            EconomyAction.BACK_COMMAND.name().toLowerCase(), EconomyAction.BACK_COMMAND.defaultCost
+            EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT.getDefaultCost(),
+            EconomyHook.EconomyAction.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyHook.EconomyAction.MAKE_HOME_PUBLIC.getDefaultCost(),
+            EconomyHook.EconomyAction.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.EconomyAction.RANDOM_TELEPORT.getDefaultCost(),
+            EconomyHook.EconomyAction.BACK_COMMAND.name().toLowerCase(), EconomyHook.EconomyAction.BACK_COMMAND.getDefaultCost()
     );
 
-    public Optional<Double> getEconomyCost(@NotNull EconomyAction action) {
+    public Optional<Double> getEconomyCost(@NotNull EconomyHook.EconomyAction action) {
         if (!isEconomy()) {
             return Optional.empty();
         }
@@ -245,7 +249,7 @@ public class Settings {
     private boolean doMapHook = false;
 
     @YamlKey("map_hook.map_plugin")
-    private MappingPlugin mappingPlugin = MappingPlugin.DYNMAP;
+    private MapHook.MappingPlugin mappingPlugin = MapHook.MappingPlugin.DYNMAP;
 
     @YamlKey("map_hook.show_public_homes")
     private boolean publicHomesOnMap = true;
@@ -275,7 +279,7 @@ public class Settings {
         return debugLogging;
     }
 
-    public DatabaseType getDatabaseType() {
+    public Database.DatabaseType getDatabaseType() {
         return databaseType;
     }
 
@@ -399,8 +403,8 @@ public class Settings {
         return crossServer;
     }
 
-    public MessengerType getMessengerType() {
-        return messengerType;
+    public Broker.Type getBrokerType() {
+        return messageBrokerType;
     }
 
     public String getClusterId() {
@@ -431,7 +435,7 @@ public class Settings {
         return redisPassword;
     }
 
-    public boolean isRedisUseSsl() {
+    public boolean useRedisSsl() {
         return redisUseSsl;
     }
 
@@ -479,7 +483,7 @@ public class Settings {
         return doMapHook;
     }
 
-    public MappingPlugin getMappingPlugin() {
+    public MapHook.MappingPlugin getMappingPlugin() {
         return mappingPlugin;
     }
 
@@ -493,24 +497,6 @@ public class Settings {
 
     public List<String> getDisabledCommands() {
         return disabledCommands;
-    }
-
-    /**
-     * Represents the names of tables in the database
-     */
-    public enum TableName {
-        PLAYER_DATA("huskhomes_users"),
-        POSITION_DATA("huskhomes_position_data"),
-        SAVED_POSITION_DATA("huskhomes_saved_positions"),
-        HOME_DATA("huskhomes_homes"),
-        WARP_DATA("huskhomes_warps"),
-        TELEPORT_DATA("huskhomes_teleports");
-
-        private final String defaultName;
-
-        TableName(@NotNull String defaultName) {
-            this.defaultName = defaultName;
-        }
     }
 
     /**
@@ -534,70 +520,6 @@ public class Settings {
 
         SoundEffectAction(@NotNull String defaultSoundEffect) {
             this.defaultSoundEffect = defaultSoundEffect;
-        }
-    }
-
-    /**
-     * Identifies actions that incur an economic cost if economy is enabled
-     */
-    public enum EconomyAction {
-        ADDITIONAL_HOME_SLOT(100.00, "economy_action_additional_home_slot"),
-        MAKE_HOME_PUBLIC(50.00, "economy_action_make_home_public"),
-        RANDOM_TELEPORT(25.00, "economy_action_random_teleport"),
-        BACK_COMMAND(0.00, "economy_action_back_command");
-
-        private final double defaultCost;
-        @NotNull
-        public final String confirmationLocaleId;
-
-        EconomyAction(final double defaultCost, @NotNull String confirmationLocaleId) {
-            this.defaultCost = defaultCost;
-            this.confirmationLocaleId = confirmationLocaleId;
-        }
-    }
-
-    /**
-     * Identifies types of databases
-     */
-    public enum DatabaseType {
-        MYSQL("MySQL"),
-        SQLITE("SQLite");
-
-        @NotNull
-        public final String displayName;
-
-        DatabaseType(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-    }
-
-    /**
-     * Identifies types of network messenger
-     */
-    public enum MessengerType {
-        PLUGIN_MESSAGE("Plugin Messages"),
-        REDIS("Redis");
-
-        @NotNull
-        public final String displayName;
-
-        MessengerType(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-    }
-
-    /**
-     * Identifies types of supported Map plugins
-     */
-    public enum MappingPlugin {
-        DYNMAP("Dynmap"),
-        BLUEMAP("BlueMap");
-
-        @NotNull
-        public final String displayName;
-
-        MappingPlugin(@NotNull String displayName) {
-            this.displayName = displayName;
         }
     }
 

@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.player.BukkitPlayer;
+import net.william278.huskhomes.user.BukkitUser;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player player) {
-            this.command.onExecute(BukkitPlayer.adapt(player), args);
+            this.command.onExecute(BukkitUser.adapt(player), args);
         } else {
             if (this.command instanceof ConsoleExecutable consoleExecutable) {
                 consoleExecutable.onConsoleExecute(args);
@@ -70,7 +70,7 @@ public class BukkitCommand implements CommandExecutor, TabExecutor {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                       @NotNull String alias, @NotNull String[] args) {
         if (this.command instanceof TabCompletable tabCompletable) {
-            return tabCompletable.onTabComplete(args, (sender instanceof Player ? BukkitPlayer.adapt((Player) sender) : null));
+            return tabCompletable.onTabComplete(args, (sender instanceof Player ? BukkitUser.adapt((Player) sender) : null));
         }
         return Collections.emptyList();
     }

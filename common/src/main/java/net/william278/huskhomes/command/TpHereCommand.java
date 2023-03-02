@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,7 @@ public class TpHereCommand extends CommandBase implements TabCompletable {
                             if (result.successful()) {
                                 result.getTeleporter()
                                         .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
-                                                teleporter.username, onlineUser.username))
+                                                teleporter.getUsername(), onlineUser.getUsername()))
                                         .ifPresent(onlineUser::sendMessage);
                             }
                         }));

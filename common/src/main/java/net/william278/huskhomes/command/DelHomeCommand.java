@@ -1,8 +1,8 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(homeIdentifier ->
                             plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName()).thenAccept(
                                     optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
-                                                if (!userData.getUserUuid().equals(onlineUser.uuid)) {
+                                                if (!userData.getUserUuid().equals(onlineUser.getUuid())) {
                                                     if (!onlineUser.hasPermission(Permission.COMMAND_DELETE_HOME_OTHER.node)) {
                                                         plugin.getLocales().getLocale("error_no_permission")
                                                                 .ifPresent(onlineUser::sendMessage);
@@ -81,14 +81,14 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
                 plugin.getLocales().getLocale("error_home_invalid", homeName).ifPresent(deleter::sendMessage);
             } else {
                 if (deleted) {
-                    plugin.getLocales().getLocale("home_deleted_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
+                    plugin.getLocales().getLocale("home_deleted_other", homeOwner.getUsername(), homeName).ifPresent(deleter::sendMessage);
                     return;
                 }
                 if (homeName.equalsIgnoreCase("all")) {
                     deleteAllHomes(deleter, homeOwner, delHomeAllConfirm);
                     return;
                 }
-                plugin.getLocales().getLocale("error_home_invalid_other", homeOwner.username, homeName).ifPresent(deleter::sendMessage);
+                plugin.getLocales().getLocale("error_home_invalid_other", homeOwner.getUsername(), homeName).ifPresent(deleter::sendMessage);
             }
         });
     }
@@ -126,7 +126,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
             return Collections.emptyList();
         }
         return args.length > 1 ? Collections.emptyList() : plugin.getCache().getHomes()
-                .getOrDefault(user.uuid, new ArrayList<>())
+                .getOrDefault(user.getUuid(), new ArrayList<>())
                 .stream()
                 .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
                 .sorted()

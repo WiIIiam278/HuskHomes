@@ -1,8 +1,8 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
@@ -74,7 +74,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                             .thenAccept(TimedTeleport::execute);
                 }, () -> {
                     if (otherHome) {
-                        plugin.getLocales().getLocale("error_home_invalid_other", owner.username, homeName)
+                        plugin.getLocales().getLocale("error_home_invalid_other", owner.getUsername(), homeName)
                                 .ifPresent(teleporter::sendMessage);
                     } else {
                         plugin.getLocales().getLocale("error_home_invalid", homeName)
@@ -100,7 +100,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                     identifier -> matchedHome.set(plugin.getDatabase().getUserDataByName(identifier.ownerName()).join()
                             .flatMap(user -> plugin.getDatabase().getHome(user.user(), identifier.homeName()).join())
                             .orElse(null)),
-                    () -> matchedHome.set(plugin.getDatabase().getUserDataByName(playerToTeleport.username).join()
+                    () -> matchedHome.set(plugin.getDatabase().getUserDataByName(playerToTeleport.getUsername()).join()
                             .flatMap(user -> plugin.getDatabase().getHome(user.user(), args[1]).join())
                             .orElse(null)));
 
@@ -110,8 +110,8 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
                 return;
             }
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.getOwner().username + "." + home.getMeta().getName());
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
+                                                       + home.getOwner().getUsername() + "." + home.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)
                     .toTeleport()
@@ -125,7 +125,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
             return Collections.emptyList();
         }
         return args.length > 1 ? Collections.emptyList() : plugin.getCache().getHomes()
-                .getOrDefault(user.uuid, new ArrayList<>())
+                .getOrDefault(user.getUuid(), new ArrayList<>())
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted()

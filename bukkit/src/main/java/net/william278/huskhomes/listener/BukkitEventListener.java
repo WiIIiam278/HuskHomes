@@ -1,8 +1,8 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.player.BukkitPlayer;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
@@ -26,22 +26,22 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        super.handlePlayerJoin(BukkitPlayer.adapt(event.getPlayer()));
+        super.handlePlayerJoin(BukkitUser.adapt(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLeave(PlayerQuitEvent event) {
-        super.handlePlayerLeave(BukkitPlayer.adapt(event.getPlayer()));
+        super.handlePlayerLeave(BukkitUser.adapt(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        super.handlePlayerDeath(BukkitPlayer.adapt(event.getEntity()));
+        super.handlePlayerDeath(BukkitUser.adapt(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        super.handlePlayerRespawn(BukkitPlayer.adapt(event.getPlayer()));
+        super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -53,9 +53,9 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND
               || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
 
-        final BukkitPlayer bukkitPlayer = BukkitPlayer.adapt(player);
+        final BukkitUser bukkitUser = BukkitUser.adapt(player);
         BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
-                handlePlayerTeleport(bukkitPlayer, new Position(sourceLocation, plugin.getServerName())));
+                handlePlayerTeleport(bukkitUser, new Position(sourceLocation, plugin.getServerName())));
     }
 
     //todo When defining paper-plugin.yml files gets merged, use the PlayerSetSpawnEvent in the paper module
@@ -72,7 +72,7 @@ public class BukkitEventListener extends EventListener implements Listener {
 
         // Update the player's respawn location
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
-            final OnlineUser onlineUser = BukkitPlayer.adapt(event.getPlayer());
+            final OnlineUser onlineUser = BukkitUser.adapt(event.getPlayer());
             super.handlePlayerUpdateSpawnPoint(onlineUser, new Position(
                     adaptedLocation.getX(), adaptedLocation.getY(), adaptedLocation.getZ(),
                     adaptedLocation.getYaw(), adaptedLocation.getPitch(),

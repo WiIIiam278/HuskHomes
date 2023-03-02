@@ -3,9 +3,9 @@ package net.william278.huskhomes.api;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
@@ -109,7 +109,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0.2
      */
     public boolean isUserWarmingUp(@NotNull User user) {
-        return plugin.getCache().isWarmingUp(user.uuid);
+        return plugin.getCache().isWarmingUp(user.getUuid());
     }
 
     /**

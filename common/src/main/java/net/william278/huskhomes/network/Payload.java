@@ -12,25 +12,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Payload {
 
-    /**
-     * A position field
-     */
     @Nullable
-    public Position position;
+    private Position position;
 
-    /**
-     * A teleport result field
-     */
     @Nullable
     @SerializedName("teleport_result")
-    public TeleportResult resultState;
+    private TeleportResult resultState;
 
-    /**
-     * A teleport request field
-     */
     @Nullable
     @SerializedName("teleport_request")
-    public TeleportRequest teleportRequest;
+    private TeleportRequest teleportRequest;
 
     /**
      * Returns an empty cross-server message payload
@@ -84,4 +75,27 @@ public class Payload {
     private Payload() {
     }
 
+    /**
+     * A position field
+     */
+    @Nullable
+    public Position getPosition() {
+        return position;
+    }
+
+    /**
+     * A teleport result field
+     */
+    @Nullable
+    public TeleportResult getResultState() {
+        return resultState;
+    }
+
+    /**
+     * A teleport request field
+     */
+    @Nullable
+    public TeleportRequest getTeleportRequest() {
+        return teleportRequest;
+    }
 }

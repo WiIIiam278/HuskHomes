@@ -1,7 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.config.Locales;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;

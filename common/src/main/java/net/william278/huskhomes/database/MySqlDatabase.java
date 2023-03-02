@@ -2,9 +2,9 @@ package net.william278.huskhomes.database;
 
 import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportType;
@@ -242,8 +242,8 @@ public class MySqlDatabase extends Database {
 
     @Override
     public void ensureUser(@NotNull User onlineUser) {
-        getUserData(onlineUser.uuid).ifPresentOrElse(existingUserData -> {
-                    if (!existingUserData.getUsername().equals(onlineUser.username)) {
+        getUserData(onlineUser.getUuid()).ifPresentOrElse(existingUserData -> {
+                    if (!existingUserData.getUsername().equals(onlineUser.getUsername())) {
                         // Update a player's name if it has changed in the database
                         try (Connection connection = getConnection()) {
                             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -251,11 +251,11 @@ public class MySqlDatabase extends Database {
                                     SET `username`=?
                                     WHERE `uuid`=?"""))) {
 
-                                statement.setString(1, onlineUser.username);
+                                statement.setString(1, onlineUser.getUsername());
                                 statement.setString(2, existingUserData.getUserUuid().toString());
                                 statement.executeUpdate();
                             }
-                            getLogger().log(Level.INFO, "Updated " + onlineUser.username + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.username + ")");
+                            getLogger().log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
                             getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -268,8 +268,8 @@ public class MySqlDatabase extends Database {
                                 INSERT INTO `%players_table%` (`uuid`,`username`)
                                 VALUES (?,?);"""))) {
 
-                            statement.setString(1, onlineUser.uuid.toString());
-                            statement.setString(2, onlineUser.username);
+                            statement.setString(1, onlineUser.getUuid().toString());
+                            statement.setString(2, onlineUser.getUsername());
                             statement.executeUpdate();
                         }
                     } catch (SQLException e) {
@@ -342,7 +342,7 @@ public class MySqlDatabase extends Database {
                     WHERE `owner_uuid`=?
                     ORDER BY `name`;"""))) {
 
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
@@ -364,7 +364,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for home data for:" + user.username);
+            getLogger().log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
         }
         return userHomes;
     }
@@ -453,7 +453,7 @@ public class MySqlDatabase extends Database {
                     INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `owner_uuid`=?
                     AND `name`=?;"""))) {
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
                 statement.setString(2, homeName);
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -596,7 +596,7 @@ public class MySqlDatabase extends Database {
                     FROM `%teleports_table%`
                     INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
                     WHERE `player_uuid`=?"""))) {
-                statement.setString(1, onlineUser.uuid.toString());
+                statement.setString(1, onlineUser.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -617,7 +617,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.username, e);
+            getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -652,7 +652,7 @@ public class MySqlDatabase extends Database {
                         FROM `%teleports_table%`
                         WHERE `%teleports_table%`.`player_uuid`=?
                     );"""))) {
-                deleteStatement.setString(1, user.uuid.toString());
+                deleteStatement.setString(1, user.getUuid().toString());
                 deleteStatement.executeUpdate();
             }
 
@@ -661,7 +661,7 @@ public class MySqlDatabase extends Database {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
                         VALUES (?,?,?);"""))) {
-                    statement.setString(1, user.uuid.toString());
+                    statement.setString(1, user.getUuid().toString());
                     statement.setInt(2, setPosition(teleport.target, connection));
                     statement.setInt(3, teleport.type.typeId);
 
@@ -669,7 +669,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
         }
     }
 
@@ -681,7 +681,7 @@ public class MySqlDatabase extends Database {
                     FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.`last_position` = `%positions_table%`.`id`
                     WHERE `uuid`=?"""))) {
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -696,7 +696,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the last teleport position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -709,7 +709,7 @@ public class MySqlDatabase extends Database {
                     FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.last_position = `%positions_table%`.`id`
                     WHERE `uuid`=?;"""))) {
-                queryStatement.setString(1, user.uuid.toString());
+                queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
                 if (resultSet.next()) {
@@ -722,13 +722,13 @@ public class MySqlDatabase extends Database {
                             SET `last_position`=?
                             WHERE `uuid`=?;"""))) {
                         updateStatement.setInt(1, setPosition(position, connection));
-                        updateStatement.setString(2, user.uuid.toString());
+                        updateStatement.setString(2, user.getUuid().toString());
                         updateStatement.executeUpdate();
                     }
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
         }
     }
 
@@ -740,7 +740,7 @@ public class MySqlDatabase extends Database {
                     FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
                     WHERE `uuid`=?"""))) {
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -755,7 +755,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the offline position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -767,7 +767,7 @@ public class MySqlDatabase extends Database {
                     SELECT `offline_position` FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
                     WHERE `uuid`=?;"""))) {
-                queryStatement.setString(1, user.uuid.toString());
+                queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
                 if (resultSet.next()) {
@@ -780,13 +780,13 @@ public class MySqlDatabase extends Database {
                             SET `offline_position`=?
                             WHERE `uuid`=?;"""))) {
                         updateStatement.setInt(1, setPosition(position, connection));
-                        updateStatement.setString(2, user.uuid.toString());
+                        updateStatement.setString(2, user.getUuid().toString());
                         updateStatement.executeUpdate();
                     }
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
         }
     }
 
@@ -798,7 +798,7 @@ public class MySqlDatabase extends Database {
                     FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.`respawn_position` = `%positions_table%`.`id`
                     WHERE `uuid`=?"""))) {
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -813,7 +813,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the respawn position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -825,7 +825,7 @@ public class MySqlDatabase extends Database {
                     SELECT `respawn_position` FROM `%players_table%`
                     INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = `%positions_table%`.`id`
                     WHERE `uuid`=?;"""))) {
-                queryStatement.setString(1, user.uuid.toString());
+                queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
                 if (resultSet.next()) {
@@ -838,7 +838,7 @@ public class MySqlDatabase extends Database {
                                     FROM `%players_table%`
                                     WHERE `%players_table%`.`uuid`=?
                                 );"""))) {
-                            deleteStatement.setString(1, user.uuid.toString());
+                            deleteStatement.setString(1, user.getUuid().toString());
                             deleteStatement.executeUpdate();
                         }
                     } else {
@@ -853,14 +853,14 @@ public class MySqlDatabase extends Database {
                                 SET `respawn_position`=?
                                 WHERE `uuid`=?;"""))) {
                             updateStatement.setInt(1, setPosition(position, connection));
-                            updateStatement.setString(2, user.uuid.toString());
+                            updateStatement.setString(2, user.getUuid().toString());
                             updateStatement.executeUpdate();
                         }
                     }
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.username, e);
+            getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
         }
     }
 
@@ -891,7 +891,7 @@ public class MySqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE,
-                        "Failed to update a home in the database for " + home.getOwner().username, e);
+                        "Failed to update a home in the database for " + home.getOwner().getUsername(), e);
             }
         }, () -> {
             try (Connection connection = getConnection()) {
@@ -900,14 +900,14 @@ public class MySqlDatabase extends Database {
                         VALUES (?,?,?,?);"""))) {
                     statement.setString(1, home.getUuid().toString());
                     statement.setInt(2, setSavedPosition(home, connection));
-                    statement.setString(3, home.getOwner().uuid.toString());
+                    statement.setString(3, home.getOwner().getUuid().toString());
                     statement.setBoolean(4, home.isPublic());
 
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
                 getLogger().log(Level.SEVERE,
-                        "Failed to set a home to the database for " + home.getOwner().username, e);
+                        "Failed to set a home to the database for " + home.getOwner().getUsername(), e);
             }
         });
     }
@@ -983,11 +983,11 @@ public class MySqlDatabase extends Database {
                         )
                     );"""))) {
 
-                statement.setString(1, user.uuid.toString());
+                statement.setString(1, user.getUuid().toString());
                 return statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.username + " from the database", e);
+            getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
         }
         return 0;
     }

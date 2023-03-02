@@ -2,7 +2,7 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.ValidationException;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;

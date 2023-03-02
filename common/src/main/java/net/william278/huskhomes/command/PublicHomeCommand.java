@@ -1,8 +1,8 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
@@ -86,7 +86,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                             .thenAccept(TimedTeleport::execute);
                 }, () -> {
                     if (otherHome) {
-                        plugin.getLocales().getLocale("error_home_invalid_other", owner.username, homeName)
+                        plugin.getLocales().getLocale("error_home_invalid_other", owner.getUsername(), homeName)
                                 .ifPresent(teleporter::sendMessage);
                     } else {
                         plugin.getLocales().getLocale("error_home_invalid", homeName)
@@ -124,8 +124,8 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
                 return;
             }
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to "
-                                                       + home.getOwner().username + "." + home.getMeta().getName());
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
+                                                       + home.getOwner().getUsername() + "." + home.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)
                     .toTeleport()

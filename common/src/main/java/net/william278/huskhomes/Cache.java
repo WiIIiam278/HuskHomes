@@ -4,8 +4,8 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.TimedTeleport;
@@ -47,8 +47,8 @@ public class Cache {
         final Database database = plugin.getDatabase();
         plugin.runAsync(() -> {
             database.getPublicHomes().forEach(home -> {
-                this.getPublicHomes().putIfAbsent(home.getOwner().username, new ArrayList<>());
-                this.getPublicHomes().get(home.getOwner().username).add(home.getMeta().getName());
+                this.getPublicHomes().putIfAbsent(home.getOwner().getUsername(), new ArrayList<>());
+                this.getPublicHomes().get(home.getOwner().getUsername()).add(home.getMeta().getName());
             });
             database.getWarps().forEach(warp -> this.getWarps().add(warp.getMeta().getName()));
         });
@@ -61,10 +61,10 @@ public class Cache {
      */
     public CompletableFuture<Set<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
         getPlayers().clear();
-        getPlayers().addAll(plugin.getOnlinePlayers()
+        getPlayers().addAll(plugin.getOnlineUsers()
                 .stream()
                 .filter(player -> !player.isVanished())
-                .map(onlineUser -> onlineUser.username)
+                .map(onlineUser -> onlineUser.getUsername())
                 .toList());
 
         if (plugin.getSettings().isCrossServer()) {
@@ -119,18 +119,18 @@ public class Cache {
         if (plugin.getEventDispatcher().dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
             return Optional.empty();
         }
-        final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.username : "";
+        final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.getUsername() : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
                                 Locales.escapeMineDown(home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().username + "." + home.getMeta().getName()),
+                                Locales.escapeMineDown(home.getOwner().getUsername() + "." + home.getMeta().getName()),
                                 Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
-                        homeOwner.username, "%first_item_on_page_index%",
+                        homeOwner.getUsername(), "%first_item_on_page_index%",
                         "%last_item_on_page_index%", "%total_items%").orElse(""))
                 .setCommand("/huskhomes:homelist" + homeListArguments).build());
-        this.getPrivateHomeLists().put(homeOwner.username, homeList);
+        this.getPrivateHomeLists().put(homeOwner.getUsername(), homeList);
         return Optional.of(homeList.getNearestValidPage(page));
     }
 
@@ -143,15 +143,15 @@ public class Cache {
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
                 locales.getRawLocale("public_home_list_item",
                                 Locales.escapeMineDown(home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().username + "." + home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().username),
+                                Locales.escapeMineDown(home.getOwner().getUsername() + "." + home.getMeta().getName()),
+                                Locales.escapeMineDown(home.getOwner().getUsername()),
                                 Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
                         "%total_items%").orElse(""))
                 .setCommand("/huskhomes:publichomelist").build());
-        getPublicHomeLists().put(onlineUser.uuid, publicHomeList);
+        getPublicHomeLists().put(onlineUser.getUuid(), publicHomeList);
         return Optional.of(publicHomeList.getNearestValidPage(page));
     }
 
@@ -170,7 +170,7 @@ public class Cache {
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
                         "%total_items%").orElse(""))
                 .setCommand("/huskhomes:warplist").build());
-        getWarpLists().put(onlineUser.uuid, warpList);
+        getWarpLists().put(onlineUser.getUuid(), warpList);
         return Optional.of(warpList.getNearestValidPage(page));
     }
 

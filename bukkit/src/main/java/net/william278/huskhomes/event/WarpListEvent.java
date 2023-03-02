@@ -1,6 +1,6 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;

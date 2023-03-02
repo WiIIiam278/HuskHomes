@@ -1,7 +1,7 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;

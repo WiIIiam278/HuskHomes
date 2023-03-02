@@ -1,10 +1,9 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.User;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Logger;
@@ -154,12 +153,12 @@ public abstract class Database {
      */
     protected Database(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
-        this.playerTableName = implementor.getSettings().getTableName(Settings.TableName.PLAYER_DATA);
-        this.positionsTableName = implementor.getSettings().getTableName(Settings.TableName.POSITION_DATA);
-        this.savedPositionsTableName = implementor.getSettings().getTableName(Settings.TableName.SAVED_POSITION_DATA);
-        this.homesTableName = implementor.getSettings().getTableName(Settings.TableName.HOME_DATA);
-        this.warpsTableName = implementor.getSettings().getTableName(Settings.TableName.WARP_DATA);
-        this.teleportsTableName = implementor.getSettings().getTableName(Settings.TableName.TELEPORT_DATA);
+        this.playerTableName = implementor.getSettings().getTableName(TableName.PLAYER_DATA);
+        this.positionsTableName = implementor.getSettings().getTableName(TableName.POSITION_DATA);
+        this.savedPositionsTableName = implementor.getSettings().getTableName(TableName.SAVED_POSITION_DATA);
+        this.homesTableName = implementor.getSettings().getTableName(TableName.HOME_DATA);
+        this.warpsTableName = implementor.getSettings().getTableName(TableName.WARP_DATA);
+        this.teleportsTableName = implementor.getSettings().getTableName(TableName.TELEPORT_DATA);
         this.logger = implementor.getLoggingAdapter();
     }
 
@@ -459,4 +458,41 @@ public abstract class Database {
     public abstract void terminate();
 
 
+    /**
+     * Identifies types of databases
+     */
+    public enum DatabaseType {
+        MYSQL("MySQL"),
+        SQLITE("SQLite");
+
+        @NotNull
+        public final String displayName;
+
+        DatabaseType(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
+    }
+
+    /**
+     * Represents the names of tables in the database
+     */
+    public enum TableName {
+        PLAYER_DATA("huskhomes_users"),
+        POSITION_DATA("huskhomes_position_data"),
+        SAVED_POSITION_DATA("huskhomes_saved_positions"),
+        HOME_DATA("huskhomes_homes"),
+        WARP_DATA("huskhomes_warps"),
+        TELEPORT_DATA("huskhomes_teleports");
+
+        private final String defaultName;
+
+        TableName(@NotNull String defaultName) {
+            this.defaultName = defaultName;
+        }
+
+        @NotNull
+        public String getDefaultName() {
+            return defaultName;
+        }
+    }
 }

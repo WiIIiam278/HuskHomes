@@ -1,9 +1,9 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
@@ -63,7 +63,7 @@ public class SetHomeCommand extends CommandBase {
         }
 
         // Get their user data
-        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(fetchedData -> {
+        plugin.getDatabase().getUserData(onlineUser.getUuid()).thenAccept(fetchedData -> {
             // Check against economy if needed
             final AtomicBoolean newSlotNeeded = new AtomicBoolean(false);
             final AtomicReference<UserData> userDataToUpdate = new AtomicReference<>(null);
@@ -71,7 +71,7 @@ public class SetHomeCommand extends CommandBase {
                 final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().getFreeHomeSlots(),
                         plugin.getSettings().doStackPermissionLimits());
                 if (fetchedData.isPresent()) {
-                    final Settings.EconomyAction action = Settings.EconomyAction.ADDITIONAL_HOME_SLOT;
+                    final EconomyHook.EconomyAction action = EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT;
                     newSlotNeeded.set((currentHomes.size() + 1) > (freeHomes + fetchedData.get().homeSlots()));
 
                     // If a new slot is needed, validate the user has enough funds to purchase one
@@ -105,7 +105,7 @@ public class SetHomeCommand extends CommandBase {
 
                                 // If the user needed to buy a new slot, perform the transaction and update their data
                                 if (newSlotNeeded.get()) {
-                                    plugin.performEconomyTransaction(onlineUser, Settings.EconomyAction.ADDITIONAL_HOME_SLOT);
+                                    plugin.performEconomyTransaction(onlineUser, EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT);
                                     plugin.getDatabase().updateUserData(userDataToUpdate.get());
                                 }
                                 yield plugin.getLocales().getLocale("set_home_success", setResult.savedPosition().get().meta.name);

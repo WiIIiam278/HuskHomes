@@ -10,15 +10,15 @@ import java.util.UUID;
  */
 public class Position extends Location {
 
-    private Server server;
+    private String server;
 
     public Position(double x, double y, double z, float yaw, float pitch,
-                    @NotNull World world, @NotNull Server server) {
+                    @NotNull World world, @NotNull String server) {
         super(x, y, z, yaw, pitch, world);
         this.setServer(server);
     }
 
-    public Position(@NotNull Location location, @NotNull Server server) {
+    public Position(@NotNull Location location, @NotNull String server) {
         super(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), location.getWorld());
         this.setServer(server);
     }
@@ -61,7 +61,7 @@ public class Position extends Location {
             final double y = parseCoordinate(args[1], relativeTo.getY());
             final double z = parseCoordinate(args[2], relativeTo.getZ());
             final World world = args.length > 3 ? new World(args[3], UUID.randomUUID()) : relativeTo.getWorld();
-            final Server server = args.length > 4 ? new Server(args[4]) : relativeTo.getServer();
+            final String server = args.length > 4 ? args[4] : relativeTo.getServer();
             return Optional.of(new Position(x, y, z, relativeTo.getYaw(), relativeTo.getPitch(), world, server));
         } catch (NumberFormatException ignored) {
             return Optional.empty();
@@ -90,13 +90,14 @@ public class Position extends Location {
     }
 
     /**
-     * The {@link Server} the position is on
+     * The name of the server the position is on
      */
-    public Server getServer() {
+    @NotNull
+    public String getServer() {
         return server;
     }
 
-    public void setServer(Server server) {
+    public void setServer(@NotNull String server) {
         this.server = server;
     }
 }

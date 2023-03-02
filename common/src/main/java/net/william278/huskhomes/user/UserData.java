@@ -1,4 +1,4 @@
-package net.william278.huskhomes.player;
+package net.william278.huskhomes.user;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -12,11 +12,11 @@ public record UserData(@NotNull User user, int homeSlots, boolean ignoringTelepo
 
     @NotNull
     public UUID getUserUuid() {
-        return user.uuid;
+        return user.getUuid();
     }
 
     public String getUsername() {
-        return user.username;
+        return user.getUsername();
     }
 
 }

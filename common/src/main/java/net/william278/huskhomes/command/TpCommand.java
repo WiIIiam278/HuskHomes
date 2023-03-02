@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
@@ -34,19 +34,19 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         // Determine the player to teleport
         final String targetPlayerToTeleport = ((teleportTarget.get() instanceof TargetPlayer) && args.length == 2)
                 ? args[0] : ((teleportTarget.get() instanceof TargetPosition)
-                ? args.length > 3 ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.username)
-                : onlineUser.username : onlineUser.username);
+                ? args.length > 3 ? (isCoordinate(args[1]) && isCoordinate(args[2]) && isCoordinate(args[3]) ? args[0] : onlineUser.getUsername())
+                : onlineUser.getUsername() : onlineUser.getUsername());
 
         // Find the online user to teleport
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenRun(() -> {
             // Get the list of potential teleports, filtered against vanished players, but ensuring the executor is in the list
             final Set<String> players = plugin.getCache().getPlayers();
-            players.add(onlineUser.username);
+            players.add(onlineUser.getUsername());
 
             // Find the player to teleport
             final String playerToTeleport = players.stream()
                     .filter(user -> user.equalsIgnoreCase(targetPlayerToTeleport)).findFirst()
-                    .or(() -> Optional.ofNullable(targetPlayerToTeleport.equals("@s") ? onlineUser.username : null))
+                    .or(() -> Optional.ofNullable(targetPlayerToTeleport.equals("@s") ? onlineUser.getUsername() : null))
                     .or(() -> plugin.getCache().getPlayers().stream().filter(user -> user.toLowerCase().startsWith(targetPlayerToTeleport)).findFirst())
                     .orElse(null);
 
@@ -58,7 +58,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
             }
 
             // Ensure the user has permission to teleport the player to teleport
-            if (!playerToTeleport.equals(onlineUser.username)) {
+            if (!playerToTeleport.equals(onlineUser.getUsername())) {
                 if (!onlineUser.hasPermission(Permission.COMMAND_TP_OTHER.node)) {
                     plugin.getLocales().getLocale("error_no_permission")
                             .ifPresent(onlineUser::sendMessage);
@@ -77,7 +77,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                             if (result.successful()) {
                                 result.getTeleporter()
                                         .flatMap(teleporter -> plugin.getLocales().getLocale("teleporting_other_complete",
-                                                teleporter.username, targetPlayer.playerName))
+                                                teleporter.getUsername(), targetPlayer.playerName))
                                         .ifPresent(onlineUser::sendMessage);
                             } else {
                                 plugin.getLocales().getLocale("error_player_not_found", targetPlayer.playerName)
@@ -97,13 +97,13 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
                         .setTarget(targetPosition.position)
                         .toTeleport()
                         .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                            if (!result.successful() || playerToTeleport.equalsIgnoreCase(onlineUser.username) || result.getDestination().isEmpty()) {
+                            if (!result.successful() || playerToTeleport.equalsIgnoreCase(onlineUser.getUsername()) || result.getDestination().isEmpty()) {
                                 return;
                             }
                             final Position destination = result.getDestination().get();
                             result.getTeleporter()
                                     .flatMap(teleporter -> plugin.getLocales()
-                                            .getLocale("teleporting_other_complete_position", teleporter.username,
+                                            .getLocale("teleporting_other_complete_position", teleporter.getUsername(),
                                                     Integer.toString((int) destination.getX()),
                                                     Integer.toString((int) destination.getY()),
                                                     Integer.toString((int) destination.getZ())))
@@ -188,7 +188,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
 
         // Execute the console teleport
         final TeleportBuilder builder = Teleport.builder(plugin, playerToTeleport)
-                .setTeleporter(playerToTeleport.username);
+                .setTeleporter(playerToTeleport.getUsername());
         if (teleportTarget instanceof TargetPlayer targetPlayer) {
             builder.setTarget(targetPlayer.playerName);
         } else {
@@ -196,9 +196,9 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
         }
         builder.toTeleport().thenAccept(teleport -> teleport.execute().thenAccept(result -> {
             if (result.successful()) {
-                plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.username);
+                plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.getUsername());
             } else {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.username + " to " + teleportTarget);
+                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.getUsername() + " to " + teleportTarget);
             }
         }));
     }

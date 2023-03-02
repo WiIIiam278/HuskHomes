@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;

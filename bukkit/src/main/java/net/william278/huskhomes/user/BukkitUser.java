@@ -1,4 +1,4 @@
-package net.william278.huskhomes.player;
+package net.william278.huskhomes.user;
 
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * Bukkit implementation of an {@link OnlineUser}
  */
-public class BukkitPlayer extends OnlineUser {
+public class BukkitUser extends OnlineUser {
 
     /**
      * Number of ticks to wait before {@link #sendPluginMessage(String, byte[]) sending a plugin message}.
@@ -38,7 +38,7 @@ public class BukkitPlayer extends OnlineUser {
     // The Bukkit player
     private final Player player;
 
-    private BukkitPlayer(@NotNull Player player) {
+    private BukkitUser(@NotNull Player player) {
         super(player.getUniqueId(), player.getName());
         this.plugin = BukkitHuskHomes.getInstance();
         this.player = player;
@@ -51,17 +51,17 @@ public class BukkitPlayer extends OnlineUser {
      * @return the adapted {@link OnlineUser}
      */
     @NotNull
-    public static BukkitPlayer adapt(@NotNull Player player) {
-        return new BukkitPlayer(player);
+    public static BukkitUser adapt(@NotNull Player player) {
+        return new BukkitUser(player);
     }
 
     /**
-     * Get an online {@link BukkitPlayer} by their exact username
+     * Get an online {@link BukkitUser} by their exact username
      *
      * @param username the UUID of the player to find
-     * @return an {@link Optional} containing the {@link BukkitPlayer} if found; {@link Optional#empty()} otherwise
+     * @return an {@link Optional} containing the {@link BukkitUser} if found; {@link Optional#empty()} otherwise
      */
-    public static Optional<BukkitPlayer> get(@NotNull String username) {
+    public static Optional<BukkitUser> get(@NotNull String username) {
         final Player player = Bukkit.getPlayerExact(username);
         if (player != null) {
             return Optional.of(adapt(player));
@@ -158,9 +158,9 @@ public class BukkitPlayer extends OnlineUser {
     }
 
     /**
-     * Return the {@link Player} wrapped by this {@link BukkitPlayer}
+     * Return the {@link Player} wrapped by this {@link BukkitUser}
      *
-     * @return the {@link Player} wrapped by this {@link BukkitPlayer}
+     * @return the {@link Player} wrapped by this {@link BukkitUser}
      */
     public Player getPlayer() {
         return player;

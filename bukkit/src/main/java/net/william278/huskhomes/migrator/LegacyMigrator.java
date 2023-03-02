@@ -1,7 +1,7 @@
 package net.william278.huskhomes.migrator;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.util.BukkitUpgradeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 public class LegacyMigrator extends Migrator {
 
-    public Settings.DatabaseType sourceDatabaseType;
+    public Database.DatabaseType sourceDatabaseType;
     public String sourceMySqlHost;
     public int sourceMySqlPort;
     public String sourceMySqlDatabase;
@@ -52,7 +52,7 @@ public class LegacyMigrator extends Migrator {
     @Override
     public CompletableFuture<Boolean> start() {
         return CompletableFuture.supplyAsync(() -> {
-            if (sourceDatabaseType == Settings.DatabaseType.SQLITE) {
+            if (sourceDatabaseType == Database.DatabaseType.SQLITE) {
                 migrateSqLiteDatabase();
                 return true;
             }
@@ -75,45 +75,45 @@ public class LegacyMigrator extends Migrator {
         plugin.getLoggingAdapter().log(Level.INFO, "Migrating SQLite database, please wait... This may take a while!");
 
         // Execute the migration script
-        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/sqlite_migrator.sql")),
-                        Map.of("%target_positions_table%", plugin.getSettings().getTableName(Settings.TableName.POSITION_DATA),
-                                "%source_positions_table%", sourceLocationsDataTable,
-                                "%target_users_table%", plugin.getSettings().getTableName(Settings.TableName.PLAYER_DATA),
-                                "%source_users_table%", sourcePlayerDataTable,
-                                "%target_saved_positions%", plugin.getSettings().getTableName(Settings.TableName.SAVED_POSITION_DATA),
-                                "%source_homes_table%", sourceHomesDataTable,
-                                "%target_homes_table%", plugin.getSettings().getTableName(Settings.TableName.HOME_DATA),
-                                "%source_warps_table%", sourceWarpsDataTable,
-                                "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA)))
-                .thenRun(() -> plugin.getLoggingAdapter().log(Level.INFO, "SQLite Migration complete!"))
-                .exceptionally(e -> {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of SQLite database failed!" +
-                                                                 " Perhaps the target tables was not clean?", e);
-                    return null;
-                });
+        try {
+            plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/sqlite_migrator.sql")),
+                    Map.of("%target_positions_table%", plugin.getSettings().getTableName(Database.TableName.POSITION_DATA),
+                            "%source_positions_table%", sourceLocationsDataTable,
+                            "%target_users_table%", plugin.getSettings().getTableName(Database.TableName.PLAYER_DATA),
+                            "%source_users_table%", sourcePlayerDataTable,
+                            "%target_saved_positions%", plugin.getSettings().getTableName(Database.TableName.SAVED_POSITION_DATA),
+                            "%source_homes_table%", sourceHomesDataTable,
+                            "%target_homes_table%", plugin.getSettings().getTableName(Database.TableName.HOME_DATA),
+                            "%source_warps_table%", sourceWarpsDataTable,
+                            "%target_warps_table%", plugin.getSettings().getTableName(Database.TableName.WARP_DATA)));
+            plugin.getLoggingAdapter().log(Level.INFO, "SQLite Migration complete!");
+        } catch (Exception e) {
+            plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of SQLite database failed!" +
+                    " Perhaps the target tables was not clean?", e);
+        }
     }
 
     private void migrateMySqlDatabase() {
         plugin.getLoggingAdapter().log(Level.INFO, "Migrating MySQL database, please wait... This may take a while!");
 
         // Execute the migration script
-        plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/mysql_migrator.sql")),
-                        Map.of("%target_positions_table%", plugin.getSettings().getTableName(Settings.TableName.POSITION_DATA),
-                                "%source_positions_table%", sourceLocationsDataTable,
-                                "%target_users_table%", plugin.getSettings().getTableName(Settings.TableName.PLAYER_DATA),
-                                "%source_users_table%", sourcePlayerDataTable,
-                                "%target_saved_positions%", plugin.getSettings().getTableName(Settings.TableName.SAVED_POSITION_DATA),
-                                "%source_homes_table%", sourceHomesDataTable,
-                                "%target_homes_table%", plugin.getSettings().getTableName(Settings.TableName.HOME_DATA),
-                                "%source_warps_table%", sourceWarpsDataTable,
-                                "%target_warps_table%", plugin.getSettings().getTableName(Settings.TableName.WARP_DATA),
-                                "%source_database%", sourceMySqlDatabase))
-                .thenRun(() -> plugin.getLoggingAdapter().log(Level.INFO, "MySQL Migration complete!"))
-                .exceptionally(e -> {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of MySQL database failed!" +
-                                                                 " Perhaps the target tables was not clean?", e);
-                    return null;
-                });
+        try {
+            plugin.getDatabase().runScript(Objects.requireNonNull(plugin.getResource("database/migrator/mysql_migrator.sql")),
+                    Map.of("%target_positions_table%", plugin.getSettings().getTableName(Database.TableName.POSITION_DATA),
+                            "%source_positions_table%", sourceLocationsDataTable,
+                            "%target_users_table%", plugin.getSettings().getTableName(Database.TableName.PLAYER_DATA),
+                            "%source_users_table%", sourcePlayerDataTable,
+                            "%target_saved_positions%", plugin.getSettings().getTableName(Database.TableName.SAVED_POSITION_DATA),
+                            "%source_homes_table%", sourceHomesDataTable,
+                            "%target_homes_table%", plugin.getSettings().getTableName(Database.TableName.HOME_DATA),
+                            "%source_warps_table%", sourceWarpsDataTable,
+                            "%target_warps_table%", plugin.getSettings().getTableName(Database.TableName.WARP_DATA),
+                            "%source_database%", sourceMySqlDatabase));
+            plugin.getLoggingAdapter().log(Level.INFO, "MySQL Migration complete!");
+        } catch (Exception e){
+            plugin.getLoggingAdapter().log(Level.SEVERE, "Migration of MySQL database failed!" +
+                    " Perhaps the target tables was not clean?", e);
+        }
     }
 
     @Override

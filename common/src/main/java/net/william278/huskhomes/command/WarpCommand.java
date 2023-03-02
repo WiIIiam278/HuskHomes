@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
@@ -89,7 +89,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
             }
             final Warp warp = optionalWarp.get();
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.username + " to " + warp.getMeta().getName());
+            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to " + warp.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(warp)
                     .toTimedTeleport()

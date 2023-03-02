@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
@@ -26,7 +26,7 @@ public class TpAllCommand extends CommandBase {
         // Determine players to teleport and teleport them
         plugin.getCache().updatePlayerListCache(plugin, onlineUser).thenAccept(fetchedPlayers -> {
             final List<String> players = fetchedPlayers.stream()
-                    .filter(userName -> !userName.equalsIgnoreCase(onlineUser.username)).toList();
+                    .filter(userName -> !userName.equalsIgnoreCase(onlineUser.getUsername())).toList();
             if (players.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_players_online").ifPresent(onlineUser::sendMessage);
                 return;

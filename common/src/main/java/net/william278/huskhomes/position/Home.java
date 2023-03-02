@@ -1,6 +1,6 @@
 package net.william278.huskhomes.position;
 
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

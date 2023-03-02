@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +42,8 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
      * @param pageNumber page number to display
      */
     private void showPublicHomeList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().getPublicHomeLists().containsKey(onlineUser.uuid)) {
-            onlineUser.sendMessage(plugin.getCache().getPublicHomeLists().get(onlineUser.uuid).getNearestValidPage(pageNumber));
+        if (plugin.getCache().getPublicHomeLists().containsKey(onlineUser.getUuid())) {
+            onlineUser.sendMessage(plugin.getCache().getPublicHomeLists().get(onlineUser.getUuid()).getNearestValidPage(pageNumber));
             return;
         }
 
@@ -68,7 +68,7 @@ public class PublicHomeListCommand extends CommandBase implements ConsoleExecuta
 
             plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
             for (int i = 0; i < homes.size(); i++) {
-                final String ownerUsername = homes.get(i).getOwner().username;
+                final String ownerUsername = homes.get(i).getOwner().getUsername();
                 final String homeName = homes.get(i).getMeta().getName();
                 final String home = ownerUsername + "." + homeName;
                 int spacingSize = (16 - ownerUsername.length()) + 17;

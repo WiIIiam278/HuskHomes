@@ -1,5 +1,9 @@
 package net.william278.huskhomes;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.kyori.adventure.key.Key;
 import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
@@ -12,9 +16,9 @@ import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.manager.Manager;
-import net.william278.huskhomes.network.Messenger;
+import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.migrator.Migrator;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.request.RequestManager;
@@ -22,6 +26,7 @@ import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.TaskRunner;
 import net.william278.huskhomes.util.Validator;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +58,7 @@ public interface HuskHomes extends TaskRunner {
      * @return a {@link Set} of currently online {@link OnlineUser}s
      */
     @NotNull
-    List<OnlineUser> getOnlinePlayers();
+    List<OnlineUser> getOnlineUsers();
 
     /**
      * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
@@ -63,11 +68,11 @@ public interface HuskHomes extends TaskRunner {
      */
     @NotNull
     default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
-        return getOnlinePlayers().stream()
-                .filter(user -> user.username.equalsIgnoreCase(playerName))
+        return getOnlineUsers().stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
                 .findFirst()
-                .or(() -> getOnlinePlayers().stream()
-                        .filter(user -> user.username.toLowerCase().startsWith(playerName.toLowerCase()))
+                .or(() -> getOnlineUsers().stream()
+                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
                         .findFirst());
     }
 
@@ -81,12 +86,12 @@ public interface HuskHomes extends TaskRunner {
      */
     @NotNull
     default CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String targetPlayerName) {
-        if (requester.username.equalsIgnoreCase(targetPlayerName)) {
-            return CompletableFuture.completedFuture(Optional.of(requester.username));
+        if (requester.getUsername().equalsIgnoreCase(targetPlayerName)) {
+            return CompletableFuture.completedFuture(Optional.of(requester.getUsername()));
         }
         final Optional<OnlineUser> localPlayer = findOnlinePlayer(targetPlayerName);
         if (localPlayer.isPresent()) {
-            return CompletableFuture.completedFuture(Optional.of(localPlayer.get().username));
+            return CompletableFuture.completedFuture(Optional.of(localPlayer.get().getUsername()));
         }
         if (getSettings().isCrossServer()) {
             return getMessenger().findPlayer(requester, targetPlayerName);
@@ -151,12 +156,12 @@ public interface HuskHomes extends TaskRunner {
     Manager getManager();
 
     /**
-     * The {@link Messenger} that sends cross-network messages
+     * The {@link Broker} that sends cross-network messages
      *
-     * @return the {@link Messenger} implementation
+     * @return the {@link Broker} implementation
      */
     @NotNull
-    Messenger getMessenger();
+    Broker getMessenger();
 
     /**
      * The {@link RandomTeleportEngine} that manages random teleports
@@ -204,7 +209,7 @@ public interface HuskHomes extends TaskRunner {
     default Optional<? extends Position> getSpawn() {
         return getSettings().isCrossServer() && getSettings().isGlobalSpawn()
                 ? getDatabase().getWarp(getSettings().getGlobalSpawnName())
-                : getLocalCachedSpawn().flatMap(spawn -> spawn.getPosition(getServerName()));
+                : getLocalCachedSpawn().map(spawn -> spawn.getPosition(getServerName()));
     }
 
     /**
@@ -213,7 +218,7 @@ public interface HuskHomes extends TaskRunner {
      * @return a {@link CompletableFuture} returning the latest {@link Version} if the current one is out-of-date
      */
     default CompletableFuture<Optional<Version>> getLatestVersionIfOutdated() {
-        final UpdateChecker updateChecker = UpdateChecker.create(getPluginVersion(), SPIGOT_RESOURCE_ID);
+        final UpdateChecker updateChecker = UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
         return updateChecker.isUpToDate().thenApply(upToDate -> {
             if (upToDate) {
                 return Optional.empty();
@@ -278,7 +283,7 @@ public interface HuskHomes extends TaskRunner {
      * @return {@code true} if the action passes the check, {@code false} if the user has insufficient funds
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
+    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.EconomyAction action) {
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
             final Optional<EconomyHook> hook = getEconomyHook();
@@ -299,7 +304,7 @@ public interface HuskHomes extends TaskRunner {
      * @param player the player to deduct the cost from if needed
      * @param action the action to deduct the cost from if needed
      */
-    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull Settings.EconomyAction action) {
+    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.EconomyAction action) {
         if (!getSettings().isEconomy()) return;
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
 
@@ -328,7 +333,7 @@ public interface HuskHomes extends TaskRunner {
      * @return The {@link Server} object
      */
     @NotNull
-    Server getServerName();
+    String getServerName();
 
     /**
      * Returns a resource read from the plugin resources folder
@@ -361,7 +366,7 @@ public interface HuskHomes extends TaskRunner {
      * @return the plugin {@link Version}
      */
     @NotNull
-    Version getPluginVersion();
+    Version getVersion();
 
     /**
      * Returns a list of enabled commands
@@ -392,5 +397,30 @@ public interface HuskHomes extends TaskRunner {
      * @param metricsId the bStats id for the plugin
      */
     void registerMetrics(int metricsId);
+
+    /**
+     * Initialize plugin messaging channels
+     */
+    void initializePluginChannels();
+
+    /**
+     * Create a resource key namespaced with the plugin id
+     *
+     * @param data the string ID elements to join
+     * @return the key
+     */
+    @NotNull
+    default Key getKey(@NotNull String... data) {
+        if (data.length == 0) {
+            throw new IllegalArgumentException("Cannot create a key with no data");
+        }
+        @Subst("foo") final String joined = String.join("/", data);
+        return Key.key("husktowns", joined);
+    }
+
+    @NotNull
+    default Gson getGson() {
+        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()).create();
+    }
 
 }

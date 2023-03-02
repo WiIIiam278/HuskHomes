@@ -1,7 +1,7 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.User;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 public class UsersManager {

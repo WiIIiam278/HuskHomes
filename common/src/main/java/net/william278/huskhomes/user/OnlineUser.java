@@ -1,4 +1,4 @@
-package net.william278.huskhomes.player;
+package net.william278.huskhomes.user;
 
 import de.themoep.minedown.adventure.MineDown;
 import de.themoep.minedown.adventure.MineDownParser;
@@ -11,8 +11,6 @@ import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportResult;
-import net.william278.huskhomes.util.Permission;
-import org.intellij.lang.annotations.Pattern;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +25,6 @@ public abstract class OnlineUser extends User {
     public OnlineUser(@NotNull UUID uuid, @NotNull String username) {
         super(uuid, username);
     }
-
 
     /**
      * Returns the current {@link Position} of this player
@@ -145,6 +142,13 @@ public abstract class OnlineUser extends User {
      * @param asynchronous if the teleport should be asynchronous
      */
     public abstract CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous);
+
+    /**
+     * Send a plugin message to the user
+     * @param channel channel to send it on
+     * @param message byte array of message data
+     */
+    public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
     /**
      * Returns if a player is moving (i.e. they have momentum)

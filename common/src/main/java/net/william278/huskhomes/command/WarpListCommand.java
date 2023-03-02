@@ -1,7 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +40,8 @@ public class WarpListCommand extends CommandBase implements ConsoleExecutable {
      * @param pageNumber page number to display
      */
     private void showWarpList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().getWarpLists().containsKey(onlineUser.uuid)) {
-            onlineUser.sendMessage(plugin.getCache().getWarpLists().get(onlineUser.uuid).getNearestValidPage(pageNumber));
+        if (plugin.getCache().getWarpLists().containsKey(onlineUser.getUuid())) {
+            onlineUser.sendMessage(plugin.getCache().getWarpLists().get(onlineUser.getUuid()).getNearestValidPage(pageNumber));
             return;
         }
 

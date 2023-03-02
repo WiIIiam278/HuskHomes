@@ -4,7 +4,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.migrator.Migrator;
-import net.william278.huskhomes.player.OnlineUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
         super("huskhomes", Permission.COMMAND_HUSKHOMES, implementor);
         this.aboutMenu = AboutMenu.create("HuskHomes")
                 .withDescription("A powerful, intuitive and flexible teleportation suite")
-                .withVersion(implementor.getPluginVersion())
+                .withVersion(implementor.getVersion())
                 .addAttribution("Author",
                         AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
                 .addAttribution("Contributors",
@@ -102,10 +102,10 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
                         newestVersion.ifPresentOrElse(
                                 newVersion -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
-                                                     + " (v" + newVersion + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)")),
+                                                     + " (v" + newVersion + " (Running: v" + plugin.getVersion() + ")](#00fb9a)")),
                                 () -> onlineUser.sendMessage(
                                         new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
-                                                     + " (Running: v" + plugin.getPluginVersion() + ")](#00fb9a)"))));
+                                                     + " (Running: v" + plugin.getVersion() + ")](#00fb9a)"))));
             }
             case "migrate" -> plugin.getLocales().getLocale("error_console_command_only")
                     .ifPresent(onlineUser::sendMessage);
@@ -143,10 +143,10 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
             case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
                     newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
                                     "An update is available for HuskHomes, v" + newVersion
-                                    + " (Running v" + plugin.getPluginVersion() + ")"),
+                                    + " (Running v" + plugin.getVersion() + ")"),
                             () -> plugin.getLoggingAdapter().log(Level.INFO,
                                     "HuskHomes is up to date" +
-                                    " (Running v" + plugin.getPluginVersion() + ")")));
+                                    " (Running v" + plugin.getVersion() + ")")));
             case "migrate" -> {
                 if (args.length < 2) {
                     plugin.getLoggingAdapter().log(Level.INFO,

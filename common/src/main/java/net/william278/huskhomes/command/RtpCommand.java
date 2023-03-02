@@ -1,9 +1,9 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.player.OnlineUser;
-import net.william278.huskhomes.player.UserData;
+import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
@@ -49,13 +49,13 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         // Perform economy check if necessary
-        if (!plugin.validateEconomyCheck(onlineUser, Settings.EconomyAction.RANDOM_TELEPORT)) {
+        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.EconomyAction.RANDOM_TELEPORT)) {
             return;
         }
 
         final OnlineUser userToTeleport = target;
         final boolean isExecutorTeleporting = userToTeleport.equals(onlineUser);
-        plugin.getDatabase().getUserData(onlineUser.uuid).thenAccept(userData -> {
+        plugin.getDatabase().getUserData(onlineUser.getUuid()).thenAccept(userData -> {
             // Check the user is not still on /rtp cooldown
             if (userData.isEmpty()) {
                 return;
@@ -83,7 +83,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             final TeleportBuilder builder = Teleport.builder(plugin, userToTeleport)
                     .setTarget(position.get());
             final CompletableFuture<? extends Teleport> teleportFuture = isExecutorTeleporting
-                    ? builder.setEconomyActions(Settings.EconomyAction.RANDOM_TELEPORT).toTimedTeleport()
+                    ? builder.setEconomyActions(EconomyHook.EconomyAction.RANDOM_TELEPORT).toTimedTeleport()
                     : builder.toTeleport();
 
             teleportFuture.thenAccept(teleport -> teleport.execute()
@@ -110,10 +110,10 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             return;
         }
 
-        plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().username + "...");
+        plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().getUsername() + "...");
         plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition().getWorld(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
             if (position.isEmpty()) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().username + " to a random position; randomization timed out!");
+                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().getUsername() + " to a random position; randomization timed out!");
                 return;
             }
             Teleport.builder(plugin, foundUser.get())
@@ -121,9 +121,9 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                     .toTeleport()
                     .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
                         if (result.successful()) {
-                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported " + foundUser.get().username + " to a random position.");
+                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported " + foundUser.get().getUsername() + " to a random position.");
                         } else {
-                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().username + " to a random position.");
+                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().getUsername() + " to a random position.");
                         }
                     }));
         });

@@ -3,6 +3,7 @@ package net.william278.huskhomes.util;
 import net.william278.annotaml.Annotaml;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.database.Database;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +17,7 @@ import java.util.logging.Level;
 public class BukkitUpgradeUtil {
 
     private final BukkitHuskHomes plugin;
-    public Settings.DatabaseType databaseType;
+    public Database.DatabaseType databaseType;
     public String mySqlHost;
     public int mySqlPort;
     public String mySqlDatabase;
@@ -37,7 +38,7 @@ public class BukkitUpgradeUtil {
      * Reads old settings from the config and writes them to the new config.
      */
     private void readOldSettings() {
-        this.databaseType = Settings.DatabaseType.valueOf(plugin.getConfig()
+        this.databaseType = Database.DatabaseType.valueOf(plugin.getConfig()
                 .getString("data_storage_options.storage_type", "SQLITE").toUpperCase());
 
         this.mySqlHost = plugin.getConfig().getString("data_storage_options.mysql_credentials.host", "localhost");

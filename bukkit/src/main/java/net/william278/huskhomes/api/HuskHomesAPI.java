@@ -98,12 +98,23 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      * @param location the bukkit location to get the {@link Position} instance for
      * @param server   the {@link Server} the position is on
      * @return the {@link Position} instance for the given bukkit {@link Location} on the given {@link Server}
-     * @see Position#server
-     * @since 3.0
+     * @see Position#getServer() to get the server the position is on
+     * @since 4.0
      */
-    @Nullable
+    @NotNull
     public Position adaptPosition(@NotNull org.bukkit.Location location, @NotNull String server) {
         return new Position(Objects.requireNonNull(adaptLocation(location)), server);
+    }
+
+    /**
+     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on.
+     * @param location the bukkit location to get the {@link Position} instance for
+     * @return the {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on
+     * @since 4.0
+     */
+    @NotNull
+    public Position adaptPosition(@NotNull org.bukkit.Location location) {
+        return new Position(Objects.requireNonNull(adaptLocation(location)), getServer());
     }
 
     /**

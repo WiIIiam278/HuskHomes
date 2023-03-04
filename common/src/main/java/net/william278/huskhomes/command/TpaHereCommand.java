@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.request.TeleportRequest;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class TpaHereCommand extends CommandBase implements TabCompletable {
 
         if (args.length == 1) {
             plugin.getRequestManager()
-                    .sendTeleportRequest(onlineUser, args[0], TeleportRequest.RequestType.TPA_HERE)
+                    .sendTeleportRequest(onlineUser, args[0], TeleportRequest.Type.TPA_HERE)
                     .thenAccept(sent -> {
                         if (sent.isEmpty()) {
                             if (args[0].equalsIgnoreCase(onlineUser.getUsername())) {

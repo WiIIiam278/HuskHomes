@@ -1,14 +1,14 @@
-package net.william278.huskhomes;
+package net.william278.huskhomes.util;
 
 import org.jetbrains.annotations.NotNull;
 
 public class ValidationException extends IllegalArgumentException {
 
-    public ValidationException(@NotNull ValidationError error) {
+    public ValidationException(@NotNull ValidationException.Type error) {
         super("Error validating position: " + error.name());
     }
 
-    public enum ValidationError {
+    public enum Type {
         NOT_FOUND,
         NAME_TAKEN,
         NAME_INVALID,

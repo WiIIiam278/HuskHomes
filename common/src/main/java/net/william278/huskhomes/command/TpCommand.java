@@ -6,7 +6,6 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

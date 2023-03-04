@@ -6,7 +6,6 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.util.Permission;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +48,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
         }
 
         // Perform economy check if necessary
-        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.EconomyAction.RANDOM_TELEPORT)) {
+        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.Action.RANDOM_TELEPORT)) {
             return;
         }
 
@@ -83,7 +82,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
             final TeleportBuilder builder = Teleport.builder(plugin, userToTeleport)
                     .setTarget(position.get());
             final CompletableFuture<? extends Teleport> teleportFuture = isExecutorTeleporting
-                    ? builder.setEconomyActions(EconomyHook.EconomyAction.RANDOM_TELEPORT).toTimedTeleport()
+                    ? builder.setEconomyActions(EconomyHook.Action.RANDOM_TELEPORT).toTimedTeleport()
                     : builder.toTeleport();
 
             teleportFuture.thenAccept(teleport -> teleport.execute()

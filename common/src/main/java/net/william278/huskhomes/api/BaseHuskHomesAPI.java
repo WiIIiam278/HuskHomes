@@ -3,14 +3,15 @@ package net.william278.huskhomes.api;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.random.RandomTeleportEngine;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.user.UserData;
-import net.william278.huskhomes.position.*;
-import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.random.RandomTeleportEngine;
-import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -116,7 +117,6 @@ public abstract class BaseHuskHomesAPI {
      * Save {@link UserData} to the database, updating it if data for the user already exists, or adding new user data if it doesn't.
      *
      * @param userData The {@link UserData} to save
-     * @return A {@link CompletableFuture} that will complete when the data has been saved
      * @since 3.0
      */
     public final void saveUserData(@NotNull UserData userData) {
@@ -138,12 +138,12 @@ public abstract class BaseHuskHomesAPI {
      *
      * @param user The {@link User} to get the public homes of
      * @return A {@link CompletableFuture} that will complete with a list of {@link Home}s set by the user that
-     * they have made public (where {@link Home#isPublic})
+     * they have made public (where {@link Home#isPublic()})
      * @since 3.0
      */
     public final CompletableFuture<List<Home>> getUserPublicHomes(@NotNull User user) {
         return getUserHomes(user).thenApply(homes -> homes.stream()
-                .filter(home -> home.isPublic())
+                .filter(Home::isPublic)
                 .collect(Collectors.toList()));
     }
 
@@ -264,45 +264,9 @@ public abstract class BaseHuskHomesAPI {
      */
     @NotNull
     public final TeleportBuilder teleportBuilder(@NotNull OnlineUser onlineUser) {
-        return Teleport.builder(plugin, onlineUser);
+        return Teleport.builder(plugin).teleporter(onlineUser);
     }
 
-    /**
-     * Attempt to teleport an {@link OnlineUser} to a target {@link Position}
-     *
-     * @param user          The {@link OnlineUser} to teleport
-     * @param position      The {@link Position} to teleport the user to
-     * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
-     *                      for a period of time)
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
-     * @since 3.0
-     * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
-     */
-    @Deprecated(since = "3.1")
-    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user,
-                                                                  @NotNull Position position,
-                                                                  final boolean timedTeleport) {
-        final TeleportBuilder builder = teleportBuilder(user).setTarget(position);
-        return timedTeleport
-                ? builder.toTimedTeleport().thenApplyAsync(teleport -> teleport.execute().join().getState())
-                : builder.toTeleport().thenApplyAsync(teleport -> teleport.execute().join().getState());
-    }
-
-    /**
-     * Attempt to teleport an {@link OnlineUser} to a target {@link Position}
-     *
-     * @param user     The {@link OnlineUser} to teleport
-     * @param position The {@link Position} to teleport the user to
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
-     * @since 3.0
-     * @deprecated Use {@link #teleportBuilder(OnlineUser)} to construct a teleport
-     */
-    @Deprecated(since = "3.1")
-    public final CompletableFuture<TeleportResult> teleportPlayer(@NotNull OnlineUser user, @NotNull Position position) {
-        return teleportPlayer(user, position, false);
-    }
 
     /**
      * Attempt to teleport an {@link OnlineUser} to a randomly generated {@link Position}. The {@link Position} will be
@@ -312,26 +276,25 @@ public abstract class BaseHuskHomesAPI {
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
      *                      for a period of time)
      * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user,
-                                                                          final boolean timedTeleport,
-                                                                          @NotNull String... rtpArgs) {
-        return plugin.supplyAsync(() -> plugin.getRandomTeleportEngine()
-                .getRandomPosition(user.getPosition().getWorld(), rtpArgs)
-                .map(position -> {
-                    final TeleportBuilder builder = Teleport.builder(plugin, user)
-                            .setTarget(position);
-                    return timedTeleport
-                            ? builder.toTimedTeleport()
-                            .thenApplyAsync(teleport -> teleport.execute().join().getState()).join()
-                            : builder.toTeleport()
-                            .thenApplyAsync(teleport -> teleport.execute().join().getState()).join();
+    public final void randomlyTeleportPlayer(@NotNull OnlineUser user, final boolean timedTeleport, @NotNull String... rtpArgs) {
+        plugin.runAsync(() -> {
+            final Optional<Position> position = plugin.getRandomTeleportEngine()
+                    .getRandomPosition(user.getPosition().getWorld(), rtpArgs);
+            if (position.isEmpty()) {
+                throw new IllegalStateException("Random teleport engine returned an empty position");
+            }
 
-                })
-                .orElse(TeleportResult.CANCELLED));
+            final TeleportBuilder builder = Teleport.builder(plugin)
+                    .teleporter(user)
+                    .target(position.get());
+            if (timedTeleport) {
+                builder.toTimedTeleport().execute();
+            } else {
+                builder.toTeleport().execute();
+            }
+        });
     }
 
     /**
@@ -339,12 +302,10 @@ public abstract class BaseHuskHomesAPI {
      * generated by the current {@link RandomTeleportEngine}
      *
      * @param user The {@link OnlineUser} to teleport
-     * @return A {@link CompletableFuture} that will complete with a {@link TeleportResult} indicating the result of
-     * completing the teleport. If the teleport was successful, the {@link TeleportResult#successful} will be {@code true}.
      * @since 3.0
      */
-    public final CompletableFuture<TeleportResult> randomlyTeleportPlayer(@NotNull OnlineUser user) {
-        return randomlyTeleportPlayer(user, false);
+    public final void randomlyTeleportPlayer(@NotNull OnlineUser user) {
+        this.randomlyTeleportPlayer(user, false);
     }
 
     /**

@@ -1,5 +1,6 @@
 package net.william278.huskhomes.position;
 
+import net.william278.huskhomes.teleport.Target;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -8,7 +9,7 @@ import java.util.UUID;
 /**
  * Represents a position - a {@link Location} somewhere on the proxy network or server
  */
-public class Position extends Location {
+public class Position extends Location implements Target {
 
     private String server;
 

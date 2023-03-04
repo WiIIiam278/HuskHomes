@@ -5,7 +5,6 @@ import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a message sent by a {@link Broker} cross-server. See {@link #builder()} for
@@ -27,8 +26,6 @@ public class Message {
     private String sender;
     @Expose
     private String sourceServer;
-    @Expose
-    private Direction direction;
 
     private Message(@NotNull Type type, @NotNull String target, @NotNull Payload payload) {
         this.type = type;
@@ -45,22 +42,10 @@ public class Message {
         return new Builder();
     }
 
-    public CompletableFuture<Message> send(@NotNull Broker broker, @NotNull OnlineUser sender) {
+    public void send(@NotNull Broker broker, @NotNull OnlineUser sender) {
         this.sender = sender.getUsername();
         this.sourceServer = broker.getServer();
-        this.direction = Direction.OUTBOUND;
-        final CompletableFuture<Message> future = new CompletableFuture<>();
-        broker.getOutboundMessages().put(getUuid(), future);
         broker.send(this, sender);
-        return future;
-    }
-
-    public void reply(@NotNull Broker broker, @NotNull OnlineUser receiver, @NotNull Payload payload) {
-        this.sender = receiver.getUsername();
-        this.sourceServer = broker.getServer();
-        this.direction = Direction.INBOUND;
-        this.payload = payload;
-        broker.send(this, receiver);
     }
 
     @NotNull
@@ -86,11 +71,6 @@ public class Message {
     @NotNull
     public String getSourceServer() {
         return sourceServer;
-    }
-
-    @NotNull
-    public Direction getDirection() {
-        return direction;
     }
 
     @NotNull
@@ -138,21 +118,10 @@ public class Message {
      * Different types of cross-server messages
      */
     public enum Type {
-        TELEPORT_TO_POSITION_REQUEST,
-        POSITION_REQUEST,
+        TELEPORT_TO_POSITION,
+        TELEPORT_TO_NETWORKED_POSITION,
         TELEPORT_REQUEST,
-        POSITION_RESPONSE, TELEPORT_REQUEST_RESPONSE
-    }
-
-    public enum Direction {
-        /**
-         * The message is being sent from the sender to the target
-         */
-        OUTBOUND,
-        /**
-         * The message is being sent from the target to the sender
-         */
-        INBOUND
+        POSITION_RESPONSE, TELEPORT_TO_NETWORKED_USER, TELEPORT_REQUEST_RESPONSE
     }
 
 }

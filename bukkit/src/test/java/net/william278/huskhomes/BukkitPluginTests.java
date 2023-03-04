@@ -59,9 +59,9 @@ public class BukkitPluginTests {
 
         final MineDown simpleLocale = plugin.getLocales()
                 .getLocale("error_in_game_only")
-                .orElseThrow(() -> new HuskHomesException("Failed to load locale"));
+                .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
         final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
-                .orElseThrow(() -> new HuskHomesException("Failed to load raw locale"));
+                .orElseThrow(() -> new IllegalStateException("Failed to load raw locale"));
         BukkitUser.adapt(player).sendMessage(simpleLocale);
         player.assertSaid(simpleLocaleText);
     }
@@ -72,7 +72,7 @@ public class BukkitPluginTests {
 
         final MineDown locale = plugin.getLocales()
                 .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
-                .orElseThrow(() -> new HuskHomesException("Failed to load locale"));
+                .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
         BukkitUser.adapt(player).sendActionBar(locale);
         BukkitUser.adapt(player).sendMessage(locale);
         BukkitUser.adapt(player).sendTitle(locale, false);

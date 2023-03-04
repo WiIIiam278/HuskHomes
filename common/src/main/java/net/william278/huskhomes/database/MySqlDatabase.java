@@ -7,7 +7,6 @@ import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.user.UserData;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -152,7 +151,7 @@ public class MySqlDatabase extends Database {
             statement.setFloat(5, position.getPitch());
             statement.setString(6, position.getWorld().getName());
             statement.setString(7, position.getWorld().getUuid().toString());
-            statement.setString(8, position.getServer().getName());
+            statement.setString(8, position.getServer());
             statement.executeUpdate();
 
             final ResultSet resultSet = statement.getGeneratedKeys();
@@ -183,7 +182,7 @@ public class MySqlDatabase extends Database {
             statement.setFloat(5, position.getPitch());
             statement.setString(6, position.getWorld().getUuid().toString());
             statement.setString(7, position.getWorld().getName());
-            statement.setString(8, position.getServer().getName());
+            statement.setString(8, position.getServer());
             statement.setDouble(9, positionId);
             statement.executeUpdate();
         }
@@ -600,20 +599,20 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(Teleport.builder(plugin, onlineUser)
-                            .setTarget(new Position(resultSet.getDouble("x"),
+                    return Optional.of(Teleport.builder(plugin)
+                            .teleporter(onlineUser)
+                            .target(new Position(resultSet.getDouble("x"),
                                     resultSet.getDouble("y"),
                                     resultSet.getDouble("z"),
                                     resultSet.getFloat("yaw"),
                                     resultSet.getFloat("pitch"),
                                     new World(resultSet.getString("world_name"),
                                             UUID.fromString(resultSet.getString("world_uuid"))),
-                                    new Server(resultSet.getString("server_name"))))
-                            .setType(TeleportType.getTeleportType(resultSet.getInt("type"))
-                                    .orElse(TeleportType.TELEPORT))
-                            .doUpdateLastPosition(false)
-                            .toTeleport()
-                            .join());
+                                    resultSet.getString("server_name")))
+                            .type(Teleport.Type.getTeleportType(resultSet.getInt("type"))
+                                    .orElse(Teleport.Type.TELEPORT))
+                            .updateLastPosition(false)
+                            .toTeleport());
                 }
             }
         } catch (SQLException e) {
@@ -657,13 +656,13 @@ public class MySqlDatabase extends Database {
             }
 
             // Set the user's teleport into the database (if it's not null)
-            if (teleport != null && teleport.target != null) {
+            if (teleport != null) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                         INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
                         VALUES (?,?,?);"""))) {
                     statement.setString(1, user.getUuid().toString());
-                    statement.setInt(2, setPosition(teleport.target, connection));
-                    statement.setInt(3, teleport.type.typeId);
+                    statement.setInt(2, setPosition((Position) teleport.getTarget(), connection));
+                    statement.setInt(3, teleport.getType().getTypeId());
 
                     statement.executeUpdate();
                 }
@@ -692,7 +691,7 @@ public class MySqlDatabase extends Database {
                             resultSet.getFloat("pitch"),
                             new World(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
-                            new Server(resultSet.getString("server_name"))));
+                            resultSet.getString("server_name")));
                 }
             }
         } catch (SQLException e) {
@@ -751,7 +750,7 @@ public class MySqlDatabase extends Database {
                             resultSet.getFloat("pitch"),
                             new World(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
-                            new Server(resultSet.getString("server_name"))));
+                            resultSet.getString("server_name")));
                 }
             }
         } catch (SQLException e) {
@@ -809,7 +808,7 @@ public class MySqlDatabase extends Database {
                             resultSet.getFloat("pitch"),
                             new World(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
-                            new Server(resultSet.getString("server_name"))));
+                            resultSet.getString("server_name")));
                 }
             }
         } catch (SQLException e) {

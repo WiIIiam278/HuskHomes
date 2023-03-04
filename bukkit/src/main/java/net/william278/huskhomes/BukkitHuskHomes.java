@@ -8,7 +8,7 @@ import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.BukkitCommandType;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.command.DisabledCommand;
-import net.william278.huskhomes.config.CachedSpawn;
+import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.Database;
@@ -23,8 +23,6 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
-import net.william278.huskhomes.migrator.LegacyMigrator;
-import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Location;
@@ -32,7 +30,6 @@ import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
-import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -71,17 +68,15 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     private BukkitLogger logger;
     private Database database;
     private Cache cache;
-    private RequestManager requestManager;
     private Validator validator;
     private Manager manager;
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
-    private CachedSpawn serverSpawn;
+    private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<CommandBase> registeredCommands;
-    private List<Migrator> migrators;
     private Server server;
 
     @Nullable
@@ -114,17 +109,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             // Create adventure audience
             this.audiences = BukkitAudiences.create(this);
 
-            // Detect if an upgrade is needed
-            final BukkitUpgradeUtil upgradeData = BukkitUpgradeUtil.detect(this);
-
             // Load settings and locales
             getLoggingAdapter().log(Level.INFO, "Loading plugin configuration settings & locales...");
             initialized.set(reload());
             if (initialized.get()) {
                 logger.showDebugLogs(settings.doDebugLogging());
-                if (upgradeData != null) {
-                    upgradeData.upgradeSettings(settings);
-                }
                 getLoggingAdapter().log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
             } else {
                 throw new IllegalStateException("Failed to load plugin configuration settings and/or locales");
@@ -158,9 +147,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             // Prepare the validator
             this.validator = new Validator(this);
 
-            // Prepare the request manager
-            this.requestManager = new RequestManager(this);
-
             // Prepare the event dispatcher
             this.eventDispatcher = new BukkitEventDispatcher(this);
 
@@ -175,14 +161,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
 
             // Register plugin hooks (Economy, Maps, Plan)
             this.pluginHooks = new HashSet<>();
-            if (settings.isEconomy()) {
+            if (settings.doEconomy()) {
                 if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
                     pluginHooks.add(new RedisEconomyHook(this));
                 } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                     pluginHooks.add(new VaultEconomyHook(this));
                 }
             }
-            if (settings.isDoMapHook()) {
+            if (settings.doMapHook()) {
                 switch (settings.getMappingPlugin()) {
                     case DYNMAP -> {
                         final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
@@ -243,10 +229,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             });
             getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
-            // Prepare migrators
-            this.migrators = new ArrayList<>();
-            this.migrators.add(new LegacyMigrator(this));
-
             // Hook into bStats metrics
             registerMetrics(METRICS_ID);
 
@@ -254,18 +236,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             if (settings.doCheckForUpdates()) {
                 getLoggingAdapter().log(Level.INFO, "Checking for updates...");
                 getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> getLoggingAdapter().log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getVersion() + ")")));
-            }
-
-            // Perform automatic upgrade if detected
-            if (upgradeData != null) {
-                getLoggingAdapter().log(Level.INFO, "Performing automatic upgrade...");
-                new LegacyMigrator(this, upgradeData).start().thenAccept(result -> {
-                    if (result) {
-                        getLoggingAdapter().log(Level.INFO, "Successfully performed automatic upgrade.");
-                    } else {
-                        getLoggingAdapter().log(Level.WARNING, "Failed to perform automatic upgrade.");
-                    }
-                });
             }
         } catch (IllegalStateException exception) {
             getLoggingAdapter().log(Level.SEVERE, exception.getMessage());
@@ -348,12 +318,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
 
     @Override
     @NotNull
-    public RequestManager getRequestManager() {
-        return requestManager;
-    }
-
-    @Override
-    @NotNull
     public Validator getValidator() {
         return validator;
     }
@@ -391,18 +355,13 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     }
 
     @Override
-    public List<Migrator> getMigrators() {
-        return migrators;
-    }
-
-    @Override
-    public Optional<CachedSpawn> getLocalCachedSpawn() {
+    public Optional<Spawn> getLocalCachedSpawn() {
         return Optional.ofNullable(serverSpawn);
     }
 
     @Override
     public void setServerSpawn(@NotNull Location location) {
-        final CachedSpawn newSpawn = new CachedSpawn(location);
+        final Spawn newSpawn = new Spawn(location);
         this.serverSpawn = newSpawn;
         try {
             Annotaml.create(new File(getDataFolder(), "spawn.yml"), newSpawn);
@@ -502,7 +461,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             // Load spawn location from file
             final File spawnFile = new File(getDataFolder(), "spawn.yml");
             if (spawnFile.exists()) {
-                this.serverSpawn = Annotaml.create(spawnFile, CachedSpawn.class).get();
+                this.serverSpawn = Annotaml.create(spawnFile, Spawn.class).get();
             }
 
             // Load unsafe blocks from resources
@@ -531,9 +490,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             }
             metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
             metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().displayName));
-            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().isEconomy())));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().isDoMapHook())));
-            if (getSettings().isDoMapHook()) {
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
+            if (getSettings().doMapHook()) {
                 metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMappingPlugin().displayName));
             }
         } catch (Exception e) {

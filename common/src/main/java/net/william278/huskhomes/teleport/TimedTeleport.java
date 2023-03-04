@@ -9,11 +9,9 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimedTeleport extends Teleport {
 
@@ -22,12 +20,11 @@ public class TimedTeleport extends Teleport {
     private final Position startLocation;
     private final double startHealth;
     private int timeLeft;
-    private boolean cancelled = false;
 
-    protected TimedTeleport(@NotNull OnlineUser teleporter, @NotNull OnlineUser executor, @NotNull Position target,
-                            @NotNull TeleportType type, int warmupTime, @NotNull Set<EconomyHook.EconomyAction> economyActions,
-                            final boolean updateLastPosition, @NotNull HuskHomes plugin) {
-        super(teleporter, executor, target, type, economyActions, updateLastPosition, plugin);
+    protected TimedTeleport(@NotNull OnlineUser executor, @NotNull OnlineUser teleporter, @NotNull Target target,
+                            @NotNull Type type, int warmupTime, boolean updateLastPosition,
+                            @NotNull List<EconomyHook.Action> actions, @NotNull HuskHomes plugin) {
+        super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
         this.plugin = plugin;
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
@@ -41,60 +38,38 @@ public class TimedTeleport extends Teleport {
      * @return a {@link CompletableFuture} that completes when the teleport is complete or has been cancelled
      */
     @Override
-    public CompletableFuture<CompletedTeleport> execute() {
-        // If the target has not been resolved, fail the teleport
-        if (target == null) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_TARGET_NOT_RESOLVED)
-                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
-        }
-
+    public void execute() throws TeleportationException {
         // Check if the teleporter can bypass warmup
         if (timeLeft == 0 || teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
-            return super.execute();
+            super.execute();
+            return;
         }
 
         // Check if the teleporter is already warming up to teleport
         if (plugin.getCache().getCurrentlyOnWarmup().contains(teleporter.getUuid())) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_ALREADY_TELEPORTING)
-                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
+            throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP);
         }
 
         // Check economy actions
-        for (EconomyHook.EconomyAction economyAction : economyActions) {
-            if (!plugin.validateEconomyCheck(executor, economyAction)) {
-                return CompletableFuture.completedFuture(TeleportResult.CANCELLED_ECONOMY)
-                        .thenApply(resultState -> CompletedTeleport.from(resultState, this));
+        for (EconomyHook.Action action : economyActions) {
+            if (!plugin.validateEconomyCheck(executor, action)) {
+                throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
             }
         }
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_MOVING)
-                    .thenApply(resultState -> CompletedTeleport.from(resultState, this));
+            throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING);
         }
 
         // Process the warmup and execute the teleport
-        return process().thenApplyAsync(ignored -> {
-            if (cancelled) {
-                return CompletedTeleport.from(TeleportResult.CANCELLED, this);
-            }
-            return super.execute().join();
-        });
+        this.process();
     }
 
-    /**
-     * Start the processing of a {@link TimedTeleport} warmup
-     *
-     * @return a future, returning when the teleport has finished
-     */
-    private CompletableFuture<Void> process() {
-        final CompletableFuture<Void> timedTeleportFuture = new CompletableFuture<>();
-
+    private void process() {
         // Execute the warmup start event
         plugin.getEventDispatcher().dispatchTeleportWarmupEvent(this, timeLeft).thenAccept(event -> {
-            // Handle event cancellation
             if (event.isCancelled()) {
-                this.cancelled = true;
                 return;
             }
 
@@ -103,9 +78,9 @@ public class TimedTeleport extends Teleport {
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
-            // Create a scheduled executor to tick the timed teleport
-            final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-            executor.scheduleAtFixedRate(() -> {
+            // Run the warmup
+            final AtomicInteger warmupTaskId = new AtomicInteger();
+            final Runnable delayRunnable = (() -> {
                 // Display countdown action bar message
                 if (timeLeft > 0) {
                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
@@ -115,17 +90,17 @@ public class TimedTeleport extends Teleport {
                 } else {
                     plugin.getLocales().getLocale("teleporting_action_bar_processing")
                             .ifPresent(this::sendStatusMessage);
+                    super.execute();
                 }
 
                 // Tick (decrement) the timed teleport timer and end it if done
-                if (tickWarmup()) {
+                if (tickAndGetIfDone()) {
                     plugin.getCache().getCurrentlyOnWarmup().remove(teleporter.getUuid());
-                    timedTeleportFuture.complete(null);
-                    executor.shutdown();
+                    plugin.cancelTask(warmupTaskId.get());
                 }
-            }, 0, 1, TimeUnit.SECONDS);
+            });
+            warmupTaskId.set(plugin.runAsyncRepeating(delayRunnable, 20));
         });
-        return timedTeleportFuture;
     }
 
     /**
@@ -141,7 +116,7 @@ public class TimedTeleport extends Teleport {
      *
      * @return {@code true} if the warmup is complete, {@code false} otherwise
      */
-    private boolean tickWarmup() {
+    private boolean tickAndGetIfDone() {
         if (timeLeft <= 0) {
             return true;
         }
@@ -154,7 +129,6 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(this::sendStatusMessage);
             plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(teleporter::playSound);
-            cancelled = true;
             return true;
         }
 
@@ -166,7 +140,6 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(this::sendStatusMessage);
             plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(teleporter::playSound);
-            cancelled = true;
             return true;
         }
 
@@ -175,11 +148,6 @@ public class TimedTeleport extends Teleport {
         return false;
     }
 
-    /**
-     * Send a teleport warmup status message to the configured slot
-     *
-     * @param message the message to send
-     */
     private void sendStatusMessage(@NotNull MineDown message) {
         switch (plugin.getSettings().getTeleportWarmupDisplay()) {
             case ACTION_BAR -> teleporter.sendActionBar(message);
@@ -189,24 +157,14 @@ public class TimedTeleport extends Teleport {
         }
     }
 
-    /**
-     * Returns if the player has moved since the timed teleport started
-     *
-     * @return {@code true} if the player has moved; {@code false} otherwise
-     */
     private boolean hasTeleporterMoved() {
         final double maxMovementDistance = 0.1d;
         double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX()) +
-                                  Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
-                                  Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
+                Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
+                Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
     }
 
-    /**
-     * Returns if the player has taken damage since the timed teleport started
-     *
-     * @return {@code true} if the player has taken damage
-     */
     private boolean hasTeleporterTakenDamage() {
         return teleporter.getHealth() < startHealth;
     }

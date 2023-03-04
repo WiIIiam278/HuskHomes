@@ -261,19 +261,12 @@ public abstract class Database {
      *
      * @param plugin The plugin instance
      * @return A future returning a list containing all {@link Warp}s set on this server
-     * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
      */
+    @NotNull
     public final List<Warp> getLocalWarps(@NotNull HuskHomes plugin) {
-        try {
-            final Server server = plugin.getServerName();
-            return getWarps().stream()
-                    .filter(warp -> warp.getServer().equals(server))
-                    .collect(Collectors.toList());
-        } catch (IllegalStateException e) {
-            return getWarps().stream()
-                    .filter(warp -> plugin.getWorlds().stream().anyMatch(world -> world.equals(warp.getWorld())))
-                    .collect(Collectors.toList());
-        }
+        return getWarps().stream()
+                .filter(warp -> warp.getServer().equals(plugin.getServerName()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -288,19 +281,12 @@ public abstract class Database {
      *
      * @param plugin The plugin instance
      * @return A future returning a list containing all publicly-set {@link Home}s on this server
-     * @implNote If the {@link Server} has not been initialized, this method will check against local world UUIDs
      */
+    @NotNull
     public final List<Home> getLocalPublicHomes(@NotNull HuskHomes plugin) {
-        try {
-            final Server server = plugin.getServerName();
-            return getPublicHomes().stream()
-                    .filter(home -> home.getServer().equals(server))
-                    .collect(Collectors.toList());
-        } catch (IllegalStateException e) {
-            return plugin.getDatabase().getPublicHomes().stream()
-                    .filter(home -> plugin.getWorlds().stream().anyMatch(world -> world.equals(home.getWorld())))
-                    .collect(Collectors.toList());
-        }
+        return getPublicHomes().stream()
+                .filter(home -> home.getServer().equals(plugin.getServerName()))
+                .collect(Collectors.toList());
     }
 
     /**

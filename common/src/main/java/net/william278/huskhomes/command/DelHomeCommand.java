@@ -4,7 +4,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.Permission;
-import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -7,9 +7,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface TaskRunner {
-    void runAsync(@NotNull Runnable runnable);
+    int runAsync(@NotNull Runnable runnable);
     <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
-    void runSync(@NotNull Runnable runnable);
+    int runSync(@NotNull Runnable runnable);
+    int runAsyncRepeating(@NotNull Runnable runnable, long delay);
+    void cancelTask(int taskId);
     @NotNull
     HuskHomes getPlugin();
 

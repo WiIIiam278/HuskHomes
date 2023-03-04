@@ -8,7 +8,6 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
-import net.william278.huskhomes.util.RegexUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -226,7 +225,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         }
 
                         // Check against economy
-                        if (!plugin.validateEconomyCheck(editor, EconomyHook.EconomyAction.MAKE_HOME_PUBLIC)) {
+                        if (!plugin.validateEconomyCheck(editor, EconomyHook.Action.MAKE_HOME_PUBLIC)) {
                             return;
                         }
                     }
@@ -244,7 +243,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                         }
 
                         // Perform necessary economy transaction
-                        plugin.performEconomyTransaction(editor, EconomyHook.EconomyAction.MAKE_HOME_PUBLIC);
+                        plugin.performEconomyTransaction(editor, EconomyHook.Action.MAKE_HOME_PUBLIC);
 
                         // Show the menu if the menu flag is set
                         if (showMenuFlag.get()) {

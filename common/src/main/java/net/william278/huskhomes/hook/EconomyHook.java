@@ -40,7 +40,7 @@ public abstract class EconomyHook extends PluginHook {
     /**
      * Identifies actions that incur an economic cost if economy is enabled
      */
-    public enum EconomyAction {
+    public enum Action {
         ADDITIONAL_HOME_SLOT(100.00, "economy_action_additional_home_slot"),
         MAKE_HOME_PUBLIC(50.00, "economy_action_make_home_public"),
         RANDOM_TELEPORT(25.00, "economy_action_random_teleport"),
@@ -50,7 +50,7 @@ public abstract class EconomyHook extends PluginHook {
         @NotNull
         public final String confirmationLocaleId;
 
-        EconomyAction(final double defaultCost, @NotNull String confirmationLocaleId) {
+        Action(final double defaultCost, @NotNull String confirmationLocaleId) {
             this.defaultCost = defaultCost;
             this.confirmationLocaleId = confirmationLocaleId;
         }

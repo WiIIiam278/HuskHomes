@@ -1,27 +1,32 @@
 package net.william278.huskhomes.network;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.request.TeleportRequest;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
- * Represents a payload sent in a cross-server {@link Request}
+ * Represents a payload sent in a cross-server {@link Message}
  */
 public class Payload {
 
     @Nullable
+    @Expose
     private Position position;
 
     @Nullable
-    @SerializedName("teleport_result")
-    private TeleportResult resultState;
-
-    @Nullable
+    @Expose
     @SerializedName("teleport_request")
     private TeleportRequest teleportRequest;
+
+    @Nullable
+    @Expose
+    private String string;
 
     /**
      * Returns an empty cross-server message payload
@@ -47,19 +52,6 @@ public class Payload {
     }
 
     /**
-     * Returns a payload containing a {@link TeleportResult}
-     *
-     * @param resultState the teleport to send
-     * @return a payload containing the teleport result
-     */
-    @NotNull
-    public static Payload withTeleportResult(@NotNull TeleportResult resultState) {
-        final Payload payload = new Payload();
-        payload.resultState = resultState;
-        return payload;
-    }
-
-    /**
      * Returns a payload containing a {@link TeleportRequest}
      *
      * @param teleportRequest the teleport to send
@@ -72,30 +64,35 @@ public class Payload {
         return payload;
     }
 
+    /**
+     * A string field
+     */
+    @NotNull
+    public static Payload withString(@NotNull String target) {
+        final Payload payload = new Payload();
+        payload.string = target;
+        return payload;
+    }
+
     private Payload() {
     }
 
     /**
      * A position field
      */
-    @Nullable
-    public Position getPosition() {
-        return position;
+    public Optional<Position> getPosition() {
+        return Optional.ofNullable(position);
+    }
+
+
+    public Optional<TeleportRequest> getTeleportRequest() {
+        return Optional.ofNullable(teleportRequest);
     }
 
     /**
-     * A teleport result field
+     * A string field
      */
-    @Nullable
-    public TeleportResult getResultState() {
-        return resultState;
-    }
-
-    /**
-     * A teleport request field
-     */
-    @Nullable
-    public TeleportRequest getTeleportRequest() {
-        return teleportRequest;
+    public Optional<String> getString() {
+        return Optional.ofNullable(string);
     }
 }

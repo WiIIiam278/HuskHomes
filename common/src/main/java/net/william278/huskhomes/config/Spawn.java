@@ -4,11 +4,9 @@ import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -16,10 +14,10 @@ import java.util.UUID;
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃ Server /spawn location cache ┃
+        ┃    Server /spawn location    ┃
         ┃ Edit in-game using /setspawn ┃
         ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
-public class CachedSpawn {
+public class Spawn {
 
     public double x;
     public double y;
@@ -47,7 +45,7 @@ public class CachedSpawn {
      *
      * @param location The {@link Location} of the spawn
      */
-    public CachedSpawn(@NotNull Location location) {
+    public Spawn(@NotNull Location location) {
         this.x = location.getX();
         this.y = location.getY();
         this.z = location.getZ();
@@ -58,6 +56,6 @@ public class CachedSpawn {
     }
 
     @SuppressWarnings("unused")
-    public CachedSpawn() {
+    public Spawn() {
     }
 }

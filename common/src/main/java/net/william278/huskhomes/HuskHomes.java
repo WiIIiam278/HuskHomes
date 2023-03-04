@@ -9,7 +9,7 @@ import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.CommandBase;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.config.CachedSpawn;
+import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
@@ -17,11 +17,9 @@ import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
-import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
-import net.william278.huskhomes.request.RequestManager;
 import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.TaskRunner;
@@ -77,29 +75,6 @@ public interface HuskHomes extends TaskRunner {
     }
 
     /**
-     * Looks for a player logged in either on this server or the network of connected servers, by approximate name.
-     * Auto-completes partially typed names for the closest match.
-     *
-     * @param requester        the player requesting the player to be found
-     * @param targetPlayerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    @NotNull
-    default CompletableFuture<Optional<String>> findPlayer(@NotNull OnlineUser requester, @NotNull String targetPlayerName) {
-        if (requester.getUsername().equalsIgnoreCase(targetPlayerName)) {
-            return CompletableFuture.completedFuture(Optional.of(requester.getUsername()));
-        }
-        final Optional<OnlineUser> localPlayer = findOnlinePlayer(targetPlayerName);
-        if (localPlayer.isPresent()) {
-            return CompletableFuture.completedFuture(Optional.of(localPlayer.get().getUsername()));
-        }
-        if (getSettings().isCrossServer()) {
-            return getMessenger().findPlayer(requester, targetPlayerName);
-        }
-        return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    /**
      * The plugin {@link Settings} loaded from file
      *
      * @return the plugin {@link Settings}
@@ -130,14 +105,6 @@ public interface HuskHomes extends TaskRunner {
      */
     @NotNull
     Cache getCache();
-
-    /**
-     * The {@link RequestManager} that manages player requests
-     *
-     * @return the plugin {@link RequestManager}
-     */
-    @NotNull
-    RequestManager getRequestManager();
 
     /**
      * The {@link Validator} for validating thome names and descriptions
@@ -187,19 +154,12 @@ public interface HuskHomes extends TaskRunner {
     EventDispatcher getEventDispatcher();
 
     /**
-     * The list of available {@link Migrator}s
+     * The local {@link Spawn} location of this server, as cached to disk
      *
-     * @return the list of available {@link Migrator}
-     */
-    List<Migrator> getMigrators();
-
-    /**
-     * The local {@link CachedSpawn} location of this server, as cached to disk
-     *
-     * @return the {@link CachedSpawn} location data
+     * @return the {@link Spawn} location data
      * @see #getSpawn() for the canonical spawn point to use
      */
-    Optional<CachedSpawn> getLocalCachedSpawn();
+    Optional<Spawn> getLocalCachedSpawn();
 
     /**
      * The canonical spawn {@link Position} of this server, if it has been set
@@ -229,9 +189,9 @@ public interface HuskHomes extends TaskRunner {
     }
 
     /**
-     * Update the {@link CachedSpawn} position to a location on the server
+     * Update the {@link Spawn} position to a location on the server
      *
-     * @param location the new {@link CachedSpawn} location
+     * @param location the new {@link Spawn} location
      */
     void setServerSpawn(@NotNull Location location);
 
@@ -263,7 +223,7 @@ public interface HuskHomes extends TaskRunner {
      * @return the {@link MapHook} optionally being used
      */
     default Optional<MapHook> getMapHook() {
-        return getSettings().isDoMapHook() ? getHook(MapHook.class) : Optional.empty();
+        return getSettings().doMapHook() ? getHook(MapHook.class) : Optional.empty();
     }
 
     /**
@@ -272,7 +232,7 @@ public interface HuskHomes extends TaskRunner {
      * @return the {@link EconomyHook} optionally being used
      */
     default Optional<EconomyHook> getEconomyHook() {
-        return getSettings().isEconomy() ? getHook(EconomyHook.class) : Optional.empty();
+        return getSettings().doEconomy() ? getHook(EconomyHook.class) : Optional.empty();
     }
 
     /**
@@ -283,7 +243,7 @@ public interface HuskHomes extends TaskRunner {
      * @return {@code true} if the action passes the check, {@code false} if the user has insufficient funds
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.EconomyAction action) {
+    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
             final Optional<EconomyHook> hook = getEconomyHook();
@@ -304,8 +264,8 @@ public interface HuskHomes extends TaskRunner {
      * @param player the player to deduct the cost from if needed
      * @param action the action to deduct the cost from if needed
      */
-    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.EconomyAction action) {
-        if (!getSettings().isEconomy()) return;
+    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
+        if (!getSettings().doEconomy()) return;
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
 
         if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {

@@ -226,14 +226,14 @@ public class Settings {
 
     @YamlKey("economy.costs")
     private Map<String, Double> economyCosts = Map.of(
-            EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT.getDefaultCost(),
-            EconomyHook.EconomyAction.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyHook.EconomyAction.MAKE_HOME_PUBLIC.getDefaultCost(),
-            EconomyHook.EconomyAction.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.EconomyAction.RANDOM_TELEPORT.getDefaultCost(),
-            EconomyHook.EconomyAction.BACK_COMMAND.name().toLowerCase(), EconomyHook.EconomyAction.BACK_COMMAND.getDefaultCost()
+            EconomyHook.Action.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyHook.Action.ADDITIONAL_HOME_SLOT.getDefaultCost(),
+            EconomyHook.Action.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyHook.Action.MAKE_HOME_PUBLIC.getDefaultCost(),
+            EconomyHook.Action.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.Action.RANDOM_TELEPORT.getDefaultCost(),
+            EconomyHook.Action.BACK_COMMAND.name().toLowerCase(), EconomyHook.Action.BACK_COMMAND.getDefaultCost()
     );
 
-    public Optional<Double> getEconomyCost(@NotNull EconomyHook.EconomyAction action) {
-        if (!isEconomy()) {
+    public Optional<Double> getEconomyCost(@NotNull EconomyHook.Action action) {
+        if (!doEconomy()) {
             return Optional.empty();
         }
         final Double cost = getEconomyCosts().get(action.name().toLowerCase());
@@ -363,7 +363,7 @@ public class Settings {
         return teleportRequestExpiryTime;
     }
 
-    public boolean isStrictTpaHereRequests() {
+    public boolean doStrictTpaHereRequests() {
         return strictTpaHereRequests;
     }
 
@@ -463,7 +463,7 @@ public class Settings {
         return rtpRestrictedWorlds;
     }
 
-    public boolean isEconomy() {
+    public boolean doEconomy() {
         return economy;
     }
 
@@ -479,7 +479,7 @@ public class Settings {
         return economyCosts;
     }
 
-    public boolean isDoMapHook() {
+    public boolean doMapHook() {
         return doMapHook;
     }
 

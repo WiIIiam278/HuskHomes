@@ -1,19 +1,14 @@
 package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.request.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.teleport.Teleport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-
 public abstract class Broker {
 
     protected final HuskHomes plugin;
-    private final Map<UUID, CompletableFuture<Message>> outboundMessages = new HashMap<>();
 
     /**
      * Create a new broker
@@ -34,45 +29,31 @@ public abstract class Broker {
         if (message.getSourceServer().equals(getServer()) || receiver == null) {
             return;
         }
-        if (message.getDirection() == Message.Direction.INBOUND) {
-            this.outboundMessages.getOrDefault(message.getUuid(), new CompletableFuture<>()).complete(message);
-            this.outboundMessages.remove(message.getUuid());
-            return;
-        }
         switch (message.getType()) {
-            case TELEPORT_TO_POSITION_REQUEST -> {
-                if (message.getPayload().getPosition() != null) {
-                    Teleport.builder(plugin, receiver)
-                            .setTarget(message.getPayload().getPosition()).toTeleport()
-                            .thenAccept(teleport -> teleport.execute()
-                                    .thenAccept(result -> message.reply(
-                                            this,
-                                            receiver,
-                                            Payload.withTeleportResult(result.getState())
-                                    )));
-                    return;
-                }
-            }
-            case POSITION_REQUEST -> message.reply(this, receiver, Payload.withPosition(receiver.getPosition()));
-            case TELEPORT_REQUEST -> {
-                if (message.getPayload().getTeleportRequest() != null) {
-                    message.reply(this, receiver, plugin.getRequestManager()
-                            .sendLocalTeleportRequest(message.getPayload().getTeleportRequest(), receiver)
-                            .map(Payload::withTeleportRequest)
-                            .orElse(Payload.empty()));
-                    return;
-                }
-                message.reply(this, receiver, Payload.empty());
-            }
-            case TELEPORT_REQUEST_RESPONSE -> {
-                if (message.getPayload().getTeleportRequest() != null) {
-                    final TeleportRequest request = message.getPayload().getTeleportRequest();
-                    plugin.getRequestManager().handleLocalRequestResponse(receiver, request);
-                    message.reply(this, receiver, Payload.withTeleportRequest(request));
-                    return;
-                }
-                message.reply(this, receiver, Payload.empty());
-            }
+            case TELEPORT_TO_POSITION -> message.getPayload()
+                    .getPosition().ifPresent(position -> Teleport.builder(plugin)
+                            .teleporter(receiver)
+                            .target(position)
+                            .toTeleport()
+                            .execute());
+            case TELEPORT_TO_NETWORKED_POSITION -> Message.builder()
+                    .type(Message.Type.TELEPORT_TO_POSITION)
+                    .target(message.getSender())
+                    .payload(Payload.withPosition(receiver.getPosition()))
+                    .build().send(this, receiver);
+            case TELEPORT_TO_NETWORKED_USER -> message.getPayload()
+                    .getString().ifPresent(target -> Message.builder()
+                            .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
+                            .target(target)
+                            .build().send(this, receiver));
+            case TELEPORT_REQUEST -> message.getPayload()
+                    .getTeleportRequest()
+                    .ifPresent(teleportRequest -> plugin.getManager().requests()
+                            .sendLocalTeleportRequest(teleportRequest, receiver));
+            case TELEPORT_REQUEST_RESPONSE -> message.getPayload()
+                    .getTeleportRequest()
+                    .ifPresent(teleportRequest -> plugin.getManager().requests()
+                            .handleLocalRequestResponse(receiver, teleportRequest));
         }
     }
 
@@ -99,11 +80,6 @@ public abstract class Broker {
      */
     public abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
-    @NotNull
-    protected Map<UUID, CompletableFuture<Message>> getOutboundMessages() {
-        return outboundMessages;
-    }
-
     /**
      * Terminate the broker
      */
@@ -120,23 +96,23 @@ public abstract class Broker {
         return plugin.getServerName();
     }
 
-    /**
-     * Identifies types of message brokers
-     */
-    public enum Type {
-        PLUGIN_MESSAGE("Plugin Messages"),
-        REDIS("Redis");
-        @NotNull
-        private final String displayName;
+/**
+ * Identifies types of message brokers
+ */
+public enum Type {
+    PLUGIN_MESSAGE("Plugin Messages"),
+    REDIS("Redis");
+    @NotNull
+    private final String displayName;
 
-        Type(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-
-        @NotNull
-        public String getDisplayName() {
-            return displayName;
-        }
+    Type(@NotNull String displayName) {
+        this.displayName = displayName;
     }
+
+    @NotNull
+    public String getDisplayName() {
+        return displayName;
+    }
+}
 
 }

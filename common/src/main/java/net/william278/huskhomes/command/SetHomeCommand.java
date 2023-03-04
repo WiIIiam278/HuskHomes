@@ -67,11 +67,11 @@ public class SetHomeCommand extends CommandBase {
             // Check against economy if needed
             final AtomicBoolean newSlotNeeded = new AtomicBoolean(false);
             final AtomicReference<UserData> userDataToUpdate = new AtomicReference<>(null);
-            if (plugin.getSettings().isEconomy()) {
+            if (plugin.getSettings().doEconomy()) {
                 final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().getFreeHomeSlots(),
                         plugin.getSettings().doStackPermissionLimits());
                 if (fetchedData.isPresent()) {
-                    final EconomyHook.EconomyAction action = EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT;
+                    final EconomyHook.Action action = EconomyHook.Action.ADDITIONAL_HOME_SLOT;
                     newSlotNeeded.set((currentHomes.size() + 1) > (freeHomes + fetchedData.get().homeSlots()));
 
                     // If a new slot is needed, validate the user has enough funds to purchase one
@@ -105,7 +105,7 @@ public class SetHomeCommand extends CommandBase {
 
                                 // If the user needed to buy a new slot, perform the transaction and update their data
                                 if (newSlotNeeded.get()) {
-                                    plugin.performEconomyTransaction(onlineUser, EconomyHook.EconomyAction.ADDITIONAL_HOME_SLOT);
+                                    plugin.performEconomyTransaction(onlineUser, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
                                     plugin.getDatabase().updateUserData(userDataToUpdate.get());
                                 }
                                 yield plugin.getLocales().getLocale("set_home_success", setResult.savedPosition().get().meta.name);

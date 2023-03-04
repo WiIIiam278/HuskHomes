@@ -3,6 +3,7 @@ package net.william278.huskhomes.util;
 import net.william278.huskhomes.HuskHomes;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class Validator {
 
     public static final int MAX_NAME_LENGTH = 16;

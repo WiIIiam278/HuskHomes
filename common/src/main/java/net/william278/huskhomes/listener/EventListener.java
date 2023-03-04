@@ -6,7 +6,6 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportType;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +42,7 @@ public class EventListener {
             // Set their ignoring requests state
             plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
                 final boolean ignoringRequests = userData.ignoringTeleports();
-                plugin.getRequestManager().setIgnoringRequests(onlineUser, ignoringRequests);
+                plugin.getManager().requests().setIgnoringRequests(onlineUser, ignoringRequests);
 
                 // Send a reminder message if they are still ignoring requests
                 if (ignoringRequests) {
@@ -68,7 +67,7 @@ public class EventListener {
      */
     private void handleInboundTeleport(@NotNull OnlineUser onlineUser) {
         plugin.getDatabase().getCurrentTeleport(onlineUser).ifPresent(teleport -> {
-            if (teleport.type == TeleportType.RESPAWN) {
+            if (teleport.getType() == Teleport.Type.RESPAWN) {
                 final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
                 if (bedPosition.isEmpty()) {
                     plugin.getLocalCachedSpawn()
@@ -83,13 +82,8 @@ public class EventListener {
                 plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null));
                 return;
             }
-            teleport.execute()
-                    .thenRun(() -> plugin.getDatabase().setCurrentTeleport(onlineUser, null))
-                    .exceptionally(throwable -> {
-                        plugin.getLoggingAdapter().log(Level.SEVERE,
-                                "An error occurred while teleporting an inbound player", throwable);
-                        return null;
-                    });
+            teleport.execute();
+            plugin.getDatabase().setCurrentTeleport(onlineUser, null);
         });
     }
 
@@ -146,11 +140,12 @@ public class EventListener {
             if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning()) {
                 plugin.getDatabase().getRespawnPosition(onlineUser).ifPresent(respawnPosition -> {
                     if (!respawnPosition.getServer().equals(plugin.getServerName())) {
-                        Teleport.builder(plugin, onlineUser)
-                                .setType(TeleportType.RESPAWN)
-                                .setTarget(respawnPosition)
+                        Teleport.builder(plugin)
+                                .teleporter(onlineUser)
+                                .type(Teleport.Type.RESPAWN)
+                                .target(respawnPosition)
                                 .toTeleport()
-                                .thenAccept(Teleport::execute);
+                                .execute();
                     }
                 });
             }

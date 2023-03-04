@@ -1,5 +1,6 @@
-package net.william278.huskhomes.request;
+package net.william278.huskhomes.teleport;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
@@ -12,51 +13,37 @@ import java.time.Instant;
  */
 public class TeleportRequest {
 
-    /**
-     * The user making the request
-     */
+    @Expose
     @SerializedName("requester_name")
-    protected String requesterName;
+    private String requesterName;
 
-    /**
-     * The position of the requester, relevant in the case of a {@link RequestType#TPA_HERE} request
-     */
+    @Expose
     @SerializedName("requester_position")
-    protected Position requesterPosition;
+    private Position requesterPosition;
 
-    /**
-     * Epoch timestamp when the request will expire
-     */
+    @Expose
     @SerializedName("expiry_time")
-    protected long expiryTime;
+    private long expiryTime;
 
-    /**
-     * The type of request; a {@link RequestType#TPA} or {@link RequestType#TPA_HERE}
-     */
-    protected RequestType type;
+    @Expose
+    private Type type;
 
-    /**
-     * The status of the request; a {@link RequestStatus#PENDING}, {@link RequestStatus#ACCEPTED}
-     * or {@link RequestStatus#DECLINED}
-     */
-    protected RequestStatus status;
+    @Expose
+    private Status status;
 
-    /**
-     * The name of the request recipient
-     */
-    protected String recipientName;
+    @Expose
+    private String recipientName;
 
     /**
      * Create a teleport request
      *
      * @param requester The user making the request
      */
-    protected TeleportRequest(@NotNull OnlineUser requester, @NotNull RequestType requestType,
-                              final long expiryTime) {
-        this.requesterName = requester.getUsername();
-        this.requesterPosition = requester.getPosition();
-        this.type = requestType;
-        this.status = RequestStatus.PENDING;
+    public TeleportRequest(@NotNull OnlineUser requester, @NotNull TeleportRequest.Type type, final long expiryTime) {
+        this.setRequesterName(requester.getUsername());
+        this.setRequesterPosition(requester.getPosition());
+        this.setType(type);
+        this.setStatus(Status.PENDING);
         this.expiryTime = expiryTime;
     }
 
@@ -73,15 +60,70 @@ public class TeleportRequest {
         return Instant.now().isAfter(Instant.ofEpochSecond(expiryTime));
     }
 
+    /**
+     * The name of the request recipient
+     */
     @NotNull
     public String getRecipientName() {
         return recipientName;
     }
 
+    public void setRecipientName(@NotNull String recipientName) {
+        this.recipientName = recipientName;
+    }
+
+    /**
+     * The user making the request
+     */
+    public String getRequesterName() {
+        return requesterName;
+    }
+
+    public void setRequesterName(String requesterName) {
+        this.requesterName = requesterName;
+    }
+
+    /**
+     * The position of the requester, relevant in the case of a {@link Type#TPA_HERE} request
+     */
+    @NotNull
+    public Position getRequesterPosition() {
+        return requesterPosition;
+    }
+
+    public void setRequesterPosition(Position requesterPosition) {
+        this.requesterPosition = requesterPosition;
+    }
+
+    /**
+     * The type of request; a {@link Type#TPA} or {@link Type#TPA_HERE}
+     */
+    @NotNull
+    public TeleportRequest.Type getType() {
+        return type;
+    }
+
+    public void setType(@NotNull TeleportRequest.Type type) {
+        this.type = type;
+    }
+
+    /**
+     * The status of the request; a {@link Status#PENDING}, {@link Status#ACCEPTED}
+     * or {@link Status#DECLINED}
+     */
+    @NotNull
+    public TeleportRequest.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(@NotNull TeleportRequest.Status status) {
+        this.status = status;
+    }
+
     /**
      * Types of teleport requests ({@code /tpa} or {@code /tpahere})
      */
-    public enum RequestType {
+    public enum Type {
         /**
          * The request is a {@code /tpa} request, where the requester is requesting to teleport <i>to</i> the recipient
          */
@@ -95,7 +137,7 @@ public class TeleportRequest {
     /**
      * The current status of a teleport request
      */
-    protected enum RequestStatus {
+    public enum Status {
         /**
          * The request is currently pending and can be accepted or declined
          */

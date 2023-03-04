@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.request.TeleportRequest;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +44,7 @@ public class TpaAllCommand extends CommandBase {
             final AtomicInteger counter = new AtomicInteger(0);
             final List<CompletableFuture<Void>> sentRequestsFuture = new ArrayList<>();
             players.forEach(playerName -> sentRequestsFuture.add(plugin.getRequestManager()
-                    .sendTeleportRequest(onlineUser, playerName, TeleportRequest.RequestType.TPA_HERE)
+                    .sendTeleportRequest(onlineUser, playerName, TeleportRequest.Type.TPA_HERE)
                     .thenAccept(sent -> counter.addAndGet(sent.isPresent() ? 1 : 0))));
 
             // Send a message when all requests have been sent

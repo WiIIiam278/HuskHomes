@@ -9,12 +9,14 @@ public class Manager {
     private final HomesManager homes;
     private final WarpsManager warps;
     private final UsersManager users;
+    private final RequestsManager requests;
 
     public Manager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
         this.homes = new HomesManager(plugin);
         this.warps = new WarpsManager(plugin);
         this.users = new UsersManager(plugin);
+        this.requests = new RequestsManager(plugin);
     }
 
     @NotNull
@@ -30,5 +32,10 @@ public class Manager {
     @NotNull
     public UsersManager users() {
         return users;
+    }
+
+    @NotNull
+    public RequestsManager requests() {
+        return requests;
     }
 }

@@ -6,6 +6,7 @@ import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.UserData;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,8 +78,8 @@ public class PlanDataExtension implements DataExtension {
     @Conditional("hasData")
     public long getPublicHomeCount(@NotNull UUID uuid) {
         return database.getUserData(uuid)
-                .map(userData -> database.getHomes(userData.user())
-                        .stream().filter(home -> home.isPublic()).count())
+                .map(userData -> database.getHomes(userData.user()).stream()
+                        .filter(Home::isPublic).count())
                 .orElse(0L);
     }
 
@@ -123,7 +124,7 @@ public class PlanDataExtension implements DataExtension {
                 .map(userData -> database.getOfflinePosition(userData.user())
                         .map(position -> "x: " + (int) position.getX() + ", y: " + (int) position.getY() + ", z: " + (int) position.getZ()
                                 + " (" + position.getWorld().getName() +
-                                ((crossServer) ? "/" + position.getServer().getName() + ")" : ")"))
+                                ((crossServer) ? "/" + position.getServer() + ")" : ")"))
                         .orElse(UNKNOWN_STRING))
                 .orElse(UNKNOWN_STRING);
     }

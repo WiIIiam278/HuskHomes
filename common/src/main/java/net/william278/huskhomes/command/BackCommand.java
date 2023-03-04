@@ -19,7 +19,7 @@ public class BackCommand extends CommandBase {
         plugin.getDatabase().getLastPosition(onlineUser).thenAccept(lastPosition ->
                 lastPosition.ifPresentOrElse(position -> Teleport.builder(plugin, onlineUser)
                                 .setTarget(position)
-                                .setEconomyActions(EconomyHook.EconomyAction.BACK_COMMAND)
+                                .setEconomyActions(EconomyHook.Action.BACK_COMMAND)
                                 .toTimedTeleport()
                                 .thenApply(TimedTeleport::execute),
                         () -> plugin.getLocales().getLocale("error_no_last_position").ifPresent(onlineUser::sendMessage)));

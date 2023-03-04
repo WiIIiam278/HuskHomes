@@ -64,17 +64,17 @@ public class Cache {
         getPlayers().addAll(plugin.getOnlineUsers()
                 .stream()
                 .filter(player -> !player.isVanished())
-                .map(onlineUser -> onlineUser.getUsername())
+                .map(User::getUsername)
                 .toList());
-
-        if (plugin.getSettings().isCrossServer()) {
-            return plugin.getMessenger()
-                    .getOnlinePlayerNames(requester)
-                    .thenApply(networkedPlayers -> {
-                        getPlayers().addAll(Set.of(networkedPlayers));
-                        return getPlayers();
-                    });
-        }
+//todo
+//        if (plugin.getSettings().isCrossServer()) {
+//            return plugin.getMessenger()
+//                    .getOnlinePlayerNames(requester)
+//                    .thenApply(networkedPlayers -> {
+//                        getPlayers().addAll(Set.of(networkedPlayers));
+//                        return getPlayers();
+//                    });
+//        }
         return CompletableFuture.completedFuture(getPlayers());
     }
 

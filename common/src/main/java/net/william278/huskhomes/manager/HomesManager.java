@@ -1,7 +1,7 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.ValidationException;
+import net.william278.huskhomes.util.ValidationException;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
@@ -20,11 +20,11 @@ public class HomesManager {
     public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position, boolean overwrite) throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
-            throw new ValidationException(ValidationException.ValidationError.NAME_TAKEN);
+            throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
 
         if (!plugin.getValidator().isValidName(name)) {
-            throw new ValidationException(ValidationException.ValidationError.NAME_INVALID);
+            throw new ValidationException(ValidationException.Type.NAME_INVALID);
         }
 
         final Home home = existingHome
@@ -45,7 +45,7 @@ public class HomesManager {
     public void deleteHome(@NotNull User owner, @NotNull String name) throws ValidationException {
         final Optional<Home> home = plugin.getDatabase().getHome(owner, name);
         if (home.isEmpty()) {
-            throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
         plugin.getDatabase().deleteHome(home.get().getUuid());
     }
@@ -57,11 +57,11 @@ public class HomesManager {
     public void renameHome(@NotNull User owner, @NotNull String name, @NotNull String newName) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
-            throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
         if (!plugin.getValidator().isValidName(newName)) {
-            throw new ValidationException(ValidationException.ValidationError.NAME_INVALID);
+            throw new ValidationException(ValidationException.Type.NAME_INVALID);
         }
 
         final Home home = optionalHome.get();
@@ -72,11 +72,11 @@ public class HomesManager {
     public void updateHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
-            throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
         if (!plugin.getValidator().isValidDescription(description)) {
-            throw new ValidationException(ValidationException.ValidationError.DESCRIPTION_INVALID);
+            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
         }
 
         final Home home = optionalHome.get();
@@ -87,7 +87,7 @@ public class HomesManager {
     public void updateHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
-            throw new ValidationException(ValidationException.ValidationError.NOT_FOUND);
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
         final Home home = optionalHome.get();

@@ -7,7 +7,7 @@ import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -107,7 +107,7 @@ public class PlanDataExtension implements DataExtension {
     @Conditional("hasData")
     public boolean isIgnoringTeleportRequests(@NotNull UUID uuid) {
         return database.getUserData(uuid)
-                .map(UserData::ignoringTeleports)
+                .map(SavedUser::ignoringTeleports)
                 .orElse(false);
     }
 

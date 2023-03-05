@@ -42,7 +42,7 @@ public class Locales {
     /**
      * Returns a raw, un-formatted locale loaded from the locales file, with replacements applied
      * <p>
-     * Note that replacements will not be MineDown-escaped; use {@link #escapeMineDown(String)} to escape replacements
+     * Note that replacements will not be MineDown-escaped; use {@link #escapeText(String)} to escape replacements
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
@@ -72,7 +72,7 @@ public class Locales {
      * @return An {@link Optional} containing the replacement-applied, formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
-        return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeMineDown)
+        return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
                 .toArray(String[]::new)).map(MineDown::new);
     }
 
@@ -96,15 +96,12 @@ public class Locales {
 
     /**
      * Escape a string from {@link MineDown} formatting for use in a MineDown-formatted locale
-     * <p>
-     * Although MineDown provides {@link MineDown#escape(String)}, that method fails to escape events
-     * properly when using the escaped string in a replacement, so this is used instead
      *
      * @param string The string to escape
      * @return The escaped string
      */
     @NotNull
-    public static String escapeMineDown(@NotNull String string) {
+    public static String escapeText(@NotNull String string) {
         final StringBuilder value = new StringBuilder();
         for (int i = 0; i < string.length(); ++i) {
             char c = string.charAt(i);
@@ -120,6 +117,14 @@ public class Locales {
         return value.toString();
     }
 
+    @NotNull
+    public String truncateText(@NotNull String string, int truncateAfter) {
+        if (string.isBlank()) {
+            return string;
+        }
+        return string.length() > truncateAfter ? string.substring(0, truncateAfter) + "…" : string;
+    }
+
     /**
      * Formats a description string, wrapping text on whitespace after 40 characters
      *
@@ -127,7 +132,7 @@ public class Locales {
      * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
      */
     @NotNull
-    public String formatDescription(@NotNull String string) {
+    public String wrapText(@NotNull String string) {
         if (string.isBlank()) {
             return this.getRawLocale("item_no_description").orElse("N/A");
         }

@@ -9,7 +9,7 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class WarpListCommand extends CommandBase implements ConsoleExecutable {
+public class WarpListCommand extends Command implements ConsoleExecutable {
 
     protected WarpListCommand(@NotNull HuskHomes implementor) {
         super("warplist", Permission.COMMAND_WARP, implementor, "warps");

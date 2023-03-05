@@ -44,6 +44,9 @@ public class Teleport {
     public void execute() throws TeleportationException {
         final Optional<OnlineUser> localTeleporter = resolveLocalTeleporter();
 
+        // Validate economy actions
+        validateEconomyActions();
+
         // Teleport a user on another server
         if (localTeleporter.isEmpty()) {
             final Username teleporter = (Username) this.teleporter;
@@ -73,11 +76,13 @@ public class Teleport {
         if (target instanceof Username username) {
             final Optional<OnlineUser> localTarget = username.findLocally(plugin);
             if (localTarget.isPresent()) {
+                economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
                 teleporter.teleportLocally(localTarget.get().getPosition(), async);
                 return;
             }
 
             if (plugin.getSettings().isCrossServer()) {
+                economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
                 Message.builder()
                         .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
                         .target(username.name())
@@ -87,6 +92,7 @@ public class Teleport {
 
             throw new TeleportationException(TeleportationException.Type.TARGET_NOT_FOUND);
         }
+        economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
         teleporter.teleportLocally((Position) target, async);
     }
 
@@ -96,6 +102,16 @@ public class Teleport {
             return username.findLocally(plugin);
         }
         return Optional.of((OnlineUser) this.teleporter);
+    }
+
+    // Check economy actions
+    protected void validateEconomyActions() throws TeleportationException {
+        economyActions.stream()
+                .map(action -> plugin.validateEconomyCheck(executor, action))
+                .filter(result -> !result).findFirst()
+                .ifPresent(result -> {
+                    throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
+                });
     }
 
     @NotNull
@@ -117,7 +133,6 @@ public class Teleport {
      * Represents the type of teleport being used
      */
     public enum Type {
-
         TELEPORT(0),
         RESPAWN(1);
 

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DelWarpCommand extends CommandBase implements TabCompletable {
+public class DelWarpCommand extends Command implements TabProvider {
 
     protected DelWarpCommand(@NotNull HuskHomes implementor) {
         super("delwarp", Permission.COMMAND_DELETE_WARP, implementor);
@@ -72,7 +72,7 @@ public class DelWarpCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         return args.length > 1 ? Collections.emptyList() : plugin.getCache().getWarps()
                 .stream()
                 .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))

@@ -3,7 +3,7 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Permission;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-public class RtpCommand extends CommandBase implements ConsoleExecutable {
+public class RtpCommand extends Command implements ConsoleExecutable {
 
     protected RtpCommand(@NotNull HuskHomes implementor) {
         super("rtp", Permission.COMMAND_RTP, implementor);
@@ -89,7 +89,7 @@ public class RtpCommand extends CommandBase implements ConsoleExecutable {
                     .thenAccept(result -> {
                         if (isExecutorTeleporting &&
                                 result.successful() && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
-                            plugin.getDatabase().updateUserData(new UserData(onlineUser,
+                            plugin.getDatabase().updateUserData(new SavedUser(onlineUser,
                                     userData.get().homeSlots(), userData.get().ignoringTeleports(),
                                     Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES)));
                         }

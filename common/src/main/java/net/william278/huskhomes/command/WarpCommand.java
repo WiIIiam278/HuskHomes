@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class WarpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class WarpCommand extends Command implements TabProvider, ConsoleExecutable {
 
     protected WarpCommand(@NotNull HuskHomes implementor) {
         super("warp", Permission.COMMAND_WARP, implementor);
@@ -62,7 +62,7 @@ public class WarpCommand extends CommandBase implements TabCompletable, ConsoleE
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         return plugin.getCache().getWarps().stream()
                 .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user, s))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))

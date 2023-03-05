@@ -157,6 +157,9 @@ public class Settings {
         return Optional.ofNullable(getSoundEffects().get(action.name().toLowerCase()));
     }
 
+    @YamlKey("general.brigadier_tab_completion")
+    private boolean brigadierTabCompletion = true;
+
 
     // Cross-server settings
     @YamlComment("Enable teleporting across proxied servers. Requires MySQL")
@@ -347,7 +350,7 @@ public class Settings {
         return permissionRestrictWarps;
     }
 
-    public boolean isOverwriteExistingHomesWarps() {
+    public boolean doOverwriteExistingHomesWarps() {
         return overwriteExistingHomesWarps;
     }
 
@@ -497,6 +500,10 @@ public class Settings {
 
     public List<String> getDisabledCommands() {
         return disabledCommands;
+    }
+
+    public boolean doBrigadierTabCompletion() {
+        return brigadierTabCompletion;
     }
 
     /**

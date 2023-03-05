@@ -2,27 +2,39 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TimedTeleport;
-import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public class BackCommand extends CommandBase {
+import java.util.List;
+import java.util.Optional;
 
-    protected BackCommand(@NotNull HuskHomes implementor) {
-        super("back", Permission.COMMAND_BACK, implementor);
+public class BackCommand extends Command {
+
+    protected BackCommand(@NotNull HuskHomes plugin) {
+        super("back", List.of(), plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        plugin.getDatabase().getLastPosition(onlineUser).thenAccept(lastPosition ->
-                lastPosition.ifPresentOrElse(position -> Teleport.builder(plugin, onlineUser)
-                                .setTarget(position)
-                                .setEconomyActions(EconomyHook.Action.BACK_COMMAND)
-                                .toTimedTeleport()
-                                .thenApply(TimedTeleport::execute),
-                        () -> plugin.getLocales().getLocale("error_no_last_position").ifPresent(onlineUser::sendMessage)));
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        final OnlineUser player = (OnlineUser) executor;
+        plugin.runAsync(() -> {
+            final Optional<Position> lastPosition = plugin.getDatabase().getLastPosition(player);
+            if (lastPosition.isEmpty()) {
+                plugin.getLocales().getLocale("error_no_last_position")
+                        .ifPresent(player::sendMessage);
+                return;
+            }
+
+            Teleport.builder(plugin)
+                    .teleporter(player)
+                    .target(lastPosition.get())
+                    .economyActions(EconomyHook.Action.BACK_COMMAND)
+                    .toTimedTeleport()
+                    .execute();
+        });
     }
 
 }

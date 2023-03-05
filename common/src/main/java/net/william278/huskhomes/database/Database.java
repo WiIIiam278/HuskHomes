@@ -3,7 +3,7 @@ package net.william278.huskhomes.database;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.util.Logger;
@@ -218,27 +218,27 @@ public abstract class Database {
     protected abstract void updateSavedPosition(int savedPositionId, @NotNull SavedPosition savedPosition, @NotNull Connection connection) throws SQLException;
 
     /**
-     * Ensure a {@link User} has a {@link UserData} entry in the database and that their username is up-to-date
+     * Ensure a {@link User} has a {@link SavedUser} entry in the database and that their username is up-to-date
      *
      * @param user The {@link User} to ensure
      */
     public abstract void ensureUser(@NotNull User user);
 
     /**
-     * Get {@link UserData} for a user by their Minecraft username (<i>case-insensitive</i>)
+     * Get {@link SavedUser} for a user by their Minecraft username (<i>case-insensitive</i>)
      *
-     * @param name Username of the {@link UserData} to get (<i>case-insensitive</i>)
-     * @return A future returning an optional with the {@link UserData} present if they exist
+     * @param name Username of the {@link SavedUser} to get (<i>case-insensitive</i>)
+     * @return A future returning an optional with the {@link SavedUser} present if they exist
      */
-    public abstract Optional<UserData> getUserDataByName(@NotNull String name);
+    public abstract Optional<SavedUser> getUserDataByName(@NotNull String name);
 
     /**
-     * Get {@link UserData} for a user by their Minecraft account {@link UUID}
+     * Get {@link SavedUser} for a user by their Minecraft account {@link UUID}
      *
-     * @param uuid Minecraft account {@link UUID} of the {@link UserData} to get
-     * @return A future returning an optional with the {@link UserData} present if they exist
+     * @param uuid Minecraft account {@link UUID} of the {@link SavedUser} to get
+     * @return A future returning an optional with the {@link SavedUser} present if they exist
      */
-    public abstract Optional<UserData> getUserData(@NotNull UUID uuid);
+    public abstract Optional<SavedUser> getUserData(@NotNull UUID uuid);
 
 
     /**
@@ -331,11 +331,11 @@ public abstract class Database {
     public abstract Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser);
 
     /**
-     * Updates a user in the database with new {@link UserData}
+     * Updates a user in the database with new {@link SavedUser}
      *
-     * @param userData The {@link UserData} to update
+     * @param savedUser The {@link SavedUser} to update
      */
-    public abstract void updateUserData(@NotNull UserData userData);
+    public abstract void updateUserData(@NotNull SavedUser savedUser);
 
     /**
      * Sets or clears the current {@link Teleport} being executed by a {@link User}

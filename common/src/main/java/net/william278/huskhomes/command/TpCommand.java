@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class TpCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class TpCommand extends Command implements TabProvider, ConsoleExecutable {
 
     protected TpCommand(@NotNull HuskHomes implementor) {
         super("tp", Permission.COMMAND_TP, implementor, "tpo");
@@ -203,7 +203,7 @@ public class TpCommand extends CommandBase implements TabCompletable, ConsoleExe
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         final boolean serveCoordinateCompletions = user != null && user.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node);
         switch (args.length) {
             case 0, 1 -> {

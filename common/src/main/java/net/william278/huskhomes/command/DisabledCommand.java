@@ -5,7 +5,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-public class DisabledCommand extends CommandBase {
+public class DisabledCommand extends Command {
 
     public DisabledCommand(@NotNull HuskHomes implementor) {
         super("", Permission.COMMAND_DISABLED_MESSAGE, implementor);

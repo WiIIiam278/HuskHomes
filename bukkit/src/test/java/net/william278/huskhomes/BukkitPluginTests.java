@@ -4,7 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.huskhomes.command.BukkitCommandType;
+import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.user.BukkitUser;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -41,8 +41,8 @@ public class BukkitPluginTests {
     @Test
     public void testCommandRegistration() {
         // Assert that all commands in BukkitCommandType are registered by the plugin
-        for (BukkitCommandType command : BukkitCommandType.values()) {
-            Assertions.assertNotNull(plugin.getCommand(command.commandBase.command));
+        for (BukkitCommand.Type command : BukkitCommand.Type.values()) {
+            Assertions.assertNotNull(plugin.getCommand(command.getCommand().command));
         }
     }
 

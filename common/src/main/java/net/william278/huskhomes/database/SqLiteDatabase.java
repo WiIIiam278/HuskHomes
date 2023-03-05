@@ -3,7 +3,7 @@ package net.william278.huskhomes.database;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import org.jetbrains.annotations.NotNull;
@@ -274,7 +274,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<UserData> getUserDataByName(@NotNull String name) {
+    public Optional<SavedUser> getUserDataByName(@NotNull String name) {
         try {
             try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                     SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
@@ -284,7 +284,7 @@ public class SqLiteDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new UserData(
+                    return Optional.of(new SavedUser(
                             new User(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
@@ -299,7 +299,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<UserData> getUserData(@NotNull UUID uuid) {
+    public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
         try {
             try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                     SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
@@ -310,7 +310,7 @@ public class SqLiteDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new UserData(
+                    return Optional.of(new SavedUser(
                             new User(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
@@ -618,19 +618,19 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUserData(@NotNull UserData userData) {
+    public void updateUserData(@NotNull SavedUser savedUser) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 UPDATE `%players_table%`
                 SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                 WHERE `uuid`=?"""))) {
 
-            statement.setInt(1, userData.homeSlots());
-            statement.setBoolean(2, userData.ignoringTeleports());
-            statement.setTimestamp(3, Timestamp.from(userData.rtpCooldown()));
-            statement.setString(4, userData.getUserUuid().toString());
+            statement.setInt(1, savedUser.homeSlots());
+            statement.setBoolean(2, savedUser.ignoringTeleports());
+            statement.setTimestamp(3, Timestamp.from(savedUser.rtpCooldown()));
+            statement.setString(4, savedUser.getUserUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to update user data for " + userData.getUsername() + " on the database", e);
+            getLogger().log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
         }
     }
 

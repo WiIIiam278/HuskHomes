@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DelHomeCommand extends CommandBase implements TabCompletable {
+public class DelHomeCommand extends Command implements TabProvider {
 
     protected DelHomeCommand(@NotNull HuskHomes implementor) {
         super("delhome", Permission.COMMAND_DELETE_HOME, implementor);
@@ -120,7 +120,7 @@ public class DelHomeCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         if (user == null) {
             return Collections.emptyList();
         }

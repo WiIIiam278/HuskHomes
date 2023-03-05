@@ -3,11 +3,11 @@ package net.william278.huskhomes.command;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-public class TpIgnoreCommand extends CommandBase {
+public class TpIgnoreCommand extends Command {
 
     protected TpIgnoreCommand(@NotNull HuskHomes implementor) {
         super("tpignore", Permission.COMMAND_TPIGNORE, implementor);
@@ -28,7 +28,7 @@ public class TpIgnoreCommand extends CommandBase {
         // Update value on the database and send a message | todo: Clean this up
         plugin.getDatabase().getUserData(onlineUser.getUuid())
                 .thenAcceptAsync(userData -> userData.ifPresent(data -> plugin.getDatabase()
-                        .updateUserData(new UserData(onlineUser, data.homeSlots(), isIgnoringRequests, data.rtpCooldown()))
+                        .updateUserData(new SavedUser(onlineUser, data.homeSlots(), isIgnoringRequests, data.rtpCooldown()))
                         .thenRun(() -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
                                         plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
                                 .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale))))));

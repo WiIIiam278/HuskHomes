@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EditHomeCommand extends CommandBase implements TabCompletable {
+public class EditHomeCommand extends Command implements TabProvider {
 
     private final String[] EDIT_HOME_COMPLETIONS = {"rename", "description", "relocate", "privacy"};
 
@@ -308,7 +308,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                 plugin.getLocales().getLocale("edit_home_menu_description",
                                 home.getMeta().getDescription().length() > 50
                                         ? home.getMeta().getDescription().substring(0, 49).trim() + "…" : home.getMeta().getDescription(),
-                                plugin.getLocales().formatDescription(home.getMeta().getDescription()))
+                                plugin.getLocales().wrapText(home.getMeta().getDescription()))
                         .ifPresent(this::add);
             }
 
@@ -331,7 +331,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
                                 formattedName)
                         .ifPresent(this::add);
             }
-            final String escapedName = Locales.escapeMineDown(formattedName);
+            final String escapedName = Locales.escapeText(formattedName);
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
@@ -345,7 +345,7 @@ public class EditHomeCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         if (user == null) {
             return Collections.emptyList();
         }

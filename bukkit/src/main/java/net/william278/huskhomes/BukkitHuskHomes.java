@@ -5,8 +5,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.BukkitCommand;
-import net.william278.huskhomes.command.BukkitCommandType;
-import net.william278.huskhomes.command.CommandBase;
+import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.config.Locales;
@@ -24,6 +23,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Server;
@@ -76,7 +76,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     private UnsafeBlocks unsafeBlocks;
     private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
-    private List<CommandBase> registeredCommands;
+    private List<Command> registeredCommands;
     private Server server;
 
     @Nullable
@@ -207,8 +207,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
 
             // Register commands
             this.registeredCommands = new ArrayList<>();
-            Arrays.stream(BukkitCommandType.values()).forEach(commandType -> {
-                final PluginCommand pluginCommand = getCommand(commandType.commandBase.command);
+            Arrays.stream(BukkitCommand.Type.values()).forEach(commandType -> {
+                final PluginCommand pluginCommand = getCommand(commandType.getCommand().getName());
                 if (pluginCommand == null) {
                     return;
                 }
@@ -216,16 +216,16 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
                 // If the command is disabled, use the disabled CommandBase
                 if (settings.getDisabledCommands().stream().anyMatch(disabledCommand -> {
                     final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
-                    return command.equalsIgnoreCase(commandType.commandBase.command) || Arrays.stream(commandType.commandBase.aliases).anyMatch(alias -> alias.equalsIgnoreCase(command));
+                    return command.equalsIgnoreCase(commandType.getCommand().command) || Arrays.stream(commandType.getCommand().aliases).anyMatch(alias -> alias.equalsIgnoreCase(command));
                 })) {
                     new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
                     return;
                 }
 
                 // Otherwise, register the command
-                final CommandBase commandBase = commandType.commandBase;
-                this.registeredCommands.add(commandBase);
-                new BukkitCommand(commandBase, this).register(pluginCommand);
+                final Command command = commandType.getCommand();
+                this.registeredCommands.add(command);
+                new BukkitCommand(command, this).register(pluginCommand);
             });
             getLoggingAdapter().log(Level.INFO, "Successfully registered permissions & commands.");
 
@@ -284,6 +284,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     @Override
     public Logger getLoggingAdapter() {
         return logger;
+    }
+
+    @Override
+    @NotNull
+    public ConsoleUser getConsole() {
+        return new ConsoleUser(audiences.console());
     }
 
     @NotNull
@@ -422,7 +428,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
 
     @Override
     @NotNull
-    public List<CommandBase> getCommands() {
+    public List<Command> getCommands() {
         return registeredCommands;
     }
 

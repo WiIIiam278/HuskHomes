@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, TabCompletable {
+public class HuskHomesCommand extends Command implements ConsoleExecutable, TabProvider {
 
     private final String[] SUB_COMMANDS = {"about", "help", "reload", "update"};
     private final AboutMenu aboutMenu;
@@ -158,7 +158,7 @@ public class HuskHomesCommand extends CommandBase implements ConsoleExecutable, 
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         if (args.length == 0 || args.length == 1) {
             return Arrays.stream(SUB_COMMANDS)
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))

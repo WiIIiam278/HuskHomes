@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
-import net.william278.huskhomes.command.CommandBase;
+import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
@@ -17,6 +17,7 @@ import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -49,6 +50,9 @@ public interface HuskHomes extends TaskRunner {
      */
     @NotNull
     Logger getLoggingAdapter();
+
+    @NotNull
+    ConsoleUser getConsole();
 
     /**
      * The {@link Set} of online {@link OnlineUser}s on this server
@@ -331,10 +335,10 @@ public interface HuskHomes extends TaskRunner {
     /**
      * Returns a list of enabled commands
      *
-     * @return A list of registered and enabled {@link CommandBase}s
+     * @return A list of registered and enabled {@link Command}s
      */
     @NotNull
-    List<CommandBase> getCommands();
+    List<Command> getCommands();
 
     /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files

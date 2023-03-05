@@ -11,7 +11,7 @@ import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -41,24 +41,24 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Returns saved {@link UserData} for the given player's account {@link UUID}, if they exist.
+     * Returns saved {@link SavedUser} for the given player's account {@link UUID}, if they exist.
      *
      * @param uuid The {@link UUID} of the user to get data for.
-     * @return The {@link UserData} of the user.
+     * @return The {@link SavedUser} of the user.
      * @since 3.0
      */
-    public final CompletableFuture<Optional<UserData>> getUserData(@NotNull UUID uuid) {
+    public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull UUID uuid) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getUserData(uuid));
     }
 
     /**
-     * Returns saved {@link UserData} for the given player's username (case-insensitive), if they exist.
+     * Returns saved {@link SavedUser} for the given player's username (case-insensitive), if they exist.
      *
      * @param username The username of the user to get data for.
-     * @return The {@link UserData} of the user.
+     * @return The {@link SavedUser} of the user.
      * @since 3.0
      */
-    public final CompletableFuture<Optional<UserData>> getUserData(@NotNull String username) {
+    public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull String username) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getUserDataByName(username));
     }
 
@@ -114,13 +114,13 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Save {@link UserData} to the database, updating it if data for the user already exists, or adding new user data if it doesn't.
+     * Save {@link SavedUser} to the database, updating it if data for the user already exists, or adding new user data if it doesn't.
      *
-     * @param userData The {@link UserData} to save
+     * @param savedUser The {@link SavedUser} to save
      * @since 3.0
      */
-    public final void saveUserData(@NotNull UserData userData) {
-        plugin.runAsync(() -> plugin.getDatabase().updateUserData(userData));
+    public final void saveUserData(@NotNull SavedUser savedUser) {
+        plugin.runAsync(() -> plugin.getDatabase().updateUserData(savedUser));
     }
 
     /**

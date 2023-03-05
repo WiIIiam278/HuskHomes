@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A cross-platform representation of a logged-in {@link User}
  */
-public abstract class OnlineUser extends User implements Teleportable {
+public abstract class OnlineUser extends User implements Teleportable, CommandUser {
 
     public OnlineUser(@NotNull UUID uuid, @NotNull String username) {
         super(uuid, username);
@@ -134,7 +134,7 @@ public abstract class OnlineUser extends User implements Teleportable {
      * @return the adventure {@link Audience} for this player
      */
     @NotNull
-    protected abstract Audience getAudience();
+    public abstract Audience getAudience();
 
     /**
      * Teleport a player to the specified local {@link Location}

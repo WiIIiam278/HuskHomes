@@ -17,10 +17,10 @@ public class BrigadierUtil {
      *
      * @param plugin        instance of the registering Bukkit plugin
      * @param pluginCommand the Bukkit PluginCommand to register completions for
-     * @param command       the {@link CommandBase} to register completions for
+     * @param command       the {@link Command} to register completions for
      */
     protected static void registerCommodore(@NotNull BukkitHuskHomes plugin, @NotNull PluginCommand pluginCommand,
-                                            @NotNull CommandBase command) {
+                                            @NotNull Command command) {
         final InputStream commandCommodore = plugin.getResource("commodore/" + pluginCommand.getName() + ".commodore");
         if (commandCommodore == null) {
             return;

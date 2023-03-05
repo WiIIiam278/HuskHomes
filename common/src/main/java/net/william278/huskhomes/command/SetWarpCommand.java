@@ -6,7 +6,7 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-public class SetWarpCommand extends CommandBase {
+public class SetWarpCommand extends Command {
 
     protected SetWarpCommand(@NotNull HuskHomes implementor) {
         super("setwarp", Permission.COMMAND_SET_WARP, implementor);

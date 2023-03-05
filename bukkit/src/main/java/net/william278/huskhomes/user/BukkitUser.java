@@ -102,7 +102,8 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    protected @NotNull Audience getAudience() {
+    @NotNull
+    public Audience getAudience() {
         return plugin.getAudiences().player(player);
     }
 

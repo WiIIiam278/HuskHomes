@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EditWarpCommand extends CommandBase implements TabCompletable {
+public class EditWarpCommand extends Command implements TabProvider {
 
     private final String[] EDIT_WARP_COMPLETIONS = {"rename", "description", "relocate"};
 
@@ -171,7 +171,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
                 plugin.getLocales().getLocale("edit_warp_menu_description",
                                 warp.getMeta().getDescription().length() > 50
                                         ? warp.getMeta().getDescription().substring(0, 49).trim() + "…" : warp.getMeta().getDescription(),
-                                plugin.getLocales().formatDescription(warp.getMeta().getDescription()))
+                                plugin.getLocales().wrapText(warp.getMeta().getDescription()))
                         .ifPresent(this::add);
             }
 
@@ -198,7 +198,7 @@ public class EditWarpCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         return switch (args.length) {
             case 0, 1 -> plugin.getCache().getWarps()
                     .stream()

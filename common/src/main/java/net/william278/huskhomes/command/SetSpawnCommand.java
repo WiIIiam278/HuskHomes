@@ -7,7 +7,7 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-public class SetSpawnCommand extends CommandBase {
+public class SetSpawnCommand extends Command {
 
     protected SetSpawnCommand(@NotNull HuskHomes implementor) {
         super("setspawn", Permission.COMMAND_SET_SPAWN, implementor);

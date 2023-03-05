@@ -2,7 +2,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-public class HomeListCommand extends CommandBase implements ConsoleExecutable {
+public class HomeListCommand extends Command implements ConsoleExecutable {
 
     protected HomeListCommand(@NotNull HuskHomes implementor) {
         super("homelist", Permission.COMMAND_HOME, implementor, "homes");
@@ -90,7 +90,7 @@ public class HomeListCommand extends CommandBase implements ConsoleExecutable {
             return;
         }
         CompletableFuture.runAsync(() -> {
-            final Optional<UserData> userData = plugin.getDatabase().getUserDataByName(args[0]).join();
+            final Optional<SavedUser> userData = plugin.getDatabase().getUserDataByName(args[0]).join();
             if (userData.isEmpty()) {
                 plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
                 return;

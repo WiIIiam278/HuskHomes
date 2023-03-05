@@ -2,7 +2,7 @@ package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.command.BukkitCommandType;
+import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
@@ -74,8 +74,8 @@ public class DynMapHook extends MapHook {
                     .setDescription(MarkerInformationPopup.create(home.getMeta().getName())
                             .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
                             .addField("Owner", home.getOwner().getUsername())
-                            .addField("Description", plugin.getLocales().formatDescription(home.getMeta().getDescription()))
-                            .addField("Command", "/" + BukkitCommandType.PUBLIC_HOME_COMMAND.commandBase.command + " " + home.getMeta().getName())
+                            .addField("Description", plugin.getLocales().wrapText(home.getMeta().getDescription()))
+                            .addField("Command", "/" + BukkitCommand.Type.PUBLIC_HOME_COMMAND.getCommand().command + " " + home.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));
@@ -120,8 +120,8 @@ public class DynMapHook extends MapHook {
                             warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false)
                     .setDescription(MarkerInformationPopup.create(warp.getMeta().getName())
                             .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
-                            .addField("Description", plugin.getLocales().formatDescription(warp.getMeta().getDescription()))
-                            .addField("Command", "/" + BukkitCommandType.WARP_COMMAND.commandBase.command + " " + warp.getMeta().getName())
+                            .addField("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription()))
+                            .addField("Command", "/" + BukkitCommand.Type.WARP_COMMAND.getCommand().command + " " + warp.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));

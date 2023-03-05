@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class HomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class HomeCommand extends Command implements TabProvider, ConsoleExecutable {
 
     protected HomeCommand(@NotNull HuskHomes implementor) {
         super("home", Permission.COMMAND_HOME, implementor);
@@ -119,7 +119,7 @@ public class HomeCommand extends CommandBase implements TabCompletable, ConsoleE
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         if (user == null) {
             return Collections.emptyList();
         }

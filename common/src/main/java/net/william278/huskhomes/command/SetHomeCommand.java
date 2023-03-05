@@ -3,7 +3,7 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.UserData;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.util.Permission;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SetHomeCommand extends CommandBase {
+public class SetHomeCommand extends Command {
 
     protected SetHomeCommand(@NotNull HuskHomes implementor) {
         super("sethome", Permission.COMMAND_SET_HOME, implementor);
@@ -66,7 +66,7 @@ public class SetHomeCommand extends CommandBase {
         plugin.getDatabase().getUserData(onlineUser.getUuid()).thenAccept(fetchedData -> {
             // Check against economy if needed
             final AtomicBoolean newSlotNeeded = new AtomicBoolean(false);
-            final AtomicReference<UserData> userDataToUpdate = new AtomicReference<>(null);
+            final AtomicReference<SavedUser> userDataToUpdate = new AtomicReference<>(null);
             if (plugin.getSettings().doEconomy()) {
                 final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().getFreeHomeSlots(),
                         plugin.getSettings().doStackPermissionLimits());
@@ -79,7 +79,7 @@ public class SetHomeCommand extends CommandBase {
                         if (!plugin.validateEconomyCheck(onlineUser, action)) {
                             return;
                         }
-                        userDataToUpdate.set(new UserData(onlineUser, (currentHomes.size() + 1) - freeHomes,
+                        userDataToUpdate.set(new SavedUser(onlineUser, (currentHomes.size() + 1) - freeHomes,
                                 fetchedData.get().ignoringTeleports(), fetchedData.get().rtpCooldown()));
                     } else {
                         if (currentHomes.size() == freeHomes) {

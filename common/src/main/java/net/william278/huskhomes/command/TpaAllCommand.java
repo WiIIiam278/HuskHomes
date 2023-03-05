@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TpaAllCommand extends CommandBase {
+public class TpaAllCommand extends Command {
 
     protected TpaAllCommand(@NotNull HuskHomes implementor) {
         super("tpaall", Permission.COMMAND_TPA_ALL, implementor);

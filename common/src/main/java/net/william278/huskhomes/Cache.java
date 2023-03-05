@@ -1,7 +1,7 @@
 package net.william278.huskhomes;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.huskhomes.command.CommandBase;
+import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.user.OnlineUser;
@@ -122,9 +122,9 @@ public class Cache {
         final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.getUsername() : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
-                                Locales.escapeMineDown(home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().getUsername() + "." + home.getMeta().getName()),
-                                Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
+                                Locales.escapeText(home.getMeta().getName()),
+                                Locales.escapeText(home.getOwner().getUsername() + "." + home.getMeta().getName()),
+                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription())))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         homeOwner.getUsername(), "%first_item_on_page_index%",
@@ -142,10 +142,10 @@ public class Cache {
         }
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
                 locales.getRawLocale("public_home_list_item",
-                                Locales.escapeMineDown(home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().getUsername() + "." + home.getMeta().getName()),
-                                Locales.escapeMineDown(home.getOwner().getUsername()),
-                                Locales.escapeMineDown(locales.formatDescription(home.getMeta().getDescription())))
+                                Locales.escapeText(home.getMeta().getName()),
+                                Locales.escapeText(home.getOwner().getUsername() + "." + home.getMeta().getName()),
+                                Locales.escapeText(home.getOwner().getUsername()),
+                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription())))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
@@ -163,8 +163,8 @@ public class Cache {
         }
         final PaginatedList warpList = PaginatedList.of(warps.stream()
                 .map(warp -> locales.getRawLocale("warp_list_item",
-                                Locales.escapeMineDown(warp.getMeta().getName()),
-                                Locales.escapeMineDown(locales.formatDescription(warp.getMeta().getDescription())))
+                                Locales.escapeText(warp.getMeta().getName()),
+                                Locales.escapeText(locales.wrapText(warp.getMeta().getDescription())))
                         .orElse(warp.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
@@ -176,16 +176,16 @@ public class Cache {
 
     @NotNull
     public MineDown getCommandList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
-                                   @NotNull List<CommandBase> commands, final int itemsPerPage, final int page) {
+                                   @NotNull List<Command> commands, final int itemsPerPage, final int page) {
         return PaginatedList.of(commands.stream()
-                                .filter(command -> onlineUser.hasPermission(command.permission))
+                                .filter(command -> onlineUser.hasPermission(command.getPermission()))
                                 .map(command -> locales.getRawLocale("command_list_item",
-                                                Locales.escapeMineDown(command.command),
-                                                Locales.escapeMineDown(command.getDescription().length() > 50
+                                                Locales.escapeText(command.getName()),
+                                                Locales.escapeText(command.getDescription().length() > 50
                                                         ? command.getDescription().substring(0, 49).trim() + "…"
                                                         : command.getDescription()),
-                                                Locales.escapeMineDown(locales.formatDescription(command.getDescription())))
-                                        .orElse(command.command))
+                                                Locales.escapeText(locales.wrapText(command.getDescription())))
+                                        .orElse(command.getName()))
                                 .collect(Collectors.toList()),
                         getBaseList(locales, Math.min(itemsPerPage, 6))
                                 .setHeaderFormat(locales.getRawLocale("command_list_title").orElse(""))

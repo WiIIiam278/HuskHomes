@@ -11,7 +11,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-public class PublicHomeListCommand extends CommandBase implements ConsoleExecutable {
+public class PublicHomeListCommand extends Command implements ConsoleExecutable {
 
     protected PublicHomeListCommand(@NotNull HuskHomes implementor) {
         super("publichomelist", Permission.COMMAND_HOME, implementor, "phomelist", "phomes");

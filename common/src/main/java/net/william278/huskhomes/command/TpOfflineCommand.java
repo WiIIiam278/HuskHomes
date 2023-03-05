@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TpOfflineCommand extends CommandBase implements TabCompletable {
+public class TpOfflineCommand extends Command implements TabProvider {
 
     protected TpOfflineCommand(@NotNull HuskHomes implementor) {
         super("tpoffline", Permission.COMMAND_TPOFFLINE, implementor);
@@ -53,7 +53,7 @@ public class TpOfflineCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         return args.length <= 1 ? plugin.getCache().getPlayers().stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList()) : Collections.emptyList();

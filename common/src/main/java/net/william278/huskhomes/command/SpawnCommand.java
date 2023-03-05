@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class SpawnCommand extends CommandBase {
+public class SpawnCommand extends Command {
 
     protected SpawnCommand(@NotNull HuskHomes implementor) {
         super("spawn", Permission.COMMAND_SPAWN, implementor);

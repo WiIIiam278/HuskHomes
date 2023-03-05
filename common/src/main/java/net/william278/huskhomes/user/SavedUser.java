@@ -8,13 +8,14 @@ import java.util.UUID;
 /**
  * Represents data about a player on the server
  */
-public record UserData(@NotNull User user, int homeSlots, boolean ignoringTeleports, @NotNull Instant rtpCooldown) {
+public record SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports, @NotNull Instant rtpCooldown) {
 
     @NotNull
     public UUID getUserUuid() {
         return user.getUuid();
     }
 
+    @NotNull
     public String getUsername() {
         return user.getUsername();
     }

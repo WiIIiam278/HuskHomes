@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class PublicHomeCommand extends CommandBase implements TabCompletable, ConsoleExecutable {
+public class PublicHomeCommand extends Command implements TabProvider, ConsoleExecutable {
 
     protected PublicHomeCommand(@NotNull HuskHomes implementor) {
         super("publichome", Permission.COMMAND_PUBLIC_HOME, implementor, "phome");
@@ -133,7 +133,7 @@ public class PublicHomeCommand extends CommandBase implements TabCompletable, Co
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         // Return every public home name as username.home_name from the cache
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().getPublicHomes().forEach((ownerName, homeNames) ->

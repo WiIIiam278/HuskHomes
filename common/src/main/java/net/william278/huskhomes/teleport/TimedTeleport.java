@@ -32,12 +32,7 @@ public class TimedTeleport extends Teleport {
         this.teleporter = teleporter;
     }
 
-    /**
-     * Execute the timed teleport, ticking the countdown and teleporting the player when the countdown is complete
-     *
-     * @return a {@link CompletableFuture} that completes when the teleport is complete or has been cancelled
-     */
-    @Override
+   @Override
     public void execute() throws TeleportationException {
         // Check if the teleporter can bypass warmup
         if (timeLeft == 0 || teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
@@ -50,12 +45,8 @@ public class TimedTeleport extends Teleport {
             throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP);
         }
 
-        // Check economy actions
-        for (EconomyHook.Action action : economyActions) {
-            if (!plugin.validateEconomyCheck(executor, action)) {
-                throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
-            }
-        }
+        // Validate economy actions
+        validateEconomyActions();
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {

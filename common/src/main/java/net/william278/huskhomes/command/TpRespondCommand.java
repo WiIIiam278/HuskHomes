@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * A command used for responding to tp requests - can either be a /tpaccept or /tpdecline command, controlled by the
  * acceptRequestCommand flag
  */
-public class TpRespondCommand extends CommandBase implements TabCompletable {
+public class TpRespondCommand extends Command implements TabProvider {
 
     private final boolean acceptRequestCommand;
 
@@ -41,7 +41,7 @@ public class TpRespondCommand extends CommandBase implements TabCompletable {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull String[] args, @Nullable OnlineUser user) {
+    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
         return args.length <= 1 ? plugin.getCache().getPlayers().stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList()) : Collections.emptyList();

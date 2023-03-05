@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class TpAllCommand extends CommandBase {
+public class TpAllCommand extends Command {
 
     protected TpAllCommand(@NotNull HuskHomes implementor) {
         super("tpall", Permission.COMMAND_TPALL, implementor);

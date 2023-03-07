@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class Cache {
 
     private final HuskHomes plugin;
-    private final Map<UUID, List<String>> homes = new HashMap<>();
+    private final Map<String, List<String>> homes = new HashMap<>();
     private final Map<String, List<String>> publicHomes = new HashMap<>();
     private final List<String> warps = new ArrayList<>();
     private final Set<String> players = new HashSet<>();
@@ -124,7 +124,7 @@ public class Cache {
                 locales.getRawLocale("home_list_item",
                                 Locales.escapeText(home.getMeta().getName()),
                                 Locales.escapeText(home.getOwner().getUsername() + "." + home.getMeta().getName()),
-                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription())))
+                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription(), 40)))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("home_list_page_title",
                         homeOwner.getUsername(), "%first_item_on_page_index%",
@@ -145,7 +145,7 @@ public class Cache {
                                 Locales.escapeText(home.getMeta().getName()),
                                 Locales.escapeText(home.getOwner().getUsername() + "." + home.getMeta().getName()),
                                 Locales.escapeText(home.getOwner().getUsername()),
-                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription())))
+                                Locales.escapeText(locales.wrapText(home.getMeta().getDescription(), 40)))
                         .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("public_home_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
@@ -164,7 +164,7 @@ public class Cache {
         final PaginatedList warpList = PaginatedList.of(warps.stream()
                 .map(warp -> locales.getRawLocale("warp_list_item",
                                 Locales.escapeText(warp.getMeta().getName()),
-                                Locales.escapeText(locales.wrapText(warp.getMeta().getDescription())))
+                                Locales.escapeText(locales.wrapText(warp.getMeta().getDescription(), 40)))
                         .orElse(warp.getMeta().getName())).sorted().collect(Collectors.toList()), getBaseList(locales, itemsPerPage)
                 .setHeaderFormat(locales.getRawLocale("warp_list_page_title",
                         "%first_item_on_page_index%", "%last_item_on_page_index%",
@@ -184,7 +184,7 @@ public class Cache {
                                                 Locales.escapeText(command.getDescription().length() > 50
                                                         ? command.getDescription().substring(0, 49).trim() + "…"
                                                         : command.getDescription()),
-                                                Locales.escapeText(locales.wrapText(command.getDescription())))
+                                                Locales.escapeText(locales.wrapText(command.getDescription(), 40)))
                                         .orElse(command.getName()))
                                 .collect(Collectors.toList()),
                         getBaseList(locales, Math.min(itemsPerPage, 6))
@@ -196,7 +196,7 @@ public class Cache {
     /**
      * Cached home names - maps a {@link UUID} to a list of their homes
      */
-    public Map<UUID, List<String>> getHomes() {
+    public Map<String, List<String>> getHomes() {
         return homes;
     }
 

@@ -26,7 +26,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
                              @NotNull String label, @NotNull String[] args) {
-        this.command.execute(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
+        this.command.onExecuted(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
         return true;
     }
 
@@ -50,16 +50,11 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
 
         // Register permissions
         final PluginManager manager = plugin.getServer().getPluginManager();
-        command.getChildren()
-                .stream().map(child -> new Permission(child.getPermission(), child.getUsage(),
-                        child.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE))
-                .forEach(manager::addPermission);
         manager.addPermission(new Permission(command.getPermission(), "/" + command.getName(),
                 command.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE));
 
         // Register master permission
         final Map<String, Boolean> childNodes = new HashMap<>();
-        command.getChildren().forEach(child -> childNodes.put(child.getPermission(), true));
         manager.addPermission(new Permission(command.getPermission() + ".*", command.getUsage(),
                 PermissionDefault.FALSE, childNodes));
     }

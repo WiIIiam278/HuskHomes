@@ -203,7 +203,8 @@ public class TpCommand extends Command implements TabProvider, ConsoleExecutable
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final boolean serveCoordinateCompletions = user != null && user.hasPermission(Permission.COMMAND_TP_TO_COORDINATES.node);
         switch (args.length) {
             case 0, 1 -> {

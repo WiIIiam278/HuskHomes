@@ -48,6 +48,10 @@ public class WarpsManager {
         plugin.getDatabase().deleteWarp(warp.get().getUuid());
     }
 
+    public int deleteAllWarps() {
+        return plugin.getDatabase().deleteAllWarps();
+    }
+
     public void relocateWarp(@NotNull String name, @NotNull Position position) {
         createWarp(name, position, true);
     }

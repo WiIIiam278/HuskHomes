@@ -14,7 +14,7 @@ public class Home extends SavedPosition {
     private boolean isPublic;
 
     public Home(double x, double y, double z, float yaw, float pitch,
-                @NotNull World world, @NotNull Server server,
+                @NotNull World world, @NotNull String server,
                 @NotNull PositionMeta positionMeta, @NotNull UUID uuid,
                 @NotNull User owner, boolean isPublic) {
         super(x, y, z, yaw, pitch, world, server, positionMeta, uuid);

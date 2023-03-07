@@ -158,7 +158,8 @@ public class HuskHomesCommand extends Command implements ConsoleExecutable, TabP
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         if (args.length == 0 || args.length == 1) {
             return Arrays.stream(SUB_COMMANDS)
                     .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))

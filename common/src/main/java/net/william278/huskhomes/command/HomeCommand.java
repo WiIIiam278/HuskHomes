@@ -119,7 +119,8 @@ public class HomeCommand extends Command implements TabProvider, ConsoleExecutab
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         if (user == null) {
             return Collections.emptyList();
         }

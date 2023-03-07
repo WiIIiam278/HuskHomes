@@ -133,7 +133,8 @@ public class PublicHomeCommand extends Command implements TabProvider, ConsoleEx
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         // Return every public home name as username.home_name from the cache
         final List<String> publicHomes = new ArrayList<>();
         plugin.getCache().getPublicHomes().forEach((ownerName, homeNames) ->

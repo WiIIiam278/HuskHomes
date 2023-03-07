@@ -5,6 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Executable {
 
-    void execute(@NotNull CommandUser executor, @NotNull String[] args);
+    void onExecuted(@NotNull CommandUser executor, @NotNull String[] args);
 
 }

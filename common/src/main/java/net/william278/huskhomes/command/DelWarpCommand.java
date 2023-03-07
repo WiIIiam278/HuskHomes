@@ -1,82 +1,61 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class DelWarpCommand extends Command implements TabProvider {
+public class DelWarpCommand extends SavedPositionCommand<Warp> implements TabProvider {
 
-    protected DelWarpCommand(@NotNull HuskHomes implementor) {
-        super("delwarp", Permission.COMMAND_DELETE_WARP, implementor);
+    public DelWarpCommand(@NotNull HuskHomes implementor) {
+        super("delwarp", List.of(), Warp.class, List.of(), implementor);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length == 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
-                    .ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (handleDeleteAll(executor, args)) {
             return;
         }
-        if (args.length <= 2) {
-            final String warpName = args[0];
-            final boolean confirm = args.length == 2 && args[1].equalsIgnoreCase("confirm");
-            plugin.getManager().deleteWarp(warpName).thenAccept(deleted -> {
-                if (deleted) {
-                    plugin.getLocales().getLocale("warp_deleted", warpName)
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                if (warpName.equalsIgnoreCase("all")) {
-                    deleteAllWarps(onlineUser, confirm);
-                    return;
-                }
-
-                plugin.getLocales().getLocale("error_warp_invalid", warpName)
-                        .ifPresent(onlineUser::sendMessage);
-            });
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/delwarp <name>")
-                    .ifPresent(onlineUser::sendMessage);
-        }
+        super.execute(executor, args);
     }
 
-    /**
-     * Delete all the server warps
-     *
-     * @param deleter the player who is deleting the warps
-     * @param confirm whether to skip the confirmation prompt
-     */
-    private void deleteAllWarps(@NotNull OnlineUser deleter, final boolean confirm) {
-        if (!confirm) {
-            plugin.getLocales().getLocale("delete_all_warps_confirm")
-                    .ifPresent(deleter::sendMessage);
+    @Override
+    public void execute(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
+        if (executor instanceof OnlineUser user && !warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user)) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(user::sendMessage);
             return;
         }
+        plugin.getManager().warps().deleteWarp(warp.getName());
+        plugin.getLocales().getLocale("warp_deleted", warp.getName())
+                .ifPresent(executor::sendMessage);
+    }
 
-        plugin.getManager().deleteAllWarps().thenAccept(deleted -> {
+    private boolean handleDeleteAll(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (args.length >= 1 && args[0].equalsIgnoreCase("all")) {
+            if (!parseStringArg(args, 1)
+                    .map(confirm -> confirm.equalsIgnoreCase("confirm"))
+                    .orElse(false)) {
+                plugin.getLocales().getLocale("delete_all_warps_confirm")
+                        .ifPresent(executor::sendMessage);
+                return true;
+            }
+
+            final int deleted = plugin.getManager().warps().deleteAllWarps();
             if (deleted == 0) {
                 plugin.getLocales().getLocale("error_no_warps_set")
-                        .ifPresent(deleter::sendMessage);
-                return;
+                        .ifPresent(executor::sendMessage);
+                return true;
             }
 
             plugin.getLocales().getLocale("delete_all_warps_success", Integer.toString(deleted))
-                    .ifPresent(deleter::sendMessage);
-        });
+                    .ifPresent(executor::sendMessage);
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
-        return args.length > 1 ? Collections.emptyList() : plugin.getCache().getWarps()
-                .stream()
-                .filter(s -> s.startsWith(args.length == 1 ? args[0] : ""))
-                .sorted()
-                .collect(Collectors.toList());
-    }
 }

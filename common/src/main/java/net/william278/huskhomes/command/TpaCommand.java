@@ -51,7 +51,8 @@ public class TpaCommand extends Command implements TabProvider {
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return args.length <= 1 ? plugin.getCache().getPlayers().stream()
                 .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                 .sorted().collect(Collectors.toList()) : Collections.emptyList();

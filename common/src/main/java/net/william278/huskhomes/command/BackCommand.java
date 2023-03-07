@@ -14,27 +14,25 @@ import java.util.Optional;
 public class BackCommand extends Command {
 
     protected BackCommand(@NotNull HuskHomes plugin) {
-        super("back", List.of(), plugin);
+        super("back", List.of(), "", plugin);
     }
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final OnlineUser player = (OnlineUser) executor;
-        plugin.runAsync(() -> {
-            final Optional<Position> lastPosition = plugin.getDatabase().getLastPosition(player);
-            if (lastPosition.isEmpty()) {
-                plugin.getLocales().getLocale("error_no_last_position")
-                        .ifPresent(player::sendMessage);
-                return;
-            }
+        final Optional<Position> lastPosition = plugin.getDatabase().getLastPosition(player);
+        if (lastPosition.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_last_position")
+                    .ifPresent(player::sendMessage);
+            return;
+        }
 
-            Teleport.builder(plugin)
-                    .teleporter(player)
-                    .target(lastPosition.get())
-                    .economyActions(EconomyHook.Action.BACK_COMMAND)
-                    .toTimedTeleport()
-                    .execute();
-        });
+        Teleport.builder(plugin)
+                .teleporter(player)
+                .target(lastPosition.get())
+                .economyActions(EconomyHook.Action.BACK_COMMAND)
+                .toTimedTeleport()
+                .execute();
     }
 
 }

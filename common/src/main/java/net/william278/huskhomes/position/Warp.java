@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Warp extends SavedPosition {
 
     public Warp(double x, double y, double z, float yaw, float pitch,
-                @NotNull World world, @NotNull Server server,
+                @NotNull World world, @NotNull String server,
                 @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
         super(x, y, z, yaw, pitch, world, server, positionMeta, uuid);
     }

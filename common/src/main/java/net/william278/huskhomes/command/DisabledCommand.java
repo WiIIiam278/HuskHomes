@@ -1,18 +1,20 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class DisabledCommand extends Command {
 
-    public DisabledCommand(@NotNull HuskHomes implementor) {
-        super("", Permission.COMMAND_DISABLED_MESSAGE, implementor);
+    public DisabledCommand(@NotNull HuskHomes plugin) {
+        super("", List.of(), "", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        plugin.getLocales().getLocale("error_command_disabled").ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        plugin.getLocales().getLocale("error_command_disabled")
+                .ifPresent(executor::sendMessage);
     }
 }

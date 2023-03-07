@@ -62,7 +62,8 @@ public class WarpCommand extends Command implements TabProvider, ConsoleExecutab
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return plugin.getCache().getWarps().stream()
                 .filter(s -> user == null || Warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user, s))
                 .filter(s -> s.toLowerCase().startsWith(args.length >= 1 ? args[0].toLowerCase() : ""))

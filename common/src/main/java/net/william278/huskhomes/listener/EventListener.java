@@ -53,7 +53,7 @@ public class EventListener {
             });
 
             // Cache this user's homes
-            plugin.getCache().getHomes().put(onlineUser.getUuid(), plugin.getDatabase()
+            plugin.getCache().getHomes().put(onlineUser.getUsername(), plugin.getDatabase()
                     .getHomes(onlineUser).stream()
                     .map(Home::getName)
                     .toList());

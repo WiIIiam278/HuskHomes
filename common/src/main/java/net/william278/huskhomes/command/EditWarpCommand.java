@@ -198,7 +198,8 @@ public class EditWarpCommand extends Command implements TabProvider {
     }
 
     @Override
-    public @NotNull List<String> suggest(@NotNull String[] args, @Nullable OnlineUser user) {
+    @NotNull
+    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> plugin.getCache().getWarps()
                     .stream()

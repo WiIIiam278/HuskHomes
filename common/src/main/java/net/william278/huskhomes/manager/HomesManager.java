@@ -50,6 +50,10 @@ public class HomesManager {
         plugin.getDatabase().deleteHome(home.get().getUuid());
     }
 
+    public int deleteAllHomes(@NotNull User owner) {
+        return plugin.getDatabase().deleteAllHomes(owner);
+    }
+
     public void relocateHome(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
         createHome(owner, name, position, true);
     }

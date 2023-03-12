@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public class WarpsManager {
     private final HuskHomes plugin;
+
     protected WarpsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
     }
@@ -53,7 +54,14 @@ public class WarpsManager {
     }
 
     public void relocateWarp(@NotNull String name, @NotNull Position position) {
-        createWarp(name, position, true);
+        final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
+        if (optionalWarp.isEmpty()) {
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
+        }
+
+        final Warp warp = optionalWarp.get();
+        warp.update(position);
+        plugin.getDatabase().saveWarp(warp);
     }
 
     public void renameHome(@NotNull String name, @NotNull String newName) throws ValidationException {

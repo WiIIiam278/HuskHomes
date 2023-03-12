@@ -58,7 +58,7 @@ public class SqLiteDatabase extends Database {
         try {
             // Ensure that the database file exists
             if (databaseFile.createNewFile()) {
-                getLogger().log(Level.INFO, "Created the SQLite database file");
+                plugin.log(Level.INFO, "Created the SQLite database file");
             }
 
             // Specify use of the JDBC SQLite driver
@@ -73,11 +73,11 @@ public class SqLiteDatabase extends Database {
             // Establish the connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "An exception occurred creating the database file", e);
+            plugin.log(Level.SEVERE, "An exception occurred creating the database file", e);
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
+            plugin.log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
         } catch (ClassNotFoundException e) {
-            getLogger().log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
+            plugin.log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
         }
     }
 
@@ -98,10 +98,10 @@ public class SqLiteDatabase extends Database {
                 }
                 return true;
             } catch (SQLException | IOException e) {
-                getLogger().log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
+                plugin.log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
+            plugin.log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
         }
         return false;
     }
@@ -124,7 +124,7 @@ public class SqLiteDatabase extends Database {
             }
             getConnection().setAutoCommit(autoCommit);
         } catch (IOException | SQLException e) {
-            getLogger().log(Level.SEVERE, "An exception occurred running script on the SQLite database", e);
+            plugin.log(Level.SEVERE, "An exception occurred running script on the SQLite database", e);
             throw new RuntimeException(e);
         }
     }
@@ -250,9 +250,9 @@ public class SqLiteDatabase extends Database {
                                 statement.setString(2, existingUser.getUserUuid().toString());
                                 statement.executeUpdate();
                             }
-                            getLogger().log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUser.getUsername() + " -> " + onlineUser.getUsername() + ")");
+                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUser.getUsername() + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
-                            getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
+                            plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
                     }
                 },
@@ -268,7 +268,7 @@ public class SqLiteDatabase extends Database {
                             statement.executeUpdate();
                         }
                     } catch (SQLException e) {
-                        getLogger().log(Level.SEVERE, "Failed to insert a player into the database", e);
+                        plugin.log(Level.SEVERE, "Failed to insert a player into the database", e);
                     }
                 });
     }
@@ -293,7 +293,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
+            plugin.log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
         }
         return Optional.empty();
     }
@@ -319,7 +319,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
+            plugin.log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
         }
         return Optional.empty();
     }
@@ -359,7 +359,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
+            plugin.log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
         }
         return userHomes;
     }
@@ -393,7 +393,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for warp data.");
+            plugin.log(Level.SEVERE, "Failed to query the database for warp data.");
         }
         return warps;
     }
@@ -432,7 +432,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for public home data");
+            plugin.log(Level.SEVERE, "Failed to query the database for public home data");
         }
         return userHomes;
     }
@@ -472,7 +472,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a player's home", e);
+            plugin.log(Level.SEVERE, "Failed to query a player's home", e);
         }
         return Optional.empty();
     }
@@ -510,7 +510,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a player's home by uuid", e);
+            plugin.log(Level.SEVERE, "Failed to query a player's home by uuid", e);
         }
         return Optional.empty();
     }
@@ -544,7 +544,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a server warp", e);
+            plugin.log(Level.SEVERE, "Failed to query a server warp", e);
         }
         return Optional.empty();
     }
@@ -578,7 +578,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a server warp", e);
+            plugin.log(Level.SEVERE, "Failed to query a server warp", e);
         }
         return Optional.empty();
     }
@@ -612,7 +612,7 @@ public class SqLiteDatabase extends Database {
             }
 
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -630,7 +630,7 @@ public class SqLiteDatabase extends Database {
             statement.setString(4, savedUser.getUserUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
+            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
         }
     }
 
@@ -649,7 +649,7 @@ public class SqLiteDatabase extends Database {
                 deleteStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
         }
 
         // Set the user's teleport into the database (if it's not null)
@@ -664,7 +664,7 @@ public class SqLiteDatabase extends Database {
                 statement.executeUpdate();
 
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to set the current teleport of " + user.getUsername(), e);
+                plugin.log(Level.SEVERE, "Failed to set the current teleport of " + user.getUsername(), e);
             }
         }
     }
@@ -690,7 +690,7 @@ public class SqLiteDatabase extends Database {
                         resultSet.getString("server_name")));
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -721,7 +721,7 @@ public class SqLiteDatabase extends Database {
             }
 
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
         }
     }
 
@@ -748,7 +748,7 @@ public class SqLiteDatabase extends Database {
             }
 
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -777,7 +777,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
         }
     }
 
@@ -802,7 +802,7 @@ public class SqLiteDatabase extends Database {
                         resultSet.getString("server_name")));
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -848,7 +848,7 @@ public class SqLiteDatabase extends Database {
             }
 
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
         }
     }
 
@@ -878,7 +878,7 @@ public class SqLiteDatabase extends Database {
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE,
+                plugin.log(Level.SEVERE,
                         "Failed to update a home in the database for " + home.getOwner().getUsername(), e);
             }
         }, () -> {
@@ -893,7 +893,7 @@ public class SqLiteDatabase extends Database {
                 statement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
-                getLogger().log(Level.SEVERE,
+                plugin.log(Level.SEVERE,
                         "Failed to set a home to the database for " + home.getOwner().getUsername(), e);
             }
         });
@@ -915,7 +915,7 @@ public class SqLiteDatabase extends Database {
                             }
                         }
                     } catch (SQLException e) {
-                        getLogger().log(Level.SEVERE, "Failed to update a warp in the database", e);
+                        plugin.log(Level.SEVERE, "Failed to update a warp in the database", e);
                     }
                 }, () -> {
                     try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -926,7 +926,7 @@ public class SqLiteDatabase extends Database {
 
                         statement.executeUpdate();
                     } catch (SQLException e) {
-                        getLogger().log(Level.SEVERE, "Failed to add a warp to the database", e);
+                        plugin.log(Level.SEVERE, "Failed to add a warp to the database", e);
                     }
                 });
     }
@@ -949,7 +949,7 @@ public class SqLiteDatabase extends Database {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete a home from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete a home from the database", e);
         }
     }
 
@@ -970,7 +970,7 @@ public class SqLiteDatabase extends Database {
             statement.setString(1, user.getUuid().toString());
             return statement.executeUpdate();
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
         }
         return 0;
     }
@@ -991,7 +991,7 @@ public class SqLiteDatabase extends Database {
             statement.setString(1, uuid.toString());
             statement.executeUpdate();
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete a warp from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete a warp from the database", e);
         }
     }
 
@@ -1009,7 +1009,7 @@ public class SqLiteDatabase extends Database {
                 );"""))) {
             return statement.executeUpdate();
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete all warps from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete all warps from the database", e);
         }
         return 0;
     }
@@ -1023,7 +1023,7 @@ public class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.WARNING, "Failed to properly close the SQLite connection");
+            plugin.log(Level.WARNING, "Failed to properly close the SQLite connection");
         }
     }
 

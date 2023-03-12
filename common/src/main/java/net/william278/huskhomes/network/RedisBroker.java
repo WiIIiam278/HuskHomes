@@ -34,7 +34,7 @@ public class RedisBroker extends PluginMessageBroker {
 
         new Thread(getSubscriber(), plugin.getKey("redis_subscriber").toString()).start();
 
-        plugin.getLoggingAdapter().log(Level.INFO, "Initialized Redis connection pool");
+        plugin.log(Level.INFO, "Initialized Redis connection pool");
     }
 
     @NotNull

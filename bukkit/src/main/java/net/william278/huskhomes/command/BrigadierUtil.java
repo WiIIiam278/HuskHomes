@@ -28,9 +28,9 @@ public class BrigadierUtil {
         try {
             CommodoreProvider.getCommodore(plugin).register(pluginCommand,
                     CommodoreFileReader.INSTANCE.parse(commandCommodore),
-                    player -> player.hasPermission(command.permission));
+                    player -> player.hasPermission(command.getPermission()));
         } catch (IOException e) {
-            plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to read command commodore completions for "
+            plugin.log(Level.SEVERE, "Failed to read command commodore completions for "
                                                          + pluginCommand.getName(), e);
         }
     }

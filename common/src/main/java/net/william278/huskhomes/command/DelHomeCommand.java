@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DelHomeCommand extends SavedPositionCommand<Home> implements TabProvider {
+public class DelHomeCommand extends SavedPositionCommand<Home> {
 
     public DelHomeCommand(@NotNull HuskHomes implementor) {
         super("delhome", List.of(), Home.class, List.of(), implementor);

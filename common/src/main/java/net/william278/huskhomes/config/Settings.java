@@ -35,10 +35,6 @@ public class Settings {
     @YamlKey("check_for_updates")
     private boolean checkForUpdates = true;
 
-    @YamlKey("debug_logging")
-    private boolean debugLogging = false;
-
-
     // Database settings
     @YamlComment("Database connection settings")
     @YamlKey("database.type")
@@ -276,10 +272,6 @@ public class Settings {
 
     public boolean doCheckForUpdates() {
         return checkForUpdates;
-    }
-
-    public boolean doDebugLogging() {
-        return debugLogging;
     }
 
     public Database.DatabaseType getDatabaseType() {

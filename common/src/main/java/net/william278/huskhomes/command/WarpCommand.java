@@ -74,23 +74,23 @@ public class WarpCommand extends Command implements TabProvider, ConsoleExecutab
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length != 2) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: warp <player> <warp>");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: warp <player> <warp>");
             return;
         }
         final OnlineUser playerToTeleport = plugin.findOnlinePlayer(args[0]).orElse(null);
         if (playerToTeleport == null) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            plugin.log(Level.WARNING, "Player not found: " + args[0]);
             return;
         }
 
         plugin.getDatabase().getWarp(args[1]).thenAccept(optionalWarp -> {
             if (optionalWarp.isEmpty()) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find warp '" + args[1] + "'");
+                plugin.log(Level.WARNING, "Could not find warp '" + args[1] + "'");
                 return;
             }
             final Warp warp = optionalWarp.get();
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to " + warp.getMeta().getName());
+            plugin.log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to " + warp.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(warp)
                     .toTimedTeleport()

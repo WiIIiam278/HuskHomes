@@ -110,10 +110,10 @@ public class MySqlDatabase extends Database {
                 }
                 return true;
             } catch (SQLException | IOException e) {
-                getLogger().log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
+                plugin.log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
+            plugin.log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
         }
         return false;
     }
@@ -132,7 +132,7 @@ public class MySqlDatabase extends Database {
                 statement.executeBatch();
             }
         } catch (IOException | SQLException e) {
-            getLogger().log(Level.SEVERE, "An error occurred running a script on the MySQL database: ", e);
+            plugin.log(Level.SEVERE, "An error occurred running a script on the MySQL database: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -254,9 +254,9 @@ public class MySqlDatabase extends Database {
                                 statement.setString(2, existingUserData.getUserUuid().toString());
                                 statement.executeUpdate();
                             }
-                            getLogger().log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.getUsername() + ")");
+                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
-                            getLogger().log(Level.SEVERE, "Failed to update a player's name on the database", e);
+                            plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
                     }
                 },
@@ -272,7 +272,7 @@ public class MySqlDatabase extends Database {
                             statement.executeUpdate();
                         }
                     } catch (SQLException e) {
-                        getLogger().log(Level.SEVERE, "Failed to insert a player into the database", e);
+                        plugin.log(Level.SEVERE, "Failed to insert a player into the database", e);
                     }
                 });
     }
@@ -297,7 +297,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
+            plugin.log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
         }
         return Optional.empty();
     }
@@ -323,7 +323,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
+            plugin.log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
         }
         return Optional.empty();
     }
@@ -363,7 +363,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
+            plugin.log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
         }
         return userHomes;
     }
@@ -397,7 +397,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for warp data.");
+            plugin.log(Level.SEVERE, "Failed to query the database for warp data.");
         }
         return warps;
     }
@@ -436,7 +436,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the database for public home data");
+            plugin.log(Level.SEVERE, "Failed to query the database for public home data");
         }
         return userHomes;
     }
@@ -476,7 +476,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a player's home", e);
+            plugin.log(Level.SEVERE, "Failed to query a player's home", e);
         }
         return Optional.empty();
     }
@@ -514,7 +514,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a player's home by uuid", e);
+            plugin.log(Level.SEVERE, "Failed to query a player's home by uuid", e);
         }
         return Optional.empty();
     }
@@ -548,7 +548,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a server warp", e);
+            plugin.log(Level.SEVERE, "Failed to query a server warp", e);
         }
         return Optional.empty();
     }
@@ -582,7 +582,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query a server warp", e);
+            plugin.log(Level.SEVERE, "Failed to query a server warp", e);
         }
         return Optional.empty();
     }
@@ -616,7 +616,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -636,7 +636,7 @@ public class MySqlDatabase extends Database {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
+            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
         }
     }
 
@@ -668,7 +668,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
         }
     }
 
@@ -695,7 +695,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -727,7 +727,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
         }
     }
 
@@ -754,7 +754,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -785,7 +785,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
         }
     }
 
@@ -812,7 +812,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
         }
         return Optional.empty();
     }
@@ -859,7 +859,7 @@ public class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
         }
     }
 
@@ -889,7 +889,7 @@ public class MySqlDatabase extends Database {
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE,
+                plugin.log(Level.SEVERE,
                         "Failed to update a home in the database for " + home.getOwner().getUsername(), e);
             }
         }, () -> {
@@ -905,7 +905,7 @@ public class MySqlDatabase extends Database {
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE,
+                plugin.log(Level.SEVERE,
                         "Failed to set a home to the database for " + home.getOwner().getUsername(), e);
             }
         });
@@ -926,7 +926,7 @@ public class MySqlDatabase extends Database {
                     }
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to update a warp in the database", e);
+                plugin.log(Level.SEVERE, "Failed to update a warp in the database", e);
             }
         }, () -> {
             try (Connection connection = getConnection()) {
@@ -939,7 +939,7 @@ public class MySqlDatabase extends Database {
                     statement.executeUpdate();
                 }
             } catch (SQLException e) {
-                getLogger().log(Level.SEVERE, "Failed to add a warp to the database", e);
+                plugin.log(Level.SEVERE, "Failed to add a warp to the database", e);
             }
         });
     }
@@ -963,7 +963,7 @@ public class MySqlDatabase extends Database {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete a home from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete a home from the database", e);
         }
     }
 
@@ -986,7 +986,7 @@ public class MySqlDatabase extends Database {
                 return statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
         }
         return 0;
     }
@@ -1010,7 +1010,7 @@ public class MySqlDatabase extends Database {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete a warp from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete a warp from the database", e);
         }
     }
 
@@ -1031,7 +1031,7 @@ public class MySqlDatabase extends Database {
                 return statement.executeUpdate();
             }
         } catch (SQLException e) {
-            getLogger().log(Level.SEVERE, "Failed to delete all warps from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete all warps from the database", e);
         }
         return 0;
     }

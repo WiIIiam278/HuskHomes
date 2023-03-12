@@ -100,19 +100,19 @@ public class RtpCommand extends Command implements ConsoleExecutable {
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length == 0) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: rtp [player]");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: rtp [player]");
             return;
         }
         final Optional<OnlineUser> foundUser = plugin.findOnlinePlayer(args[0]);
         if (foundUser.isEmpty()) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            plugin.log(Level.WARNING, "Player not found: " + args[0]);
             return;
         }
 
-        plugin.getLoggingAdapter().log(Level.INFO, "Finding a random position for " + foundUser.get().getUsername() + "...");
+        plugin.log(Level.INFO, "Finding a random position for " + foundUser.get().getUsername() + "...");
         plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition().getWorld(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
             if (position.isEmpty()) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + foundUser.get().getUsername() + " to a random position; randomization timed out!");
+                plugin.log(Level.WARNING, "Failed to teleport " + foundUser.get().getUsername() + " to a random position; randomization timed out!");
                 return;
             }
             Teleport.builder(plugin, foundUser.get())
@@ -120,9 +120,9 @@ public class RtpCommand extends Command implements ConsoleExecutable {
                     .toTeleport()
                     .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
                         if (result.successful()) {
-                            plugin.getLoggingAdapter().log(Level.INFO, "Teleported " + foundUser.get().getUsername() + " to a random position.");
+                            plugin.log(Level.INFO, "Teleported " + foundUser.get().getUsername() + " to a random position.");
                         } else {
-                            plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport" + foundUser.get().getUsername() + " to a random position.");
+                            plugin.log(Level.WARNING, "Failed to teleport" + foundUser.get().getUsername() + " to a random position.");
                         }
                     }));
         });

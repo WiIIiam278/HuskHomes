@@ -57,7 +57,7 @@ public class PluginMessageBroker extends Broker {
         try (final DataInputStream messageReader = new DataInputStream(new ByteArrayInputStream(messageBody))) {
             super.handle(user, plugin.getGson().fromJson(messageReader.readUTF(), Message.class));
         } catch (IOException e) {
-            plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to fully read plugin message", e);
+            plugin.log(Level.SEVERE, "Failed to fully read plugin message", e);
         }
     }
 
@@ -77,7 +77,7 @@ public class PluginMessageBroker extends Broker {
                 messageWriter.write(messageByteStream.toByteArray());
             }
         } catch (IOException e) {
-            plugin.getLoggingAdapter().log(Level.SEVERE, "Exception dispatching plugin message", e);
+            plugin.log(Level.SEVERE, "Exception dispatching plugin message", e);
             return;
         }
 

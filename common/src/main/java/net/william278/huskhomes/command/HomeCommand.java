@@ -85,13 +85,13 @@ public class HomeCommand extends Command implements TabProvider, ConsoleExecutab
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length != 2) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: home <player> <home>");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: home <player> <home>");
             return;
         }
         CompletableFuture.runAsync(() -> {
             final OnlineUser playerToTeleport = plugin.findOnlinePlayer(args[0]).orElse(null);
             if (playerToTeleport == null) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                plugin.log(Level.WARNING, "Player not found: " + args[0]);
                 return;
             }
             final AtomicReference<Home> matchedHome = new AtomicReference<>(null);
@@ -105,11 +105,11 @@ public class HomeCommand extends Command implements TabProvider, ConsoleExecutab
 
             final Home home = matchedHome.get();
             if (home == null) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find home '" + args[1] + "'");
+                plugin.log(Level.WARNING, "Could not find home '" + args[1] + "'");
                 return;
             }
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
+            plugin.log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
                                                        + home.getOwner().getUsername() + "." + home.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)

@@ -159,12 +159,12 @@ public class TpCommand extends Command implements TabProvider, ConsoleExecutable
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length < 2 || args.length > 6) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: tp <player> <destination>");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: tp <player> <destination>");
             return;
         }
         final OnlineUser playerToTeleport = plugin.findOnlinePlayer(args[0]).orElse(null);
         if (playerToTeleport == null) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+            plugin.log(Level.WARNING, "Player not found: " + args[0]);
             return;
         }
         final TeleportTarget teleportTarget;
@@ -180,7 +180,7 @@ public class TpCommand extends Command implements TabProvider, ConsoleExecutable
                         args.length >= 5 ? new World(args[4], UUID.randomUUID()) : plugin.getWorlds().get(0),
                         args.length == 6 ? new Server(args[5]) : plugin.getServerName()));
             } catch (NumberFormatException e) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: tp <player> <x> <y> <z> [world] [server]");
+                plugin.log(Level.WARNING, "Invalid syntax. Usage: tp <player> <x> <y> <z> [world] [server]");
                 return;
             }
         }
@@ -195,9 +195,9 @@ public class TpCommand extends Command implements TabProvider, ConsoleExecutable
         }
         builder.toTeleport().thenAccept(teleport -> teleport.execute().thenAccept(result -> {
             if (result.successful()) {
-                plugin.getLoggingAdapter().log(Level.INFO, "Successfully teleported " + playerToTeleport.getUsername());
+                plugin.log(Level.INFO, "Successfully teleported " + playerToTeleport.getUsername());
             } else {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Failed to teleport " + playerToTeleport.getUsername() + " to " + teleportTarget);
+                plugin.log(Level.WARNING, "Failed to teleport " + playerToTeleport.getUsername() + " to " + teleportTarget);
             }
         }));
     }

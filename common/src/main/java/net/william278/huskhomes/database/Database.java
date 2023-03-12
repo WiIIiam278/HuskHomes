@@ -6,7 +6,6 @@ import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,19 +101,6 @@ public abstract class Database {
      */
     protected final HuskHomes plugin;
 
-    /**
-     * Logger instance used for database error logging
-     */
-    private final Logger logger;
-
-    /**
-     * Returns the {@link Logger} used to log database errors
-     *
-     * @return the {@link Logger} instance
-     */
-    protected Logger getLogger() {
-        return logger;
-    }
 
     /**
      * Loads SQL table creation schema statements from a resource file as a string array
@@ -159,7 +145,6 @@ public abstract class Database {
         this.homesTableName = implementor.getSettings().getTableName(TableName.HOME_DATA);
         this.warpsTableName = implementor.getSettings().getTableName(TableName.WARP_DATA);
         this.teleportsTableName = implementor.getSettings().getTableName(TableName.TELEPORT_DATA);
-        this.logger = implementor.getLoggingAdapter();
     }
 
     /**

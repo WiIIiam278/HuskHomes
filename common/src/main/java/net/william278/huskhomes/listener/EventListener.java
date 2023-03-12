@@ -183,7 +183,7 @@ public class EventListener {
      * Handle when the plugin is disabling (server is shutting down)
      */
     public final void handlePluginDisable() {
-        plugin.getLoggingAdapter().log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getVersion());
+        plugin.log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getVersion());
     }
 
 }

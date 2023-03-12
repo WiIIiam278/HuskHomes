@@ -3,7 +3,6 @@ package net.william278.huskhomes.hook;
 import com.djrapitops.plan.capability.CapabilityService;
 import com.djrapitops.plan.extension.ExtensionService;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,13 +13,11 @@ import java.util.logging.Level;
  */
 public class PlanHook extends PluginHook {
 
-    private final Database database;
-    private final Logger logger;
+    private final HuskHomes plugin;
 
-    public PlanHook(@NotNull HuskHomes implementor) {
-        super(implementor, "Plan");
-        this.database = implementor.getDatabase();
-        this.logger = implementor.getLoggingAdapter();
+    public PlanHook(@NotNull HuskHomes plugin) {
+        super(plugin, "Plan");
+        this.plugin = plugin;
     }
 
     @Override
@@ -41,12 +38,12 @@ public class PlanHook extends PluginHook {
 
     private void registerDataExtension() {
         try {
-            ExtensionService.getInstance().register(new PlanDataExtension(database, plugin.getSettings().isCrossServer()));
+            ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase(), plugin.getSettings().isCrossServer()));
         } catch (IllegalStateException planIsNotEnabled) {
-            logger.log(Level.SEVERE, "Plan extension hook failed to register. Plan is not enabled.", planIsNotEnabled);
+            plugin.log(Level.SEVERE, "Plan extension hook failed to register. Plan is not enabled.", planIsNotEnabled);
             // Plan is not enabled, handle exception
         } catch (IllegalArgumentException dataExtensionImplementationIsInvalid) {
-            logger.log(Level.SEVERE, "Plan extension hook failed to register. Data hook implementation is invalid.", dataExtensionImplementationIsInvalid);
+            plugin.log(Level.SEVERE, "Plan extension hook failed to register. Data hook implementation is invalid.", dataExtensionImplementationIsInvalid);
             // The DataExtension implementation has an implementation error, handle exception
         }
     }

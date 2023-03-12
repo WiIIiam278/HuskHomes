@@ -97,13 +97,13 @@ public class PublicHomeCommand extends Command implements TabProvider, ConsoleEx
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length != 2) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: publichome <player> <[owner_name].[home_name]>");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: publichome <player> <[owner_name].[home_name]>");
             return;
         }
         CompletableFuture.runAsync(() -> {
             final OnlineUser playerToTeleport = plugin.findOnlinePlayer(args[0]).orElse(null);
             if (playerToTeleport == null) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                plugin.log(Level.WARNING, "Player not found: " + args[0]);
                 return;
             }
             final AtomicReference<Home> matchedHome = new AtomicReference<>(null);
@@ -119,11 +119,11 @@ public class PublicHomeCommand extends Command implements TabProvider, ConsoleEx
 
             final Home home = matchedHome.get();
             if (home == null) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Could not find public home '" + args[1] + "'");
+                plugin.log(Level.WARNING, "Could not find public home '" + args[1] + "'");
                 return;
             }
 
-            plugin.getLoggingAdapter().log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
+            plugin.log(Level.INFO, "Teleporting " + playerToTeleport.getUsername() + " to "
                                                        + home.getOwner().getUsername() + "." + home.getMeta().getName());
             Teleport.builder(plugin, playerToTeleport)
                     .setTarget(home)

@@ -86,29 +86,29 @@ public class HomeListCommand extends Command implements ConsoleExecutable {
     @Override
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length != 1) {
-            plugin.getLoggingAdapter().log(Level.WARNING, "Invalid syntax. Usage: homelist <player>");
+            plugin.log(Level.WARNING, "Invalid syntax. Usage: homelist <player>");
             return;
         }
         CompletableFuture.runAsync(() -> {
             final Optional<SavedUser> userData = plugin.getDatabase().getUserDataByName(args[0]).join();
             if (userData.isEmpty()) {
-                plugin.getLoggingAdapter().log(Level.WARNING, "Player not found: " + args[0]);
+                plugin.log(Level.WARNING, "Player not found: " + args[0]);
                 return;
             }
             final List<Home> homes = plugin.getDatabase().getHomes(userData.get().user()).join();
             StringJoiner rowJoiner = new StringJoiner("\t");
 
-            plugin.getLoggingAdapter().log(Level.INFO, "List of " + userData.get().user().getUsername() + "'s "
+            plugin.log(Level.INFO, "List of " + userData.get().user().getUsername() + "'s "
                     + homes.size() + " homes:");
             for (int i = 0; i < homes.size(); i++) {
                 final String home = homes.get(i).getMeta().getName();
                 rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
                 if ((i + 1) % 3 == 0) {
-                    plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+                    plugin.log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("\t");
                 }
             }
-            plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+            plugin.log(Level.INFO, rowJoiner.toString());
         });
     }
 }

@@ -37,6 +37,20 @@ public class Location {
     }
 
     /**
+     * Update the position to match that of another position
+     *
+     * @param position The position to update to
+     */
+    public void update(@NotNull Position position) {
+        this.setX(position.getX());
+        this.setY(position.getY());
+        this.setZ(position.getZ());
+        this.setYaw(position.getYaw());
+        this.setPitch(position.getPitch());
+        this.setWorld(position.getWorld());
+    }
+
+    /**
      * The double-precision defined x coordinate of the location
      */
     public double getX() {

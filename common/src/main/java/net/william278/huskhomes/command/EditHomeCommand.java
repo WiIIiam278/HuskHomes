@@ -4,72 +4,130 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.PositionMeta;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class EditHomeCommand extends Command implements TabProvider {
+public class EditHomeCommand extends SavedPositionCommand<Home> {
 
-    private final String[] EDIT_HOME_COMPLETIONS = {"rename", "description", "relocate", "privacy"};
-
-    public EditHomeCommand(@NotNull HuskHomes implementor) {
-        super("edithome", Permission.COMMAND_EDIT_HOME, implementor);
+    public EditHomeCommand(@NotNull HuskHomes plugin) {
+        super("edithome", List.of(), Home.class, List.of("rename", "description", "relocate", "privacy"), plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length >= 1) {
-            final String homeName = args[0];
-            final String editOperation = args.length >= 2 ? args[1] : null;
-            final String editArgs = getEditArguments(args);
+    public void execute(@NotNull CommandUser executor, @NotNull Home home, @NotNull String[] args) {
+        final boolean ownerEditing = home.getOwner().equals(executor);
+        if (!ownerEditing && !executor.hasPermission(getOtherPermission())) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
 
-            RegexUtil.matchDisambiguatedHomeIdentifier(homeName).ifPresentOrElse(
-                    homeIdentifier -> plugin.getDatabase().getUserDataByName(homeIdentifier.ownerName())
-                            .thenAcceptAsync(optionalUserData -> optionalUserData.ifPresentOrElse(userData -> {
-                                        if (!userData.getUserUuid().equals(onlineUser.getUuid())) {
-                                            if (!onlineUser.hasPermission(Permission.COMMAND_EDIT_HOME_OTHER.node)) {
-                                                plugin.getLocales().getLocale("error_no_permission")
-                                                        .ifPresent(onlineUser::sendMessage);
-                                                return;
-                                            }
-                                        }
-                                        plugin.getDatabase().getHome(userData.user(), homeIdentifier.homeName()).thenAcceptAsync(optionalHome -> {
-                                            if (optionalHome.isEmpty()) {
-                                                plugin.getLocales().getLocale("error_home_invalid_other",
-                                                                homeIdentifier.ownerName(), homeIdentifier.homeName())
-                                                        .ifPresent(onlineUser::sendMessage);
-                                                return;
-                                            }
-                                            editHome(optionalHome.get(), onlineUser, editOperation, editArgs);
-                                        });
+        final Optional<String> operation = parseStringArg(args, 0);
+        if (operation.isEmpty()) {
+            getHomeEditorWindow(home, true, !ownerEditing,
+                    !ownerEditing || executor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                    executor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
+                    .forEach(executor::sendMessage);
+            return;
+        }
 
-                                    },
-                                    () -> plugin.getLocales().getLocale("error_home_invalid_other",
-                                                    homeIdentifier.ownerName(), homeIdentifier.homeName())
-                                            .ifPresent(onlineUser::sendMessage))),
-                    () -> plugin.getDatabase().getHome(onlineUser, homeName).thenAcceptAsync(optionalHome -> {
-                        if (optionalHome.isEmpty()) {
-                            plugin.getLocales().getLocale("error_home_invalid", homeName)
-                                    .ifPresent(onlineUser::sendMessage);
-                            return;
-                        }
-                        editHome(optionalHome.get(), onlineUser, editOperation, editArgs);
-                    })
-            );
-        } else {
+        if (!arguments.contains(operation.get().toLowerCase())) {
             plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/edithome <name> [" + String.join("|", EDIT_HOME_COMPLETIONS) + "] [args]")
-                    .ifPresent(onlineUser::sendMessage);
+                            "/edithome " + home.getName() + " <" + String.join("|", arguments) + ">")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        switch (operation.get().toLowerCase()) {
+            case "rename" -> {
+                final Optional<String> newName = parseStringArg(args, 1);
+                if (newName.isEmpty()) {
+                    plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/edithome " + home.getName() + " rename <name>")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                try {
+                    plugin.getManager().homes().renameHome(home.getOwner(), home.getName(), newName.get());
+                } catch (ValidationException e) {
+                    e.dispatchHomeError(executor, false, plugin, newName.get());
+                    return;
+                }
+
+                if (ownerEditing) {
+                    plugin.getLocales().getLocale("edit_home_update_name", home.getName(), newName.get())
+                            .ifPresent(executor::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("edit_home_update_name_other", home.getOwner().getUsername(),
+                                    home.getName(), newName.get())
+                            .ifPresent(executor::sendMessage);
+                }
+            }
+            case "description" -> {
+                final Optional<String> newDescription = parseGreedyString(args, 1);
+                if (newDescription.isEmpty()) {
+                    plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/edithome " + home.getName() + " description <text>")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                try {
+                    plugin.getManager().homes().updateHomeDescription(home.getOwner(), home.getName(), newDescription.get());
+                } catch (ValidationException e) {
+                    e.dispatchHomeError(executor, false, plugin, newDescription.get());
+                    return;
+                }
+
+                if (ownerEditing) {
+                    plugin.getLocales().getLocale("edit_home_update_description", home.getName(), newDescription.get())
+                            .ifPresent(executor::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("edit_home_update_description_other", home.getOwner().getUsername(),
+                                    home.getName(), newDescription.get())
+                            .ifPresent(executor::sendMessage);
+                }
+            }
+            case "relocate" -> {
+                if (!(executor instanceof OnlineUser user)) {
+                    plugin.getLocales().getLocale("error_in_game_only")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                try {
+                    plugin.getManager().homes().relocateHome(user, home.getName(), user.getPosition());
+                } catch (ValidationException e) {
+                    e.dispatchHomeError(executor, false, plugin, home.getName());
+                }
+
+                if (ownerEditing) {
+                    plugin.getLocales().getLocale("edit_home_update_location", home.getName())
+                            .ifPresent(executor::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("edit_home_update_location_other", home.getOwner().getUsername(), home.getName())
+                            .ifPresent(executor::sendMessage);
+                }
+            }
+            case "privacy" -> {
+
+            }
         }
     }
 
@@ -87,10 +145,6 @@ public class EditHomeCommand extends Command implements TabProvider {
         final boolean otherOwner = !editor.equals(home.getOwner());
 
         if (editOperation == null) {
-            getHomeEditorWindow(home, true, otherOwner,
-                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
-                    editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
-                    .forEach(editor::sendMessage);
             return;
         }
         if (editArgs != null) {
@@ -163,24 +217,23 @@ public class EditHomeCommand extends Command implements TabProvider {
                             default -> plugin.getLocales().getLocale("error_home_name_characters");
                         }).ifPresent(editor::sendMessage));
             }
-            case "relocate" ->
-                    plugin.getManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
-                        if (home.getOwner().equals(editor)) {
-                            editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
-                                    home.getMeta().getName()).orElse(new MineDown("")));
-                        } else {
-                            editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location_other",
-                                    home.getOwner().getUsername(), home.getMeta().getName()).orElse(new MineDown("")));
-                        }
+            case "relocate" -> plugin.getManager().updateHomePosition(home, editor.getPosition()).thenRun(() -> {
+                if (home.getOwner().equals(editor)) {
+                    editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location",
+                            home.getMeta().getName()).orElse(new MineDown("")));
+                } else {
+                    editor.sendMessage(plugin.getLocales().getLocale("edit_home_update_location_other",
+                            home.getOwner().getUsername(), home.getMeta().getName()).orElse(new MineDown("")));
+                }
 
-                        // Show the menu if the menu flag is set
-                        if (showMenuFlag.get()) {
-                            getHomeEditorWindow(home, false, otherOwner,
-                                    !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
-                                    editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
-                                    .forEach(editor::sendMessage);
-                        }
-                    });
+                // Show the menu if the menu flag is set
+                if (showMenuFlag.get()) {
+                    getHomeEditorWindow(home, false, otherOwner,
+                            !otherOwner || editor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
+                            editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
+                            .forEach(editor::sendMessage);
+                }
+            });
             case "privacy" -> {
                 if (!editor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node)) {
                     plugin.getLocales().getLocale("error_no_permission")
@@ -344,23 +397,4 @@ public class EditHomeCommand extends Command implements TabProvider {
         }};
     }
 
-    @Override
-    @NotNull
-    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        if (user == null) {
-            return Collections.emptyList();
-        }
-        return switch (args.length) {
-            case 0, 1 -> plugin.getCache().getHomes().getOrDefault(user.getUuid(), new ArrayList<>())
-                    .stream()
-                    .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                    .sorted()
-                    .collect(Collectors.toList());
-            case 2 -> Arrays.stream(EDIT_HOME_COMPLETIONS)
-                    .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                    .sorted()
-                    .collect(Collectors.toList());
-            default -> Collections.emptyList();
-        };
-    }
 }

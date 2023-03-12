@@ -66,7 +66,7 @@ public class PublicHomeListCommand extends Command implements ConsoleExecutable 
             final List<Home> homes = plugin.getDatabase().getPublicHomes().join();
             StringJoiner rowJoiner = new StringJoiner("\t");
 
-            plugin.getLoggingAdapter().log(Level.INFO, "List of " + homes.size() + " public homes:");
+            plugin.log(Level.INFO, "List of " + homes.size() + " public homes:");
             for (int i = 0; i < homes.size(); i++) {
                 final String ownerUsername = homes.get(i).getOwner().getUsername();
                 final String homeName = homes.get(i).getMeta().getName();
@@ -74,11 +74,11 @@ public class PublicHomeListCommand extends Command implements ConsoleExecutable 
                 int spacingSize = (16 - ownerUsername.length()) + 17;
                 rowJoiner.add(home.length() < spacingSize ? home + " ".repeat(spacingSize - home.length()) : home);
                 if ((i + 1) % 3 == 0) {
-                    plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+                    plugin.log(Level.INFO, rowJoiner.toString());
                     rowJoiner = new StringJoiner("\t");
                 }
             }
-            plugin.getLoggingAdapter().log(Level.INFO, rowJoiner.toString());
+            plugin.log(Level.INFO, rowJoiner.toString());
         });
     }
 }

@@ -21,7 +21,6 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.random.RandomTeleportEngine;
-import net.william278.huskhomes.util.Logger;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.TaskRunner;
 import net.william278.huskhomes.util.Validator;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Represents a cross-platform instance of the plugin
@@ -42,14 +42,6 @@ import java.util.concurrent.CompletableFuture;
 public interface HuskHomes extends TaskRunner {
 
     int SPIGOT_RESOURCE_ID = 83767;
-
-    /**
-     * The platform plugin console logger
-     *
-     * @return the {@link Logger} implementation to use
-     */
-    @NotNull
-    Logger getLoggingAdapter();
 
     @NotNull
     ConsoleUser getConsole();
@@ -368,6 +360,15 @@ public interface HuskHomes extends TaskRunner {
     void initializePluginChannels();
 
     /**
+     * Log a message to the console
+     *
+     * @param level      the level to log at
+     * @param message    the message to log
+     * @param exceptions any exceptions to log
+     */
+    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions);
+
+    /**
      * Create a resource key namespaced with the plugin id
      *
      * @param data the string ID elements to join
@@ -386,5 +387,6 @@ public interface HuskHomes extends TaskRunner {
     default Gson getGson() {
         return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()).create();
     }
+
 
 }

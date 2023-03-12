@@ -16,7 +16,7 @@ import java.util.Optional;
 public abstract class SavedPositionCommand<T extends SavedPosition> extends Command {
 
     private final Class<T> positionType;
-    private final List<String> arguments;
+    protected final List<String> arguments;
 
     protected SavedPositionCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull Class<T> positionType,
                                    @NotNull List<String> arguments, @NotNull HuskHomes plugin) {

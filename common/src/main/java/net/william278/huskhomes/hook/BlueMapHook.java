@@ -58,7 +58,7 @@ public class BlueMapHook extends MapHook {
                         ImageIO.read(Objects.requireNonNull(plugin.getResource("markers/50x/" + WARP_MARKER_IMAGE_NAME + ".png"))),
                         "huskhomes/" + WARP_MARKER_IMAGE_NAME + ".png");
             } catch (IOException e) {
-                plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to create warp marker image", e);
+                plugin.log(Level.SEVERE, "Failed to create warp marker image", e);
             }
 
             initializedFuture.complete(null);

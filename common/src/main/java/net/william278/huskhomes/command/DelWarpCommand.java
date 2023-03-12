@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DelWarpCommand extends SavedPositionCommand<Warp> implements TabProvider {
+public class DelWarpCommand extends SavedPositionCommand<Warp> {
 
     public DelWarpCommand(@NotNull HuskHomes implementor) {
         super("delwarp", List.of(), Warp.class, List.of(), implementor);

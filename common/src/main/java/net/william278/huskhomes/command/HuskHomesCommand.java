@@ -116,33 +116,33 @@ public class HuskHomesCommand extends Command implements ConsoleExecutable, TabP
     public void onConsoleExecute(@NotNull String[] args) {
         if (args.length == 0) {
             Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
-                    plugin.getLoggingAdapter().log(Level.INFO, message));
+                    plugin.log(Level.INFO, message));
             return;
         }
         switch (args[0].toLowerCase()) {
             case "about" -> Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
-                    plugin.getLoggingAdapter().log(Level.INFO, message));
+                    plugin.log(Level.INFO, message));
             case "help" -> {
-                plugin.getLoggingAdapter().log(Level.INFO, "List of enabled console-executable commands:");
+                plugin.log(Level.INFO, "List of enabled console-executable commands:");
                 plugin.getCommands()
                         .stream().filter(command -> command instanceof ConsoleExecutable)
-                        .forEach(command -> plugin.getLoggingAdapter().log(Level.INFO,
+                        .forEach(command -> plugin.log(Level.INFO,
                                 command.command +
                                 (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
                                 + " - " + command.getDescription()));
             }
             case "reload" -> {
                 if (!plugin.reload()) {
-                    plugin.getLoggingAdapter().log(Level.SEVERE, "Failed to reload the plugin.");
+                    plugin.log(Level.SEVERE, "Failed to reload the plugin.");
                     return;
                 }
-                plugin.getLoggingAdapter().log(Level.INFO, "Reloaded config & message files.");
+                plugin.log(Level.INFO, "Reloaded config & message files.");
             }
             case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
-                    newestVersion.ifPresentOrElse(newVersion -> plugin.getLoggingAdapter().log(Level.WARNING,
+                    newestVersion.ifPresentOrElse(newVersion -> plugin.log(Level.WARNING,
                                     "An update is available for HuskHomes, v" + newVersion
                                     + " (Running v" + plugin.getVersion() + ")"),
-                            () -> plugin.getLoggingAdapter().log(Level.INFO,
+                            () -> plugin.log(Level.INFO,
                                     "HuskHomes is up to date" +
                                     " (Running v" + plugin.getVersion() + ")")));
         }

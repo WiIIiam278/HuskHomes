@@ -28,18 +28,9 @@ public class Position extends Location implements Target {
     private Position() {
     }
 
-    /**
-     * Update the position to match that of another position
-     *
-     * @param newPosition The position to update to
-     */
+    @Override
     public void update(@NotNull Position newPosition) {
-        this.setX(newPosition.getX());
-        this.setY(newPosition.getY());
-        this.setZ(newPosition.getZ());
-        this.setYaw(newPosition.getYaw());
-        this.setPitch(newPosition.getPitch());
-        this.setWorld(newPosition.getWorld());
+        super.update(newPosition);
         this.setServer(newPosition.getServer());
     }
 

@@ -2,147 +2,107 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
-import net.william278.huskhomes.position.PositionMeta;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class EditWarpCommand extends Command implements TabProvider {
+public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
-    private final String[] EDIT_WARP_COMPLETIONS = {"rename", "description", "relocate"};
-
-    protected EditWarpCommand(@NotNull HuskHomes implementor) {
-        super("editwarp", Permission.COMMAND_EDIT_WARP, implementor);
+    public EditWarpCommand(@NotNull HuskHomes plugin) {
+        super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length >= 1) {
-            final String warpName = args[0];
-            final String editOperation = args.length >= 2 ? args[1] : null;
-            final String editArgs = getEditArguments(args);
-
-            plugin.getDatabase().getWarp(warpName).thenAcceptAsync(optionalWarp -> {
-                if (optionalWarp.isEmpty()) {
-                    plugin.getLocales().getLocale("error_warp_invalid", warpName)
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                editWarp(optionalWarp.get(), onlineUser, editOperation, editArgs);
-            });
-        } else {
-            plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/editwarp <name> [" + String.join("|", EDIT_WARP_COMPLETIONS) + "] [args]")
-                    .ifPresent(onlineUser::sendMessage);
-        }
-    }
-
-    /**
-     * Perform the specified EditOperation on the specified warp
-     *
-     * @param warp          The warp to edit
-     * @param editor        The player who is editing the warp
-     * @param editOperation The edit operation to perform
-     * @param editArgs      Arguments for the edit operation
-     */
-    private void editWarp(@NotNull Warp warp, @NotNull OnlineUser editor,
-                          @Nullable String editOperation, @Nullable String editArgs) {
-        final AtomicBoolean showMenuFlag = new AtomicBoolean(false);
-
-        if (editOperation == null) {
-            getWarpEditorWindow(warp, true, editor.hasPermission(Permission.COMMAND_WARP.node))
-                    .forEach(editor::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
+        final Optional<String> operation = parseStringArg(args, 0);
+        if (operation.isEmpty()) {
+            getWarpEditorWindow(warp, true, executor.hasPermission(Permission.COMMAND_WARP.node))
+                    .forEach(executor::sendMessage);
             return;
         }
-        if (editArgs != null) {
-            String argToCheck = editArgs;
-            if (editArgs.contains(Pattern.quote(" "))) {
-                argToCheck = editArgs.split(Pattern.quote(" "))[0];
-            }
-            if (argToCheck.equals("-m")) {
-                showMenuFlag.set(true);
-                editArgs = editArgs.replaceFirst("-m", "");
-            }
+
+        if (!arguments.contains(operation.get().toLowerCase())) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/editwarp " + warp.getName() + " <" + String.join("|", arguments) + ">")
+                    .ifPresent(executor::sendMessage);
+            return;
         }
 
-        switch (editOperation.toLowerCase()) {
-            case "rename" -> {
-                if (editArgs == null || editArgs.contains(Pattern.quote(" "))) {
-                    plugin.getLocales().getLocale("error_invalid_syntax",
-                                    "/editwarp <name> rename <new name>")
-                            .ifPresent(editor::sendMessage);
-                    return;
-                }
-
-                final String oldWarpName = warp.getMeta().getName();
-                final String newWarpName = editArgs;
-                plugin.getManager().updateWarpMeta(warp, new PositionMeta(newWarpName, warp.getMeta().getDescription()))
-                        .thenAccept(renameResult -> (switch (renameResult.resultType()) {
-                            case SUCCESS ->
-                                    plugin.getLocales().getLocale("edit_warp_update_name", oldWarpName, newWarpName);
-                            case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_warp_name_taken");
-                            case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_warp_name_length");
-                            case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_warp_name_characters");
-                            default -> plugin.getLocales().getLocale("error_warp_description_characters");
-                        }).ifPresent(editor::sendMessage));
-            }
-            case "description" -> {
-                final String oldWarpDescription = warp.getMeta().getDescription();
-                final String newDescription = editArgs != null ? editArgs : "";
-
-                plugin.getManager().updateWarpMeta(warp, new PositionMeta(warp.getMeta().getName(), newDescription))
-                        .thenAccept(descriptionUpdateResult -> (switch (descriptionUpdateResult.resultType()) {
-                            case SUCCESS -> plugin.getLocales().getLocale("edit_warp_update_description",
-                                    warp.getMeta().getName(),
-                                    oldWarpDescription.isBlank() ? plugin.getLocales()
-                                            .getRawLocale("item_no_description").orElse("N/A") : oldWarpDescription,
-                                    newDescription.isBlank() ? plugin.getLocales()
-                                            .getRawLocale("item_no_description").orElse("N/A") : newDescription);
-                            case FAILED_DESCRIPTION_LENGTH ->
-                                    plugin.getLocales().getLocale("error_warp_description_length");
-                            case FAILED_DESCRIPTION_CHARACTERS ->
-                                    plugin.getLocales().getLocale("error_warp_description_characters");
-                            default -> plugin.getLocales().getLocale("error_warp_name_characters");
-                        }).ifPresent(editor::sendMessage));
-            }
-            case "relocate" ->
-                    plugin.getManager().updateWarpPosition(warp, editor.getPosition()).thenRun(() -> {
-                        editor.sendMessage(plugin.getLocales().getLocale("edit_warp_update_location",
-                                warp.getMeta().getName()).orElse(new MineDown("")));
-
-                        // Show the menu if the menu flag is set
-                        if (showMenuFlag.get()) {
-                            getWarpEditorWindow(warp, false, editor.hasPermission(Permission.COMMAND_WARP.node))
-                                    .forEach(editor::sendMessage);
-                        }
-                    });
-            default -> plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/editwarp <name> [" + String.join("|", EDIT_WARP_COMPLETIONS) + "] [args]")
-                    .ifPresent(editor::sendMessage);
+        switch (operation.get().toLowerCase()) {
+            case "rename" -> setWarpName(executor, warp, args);
+            case "description" -> setWarpDescription(executor, warp, args);
+            case "relocate" -> setWarpPosition(executor, warp);
         }
     }
 
-    @Nullable
-    private String getEditArguments(@NotNull String[] args) {
-        if (args.length > 2) {
-            final StringJoiner joiner = new StringJoiner(" ");
-            for (int i = 2; i < args.length; i++) {
-                joiner.add(args[i]);
-            }
-            return joiner.toString();
+    private void setWarpName(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
+        final Optional<String> newName = parseStringArg(args, 1);
+        if (newName.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/editwarp " + warp.getName() + " rename <name>")
+                    .ifPresent(executor::sendMessage);
+            return;
         }
-        return null;
+
+        try {
+            plugin.getManager().warps().renameWarp(warp, newName.get());
+        } catch (ValidationException e) {
+            e.dispatchWarpError(executor, plugin, newName.get());
+            return;
+        }
+
+        plugin.getLocales().getLocale("edit_warp_update_name", warp.getName(), newName.get())
+                .ifPresent(executor::sendMessage);
     }
 
+    private void setWarpDescription(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
+        final Optional<String> newDescription = parseGreedyString(args, 1);
+        if (newDescription.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax", 
+                            "/editwarp " + warp.getName() + " description <text>")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        try {
+            plugin.getManager().warps().setWarpDescription(warp, newDescription.get());
+        } catch (ValidationException e) {
+            e.dispatchWarpError(executor, plugin, newDescription.get());
+            return;
+        }
+        
+        plugin.getLocales().getLocale("edit_warp_update_description", warp.getName(), newDescription.get())
+                .ifPresent(executor::sendMessage);
+    }
+
+    private void setWarpPosition(@NotNull CommandUser executor, @NotNull Warp warp) {
+        if (!(executor instanceof OnlineUser user)) {
+            plugin.getLocales().getLocale("error_in_game_only")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        try {
+            plugin.getManager().warps().relocateWarp(warp, user.getPosition());
+        } catch (ValidationException e) {
+            e.dispatchWarpError(executor, plugin, warp.getName());
+            return;
+        }
+
+        plugin.getLocales().getLocale("edit_warp_update_location", warp.getName())
+                .ifPresent(executor::sendMessage);
+    }
+    
     /**
      * Get a formatted warp editor chat window for a supplied {@link Warp}
      *
@@ -152,8 +112,7 @@ public class EditWarpCommand extends Command implements TabProvider {
      * @return List of {@link MineDown} messages to send to the editor that form the menu
      */
     @NotNull
-    private List<MineDown> getWarpEditorWindow(@NotNull Warp warp, final boolean showTitle,
-                                               final boolean showTeleportButton) {
+    private List<MineDown> getWarpEditorWindow(@NotNull Warp warp, boolean showTitle, boolean showTeleportButton) {
         return new ArrayList<>() {{
             if (showTitle) {
                 plugin.getLocales().getLocale("edit_warp_menu_title", warp.getMeta().getName())
@@ -171,14 +130,14 @@ public class EditWarpCommand extends Command implements TabProvider {
                 plugin.getLocales().getLocale("edit_warp_menu_description",
                                 warp.getMeta().getDescription().length() > 50
                                         ? warp.getMeta().getDescription().substring(0, 49).trim() + "…" : warp.getMeta().getDescription(),
-                                plugin.getLocales().wrapText(warp.getMeta().getDescription()))
+                                plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
                         .ifPresent(this::add);
             }
 
             if (!plugin.getSettings().isCrossServer()) {
                 plugin.getLocales().getLocale("edit_warp_menu_world", warp.getWorld().getName()).ifPresent(this::add);
             } else {
-                plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.getWorld().getName(), warp.getServer().getName()).ifPresent(this::add);
+                plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.getWorld().getName(), warp.getServer()).ifPresent(this::add);
             }
 
             plugin.getLocales().getLocale("edit_warp_menu_coordinates",
@@ -197,20 +156,4 @@ public class EditWarpCommand extends Command implements TabProvider {
         }};
     }
 
-    @Override
-    @NotNull
-    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return switch (args.length) {
-            case 0, 1 -> plugin.getCache().getWarps()
-                    .stream()
-                    .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                    .sorted()
-                    .collect(Collectors.toList());
-            case 2 -> Arrays.stream(EDIT_WARP_COMPLETIONS)
-                    .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                    .sorted()
-                    .collect(Collectors.toList());
-            default -> Collections.emptyList();
-        };
-    }
 }

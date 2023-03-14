@@ -71,67 +71,84 @@ public class HomesManager {
         if (home.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
-        plugin.getDatabase().deleteHome(home.get().getUuid());
+
+        this.deleteHome(home.get());
+    }
+
+    public void deleteHome(@NotNull Home home) {
+        plugin.getDatabase().deleteHome(home.getUuid());
     }
 
     public int deleteAllHomes(@NotNull User owner) {
         return plugin.getDatabase().deleteAllHomes(owner);
     }
 
-    public void relocateHome(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
+    public void setHomePosition(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        final Home home = optionalHome.get();
+        this.setHomePosition(optionalHome.get(), position);
+    }
+
+    public void setHomePosition(@NotNull Home home, @NotNull Position position) throws ValidationException {
         home.update(position);
         plugin.getDatabase().saveHome(home);
     }
 
-    public void renameHome(@NotNull User owner, @NotNull String name, @NotNull String newName) throws ValidationException {
+    public void setHomeName(@NotNull User owner, @NotNull String name, @NotNull String newName) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
+        this.setHomeName(optionalHome.get(), newName);
+    }
+
+    public void setHomeName(@NotNull Home home, @NotNull String newName) throws ValidationException {
         if (!plugin.getValidator().isValidName(newName)) {
             throw new ValidationException(ValidationException.Type.NAME_INVALID);
         }
 
-        final Home home = optionalHome.get();
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
     }
 
-    public void updateHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) throws ValidationException {
+    public void setHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
+        this.setHomeDescription(optionalHome.get(), description);
+    }
+
+    public void setHomeDescription(@NotNull Home home, @NotNull String description) {
         if (!plugin.getValidator().isValidDescription(description)) {
             throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
         }
 
-        final Home home = optionalHome.get();
         home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
     }
 
-    public void updateHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) throws ValidationException {
+    public void setHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        final Home home = optionalHome.get();
+        this.setHomePrivacy(optionalHome.get(), isPublic);
+    }
+
+    public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
         if (isPublic == home.isPublic()) {
             return;
         }
 
-        if (isPublic && owner instanceof OnlineUser online) {
-            final int publicHomes = plugin.getDatabase().getHomes(owner).stream()
+        if (isPublic && home.getOwner() instanceof OnlineUser online) {
+            final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)
                     .toList().size();
             final int publicSlots = online.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),

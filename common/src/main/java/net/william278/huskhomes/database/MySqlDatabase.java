@@ -470,8 +470,7 @@ public class MySqlDatabase extends Database {
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
                             UUID.fromString(resultSet.getString("home_uuid")),
-                            new User(UUID.fromString(resultSet.getString("owner_uuid")),
-                                    resultSet.getString("owner_username")),
+                            user,
                             resultSet.getBoolean("public")));
                 }
             }
@@ -629,9 +628,9 @@ public class MySqlDatabase extends Database {
                     SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
                     WHERE `uuid`=?"""))) {
 
-                statement.setInt(1, savedUser.homeSlots());
-                statement.setBoolean(2, savedUser.ignoringTeleports());
-                statement.setTimestamp(3, Timestamp.from(savedUser.rtpCooldown()));
+                statement.setInt(1, savedUser.getHomeSlots());
+                statement.setBoolean(2, savedUser.isIgnoringTeleports());
+                statement.setTimestamp(3, Timestamp.from(savedUser.getRtpCooldown()));
                 statement.setString(4, savedUser.getUserUuid().toString());
                 statement.executeUpdate();
             }

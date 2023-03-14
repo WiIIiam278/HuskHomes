@@ -16,7 +16,7 @@ public class WarpsManager {
         this.plugin = plugin;
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position, boolean overwrite) {
+    public void createWarp(@NotNull String name, @NotNull Position position, boolean overwrite) throws ValidationException {
         final Optional<Warp> existingWarp = plugin.getDatabase().getWarp(name);
         if (existingWarp.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
@@ -41,51 +41,69 @@ public class WarpsManager {
         plugin.getDatabase().saveWarp(warp);
     }
 
-    public void deleteWarp(@NotNull String name) {
+    public void deleteWarp(@NotNull String name) throws ValidationException {
         final Optional<Warp> warp = plugin.getDatabase().getWarp(name);
         if (warp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
-        plugin.getDatabase().deleteWarp(warp.get().getUuid());
+
+        this.deleteWarp(warp.get());
+    }
+
+    public void deleteWarp(@NotNull Warp warp) {
+        plugin.getDatabase().deleteWarp(warp.getUuid());
     }
 
     public int deleteAllWarps() {
         return plugin.getDatabase().deleteAllWarps();
     }
 
-    public void relocateWarp(@NotNull String name, @NotNull Position position) {
+    public void relocateWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        final Warp warp = optionalWarp.get();
+        this.relocateWarp(optionalWarp.get(), position);
+    }
+
+    public void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
         warp.update(position);
         plugin.getDatabase().saveWarp(warp);
     }
 
-    public void renameHome(@NotNull String name, @NotNull String newName) throws ValidationException {
+    public void renameWarp(@NotNull String name, @NotNull String newName) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
+        this.renameWarp(optionalWarp.get(), newName);
+    }
+
+    public void renameWarp(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
         if (!plugin.getValidator().isValidName(newName)) {
             throw new ValidationException(ValidationException.Type.NAME_INVALID);
         }
 
-        final Warp warp = optionalWarp.get();
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
     }
 
-    public void setWarpDescription(@NotNull String name, @NotNull String description) {
+    public void setWarpDescription(@NotNull String name, @NotNull String description) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        final Warp warp = optionalWarp.get();
+        this.setWarpDescription(optionalWarp.get(), description);
+    }
+
+    public void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
+        if (!plugin.getValidator().isValidDescription(description)) {
+            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
+        }
+
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
     }

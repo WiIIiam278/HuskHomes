@@ -43,7 +43,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         final Optional<?> position = (positionType == Home.class
                 ? resolveHome(executor, name.get())
                 : resolveWarp(executor, name.get()));
-        position.ifPresent(p -> execute(executor, (T) p, args));
+        position.ifPresent(p -> execute(executor, (T) p, removeFirstArg(args)));
     }
 
     public abstract void execute(@NotNull CommandUser executor, @NotNull T position, @NotNull String[] arguments);
@@ -52,7 +52,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         if (homeName.contains(".")) {
             final String[] splitHomeName = homeName.split("\\.");
             final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(splitHomeName[0])
-                    .flatMap(owner -> plugin.getDatabase().getHome(owner.user(), splitHomeName[1]));
+                    .flatMap(owner -> plugin.getDatabase().getHome(owner.getUser(), splitHomeName[1]));
 
             if (optionalHome.isEmpty()) {
                 plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())

@@ -4,6 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,7 +30,12 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
                     .ifPresent(user::sendMessage);
             return;
         }
-        plugin.getManager().homes().deleteHome(home.getOwner(), home.getName());
+        try {
+            plugin.getManager().homes().deleteHome(home);
+        } catch (ValidationException e) {
+            e.dispatchHomeError(executor, !home.getOwner().equals(executor), plugin, home.getName());
+            return;
+        }
         plugin.getLocales().getLocale("home_deleted", home.getName())
                 .ifPresent(executor::sendMessage);
     }

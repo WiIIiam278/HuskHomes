@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public abstract class Command extends Node implements TabProvider {
+
     private final String usage;
+
     protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
         super(name, aliases, plugin);
         this.usage = usage;
@@ -38,7 +40,7 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @NotNull
-    protected String[] removeFirstArg(String[] args) {
+    protected String[] removeFirstArg(@NotNull String[] args) {
         String[] newArgs = new String[args.length - 1];
         System.arraycopy(args, 1, newArgs, 0, args.length - 1);
         return newArgs;

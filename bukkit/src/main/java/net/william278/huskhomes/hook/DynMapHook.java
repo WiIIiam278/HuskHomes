@@ -74,8 +74,8 @@ public class DynMapHook extends MapHook {
                     .setDescription(MarkerInformationPopup.create(home.getMeta().getName())
                             .setThumbnailMarker(PUBLIC_HOME_MARKER_IMAGE_NAME)
                             .addField("Owner", home.getOwner().getUsername())
-                            .addField("Description", plugin.getLocales().wrapText(home.getMeta().getDescription()))
-                            .addField("Command", "/" + BukkitCommand.Type.PUBLIC_HOME_COMMAND.getCommand().command + " " + home.getMeta().getName())
+                            .addField("Description", plugin.getLocales().wrapText(home.getMeta().getDescription(), 60))
+                            .addField("Command", "/" + BukkitCommand.Type.PUBLIC_HOME_COMMAND.getCommand().getName() + " " + home.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));
@@ -120,8 +120,8 @@ public class DynMapHook extends MapHook {
                             warp.getX(), warp.getY(), warp.getZ(), dynmapAPI.getMarkerAPI().getMarkerIcon(WARP_MARKER_IMAGE_NAME), false)
                     .setDescription(MarkerInformationPopup.create(warp.getMeta().getName())
                             .setThumbnailMarker(WARP_MARKER_IMAGE_NAME)
-                            .addField("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription()))
-                            .addField("Command", "/" + BukkitCommand.Type.WARP_COMMAND.getCommand().command + " " + warp.getMeta().getName())
+                            .addField("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription(), 60))
+                            .addField("Command", "/" + BukkitCommand.Type.WARP_COMMAND.getCommand().getName() + " " + warp.getMeta().getName())
                             .toHtml());
             updatedFuture.complete(null);
         }));

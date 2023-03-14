@@ -43,10 +43,12 @@ public abstract class Node implements Executable {
     }
 
     @NotNull
-    public String getPermission() {
+    public String getPermission(@NotNull String... child) {
         return new StringJoiner(".")
                 .add(PERMISSION_PREFIX)
-                .add(getName()).toString();
+                .add(getName())
+                .add(String.join(".", child))
+                .toString();
     }
 
     public boolean canPerform(@NotNull CommandUser user) {

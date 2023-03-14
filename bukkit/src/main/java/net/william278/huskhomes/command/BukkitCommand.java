@@ -63,7 +63,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
      * Commands available on the Bukkit HuskHomes implementation
      */
     public enum Type {
-        HOME_COMMAND(new HomeCommand(BukkitHuskHomes.getInstance())),
+        HOME_COMMAND(new PrivateHomeCommand(BukkitHuskHomes.getInstance())),
         SET_HOME_COMMAND(new SetHomeCommand(BukkitHuskHomes.getInstance())),
         HOME_LIST_COMMAND(new HomeListCommand(BukkitHuskHomes.getInstance())),
         DEL_HOME_COMMAND(new DelHomeCommand(BukkitHuskHomes.getInstance())),

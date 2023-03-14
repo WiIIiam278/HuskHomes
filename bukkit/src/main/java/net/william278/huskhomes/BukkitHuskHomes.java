@@ -7,9 +7,9 @@ import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.DisabledCommand;
-import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
@@ -22,21 +22,20 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
-import net.william278.huskhomes.user.BukkitUser;
-import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.ConsoleUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
@@ -203,24 +202,19 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
             // Register commands
             this.registeredCommands = new ArrayList<>();
             Arrays.stream(BukkitCommand.Type.values()).forEach(commandType -> {
-                final PluginCommand pluginCommand = getCommand(commandType.getCommand().getName());
-                if (pluginCommand == null) {
-                    return;
-                }
-
                 // If the command is disabled, use the disabled CommandBase
                 if (settings.getDisabledCommands().stream().anyMatch(disabledCommand -> {
                     final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
-                    return command.equalsIgnoreCase(commandType.getCommand().command) || Arrays.stream(commandType.getCommand().aliases).anyMatch(alias -> alias.equalsIgnoreCase(command));
+                    return command.equalsIgnoreCase(commandType.getCommand().getName()) || commandType.getCommand().getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
                 })) {
-                    new BukkitCommand(new DisabledCommand(this), this).register(pluginCommand);
+                    new BukkitCommand(new DisabledCommand(this), this).register();
                     return;
                 }
 
                 // Otherwise, register the command
                 final Command command = commandType.getCommand();
                 this.registeredCommands.add(command);
-                new BukkitCommand(command, this).register(pluginCommand);
+                new BukkitCommand(command, this).register();
             });
             log(Level.INFO, "Successfully registered permissions & commands.");
 

@@ -3,24 +3,18 @@ package net.william278.huskhomes.command;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
 
-public class HuskHomesCommand extends Command implements ConsoleExecutable, TabProvider {
+public class HuskHomesCommand extends Command {
 
-    private final String[] SUB_COMMANDS = {"about", "help", "reload", "update"};
+    private static final List<String> SUB_COMMANDS = List.of("about", "help", "reload", "update");
     private final AboutMenu aboutMenu;
 
     protected HuskHomesCommand(@NotNull HuskHomes implementor) {
-        super("huskhomes", Permission.COMMAND_HUSKHOMES, implementor);
+        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS) + "]", implementor);
         this.aboutMenu = AboutMenu.create("HuskHomes")
                 .withDescription("A powerful, intuitive and flexible teleportation suite")
                 .withVersion(implementor.getVersion())
@@ -47,124 +41,46 @@ public class HuskHomesCommand extends Command implements ConsoleExecutable, TabP
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length == 0) {
-            sendAboutMenu(onlineUser);
-            return;
-        }
-        if (args.length > 2) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/huskhomes [about|help|reload|update]")
-                    .ifPresent(onlineUser::sendMessage);
-            return;
-        }
-        switch (args[0].toLowerCase()) {
-            case "about" -> sendAboutMenu(onlineUser);
-            case "help" -> {
-                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_HELP.node)) {
-                    plugin.getLocales().getLocale("error_no_permission")
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                int page = 1;
-                if (args.length == 2) {
-                    try {
-                        page = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException ignored) {
-                        plugin.getLocales().getLocale("error_invalid_syntax", "/huskhomes help <page>")
-                                .ifPresent(onlineUser::sendMessage);
-                        return;
-                    }
-                }
-                onlineUser.sendMessage(plugin.getCache().getCommandList(onlineUser,
-                        plugin.getLocales(), plugin.getCommands(), plugin.getSettings().getListItemsPerPage(), page));
-            }
-            case "reload" -> {
-                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_RELOAD.node)) {
-                    plugin.getLocales().getLocale("error_no_permission")
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                if (!plugin.reload()) {
-                    onlineUser.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
-                    return;
-                }
-                onlineUser.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
-            }
-            case "update" -> {
-                if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_UPDATE.node)) {
-                    plugin.getLocales().getLocale("error_no_permission")
-                            .ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-                plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
-                        newestVersion.ifPresentOrElse(
-                                newVersion -> onlineUser.sendMessage(
-                                        new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
-                                                     + " (v" + newVersion + " (Running: v" + plugin.getVersion() + ")](#00fb9a)")),
-                                () -> onlineUser.sendMessage(
-                                        new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
-                                                     + " (Running: v" + plugin.getVersion() + ")](#00fb9a)"))));
-            }
-            case "migrate" -> plugin.getLocales().getLocale("error_console_command_only")
-                    .ifPresent(onlineUser::sendMessage);
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/huskhomes [about|help|reload|update]")
-                    .ifPresent(onlineUser::sendMessage);
-        }
-    }
-
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        if (args.length == 0) {
-            Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
-                    plugin.log(Level.INFO, message));
-            return;
-        }
-        switch (args[0].toLowerCase()) {
-            case "about" -> Arrays.stream(aboutMenu.toString().split("\n")).forEach(message ->
-                    plugin.log(Level.INFO, message));
-            case "help" -> {
-                plugin.log(Level.INFO, "List of enabled console-executable commands:");
-                plugin.getCommands()
-                        .stream().filter(command -> command instanceof ConsoleExecutable)
-                        .forEach(command -> plugin.log(Level.INFO,
-                                command.command +
-                                (command.command.length() < 16 ? " ".repeat(16 - command.command.length()) : "")
-                                + " - " + command.getDescription()));
-            }
-            case "reload" -> {
-                if (!plugin.reload()) {
-                    plugin.log(Level.SEVERE, "Failed to reload the plugin.");
-                    return;
-                }
-                plugin.log(Level.INFO, "Reloaded config & message files.");
-            }
-            case "update" -> plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
-                    newestVersion.ifPresentOrElse(newVersion -> plugin.log(Level.WARNING,
-                                    "An update is available for HuskHomes, v" + newVersion
-                                    + " (Running v" + plugin.getVersion() + ")"),
-                            () -> plugin.log(Level.INFO,
-                                    "HuskHomes is up to date" +
-                                    " (Running v" + plugin.getVersion() + ")")));
-        }
-    }
-
-    private void sendAboutMenu(@NotNull OnlineUser onlineUser) {
-        if (!onlineUser.hasPermission(Permission.COMMAND_HUSKHOMES_ABOUT.node)) {
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        final String action = parseStringArg(args, 0).orElse("about");
+        if (SUB_COMMANDS.contains(action) && !executor.hasPermission(getPermission(action))) {
             plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(onlineUser::sendMessage);
+                    .ifPresent(executor::sendMessage);
             return;
         }
-        onlineUser.sendMessage(aboutMenu.toMineDown());
+
+        switch (action.toLowerCase()) {
+            case "about" -> executor.sendMessage(aboutMenu.toMineDown());
+            case "help" -> executor.sendMessage(plugin.getCache().getCommandList(executor, plugin.getLocales(),
+                    plugin.getCommands(), plugin.getSettings().getListItemsPerPage(),
+                    parseIntArg(args, 1).orElse(1)));
+            case "reload" -> {
+                if (!plugin.reload()) {
+                    executor.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
+                    return;
+                }
+                executor.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
+            }
+            case "update" -> plugin.getLatestVersionIfOutdated()
+                    .thenAccept(newestVersion -> newestVersion.ifPresentOrElse(
+                            newVersion -> executor.sendMessage(
+                                    new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
+                                            + " (v" + newVersion + " (Running: v" + plugin.getVersion() + ")](#00fb9a)")),
+                            () -> executor.sendMessage(
+                                    new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
+                                            + " (Running: v" + plugin.getVersion() + ")](#00fb9a)"))));
+            default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+        }
     }
 
     @Override
     @NotNull
-    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        if (args.length == 0 || args.length == 1) {
-            return Arrays.stream(SUB_COMMANDS)
-                    .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                    .sorted().collect(Collectors.toList());
+    public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+        if (args.length < 2) {
+            return filter(SUB_COMMANDS, args);
         }
-        return Collections.emptyList();
+        return List.of();
     }
+
 }

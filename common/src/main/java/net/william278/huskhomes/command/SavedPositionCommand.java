@@ -27,7 +27,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     @NotNull
     public String getOtherPermission() {
-        return (positionType == Home.class ? super.getPermission() + ".other" : super.getPermission());
+        return (positionType == Home.class ? super.getPermission("other") : super.getPermission());
     }
 
     @SuppressWarnings("unchecked")
@@ -120,7 +120,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     @NotNull
-    private static List<String> reduceHomeList(@NotNull Map<String, List<String>> cachedMap) {
+    protected static List<String> reduceHomeList(@NotNull Map<String, List<String>> cachedMap) {
         final List<String> homeNames = new ArrayList<>();
         cachedMap.forEach((key, value) -> value.forEach(home -> homeNames.add(key + "." + home)));
         return homeNames;

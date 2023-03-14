@@ -4,6 +4,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
@@ -175,10 +176,10 @@ public class Cache {
     }
 
     @NotNull
-    public MineDown getCommandList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
+    public MineDown getCommandList(@NotNull CommandUser user, @NotNull Locales locales,
                                    @NotNull List<Command> commands, final int itemsPerPage, final int page) {
         return PaginatedList.of(commands.stream()
-                                .filter(command -> onlineUser.hasPermission(command.getPermission()))
+                                .filter(command -> user.hasPermission(command.getPermission()))
                                 .map(command -> locales.getRawLocale("command_list_item",
                                                 Locales.escapeText(command.getName()),
                                                 Locales.escapeText(command.getDescription().length() > 50

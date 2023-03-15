@@ -19,27 +19,26 @@ public class Server {
     /**
      * Default (unknown) server identifier
      */
-    public static Server getDefault() {
-        final Server server = new Server();
+    public static String getDefaultServerName() {
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));
-            server.name = serverDirectory.getFileName().toString().trim();
+            return serverDirectory.getFileName().toString().trim();
         } catch (Exception e) {
-            server.name = "server";
+            return "server";
         }
-        return server;
     }
 
     /**
      * Proxy-defined name of this server
      */
     @YamlKey("server_name")
-    public String name = getDefault().name;
+    public String name = getDefaultServerName();
 
     public Server(@NotNull String name) {
         this.name = name;
     }
 
+    @SuppressWarnings("unused")
     private Server() {
     }
 

@@ -19,11 +19,11 @@ import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
+import net.william278.huskhomes.migrator.LegacyMigrator;
+import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.network.Messenger;
 import net.william278.huskhomes.network.PluginMessenger;
 import net.william278.huskhomes.network.RedisMessenger;
-import net.william278.huskhomes.migrator.LegacyMigrator;
-import net.william278.huskhomes.migrator.Migrator;
 import net.william278.huskhomes.player.BukkitPlayer;
 import net.william278.huskhomes.player.OnlineUser;
 import net.william278.huskhomes.position.Location;
@@ -485,7 +485,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes {
             if (settings.crossServer) {
                 this.server = Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get();
             } else {
-                this.server = Server.getDefault();
+                this.server = new Server(Server.getDefaultServerName());
             }
 
             // Load spawn location from file

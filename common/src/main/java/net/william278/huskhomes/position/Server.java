@@ -19,12 +19,12 @@ public class Server {
     /**
      * Default (unknown) server identifier
      */
-    public static Server getDefault() {
+    public static String getDefaultServerName() {
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));
-            return new Server(serverDirectory.getFileName().toString().trim());
+            return serverDirectory.getFileName().toString().trim();
         } catch (Exception e) {
-            return new Server("server");
+            return "server";
         }
     }
 
@@ -32,7 +32,7 @@ public class Server {
      * Proxy-defined name of this server
      */
     @YamlKey("server_name")
-    public String name = getDefault().name;
+    public String name = getDefaultServerName();
 
     public Server(@NotNull String name) {
         this.name = name;

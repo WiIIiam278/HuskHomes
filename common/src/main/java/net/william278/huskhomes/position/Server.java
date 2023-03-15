@@ -20,14 +20,12 @@ public class Server {
      * Default (unknown) server identifier
      */
     public static Server getDefault() {
-        final Server server = new Server();
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));
-            server.name = serverDirectory.getFileName().toString().trim();
+            return new Server(serverDirectory.getFileName().toString().trim());
         } catch (Exception e) {
-            server.name = "server";
+            return new Server("server");
         }
-        return server;
     }
 
     /**
@@ -40,6 +38,7 @@ public class Server {
         this.name = name;
     }
 
+    @SuppressWarnings("unused")
     private Server() {
     }
 

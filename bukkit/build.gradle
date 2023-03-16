@@ -4,7 +4,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'me.lucko:commodore:2.2'
-    implementation 'net.kyori:adventure-platform-bukkit:4.2.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:24.0.0'
@@ -20,7 +20,7 @@ dependencies {
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
     testImplementation 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
-    testImplementation 'net.kyori:adventure-platform-bukkit:4.1.2'
+    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.0'
     testImplementation 'redis.clients:jedis:' + jedis_version
     testImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     testImplementation 'mysql:mysql-connector-java:' + mysql_driver_version

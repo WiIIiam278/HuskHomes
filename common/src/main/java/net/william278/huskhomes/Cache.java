@@ -115,12 +115,12 @@ public class Cache {
     }
 
     @NotNull
-    public Optional<MineDown> getHomeList(@NotNull OnlineUser onlineUser, @NotNull User homeOwner, @NotNull Locales locales,
+    public Optional<MineDown> getHomeList(@NotNull CommandUser executor, @NotNull User homeOwner, @NotNull Locales locales,
                                           @NotNull List<Home> homes, final int itemsPerPage, final int page) {
-        if (plugin.getEventDispatcher().dispatchViewHomeListEvent(homes, onlineUser, false).join().isCancelled()) {
+        if (executor instanceof OnlineUser user && plugin.getEventDispatcher().getViewHomeListEvent(homes, user, false).join().isCancelled()) {
             return Optional.empty();
         }
-        final String homeListArguments = !onlineUser.equals(homeOwner) ? " " + homeOwner.getUsername() : "";
+        final String homeListArguments = !executor.equals(homeOwner) ? " " + homeOwner.getUsername() : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                 locales.getRawLocale("home_list_item",
                                 Locales.escapeText(home.getMeta().getName()),
@@ -138,7 +138,7 @@ public class Cache {
     @NotNull
     public Optional<MineDown> getPublicHomeList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
                                                 @NotNull List<Home> publicHomes, final int itemsPerPage, final int page) {
-        if (plugin.getEventDispatcher().dispatchViewHomeListEvent(publicHomes, onlineUser, true).join().isCancelled()) {
+        if (plugin.getEventDispatcher().getViewHomeListEvent(publicHomes, onlineUser, true).join().isCancelled()) {
             return Optional.empty();
         }
         final PaginatedList publicHomeList = PaginatedList.of(publicHomes.stream().map(home ->
@@ -159,7 +159,7 @@ public class Cache {
     @NotNull
     public Optional<MineDown> getWarpList(@NotNull OnlineUser onlineUser, @NotNull Locales locales,
                                           @NotNull List<Warp> warps, final int itemsPerPage, final int page) {
-        if (plugin.getEventDispatcher().dispatchViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
+        if (plugin.getEventDispatcher().getViewWarpListEvent(warps, onlineUser).join().isCancelled()) {
             return Optional.empty();
         }
         final PaginatedList warpList = PaginatedList.of(warps.stream()

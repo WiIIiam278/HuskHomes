@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when a teleport is about to occur
  */
-public interface ITeleportEvent {
+public interface ITeleportEvent extends Event {
 
     /**
      * Get the teleport being carried out

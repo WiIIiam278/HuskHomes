@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Represents an event that fires when a player requests to view a list of homes
  */
-public interface IHomeListEvent extends CancellableEvent {
+public interface IHomeListEvent extends Cancellable {
 
     /**
      * Get the list of homes to be displayed

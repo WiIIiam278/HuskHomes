@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when a home is created or updated
  */
-public interface IHomeSaveEvent extends CancellableEvent {
+public interface IHomeSaveEvent extends Cancellable {
 
     /**
      * Get the home being created or updated

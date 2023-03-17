@@ -12,8 +12,6 @@ import java.util.UUID;
  */
 public class Message {
 
-    public static final String TARGET_ALL = "ALL";
-
     @Expose
     private UUID id;
     @Expose
@@ -121,7 +119,8 @@ public class Message {
         TELEPORT_TO_POSITION,
         TELEPORT_TO_NETWORKED_POSITION,
         TELEPORT_REQUEST,
-        POSITION_RESPONSE, TELEPORT_TO_NETWORKED_USER, TELEPORT_REQUEST_RESPONSE
+        TELEPORT_TO_NETWORKED_USER,
+        TELEPORT_REQUEST_RESPONSE
     }
 
 }

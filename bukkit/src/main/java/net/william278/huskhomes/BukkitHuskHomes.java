@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMessageListener, BukkitTaskRunner {
+public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTaskRunner, BukkitEventDispatcher, PluginMessageListener {
 
     /**
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
@@ -72,7 +72,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
-    private EventDispatcher eventDispatcher;
     private Set<PluginHook> pluginHooks;
     private List<Command> registeredCommands;
     private Server server;
@@ -140,9 +139,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
 
             // Prepare the validator
             this.validator = new Validator(this);
-
-            // Prepare the event dispatcher
-            this.eventDispatcher = new BukkitEventDispatcher(this);
 
             // Initialize the cache
             this.cache = new Cache(this);
@@ -335,12 +331,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, PluginMess
     @Override
     public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
         this.randomTeleportEngine = randomTeleportEngine;
-    }
-
-    @Override
-    @NotNull
-    public EventDispatcher getEventDispatcher() {
-        return eventDispatcher;
     }
 
     @Override

@@ -1,114 +1,71 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
-public class HomeListCommand extends Command implements ConsoleExecutable {
+public class HomeListCommand extends Command {
 
-    protected HomeListCommand(@NotNull HuskHomes implementor) {
-        super("homelist", Permission.COMMAND_HOME, implementor, "homes");
+    protected HomeListCommand(@NotNull HuskHomes plugin) {
+        super("homelist", List.of("homes"), "[player] [page]", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        switch (args.length) {
-            case 0 -> showHomeList(onlineUser, onlineUser.getUsername(), 1);
-            case 1 -> {
-                try {
-                    int pageNumber = Integer.parseInt(args[0]);
-                    showHomeList(onlineUser, onlineUser.getUsername(), pageNumber);
-                } catch (NumberFormatException e) {
-                    showHomeList(onlineUser, args[0], 1);
-                }
-            }
-            case 2 -> {
-                try {
-                    int pageNumber = Integer.parseInt(args[1]);
-                    showHomeList(onlineUser, args[0], pageNumber);
-                } catch (NumberFormatException e) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/homelist [player] [page]")
-                            .ifPresent(onlineUser::sendMessage);
-                }
-            }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/homelist [page]")
-                    .ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<String> homeOwner = args.length == 2 ? parseStringArg(args, 0)
+                : executor instanceof OnlineUser user ? Optional.of(user.getUsername()) : Optional.empty();
+        final int pageNumber = parseIntArg(args, args.length > 0 ? args.length - 1 : 0).orElse(1);
+        if (homeOwner.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
         }
+
+        showHomeList(executor, homeOwner.get(), pageNumber);
     }
 
-    /**
-     * Show a (cached) list of a {@link OnlineUser}'s homes
-     *
-     * @param onlineUser the user to display the homes to
-     * @param homeOwner  the user whose homes should be displayed
-     * @param pageNumber page number to display
-     */
-    private void showHomeList(@NotNull OnlineUser onlineUser, @NotNull String homeOwner, int pageNumber) {
+    private void showHomeList(@NotNull CommandUser executor, @NotNull String homeOwner, int pageNumber) {
         if (plugin.getCache().getPrivateHomeLists().containsKey(homeOwner)) {
-            onlineUser.sendMessage(plugin.getCache().getPrivateHomeLists().get(homeOwner).getNearestValidPage(pageNumber));
+            executor.sendMessage(plugin.getCache().getPrivateHomeLists().get(homeOwner).getNearestValidPage(pageNumber));
             return;
         }
-        plugin.getDatabase().getUserDataByName(homeOwner).thenAccept(optionalUser -> optionalUser.ifPresentOrElse(userData -> {
-            if (!userData.getUserUuid().equals(onlineUser.getUuid())) {
-                if (!onlineUser.hasPermission(Permission.COMMAND_HOME_OTHER.node)) {
-                    plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
-                    return;
-                }
-            }
-            plugin.getDatabase().getHomes(userData.user()).thenAcceptAsync(homes -> {
-                if (homes.isEmpty()) {
-                    if (!onlineUser.equals(userData.user())) {
-                        plugin.getLocales().getLocale("error_no_homes_set_other",
-                                userData.user().username).ifPresent(onlineUser::sendMessage);
-                    } else {
-                        plugin.getLocales().getLocale("error_no_homes_set").ifPresent(onlineUser::sendMessage);
-                    }
-                    return;
-                }
-                plugin.getCache().getHomeList(onlineUser, userData.user(),
-                                plugin.getLocales(), homes,
-                                plugin.getSettings().getListItemsPerPage(), pageNumber)
-                        .ifPresent(onlineUser::sendMessage);
-            });
-        }, () -> plugin.getLocales().getLocale("error_player_not_found", homeOwner).ifPresent(onlineUser::sendMessage)));
 
-    }
-
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        if (args.length != 1) {
-            plugin.log(Level.WARNING, "Invalid syntax. Usage: homelist <player>");
+        final Optional<User> targetUser = plugin.getDatabase().getUserDataByName(homeOwner).map(SavedUser::getUser);
+        if (targetUser.isEmpty()) {
+            plugin.getLocales().getLocale("error_player_not_found", homeOwner)
+                    .ifPresent(executor::sendMessage);
             return;
         }
-        CompletableFuture.runAsync(() -> {
-            final Optional<SavedUser> userData = plugin.getDatabase().getUserDataByName(args[0]).join();
-            if (userData.isEmpty()) {
-                plugin.log(Level.WARNING, "Player not found: " + args[0]);
+
+        final User user = targetUser.get();
+        if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())) {
+            if (!executor.hasPermission(getPermission("other"))) {
+                plugin.getLocales().getLocale("error_no_permission").ifPresent(executor::sendMessage);
                 return;
             }
-            final List<Home> homes = plugin.getDatabase().getHomes(userData.get().user()).join();
-            StringJoiner rowJoiner = new StringJoiner("\t");
+        }
 
-            plugin.log(Level.INFO, "List of " + userData.get().user().getUsername() + "'s "
-                    + homes.size() + " homes:");
-            for (int i = 0; i < homes.size(); i++) {
-                final String home = homes.get(i).getMeta().getName();
-                rowJoiner.add(home.length() < 16 ? home + " ".repeat(16 - home.length()) : home);
-                if ((i + 1) % 3 == 0) {
-                    plugin.log(Level.INFO, rowJoiner.toString());
-                    rowJoiner = new StringJoiner("\t");
-                }
+        final List<Home> homes = plugin.getDatabase().getHomes(user);
+        if (homes.isEmpty()) {
+            if (!executor.equals(user)) {
+                plugin.getLocales().getLocale("error_no_homes_set_other", user.getUsername())
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("error_no_homes_set").ifPresent(executor::sendMessage);
             }
-            plugin.log(Level.INFO, rowJoiner.toString());
-        });
+            return;
+        }
+        plugin.getCache().getHomeList(executor, user,
+                        plugin.getLocales(), homes,
+                        plugin.getSettings().getListItemsPerPage(), pageNumber)
+                .ifPresent(executor::sendMessage);
     }
+
 }

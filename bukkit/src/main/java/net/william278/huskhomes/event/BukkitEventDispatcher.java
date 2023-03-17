@@ -1,6 +1,5 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
@@ -13,120 +12,64 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class BukkitEventDispatcher implements EventDispatcher {
+public interface BukkitEventDispatcher extends EventDispatcher {
 
-    private final BukkitHuskHomes plugin;
 
-    public BukkitEventDispatcher(@NotNull BukkitHuskHomes implementor) {
-        this.plugin = implementor;
+    @Override
+    default <T extends Event> boolean fireIsCancelled(@NotNull T event) {
+        Bukkit.getPluginManager().callEvent((org.bukkit.event.Event) event);
+        return event instanceof Cancellable cancellable && cancellable.isCancelled();
     }
 
     @Override
-    public void dispatchTeleportEvent(@NotNull Teleport teleport) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final TeleportEvent event = new TeleportEvent(teleport);
-            Bukkit.getPluginManager().callEvent(event);
-        });
+    default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
+        return new TeleportEvent(teleport);
     }
 
     @Override
-    public CompletableFuture<ITeleportWarmupEvent> dispatchTeleportWarmupEvent(TimedTeleport teleport, int duration) {
-        final CompletableFuture<ITeleportWarmupEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final TeleportWarmupEvent event = new TeleportWarmupEvent(teleport, duration);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+        return new TeleportWarmupEvent(teleport, duration);
+    }
+
+
+    @Override
+    default IHomeSaveEvent getHomeSaveEvent(@NotNull Home home) {
+        return new HomeSaveEvent(home);
     }
 
     @Override
-    public CompletableFuture<IHomeSaveEvent> dispatchHomeSaveEvent(@NotNull Home home) {
-        final CompletableFuture<IHomeSaveEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final HomeSaveEvent event = new HomeSaveEvent(home);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home) {
+        return new HomeDeleteEvent(home);
     }
 
     @Override
-    public CompletableFuture<IHomeDeleteEvent> dispatchHomeDeleteEvent(@NotNull Home home) {
-        final CompletableFuture<IHomeDeleteEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final HomeDeleteEvent event = new HomeDeleteEvent(home);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IWarpSaveEvent getWarpSaveEvent(@NotNull Warp warp) {
+        return new WarpSaveEvent(warp);
     }
 
     @Override
-    public CompletableFuture<IWarpSaveEvent> dispatchWarpSaveEvent(@NotNull Warp warp) {
-        final CompletableFuture<IWarpSaveEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final WarpSaveEvent event = new WarpSaveEvent(warp);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp) {
+        return new WarpDeleteEvent(warp);
     }
 
     @Override
-    public CompletableFuture<IWarpDeleteEvent> dispatchWarpDeleteEvent(@NotNull Warp warp) {
-        final CompletableFuture<IWarpDeleteEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final WarpDeleteEvent event = new WarpDeleteEvent(warp);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull OnlineUser user, boolean publicHomeList) {
+        return new HomeListEvent(homes, user, publicHomeList);
     }
 
     @Override
-    public CompletableFuture<IHomeListEvent> dispatchViewHomeListEvent(@NotNull List<Home> homes, @NotNull OnlineUser user,
-                                                                       boolean publicHomeList) {
-        final CompletableFuture<IHomeListEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final HomeListEvent event = new HomeListEvent(homes, user, publicHomeList);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> warps, @NotNull OnlineUser user) {
+        return new WarpListEvent(warps, user);
     }
 
     @Override
-    public CompletableFuture<IWarpListEvent> dispatchViewWarpListEvent(@NotNull List<Warp> warps, @NotNull OnlineUser user) {
-        final CompletableFuture<IWarpListEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final WarpListEvent event = new WarpListEvent(warps, user);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user) {
+        return new DeleteAllHomesEvent(user);
     }
 
     @Override
-    public CompletableFuture<IDeleteAllHomesEvent> dispatchDeleteAllHomesEvent(@NotNull User user) {
-        final CompletableFuture<IDeleteAllHomesEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final DeleteAllHomesEvent event = new DeleteAllHomesEvent(user);
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
-    }
-
-    @Override
-    public CompletableFuture<IDeleteAllWarpsEvent> dispatchDeleteAllWarpsEvent() {
-        final CompletableFuture<IDeleteAllWarpsEvent> dispatchFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            final DeleteAllWarpsEvent event = new DeleteAllWarpsEvent();
-            Bukkit.getPluginManager().callEvent(event);
-            dispatchFuture.complete(event);
-        });
-        return dispatchFuture;
+    default IDeleteAllWarpsEvent getDeleteAllWarpsEvent() {
+        return new DeleteAllWarpsEvent();
     }
 
 }

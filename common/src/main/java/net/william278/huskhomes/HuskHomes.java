@@ -39,7 +39,7 @@ import java.util.logging.Level;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner {
+public interface HuskHomes extends TaskRunner, EventDispatcher {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -140,14 +140,6 @@ public interface HuskHomes extends TaskRunner {
      * @param randomTeleportEngine the {@link RandomTeleportEngine} to use
      */
     void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine);
-
-    /**
-     * The {@link EventDispatcher} that dispatches API events
-     *
-     * @return the {@link EventDispatcher} implementation
-     */
-    @NotNull
-    EventDispatcher getEventDispatcher();
 
     /**
      * The local {@link Spawn} location of this server, as cached to disk

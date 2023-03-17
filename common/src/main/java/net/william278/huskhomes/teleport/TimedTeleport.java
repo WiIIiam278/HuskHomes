@@ -10,12 +10,10 @@ import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimedTeleport extends Teleport {
 
-    private final HuskHomes plugin;
     private final OnlineUser teleporter;
     private final Position startLocation;
     private final double startHealth;
@@ -25,14 +23,13 @@ public class TimedTeleport extends Teleport {
                             @NotNull Type type, int warmupTime, boolean updateLastPosition,
                             @NotNull List<EconomyHook.Action> actions, @NotNull HuskHomes plugin) {
         super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
-        this.plugin = plugin;
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
         this.timeLeft = Math.max(warmupTime, 0);
         this.teleporter = teleporter;
     }
 
-   @Override
+    @Override
     public void execute() throws TeleportationException {
         // Check if the teleporter can bypass warmup
         if (timeLeft == 0 || teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
@@ -57,14 +54,9 @@ public class TimedTeleport extends Teleport {
         this.process();
     }
 
+    // Execute the warmup, fire the event, then execute the teleport if warmup completes normally
     private void process() {
-        // Execute the warmup start event
-        plugin.getEventDispatcher().dispatchTeleportWarmupEvent(this, timeLeft).thenAccept(event -> {
-            if (event.isCancelled()) {
-                return;
-            }
-
-            // Mark the player as warming up and display the message
+        plugin.fireEvent(plugin.getTeleportWarmupEvent(this, timeLeft), (event) -> {
             plugin.getCache().getCurrentlyOnWarmup().add(teleporter.getUuid());
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
@@ -151,8 +143,8 @@ public class TimedTeleport extends Teleport {
     private boolean hasTeleporterMoved() {
         final double maxMovementDistance = 0.1d;
         double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX()) +
-                Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
-                Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
+                                  Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
+                                  Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
     }
 

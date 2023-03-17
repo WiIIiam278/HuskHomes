@@ -7,7 +7,6 @@ import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,8 +35,8 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         final Optional<String> operation = parseStringArg(args, 0);
         if (operation.isEmpty()) {
             getHomeEditorWindow(home, true, !ownerEditing,
-                    !ownerEditing || executor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
-                    executor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
+                    !ownerEditing || executor.hasPermission(getOtherPermission()),
+                    executor.hasPermission(getPermission("privacy")))
                     .forEach(executor::sendMessage);
             return;
         }
@@ -66,21 +65,23 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        try {
-            plugin.getManager().homes().setHomeName(home, newName.get());
-        } catch (ValidationException e) {
-            e.dispatchHomeError(executor, false, plugin, newName.get());
-            return;
-        }
+        plugin.fireEvent(plugin.getHomeSaveEvent(home), (event) -> {
+            try {
+                plugin.getManager().homes().setHomeName(home, newName.get());
+            } catch (ValidationException e) {
+                e.dispatchHomeError(executor, false, plugin, newName.get());
+                return;
+            }
 
-        if (ownerEditing) {
-            plugin.getLocales().getLocale("edit_home_update_name", home.getName(), newName.get())
-                    .ifPresent(executor::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("edit_home_update_name_other", home.getOwner().getUsername(),
-                            home.getName(), newName.get())
-                    .ifPresent(executor::sendMessage);
-        }
+            if (ownerEditing) {
+                plugin.getLocales().getLocale("edit_home_update_name", home.getName(), newName.get())
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("edit_home_update_name_other", home.getOwner().getUsername(),
+                                home.getName(), newName.get())
+                        .ifPresent(executor::sendMessage);
+            }
+        });
     }
 
     private void setHomeDescription(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing, @NotNull String[] args) {
@@ -92,21 +93,23 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        try {
-            plugin.getManager().homes().setHomeDescription(home, newDescription.get());
-        } catch (ValidationException e) {
-            e.dispatchHomeError(executor, false, plugin, newDescription.get());
-            return;
-        }
+        plugin.fireEvent(plugin.getHomeSaveEvent(home), (event) -> {
+            try {
+                plugin.getManager().homes().setHomeDescription(home, newDescription.get());
+            } catch (ValidationException e) {
+                e.dispatchHomeError(executor, false, plugin, newDescription.get());
+                return;
+            }
 
-        if (ownerEditing) {
-            plugin.getLocales().getLocale("edit_home_update_description", home.getName(), newDescription.get())
-                    .ifPresent(executor::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("edit_home_update_description_other", home.getOwner().getUsername(),
-                            home.getName(), newDescription.get())
-                    .ifPresent(executor::sendMessage);
-        }
+            if (ownerEditing) {
+                plugin.getLocales().getLocale("edit_home_update_description", home.getName(), newDescription.get())
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("edit_home_update_description_other", home.getOwner().getUsername(),
+                                home.getName(), newDescription.get())
+                        .ifPresent(executor::sendMessage);
+            }
+        });
     }
 
     private void setHomePosition(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing) {
@@ -116,24 +119,26 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        try {
-            plugin.getManager().homes().setHomePosition(home, user.getPosition());
-        } catch (ValidationException e) {
-            e.dispatchHomeError(executor, false, plugin, home.getName());
-            return;
-        }
+        plugin.fireEvent(plugin.getHomeDeleteEvent(home), (event) -> {
+            try {
+                plugin.getManager().homes().setHomePosition(home, user.getPosition());
+            } catch (ValidationException e) {
+                e.dispatchHomeError(executor, false, plugin, home.getName());
+                return;
+            }
 
-        if (ownerEditing) {
-            plugin.getLocales().getLocale("edit_home_update_location", home.getName())
-                    .ifPresent(executor::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("edit_home_update_location_other", home.getOwner().getUsername(), home.getName())
-                    .ifPresent(executor::sendMessage);
-        }
+            if (ownerEditing) {
+                plugin.getLocales().getLocale("edit_home_update_location", home.getName())
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("edit_home_update_location_other", home.getOwner().getUsername(), home.getName())
+                        .ifPresent(executor::sendMessage);
+            }
+        });
     }
 
     private void setHomePrivacy(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing, @NotNull String[] args) {
-        if (!executor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node)) {
+        if (!executor.hasPermission(getPermission("privacy"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -152,40 +157,42 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        try {
-            plugin.getManager().homes().setHomePrivacy(home, privacyArg.get().equals("public"));
-        } catch (ValidationException e) {
-            int maxHomes = executor instanceof OnlineUser user ?
-                    user.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),
-                            plugin.getSettings().doStackPermissionLimits()) :
-                    plugin.getSettings().getMaxPublicHomes();
-            e.dispatchHomeError(executor, false, plugin, Integer.toString(maxHomes));
-            return;
-        }
-
-        // Perform transaction
-        if (executor instanceof OnlineUser user) {
-            plugin.performEconomyTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC);
-        }
-
-        if (ownerEditing) {
-            plugin.getLocales().getLocale("edit_home_privacy_" + privacyArg.get() + "_success",
-                            home.getMeta().getName())
-                    .ifPresent(executor::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("edit_home_privacy_" + privacyArg.get() + "_success_other",
-                            home.getOwner().getUsername(), home.getMeta().getName())
-                    .ifPresent(executor::sendMessage);
-        }
-
-        // Show the menu if the menu flag is set
-        parseStringArg(args, 2).ifPresent(arg -> {
-            if (arg.equalsIgnoreCase("-m")) {
-                getHomeEditorWindow(home, false, !ownerEditing,
-                        ownerEditing || executor.hasPermission(Permission.COMMAND_HOME_OTHER.node),
-                        executor.hasPermission(Permission.COMMAND_EDIT_HOME_PRIVACY.node))
-                        .forEach(executor::sendMessage);
+        plugin.fireEvent(plugin.getHomeSaveEvent(home), (event) -> {
+            try {
+                plugin.getManager().homes().setHomePrivacy(home, privacyArg.get().equals("public"));
+            } catch (ValidationException e) {
+                int maxHomes = executor instanceof OnlineUser user ?
+                        user.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),
+                                plugin.getSettings().doStackPermissionLimits()) :
+                        plugin.getSettings().getMaxPublicHomes();
+                e.dispatchHomeError(executor, false, plugin, Integer.toString(maxHomes));
+                return;
             }
+
+            // Perform transaction
+            if (executor instanceof OnlineUser user) {
+                plugin.performEconomyTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC);
+            }
+
+            if (ownerEditing) {
+                plugin.getLocales().getLocale("edit_home_privacy_" + privacyArg.get() + "_success",
+                                home.getMeta().getName())
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("edit_home_privacy_" + privacyArg.get() + "_success_other",
+                                home.getOwner().getUsername(), home.getMeta().getName())
+                        .ifPresent(executor::sendMessage);
+            }
+
+            // Show the menu if the menu flag is set
+            parseStringArg(args, 2).ifPresent(arg -> {
+                if (arg.equalsIgnoreCase("-m")) {
+                    getHomeEditorWindow(home, false, !ownerEditing,
+                            ownerEditing || executor.hasPermission(getOtherPermission()),
+                            executor.hasPermission(getPermission("privacy")))
+                            .forEach(executor::sendMessage);
+                }
+            });
         });
     }
 

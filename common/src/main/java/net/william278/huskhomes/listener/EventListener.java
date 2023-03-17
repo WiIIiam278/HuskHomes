@@ -41,7 +41,7 @@ public class EventListener {
 
             // Set their ignoring requests state
             plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
-                final boolean ignoringRequests = userData.ignoringTeleports();
+                final boolean ignoringRequests = userData.isIgnoringTeleports();
                 plugin.getManager().requests().setIgnoringRequests(onlineUser, ignoringRequests);
 
                 // Send a reminder message if they are still ignoring requests
@@ -82,7 +82,8 @@ public class EventListener {
                 plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null));
                 return;
             }
-            teleport.execute();
+
+            onlineUser.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().isAsynchronousTeleports());
             plugin.getDatabase().setCurrentTeleport(onlineUser, null);
         });
     }
@@ -94,7 +95,7 @@ public class EventListener {
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
         // Remove this user's home cache
-        plugin.getCache().getHomes().remove(onlineUser.getUuid());
+        plugin.getCache().getHomes().remove(onlineUser.getUsername());
 
         // Update the cached player list using another online player if possible
         plugin.getOnlineUsers()
@@ -116,7 +117,7 @@ public class EventListener {
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         // Set the player's last position to where they died
         if (plugin.getSettings().isBackCommandReturnByDeath()
-                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
     }
@@ -130,8 +131,8 @@ public class EventListener {
         plugin.runAsync(() -> {
             // Display the return by death via /back notification
             if (plugin.getSettings().isBackCommandReturnByDeath()
-                    && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
-                    && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+                && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
+                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
                 plugin.getLocales().getLocale("return_by_death_notification")
                         .ifPresent(onlineUser::sendMessage);
             }
@@ -164,7 +165,7 @@ public class EventListener {
         }
 
         plugin.runAsync(() -> plugin.getDatabase().getUserData(onlineUser.getUuid())
-                .ifPresent(data -> plugin.getDatabase().setLastPosition(data.user(), sourcePosition)));
+                .ifPresent(data -> plugin.getDatabase().setLastPosition(data.getUser(), sourcePosition)));
     }
 
     /**

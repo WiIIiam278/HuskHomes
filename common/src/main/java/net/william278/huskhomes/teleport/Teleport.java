@@ -1,6 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.event.ITeleportEvent;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
@@ -11,10 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class Teleport {
 
-    private final HuskHomes plugin;
+    protected final HuskHomes plugin;
     protected final OnlineUser executor;
     protected final Teleportable teleporter;
     protected final Target target;
@@ -54,20 +56,23 @@ public class Teleport {
                 throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND);
             }
 
-            if (target instanceof Username username) {
-                Message.builder()
-                        .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
-                        .target(username.name())
-                        .payload(Payload.withString(teleporter.name()))
-                        .build().send(plugin.getMessenger(), executor);
-                return;
-            }
+            fireEvent((event) -> {
+                executeEconomyActions();
+                if (target instanceof Username username) {
+                    Message.builder()
+                            .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
+                            .target(username.name())
+                            .payload(Payload.withString(teleporter.name()))
+                            .build().send(plugin.getMessenger(), executor);
+                    return;
+                }
 
-            Message.builder()
-                    .type(Message.Type.TELEPORT_TO_POSITION)
-                    .target(teleporter.name())
-                    .payload(Payload.withPosition((Position) target))
-                    .build().send(plugin.getMessenger(), executor);
+                Message.builder()
+                        .type(Message.Type.TELEPORT_TO_POSITION)
+                        .target(teleporter.name())
+                        .payload(Payload.withPosition((Position) target))
+                        .build().send(plugin.getMessenger(), executor);
+            });
             return;
         }
 
@@ -76,24 +81,31 @@ public class Teleport {
         if (target instanceof Username username) {
             final Optional<OnlineUser> localTarget = username.findLocally(plugin);
             if (localTarget.isPresent()) {
-                economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
-                teleporter.teleportLocally(localTarget.get().getPosition(), async);
+                fireEvent((event) -> {
+                    executeEconomyActions();
+                    teleporter.teleportLocally(localTarget.get().getPosition(), async);
+                });
                 return;
             }
 
             if (plugin.getSettings().isCrossServer()) {
-                economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
-                Message.builder()
-                        .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
-                        .target(username.name())
-                        .build().send(plugin.getMessenger(), executor);
+                fireEvent((event) -> {
+                    executeEconomyActions();
+                    Message.builder()
+                            .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
+                            .target(username.name())
+                            .build().send(plugin.getMessenger(), executor);
+                });
                 return;
             }
 
             throw new TeleportationException(TeleportationException.Type.TARGET_NOT_FOUND);
         }
-        economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
-        teleporter.teleportLocally((Position) target, async);
+
+        fireEvent((event) -> {
+            executeEconomyActions();
+            teleporter.teleportLocally((Position) target, async);
+        });
     }
 
     @NotNull
@@ -104,14 +116,23 @@ public class Teleport {
         return Optional.of((OnlineUser) this.teleporter);
     }
 
+    // Fire the teleport event
+    private void fireEvent(@NotNull Consumer<ITeleportEvent> afterFired) {
+        plugin.fireEvent(plugin.getTeleportEvent(this), afterFired);
+    }
+
     // Check economy actions
     protected void validateEconomyActions() throws TeleportationException {
-        economyActions.stream()
+        if (economyActions.stream()
                 .map(action -> plugin.validateEconomyCheck(executor, action))
-                .filter(result -> !result).findFirst()
-                .ifPresent(result -> {
-                    throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
-                });
+                .anyMatch(result -> !result)) {
+            throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
+        }
+    }
+
+    // Perform transactions on economy actions
+    private void executeEconomyActions() {
+        economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
     }
 
     @NotNull

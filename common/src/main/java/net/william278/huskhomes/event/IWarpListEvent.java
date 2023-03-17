@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Represents an event that fires when a player requests to view a list of warps
  */
-public interface IWarpListEvent extends CancellableEvent {
+public interface IWarpListEvent extends Cancellable {
 
     /**
      * Get the list of warps to be displayed

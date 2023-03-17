@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when a single home is deleted
  */
-public interface IHomeDeleteEvent extends CancellableEvent {
+public interface IHomeDeleteEvent extends Cancellable {
 
     /**
      * Get the home being deleted

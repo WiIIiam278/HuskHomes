@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when a warp is created or updated
  */
-public interface IWarpSaveEvent extends CancellableEvent {
+public interface IWarpSaveEvent extends Cancellable {
 
     /**
      * Get the warp being created or updated

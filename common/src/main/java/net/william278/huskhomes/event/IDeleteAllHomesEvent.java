@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when all homes are deleted
  */
-public interface IDeleteAllHomesEvent extends CancellableEvent {
+public interface IDeleteAllHomesEvent extends Cancellable {
 
     /**
      * Get the player whose homes are being deleted

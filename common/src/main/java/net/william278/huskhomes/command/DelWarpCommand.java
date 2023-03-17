@@ -30,14 +30,18 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
                     .ifPresent(user::sendMessage);
             return;
         }
-        try {
-            plugin.getManager().warps().deleteWarp(warp);
-        } catch (ValidationException e) {
-            e.dispatchWarpError(executor, plugin, warp.getName());
-            return;
-        }
-        plugin.getLocales().getLocale("warp_deleted", warp.getName())
-                .ifPresent(executor::sendMessage);
+
+        plugin.fireEvent(plugin.getWarpDeleteEvent(warp), (event) -> {
+            try {
+                plugin.getManager().warps().deleteWarp(warp);
+            } catch (ValidationException e) {
+                e.dispatchWarpError(executor, plugin, warp.getName());
+                return;
+            }
+            plugin.getLocales().getLocale("warp_deleted", warp.getName())
+                    .ifPresent(executor::sendMessage);
+        });
+
     }
 
     private boolean handleDeleteAll(@NotNull CommandUser executor, @NotNull String[] args) {
@@ -50,15 +54,17 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
                 return true;
             }
 
-            final int deleted = plugin.getManager().warps().deleteAllWarps();
-            if (deleted == 0) {
-                plugin.getLocales().getLocale("error_no_warps_set")
-                        .ifPresent(executor::sendMessage);
-                return true;
-            }
+            plugin.fireEvent(plugin.getDeleteAllWarpsEvent(), (event) -> {
+                final int deleted = plugin.getManager().warps().deleteAllWarps();
+                if (deleted == 0) {
+                    plugin.getLocales().getLocale("error_no_warps_set")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
 
-            plugin.getLocales().getLocale("delete_all_warps_success", Integer.toString(deleted))
-                    .ifPresent(executor::sendMessage);
+                plugin.getLocales().getLocale("delete_all_warps_success", Integer.toString(deleted))
+                        .ifPresent(executor::sendMessage);
+            });
             return true;
         }
         return false;

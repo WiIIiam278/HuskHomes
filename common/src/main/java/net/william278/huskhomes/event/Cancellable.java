@@ -3,7 +3,7 @@ package net.william278.huskhomes.event;
 /**
  * Base interface for a cancellable event
  */
-public interface CancellableEvent {
+public interface Cancellable extends Event {
 
     /**
      * Set whether the event should be cancelled

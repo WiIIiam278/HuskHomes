@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Representation of an event that fires when a timed teleport warmup starts
  */
-public interface ITeleportWarmupEvent extends CancellableEvent {
+public interface ITeleportWarmupEvent extends Cancellable {
 
     /**
      * The duration of the timed teleport before the user is teleported

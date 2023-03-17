@@ -30,14 +30,17 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
                     .ifPresent(user::sendMessage);
             return;
         }
-        try {
-            plugin.getManager().homes().deleteHome(home);
-        } catch (ValidationException e) {
-            e.dispatchHomeError(executor, !home.getOwner().equals(executor), plugin, home.getName());
-            return;
-        }
-        plugin.getLocales().getLocale("home_deleted", home.getName())
-                .ifPresent(executor::sendMessage);
+
+        plugin.fireEvent(plugin.getHomeDeleteEvent(home), (event) -> {
+            try {
+                plugin.getManager().homes().deleteHome(home);
+            } catch (ValidationException e) {
+                e.dispatchHomeError(executor, !home.getOwner().equals(executor), plugin, home.getName());
+                return;
+            }
+            plugin.getLocales().getLocale("home_deleted", home.getName())
+                    .ifPresent(executor::sendMessage);
+        });
     }
 
     private boolean handleDeleteAll(@NotNull OnlineUser user, @NotNull String[] args) {
@@ -50,15 +53,17 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
                 return true;
             }
 
-            final int deleted = plugin.getManager().homes().deleteAllHomes(user);
-            if (deleted == 0) {
-                plugin.getLocales().getLocale("error_no_homes_set")
-                        .ifPresent(user::sendMessage);
-                return true;
-            }
+            plugin.fireEvent(plugin.getDeleteAllHomesEvent(user), (event) -> {
+                final int deleted = plugin.getManager().homes().deleteAllHomes(user);
+                if (deleted == 0) {
+                    plugin.getLocales().getLocale("error_no_homes_set")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-            plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(deleted))
-                    .ifPresent(user::sendMessage);
+                plugin.getLocales().getLocale("delete_all_homes_success", Integer.toString(deleted))
+                        .ifPresent(user::sendMessage);
+            });
             return true;
         }
         return false;

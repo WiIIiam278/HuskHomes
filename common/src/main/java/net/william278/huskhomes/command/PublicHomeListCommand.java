@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PublicHomeListCommand extends ListCommand<Home> {
+public class PublicHomeListCommand extends ListCommand {
 
 
     protected PublicHomeListCommand(@NotNull HuskHomes plugin) {

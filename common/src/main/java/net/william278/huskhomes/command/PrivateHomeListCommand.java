@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PrivateHomeListCommand extends ListCommand<Home> {
+public class PrivateHomeListCommand extends ListCommand {
 
     protected PrivateHomeListCommand(@NotNull HuskHomes plugin) {
         super("homelist", List.of("homes"), "[player] [page]", plugin);
@@ -42,11 +42,11 @@ public class PrivateHomeListCommand extends ListCommand<Home> {
         }
 
         final User user = targetUser.get();
-        if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())) {
-            if (!executor.hasPermission(getPermission("other"))) {
-                plugin.getLocales().getLocale("error_no_permission").ifPresent(executor::sendMessage);
-                return;
-            }
+        if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())
+                && !executor.hasPermission(getPermission("other"))) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
         }
 
         if (cachedLists.containsKey(user.getUuid())) {

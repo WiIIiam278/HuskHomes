@@ -1,6 +1,7 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
@@ -54,9 +55,9 @@ public interface EventDispatcher {
 
     IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp);
 
-    IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull OnlineUser user, boolean publicHomeList);
+    IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList);
 
-    IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull OnlineUser user);
+    IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull CommandUser listViewer);
 
     IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user);
 

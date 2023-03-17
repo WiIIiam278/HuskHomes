@@ -1,5 +1,6 @@
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
 import org.bukkit.event.Cancellable;
@@ -15,12 +16,12 @@ public class WarpListEvent extends Event implements IWarpListEvent, Cancellable 
     @NotNull
     private final List<Warp> warps;
     @NotNull
-    private final OnlineUser onlineUser;
+    private final CommandUser listViewer;
     private boolean cancelled;
 
-    public WarpListEvent(@NotNull List<Warp> warps, @NotNull OnlineUser onlineUser) {
+    public WarpListEvent(@NotNull List<Warp> warps, @NotNull CommandUser listViewer) {
         this.warps = warps;
-        this.onlineUser = onlineUser;
+        this.listViewer = listViewer;
     }
 
     @NotNull
@@ -42,8 +43,8 @@ public class WarpListEvent extends Event implements IWarpListEvent, Cancellable 
 
     @Override
     @NotNull
-    public OnlineUser getOnlineUser() {
-        return onlineUser;
+    public CommandUser getListViewer() {
+        return listViewer;
     }
 
     @Override

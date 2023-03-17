@@ -1,5 +1,6 @@
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
@@ -53,13 +54,13 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull OnlineUser user, boolean publicHomeList) {
-        return new HomeListEvent(homes, user, publicHomeList);
+    default IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList) {
+        return new HomeListEvent(homes, listViewer, publicHomeList);
     }
 
     @Override
-    default IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> warps, @NotNull OnlineUser user) {
-        return new WarpListEvent(warps, user);
+    default IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> warps, @NotNull CommandUser listViewer) {
+        return new WarpListEvent(warps, listViewer);
     }
 
     @Override

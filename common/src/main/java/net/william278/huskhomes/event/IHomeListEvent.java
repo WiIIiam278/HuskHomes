@@ -1,5 +1,6 @@
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public interface IHomeListEvent extends Cancellable {
      * @return the player viewing the home list
      */
     @NotNull
-    OnlineUser getOnlineUser();
+    CommandUser getListViewer();
 
     /**
      * Indicates if the player has requested to view a list of public homes

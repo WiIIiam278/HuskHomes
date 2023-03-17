@@ -324,6 +324,13 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     @NotNull
     List<Command> getCommands();
 
+    default <T extends Command> Optional<T> getCommand(@NotNull Class<T> type) {
+        return getCommands().stream()
+                .filter(command -> command.getClass().isInstance(type))
+                .findFirst()
+                .map(type::cast);
+    }
+
     /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files
      *

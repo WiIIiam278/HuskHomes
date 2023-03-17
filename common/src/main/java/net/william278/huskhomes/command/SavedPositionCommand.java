@@ -4,6 +4,8 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +66,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
-                && !user.hasPermission(getOtherPermission())) {
+                    && !user.hasPermission(getOtherPermission())) {
                 plugin.getLocales().getLocale("error_public_home_invalid",
                                 splitHomeName[0], splitHomeName[1])
                         .ifPresent(executor::sendMessage);
@@ -89,13 +91,27 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
         final Optional<Warp> warp = plugin.getDatabase().getWarp(warpName);
-        if (warp.isPresent() && executor instanceof OnlineUser user
-            && !warp.get().hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user)) {
+        if (warp.isPresent() && executor instanceof OnlineUser user && (plugin.getSettings().isPermissionRestrictWarps()
+                && user.hasPermission(Warp.getWildcardPermission()) || user.hasPermission(Warp.getPermission(warpName)))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
         return warp;
+    }
+
+    protected void teleport(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull T position) {
+        if (!teleporter.equals(executor) && !executor.hasPermission(getPermission("other"))) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        Teleport.builder(plugin)
+                .teleporter(teleporter)
+                .target(position)
+                .toTimedTeleport()
+                .execute();
     }
 
     @Override

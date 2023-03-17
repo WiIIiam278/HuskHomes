@@ -1,6 +1,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import org.jetbrains.annotations.NotNull;
@@ -112,6 +113,11 @@ public abstract class Node implements Executable {
             return Optional.of(sentence.toString().trim());
         }
         return Optional.empty();
+    }
+
+    protected Optional<Teleportable> resolveTeleportable(@NotNull CommandUser executor, @NotNull String[] args) {
+        return parseStringArg(args, 0).map(Teleportable::username)
+                .or(() -> executor instanceof Teleportable ? Optional.of((Teleportable) executor) : Optional.empty());
     }
 
 }

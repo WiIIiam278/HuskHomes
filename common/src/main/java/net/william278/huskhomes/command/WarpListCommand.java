@@ -1,81 +1,75 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
+import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.StringJoiner;
-import java.util.logging.Level;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class WarpListCommand extends Command implements ConsoleExecutable {
+public class WarpListCommand extends ListCommand<Warp> {
 
-    protected WarpListCommand(@NotNull HuskHomes implementor) {
-        super("warplist", Permission.COMMAND_WARP, implementor, "warps");
+    protected WarpListCommand(@NotNull HuskHomes plugin) {
+        super("homelist", List.of("homes"), "[player] [page]", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        switch (args.length) {
-            case 0 -> showWarpList(onlineUser, 1);
-            case 1 -> {
-                try {
-                    int pageNumber = Integer.parseInt(args[0]);
-                    showWarpList(onlineUser, pageNumber);
-                } catch (NumberFormatException e) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", "/warplist [page]")
-                            .ifPresent(onlineUser::sendMessage);
-                }
-            }
-            default -> plugin.getLocales().getLocale("error_invalid_syntax", "/warplist [page]")
-                    .ifPresent(onlineUser::sendMessage);
-        }
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        final int pageNumber = parseIntArg(args, 0).orElse(1);
+        this.showWarpList(executor, pageNumber);
     }
 
-    /**
-     * Show a (cached) list of server warps
-     *
-     * @param onlineUser the user to display warps to
-     * @param pageNumber page number to display
-     */
-    private void showWarpList(@NotNull OnlineUser onlineUser, int pageNumber) {
-        if (plugin.getCache().getWarpLists().containsKey(onlineUser.getUuid())) {
-            onlineUser.sendMessage(plugin.getCache().getWarpLists().get(onlineUser.getUuid()).getNearestValidPage(pageNumber));
+    protected void showWarpList(@NotNull CommandUser executor, int pageNumber) {
+        if (executor instanceof OnlineUser user && cachedLists.containsKey(user.getUuid())) {
+            executor.sendMessage(cachedLists.get(user.getUuid()).getNearestValidPage(pageNumber));
             return;
         }
 
-        // Dispatch the warp list event
-        plugin.getDatabase().getWarps()
-                .thenApply(warps -> warps.stream()
-                        .filter(warp -> warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), onlineUser))
-                        .collect(Collectors.toList()))
-                .thenAccept(warps -> {
-                    if (warps.isEmpty()) {
-                        plugin.getLocales().getLocale("error_no_warps_set").ifPresent(onlineUser::sendMessage);
-                        return;
+        final List<Warp> warps = getItems(executor);
+        plugin.fireEvent(plugin.getViewWarpListEvent(warps, executor),
+                (event) -> this.generateList(executor, warps).ifPresent(homeList -> {
+                    if (executor instanceof OnlineUser onlineUser) {
+                        cachedLists.put(onlineUser.getUuid(), homeList);
                     }
-                    plugin.getCache().getWarpList(onlineUser, plugin.getLocales(), warps,
-                                    plugin.getSettings().getListItemsPerPage(), pageNumber)
-                            .ifPresent(onlineUser::sendMessage);
-                });
+                    executor.sendMessage(homeList.getNearestValidPage(pageNumber));
+                }));
     }
 
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        plugin.getDatabase().getWarps().thenAccept(warps -> {
-            plugin.log(Level.INFO, "List of " + warps.size() + " warps:");
+    private Optional<PaginatedList> generateList(@NotNull CommandUser executor, @NotNull List<Warp> warps) {
+        if (warps.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_warps_set")
+                    .ifPresent(executor::sendMessage);
+            return Optional.empty();
+        }
 
-            StringJoiner rowJoiner = new StringJoiner("\t");
-            for (int i = 0; i < warps.size(); i++) {
-                final String warp = warps.get(i).meta.name;
-                rowJoiner.add(warp.length() < 16 ? warp + " ".repeat(16 - warp.length()) : warp);
-                if ((i + 1) % 3 == 0) {
-                    plugin.log(Level.INFO, rowJoiner.toString());
-                    rowJoiner = new StringJoiner("\t");
-                }
-            }
-            plugin.log(Level.INFO, rowJoiner.toString());
-        });
+        final PaginatedList warpList = PaginatedList.of(warps.stream().map(warp ->
+                        plugin.getLocales()
+                                .getRawLocale("warp_list_item",
+                                        Locales.escapeText(warp.getName()),
+                                        Locales.escapeText(plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40)))
+                                .orElse(warp.getName())).sorted().collect(Collectors.toList()),
+                plugin.getLocales()
+                        .getBaseList(plugin.getSettings().getListItemsPerPage())
+                        .setHeaderFormat(plugin.getLocales().getRawLocale("warp_list_page_title",
+                                        "%first_item_on_page_index%", "%last_item_on_page_index%", "%total_items%")
+                                .orElse(""))
+                        .setCommand("/huskhomes:warplist").build());
+        return Optional.of(warpList);
+    }
+
+    @NotNull
+    private List<Warp> getItems(@NotNull CommandUser executor) {
+        List<Warp> warps = plugin.getDatabase().getWarps();
+        if (plugin.getSettings().isPermissionRestrictWarps() && !executor.hasPermission(Warp.getWildcardPermission())) {
+            warps = warps.stream()
+                    .filter(warp -> executor.hasPermission(getPermission(warp.getPermission())))
+                    .collect(Collectors.toList());
+        }
+        return warps;
     }
 }

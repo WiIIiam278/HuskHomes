@@ -3,10 +3,13 @@ package net.william278.huskhomes.command;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.desertwell.AboutMenu;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.user.CommandUser;
+import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HuskHomesCommand extends Command {
 
@@ -51,9 +54,8 @@ public class HuskHomesCommand extends Command {
 
         switch (action.toLowerCase()) {
             case "about" -> executor.sendMessage(aboutMenu.toMineDown());
-            case "help" -> executor.sendMessage(plugin.getCache().getCommandList(executor, plugin.getLocales(),
-                    plugin.getCommands(), plugin.getSettings().getListItemsPerPage(),
-                    parseIntArg(args, 1).orElse(1)));
+            case "help" -> executor.sendMessage(getCommandList(executor)
+                    .getNearestValidPage(parseIntArg(args, 0).orElse(1)));
             case "reload" -> {
                 if (!plugin.reload()) {
                     executor.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
@@ -72,6 +74,24 @@ public class HuskHomesCommand extends Command {
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
+    }
+
+    @NotNull
+    private PaginatedList getCommandList(@NotNull CommandUser user) {
+        return PaginatedList.of(plugin.getCommands().stream()
+                        .filter(command -> user.hasPermission(command.getPermission()))
+                        .map(command -> plugin.getLocales().getRawLocale("command_list_item",
+                                        Locales.escapeText(command.getName()),
+                                        Locales.escapeText(command.getDescription().length() > 50
+                                                ? command.getDescription().substring(0, 49).trim() + "…"
+                                                : command.getDescription()),
+                                        Locales.escapeText(plugin.getLocales().wrapText(command.getDescription(), 40)))
+                                .orElse(command.getName()))
+                        .collect(Collectors.toList()),
+                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getListItemsPerPage(), 6))
+                        .setHeaderFormat(plugin.getLocales().getRawLocale("command_list_title").orElse(""))
+                        .setItemSeparator("\n").setCommand("/huskhomes:huskhomes help")
+                        .build());
     }
 
     @Override

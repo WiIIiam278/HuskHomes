@@ -21,10 +21,10 @@ dependencies {
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
     testImplementation 'de.themoep:minedown-adventure:1.7.1-SNAPSHOT'
     testImplementation 'net.kyori:adventure-platform-bukkit:4.3.0'
+    testImplementation 'org.apache.commons:commons-text:1.10.0'
     testImplementation 'redis.clients:jedis:' + jedis_version
     testImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
-    testImplementation 'mysql:mysql-connector-java:' + mysql_driver_version
-    testImplementation 'org.apache.commons:commons-text:' + commons_text_version
+    testImplementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
 }
 
 shadowJar {
@@ -33,6 +33,8 @@ shadowJar {
     }
 
     relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
+    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
+    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
     relocate 'de.themoep', 'net.william278.huskhomes.libraries'
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'

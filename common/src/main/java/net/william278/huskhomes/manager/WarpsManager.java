@@ -41,6 +41,10 @@ public class WarpsManager {
         plugin.getDatabase().saveWarp(warp);
     }
 
+    public void createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
+        this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
+    }
+
     public void deleteWarp(@NotNull String name) throws ValidationException {
         final Optional<Warp> warp = plugin.getDatabase().getWarp(name);
         if (warp.isEmpty()) {

@@ -2,130 +2,101 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.util.Permission;
-import org.apache.commons.lang3.ArrayUtils;
+import net.william278.huskhomes.teleport.TeleportBuilder;
+import net.william278.huskhomes.teleport.TeleportationException;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
-public class RtpCommand extends Command implements ConsoleExecutable {
+public class RtpCommand extends Command {
 
-    protected RtpCommand(@NotNull HuskHomes implementor) {
-        super("rtp", Permission.COMMAND_RTP, implementor);
+    protected RtpCommand(@NotNull HuskHomes plugin) {
+        super("rtp", List.of(), "[player]", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        OnlineUser target = onlineUser;
-        if (args.length >= 1) {
-            if (!onlineUser.hasPermission(Permission.COMMAND_RTP_OTHER.node)) {
-                plugin.getLocales().getLocale("error_no_permission").ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<OnlineUser> optionalTeleporter = args.length >= 1 ? plugin.findOnlinePlayer(args[0])
+                : executor instanceof OnlineUser ? Optional.of((OnlineUser) executor) : Optional.empty();
+        if (optionalTeleporter.isEmpty()) {
+            if (args.length == 0) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
                 return;
             }
-            final Optional<OnlineUser> foundUser = plugin.findOnlinePlayer(args[0]);
-            if (foundUser.isEmpty()) {
-                plugin.getLocales().getLocale("error_player_not_found", args[0])
-                        .ifPresent(onlineUser::sendMessage);
-                return;
-            }
-            target = foundUser.get();
+
+            plugin.getLocales().getLocale("error_player_not_found", args[0])
+                    .ifPresent(executor::sendMessage);
+            return;
         }
-        final Position userPosition = target.getPosition();
-        final String[] rtpArguments = args.length >= 1 ? ArrayUtils.subarray(args, 1, args.length) : args;
+
+        final OnlineUser teleporter = optionalTeleporter.get();
+        if (!executor.equals(teleporter) && !executor.hasPermission(getPermission("other"))) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        this.executeRtp(teleporter, executor, args);
+    }
+
+    private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull String[] args) {
+        if (!plugin.validateEconomyCheck(teleporter, EconomyHook.Action.RANDOM_TELEPORT)) {
+            return;
+        }
+
         if (plugin.getSettings().getRtpRestrictedWorlds().stream()
-                .anyMatch(worldName -> worldName.equals(userPosition.getWorld().getName()))) {
+                .anyMatch(worldName -> worldName.equals(teleporter.getPosition().getWorld().getName()))) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
-                    .ifPresent(onlineUser::sendMessage);
+                    .ifPresent(executor::sendMessage);
             return;
         }
 
-        // Perform economy check if necessary
-        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.Action.RANDOM_TELEPORT)) {
+        final SavedUser user = plugin.getDatabase().getUserData(teleporter.getUuid())
+                .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
+        final Instant currentTime = Instant.now();
+        if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
+                !executor.hasPermission(getPermission("bypass_cooldown"))) {
+            plugin.getLocales().getLocale("error_rtp_cooldown",
+                            Long.toString(currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1))
+                    .ifPresent(executor::sendMessage);
             return;
         }
 
-        final OnlineUser userToTeleport = target;
-        final boolean isExecutorTeleporting = userToTeleport.equals(onlineUser);
-        plugin.getDatabase().getUserData(onlineUser.getUuid()).thenAccept(userData -> {
-            // Check the user is not still on /rtp cooldown
-            if (userData.isEmpty()) {
-                return;
+        plugin.getLocales().getLocale("teleporting_random_generation")
+                .ifPresent(teleporter::sendMessage);
+        final Optional<Position> position = plugin.getRandomTeleportEngine()
+                .getRandomPosition(teleporter.getPosition().getWorld(), removeFirstArg(args));
+        if (position.isEmpty()) {
+            plugin.getLocales().getLocale("error_rtp_randomization_timeout")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final TeleportBuilder builder = Teleport.builder(plugin)
+                .teleporter(teleporter)
+                .target(position.get());
+        try {
+            if (executor.equals(teleporter)) {
+                builder.toTimedTeleport().execute();
+            } else {
+                builder.toTeleport().execute();
             }
-            final Instant currentTime = Instant.now();
-            if (isExecutorTeleporting && !currentTime.isAfter(userData.get().rtpCooldown())
-                    && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
-                plugin.getLocales().getLocale("error_rtp_cooldown",
-                                Long.toString(currentTime.until(userData.get().rtpCooldown(), ChronoUnit.MINUTES) + 1))
-                        .ifPresent(onlineUser::sendMessage);
-                return;
-            }
+        } catch (TeleportationException e) {
+            e.displayMessage(executor, plugin, args);
+            return;
+        }
 
-            // Get a random position and teleport
-            plugin.getLocales().getLocale("teleporting_random_generation")
-                    .ifPresent(onlineUser::sendMessage);
-
-            final Optional<Position> position = plugin.getRandomTeleportEngine().getRandomPosition(onlineUser.getPosition().getWorld(), rtpArguments);
-            if (position.isEmpty()) {
-                plugin.getLocales().getLocale("error_rtp_randomization_timeout")
-                        .ifPresent(onlineUser::sendMessage);
-                return;
-            }
-
-            final TeleportBuilder builder = Teleport.builder(plugin, userToTeleport)
-                    .setTarget(position.get());
-            final CompletableFuture<? extends Teleport> teleportFuture = isExecutorTeleporting
-                    ? builder.setEconomyActions(EconomyHook.Action.RANDOM_TELEPORT).toTimedTeleport()
-                    : builder.toTeleport();
-
-            teleportFuture.thenAccept(teleport -> teleport.execute()
-                    .thenAccept(result -> {
-                        if (isExecutorTeleporting &&
-                                result.successful() && !onlineUser.hasPermission(Permission.BYPASS_RTP_COOLDOWN.node)) {
-                            plugin.getDatabase().updateUserData(new SavedUser(onlineUser,
-                                    userData.get().homeSlots(), userData.get().ignoringTeleports(),
-                                    Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES)));
-                        }
-                    }));
-        });
+        user.setRtpCooldown(Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES));
+        plugin.getDatabase().updateUserData(user);
     }
 
-    @Override
-    public void onConsoleExecute(@NotNull String[] args) {
-        if (args.length == 0) {
-            plugin.log(Level.WARNING, "Invalid syntax. Usage: rtp [player]");
-            return;
-        }
-        final Optional<OnlineUser> foundUser = plugin.findOnlinePlayer(args[0]);
-        if (foundUser.isEmpty()) {
-            plugin.log(Level.WARNING, "Player not found: " + args[0]);
-            return;
-        }
-
-        plugin.log(Level.INFO, "Finding a random position for " + foundUser.get().getUsername() + "...");
-        plugin.getRandomTeleportEngine().getRandomPosition(foundUser.get().getPosition().getWorld(), ArrayUtils.subarray(args, 1, args.length)).thenAccept(position -> {
-            if (position.isEmpty()) {
-                plugin.log(Level.WARNING, "Failed to teleport " + foundUser.get().getUsername() + " to a random position; randomization timed out!");
-                return;
-            }
-            Teleport.builder(plugin, foundUser.get())
-                    .setTarget(position.get())
-                    .toTeleport()
-                    .thenAccept(teleport -> teleport.execute().thenAccept(result -> {
-                        if (result.successful()) {
-                            plugin.log(Level.INFO, "Teleported " + foundUser.get().getUsername() + " to a random position.");
-                        } else {
-                            plugin.log(Level.WARNING, "Failed to teleport" + foundUser.get().getUsername() + " to a random position.");
-                        }
-                    }));
-        });
-
-    }
 }

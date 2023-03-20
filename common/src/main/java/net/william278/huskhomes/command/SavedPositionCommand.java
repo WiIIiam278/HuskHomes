@@ -116,6 +116,12 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     @Override
     @NotNull
+    public Map<String, Boolean> getAdditionalPermissions() {
+        return Map.of(getOtherPermission(), true);
+    }
+
+    @Override
+    @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> {

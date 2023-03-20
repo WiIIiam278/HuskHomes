@@ -6,12 +6,14 @@ import net.william278.huskhomes.user.ConsoleUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class Command extends Node implements TabProvider {
 
     private final String usage;
 
-    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
+    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
+                      @NotNull HuskHomes plugin) {
         super(name, aliases, plugin);
         this.usage = usage;
     }
@@ -24,7 +26,7 @@ public abstract class Command extends Node implements TabProvider {
             return;
         }
         if (executor instanceof ConsoleUser && !isConsoleExecutable()) {
-            plugin.getLocales().getLocale("error_command_in_game_only")
+            plugin.getLocales().getLocale("error_in_game_only")
                     .ifPresent(executor::sendMessage);
             return;
         }
@@ -56,6 +58,11 @@ public abstract class Command extends Node implements TabProvider {
         return plugin.getLocales().getRawLocale(getName() + "_command_description")
                 .map(description -> plugin.getLocales().truncateText(description, 40))
                 .orElse(getUsage());
+    }
+
+    @NotNull
+    public Map<String, Boolean> getAdditionalPermissions() {
+        return Map.of();
     }
 
 }

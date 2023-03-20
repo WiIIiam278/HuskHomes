@@ -1,129 +1,48 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.position.PositionMeta;
-import net.william278.huskhomes.util.Permission;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
 
-public class SetHomeCommand extends Command {
+public class SetHomeCommand extends SetPositionCommand {
 
-    protected SetHomeCommand(@NotNull HuskHomes implementor) {
-        super("sethome", Permission.COMMAND_SET_HOME, implementor);
+    protected SetHomeCommand(@NotNull HuskHomes plugin) {
+        super("sethome", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        plugin.getDatabase().getHomes(onlineUser).thenAcceptAsync(homes -> {
-            switch (args.length) {
-                case 0 -> {
-                    if (homes.isEmpty()) {
-                        setHome(onlineUser, "home", homes);
-                    } else {
-                        plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                                .ifPresent(onlineUser::sendMessage);
-                    }
-                }
-                case 1 -> setHome(onlineUser, args[0], homes);
-                default -> plugin.getLocales().getLocale("error_invalid_syntax", "/sethome <name>")
-                        .ifPresent(onlineUser::sendMessage);
-            }
-        });
-    }
-
-    /**
-     * Attempts to set a home by given name for the {@link OnlineUser}.
-     * <p>
-     * A number of validation checks will take place before the home is set. If these checks fail, the home won't be set.
-     * <ul>
-     *     <li>The user's currentHomes must not exceed the permissive maximum home limit</li>
-     *     <li>If economy features are on and the user does not have enough home slots, they must have sufficient funds to buy another</li>
-     *     <li>The home name must not already exist</li>
-     *     <li>The home name must meet the length and character criteria</li>
-     * </ul>
-     *
-     * @param onlineUser   The {@link OnlineUser} to set the home for
-     * @param homeName     The name of the home to set
-     * @param currentHomes The current homes of the {@link OnlineUser}
-     */
-    private void setHome(@NotNull OnlineUser onlineUser, @NotNull String homeName, @NotNull List<Home> currentHomes) {
-        // Check against maximum homes
-        final int maxHomes = onlineUser.getMaxHomes(plugin.getSettings().getMaxHomes(), plugin.getSettings().doStackPermissionLimits());
-        if (currentHomes.size() >= maxHomes) {
-            plugin.getLocales().getLocale("error_set_home_maximum_homes", Integer.toString(maxHomes))
-                    .ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (executor instanceof OnlineUser user && args.length == 0 && createDefaultHome(user)) {
             return;
         }
+        super.execute(executor, args);
+    }
 
-        // Get their user data
-        plugin.getDatabase().getUserData(onlineUser.getUuid()).thenAccept(fetchedData -> {
-            // Check against economy if needed
-            final AtomicBoolean newSlotNeeded = new AtomicBoolean(false);
-            final AtomicReference<SavedUser> userDataToUpdate = new AtomicReference<>(null);
-            if (plugin.getSettings().doEconomy()) {
-                final int freeHomes = onlineUser.getFreeHomes(plugin.getSettings().getFreeHomeSlots(),
-                        plugin.getSettings().doStackPermissionLimits());
-                if (fetchedData.isPresent()) {
-                    final EconomyHook.Action action = EconomyHook.Action.ADDITIONAL_HOME_SLOT;
-                    newSlotNeeded.set((currentHomes.size() + 1) > (freeHomes + fetchedData.get().homeSlots()));
+    @Override
+    protected void execute(@NotNull OnlineUser setter, @NotNull String name) {
+        try {
+            plugin.getManager().homes().createHome(setter, name, setter.getPosition());
+        } catch (ValidationException e) {
+            e.dispatchHomeError(setter, false, plugin, name);
+        }
+    }
 
-                    // If a new slot is needed, validate the user has enough funds to purchase one
-                    if (newSlotNeeded.get()) {
-                        if (!plugin.validateEconomyCheck(onlineUser, action)) {
-                            return;
-                        }
-                        userDataToUpdate.set(new SavedUser(onlineUser, (currentHomes.size() + 1) - freeHomes,
-                                fetchedData.get().ignoringTeleports(), fetchedData.get().rtpCooldown()));
-                    } else {
-                        if (currentHomes.size() == freeHomes) {
-                            plugin.getEconomyHook()
-                                    .flatMap(economyHook -> plugin.getSettings().getEconomyCost(action)
-                                            .map(economyHook::formatCurrency))
-                                    .flatMap(formatted -> plugin.getLocales().getLocale("set_home_used_free_slots",
-                                            Integer.toString(freeHomes), formatted))
-                                    .ifPresent(onlineUser::sendMessage);
-                        }
-                    }
-                }
-            }
-
-            // Set the home in the saved position manager
-            plugin.getManager()
-                    .setHome(new PositionMeta(homeName, ""), onlineUser, onlineUser.getPosition())
-                    .thenAccept(setResult -> {
-                        // Display feedback of the result of the set operation
-                        (switch (setResult.resultType()) {
-                            case SUCCESS -> {
-                                assert setResult.savedPosition().isPresent();
-
-                                // If the user needed to buy a new slot, perform the transaction and update their data
-                                if (newSlotNeeded.get()) {
-                                    plugin.performEconomyTransaction(onlineUser, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
-                                    plugin.getDatabase().updateUserData(userDataToUpdate.get());
-                                }
-                                yield plugin.getLocales().getLocale("set_home_success", setResult.savedPosition().get().meta.name);
-                            }
-                            case SUCCESS_OVERWRITTEN -> {
-                                assert setResult.savedPosition().isPresent();
-                                yield plugin.getLocales().getLocale("edit_home_update_location",
-                                        setResult.savedPosition().get().meta.name);
-                            }
-                            case FAILED_DUPLICATE -> plugin.getLocales().getLocale("error_home_name_taken");
-                            case FAILED_NAME_LENGTH -> plugin.getLocales().getLocale("error_home_name_length");
-                            case FAILED_NAME_CHARACTERS -> plugin.getLocales().getLocale("error_home_name_characters");
-                            default -> plugin.getLocales().getLocale("error_home_description_characters");
-                        }).ifPresent(onlineUser::sendMessage);
-                    });
-
-
-        });
+    private boolean createDefaultHome(@NotNull OnlineUser user) {
+        final List<Home> homes = plugin.getDatabase().getHomes(user);
+        final Optional<String> name = homes.isEmpty() ? Optional.of("home") :
+                (homes.size() == 1 && plugin.getSettings().doOverwriteExistingHomesWarps())
+                        ? Optional.of(homes.get(0).getName()) : Optional.empty();
+        if (name.isPresent()) {
+            this.execute(user, "home");
+            return true;
+        }
+        return false;
     }
 
 }

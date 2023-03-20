@@ -14,35 +14,54 @@ public class ValidationException extends IllegalArgumentException {
     }
 
     public void dispatchHomeError(@NotNull CommandUser viewer, boolean other, @NotNull HuskHomes plugin, @NotNull String... args) {
-        plugin.getLocales()
-                .getLocale(switch (error) {
-                    case NOT_FOUND -> other ? "error_home_invalid_other" : "error_home_invalid";
-                    case NAME_TAKEN -> "error_home_name_taken";
-                    case NAME_INVALID -> "error_home_name_characters";
-                    case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> "error_set_home_maximum_homes";
-                    case REACHED_MAX_PUBLIC_HOMES -> "error_edit_home_maximum_public_homes";
-                    case DESCRIPTION_INVALID -> "error_home_description_characters";
-                }, args)
-                .ifPresent(viewer::sendMessage);
+        switch (error) {
+            case NOT_FOUND -> plugin.getLocales()
+                    .getLocale(other ? "error_home_invalid_other" : "error_home_invalid", args)
+                    .ifPresent(viewer::sendMessage);
+            case NAME_TAKEN -> plugin.getLocales()
+                    .getLocale("error_home_name_taken", args)
+                    .ifPresent(viewer::sendMessage);
+            case NAME_INVALID -> plugin.getLocales()
+                    .getLocale("error_home_name_characters", args)
+                    .ifPresent(viewer::sendMessage);
+            case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> plugin.getLocales()
+                    .getLocale("error_set_home_maximum_homes", args)
+                    .ifPresent(viewer::sendMessage);
+            case REACHED_MAX_PUBLIC_HOMES -> plugin.getLocales()
+                    .getLocale("error_edit_home_maximum_public_homes", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID -> plugin.getLocales()
+                    .getLocale("error_home_description_characters", args)
+                    .ifPresent(viewer::sendMessage);
+        }
     }
 
     public void dispatchWarpError(@NotNull CommandUser viewer, @NotNull HuskHomes plugin, @NotNull String... args) {
-        plugin.getLocales()
-                .getLocale(switch (error) {
-                    case NOT_FOUND -> "error_warp_invalid";
-                    case NAME_TAKEN -> "error_warp_name_taken";
-                    case NAME_INVALID -> "error_warp_name_characters";
-                    case DESCRIPTION_INVALID -> "error_warp_description_characters";
-                    default -> throw new IllegalStateException("Unexpected value: " + error);
-                }, args)
-                .ifPresent(viewer::sendMessage);
+        switch (error) {
+            case NOT_FOUND -> plugin.getLocales()
+                    .getLocale("error_warp_invalid", args)
+                    .ifPresent(viewer::sendMessage);
+            case NAME_TAKEN -> plugin.getLocales()
+                    .getLocale("error_warp_name_taken", args)
+                    .ifPresent(viewer::sendMessage);
+            case NAME_INVALID -> plugin.getLocales()
+                    .getLocale("error_warp_name_characters", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID -> plugin.getLocales()
+                    .getLocale("error_warp_description_characters", args)
+                    .ifPresent(viewer::sendMessage);
+        }
     }
 
     public enum Type {
         NOT_FOUND,
         NAME_TAKEN,
         NAME_INVALID,
-        REACHED_MAX_HOMES, NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_PUBLIC_HOMES, DESCRIPTION_INVALID
+        REACHED_MAX_HOMES,
+        NOT_ENOUGH_HOME_SLOTS,
+        REACHED_MAX_PUBLIC_HOMES,
+        NOT_ENOUGH_MONEY,
+        DESCRIPTION_INVALID
     }
 
 }

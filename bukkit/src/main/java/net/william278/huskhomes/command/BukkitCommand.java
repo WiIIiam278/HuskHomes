@@ -49,14 +49,36 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         }
 
         // Register permissions
-        final PluginManager manager = plugin.getServer().getPluginManager();
-        manager.addPermission(new Permission(command.getPermission(), "/" + command.getName(),
-                command.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE));
+        addPermission(command.getPermission(), command.getUsage(), command.isOperatorCommand());
+        final List<Permission> childNodes = command.getAdditionalPermissions()
+                .entrySet().stream()
+                .map((entry) -> addPermission(entry.getKey(), "", entry.getValue()))
+                .filter(Objects::nonNull)
+                .toList();
+        addPermission(command.getPermission("*"), command.getUsage(), command.isOperatorCommand(),
+                childNodes.toArray(new Permission[0]));
+    }
 
-        // Register master permission
-        final Map<String, Boolean> childNodes = new HashMap<>();
-        manager.addPermission(new Permission(command.getPermission() + ".*", command.getUsage(),
-                PermissionDefault.FALSE, childNodes));
+    @Nullable
+    private Permission addPermission(@NotNull String node, @NotNull String description, boolean operatorCommand, @NotNull Permission... children) {
+        final Map<String, Boolean> childNodes = Arrays.stream(children)
+                .map(Permission::getName)
+                .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
+
+        final PluginManager manager = plugin.getServer().getPluginManager();
+        if (manager.getPermission(node) != null) {
+            return null;
+        }
+
+        Permission permission;
+        if (description.isEmpty()) {
+            permission = new Permission(node, operatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE, childNodes);
+        } else {
+            permission = new Permission(node, description, operatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE, childNodes);
+        }
+        manager.addPermission(permission);
+
+        return permission;
     }
 
     /**

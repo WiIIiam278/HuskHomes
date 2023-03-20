@@ -1,22 +1,13 @@
 package net.william278.huskhomes;
 
-import de.themoep.minedown.adventure.MineDown;
-import net.william278.huskhomes.command.Command;
-import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.position.Warp;
-import net.william278.huskhomes.teleport.TimedTeleport;
-import net.william278.paginedown.ListOptions;
-import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * A cache used to hold frequently accessed data (i.e. TAB-completed homes and warps)
@@ -28,9 +19,6 @@ public class Cache {
     private final Map<String, List<String>> publicHomes = new HashMap<>();
     private final List<String> warps = new ArrayList<>();
     private final Set<String> players = new HashSet<>();
-    private final Map<String, PaginatedList> privateHomeLists = new HashMap<>();
-    private final Map<UUID, PaginatedList> publicHomeLists = new HashMap<>();
-    private final Map<UUID, PaginatedList> warpLists = new HashMap<>();
     private final Set<UUID> currentlyOnWarmup = new HashSet<>();
 
     /**
@@ -117,27 +105,6 @@ public class Cache {
      */
     public Set<String> getPlayers() {
         return players;
-    }
-
-    /**
-     * Cached lists of private homes for pagination, mapped to the username of the home owner
-     */
-    public Map<String, PaginatedList> getPrivateHomeLists() {
-        return privateHomeLists;
-    }
-
-    /**
-     * Cached lists of public homes for pagination
-     */
-    public Map<UUID, PaginatedList> getPublicHomeLists() {
-        return publicHomeLists;
-    }
-
-    /**
-     * Cached lists of warps for pagination
-     */
-    public Map<UUID, PaginatedList> getWarpLists() {
-        return warpLists;
     }
 
     /**

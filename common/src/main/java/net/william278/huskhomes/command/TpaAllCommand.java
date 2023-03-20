@@ -31,7 +31,7 @@ public class TpaAllCommand extends InGameCommand {
         }
 
         plugin.getManager().requests().sendTeleportAllRequest(executor);
-        plugin.getLocales().getLocale("teleporting_all_players")
+        plugin.getLocales().getLocale("tpaall_request_sent")
                 .ifPresent(executor::sendMessage);
     }
 

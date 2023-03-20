@@ -163,6 +163,7 @@ public class RequestsManager {
                     .payload(Payload.withTeleportRequest(request))
                     .target(targetUser)
                     .build().send(plugin.getMessenger(), requester);
+            return;
         }
         throw new IllegalArgumentException("Player not found");
     }

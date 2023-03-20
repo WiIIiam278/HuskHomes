@@ -16,6 +16,8 @@ public class TeleportationException extends IllegalArgumentException {
         ALREADY_WARMING_UP,
         ECONOMY_ACTION_FAILED,
         WARMUP_ALREADY_MOVING,
+        WORLD_NOT_FOUND,
+        ILLEGAL_TARGET_COORDINATES,
         CANNOT_TELEPORT_TO_SELF
     }
 
@@ -32,6 +34,12 @@ public class TeleportationException extends IllegalArgumentException {
                     .ifPresent(user::sendMessage);
             case CANNOT_TELEPORT_TO_SELF -> plugin.getLocales()
                     .getLocale("error_teleport_request_self")
+                    .ifPresent(user::sendMessage);
+            case ILLEGAL_TARGET_COORDINATES -> plugin.getLocales()
+                    .getLocale("error_illegal_target_coordinates")
+                    .ifPresent(user::sendMessage);
+            case WORLD_NOT_FOUND -> plugin.getLocales()
+                    .getLocale("error_invalid_world")
                     .ifPresent(user::sendMessage);
         }
     }

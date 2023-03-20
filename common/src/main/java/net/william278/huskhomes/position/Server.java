@@ -19,6 +19,7 @@ public class Server {
     /**
      * Default server identifier
      */
+    @NotNull
     public static String getDefaultServerName() {
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));

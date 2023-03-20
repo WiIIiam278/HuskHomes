@@ -21,7 +21,7 @@ public class RedisBroker extends PluginMessageBroker {
     }
 
     @Override
-    public void initialize() throws RuntimeException {
+    public void initialize() throws IllegalStateException {
         super.initialize();
 
         final String password = plugin.getSettings().getRedisPassword();
@@ -51,7 +51,7 @@ public class RedisBroker extends PluginMessageBroker {
                         final Message message = plugin.getGson().fromJson(encodedMessage, Message.class);
                         plugin.getOnlineUsers().stream()
                                 .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                        || online.getUsername().equals(message.getTarget()))
+                                                  || online.getUsername().equals(message.getTarget()))
                                 .forEach(receiver -> handle(receiver, message));
                     }
                 }, getSubChannelId());

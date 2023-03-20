@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class WarpListCommand extends ListCommand {
 
     protected WarpListCommand(@NotNull HuskHomes plugin) {
-        super("homelist", List.of("homes"), "[player] [page]", plugin);
+        super("warplist", List.of("warps"), "[player] [page]", plugin);
     }
 
     @Override

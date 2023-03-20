@@ -43,6 +43,8 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         final PluginCommand pluginCommand = Objects.requireNonNull(plugin.getCommand(command.getName()));
         pluginCommand.setExecutor(this);
         pluginCommand.setTabCompleter(this);
+        pluginCommand.setDescription(command.getDescription());
+        pluginCommand.setPermission(command.getPermission());
 
         // Register commodore TAB completion
         if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {

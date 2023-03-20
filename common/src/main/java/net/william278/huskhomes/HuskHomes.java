@@ -325,7 +325,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
 
     default <T extends Command> Optional<T> getCommand(@NotNull Class<T> type) {
         return getCommands().stream()
-                .filter(command -> command.getClass().isInstance(type))
+                .filter(command -> command.getClass() == type)
                 .findFirst()
                 .map(type::cast);
     }

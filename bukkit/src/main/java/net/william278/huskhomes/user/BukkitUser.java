@@ -5,7 +5,7 @@ import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.teleport.TeleportResult;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -24,18 +23,7 @@ import java.util.stream.Collectors;
  */
 public class BukkitUser extends OnlineUser {
 
-    /**
-     * Number of ticks to wait before {@link #sendPluginMessage(String, byte[]) sending a plugin message}.
-     * </p>
-     * This is needed because it is not possible to have players dispatch plugin messages in certain circumstance,
-     * such as on the tick that they join the server.
-     */
-    private static final long PLUGIN_MESSAGE_DISPATCH_DELAY = 3L;
-
-    // Instance of the implementing plugin
     private final BukkitHuskHomes plugin;
-
-    // The Bukkit player
     private final Player player;
 
     private BukkitUser(@NotNull Player player) {
@@ -53,20 +41,6 @@ public class BukkitUser extends OnlineUser {
     @NotNull
     public static BukkitUser adapt(@NotNull Player player) {
         return new BukkitUser(player);
-    }
-
-    /**
-     * Get an online {@link BukkitUser} by their exact username
-     *
-     * @param username the UUID of the player to find
-     * @return an {@link Optional} containing the {@link BukkitUser} if found; {@link Optional#empty()} otherwise
-     */
-    public static Optional<BukkitUser> get(@NotNull String username) {
-        final Player player = Bukkit.getPlayerExact(username);
-        if (player != null) {
-            return Optional.of(adapt(player));
-        }
-        return Optional.empty();
     }
 
     @Override
@@ -95,10 +69,13 @@ public class BukkitUser extends OnlineUser {
 
 
     @Override
-    public @NotNull Map<String, Boolean> getPermissions() {
-        return player.getEffectivePermissions().stream().collect(
-                Collectors.toMap(PermissionAttachmentInfo::getPermission,
-                        PermissionAttachmentInfo::getValue, (a, b) -> b));
+    @NotNull
+    public Map<String, Boolean> getPermissions() {
+        return player.getEffectivePermissions().stream()
+                .collect(Collectors.toMap(
+                        PermissionAttachmentInfo::getPermission,
+                        PermissionAttachmentInfo::getValue, (a, b) -> b
+                ));
     }
 
     @Override
@@ -108,38 +85,43 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    public CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous) {
-        final Optional<org.bukkit.Location> bukkitLocation = BukkitAdapter.adaptLocation(location);
-        if (bukkitLocation.isEmpty()) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_INVALID_WORLD);
+    public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
+        final Optional<org.bukkit.Location> resolvedLocation = BukkitAdapter.adaptLocation(location);
+        if (resolvedLocation.isEmpty() || resolvedLocation.get().getWorld() == null) {
+            throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND);
         }
-        assert bukkitLocation.get().getWorld() != null;
-        if (!bukkitLocation.get().getWorld().getWorldBorder().isInside(bukkitLocation.get())) {
-            return CompletableFuture.completedFuture(TeleportResult.FAILED_ILLEGAL_COORDINATES);
+
+        final org.bukkit.Location bukkitLocation = resolvedLocation.get();
+        if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
+            throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES);
         }
-        final CompletableFuture<TeleportResult> resultCompletableFuture = new CompletableFuture<>();
+
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (asynchronous) {
-                PaperLib.teleportAsync(player, bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN)
-                        .thenAccept(result -> resultCompletableFuture.complete(
-                                result ? TeleportResult.COMPLETED_LOCALLY : TeleportResult.FAILED_INVALID_WORLD));
+                PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             } else {
-                player.teleport(bukkitLocation.get(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                resultCompletableFuture.complete(TeleportResult.COMPLETED_LOCALLY);
+                player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         });
-        return resultCompletableFuture;
     }
 
+    /**
+     * Get the player momentum and return if they are moving
+     *
+     * @return {@code true} if the player is moving, {@code false} otherwise
+     **/
     @Override
     public boolean isMoving() {
-        // Get the player momentum and return if they are moving
         return player.getVelocity().length() >= 0.1;
     }
 
+    /**
+     * Return the value of the player's "vanished" metadata tag if they have it
+     *
+     * @return {@code true} if the player is vanished, {@code false} otherwise
+     */
     @Override
     public boolean isVanished() {
-        // Return the value of the player's "vanished" metadata tag if they have it
         return player.getMetadata("vanished")
                 .stream()
                 .map(MetadataValue::asBoolean)
@@ -148,14 +130,10 @@ public class BukkitUser extends OnlineUser {
     }
 
     /**
-     * Send a Bukkit plugin message
-     *
-     * @implNote This is dispatched after {@link #PLUGIN_MESSAGE_DISPATCH_DELAY a delay} to ensure that the player
-     * is ready to send receive messages
+     * Send a Bukkit plugin message to the player
      */
     public void sendPluginMessage(@NotNull String channel, final byte[] message) {
-        Bukkit.getScheduler().runTaskLater(plugin,
-                () -> player.sendPluginMessage(plugin, channel, message), PLUGIN_MESSAGE_DISPATCH_DELAY);
+        player.sendPluginMessage(plugin, channel, message);
     }
 
     /**

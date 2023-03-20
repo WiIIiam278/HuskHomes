@@ -32,7 +32,7 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    public void initialize() throws RuntimeException {
+    public void initialize() throws IllegalStateException {
         plugin.initializePluginChannels();
     }
 

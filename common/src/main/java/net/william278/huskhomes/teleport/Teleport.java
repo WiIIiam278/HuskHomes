@@ -85,6 +85,8 @@ public class Teleport {
                 fireEvent((event) -> {
                     executeEconomyActions();
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
+                    plugin.getLocales().getLocale("teleporting_complete")
+                            .ifPresent(teleporter::sendMessage);
                 });
                 return;
             }
@@ -96,6 +98,8 @@ public class Teleport {
                             .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
                             .target(username.name())
                             .build().send(plugin.getMessenger(), executor);
+                    plugin.getLocales().getLocale("teleporting_complete")
+                            .ifPresent(teleporter::sendMessage);
                 });
                 return;
             }
@@ -105,8 +109,22 @@ public class Teleport {
 
         fireEvent((event) -> {
             executeEconomyActions();
-            teleporter.teleportLocally((Position) target, async);
+
+            final Position target = (Position) this.target;
+            if (plugin.getSettings().isCrossServer() && target.getServer().equals(plugin.getServerName())) {
+                teleporter.teleportLocally(target, async);
+                plugin.getLocales().getLocale("teleporting_complete")
+                        .ifPresent(teleporter::sendMessage);
+                return;
+            }
+
+            plugin.getDatabase().setCurrentTeleport(teleporter, this);
+            plugin.getMessenger().changeServer(teleporter, target.getServer());
         });
+    }
+
+    private void teleport(@NotNull OnlineUser teleporter, @NotNull Position target) {
+
     }
 
     @NotNull

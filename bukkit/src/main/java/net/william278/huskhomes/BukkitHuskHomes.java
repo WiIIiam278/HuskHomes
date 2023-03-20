@@ -36,7 +36,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -52,6 +51,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -72,7 +72,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
     private Set<PluginHook> pluginHooks;
-    private List<Command> registeredCommands;
+    private List<Command> commands;
     private Server server;
 
     @Nullable
@@ -98,57 +98,54 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void onEnable() {
         // Initialize HuskHomes
         final AtomicBoolean initialized = new AtomicBoolean(true);
-        try {
-            // Create adventure audience
-            this.audiences = BukkitAudiences.create(this);
+        // Create adventure audience
+        this.audiences = BukkitAudiences.create(this);
 
-            // Load settings and locales
-            log(Level.INFO, "Loading plugin configuration settings & locales...");
-            initialized.set(reload());
-            if (initialized.get()) {
-                log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
-            } else {
-                throw new IllegalStateException("Failed to load plugin configuration settings and/or locales");
-            }
+        // Load settings and locales
+        log(Level.INFO, "Loading plugin configuration settings & locales...");
+        initialized.set(reload());
+        if (initialized.get()) {
+            log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
+        } else {
+            throw new IllegalStateException("Failed to load plugin configuration settings and/or locales");
+        }
 
-            // Initialize the database
-            log(Level.INFO, "Attempting to establish connection to the database...");
-            final Database.DatabaseType databaseType = settings.getDatabaseType();
-            this.database = switch (databaseType == null ? Database.DatabaseType.MYSQL : databaseType) {
-                case MYSQL -> new MySqlDatabase(this);
-                case SQLITE -> new SqLiteDatabase(this);
-            };
-            initialized.set(this.database.initialize());
-            if (initialized.get()) {
-                log(Level.INFO, "Successfully established a connection to the database");
-            } else {
-                throw new IllegalStateException("Failed to establish a connection to the database. " + "Please check the supplied database credentials in the config file");
-            }
+        // Initialize the database
+        log(Level.INFO, "Attempting to establish connection to the database...");
+        final Database.DatabaseType databaseType = settings.getDatabaseType();
+        this.database = switch (databaseType == null ? Database.DatabaseType.MYSQL : databaseType) {
+            case MYSQL -> new MySqlDatabase(this);
+            case SQLITE -> new SqLiteDatabase(this);
+        };
+        initialized.set(this.database.initialize());
+        if (initialized.get()) {
+            log(Level.INFO, "Successfully established a connection to the database");
+        } else {
+            throw new IllegalStateException("Failed to establish a connection to the database. " +
+                                            "Please check the supplied database credentials in the config file");
+        }
 
-            // Initialize the network messenger if proxy mode is enabled
-            if (getSettings().isCrossServer()) {
-                log(Level.INFO, "Initializing the network messenger...");
+        // Initialize the network messenger if proxy mode is enabled
+        if (getSettings().isCrossServer()) {
+            initialize("message broker", (plugin) -> {
                 broker = switch (settings.getBrokerType()) {
                     case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
                     case REDIS -> new RedisBroker(this);
                 };
                 broker.initialize();
-                log(Level.INFO, "Successfully initialized the network messenger.");
-            }
+            });
+        }
 
-            // Prepare the validator
-            this.validator = new Validator(this);
+        // Prepare the validator
+        this.validator = new Validator(this);
+        this.cache = new Cache(this);
+        this.manager = new Manager(this);
 
-            // Initialize the cache
-            this.cache = new Cache(this);
+        // Initialize the RTP engine with the default normal distribution engine
+        setRandomTeleportEngine(new NormalDistributionEngine(this));
 
-            // Prepare the home and warp position manager
-            this.manager = new Manager(this);
-
-            // Initialize the RTP engine with the default normal distribution engine
-            setRandomTeleportEngine(new NormalDistributionEngine(this));
-
-            // Register plugin hooks (Economy, Maps, Plan)
+        // Register plugin hooks (Economy, Maps, Plan)
+        initialize("hooks", (plugin) -> {
             this.pluginHooks = new HashSet<>();
             if (settings.doEconomy()) {
                 if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
@@ -178,64 +175,44 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
             if (pluginHooks.size() > 0) {
                 pluginHooks.forEach(PluginHook::initialize);
-                log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream().map(PluginHook::getHookName).collect(Collectors.joining(", ")));
+                log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream()
+                        .map(PluginHook::getHookName)
+                        .collect(Collectors.joining(", ")));
             }
+        });
 
-            // Register events
-            log(Level.INFO, "Registering events...");
-            this.eventListener = new BukkitEventListener(this);
-            log(Level.INFO, "Successfully registered events listener");
+        // Register events
+        initialize("events", (plugin) -> this.eventListener = new BukkitEventListener(this));
 
-            // Register permissions
-            log(Level.INFO, "Registering permissions & commands...");
-            Arrays.stream(Permission.values()).forEach(permission -> getServer().getPluginManager().addPermission(new org.bukkit.permissions.Permission(permission.node, switch (permission.defaultAccess) {
-                case EVERYONE -> PermissionDefault.TRUE;
-                case NOBODY -> PermissionDefault.FALSE;
-                case OPERATORS -> PermissionDefault.OP;
-            })));
+        // Register commands
+        initialize("commands", (plugin) -> this.commands = Arrays.stream(BukkitCommand.Type.values())
+                .map(type -> {
+                    final Command command = type.getCommand();
+                    if (settings.isCommandDisabled(command)) {
+                        new BukkitCommand(new DisabledCommand(this), this).register();
+                        return null;
+                    } else {
+                        new BukkitCommand(command, this).register();
+                        return type.getCommand();
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
 
-            // Register commands
-            this.registeredCommands = new ArrayList<>();
-            Arrays.stream(BukkitCommand.Type.values()).forEach(commandType -> {
-                // If the command is disabled, use the disabled CommandBase
-                if (settings.getDisabledCommands().stream().anyMatch(disabledCommand -> {
-                    final String command = (disabledCommand.startsWith("/") ? disabledCommand.substring(1) : disabledCommand);
-                    return command.equalsIgnoreCase(commandType.getCommand().getName()) || commandType.getCommand().getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
-                })) {
-                    new BukkitCommand(new DisabledCommand(this), this).register();
-                    return;
-                }
+        // Hook into bStats metrics
+        initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
 
-                // Otherwise, register the command
-                final Command command = commandType.getCommand();
-                this.registeredCommands.add(command);
-                new BukkitCommand(command, this).register();
-            });
-            log(Level.INFO, "Successfully registered permissions & commands.");
-
-            // Hook into bStats metrics
-            registerMetrics(METRICS_ID);
-
-            // Check for updates
-            if (settings.doCheckForUpdates()) {
-                log(Level.INFO, "Checking for updates...");
-                getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getVersion() + ")")));
-            }
-        } catch (IllegalStateException exception) {
-            log(Level.SEVERE, exception.getMessage());
-            initialized.set(false);
-        } catch (Exception exception) {
-            log(Level.SEVERE, "An unhandled exception occurred initializing HuskHomes!", exception);
-            initialized.set(false);
-        } finally {
-            // Validate initialization
-            if (initialized.get()) {
-                log(Level.INFO, "Successfully enabled HuskHomes v" + getVersion());
-            } else {
-                log(Level.SEVERE, "Failed to initialize HuskHomes. The plugin will now be disabled");
-                getServer().getPluginManager().disablePlugin(this);
-            }
+        // Check for updates
+        if (settings.doCheckForUpdates()) {
+            log(Level.INFO, "Checking for updates...");
+            getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getVersion() + ")")));
         }
+    }
+
+    private void initialize(@NotNull String name, @NotNull Consumer<HuskHomes> runner) {
+        log(Level.INFO, "Initializing " + name + "...");
+        runner.accept(this);
+        log(Level.INFO, "Successfully initialized " + name);
     }
 
     @Override
@@ -339,19 +316,17 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void setServerSpawn(@NotNull Location location) {
-        final Spawn newSpawn = new Spawn(location);
-        this.serverSpawn = newSpawn;
         try {
-            Annotaml.create(new File(getDataFolder(), "spawn.yml"), newSpawn);
-        } catch (IOException e) {
+            this.serverSpawn = Annotaml.create(new File(getDataFolder(), "spawn.yml"), new Spawn(location)).get();
+
+            // Update the world spawn location, too
+            BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
+                assert bukkitLocation.getWorld() != null;
+                bukkitLocation.getWorld().setSpawnLocation(bukkitLocation);
+            });
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             log(Level.WARNING, "Failed to save server spawn to disk", e);
         }
-
-        // Update the world spawn location, too
-        BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
-            assert bukkitLocation.getWorld() != null;
-            bukkitLocation.getWorld().setSpawnLocation(bukkitLocation);
-        });
     }
 
     @Override
@@ -401,7 +376,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     @NotNull
     public List<Command> getCommands() {
-        return registeredCommands;
+        return commands;
     }
 
     @Override
@@ -496,7 +471,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }

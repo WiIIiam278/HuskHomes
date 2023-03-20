@@ -63,28 +63,30 @@ public class EventListener {
     /**
      * Handle inbound cross-server teleports
      *
-     * @param onlineUser user to handle the checks for
+     * @param teleporter user to handle the checks for
      */
-    private void handleInboundTeleport(@NotNull OnlineUser onlineUser) {
-        plugin.getDatabase().getCurrentTeleport(onlineUser).ifPresent(teleport -> {
+    private void handleInboundTeleport(@NotNull OnlineUser teleporter) {
+        plugin.getDatabase().getCurrentTeleport(teleporter).ifPresent(teleport -> {
             if (teleport.getType() == Teleport.Type.RESPAWN) {
-                final Optional<Position> bedPosition = onlineUser.getBedSpawnPosition();
+                final Optional<Position> bedPosition = teleporter.getBedSpawnPosition();
                 if (bedPosition.isEmpty()) {
                     plugin.getLocalCachedSpawn()
                             .map(spawn -> spawn.getPosition(plugin.getServerName()))
-                            .ifPresent(position -> onlineUser.teleportLocally(position,
+                            .ifPresent(position -> teleporter.teleportLocally(position,
                                     plugin.getSettings().isAsynchronousTeleports()));
-                    onlineUser.sendTranslatableMessage("block.minecraft.spawn.not_valid");
+                    teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                 } else {
-                    onlineUser.teleportLocally(bedPosition.get(), plugin.getSettings().isAsynchronousTeleports());
+                    teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().isAsynchronousTeleports());
                 }
-                plugin.getDatabase().setCurrentTeleport(onlineUser, null);
-                plugin.getDatabase().setRespawnPosition(onlineUser, bedPosition.orElse(null));
+                plugin.getDatabase().setCurrentTeleport(teleporter, null);
+                plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
                 return;
             }
 
-            onlineUser.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().isAsynchronousTeleports());
-            plugin.getDatabase().setCurrentTeleport(onlineUser, null);
+            teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().isAsynchronousTeleports());
+            plugin.getDatabase().setCurrentTeleport(teleporter, null);
+            plugin.getLocales().getLocale("teleporting_complete")
+                    .ifPresent(teleporter::sendMessage);
         });
     }
 
@@ -96,14 +98,6 @@ public class EventListener {
     protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
         // Remove this user's home cache
         plugin.getCache().getHomes().remove(onlineUser.getUsername());
-
-        // Update the cached player list using another online player if possible
-        plugin.getOnlineUsers()
-                .stream()
-                .filter(onlinePlayer -> !onlinePlayer.equals(onlineUser))
-                .findAny()
-                .ifPresent(updater -> plugin.getCache().updatePlayerListCache(plugin, updater));
-
 
         // Set offline position
         plugin.getDatabase().setOfflinePosition(onlineUser, onlineUser.getPosition());

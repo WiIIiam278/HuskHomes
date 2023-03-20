@@ -3,6 +3,7 @@ package net.william278.huskhomes.config;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
+import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
@@ -490,8 +491,12 @@ public class Settings {
         return warpsOnMap;
     }
 
-    public List<String> getDisabledCommands() {
-        return disabledCommands;
+    public boolean isCommandDisabled(Command type) {
+        return disabledCommands.stream().anyMatch(disabled -> {
+            final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
+            return command.equalsIgnoreCase(type.getName())
+                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+        });
     }
 
     public boolean doBrigadierTabCompletion() {

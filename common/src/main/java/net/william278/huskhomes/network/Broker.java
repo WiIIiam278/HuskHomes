@@ -62,7 +62,7 @@ public abstract class Broker {
      *
      * @throws RuntimeException if the broker fails to initialize
      */
-    public abstract void initialize() throws RuntimeException;
+    public abstract void initialize() throws IllegalStateException;
 
     /**
      * Send a message to the broker

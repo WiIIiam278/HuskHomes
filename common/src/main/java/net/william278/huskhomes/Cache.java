@@ -55,15 +55,7 @@ public class Cache {
                 .filter(player -> !player.isVanished())
                 .map(User::getUsername)
                 .toList());
-//todo
-//        if (plugin.getSettings().isCrossServer()) {
-//            return plugin.getMessenger()
-//                    .getOnlinePlayerNames(requester)
-//                    .thenApply(networkedPlayers -> {
-//                        getPlayers().addAll(Set.of(networkedPlayers));
-//                        return getPlayers();
-//                    });
-//        }
+
         return CompletableFuture.completedFuture(getPlayers());
     }
 

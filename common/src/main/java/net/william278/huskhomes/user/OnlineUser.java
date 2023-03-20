@@ -142,7 +142,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract CompletableFuture<TeleportResult> teleportLocally(@NotNull Location location, boolean asynchronous);
+    public abstract void teleportLocally(@NotNull Location location, boolean asynchronous);
 
     /**
      * Send a plugin message to the user

@@ -31,7 +31,10 @@ public class SetHomeCommand extends SetPositionCommand {
                 plugin.getManager().homes().createHome(setter, event.getName(), event.getPosition());
             } catch (ValidationException e) {
                 e.dispatchHomeError(setter, false, plugin, event.getName());
+                return;
             }
+            plugin.getLocales().getLocale("set_home_success", event.getName())
+                    .ifPresent(setter::sendMessage);
         });
     }
 

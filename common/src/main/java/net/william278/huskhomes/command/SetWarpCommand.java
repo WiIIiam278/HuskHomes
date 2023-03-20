@@ -18,7 +18,10 @@ public class SetWarpCommand extends SetPositionCommand {
                 plugin.getManager().warps().createWarp(event.getName(), event.getPosition());
             } catch (ValidationException e) {
                 e.dispatchWarpError(setter, plugin, event.getName());
+                return;
             }
+            plugin.getLocales().getLocale("set_warp_success", event.getName())
+                    .ifPresent(setter::sendMessage);
         });
     }
 }

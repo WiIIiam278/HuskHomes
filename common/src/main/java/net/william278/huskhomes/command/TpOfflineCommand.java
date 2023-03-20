@@ -4,31 +4,22 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportationException;
-import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class TpOfflineCommand extends Command implements TabProvider {
+public class TpOfflineCommand extends InGameCommand implements UserListTabProvider {
 
     protected TpOfflineCommand(@NotNull HuskHomes plugin) {
         super("tpoffline", List.of(), "<player>", plugin);
     }
 
     @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        if (!(executor instanceof OnlineUser user)) {
-            plugin.getLocales().getLocale("error_in_game_only")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Optional<String> optionalUser = parseStringArg(args, 0);
         if (optionalUser.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -45,7 +36,7 @@ public class TpOfflineCommand extends Command implements TabProvider {
             return;
         }
 
-        this.teleportToOfflinePosition(user, targetUserData.get(), args);
+        this.teleportToOfflinePosition(executor, targetUserData.get(), args);
     }
 
     private void teleportToOfflinePosition(@NotNull OnlineUser user, @NotNull User target, @NotNull String[] args) {
@@ -69,14 +60,6 @@ public class TpOfflineCommand extends Command implements TabProvider {
         } catch (TeleportationException e) {
             e.displayMessage(user, plugin, args);
         }
-    }
-
-    @Override
-    @NotNull
-    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length <= 1 ? plugin.getCache().getPlayers().stream()
-                .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList()) : Collections.emptyList();
     }
 
 }

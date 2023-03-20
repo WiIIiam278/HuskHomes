@@ -79,7 +79,8 @@ public class Teleport {
         // Teleport a local user
         final OnlineUser teleporter = localTeleporter.get();
         if (target instanceof Username username) {
-            final Optional<OnlineUser> localTarget = username.findLocally(plugin);
+            final Optional<OnlineUser> localTarget = username.name().equals("@s")
+                    ? Optional.of(executor) : username.findLocally(plugin);
             if (localTarget.isPresent()) {
                 fireEvent((event) -> {
                     executeEconomyActions();

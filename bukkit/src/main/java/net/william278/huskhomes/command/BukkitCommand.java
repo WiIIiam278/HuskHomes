@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.BukkitUser;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -34,7 +35,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
                                       @NotNull String alias, @NotNull String[] args) {
-        return this.command.suggest(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
+        return this.command.getSuggestions(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
     }
 
     public void register() {
@@ -99,8 +100,8 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         EDIT_WARP_COMMAND(new EditWarpCommand(BukkitHuskHomes.getInstance())),
         TP_COMMAND(new TpCommand(BukkitHuskHomes.getInstance())),
         TP_HERE_COMMAND(new TpHereCommand(BukkitHuskHomes.getInstance())),
-        TPA_COMMAND(new TpaCommand(BukkitHuskHomes.getInstance())),
-        TPA_HERE_COMMAND(new TpaHereCommand(BukkitHuskHomes.getInstance())),
+        TPA_COMMAND(new TeleportRequestCommand(BukkitHuskHomes.getInstance(), TeleportRequest.Type.TPA)),
+        TPA_HERE_COMMAND(new TeleportRequestCommand(BukkitHuskHomes.getInstance(), TeleportRequest.Type.TPA_HERE)),
         TPACCEPT_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), true)),
         TPDECLINE_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), false)),
         RTP_COMMAND(new RtpCommand(BukkitHuskHomes.getInstance())),

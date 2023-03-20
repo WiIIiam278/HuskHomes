@@ -115,6 +115,26 @@ public class RequestsManager {
                         .findFirst());
     }
 
+    public void sendTeleportAllRequest(@NotNull OnlineUser requester) {
+        final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
+        final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
+        for (OnlineUser onlineUser : plugin.getOnlineUsers()) {
+            if (onlineUser.equals(requester)) {
+                continue;
+            }
+            request.setRecipientName(onlineUser.getUsername());
+            sendLocalTeleportRequest(request, onlineUser);
+        }
+
+        if (plugin.getSettings().isCrossServer()) {
+            Message.builder()
+                    .type(Message.Type.TELEPORT_REQUEST)
+                    .payload(Payload.withTeleportRequest(request))
+                    .target(Message.TARGET_ALL)
+                    .build().send(plugin.getMessenger(), requester);
+        }
+    }
+
     /**
      * Sends a teleport request of the given type to the specified user, by name, if they exist.
      *
@@ -122,7 +142,8 @@ public class RequestsManager {
      * @param targetUser The user to send the request to
      * @param type       The type of request to send
      */
-    public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser, @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
+    public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
+                                    @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
         final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
@@ -130,7 +151,6 @@ public class RequestsManager {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
             }
-            request.setRecipientName(localTarget.get().getUsername());
             sendLocalTeleportRequest(request, localTarget.get());
             return;
         }
@@ -156,6 +176,8 @@ public class RequestsManager {
      * sent because the recipient is ignoring requests or is vanished ({@link OnlineUser#isVanished()})
      */
     public void sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
+        request.setRecipientName(recipient.getUsername());
+
         // Silently ignore the request if the recipient is ignoring requests or is vanished
         if (isIgnoringRequests(recipient) || recipient.isVanished()) {
             request.setStatus(TeleportRequest.Status.IGNORED);

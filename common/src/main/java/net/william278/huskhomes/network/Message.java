@@ -12,6 +12,11 @@ import java.util.UUID;
  */
 public class Message {
 
+    /**
+     * Message target indicating all players
+     */
+    public static final String TARGET_ALL = "ALL";
+
     @Expose
     private UUID id;
     @Expose

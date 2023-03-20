@@ -2,49 +2,32 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * A command used for responding to tp requests - can either be a /tpaccept or /tpdecline command, controlled by the
  * acceptRequestCommand flag
  */
-public class TpRespondCommand extends Command implements TabProvider {
+public class TpRespondCommand extends InGameCommand implements UserListTabProvider {
 
-    private final boolean acceptRequestCommand;
+    private final boolean accept;
 
-    protected TpRespondCommand(@NotNull HuskHomes implementor, boolean acceptRequestCommand) {
-        super(acceptRequestCommand ? "tpaccept" : "tpdecline", acceptRequestCommand ? Permission.COMMAND_TPACCEPT : Permission.COMMAND_TPDECLINE, implementor);
-        this.acceptRequestCommand = acceptRequestCommand;
+    protected TpRespondCommand(@NotNull HuskHomes plugin, boolean accept) {
+        super(accept ? "tpaccept" : "tpdecline", List.of(), "[player]", plugin);
+        this.accept = accept;
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length > 1) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/" + command + " [player]")
-                    .ifPresent(onlineUser::sendMessage);
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        final Optional<String> requesterName = parseStringArg(args, 0);
+        if (requesterName.isPresent()) {
+            plugin.getManager().requests().respondToTeleportRequestBySenderName(executor, requesterName.get(), accept);
             return;
         }
-
-        if (args.length == 1) {
-            // Respond to the request from specified sender name
-            plugin.getRequestManager().respondToTeleportRequestBySenderName(onlineUser, args[0], acceptRequestCommand);
-            return;
-        }
-
-        plugin.getRequestManager().respondToTeleportRequest(onlineUser, acceptRequestCommand);
+        plugin.getManager().requests().respondToTeleportRequest(executor, accept);
     }
 
-    @Override
-    @NotNull
-    public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length <= 1 ? plugin.getCache().getPlayers().stream()
-                .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
-                .sorted().collect(Collectors.toList()) : Collections.emptyList();
-    }
 }

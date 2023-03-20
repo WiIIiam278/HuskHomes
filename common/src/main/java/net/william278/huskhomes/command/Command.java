@@ -12,8 +12,7 @@ public abstract class Command extends Node implements TabProvider {
 
     private final String usage;
 
-    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
-                      @NotNull HuskHomes plugin) {
+    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
         super(name, aliases, plugin);
         this.usage = usage;
     }
@@ -63,6 +62,11 @@ public abstract class Command extends Node implements TabProvider {
     @NotNull
     public Map<String, Boolean> getAdditionalPermissions() {
         return Map.of();
+    }
+
+    @NotNull
+    public final HuskHomes getPlugin() {
+        return plugin;
     }
 
 }

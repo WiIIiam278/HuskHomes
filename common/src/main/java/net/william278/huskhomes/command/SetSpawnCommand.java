@@ -2,28 +2,21 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class SetSpawnCommand extends Command {
+public class SetSpawnCommand extends InGameCommand {
 
     protected SetSpawnCommand(@NotNull HuskHomes plugin) {
         super("setspawn", List.of(), "", plugin);
     }
 
     @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        if (!(executor instanceof OnlineUser user)) {
-            plugin.getLocales().getLocale("error_in_game_only")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        final Position position = user.getPosition();
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        final Position position = executor.getPosition();
         try {
             if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalSpawn()) {
                 final String warpName = plugin.getSettings().getGlobalSpawnName();

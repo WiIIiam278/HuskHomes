@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisPubSub;
 import java.util.logging.Level;
 
 /**
- * Redis message broker implementation
+ * Redis PubSub broker implementation
  */
 public class RedisBroker extends PluginMessageBroker {
     private JedisPool jedisPool;
@@ -50,9 +50,9 @@ public class RedisBroker extends PluginMessageBroker {
 
                         final Message message = plugin.getGson().fromJson(encodedMessage, Message.class);
                         plugin.getOnlineUsers().stream()
-                                .filter(online -> online.getUsername().equalsIgnoreCase(message.getTarget()))
-                                .findFirst()
-                                .ifPresent(receiver -> handle(receiver, message));
+                                .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
+                                        || online.getUsername().equals(message.getTarget()))
+                                .forEach(receiver -> handle(receiver, message));
                     }
                 }, getSubChannelId());
             }

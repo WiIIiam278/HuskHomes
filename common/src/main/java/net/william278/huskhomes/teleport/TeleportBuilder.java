@@ -37,15 +37,15 @@ public class TeleportBuilder {
     }
 
     private void validateTeleport() throws IllegalStateException {
+        if (teleporter == null) {
+            throw new IllegalStateException("Teleporter must be set");
+        }
         if (executor == null) {
             if (teleporter instanceof OnlineUser onlineUser) {
                 executor = onlineUser;
             } else {
                 throw new IllegalStateException("Executor must be set if teleporter is not an OnlineUser");
             }
-        }
-        if (teleporter == null) {
-            throw new IllegalStateException("Teleporter must be set");
         }
         if (target == null) {
             throw new IllegalStateException("Target must be set");

@@ -2,35 +2,34 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.manager.RequestsManager;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
-public class TpIgnoreCommand extends Command {
+import java.util.List;
 
-    protected TpIgnoreCommand(@NotNull HuskHomes implementor) {
-        super("tpignore", Permission.COMMAND_TPIGNORE, implementor);
+public class TpIgnoreCommand extends InGameCommand {
+
+    protected TpIgnoreCommand(@NotNull HuskHomes plugin) {
+        super("tpignore", List.of(), "", plugin);
     }
 
     @Override
-    public void onExecute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
-        if (args.length != 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", "/tpignore")
-                    .ifPresent(onlineUser::sendMessage);
-            return;
-        }
+    public void execute(@NotNull OnlineUser onlineUser, @NotNull String[] args) {
+        final RequestsManager manager = plugin.getManager().requests();
+        final boolean isIgnoringRequests = !manager.isIgnoringRequests(onlineUser);
 
-        // Update local value
-        final boolean isIgnoringRequests = !plugin.getRequestManager().isIgnoringRequests(onlineUser);
-        plugin.getRequestManager().setIgnoringRequests(onlineUser, isIgnoringRequests);
+        final SavedUser user = plugin.getDatabase().getUserData(onlineUser.getUuid())
+                .orElseThrow(() -> new IllegalStateException("User data not found for " + onlineUser.getUsername()));
+        user.setIgnoringTeleports(isIgnoringRequests);
+        manager.setIgnoringRequests(onlineUser, isIgnoringRequests);
+        plugin.getDatabase().updateUserData(user);
 
-        // Update value on the database and send a message | todo: Clean this up
-        plugin.getDatabase().getUserData(onlineUser.getUuid())
-                .thenAcceptAsync(userData -> userData.ifPresent(data -> plugin.getDatabase()
-                        .updateUserData(new SavedUser(onlineUser, data.homeSlots(), isIgnoringRequests, data.rtpCooldown()))
-                        .thenRun(() -> plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
-                                        plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
-                                .ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale))))));
+        plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
+                        plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))
+                .map(MineDown::new)
+                .ifPresent(onlineUser::sendMessage);
     }
 }

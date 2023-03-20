@@ -1,6 +1,5 @@
 package net.william278.huskhomes;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
@@ -384,7 +383,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
 
     @NotNull
     default Gson getGson() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()).create();
+        return new GsonBuilder().create();
     }
 
 

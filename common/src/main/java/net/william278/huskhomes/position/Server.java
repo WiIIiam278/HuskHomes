@@ -19,25 +19,23 @@ public class Server {
     /**
      * Default server identifier
      */
-    @NotNull
-    public static Server getDefault() {
-        final Server server = new Server();
+    public static String getDefaultServerName() {
         try {
             final Path serverDirectory = Path.of(System.getProperty("user.dir"));
-            server.setName(serverDirectory.getFileName().toString().trim());
+            return serverDirectory.getFileName().toString().trim();
         } catch (Exception e) {
-            server.setName("server");
+            return "server";
         }
-        return server;
     }
 
     @YamlKey("server_name")
-    private String name = getDefault().getName();
+    private String name = getDefaultServerName();
 
     public Server(@NotNull String name) {
         this.setName(name);
     }
 
+    @SuppressWarnings("unused")
     private Server() {
     }
 

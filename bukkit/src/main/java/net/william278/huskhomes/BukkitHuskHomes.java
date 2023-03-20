@@ -14,7 +14,6 @@ import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.BukkitEventDispatcher;
-import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
@@ -434,7 +433,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             if (settings.isCrossServer()) {
                 this.server = Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get();
             } else {
-                this.server = Server.getDefault();
+                this.server = new Server(Server.getDefaultServerName());
             }
 
             // Load spawn location from file
@@ -497,7 +496,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }

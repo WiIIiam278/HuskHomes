@@ -3,7 +3,6 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,9 +24,10 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
-        if (executor instanceof OnlineUser user && !warp.hasPermission(plugin.getSettings().isPermissionRestrictWarps(), user)) {
+        if (plugin.getSettings().isPermissionRestrictWarps() && !executor.hasPermission(warp.getPermission())
+                && !executor.hasPermission(Warp.getWildcardPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(user::sendMessage);
+                    .ifPresent(executor::sendMessage);
             return;
         }
 

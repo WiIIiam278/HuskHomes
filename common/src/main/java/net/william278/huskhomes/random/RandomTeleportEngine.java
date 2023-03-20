@@ -44,12 +44,7 @@ public abstract class RandomTeleportEngine {
      */
     protected final Position getOrigin(@NotNull World world) {
         return plugin.getLocalCachedSpawn()
-                .flatMap(spawn -> {
-                    if (!spawn.worldUuid.equals(world.getUuid().toString())) {
-                        return Optional.empty();
-                    }
-                    return spawn.getPosition(plugin.getServerName());
-                })
+                .map(s -> s.getPosition(plugin.getServerName()))
                 .orElse(new Position(0d, 128d, 0d, 0f, 0f,
                         world, plugin.getServerName()));
     }

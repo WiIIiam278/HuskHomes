@@ -8,7 +8,7 @@ public class PlanDataExtensionTests {
     // Throws IllegalArgumentException if there is an implementation error or warning.
     @Test
     public void testPlanDataExtension() {
-        new ExtensionExtractor(new PlanDataExtension()).validateAnnotations();
+        new ExtensionExtractor(new PlanHook.PlanDataExtension()).validateAnnotations();
     }
 
 }

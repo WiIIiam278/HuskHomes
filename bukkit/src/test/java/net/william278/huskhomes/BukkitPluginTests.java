@@ -42,7 +42,7 @@ public class BukkitPluginTests {
     public void testCommandRegistration() {
         // Assert that all commands in BukkitCommandType are registered by the plugin
         for (BukkitCommand.Type command : BukkitCommand.Type.values()) {
-            Assertions.assertNotNull(plugin.getCommand(command.getCommand().command));
+            Assertions.assertNotNull(plugin.getCommand(command.getCommand().getName()));
         }
     }
 

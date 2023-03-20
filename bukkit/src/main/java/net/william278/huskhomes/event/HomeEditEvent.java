@@ -1,21 +1,23 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class HomeSaveEvent extends Event implements IHomeSaveEvent, Cancellable {
+public class HomeEditEvent extends Event implements IHomeEditEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final Home home;
 
+    private final Home home;
+    private final CommandUser editor;
     private boolean cancelled;
 
-    public HomeSaveEvent(@NotNull Home home) {
+    public HomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
         this.home = home;
+        this.editor = editor;
     }
 
     @NotNull
@@ -40,7 +42,15 @@ public class HomeSaveEvent extends Event implements IHomeSaveEvent, Cancellable 
     }
 
     @Override
-    public @NotNull Home getHome() {
+    @NotNull
+    public Home getHome() {
         return home;
     }
+
+    @Override
+    @NotNull
+    public CommandUser getEditor() {
+        return editor;
+    }
+
 }

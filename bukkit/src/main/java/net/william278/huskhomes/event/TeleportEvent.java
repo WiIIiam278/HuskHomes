@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class TeleportEvent extends Event implements ITeleportEvent {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
+
     private final Teleport teleport;
 
     public TeleportEvent(@NotNull Teleport teleport) {

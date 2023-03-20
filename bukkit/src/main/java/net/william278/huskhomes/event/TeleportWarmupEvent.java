@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class TeleportWarmupEvent extends Event implements ITeleportWarmupEvent, Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
+
     private final TimedTeleport warp;
     private final int duration;
     private boolean cancelled;

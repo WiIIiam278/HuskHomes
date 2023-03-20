@@ -56,7 +56,7 @@ public class PrivateHomeListCommand extends ListCommand {
 
         final List<Home> homes = plugin.getDatabase().getHomes(user);
         plugin.fireEvent(plugin.getViewHomeListEvent(homes, executor, false),
-                (event) -> this.generateList(executor, user, homes).ifPresent(homeList -> {
+                (event) -> this.generateList(executor, user, event.getHomes()).ifPresent(homeList -> {
                     cachedLists.put(user.getUuid(), homeList);
                     executor.sendMessage(homeList.getNearestValidPage(pageNumber));
                 }));

@@ -1,7 +1,6 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -13,16 +12,15 @@ import java.util.List;
 public class HomeListEvent extends Event implements IHomeListEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final List<Home> homes;
-    @NotNull
-    private final CommandUser onlineUser;
+
+    private List<Home> homes;
+    private final CommandUser listViewer;
     private final boolean isPublicHomeList;
     private boolean cancelled;
 
-    public HomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser onlineUser, boolean isPublicHomeList) {
+    public HomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean isPublicHomeList) {
         this.homes = homes;
-        this.onlineUser = onlineUser;
+        this.listViewer = listViewer;
         this.isPublicHomeList = isPublicHomeList;
     }
 
@@ -44,9 +42,14 @@ public class HomeListEvent extends Event implements IHomeListEvent, Cancellable 
     }
 
     @Override
+    public void setHomes(@NotNull List<Home> homes) {
+        this.homes = homes;
+    }
+
+    @Override
     @NotNull
     public CommandUser getListViewer() {
-        return onlineUser;
+        return listViewer;
     }
 
     @Override

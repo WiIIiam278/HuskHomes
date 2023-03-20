@@ -31,7 +31,7 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
             return;
         }
 
-        plugin.fireEvent(plugin.getWarpDeleteEvent(warp), (event) -> {
+        plugin.fireEvent(plugin.getWarpDeleteEvent(warp, executor), (event) -> {
             try {
                 plugin.getManager().warps().deleteWarp(warp);
             } catch (ValidationException e) {
@@ -54,7 +54,7 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
                 return true;
             }
 
-            plugin.fireEvent(plugin.getDeleteAllWarpsEvent(), (event) -> {
+            plugin.fireEvent(plugin.getDeleteAllWarpsEvent(executor), (event) -> {
                 final int deleted = plugin.getManager().warps().deleteAllWarps();
                 if (deleted == 0) {
                     plugin.getLocales().getLocale("error_no_warps_set")

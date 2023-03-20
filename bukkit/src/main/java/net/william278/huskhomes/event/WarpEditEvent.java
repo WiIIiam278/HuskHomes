@@ -1,21 +1,23 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable {
+public class WarpEditEvent extends Event implements IWarpEditEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final Warp warp;
 
+    private final Warp warp;
+    private final CommandUser editor;
     private boolean cancelled;
 
-    public WarpSaveEvent(@NotNull Warp warp) {
+    public WarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
         this.warp = warp;
+        this.editor = editor;
     }
 
     @NotNull
@@ -40,7 +42,14 @@ public class WarpSaveEvent extends Event implements IWarpSaveEvent, Cancellable 
     }
 
     @Override
-    public @NotNull Warp getWarp() {
+    @NotNull
+    public Warp getWarp() {
         return warp;
+    }
+
+    @Override
+    @NotNull
+    public CommandUser getEditor() {
+        return editor;
     }
 }

@@ -13,10 +13,12 @@ public class SetWarpCommand extends SetPositionCommand {
 
     @Override
     protected void execute(@NotNull OnlineUser setter, @NotNull String name) {
-        try {
-            plugin.getManager().warps().createWarp(name, setter.getPosition());
-        } catch (ValidationException e) {
-            e.dispatchWarpError(setter, plugin, name);
-        }
+        plugin.fireEvent(plugin.getWarpCreateEvent(name, setter.getPosition(), setter), (event) -> {
+            try {
+                plugin.getManager().warps().createWarp(event.getName(), event.getPosition());
+            } catch (ValidationException e) {
+                e.dispatchWarpError(setter, plugin, event.getName());
+            }
+        });
     }
 }

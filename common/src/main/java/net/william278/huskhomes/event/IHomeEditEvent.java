@@ -5,19 +5,19 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a single home is deleted
+ * Representation of an event that fires when a home is edited
  */
-public interface IHomeDeleteEvent extends Cancellable {
+public interface IHomeEditEvent extends Cancellable {
 
     /**
-     * Get the home being deleted
+     * Get the home about to be saved
      *
-     * @return the {@link Home} being deleted
+     * @return the {@link Home} being saved
      */
     @NotNull
     Home getHome();
 
     @NotNull
-    CommandUser getDeleter();
+    CommandUser getEditor();
 
 }

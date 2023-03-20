@@ -31,7 +31,7 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        plugin.fireEvent(plugin.getHomeDeleteEvent(home), (event) -> {
+        plugin.fireEvent(plugin.getHomeDeleteEvent(home, executor), (event) -> {
             try {
                 plugin.getManager().homes().deleteHome(home);
             } catch (ValidationException e) {
@@ -53,7 +53,7 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
                 return true;
             }
 
-            plugin.fireEvent(plugin.getDeleteAllHomesEvent(user), (event) -> {
+            plugin.fireEvent(plugin.getDeleteAllHomesEvent(user, user), (event) -> {
                 final int deleted = plugin.getManager().homes().deleteAllHomes(user);
                 if (deleted == 0) {
                     plugin.getLocales().getLocale("error_no_homes_set")

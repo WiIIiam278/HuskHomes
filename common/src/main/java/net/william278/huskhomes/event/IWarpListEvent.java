@@ -1,8 +1,7 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -17,7 +16,10 @@ public interface IWarpListEvent extends Cancellable {
      *
      * @return the list of warps
      */
+    @NotNull
     List<Warp> getWarps();
+
+    void setWarps(@NotNull List<Warp> warps);
 
     /**
      * Get the user viewing the warp list

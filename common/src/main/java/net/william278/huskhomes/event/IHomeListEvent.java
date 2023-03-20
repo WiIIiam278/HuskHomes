@@ -1,8 +1,7 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -17,7 +16,10 @@ public interface IHomeListEvent extends Cancellable {
      *
      * @return the list of homes
      */
+    @NotNull
     List<Home> getHomes();
+
+    void setHomes(@NotNull List<Home> homes);
 
     /**
      * Get the player viewing the home list

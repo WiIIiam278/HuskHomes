@@ -1,17 +1,16 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.User;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface BukkitEventDispatcher extends EventDispatcher {
 
@@ -32,25 +31,34 @@ public interface BukkitEventDispatcher extends EventDispatcher {
         return new TeleportWarmupEvent(teleport, duration);
     }
 
-
     @Override
-    default IHomeSaveEvent getHomeSaveEvent(@NotNull Home home) {
-        return new HomeSaveEvent(home);
+    default IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+        return new HomeCreateEvent(owner, name, position, creator);
     }
 
     @Override
-    default IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home) {
-        return new HomeDeleteEvent(home);
+    default IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
+        return new HomeEditEvent(home, editor);
     }
 
     @Override
-    default IWarpSaveEvent getWarpSaveEvent(@NotNull Warp warp) {
-        return new WarpSaveEvent(warp);
+    default IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter) {
+        return new HomeDeleteEvent(home, deleter);
     }
 
     @Override
-    default IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp) {
-        return new WarpDeleteEvent(warp);
+    default IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+        return new WarpCreateEvent(name, position, creator);
+    }
+
+    @Override
+    default IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
+        return new WarpEditEvent(warp, editor);
+    }
+
+    @Override
+    default IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
+        return new WarpDeleteEvent(warp, deleter);
     }
 
     @Override
@@ -64,13 +72,13 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user) {
-        return new DeleteAllHomesEvent(user);
+    default IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter) {
+        return new DeleteAllHomesEvent(user, deleter);
     }
 
     @Override
-    default IDeleteAllWarpsEvent getDeleteAllWarpsEvent() {
-        return new DeleteAllWarpsEvent();
+    default IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter) {
+        return new DeleteAllWarpsEvent(deleter);
     }
 
 }

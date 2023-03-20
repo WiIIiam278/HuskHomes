@@ -1,6 +1,7 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -9,13 +10,14 @@ import org.jetbrains.annotations.NotNull;
 public class WarpDeleteEvent extends Event implements IWarpDeleteEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final Warp warp;
 
+    private final Warp warp;
+    private final CommandUser deleter;
     private boolean cancelled;
 
-    public WarpDeleteEvent(@NotNull Warp warp) {
+    public WarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
         this.warp = warp;
+        this.deleter = deleter;
     }
 
     @Override
@@ -43,5 +45,11 @@ public class WarpDeleteEvent extends Event implements IWarpDeleteEvent, Cancella
     @NotNull
     public Warp getWarp() {
         return warp;
+    }
+
+    @Override
+    @NotNull
+    public CommandUser getDeleter() {
+        return deleter;
     }
 }

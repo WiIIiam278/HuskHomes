@@ -1,5 +1,6 @@
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,5 +16,8 @@ public interface IDeleteAllHomesEvent extends Cancellable {
      */
     @NotNull
     User getHomeOwner();
+
+    @NotNull
+    CommandUser getDeleter();
 
 }

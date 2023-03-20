@@ -1,5 +1,6 @@
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.User;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -10,13 +11,13 @@ public class DeleteAllHomesEvent extends Event implements IDeleteAllHomesEvent, 
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
+    private final User homeOwner;
+    private final CommandUser deleter;
     private boolean cancelled;
 
-    @NotNull
-    private final User homeOwner;
-
-    public DeleteAllHomesEvent(@NotNull User homeOwner) {
+    public DeleteAllHomesEvent(@NotNull User homeOwner, @NotNull CommandUser deleter) {
         this.homeOwner = homeOwner;
+        this.deleter = deleter;
     }
 
     @NotNull
@@ -41,7 +42,14 @@ public class DeleteAllHomesEvent extends Event implements IDeleteAllHomesEvent, 
     }
 
     @Override
-    public @NotNull User getHomeOwner() {
+    @NotNull
+    public User getHomeOwner() {
         return homeOwner;
+    }
+
+    @Override
+    @NotNull
+    public CommandUser getDeleter() {
+        return deleter;
     }
 }

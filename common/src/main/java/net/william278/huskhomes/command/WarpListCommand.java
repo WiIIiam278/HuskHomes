@@ -32,7 +32,7 @@ public class WarpListCommand extends ListCommand {
 
         final List<Warp> warps = getItems(executor);
         plugin.fireEvent(plugin.getViewWarpListEvent(warps, executor),
-                (event) -> this.generateList(executor, warps).ifPresent(homeList -> {
+                (event) -> this.generateList(executor, event.getWarps()).ifPresent(homeList -> {
                     if (executor instanceof OnlineUser onlineUser) {
                         cachedLists.put(onlineUser.getUuid(), homeList);
                     }

@@ -1,8 +1,7 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -13,9 +12,8 @@ import java.util.List;
 public class WarpListEvent extends Event implements IWarpListEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    @NotNull
-    private final List<Warp> warps;
-    @NotNull
+
+    private List<Warp> warps;
     private final CommandUser listViewer;
     private boolean cancelled;
 
@@ -39,6 +37,11 @@ public class WarpListEvent extends Event implements IWarpListEvent, Cancellable 
     @NotNull
     public List<Warp> getWarps() {
         return warps;
+    }
+
+    @Override
+    public void setWarps(@NotNull List<Warp> warps) {
+        this.warps = warps;
     }
 
     @Override

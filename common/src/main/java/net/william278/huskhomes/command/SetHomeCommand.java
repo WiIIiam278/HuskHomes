@@ -26,11 +26,13 @@ public class SetHomeCommand extends SetPositionCommand {
 
     @Override
     protected void execute(@NotNull OnlineUser setter, @NotNull String name) {
-        try {
-            plugin.getManager().homes().createHome(setter, name, setter.getPosition());
-        } catch (ValidationException e) {
-            e.dispatchHomeError(setter, false, plugin, name);
-        }
+        plugin.fireEvent(plugin.getHomeCreateEvent(setter, name, setter.getPosition(), setter), (event) -> {
+            try {
+                plugin.getManager().homes().createHome(setter, event.getName(), event.getPosition());
+            } catch (ValidationException e) {
+                e.dispatchHomeError(setter, false, plugin, event.getName());
+            }
+        });
     }
 
     private boolean createDefaultHome(@NotNull OnlineUser user) {

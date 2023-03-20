@@ -1,13 +1,13 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TimedTeleport;
+import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,21 +47,25 @@ public interface EventDispatcher {
 
     ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration);
 
-    IHomeSaveEvent getHomeSaveEvent(@NotNull Home home);
+    IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator);
 
-    IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home);
+    IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor);
 
-    IWarpSaveEvent getWarpSaveEvent(@NotNull Warp warp);
+    IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter);
 
-    IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp);
+    IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator);
+
+    IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor);
+
+    IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter);
 
     IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList);
 
     IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull CommandUser listViewer);
 
-    IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user);
+    IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter);
 
-    IDeleteAllWarpsEvent getDeleteAllWarpsEvent();
+    IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter);
 
     @NotNull
     HuskHomes getPlugin();

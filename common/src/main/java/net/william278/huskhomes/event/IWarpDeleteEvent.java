@@ -1,6 +1,7 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,5 +16,8 @@ public interface IWarpDeleteEvent extends Cancellable {
      */
     @NotNull
     Warp getWarp();
+
+    @NotNull
+    CommandUser getDeleter();
 
 }

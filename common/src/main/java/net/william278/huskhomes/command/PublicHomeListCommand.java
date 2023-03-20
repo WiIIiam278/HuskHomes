@@ -33,7 +33,7 @@ public class PublicHomeListCommand extends ListCommand {
 
         final List<Home> homes = plugin.getDatabase().getPublicHomes();
         plugin.fireEvent(plugin.getViewHomeListEvent(homes, executor, true),
-                (event) -> this.generateList(executor, homes).ifPresent(homeList -> {
+                (event) -> this.generateList(executor, event.getHomes()).ifPresent(homeList -> {
                     if (executor instanceof OnlineUser onlineUser) {
                         cachedLists.put(onlineUser.getUuid(), homeList);
                     }

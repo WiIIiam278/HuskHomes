@@ -5,8 +5,8 @@ dependencies {
     implementation 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     implementation 'net.william278:Annotaml:2.0.1'
     implementation 'net.william278:PagineDown:1.1'
-    implementation 'net.william278:DesertWell:1.1'
-    implementation 'dev.dejvokep:boosted-yaml:1.3'
+    implementation 'net.william278:DesertWell:1.1.1'
+    implementation 'dev.dejvokep:boosted-yaml:1.3.1'
     implementation 'net.kyori:adventure-api:4.12.0'
     implementation('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'

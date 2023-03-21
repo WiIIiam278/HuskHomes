@@ -219,6 +219,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             audiences.close();
             audiences = null;
         }
+        cancelAllTasks();
     }
 
     /**

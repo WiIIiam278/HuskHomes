@@ -38,12 +38,6 @@ public class BukkitPluginTests {
         plugin = MockBukkit.load(BukkitHuskHomes.class);
     }
 
-    @AfterAll
-    @DisplayName("Tear down Plugin")
-    public static void tearDownPlugin() {
-        MockBukkit.unmock();
-    }
-
     @Nested
     @DisplayName("Plugin Initialization Tests")
     public class ValidationTests {

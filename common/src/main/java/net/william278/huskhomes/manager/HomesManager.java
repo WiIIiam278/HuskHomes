@@ -11,13 +11,48 @@ import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
+import java.util.*;
 
 public class HomesManager {
+
     private final HuskHomes plugin;
+    private final List<Home> publicHomes;
+    private final Map<String, List<Home>> userHomes;
 
     protected HomesManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
+        this.publicHomes = plugin.getDatabase().getPublicHomes();
+        this.userHomes = new HashMap<>();
+        plugin.runAsync(() -> plugin.getOnlineUsers()
+                .forEach(this::cacheUserHomes));
+    }
+
+    /**
+     * Cached user homes - maps a username to a list of their homes
+     */
+    @NotNull
+    public Map<String, List<String>> getUserHomes() {
+        return userHomes.entrySet().stream()
+                .collect(HashMap::new, (m, e) -> m.put(e.getKey(), e.getValue().stream().map(Home::getName).toList()),
+                        HashMap::putAll);
+    }
+
+    public void cacheUserHomes(@NotNull User user) {
+        userHomes.put(user.getUuid().toString(), plugin.getDatabase().getHomes(user));
+    }
+
+    public void removeUserHomes(@NotNull User user) {
+        userHomes.remove(user.getUuid().toString());
+    }
+
+    /**
+     * Cached public homes - maps a username to a list of their public homes
+     */
+    @NotNull
+    public Map<String, List<String>> getPublicHomes() {
+        return publicHomes.stream()
+                .collect(HashMap::new, (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
+                        HashMap::putAll);
     }
 
     public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,

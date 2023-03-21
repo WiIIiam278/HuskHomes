@@ -18,21 +18,15 @@ import java.util.*;
  */
 public class RequestsManager {
 
-    @NotNull
     private final HuskHomes plugin;
 
-    /**
-     * Map of user UUIDs to a queue of received teleport requests
-     */
+    // Map of user UUIDs to a queue of received teleport requests
     private final Map<UUID, Deque<TeleportRequest>> requests;
-
-    /**
-     * Set of users who are ignoring tpa requests
-     */
+    // Set of users who are ignoring tpa requests
     private final Set<UUID> ignoringRequests;
 
-    public RequestsManager(@NotNull HuskHomes implementation) {
-        this.plugin = implementation;
+    public RequestsManager(@NotNull HuskHomes plugin) {
+        this.plugin = plugin;
         this.requests = new HashMap<>();
         this.ignoringRequests = new HashSet<>();
     }
@@ -173,8 +167,6 @@ public class RequestsManager {
      *
      * @param request   The {@link TeleportRequest} to send
      * @param recipient The online recipient of the request
-     * @return the {@link TeleportRequest} that was sent if it could be sent, otherwise an empty optional if it was not
-     * sent because the recipient is ignoring requests or is vanished ({@link OnlineUser#isVanished()})
      */
     public void sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
         request.setRecipientName(recipient.getUsername());
@@ -196,7 +188,7 @@ public class RequestsManager {
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                        + "_request_received", request.getRequesterName())
+                                      + "_request_received", request.getRequesterName())
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                 .ifPresent(recipient::sendMessage);

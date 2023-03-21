@@ -5,7 +5,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
-import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
@@ -58,6 +57,9 @@ public class EventListener {
                 }, plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE ? 40L : 0L);
             }
 
+            // Cache this user's homes
+            plugin.getManager().homes().cacheUserHomes(onlineUser);
+
             // Set their ignoring requests state
             plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
                 final boolean ignoringRequests = userData.isIgnoringTeleports();
@@ -70,12 +72,6 @@ public class EventListener {
                             .orElse("")).ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
                 }
             });
-
-            // Cache this user's homes
-            plugin.getCache().getHomes().put(onlineUser.getUsername(), plugin.getDatabase()
-                    .getHomes(onlineUser).stream()
-                    .map(Home::getName)
-                    .toList());
         });
     }
 
@@ -115,11 +111,11 @@ public class EventListener {
      * @param onlineUser the leaving {@link OnlineUser}
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
-        // Remove this user's home cache
-        plugin.getCache().getHomes().remove(onlineUser.getUsername());
-
         // Set offline position
         plugin.getDatabase().setOfflinePosition(onlineUser, onlineUser.getPosition());
+
+        // Remove this user's home cache
+        plugin.getManager().homes().removeUserHomes(onlineUser);
 
         // Update global lists
         if (plugin.getSettings().isCrossServer()) {

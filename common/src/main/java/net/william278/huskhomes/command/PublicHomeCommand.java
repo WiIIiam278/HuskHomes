@@ -27,7 +27,7 @@ public class PublicHomeCommand extends HomeCommand {
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
         if (args.length <= 2) {
-            return filter(reduceHomeList(plugin.getCache().getHomes()), args);
+            return filter(reduceHomeList(plugin.getManager().homes().getPublicHomes()), args);
         }
         return List.of();
     }

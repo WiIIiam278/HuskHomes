@@ -128,21 +128,21 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 case 0, 1 -> {
                     if (args.length == 1 && args[0].contains(".")) {
                         if (executor.hasPermission(getOtherPermission())) {
-                            yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
+                            yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
                         }
-                        yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
+                        yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
                     }
                     if (executor instanceof OnlineUser user) {
-                        yield filter(plugin.getCache().getHomes().get(user.getUsername()), args);
+                        yield filter(plugin.getManager().homes().getUserHomes().get(user.getUsername()), args);
                     }
-                    yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
+                    yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
                 }
                 case 2 -> filter(arguments.stream().toList(), args);
                 default -> List.of();
             };
         } else {
             return switch (args.length) {
-                case 0, 1 -> filter(plugin.getCache().getWarps(), args);
+                case 0, 1 -> filter(plugin.getManager().warps().getWarps(), args);
                 case 2 -> filter(arguments.stream().toList(), args);
                 default -> List.of();
             };

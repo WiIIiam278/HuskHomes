@@ -110,7 +110,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0.2
      */
     public boolean isUserWarmingUp(@NotNull User user) {
-        return plugin.getCache().isWarmingUp(user.getUuid());
+        return plugin.isWarmingUp(user.getUuid());
     }
 
     /**

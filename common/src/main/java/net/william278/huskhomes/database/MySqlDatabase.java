@@ -11,8 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -23,35 +21,11 @@ import java.util.logging.Level;
 @SuppressWarnings("DuplicatedCode")
 public class MySqlDatabase extends Database {
 
-    public String host;
-    public int port;
-    public String database;
-    public String username;
-    public String password;
-    public String connectionParameters;
-
-    public int connectionPoolSize;
-    public int connectionPoolIdle;
-    public long connectionPoolLifetime;
-    public long connectionPoolKeepAlive;
-    public long connectionPoolTimeout;
-
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
     private HikariDataSource dataSource;
 
     public MySqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.host = plugin.getSettings().getMySqlHost();
-        this.port = plugin.getSettings().getMySqlPort();
-        this.database = plugin.getSettings().getMySqlDatabase();
-        this.username = plugin.getSettings().getMySqlUsername();
-        this.password = plugin.getSettings().getMySqlPassword();
-        this.connectionParameters = plugin.getSettings().getMySqlConnectionParameters();
-        this.connectionPoolSize = plugin.getSettings().getMySqlConnectionPoolSize();
-        this.connectionPoolIdle = plugin.getSettings().getMySqlConnectionPoolIdle();
-        this.connectionPoolLifetime = plugin.getSettings().getMySqlConnectionPoolLifetime();
-        this.connectionPoolKeepAlive = plugin.getSettings().getMySqlConnectionPoolKeepAlive();
-        this.connectionPoolTimeout = plugin.getSettings().getMySqlConnectionPoolTimeout();
     }
 
     /**
@@ -65,75 +39,58 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public boolean initialize() {
-        try {
-            // Create jdbc driver connection url
-            final String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database + connectionParameters;
-            dataSource = new HikariDataSource();
-            dataSource.setJdbcUrl(jdbcUrl);
+    public void initialize() throws IllegalStateException {
+        // Initialize the Hikari pooled connection
+        dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl("jdbc:mysql://" +
+                              plugin.getSettings().getMySqlHost() +
+                              ":" +
+                              plugin.getSettings().getMySqlPort() +
+                              "/" +
+                              plugin.getSettings().getMySqlDatabase() +
+                              plugin.getSettings().getMySqlConnectionParameters());
 
-            // Authenticate
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
+        // Authenticate with the database
+        dataSource.setUsername(plugin.getSettings().getMySqlUsername());
+        dataSource.setPassword(plugin.getSettings().getMySqlPassword());
 
-            // Set connection pool options
-            dataSource.setMaximumPoolSize(connectionPoolSize);
-            dataSource.setMinimumIdle(connectionPoolIdle);
-            dataSource.setMaxLifetime(connectionPoolLifetime);
-            dataSource.setKeepaliveTime(connectionPoolKeepAlive);
-            dataSource.setConnectionTimeout(connectionPoolTimeout);
-            dataSource.setPoolName(DATA_POOL_NAME);
+        // Set connection pool options
+        dataSource.setMaximumPoolSize(plugin.getSettings().getMySqlConnectionPoolSize());
+        dataSource.setMinimumIdle(plugin.getSettings().getMySqlConnectionPoolIdle());
+        dataSource.setMaxLifetime(plugin.getSettings().getMySqlConnectionPoolLifetime());
+        dataSource.setKeepaliveTime(plugin.getSettings().getMySqlConnectionPoolKeepAlive());
+        dataSource.setConnectionTimeout(plugin.getSettings().getMySqlConnectionPoolTimeout());
+        dataSource.setPoolName(DATA_POOL_NAME);
 
-            // Set additional connection pool properties
-            dataSource.setDataSourceProperties(new Properties() {{
-                put("cachePrepStmts", "true");
-                put("prepStmtCacheSize", "250");
-                put("prepStmtCacheSqlLimit", "2048");
-                put("useServerPrepStmts", "true");
-                put("useLocalSessionState", "true");
-                put("useLocalTransactionState", "true");
-                put("rewriteBatchedStatements", "true");
-                put("cacheResultSetMetadata", "true");
-                put("cacheServerConfiguration", "true");
-                put("elideSetAutoCommits", "true");
-                put("maintainTimeStats", "false");
-            }});
+        // Set additional connection pool properties
+        dataSource.setDataSourceProperties(new Properties() {{
+            put("cachePrepStmts", "true");
+            put("prepStmtCacheSize", "250");
+            put("prepStmtCacheSqlLimit", "2048");
+            put("useServerPrepStmts", "true");
+            put("useLocalSessionState", "true");
+            put("useLocalTransactionState", "true");
+            put("rewriteBatchedStatements", "true");
+            put("cacheResultSetMetadata", "true");
+            put("cacheServerConfiguration", "true");
+            put("elideSetAutoCommits", "true");
+            put("maintainTimeStats", "false");
+        }});
 
-            // Prepare database schema; make tables if they don't exist
-            try (Connection connection = dataSource.getConnection()) {
-                // Load database schema CREATE statements from schema file
-                final String[] databaseSchema = getSchemaStatements("database/mysql_schema.sql");
-                try (Statement statement = connection.createStatement()) {
-                    for (String tableCreationStatement : databaseSchema) {
-                        statement.execute(tableCreationStatement);
-                    }
-                }
-                return true;
-            } catch (SQLException | IOException e) {
-                plugin.log(Level.SEVERE, "An error occurred creating tables on the MySQL database: ", e);
-            }
-        } catch (Exception e) {
-            plugin.log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
-        }
-        return false;
-    }
-
-    @Override
-    public void runScript(@NotNull InputStream inputStream, @NotNull Map<String, String> replacements) {
-        try (Connection connection = getConnection()) {
-            final String[] scriptString;
-            scriptString = new String[]{new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)};
-            replacements.forEach((key, value) -> scriptString[0] = scriptString[0].replaceAll(key, value));
-            connection.setAutoCommit(false);
+        // Prepare database schema; make tables if they don't exist
+        try (Connection connection = dataSource.getConnection()) {
+            final String[] databaseSchema = getSchemaStatements("database/mysql_schema.sql");
             try (Statement statement = connection.createStatement()) {
-                for (String statementString : scriptString[0].split(";")) {
-                    statement.addBatch(statementString);
+                for (String tableCreationStatement : databaseSchema) {
+                    statement.execute(tableCreationStatement);
                 }
-                statement.executeBatch();
+            } catch (SQLException e) {
+                throw new IllegalStateException("Failed to create database tables. Please ensure you are running MySQL v8.0+ " +
+                                                "and that your connecting user account has privileges to create tables.", e);
             }
-        } catch (IOException | SQLException e) {
-            plugin.log(Level.SEVERE, "An error occurred running a script on the MySQL database: ", e);
-            throw new RuntimeException(e);
+        } catch (SQLException | IOException e) {
+            throw new IllegalStateException("Failed to establish a connection to the MySQL database. " +
+                                            "Please check the supplied database credentials in the config file", e);
         }
     }
 

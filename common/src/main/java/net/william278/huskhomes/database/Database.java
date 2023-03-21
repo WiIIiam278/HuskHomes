@@ -10,11 +10,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -24,83 +26,7 @@ import java.util.stream.Collectors;
  */
 public abstract class Database {
 
-    /**
-     * Stores data about {@link User}s
-     * <ol>
-     *     <li>uuid - Primary key, unique; the user's minecraft account unique ID</li>
-     *     <li>username - The user's username. Checked to be updated on login</li>
-     *     <li>last_position - References positions table; where the user was when they last teleported</li>
-     *     <li>offline_position - References positions table; the user's last online position. Updated on disconnect</li>
-     *     <li>respawn_position - References positions table; where the user last updated their spawn point</li>
-     *     <li>home_slots - An integer; the number of home slots this user has consumed (bought)</li>
-     *     <li>ignoring_requests - A boolean; whether or not this user is ignoring teleport requests</li>
-     *     <li>rtp_cooldown - A datetime timestamp; representing when this user can randomly teleport again</li>
-     * </ol>
-     */
-    protected final String playerTableName;
-
-    /**
-     * Stores data about {@link Position}s
-     * <ol>
-     *     <li>id - Primary key, auto-increment; the id representing the position</li>
-     *     <li>x - The double-precision x-coordinate of the position</li>
-     *     <li>y - The double-precision y-coordinate of the position</li>
-     *     <li>z - The double-precision z-coordinate of the position</li>
-     *     <li>yaw - The float-precision yaw facing directional value of the position</li>
-     *     <li>pitch - The float-precision pitch facing directional value of the position</li>
-     *     <li>world_name - String file name of the world the position is on</li>
-     *     <li>world_uuid - String uuid of the world the position is on</li>
-     *     <li>server_name - String name of the server the position world is on</li>
-     * </ol>
-     */
-    protected final String positionsTableName;
-
-    /**
-     * Stores {@link SavedPosition}s, including metadata about them
-     * <ol>
-     *     <li>id - Primary key, auto-increment; The id representing the position meta</li>
-     *     <li>position_id - References the positions table; the position location data of this saved position</li>
-     *     <li>name - The name string of the position represented by this metadata</li>
-     *     <li>description - A description string of the position represented by this metadata</li>
-     *     <li>timestamp - A datetime timestamp representing when the position this represents was created</li>
-     * </ol>
-     */
-    protected final String savedPositionsTableName;
-
-    /**
-     * Stores {@link Home} data
-     * <ol>
-     *     <li>uuid - Primary key, unique; The unique id of the home</li>
-     *     <li>saved_position id - References the saved position table; The id of the home saved position data</li>
-     *     <li>owner_uuid - References the players table; the uuid of the person who set the home</li>
-     *     <li>is_public - Boolean value; represents if the home is set to public</li>
-     * </ol>
-     */
-    protected final String homesTableName;
-
-    /**
-     * Stores {@link Warp} data
-     * <ol>
-     *     <li>uuid - Primary key, unique; The unique id of the warp</li>
-     *     <li>saved_position id - References the saved position table; The id of the warp saved position data</li>
-     * </ol>
-     */
-    protected final String warpsTableName;
-
-    /**
-     * Stores data about current cross-server teleports being executed by {@link User}s
-     * <ol>
-     *     <li>player_uuid - Primary key, unique, references player table; represents the unique id of a teleporting player</li>
-     *     <li>destination_id - References positions table; the destination of the teleporting player</li>
-     * </ol>
-     */
-    protected final String teleportsTableName;
-
-    /**
-     * Instance of the implementing plugin
-     */
     protected final HuskHomes plugin;
-
 
     /**
      * Loads SQL table creation schema statements from a resource file as a string array
@@ -124,43 +50,27 @@ public abstract class Database {
      */
     protected final String formatStatementTables(@NotNull String sql) {
         return sql
-                .replaceAll("%positions_table%", positionsTableName)
-                .replaceAll("%players_table%", playerTableName)
-                .replaceAll("%teleports_table%", teleportsTableName)
-                .replaceAll("%saved_positions_table%", savedPositionsTableName)
-                .replaceAll("%homes_table%", homesTableName)
-                .replaceAll("%warps_table%", warpsTableName);
+                .replaceAll("%positions_table%", plugin.getSettings().getTableName(Table.POSITION_DATA))
+                .replaceAll("%players_table%", plugin.getSettings().getTableName(Table.PLAYER_DATA))
+                .replaceAll("%teleports_table%", plugin.getSettings().getTableName(Table.TELEPORT_DATA))
+                .replaceAll("%saved_positions_table%", plugin.getSettings().getTableName(Table.SAVED_POSITION_DATA))
+                .replaceAll("%homes_table%", plugin.getSettings().getTableName(Table.HOME_DATA))
+                .replaceAll("%warps_table%", plugin.getSettings().getTableName(Table.WARP_DATA));
     }
 
     /**
      * Create a database instance, pulling table names from the plugin config
      *
-     * @param implementor the implementing plugin instance
+     * @param plugin the implementing plugin instance
      */
-    protected Database(@NotNull HuskHomes implementor) {
-        this.plugin = implementor;
-        this.playerTableName = implementor.getSettings().getTableName(Table.PLAYER_DATA);
-        this.positionsTableName = implementor.getSettings().getTableName(Table.POSITION_DATA);
-        this.savedPositionsTableName = implementor.getSettings().getTableName(Table.SAVED_POSITION_DATA);
-        this.homesTableName = implementor.getSettings().getTableName(Table.HOME_DATA);
-        this.warpsTableName = implementor.getSettings().getTableName(Table.WARP_DATA);
-        this.teleportsTableName = implementor.getSettings().getTableName(Table.TELEPORT_DATA);
+    protected Database(@NotNull HuskHomes plugin) {
+        this.plugin = plugin;
     }
 
     /**
      * Initialize the database and ensure tables are present; create tables if they do not exist.
-     *
-     * @return {@code true} if done successfully
      */
-    public abstract boolean initialize();
-
-    /**
-     * Execute a MySQL script file read as an InputStream
-     *
-     * @param inputStream The input stream to read the script from
-     */
-    public abstract void runScript(@NotNull InputStream inputStream,
-                                   @NotNull Map<String, String> replacements);
+    public abstract void initialize() throws IllegalStateException;
 
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database

@@ -12,8 +12,6 @@ import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -82,50 +80,21 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public boolean initialize() {
+    public void initialize() throws IllegalStateException {
+        // Set up the connection
+        setConnection();
+
+        // Prepare database schema; make tables if they don't exist
         try {
-            // Set up the connection
-            setConnection();
-
-            // Prepare database schema; make tables if they don't exist
-            try {
-                // Load database schema CREATE statements from schema file
-                final String[] databaseSchema = getSchemaStatements("database/sqlite_schema.sql");
-                try (Statement statement = getConnection().createStatement()) {
-                    for (String tableCreationStatement : databaseSchema) {
-                        statement.execute(tableCreationStatement);
-                    }
-                }
-                return true;
-            } catch (SQLException | IOException e) {
-                plugin.log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
-            }
-        } catch (Exception e) {
-            plugin.log(Level.SEVERE, "An unhandled exception occurred during database setup!", e);
-        }
-        return false;
-    }
-
-    @Override
-    public void runScript(@NotNull InputStream inputStream, @NotNull Map<String, String> replacements) {
-        try {
-            final String[] scriptString;
-            scriptString = new String[]{new String(inputStream.readAllBytes(), StandardCharsets.UTF_8)};
-            replacements.forEach((key, value) -> scriptString[0] = scriptString[0].replaceAll(key, value));
-            final boolean autoCommit = getConnection().getAutoCommit();
-
-            // Execute batched SQLite script
-            getConnection().setAutoCommit(false);
+            // Load database schema CREATE statements from schema file
+            final String[] databaseSchema = getSchemaStatements("database/sqlite_schema.sql");
             try (Statement statement = getConnection().createStatement()) {
-                for (String statementString : scriptString[0].split(";")) {
-                    statement.addBatch(statementString);
+                for (String tableCreationStatement : databaseSchema) {
+                    statement.execute(tableCreationStatement);
                 }
-                statement.executeBatch();
             }
-            getConnection().setAutoCommit(autoCommit);
-        } catch (IOException | SQLException e) {
-            plugin.log(Level.SEVERE, "An exception occurred running script on the SQLite database", e);
-            throw new RuntimeException(e);
+        } catch (SQLException | IOException e) {
+            throw new IllegalStateException("Failed to initialize the SQLite database", e);
         }
     }
 

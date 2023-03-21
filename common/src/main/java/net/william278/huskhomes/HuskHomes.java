@@ -96,14 +96,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     Database getDatabase();
 
     /**
-     * The {@link Cache} that holds cached data
-     *
-     * @return the plugin {@link Cache}
-     */
-    @NotNull
-    Cache getCache();
-
-    /**
      * The {@link Validator} for validating thome names and descriptions
      *
      * @return the {@link Validator} instance
@@ -342,11 +334,25 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
                 .toList();
     }
 
+    @NotNull
+    Set<UUID> getCurrentlyOnWarmup();
+
+    /**
+     * Returns if the given user is currently warming up to teleport to a home.
+     *
+     * @param userUuid The user to check.
+     * @return If the user is currently warming up.
+     */
+    default boolean isWarmingUp(@NotNull UUID userUuid) {
+        return this.getCurrentlyOnWarmup().contains(userUuid);
+    }
+
     /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files
      *
-     * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
+     * @return {@code true} if the reload was successful, {@code false} otherwise
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean loadConfigs();
 
     @NotNull

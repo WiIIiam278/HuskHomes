@@ -62,7 +62,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private Settings settings;
     private Locales locales;
     private Database database;
-    private Cache cache;
     private Validator validator;
     private Manager manager;
     private EventListener eventListener;
@@ -72,6 +71,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private Set<PluginHook> pluginHooks;
     private List<Command> commands;
     private Map<String, List<String>> globalPlayerList;
+    private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
     private Broker broker;
@@ -92,9 +92,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void onEnable() {
         // Create adventure audience
         this.audiences = BukkitAudiences.create(this);
-        this.validator = new Validator(this);
-        this.manager = new Manager(this);
         this.globalPlayerList = new HashMap<>();
+        this.currentlyOnWarmup = new HashSet<>();
+        this.validator = new Validator(this);
 
         // Load settings and locales
         initialize("plugin config & locale files", (plugin) -> {
@@ -111,11 +111,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 case SQLITE -> new SqLiteDatabase(this);
             };
 
-            if (!database.initialize()) {
-                throw new IllegalStateException("Failed to establish a connection to the database. " +
-                                                "Please check the supplied database credentials in the config file");
-            }
+            database.initialize();
         });
+
+        // Initialize the manager
+        this.manager = new Manager(this);
 
         // Initialize the network messenger if proxy mode is enabled
         if (getSettings().isCrossServer()) {
@@ -128,7 +128,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             });
         }
 
-        this.cache = new Cache(this); // todo remove
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
         // Register plugin hooks (Economy, Maps, Plan)
@@ -261,12 +260,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         return database;
     }
 
-    @NotNull
-    @Override
-    public Cache getCache() {
-        return cache;
-    }
-
     @Override
     @NotNull
     public Validator getValidator() {
@@ -373,6 +366,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @NotNull
     public Map<String, List<String>> getGlobalPlayerList() {
         return globalPlayerList;
+    }
+
+    @Override
+    @NotNull
+    public Set<UUID> getCurrentlyOnWarmup() {
+        return currentlyOnWarmup;
     }
 
     @Override

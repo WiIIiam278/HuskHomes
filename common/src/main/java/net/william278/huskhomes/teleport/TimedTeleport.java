@@ -38,7 +38,7 @@ public class TimedTeleport extends Teleport {
         }
 
         // Check if the teleporter is already warming up to teleport
-        if (plugin.getCache().getCurrentlyOnWarmup().contains(teleporter.getUuid())) {
+        if (plugin.isWarmingUp(teleporter.getUuid())) {
             throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP);
         }
 
@@ -57,7 +57,7 @@ public class TimedTeleport extends Teleport {
     // Execute the warmup, fire the event, then execute the teleport if warmup completes normally
     private void process() {
         plugin.fireEvent(plugin.getTeleportWarmupEvent(this, timeLeft), (event) -> {
-            plugin.getCache().getCurrentlyOnWarmup().add(teleporter.getUuid());
+            plugin.getCurrentlyOnWarmup().add(teleporter.getUuid());
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
@@ -78,7 +78,7 @@ public class TimedTeleport extends Teleport {
 
                 // Tick (decrement) the timed teleport timer and end it if done
                 if (tickAndGetIfDone()) {
-                    plugin.getCache().getCurrentlyOnWarmup().remove(teleporter.getUuid());
+                    plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
                     plugin.cancelTask(warmupTaskId.get());
                 }
             });

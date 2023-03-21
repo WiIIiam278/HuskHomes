@@ -1,6 +1,9 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.MapHook;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.position.Warp;
@@ -9,14 +12,54 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WarpsManager {
     private final HuskHomes plugin;
-    private final List<Warp> warps;
+    private final ConcurrentLinkedQueue<Warp> warps;
 
     protected WarpsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
-        this.warps = plugin.getDatabase().getWarps();
+        this.warps = new ConcurrentLinkedQueue<>(plugin.getDatabase().getWarps());
+    }
+
+    public void cacheWarp(@NotNull Warp warp, boolean propagate) {
+        warps.remove(warp);
+        warps.add(warp);
+        plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+        if (propagate) {
+            this.propagateCacheUpdate(warp.getUuid());
+        }
+    }
+
+    public void unCacheWarp(@NotNull UUID warpId, boolean propagate) {
+        warps.removeIf(warp -> {
+            if (warp.getUuid().equals(warpId)) {
+                plugin.getMapHook().ifPresent(hook -> hook.removeWarp(warp));
+                return true;
+            }
+            return false;
+        });
+
+        if (propagate) {
+            this.propagateCacheUpdate(warpId);
+        }
+    }
+
+    private void propagateCacheUpdate(@NotNull UUID warpId) {
+        if (plugin.getSettings().isCrossServer()) {
+            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
+                    .type(Message.Type.UPDATE_WARP)
+                    .scope(Message.Scope.SERVER)
+                    .target(Message.TARGET_ALL)
+                    .payload(Payload.withString(warpId.toString()))
+                    .build().send(plugin.getMessenger(), user));
+        }
+    }
+
+    public void updateWarpCache() {
+        plugin.getDatabase().getWarps().forEach(warp -> cacheWarp(warp, false));
     }
 
     /**
@@ -50,6 +93,7 @@ public class WarpsManager {
                 })
                 .orElse(new Warp(position, new PositionMeta(name, "")));
         plugin.getDatabase().saveWarp(warp);
+        this.cacheWarp(warp, true);
     }
 
     public void createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
@@ -67,10 +111,15 @@ public class WarpsManager {
 
     public void deleteWarp(@NotNull Warp warp) {
         plugin.getDatabase().deleteWarp(warp.getUuid());
+        this.unCacheWarp(warp.getUuid(), true);
     }
 
     public int deleteAllWarps() {
-        return plugin.getDatabase().deleteAllWarps();
+        final int deleted = plugin.getDatabase().deleteAllWarps();
+        warps.clear();
+        plugin.getMapHook().ifPresent(MapHook::clearWarps);
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
     }
 
     public void relocateWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
@@ -85,6 +134,7 @@ public class WarpsManager {
     public void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
         warp.update(position);
         plugin.getDatabase().saveWarp(warp);
+        this.cacheWarp(warp, true);
     }
 
     public void renameWarp(@NotNull String name, @NotNull String newName) throws ValidationException {
@@ -103,6 +153,7 @@ public class WarpsManager {
 
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
+        this.cacheWarp(warp, true);
     }
 
     public void setWarpDescription(@NotNull String name, @NotNull String description) throws ValidationException {
@@ -121,6 +172,7 @@ public class WarpsManager {
 
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
+        this.cacheWarp(warp, true);
     }
 
 }

@@ -33,12 +33,6 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
         this.uuid = UUID.randomUUID();
     }
 
-    // Compare based on names for alphabetical sorting
-    @Override
-    public int compareTo(@NotNull SavedPosition o) {
-        return this.getMeta().getName().compareTo(o.getMeta().getName());
-    }
-
     /**
      * Metadata about this position (name, description)
      */
@@ -66,4 +60,19 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     public UUID getUuid() {
         return uuid;
     }
+
+    // Compare based on names for alphabetical sorting
+    @Override
+    public int compareTo(@NotNull SavedPosition o) {
+        return this.getMeta().getName().compareTo(o.getMeta().getName());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SavedPosition) {
+            return this.getUuid().equals(((SavedPosition) obj).getUuid());
+        }
+        return false;
+    }
+
 }

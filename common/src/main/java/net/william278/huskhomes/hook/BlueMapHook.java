@@ -99,7 +99,7 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
-    public CompletableFuture<Void> clearHomes(@NotNull User user) {
+    public void clearHomes(@NotNull User user) {
         BlueMapAPI.getInstance().ifPresent((BlueMapAPI blueMapAPI) -> blueMapAPI.getWorlds()
                 .forEach(blueMapWorld -> blueMapWorld.getMaps()
                         .forEach(blueMapMap -> blueMapMap.getMarkerSets()
@@ -108,7 +108,7 @@ public class BlueMapHook extends MapHook {
                                     return markerSet;
                                 }))));
 
-        return CompletableFuture.completedFuture(null);
+        CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
-    public CompletableFuture<Void> clearWarps() {
+    public void clearWarps() {
         BlueMapAPI.getInstance().ifPresent((BlueMapAPI blueMapAPI) -> blueMapAPI.getWorlds()
                 .forEach(blueMapWorld -> blueMapWorld.getMaps()
                         .forEach(blueMapMap -> blueMapMap.getMarkerSets()
@@ -152,7 +152,7 @@ public class BlueMapHook extends MapHook {
                                     return markerSet;
                                 }))));
 
-        return CompletableFuture.completedFuture(null);
+        CompletableFuture.completedFuture(null);
     }
 
     /**

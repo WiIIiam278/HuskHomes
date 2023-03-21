@@ -143,6 +143,9 @@ public class Message {
         TELEPORT_REQUEST_RESPONSE,
         REQUEST_PLAYER_LIST,
         PLAYER_LIST,
+        UPDATE_HOME,
+        UPDATE_WARP,
+        UPDATE_CACHES,
     }
 
     public enum Scope {

@@ -1,10 +1,15 @@
 package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public abstract class Broker {
 
@@ -63,6 +68,30 @@ public abstract class Broker {
             case PLAYER_LIST -> message.getPayload()
                     .getStringList()
                     .ifPresent(players -> plugin.setPlayerList(message.getSourceServer(), players));
+            case UPDATE_HOME -> message.getPayload().getString()
+                    .map(UUID::fromString)
+                    .ifPresent(homeId -> {
+                        final Optional<Home> optionalHome = plugin.getDatabase().getHome(homeId);
+                        if (optionalHome.isPresent()) {
+                            plugin.getManager().homes().cacheHome(optionalHome.get(), false);
+                        } else {
+                            plugin.getManager().homes().unCacheHome(homeId, false);
+                        }
+                    });
+            case UPDATE_WARP -> message.getPayload().getString()
+                    .map(UUID::fromString)
+                    .ifPresent(warpId -> {
+                        final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(warpId);
+                        if (optionalWarp.isPresent()) {
+                            plugin.getManager().warps().cacheWarp(optionalWarp.get(), false);
+                        } else {
+                            plugin.getManager().warps().unCacheWarp(warpId, false);
+                        }
+                    });
+            case UPDATE_CACHES -> {
+                plugin.getManager().homes().updatePublicHomeCache();
+                plugin.getManager().warps().updateWarpCache();
+            }
         }
     }
 

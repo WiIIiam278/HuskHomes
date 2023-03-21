@@ -98,7 +98,7 @@ public class DynMapHook extends MapHook {
     }
 
     @Override
-    public CompletableFuture<Void> clearHomes(@NotNull User user) {
+    public void clearHomes(@NotNull User user) {
         final CompletableFuture<Void> clearedFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(PUBLIC_HOMES_MARKER_SET_ID).getMarkers().stream()
@@ -106,7 +106,6 @@ public class DynMapHook extends MapHook {
                     .forEach(Marker::deleteMarker);
             clearedFuture.complete(null);
         });
-        return clearedFuture;
     }
 
     @Override
@@ -144,14 +143,13 @@ public class DynMapHook extends MapHook {
     }
 
     @Override
-    public CompletableFuture<Void> clearWarps() {
+    public void clearWarps() {
         final CompletableFuture<Void> clearedFuture = new CompletableFuture<>();
         Bukkit.getScheduler().runTask((BukkitHuskHomes) plugin, () -> {
             dynmapAPI.getMarkerAPI().getMarkerSet(WARPS_MARKER_SET_ID).getMarkers()
                     .forEach(Marker::deleteMarker);
             clearedFuture.complete(null);
         });
-        return clearedFuture;
     }
 
     /**

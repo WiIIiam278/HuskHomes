@@ -2,6 +2,8 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
@@ -12,17 +14,19 @@ import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class HomesManager {
 
     private final HuskHomes plugin;
-    private final List<Home> publicHomes;
-    private final Map<String, List<Home>> userHomes;
+    private final ConcurrentLinkedQueue<Home> publicHomes;
+    private final ConcurrentHashMap<String, ConcurrentLinkedQueue<Home>> userHomes;
 
     protected HomesManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
-        this.publicHomes = plugin.getDatabase().getPublicHomes();
-        this.userHomes = new HashMap<>();
+        this.publicHomes = new ConcurrentLinkedQueue<>(plugin.getDatabase().getPublicHomes());
+        this.userHomes = new ConcurrentHashMap<>();
         plugin.runAsync(() -> plugin.getOnlineUsers()
                 .forEach(this::cacheUserHomes));
     }
@@ -38,7 +42,56 @@ public class HomesManager {
     }
 
     public void cacheUserHomes(@NotNull User user) {
-        userHomes.put(user.getUuid().toString(), plugin.getDatabase().getHomes(user));
+        userHomes.put(user.getUsername(), new ConcurrentLinkedQueue<>(plugin.getDatabase().getHomes(user)));
+    }
+
+    public void cacheHome(@NotNull Home home, boolean propagate) {
+        userHomes.computeIfPresent(home.getOwner().getUsername(), (k, v) -> {
+            v.remove(home);
+            v.add(home);
+            return v;
+        });
+        if (publicHomes.remove(home) && !home.isPublic()) {
+            plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+        }
+        if (home.isPublic()) {
+            publicHomes.add(home);
+            plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
+        }
+
+        if (propagate) {
+            propagateCacheUpdate(home.getUuid());
+        }
+    }
+
+    public void unCacheHome(@NotNull UUID homeId, boolean propagate) {
+        userHomes.values().forEach(homes -> homes.removeIf(home -> home.getUuid().equals(homeId)));
+        publicHomes.removeIf(home -> {
+            if (home.getUuid().equals(homeId)) {
+                plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+                return true;
+            }
+            return false;
+        });
+
+        if (propagate) {
+            this.propagateCacheUpdate(homeId);
+        }
+    }
+
+    private void propagateCacheUpdate(@NotNull UUID homeId) {
+        if (plugin.getSettings().isCrossServer()) {
+            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
+                    .type(Message.Type.UPDATE_HOME)
+                    .scope(Message.Scope.SERVER)
+                    .target(Message.TARGET_ALL)
+                    .payload(Payload.withString(homeId.toString()))
+                    .build().send(plugin.getMessenger(), user));
+        }
+    }
+
+    public void updatePublicHomeCache() {
+        plugin.getDatabase().getPublicHomes().forEach(home -> cacheHome(home, false));
     }
 
     public void removeUserHomes(@NotNull User user) {
@@ -99,6 +152,7 @@ public class HomesManager {
                 })
                 .orElse(new Home(position, new PositionMeta(name, ""), owner));
         plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
     }
 
     public void createHome(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) throws ValidationException {
@@ -116,10 +170,19 @@ public class HomesManager {
 
     public void deleteHome(@NotNull Home home) {
         plugin.getDatabase().deleteHome(home.getUuid());
+        this.unCacheHome(home.getUuid(), true);
     }
 
     public int deleteAllHomes(@NotNull User owner) {
-        return plugin.getDatabase().deleteAllHomes(owner);
+        final int deleted = plugin.getDatabase().deleteAllHomes(owner);
+        userHomes.computeIfPresent(owner.getUsername(), (k, v) -> {
+            v.clear();
+            return v;
+        });
+        publicHomes.removeIf(h -> h.getOwner().getUuid().equals(owner.getUuid()));
+        plugin.getMapHook().ifPresent(hook -> hook.clearHomes(owner));
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
     }
 
     public void setHomePosition(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
@@ -134,6 +197,7 @@ public class HomesManager {
     public void setHomePosition(@NotNull Home home, @NotNull Position position) throws ValidationException {
         home.update(position);
         plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
     }
 
     public void setHomeName(@NotNull User owner, @NotNull String name, @NotNull String newName) throws ValidationException {
@@ -152,6 +216,7 @@ public class HomesManager {
 
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
     }
 
     public void setHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) throws ValidationException {
@@ -170,6 +235,7 @@ public class HomesManager {
 
         home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
     }
 
     public void setHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) throws ValidationException {
@@ -199,6 +265,7 @@ public class HomesManager {
 
         home.setPublic(isPublic);
         plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
     }
 
 }

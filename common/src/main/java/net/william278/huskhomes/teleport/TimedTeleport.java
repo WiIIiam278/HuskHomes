@@ -63,7 +63,7 @@ public class TimedTeleport extends Teleport {
 
             // Run the warmup
             final AtomicInteger warmupTaskId = new AtomicInteger();
-            final Runnable delayRunnable = (() -> {
+            final Runnable countdownRunnable = (() -> {
                 // Display countdown action bar message
                 if (timeLeft > 0) {
                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
@@ -82,7 +82,7 @@ public class TimedTeleport extends Teleport {
                     plugin.cancelTask(warmupTaskId.get());
                 }
             });
-            warmupTaskId.set(plugin.runAsyncRepeating(delayRunnable, 20));
+            warmupTaskId.set(plugin.runAsyncRepeating(countdownRunnable, 20L));
         });
     }
 

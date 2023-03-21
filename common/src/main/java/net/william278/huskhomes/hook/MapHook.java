@@ -67,9 +67,8 @@ public abstract class MapHook extends PluginHook {
      * Clears homes owned by a player from the map
      *
      * @param user the player whose homes to clear
-     * @return a {@link CompletableFuture} that completes when the homes have been cleared
      */
-    public abstract CompletableFuture<Void> clearHomes(@NotNull User user);
+    public abstract void clearHomes(@NotNull User user);
 
     /**
      * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't
@@ -88,10 +87,8 @@ public abstract class MapHook extends PluginHook {
 
     /**
      * Clears all warps from the map
-     *
-     * @return a {@link CompletableFuture} that completes when the warps have been cleared
      */
-    public abstract CompletableFuture<Void> clearWarps();
+    public abstract void clearWarps();
 
     /**
      * Returns if the position is valid to be set on this server

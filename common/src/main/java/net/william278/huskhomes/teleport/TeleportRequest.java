@@ -16,21 +16,16 @@ public class TeleportRequest {
     @Expose
     @SerializedName("requester_name")
     private String requesterName;
-
     @Expose
     @SerializedName("requester_position")
     private Position requesterPosition;
-
     @Expose
     @SerializedName("expiry_time")
     private long expiryTime;
-
     @Expose
     private Type type;
-
     @Expose
     private Status status;
-
     @Expose
     private String recipientName;
 

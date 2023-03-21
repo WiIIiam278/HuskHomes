@@ -1,10 +1,10 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.util.ValidationException;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;

@@ -12,6 +12,7 @@ public class SetSpawnCommand extends InGameCommand {
 
     protected SetSpawnCommand(@NotNull HuskHomes plugin) {
         super("setspawn", List.of(), "", plugin);
+        setOperatorCommand(true);
     }
 
     @Override

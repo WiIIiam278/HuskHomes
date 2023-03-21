@@ -2,8 +2,8 @@ package net.william278.huskhomes.teleport;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;

@@ -39,7 +39,7 @@ public class Settings {
     // Database settings
     @YamlComment("Database connection settings")
     @YamlKey("database.type")
-    private Database.DatabaseType databaseType = Database.DatabaseType.SQLITE;
+    private Database.Type databaseType = Database.Type.SQLITE;
 
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
@@ -77,17 +77,17 @@ public class Settings {
 
     @YamlKey("database.table_names")
     private Map<String, String> tableNames = Map.of(
-            Database.TableName.PLAYER_DATA.name().toLowerCase(), Database.TableName.PLAYER_DATA.getDefaultName(),
-            Database.TableName.POSITION_DATA.name().toLowerCase(), Database.TableName.POSITION_DATA.getDefaultName(),
-            Database.TableName.SAVED_POSITION_DATA.name().toLowerCase(), Database.TableName.SAVED_POSITION_DATA.getDefaultName(),
-            Database.TableName.HOME_DATA.name().toLowerCase(), Database.TableName.HOME_DATA.getDefaultName(),
-            Database.TableName.WARP_DATA.name().toLowerCase(), Database.TableName.WARP_DATA.getDefaultName(),
-            Database.TableName.TELEPORT_DATA.name().toLowerCase(), Database.TableName.TELEPORT_DATA.getDefaultName()
+            Database.Table.PLAYER_DATA.name().toLowerCase(), Database.Table.PLAYER_DATA.getDefaultName(),
+            Database.Table.POSITION_DATA.name().toLowerCase(), Database.Table.POSITION_DATA.getDefaultName(),
+            Database.Table.SAVED_POSITION_DATA.name().toLowerCase(), Database.Table.SAVED_POSITION_DATA.getDefaultName(),
+            Database.Table.HOME_DATA.name().toLowerCase(), Database.Table.HOME_DATA.getDefaultName(),
+            Database.Table.WARP_DATA.name().toLowerCase(), Database.Table.WARP_DATA.getDefaultName(),
+            Database.Table.TELEPORT_DATA.name().toLowerCase(), Database.Table.TELEPORT_DATA.getDefaultName()
     );
 
     @NotNull
-    public String getTableName(@NotNull Database.TableName tableName) {
-        return Optional.ofNullable(getTableNames().get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
+    public String getTableName(@NotNull Database.Table table) {
+        return Optional.ofNullable(getTableNames().get(table.name().toLowerCase())).orElse(table.getDefaultName());
     }
 
 
@@ -275,7 +275,7 @@ public class Settings {
         return checkForUpdates;
     }
 
-    public Database.DatabaseType getDatabaseType() {
+    public Database.Type getDatabaseType() {
         return databaseType;
     }
 

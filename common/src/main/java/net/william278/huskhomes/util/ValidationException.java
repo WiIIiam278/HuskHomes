@@ -19,7 +19,7 @@ public class ValidationException extends IllegalArgumentException {
                     .getLocale(other ? "error_home_invalid_other" : "error_home_invalid", args)
                     .ifPresent(viewer::sendMessage);
             case NAME_TAKEN -> plugin.getLocales()
-                    .getLocale("error_home_name_taken", args)
+                    .getLocale("error_home_name_taken")
                     .ifPresent(viewer::sendMessage);
             case NAME_INVALID -> plugin.getLocales()
                     .getLocale("error_home_name_characters", args)

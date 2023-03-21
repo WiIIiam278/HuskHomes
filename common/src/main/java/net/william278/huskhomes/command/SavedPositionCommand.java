@@ -66,7 +66,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
-                    && !user.hasPermission(getOtherPermission())) {
+                && !user.hasPermission(getOtherPermission())) {
                 plugin.getLocales().getLocale("error_public_home_invalid",
                                 splitHomeName[0], splitHomeName[1])
                         .ifPresent(executor::sendMessage);
@@ -91,8 +91,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
         final Optional<Warp> warp = plugin.getDatabase().getWarp(warpName);
-        if (warp.isPresent() && executor instanceof OnlineUser user && (plugin.getSettings().isPermissionRestrictWarps()
-                && user.hasPermission(Warp.getWildcardPermission()) || user.hasPermission(Warp.getPermission(warpName)))) {
+        if (warp.isPresent() && executor instanceof OnlineUser user && plugin.getSettings().isPermissionRestrictWarps()
+            && (!user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName)))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -123,22 +123,30 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     @Override
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
-        return switch (args.length) {
-            case 0, 1 -> {
-                if (args.length == 1 && args[0].contains(".")) {
-                    if (executor.hasPermission(getOtherPermission())) {
+        if (positionType == Home.class) {
+            return switch (args.length) {
+                case 0, 1 -> {
+                    if (args.length == 1 && args[0].contains(".")) {
+                        if (executor.hasPermission(getOtherPermission())) {
+                            yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
+                        }
                         yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
+                    }
+                    if (executor instanceof OnlineUser user) {
+                        yield filter(plugin.getCache().getHomes().get(user.getUsername()), args);
                     }
                     yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
                 }
-                if (executor instanceof OnlineUser user) {
-                    yield filter(plugin.getCache().getHomes().get(user.getUsername()), args);
-                }
-                yield filter(reduceHomeList(plugin.getCache().getHomes()), args);
-            }
-            case 2 -> filter(arguments.stream().toList(), args);
-            default -> List.of();
-        };
+                case 2 -> filter(arguments.stream().toList(), args);
+                default -> List.of();
+            };
+        } else {
+            return switch (args.length) {
+                case 0, 1 -> filter(plugin.getCache().getWarps(), args);
+                case 2 -> filter(arguments.stream().toList(), args);
+                default -> List.of();
+            };
+        }
     }
 
     @NotNull

@@ -49,10 +49,19 @@ public class RedisBroker extends PluginMessageBroker {
                         }
 
                         final Message message = plugin.getGson().fromJson(encodedMessage, Message.class);
-                        plugin.getOnlineUsers().stream()
-                                .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                                  || online.getUsername().equals(message.getTarget()))
-                                .forEach(receiver -> handle(receiver, message));
+                        if (message.getScope() == Message.Scope.PLAYER) {
+                            plugin.getOnlineUsers().stream()
+                                    .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
+                                                      || online.getUsername().equals(message.getTarget()))
+                                    .forEach(receiver -> handle(receiver, message));
+                            return;
+                        }
+
+                        if (message.getTarget().equals(plugin.getServerName())) {
+                            plugin.getOnlineUsers().stream()
+                                    .findAny()
+                                    .ifPresent(receiver -> handle(receiver, message));
+                        }
                     }
                 }, getSubChannelId());
             }

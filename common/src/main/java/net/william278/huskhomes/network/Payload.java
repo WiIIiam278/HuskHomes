@@ -4,10 +4,10 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportRequest;
-import net.william278.huskhomes.teleport.TeleportResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,6 +27,10 @@ public class Payload {
     @Nullable
     @Expose
     private String string;
+
+    @Nullable
+    @Expose
+    private List<String> stringList;
 
     /**
      * Returns an empty cross-server message payload
@@ -74,6 +78,16 @@ public class Payload {
         return payload;
     }
 
+    /**
+     * A string list field
+     */
+    @NotNull
+    public static Payload withStringList(@NotNull List<String> target) {
+        final Payload payload = new Payload();
+        payload.stringList = target;
+        return payload;
+    }
+
     private Payload() {
     }
 
@@ -85,6 +99,9 @@ public class Payload {
     }
 
 
+    /**
+     * A teleport request field
+     */
     public Optional<TeleportRequest> getTeleportRequest() {
         return Optional.ofNullable(teleportRequest);
     }
@@ -95,4 +112,12 @@ public class Payload {
     public Optional<String> getString() {
         return Optional.ofNullable(string);
     }
+
+    /**
+     * A string list field
+     */
+    public Optional<List<String>> getStringList() {
+        return Optional.ofNullable(stringList);
+    }
+
 }

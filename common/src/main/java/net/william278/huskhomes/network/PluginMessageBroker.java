@@ -63,7 +63,7 @@ public class PluginMessageBroker extends Broker {
     @SuppressWarnings("UnstableApiUsage")
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
-        messageWriter.writeUTF("ForwardToPlayer");
+        messageWriter.writeUTF(message.getScope().getPluginMessageChannel());
         messageWriter.writeUTF(message.getTarget());
         messageWriter.writeUTF(getSubChannelId());
 

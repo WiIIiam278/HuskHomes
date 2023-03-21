@@ -50,8 +50,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -73,15 +71,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private UnsafeBlocks unsafeBlocks;
     private Set<PluginHook> pluginHooks;
     private List<Command> commands;
+    private Map<String, List<String>> globalPlayerList;
     private Server server;
-
     @Nullable
     private Broker broker;
-
-    // Adventure audience
     private BukkitAudiences audiences;
 
-    // Instance of the plugin
     private static BukkitHuskHomes instance;
 
     public static BukkitHuskHomes getInstance() {
@@ -90,40 +85,37 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void onLoad() {
-        // Set the instance
         instance = this;
     }
 
     @Override
     public void onEnable() {
-        // Initialize HuskHomes
-        final AtomicBoolean initialized = new AtomicBoolean(true);
         // Create adventure audience
         this.audiences = BukkitAudiences.create(this);
+        this.validator = new Validator(this);
+        this.manager = new Manager(this);
+        this.globalPlayerList = new HashMap<>();
 
         // Load settings and locales
-        log(Level.INFO, "Loading plugin configuration settings & locales...");
-        initialized.set(reload());
-        if (initialized.get()) {
-            log(Level.INFO, "Successfully loaded plugin configuration settings & locales");
-        } else {
-            throw new IllegalStateException("Failed to load plugin configuration settings and/or locales");
-        }
+        initialize("plugin config & locale files", (plugin) -> {
+            if (!loadConfigs()) {
+                throw new IllegalStateException("Failed to load config files. Please check the console for errors");
+            }
+        });
 
         // Initialize the database
-        log(Level.INFO, "Attempting to establish connection to the database...");
-        final Database.DatabaseType databaseType = settings.getDatabaseType();
-        this.database = switch (databaseType == null ? Database.DatabaseType.MYSQL : databaseType) {
-            case MYSQL -> new MySqlDatabase(this);
-            case SQLITE -> new SqLiteDatabase(this);
-        };
-        initialized.set(this.database.initialize());
-        if (initialized.get()) {
-            log(Level.INFO, "Successfully established a connection to the database");
-        } else {
-            throw new IllegalStateException("Failed to establish a connection to the database. " +
-                                            "Please check the supplied database credentials in the config file");
-        }
+        final Database.Type databaseType = getSettings().getDatabaseType();
+        initialize(databaseType.getDisplayName() + " database connection", (plugin) -> {
+            this.database = switch (databaseType) {
+                case MYSQL -> new MySqlDatabase(this);
+                case SQLITE -> new SqLiteDatabase(this);
+            };
+
+            if (!database.initialize()) {
+                throw new IllegalStateException("Failed to establish a connection to the database. " +
+                                                "Please check the supplied database credentials in the config file");
+            }
+        });
 
         // Initialize the network messenger if proxy mode is enabled
         if (getSettings().isCrossServer()) {
@@ -136,50 +128,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             });
         }
 
-        // Prepare the validator
-        this.validator = new Validator(this);
-        this.cache = new Cache(this);
-        this.manager = new Manager(this);
-
-        // Initialize the RTP engine with the default normal distribution engine
+        this.cache = new Cache(this); // todo remove
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
         // Register plugin hooks (Economy, Maps, Plan)
-        initialize("hooks", (plugin) -> {
-            this.pluginHooks = new HashSet<>();
-            if (settings.doEconomy()) {
-                if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
-                    pluginHooks.add(new RedisEconomyHook(this));
-                } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-                    pluginHooks.add(new VaultEconomyHook(this));
-                }
-            }
-            if (settings.doMapHook()) {
-                switch (settings.getMappingPlugin()) {
-                    case DYNMAP -> {
-                        final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
-                        if (dynmapPlugin != null) {
-                            pluginHooks.add(new DynMapHook(this, dynmapPlugin));
-                        }
-                    }
-                    case BLUEMAP -> {
-                        if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
-                            pluginHooks.add(new BlueMapHook(this));
-                        }
-                    }
-                }
-            }
-            if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
-                pluginHooks.add(new PlanHook(this));
-            }
-
-            if (pluginHooks.size() > 0) {
-                pluginHooks.forEach(PluginHook::initialize);
-                log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream()
-                        .map(PluginHook::getHookName)
-                        .collect(Collectors.joining(", ")));
-            }
-        });
+        initialize("hooks", (plugin) -> loadHooks());
 
         // Register events
         initialize("events", (plugin) -> this.eventListener = new BukkitEventListener(this));
@@ -199,20 +152,56 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
 
-        // Hook into bStats metrics
+        // Hook into bStats and check for updates
         initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
-
-        // Check for updates
-        if (settings.doCheckForUpdates()) {
-            log(Level.INFO, "Checking for updates...");
-            getLatestVersionIfOutdated().thenAccept(newestVersion -> newestVersion.ifPresent(newVersion -> log(Level.WARNING, "An update is available for HuskHomes, v" + newVersion + " (Currently running v" + getVersion() + ")")));
-        }
+        this.checkForUpdates();
     }
 
-    private void initialize(@NotNull String name, @NotNull Consumer<HuskHomes> runner) {
+    private void initialize(@NotNull String name, @NotNull ThrowingConsumer<HuskHomes> runner) {
         log(Level.INFO, "Initializing " + name + "...");
-        runner.accept(this);
+        try {
+            runner.accept(this);
+        } catch (Exception e) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            throw new IllegalStateException("Failed to initialize " + name, e);
+        }
         log(Level.INFO, "Successfully initialized " + name);
+    }
+
+    private void loadHooks() {
+        this.pluginHooks = new HashSet<>();
+        if (settings.doEconomy()) {
+            if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
+                pluginHooks.add(new RedisEconomyHook(this));
+            } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                pluginHooks.add(new VaultEconomyHook(this));
+            }
+        }
+        if (settings.doMapHook()) {
+            switch (settings.getMappingPlugin()) {
+                case DYNMAP -> {
+                    final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
+                    if (dynmapPlugin != null) {
+                        pluginHooks.add(new DynMapHook(this, dynmapPlugin));
+                    }
+                }
+                case BLUEMAP -> {
+                    if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
+                        pluginHooks.add(new BlueMapHook(this));
+                    }
+                }
+            }
+        }
+        if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
+            pluginHooks.add(new PlanHook(this));
+        }
+
+        if (pluginHooks.size() > 0) {
+            pluginHooks.forEach(PluginHook::initialize);
+            log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream()
+                    .map(PluginHook::getHookName)
+                    .collect(Collectors.joining(", ")));
+        }
     }
 
     @Override
@@ -325,7 +314,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 bukkitLocation.getWorld().setSpawnLocation(bukkitLocation);
             });
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log(Level.WARNING, "Failed to save server spawn to disk", e);
+            log(Level.WARNING, "Failed to save the server spawn.yml file", e);
         }
     }
 
@@ -381,6 +370,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     @NotNull
+    public Map<String, List<String>> getGlobalPlayerList() {
+        return globalPlayerList;
+    }
+
+    @Override
+    @NotNull
     public String getServerName() {
         return server.getName();
     }
@@ -395,7 +390,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @Override
-    public boolean reload() {
+    public boolean loadConfigs() {
         try {
             // Load settings
             this.settings = Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get();
@@ -442,7 +437,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getBrokerType().getDisplayName()));
             }
             metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().displayName));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().getDisplayName()));
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
             if (getSettings().doMapHook()) {
@@ -489,7 +484,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     // Super constructor for unit testing
-    @SuppressWarnings("unused")
     protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
     }

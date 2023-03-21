@@ -11,8 +11,9 @@ public interface TaskRunner {
     <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
     int runSync(@NotNull Runnable runnable);
     int runAsyncRepeating(@NotNull Runnable runnable, long delay);
+    int runLater(@NotNull Runnable runnable, long delay);
     void cancelTask(int taskId);
+    void cancelAllTasks();
     @NotNull
     HuskHomes getPlugin();
-
 }

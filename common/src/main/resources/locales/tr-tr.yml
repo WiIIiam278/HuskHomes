@@ -94,6 +94,8 @@ economy_action_make_home_public: '[ℹ Evinizi herkese açık hale getirmek içi
 economy_action_random_teleport: '[ℹ Rastgele ışınlanmak için %1% harcadınız.](gray)'
 economy_action_back_command: '[ℹ Son konumunuza dönmek için %1% harcadınız.](gray)'
 return_by_death_notification: '[Öldüğün yere dön?](gray) [[⏪ Işınlanma…]](#00fb9a show_text=&#00fb9a&Işınlanmak için tıklayın\n&7Öldüğün yere dön run_command=/huskhomes:back)'
+up_to_date: '[HuskHomes](#00fb9a bold) [| You are running the latest version of HuskHomes (v%1%).](#00fb9a)'
+update_available: '[HuskHomes](#ff7e5e bold) [| A new version of HuskHomes is available: v%1% (running: v%2%).](#ff7e5e)'
 error_home_name_taken: '[Hata:](#ff3300) [Bu ada sahip bir eviniz zaten var.](#ff7e5e)'
 error_home_name_length: '[Hata:](#ff3300) [Ev adları en fazla 16 karakter içerebilir!](#ff7e5e)'
 error_home_name_characters: '[Hata:](#ff3300) [Ev adları alfanümerik olmalıdır (A-Z, 0-9, -_)](#ff7e5e)'

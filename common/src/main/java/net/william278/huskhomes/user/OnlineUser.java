@@ -10,13 +10,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.TitlePart;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.teleport.TeleportResult;
 import net.william278.huskhomes.teleport.Teleportable;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A cross-platform representation of a logged-in {@link User}

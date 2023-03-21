@@ -1,11 +1,11 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteConfig;

@@ -1,11 +1,11 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

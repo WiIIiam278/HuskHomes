@@ -1,7 +1,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.ConsoleUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,17 +25,6 @@ public interface TabProvider {
         return suggestions.stream()
                 .filter(suggestion -> args.length == 0 || suggestion.toLowerCase()
                         .startsWith(args[args.length - 1].toLowerCase().trim()))
-                .toList();
-    }
-
-    @NotNull
-    static List<String> getMatchingNames(@Nullable String argument, @NotNull CommandUser user,
-                                         @NotNull List<? extends Node> providers) {
-        return providers.stream()
-                .filter(command -> !(user instanceof ConsoleUser) || command.isConsoleExecutable())
-                .map(Node::getName)
-                .filter(commandName -> argument == null || argument.isBlank() || commandName.toLowerCase()
-                        .startsWith(argument.toLowerCase().trim()))
                 .toList();
     }
 

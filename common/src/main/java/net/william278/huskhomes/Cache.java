@@ -2,12 +2,9 @@ package net.william278.huskhomes;
 
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.teleport.TimedTeleport;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A cache used to hold frequently accessed data (i.e. TAB-completed homes and warps)
@@ -18,7 +15,6 @@ public class Cache {
     private final Map<String, List<String>> homes = new HashMap<>();
     private final Map<String, List<String>> publicHomes = new HashMap<>();
     private final List<String> warps = new ArrayList<>();
-    private final Set<String> players = new HashSet<>();
     private final Set<UUID> currentlyOnWarmup = new HashSet<>();
 
     /**
@@ -41,22 +37,6 @@ public class Cache {
             });
             database.getWarps().forEach(warp -> this.getWarps().add(warp.getMeta().getName()));
         });
-    }
-
-    /**
-     * Updates the cached list of online players and returns it
-     *
-     * @param plugin the implementing plugin
-     */
-    public CompletableFuture<Set<String>> updatePlayerListCache(@NotNull HuskHomes plugin, @NotNull OnlineUser requester) {
-        getPlayers().clear();
-        getPlayers().addAll(plugin.getOnlineUsers()
-                .stream()
-                .filter(player -> !player.isVanished())
-                .map(User::getUsername)
-                .toList());
-
-        return CompletableFuture.completedFuture(getPlayers());
     }
 
     /**
@@ -92,12 +72,6 @@ public class Cache {
         return warps;
     }
 
-    /**
-     * Cached player list
-     */
-    public Set<String> getPlayers() {
-        return players;
-    }
 
     /**
      * Cached user UUIDs currently on warmup countdowns for {@link TimedTeleport}s

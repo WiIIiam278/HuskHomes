@@ -22,6 +22,8 @@ public class Message {
     @Expose
     private Type type;
     @Expose
+    private Scope scope;
+    @Expose
     private String target;
     @Expose
     private Payload payload;
@@ -30,8 +32,9 @@ public class Message {
     @Expose
     private String sourceServer;
 
-    private Message(@NotNull Type type, @NotNull String target, @NotNull Payload payload) {
+    private Message(@NotNull Type type, @NotNull Scope scope, @NotNull String target, @NotNull Payload payload) {
         this.type = type;
+        this.scope = scope;
         this.target = target;
         this.payload = payload;
         this.id = UUID.randomUUID();
@@ -54,6 +57,11 @@ public class Message {
     @NotNull
     public Type getType() {
         return type;
+    }
+
+    @NotNull
+    public Scope getScope() {
+        return scope;
     }
 
     @NotNull
@@ -86,6 +94,7 @@ public class Message {
      */
     public static class Builder {
         private Type type;
+        private Scope scope = Scope.PLAYER;
         private Payload payload = Payload.empty();
         private String target;
 
@@ -95,6 +104,12 @@ public class Message {
         @NotNull
         public Builder type(@NotNull Type type) {
             this.type = type;
+            return this;
+        }
+
+        @NotNull
+        public Builder scope(@NotNull Scope scope) {
+            this.scope = scope;
             return this;
         }
 
@@ -112,7 +127,7 @@ public class Message {
 
         @NotNull
         public Message build() {
-            return new Message(type, target, payload);
+            return new Message(type, scope, target, payload);
         }
 
     }
@@ -125,7 +140,31 @@ public class Message {
         TELEPORT_TO_NETWORKED_POSITION,
         TELEPORT_REQUEST,
         TELEPORT_TO_NETWORKED_USER,
-        TELEPORT_REQUEST_RESPONSE
+        TELEPORT_REQUEST_RESPONSE,
+        REQUEST_PLAYER_LIST,
+        PLAYER_LIST,
+    }
+
+    public enum Scope {
+        /**
+         * The target is a server name, or "all" to indicate all servers.
+         */
+        SERVER("Forward"),
+        /**
+         * The target is a player name, or "all" to indicate all players.
+         */
+        PLAYER("ForwardToPlayer");
+
+        private final String pluginMessageChannel;
+
+        Scope(@NotNull String pluginMessageChannel) {
+            this.pluginMessageChannel = pluginMessageChannel;
+        }
+
+        @NotNull
+        public String getPluginMessageChannel() {
+            return pluginMessageChannel;
+        }
     }
 
 }

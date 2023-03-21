@@ -1,11 +1,11 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -139,12 +139,12 @@ public abstract class Database {
      */
     protected Database(@NotNull HuskHomes implementor) {
         this.plugin = implementor;
-        this.playerTableName = implementor.getSettings().getTableName(TableName.PLAYER_DATA);
-        this.positionsTableName = implementor.getSettings().getTableName(TableName.POSITION_DATA);
-        this.savedPositionsTableName = implementor.getSettings().getTableName(TableName.SAVED_POSITION_DATA);
-        this.homesTableName = implementor.getSettings().getTableName(TableName.HOME_DATA);
-        this.warpsTableName = implementor.getSettings().getTableName(TableName.WARP_DATA);
-        this.teleportsTableName = implementor.getSettings().getTableName(TableName.TELEPORT_DATA);
+        this.playerTableName = implementor.getSettings().getTableName(Table.PLAYER_DATA);
+        this.positionsTableName = implementor.getSettings().getTableName(Table.POSITION_DATA);
+        this.savedPositionsTableName = implementor.getSettings().getTableName(Table.SAVED_POSITION_DATA);
+        this.homesTableName = implementor.getSettings().getTableName(Table.HOME_DATA);
+        this.warpsTableName = implementor.getSettings().getTableName(Table.WARP_DATA);
+        this.teleportsTableName = implementor.getSettings().getTableName(Table.TELEPORT_DATA);
     }
 
     /**
@@ -160,7 +160,7 @@ public abstract class Database {
      * @param inputStream The input stream to read the script from
      */
     public abstract void runScript(@NotNull InputStream inputStream,
-                                                      @NotNull Map<String, String> replacements);
+                                   @NotNull Map<String, String> replacements);
 
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database
@@ -432,22 +432,26 @@ public abstract class Database {
     /**
      * Identifies types of databases
      */
-    public enum DatabaseType {
+    public enum Type {
         MYSQL("MySQL"),
         SQLITE("SQLite");
 
-        @NotNull
-        public final String displayName;
+        private final String displayName;
 
-        DatabaseType(@NotNull String displayName) {
+        Type(@NotNull String displayName) {
             this.displayName = displayName;
+        }
+
+        @NotNull
+        public String getDisplayName() {
+            return displayName;
         }
     }
 
     /**
      * Represents the names of tables in the database
      */
-    public enum TableName {
+    public enum Table {
         PLAYER_DATA("huskhomes_users"),
         POSITION_DATA("huskhomes_position_data"),
         SAVED_POSITION_DATA("huskhomes_saved_positions"),
@@ -457,7 +461,7 @@ public abstract class Database {
 
         private final String defaultName;
 
-        TableName(@NotNull String defaultName) {
+        Table(@NotNull String defaultName) {
             this.defaultName = defaultName;
         }
 

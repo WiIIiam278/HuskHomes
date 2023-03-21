@@ -5,7 +5,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.manager.RequestsManager;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

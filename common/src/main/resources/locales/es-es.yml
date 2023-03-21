@@ -94,6 +94,8 @@ economy_action_make_home_public: '[ℹ Paga %1% Para hacer tu casa pública.](gr
 economy_action_random_teleport: '[ℹ Paga %1% para teletransportarse aleatoriamente.](gray)'
 economy_action_back_command: '[ℹ Paga %1% para volver a su última posición.](gray)'
 return_by_death_notification: '[¿Regresar al lugar donde murió?](gray) [[⏪ Teletransportar…]](#00fb9a show_text=&#00fb9a&Clic para teletransportarte\n&7Regresa al lugar donde moriste run_command=/huskhomes:back)'
+up_to_date: '[HuskHomes](#00fb9a bold) [| You are running the latest version of HuskHomes (v%1%).](#00fb9a)'
+update_available: '[HuskHomes](#ff7e5e bold) [| A new version of HuskHomes is available: v%1% (running: v%2%).](#ff7e5e)'
 error_home_name_taken: '[Error:](#ff3300) [Ya tienes una casa con ese nombre.](#ff7e5e)'
 error_home_name_length: '[Error:](#ff3300) [Los nombres de las casas sólo pueden contener hasta 16 caracteres.](#ff7e5e)'
 error_home_name_characters: '[Error:](#ff3300) [Los nombres de las casas deben ser alfanuméricos (A-Z, 0-9, -_)](#ff7e5e)'

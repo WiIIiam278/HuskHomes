@@ -1,12 +1,12 @@
 package net.william278.huskhomes.api;
 
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.user.BukkitUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

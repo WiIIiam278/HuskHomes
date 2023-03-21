@@ -16,10 +16,13 @@ import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World;
+import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.position.*;
-import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.TaskRunner;
 import net.william278.huskhomes.util.Validator;
@@ -29,11 +32,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 /**
  * Represents a cross-platform instance of the plugin
@@ -157,22 +159,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
         return getSettings().isCrossServer() && getSettings().isGlobalSpawn()
                 ? getDatabase().getWarp(getSettings().getGlobalSpawnName()).map(warp -> (Position) warp)
                 : getLocalCachedSpawn().map(spawn -> spawn.getPosition(getServerName()));
-    }
-
-    /**
-     * Returns a future returning the latest plugin {@link Version} if the plugin is out-of-date
-     *
-     * @return a {@link CompletableFuture} returning the latest {@link Version} if the current one is out-of-date
-     */
-    default CompletableFuture<Optional<Version>> getLatestVersionIfOutdated() {
-        final UpdateChecker updateChecker = UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
-        return updateChecker.isUpToDate().thenApply(upToDate -> {
-            if (upToDate) {
-                return Optional.empty();
-            } else {
-                return Optional.of(updateChecker.getLatestVersion().join());
-            }
-        });
     }
 
     /**
@@ -330,12 +316,54 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
                 .map(type::cast);
     }
 
+    @NotNull
+    Map<String, List<String>> getGlobalPlayerList();
+
+    @NotNull
+    default List<String> getPlayerList() {
+        return Stream.concat(
+                getGlobalPlayerList().values().stream().flatMap(Collection::stream),
+                getLocalPlayerList().stream()
+        ).distinct().sorted().toList();
+    }
+
+    default void setPlayerList(@NotNull String server, @NotNull List<String> players) {
+        getGlobalPlayerList().values().forEach(list -> {
+            list.removeAll(players);
+            list.removeAll(getLocalPlayerList());
+        });
+        getGlobalPlayerList().put(server, players);
+    }
+
+    @NotNull
+    default List<String> getLocalPlayerList() {
+        return getOnlineUsers().stream()
+                .map(OnlineUser::getUsername)
+                .toList();
+    }
+
     /**
      * Reloads the {@link Settings} and {@link Locales} from their respective config files
      *
      * @return a {@link CompletableFuture} that will be completed when the plugin reload is complete and if it was successful
      */
-    boolean reload();
+    boolean loadConfigs();
+
+    @NotNull
+    default UpdateChecker getUpdateChecker() {
+        return UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
+    }
+
+    default void checkForUpdates() {
+        if (getSettings().doCheckForUpdates()) {
+            getUpdateChecker().isUpToDate().thenAccept(updated -> {
+                if (!updated) {
+                    getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,
+                            "A new version of HuskTowns is available: v" + latest + " (running v" + getVersion() + ")"));
+                }
+            });
+        }
+    }
 
     /**
      * Returns if the block, by provided identifier, is unsafe
@@ -385,6 +413,5 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     default Gson getGson() {
         return new GsonBuilder().create();
     }
-
 
 }

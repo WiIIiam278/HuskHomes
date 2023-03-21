@@ -9,6 +9,7 @@ public class SetWarpCommand extends SetPositionCommand {
 
     protected SetWarpCommand(@NotNull HuskHomes plugin) {
         super("setwarp", plugin);
+        setOperatorCommand(true);
     }
 
     @Override

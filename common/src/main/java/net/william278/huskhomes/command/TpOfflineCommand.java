@@ -16,6 +16,7 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
 
     protected TpOfflineCommand(@NotNull HuskHomes plugin) {
         super("tpoffline", List.of(), "<player>", plugin);
+        setOperatorCommand(true);
     }
 
     @Override

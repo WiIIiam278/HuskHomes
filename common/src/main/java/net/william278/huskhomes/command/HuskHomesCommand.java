@@ -2,6 +2,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.desertwell.AboutMenu;
+import net.william278.desertwell.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.user.CommandUser;
@@ -14,13 +15,18 @@ import java.util.stream.Collectors;
 public class HuskHomesCommand extends Command {
 
     private static final List<String> SUB_COMMANDS = List.of("about", "help", "reload", "update");
+
+    private final UpdateChecker updateChecker;
     private final AboutMenu aboutMenu;
 
-    protected HuskHomesCommand(@NotNull HuskHomes implementor) {
-        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS) + "]", implementor);
+    protected HuskHomesCommand(@NotNull HuskHomes plugin) {
+        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS) + "]", plugin);
+        setOperatorCommand(true);
+
+        this.updateChecker = plugin.getUpdateChecker();
         this.aboutMenu = AboutMenu.create("HuskHomes")
                 .withDescription("A powerful, intuitive and flexible teleportation suite")
-                .withVersion(implementor.getVersion())
+                .withVersion(plugin.getVersion())
                 .addAttribution("Author",
                         AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
                 .addAttribution("Contributors",
@@ -57,20 +63,22 @@ public class HuskHomesCommand extends Command {
             case "help" -> executor.sendMessage(getCommandList(executor)
                     .getNearestValidPage(parseIntArg(args, 0).orElse(1)));
             case "reload" -> {
-                if (!plugin.reload()) {
+                if (!plugin.loadConfigs()) {
                     executor.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
                     return;
                 }
                 executor.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
             }
-            case "update" -> plugin.getLatestVersionIfOutdated()
-                    .thenAccept(newestVersion -> newestVersion.ifPresentOrElse(
-                            newVersion -> executor.sendMessage(
-                                    new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
-                                            + " (v" + newVersion + " (Running: v" + plugin.getVersion() + ")](#00fb9a)")),
-                            () -> executor.sendMessage(
-                                    new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
-                                            + " (Running: v" + plugin.getVersion() + ")](#00fb9a)"))));
+            case "update" -> updateChecker.isUpToDate().thenAccept(upToDate -> {
+                if (upToDate) {
+                    plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                updateChecker.getLatestVersion().thenAccept(latest -> plugin.getLocales()
+                        .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
+                        .ifPresent(executor::sendMessage));
+            });
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
@@ -97,10 +105,7 @@ public class HuskHomesCommand extends Command {
     @Override
     @NotNull
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        if (args.length < 2) {
-            return filter(SUB_COMMANDS, args);
-        }
-        return List.of();
+        return args.length < 2 ? SUB_COMMANDS : List.of();
     }
 
 }

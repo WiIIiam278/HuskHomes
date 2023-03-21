@@ -36,8 +36,18 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
+    default int runLater(@NotNull Runnable runnable, long delay) {
+        return Bukkit.getScheduler().runTaskLater((BukkitHuskHomes) getPlugin(), runnable, delay).getTaskId();
+    }
+
+    @Override
     default void cancelTask(int taskId) {
         Bukkit.getScheduler().cancelTask(taskId);
+    }
+
+    @Override
+    default void cancelAllTasks() {
+        Bukkit.getScheduler().cancelTasks((BukkitHuskHomes) getPlugin());
     }
 
 }

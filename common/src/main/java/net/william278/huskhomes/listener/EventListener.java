@@ -2,10 +2,13 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,9 +37,25 @@ public class EventListener {
             // Ensure the user is in the database
             plugin.getDatabase().ensureUser(onlineUser);
 
-            // Handle any inbound teleports
+            // Handle cross server checks
             if (plugin.getSettings().isCrossServer()) {
                 this.handleInboundTeleport(onlineUser);
+
+                // Update the player list
+                plugin.runLater(() -> {
+                    if (plugin.getOnlineUsers().size() == 1) {
+                        Message.builder()
+                                .scope(Message.Scope.SERVER)
+                                .target(Message.TARGET_ALL)
+                                .type(Message.Type.REQUEST_PLAYER_LIST)
+                                .build().send(plugin.getMessenger(), onlineUser);
+                    }
+
+                    plugin.getOnlineUsers().stream()
+                            .filter(user -> !user.equals(onlineUser))
+                            .findAny()
+                            .ifPresent(this::sendPlayerListUpdates);
+                }, plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE ? 40L : 0L);
             }
 
             // Set their ignoring requests state
@@ -101,6 +120,22 @@ public class EventListener {
 
         // Set offline position
         plugin.getDatabase().setOfflinePosition(onlineUser, onlineUser.getPosition());
+
+        // Update global lists
+        if (plugin.getSettings().isCrossServer()) {
+            plugin.getOnlineUsers().stream()
+                    .filter(user -> !user.equals(onlineUser))
+                    .findAny()
+                    .ifPresent(this::sendPlayerListUpdates);
+        }
+    }
+
+    private void sendPlayerListUpdates(@NotNull OnlineUser user) {
+        Message.builder()
+                .scope(Message.Scope.SERVER)
+                .target(Message.TARGET_ALL)
+                .payload(Payload.withStringList(plugin.getLocalPlayerList()))
+                .build().send(plugin.getMessenger(), user);
     }
 
     /**

@@ -1,8 +1,8 @@
 package net.william278.huskhomes.network;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +54,15 @@ public abstract class Broker {
                     .getTeleportRequest()
                     .ifPresent(teleportRequest -> plugin.getManager().requests()
                             .handleLocalRequestResponse(receiver, teleportRequest));
+            case REQUEST_PLAYER_LIST -> Message.builder()
+                    .type(Message.Type.PLAYER_LIST)
+                    .scope(Message.Scope.SERVER)
+                    .target(message.getSourceServer())
+                    .payload(Payload.withStringList(plugin.getLocalPlayerList()))
+                    .build().send(this, receiver);
+            case PLAYER_LIST -> message.getPayload()
+                    .getStringList()
+                    .ifPresent(players -> plugin.setPlayerList(message.getSourceServer(), players));
         }
     }
 
@@ -96,23 +105,23 @@ public abstract class Broker {
         return plugin.getServerName();
     }
 
-/**
- * Identifies types of message brokers
- */
-public enum Type {
-    PLUGIN_MESSAGE("Plugin Messages"),
-    REDIS("Redis");
-    @NotNull
-    private final String displayName;
+    /**
+     * Identifies types of message brokers
+     */
+    public enum Type {
+        PLUGIN_MESSAGE("Plugin Messages"),
+        REDIS("Redis");
+        @NotNull
+        private final String displayName;
 
-    Type(@NotNull String displayName) {
-        this.displayName = displayName;
-    }
+        Type(@NotNull String displayName) {
+            this.displayName = displayName;
+        }
 
-    @NotNull
-    public String getDisplayName() {
-        return displayName;
+        @NotNull
+        public String getDisplayName() {
+            return displayName;
+        }
     }
-}
 
 }

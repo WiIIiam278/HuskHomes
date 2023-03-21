@@ -2,7 +2,6 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.ConsoleUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,11 +20,6 @@ public abstract class Command extends Node implements TabProvider {
     public final void onExecuted(@NotNull CommandUser executor, @NotNull String[] args) {
         if (!executor.hasPermission(getPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        if (executor instanceof ConsoleUser && !isConsoleExecutable()) {
-            plugin.getLocales().getLocale("error_in_game_only")
                     .ifPresent(executor::sendMessage);
             return;
         }

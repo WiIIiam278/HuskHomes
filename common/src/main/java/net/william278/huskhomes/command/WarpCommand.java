@@ -4,7 +4,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,6 +13,7 @@ public class WarpCommand extends SavedPositionCommand<Warp> {
 
     protected WarpCommand(@NotNull HuskHomes plugin) {
         super("warp", List.of(), Warp.class, List.of(), plugin);
+        setOperatorCommand(true);
     }
 
     @Override

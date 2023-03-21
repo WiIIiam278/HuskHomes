@@ -1,7 +1,7 @@
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

@@ -5,7 +5,6 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +20,6 @@ public abstract class Node implements Executable {
     protected final HuskHomes plugin;
     private final String name;
     private final List<String> aliases;
-    private boolean consoleExecutable = false;
     private boolean operatorCommand = false;
 
     protected Node(@NotNull String name, @NotNull List<String> aliases, @NotNull HuskHomes plugin) {
@@ -43,10 +41,6 @@ public abstract class Node implements Executable {
         return aliases;
     }
 
-    public final boolean matchesInput(@NotNull String input) {
-        return input.equalsIgnoreCase(getName()) || getAliases().contains(input.toLowerCase());
-    }
-
     @NotNull
     public String getPermission(@NotNull String... child) {
         return new StringJoiner(".")
@@ -54,21 +48,6 @@ public abstract class Node implements Executable {
                 .add(getName())
                 .add(String.join(".", child))
                 .toString();
-    }
-
-    public boolean canPerform(@NotNull CommandUser user) {
-        if (user instanceof ConsoleUser) {
-            return isConsoleExecutable();
-        }
-        return user.hasPermission(getPermission());
-    }
-
-    public boolean isConsoleExecutable() {
-        return consoleExecutable;
-    }
-
-    public void setConsoleExecutable(boolean consoleExecutable) {
-        this.consoleExecutable = consoleExecutable;
     }
 
     public boolean isOperatorCommand() {

@@ -4,8 +4,8 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 

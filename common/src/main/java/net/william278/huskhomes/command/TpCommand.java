@@ -1,19 +1,22 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.*;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.position.Position;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TpCommand extends Command implements TabProvider {
 
     protected TpCommand(@NotNull HuskHomes implementor) {
         super("tp", List.of("tpo"), "[<player|position>] [target]", implementor);
+        setOperatorCommand(true);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class TpCommand extends Command implements TabProvider {
                         ((int) basePosition.getX() + " " + (int) basePosition.getY()),
                         ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
                         : List.of());
-                completions.addAll(plugin.getCache().getPlayers());
+                completions.addAll(plugin.getPlayerList());
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -102,7 +105,7 @@ public class TpCommand extends Command implements TabProvider {
                             ((int) basePosition.getX() + " " + (int) basePosition.getY()),
                             ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
                             : List.of());
-                    completions.addAll(plugin.getCache().getPlayers());
+                    completions.addAll(plugin.getPlayerList());
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))

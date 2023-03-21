@@ -1,9 +1,9 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

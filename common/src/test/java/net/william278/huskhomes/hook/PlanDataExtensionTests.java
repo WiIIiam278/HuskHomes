@@ -1,13 +1,15 @@
 package net.william278.huskhomes.hook;
 
 import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Plan Hook Tests")
 public class PlanDataExtensionTests {
 
-    // Throws IllegalArgumentException if there is an implementation error or warning.
     @Test
-    public void testPlanDataExtension() {
+    @DisplayName("Test Plan Hook Implementation")
+    public void testPlanHookImplementation() {
         new ExtensionExtractor(new PlanHook.PlanDataExtension()).validateAnnotations();
     }
 

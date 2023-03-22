@@ -248,10 +248,6 @@ public class HomesManager {
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic == home.isPublic()) {
-            return;
-        }
-
         if (isPublic && home.getOwner() instanceof OnlineUser online) {
             final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)

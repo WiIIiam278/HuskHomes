@@ -11,10 +11,18 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps
@@ -67,7 +75,7 @@ public class BlueMapHook extends MapHook {
                             .label("/phome " + home.getOwner().getUsername() + "." + home.getName())
                             .position(home.getX(), home.getY(), home.getZ())
                             .maxDistance(5000)
-                            .defaultIcon() // todo: custom icon
+                            .icon(getIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), 25, 25)
                             .build());
                 });
     }
@@ -95,7 +103,7 @@ public class BlueMapHook extends MapHook {
             return;
         }
 
-        getPublicHomesMarkerSet(warp.getWorld())
+        getWarpsMarkerSet(warp.getWorld())
                 .ifPresent(markerSet -> {
                     final String markerId = warp.getUuid().toString();
                     markerSet.remove(markerId);
@@ -103,7 +111,7 @@ public class BlueMapHook extends MapHook {
                             .label("/warp " + warp.getName())
                             .position(warp.getX(), warp.getY(), warp.getZ())
                             .maxDistance(5000)
-                            .defaultIcon() // todo: custom icon
+                            .icon(getIcon(WARP_MARKER_IMAGE_NAME), 25, 25)
                             .build());
                 });
     }
@@ -122,6 +130,31 @@ public class BlueMapHook extends MapHook {
                         .forEach(markerSet::remove);
             }
         }
+    }
+
+    @Nullable
+    private String getIcon(@NotNull String iconName) {
+        return BlueMapAPI.getInstance().map(api -> {
+            final Path icons = api.getWebApp().getWebRoot().resolve("icons");
+            if (!icons.toFile().exists() && !icons.toFile().mkdirs()) {
+                plugin.log(Level.WARNING, "Failed to create BlueMap icons directory");
+            }
+
+            final String iconFileName = iconName + ".png";
+            final File iconFile = icons.resolve(iconFileName).toFile();
+            if (!iconFile.exists()) {
+                try (InputStream readIcon = plugin.getResource("markers/50x/" + iconFileName)) {
+                    if (readIcon == null) {
+                        throw new FileNotFoundException("Could not find icon resource: " + iconFileName);
+                    }
+                    Files.copy(readIcon, iconFile.toPath());
+                } catch (IOException e) {
+                    plugin.log(Level.WARNING, "Failed to load icon for BlueMap hook", e);
+                }
+            }
+
+            return icons.resolve(iconFile.toPath()).toAbsolutePath().toString();
+        }).orElse(null);
     }
 
     @NotNull

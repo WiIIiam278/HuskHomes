@@ -177,7 +177,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     default <H extends Hook> Optional<H> getHook(@NotNull Class<H> hookClass) {
         return getPluginHooks().stream()
-                .filter(hook -> hook.getClass().isInstance(hookClass))
+                .filter(hook -> hook.getClass() == hookClass)
                 .findFirst()
                 .map(hookClass::cast);
     }

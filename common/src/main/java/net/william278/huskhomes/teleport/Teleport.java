@@ -111,7 +111,7 @@ public class Teleport {
             executeEconomyActions();
 
             final Position target = (Position) this.target;
-            if (plugin.getSettings().isCrossServer() && target.getServer().equals(plugin.getServerName())) {
+            if (!plugin.getSettings().isCrossServer() || target.getServer().equals(plugin.getServerName())) {
                 teleporter.teleportLocally(target, async);
                 plugin.getLocales().getLocale("teleporting_complete")
                         .ifPresent(teleporter::sendMessage);
@@ -121,10 +121,6 @@ public class Teleport {
             plugin.getDatabase().setCurrentTeleport(teleporter, this);
             plugin.getMessenger().changeServer(teleporter, target.getServer());
         });
-    }
-
-    private void teleport(@NotNull OnlineUser teleporter, @NotNull Position target) {
-
     }
 
     @NotNull

@@ -48,8 +48,8 @@ public class BlueMapHook extends MapHook {
                     final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
 
                     for (BlueMapMap map : mapWorld.getMaps()) {
-                        map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), publicHomeMarkers);
-                        map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), warpsMarkers);
+                        map.getMarkerSets().put(getPublicHomesKey(), publicHomeMarkers);
+                        map.getMarkerSets().put(getWarpsKey(), warpsMarkers);
                     }
 
                     publicHomesMarkerSets.put(world.getName(), publicHomeMarkers);
@@ -135,7 +135,7 @@ public class BlueMapHook extends MapHook {
     @Nullable
     private String getIcon(@NotNull String iconName) {
         return BlueMapAPI.getInstance().map(api -> {
-            final Path icons = api.getWebApp().getWebRoot().resolve("icons");
+            final Path icons = api.getWebApp().getWebRoot().resolve("icons").resolve("huskhomes");
             if (!icons.toFile().exists() && !icons.toFile().mkdirs()) {
                 plugin.log(Level.WARNING, "Failed to create BlueMap icons directory");
             }
@@ -153,7 +153,7 @@ public class BlueMapHook extends MapHook {
                 }
             }
 
-            return icons.resolve(iconFile.toPath()).toAbsolutePath().toString();
+            return "icons/huskhomes/" + iconFileName;
         }).orElse(null);
     }
 

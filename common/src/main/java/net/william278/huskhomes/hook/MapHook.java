@@ -95,12 +95,12 @@ public abstract class MapHook extends Hook {
 
     @NotNull
     protected final String getPublicHomesKey() {
-        return plugin.getKey(getName().toLowerCase(), "public_homes", "markers").toString();
+        return plugin.getKey(getName().toLowerCase(), "public_home_markers").toString();
     }
 
     @NotNull
     protected final String getWarpsKey() {
-        return plugin.getKey(getName().toLowerCase(), "warps", "markers").toString();
+        return plugin.getKey(getName().toLowerCase(), "warp_markers").toString();
     }
 
     @NotNull

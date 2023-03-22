@@ -12,19 +12,9 @@ import java.util.Optional;
  */
 public abstract class RandomTeleportEngine {
 
-    @NotNull
     protected final HuskHomes plugin;
-
-    /**
-     * The name of the random teleport engine
-     */
-    @NotNull
     public final String name;
-
-    /**
-     * How many attempts to allow {@link #getRandomPosition} lookups before timing out
-     */
-    public long randomTimeout = 8;
+    public long maxAttempts = 12;
 
     /**
      * Constructor for a random teleport engine
@@ -37,15 +27,21 @@ public abstract class RandomTeleportEngine {
         this.name = name;
     }
 
+    @NotNull
+    public final String getName() {
+        return name;
+    }
+
     /**
      * Get the origin position (spawn) of this server
      *
      * @return The origin position
      */
-    protected final Position getOrigin(@NotNull World world) {
+    @NotNull
+    protected Position getCenterPoint(@NotNull World world) {
         return plugin.getLocalCachedSpawn()
                 .map(s -> s.getPosition(plugin.getServerName()))
-                .orElse(new Position(0d, 128d, 0d, 0f, 0f,
+                .orElse(Position.at(0d, 128d, 0d, 0f, 0f,
                         world, plugin.getServerName()));
     }
 
@@ -56,7 +52,7 @@ public abstract class RandomTeleportEngine {
      * @param world The world to find a random position in
      * @param args  The arguments to pass to the random teleport engine
      * @return The position, optionally, which will be empty if the random teleport engine timed out after a
-     * {@link #randomTimeout configured number of attempts}
+     * {@link #maxAttempts configured number of attempts}
      */
     public abstract Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args);
 

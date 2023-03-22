@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class EconomyHook extends Hook {
 
-    protected EconomyHook(@NotNull HuskHomes implementor, @NotNull String hookName) {
-        super(implementor, hookName);
+    protected EconomyHook(@NotNull HuskHomes plugin, @NotNull String hookName) {
+        super(plugin, hookName);
     }
 
     /**

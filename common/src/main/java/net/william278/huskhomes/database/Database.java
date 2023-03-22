@@ -1,6 +1,7 @@
 package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
@@ -86,7 +87,7 @@ public abstract class Database {
      * <b>(Internal use only)</b> - Updates position data
      *
      * @param positionId ID of the position to update
-     * @param position   the new position
+     * @param position   the Position.at
      * @param connection SQL connection
      * @throws SQLException if an SQL exception occurs doing this
      */

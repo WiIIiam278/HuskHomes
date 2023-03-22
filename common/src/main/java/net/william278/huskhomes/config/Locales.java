@@ -172,4 +172,14 @@ public class Locales {
                 .setSpaceBeforeFooter(false);
     }
 
+    /**
+     * Represents where a locale should be displayed
+     */
+    public enum DisplaySlot {
+        CHAT,
+        ACTION_BAR,
+        SUBTITLE,
+        TITLE
+    }
+
 }

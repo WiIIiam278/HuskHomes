@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class RedisEconomyHook extends VaultEconomyHook {
 
-    public RedisEconomyHook(@NotNull HuskHomes implementor) {
-        super(implementor);
+    public RedisEconomyHook(@NotNull HuskHomes plugin) {
+        super(plugin);
     }
 
     @Override

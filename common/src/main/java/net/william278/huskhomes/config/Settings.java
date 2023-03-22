@@ -100,7 +100,7 @@ public class Settings {
     private int maxPublicHomes = 10;
 
     @YamlKey("general.stack_permission_limits")
-    private boolean stackPermissionLimits = true;
+    private boolean stackPermissionLimits = false;
 
     @YamlKey("general.permission_restrict_warps")
     private boolean permissionRestrictWarps = false;
@@ -112,7 +112,7 @@ public class Settings {
     private int teleportWarmupTime = 5;
 
     @YamlKey("general.teleport_warmup_display")
-    private MessageDisplayType teleportWarmupDisplay = MessageDisplayType.ACTION_BAR;
+    private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
 
     @YamlKey("general.teleport_request_expiry_time")
     private int teleportRequestExpiryTime = 60;
@@ -351,7 +351,7 @@ public class Settings {
         return teleportWarmupTime;
     }
 
-    public MessageDisplayType getTeleportWarmupDisplay() {
+    public Locales.DisplaySlot getTeleportWarmupDisplay() {
         return teleportWarmupDisplay;
     }
 
@@ -501,16 +501,6 @@ public class Settings {
 
     public boolean doBrigadierTabCompletion() {
         return brigadierTabCompletion;
-    }
-
-    /**
-     * Represents where a chat message should display
-     */
-    public enum MessageDisplayType {
-        MESSAGE,
-        ACTION_BAR,
-        SUBTITLE,
-        TITLE
     }
 
     /**

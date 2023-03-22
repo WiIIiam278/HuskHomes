@@ -1,4 +1,4 @@
-package net.william278.huskhomes.position;
+package net.william278.huskhomes.config;
 
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;

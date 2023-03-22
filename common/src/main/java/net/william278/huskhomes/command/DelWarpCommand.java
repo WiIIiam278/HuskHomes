@@ -10,8 +10,8 @@ import java.util.List;
 
 public class DelWarpCommand extends SavedPositionCommand<Warp> {
 
-    public DelWarpCommand(@NotNull HuskHomes implementor) {
-        super("delwarp", List.of(), Warp.class, List.of(), implementor);
+    public DelWarpCommand(@NotNull HuskHomes plugin) {
+        super("delwarp", List.of(), Warp.class, List.of(), plugin);
     }
 
     @Override

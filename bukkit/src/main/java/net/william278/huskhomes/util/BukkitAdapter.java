@@ -1,6 +1,7 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.World;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,21 +39,21 @@ public final class BukkitAdapter {
      */
     public static Optional<Location> adaptLocation(@NotNull org.bukkit.Location location) {
         if (location.getWorld() == null) return Optional.empty();
-        return Optional.of(new Location(location.getX(), location.getY(), location.getZ(),
+        return Optional.of(Location.at(location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch(),
                 adaptWorld(location.getWorld()).orElse(new net.william278.huskhomes.position.World())));
     }
 
-    public static Optional<net.william278.huskhomes.position.World> adaptWorld(@Nullable org.bukkit.World world) {
+    public static Optional<World> adaptWorld(@Nullable org.bukkit.World world) {
         if (world == null) {
             return Optional.empty();
         }
-        return Optional.of(new net.william278.huskhomes.position.World(world.getName(), world.getUID(),
+        return Optional.of(World.from(world.getName(), world.getUID(),
                 switch (world.getEnvironment()) {
-                    case NORMAL -> net.william278.huskhomes.position.World.Environment.OVERWORLD;
-                    case NETHER -> net.william278.huskhomes.position.World.Environment.NETHER;
-                    case THE_END -> net.william278.huskhomes.position.World.Environment.THE_END;
-                    case CUSTOM -> net.william278.huskhomes.position.World.Environment.CUSTOM;
+                    case NORMAL -> World.Environment.OVERWORLD;
+                    case NETHER -> World.Environment.NETHER;
+                    case THE_END -> World.Environment.THE_END;
+                    case CUSTOM -> World.Environment.CUSTOM;
                 })
         );
     }

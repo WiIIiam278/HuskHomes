@@ -302,15 +302,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    userHomes.add(new Home(resultSet.getDouble("x"),
+                    userHomes.add(Home.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -338,15 +338,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    warps.add(new Warp(resultSet.getDouble("x"),
+                    warps.add(Warp.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -374,15 +374,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    userHomes.add(new Home(resultSet.getDouble("x"),
+                    userHomes.add(Home.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -414,15 +414,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Home(resultSet.getDouble("x"),
+                    return Optional.of(Home.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -451,15 +451,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Home(resultSet.getDouble("x"),
+                    return Optional.of(Home.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -488,15 +488,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Warp(resultSet.getDouble("x"),
+                    return Optional.of(Warp.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -522,15 +522,15 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Warp(resultSet.getDouble("x"),
+                    return Optional.of(Warp.from(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name"),
-                            new PositionMeta(resultSet.getString("name"),
+                            PositionMeta.from(resultSet.getString("name"),
                                     resultSet.getString("description"),
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
@@ -557,12 +557,12 @@ public class MySqlDatabase extends Database {
                 if (resultSet.next()) {
                     return Optional.of(Teleport.builder(plugin)
                             .teleporter(onlineUser)
-                            .target(new Position(resultSet.getDouble("x"),
+                            .target(Position.at(resultSet.getDouble("x"),
                                     resultSet.getDouble("y"),
                                     resultSet.getDouble("z"),
                                     resultSet.getFloat("yaw"),
                                     resultSet.getFloat("pitch"),
-                                    new World(resultSet.getString("world_name"),
+                                    World.from(resultSet.getString("world_name"),
                                             UUID.fromString(resultSet.getString("world_uuid"))),
                                     resultSet.getString("server_name")))
                             .type(Teleport.Type.getTeleportType(resultSet.getInt("type"))
@@ -640,12 +640,12 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Position(resultSet.getDouble("x"),
+                    return Optional.of(Position.at(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name")));
                 }
@@ -699,12 +699,12 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Position(resultSet.getDouble("x"),
+                    return Optional.of(Position.at(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name")));
                 }
@@ -757,12 +757,12 @@ public class MySqlDatabase extends Database {
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return Optional.of(new Position(resultSet.getDouble("x"),
+                    return Optional.of(Position.at(resultSet.getDouble("x"),
                             resultSet.getDouble("y"),
                             resultSet.getDouble("z"),
                             resultSet.getFloat("yaw"),
                             resultSet.getFloat("pitch"),
-                            new World(resultSet.getString("world_name"),
+                            World.from(resultSet.getString("world_name"),
                                     UUID.fromString(resultSet.getString("world_uuid"))),
                             resultSet.getString("server_name")));
                 }

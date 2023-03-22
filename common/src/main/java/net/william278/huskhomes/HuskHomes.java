@@ -18,7 +18,7 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;

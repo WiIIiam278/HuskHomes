@@ -88,7 +88,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     private void setHomeDescription(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing, @NotNull String[] args) {
         final String oldDescription = home.getMeta().getDescription();
-        final Optional<String> optionalDescription = parseGreedyString(args, 1);
+        final Optional<String> optionalDescription = parseGreedyArguments(args);
         if (optionalDescription.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
                             "/edithome " + home.getName() + " description <text>")

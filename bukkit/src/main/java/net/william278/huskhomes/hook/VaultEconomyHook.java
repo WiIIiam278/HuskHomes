@@ -16,8 +16,8 @@ public class VaultEconomyHook extends EconomyHook {
 
     protected Economy economy;
 
-    public VaultEconomyHook(@NotNull HuskHomes implementor) {
-        super(implementor, "Vault (Economy)");
+    public VaultEconomyHook(@NotNull HuskHomes plugin) {
+        super(plugin, "Vault (Economy)");
     }
 
     @Override

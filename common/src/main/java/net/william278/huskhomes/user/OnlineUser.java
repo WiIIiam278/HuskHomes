@@ -8,6 +8,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.TitlePart;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleportable;
@@ -99,6 +100,24 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
+     * Dispatch a MineDown-formatted message to this player
+     *
+     * @param mineDown the parsed {@link MineDown} to send
+     * @param slot     the {@link Locales.DisplaySlot} to send the message to
+     */
+    public final void sendMessage(@NotNull MineDown mineDown, @NotNull Locales.DisplaySlot slot) {
+        if (slot == Locales.DisplaySlot.CHAT) {
+            sendMessage(mineDown);
+        } else if (slot == Locales.DisplaySlot.ACTION_BAR) {
+            sendActionBar(mineDown);
+        } else if (slot == Locales.DisplaySlot.TITLE) {
+            sendTitle(mineDown, false);
+        } else if (slot == Locales.DisplaySlot.SUBTITLE) {
+            sendTitle(mineDown, true);
+        }
+    }
+
+    /**
      * Dispatch a Minecraft translatable keyed-message to this player
      *
      * @param translationKey the translation key of the message to send
@@ -144,6 +163,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
 
     /**
      * Send a plugin message to the user
+     *
      * @param channel channel to send it on
      * @param message byte array of message data
      */

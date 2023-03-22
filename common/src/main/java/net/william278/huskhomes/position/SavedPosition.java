@@ -12,9 +12,8 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     private PositionMeta meta;
     private final UUID uuid;
 
-    protected SavedPosition(double x, double y, double z, float yaw, float pitch,
-                            @NotNull World world, @NotNull String server,
-                            @NotNull PositionMeta meta, @NotNull UUID uuid) {
+    protected SavedPosition(double x, double y, double z, float yaw, float pitch, @NotNull World world,
+                            @NotNull String server, @NotNull PositionMeta meta, @NotNull UUID uuid) {
         super(x, y, z, yaw, pitch, world, server);
         this.setMeta(meta);
         this.uuid = uuid;

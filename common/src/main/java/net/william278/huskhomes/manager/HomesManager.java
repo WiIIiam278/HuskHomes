@@ -150,7 +150,7 @@ public class HomesManager {
                     existing.update(position);
                     return existing;
                 })
-                .orElse(new Home(position, new PositionMeta(name, ""), owner));
+                .orElse(Home.from(position, PositionMeta.create(name, ""), owner));
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
     }

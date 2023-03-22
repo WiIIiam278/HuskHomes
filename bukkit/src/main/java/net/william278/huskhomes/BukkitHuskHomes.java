@@ -22,7 +22,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.position.Location;
-import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -341,7 +341,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                     final int y = snapshot.getHighestBlockYAt(x, z);
                     final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
                     if (!isBlockUnsafe(blockType.getKey().toString())) {
-                        return new Location((location.getX() + dX) + 0.5d, y + 1.25d, (location.getZ() + dZ) + 0.5d, location.getWorld());
+                        return Location.at((location.getX() + dX) + 0.5d, y + 1.25d, (location.getZ() + dZ) + 0.5d, location.getWorld());
                     }
                 }
             }

@@ -67,7 +67,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
     }
 
     private void setWarpDescription(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
-        final Optional<String> optionalDescription = parseGreedyString(args, 1);
+        final Optional<String> optionalDescription = parseGreedyArguments(args);
         if (optionalDescription.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
                             "/editwarp " + warp.getName() + " description <text>")
@@ -99,7 +99,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
         warp.update(user.getPosition());
         plugin.fireEvent(plugin.getWarpEditEvent(warp, executor), (event) -> {
             try {
-                plugin.getManager().warps().relocateWarp(warp, warp);
+                plugin.getManager().warps().setWarpPosition(warp, warp);
             } catch (ValidationException e) {
                 e.dispatchWarpError(executor, plugin, warp.getName());
                 return;

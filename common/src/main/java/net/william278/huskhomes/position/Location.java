@@ -1,30 +1,26 @@
 package net.william278.huskhomes.position;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a local position on this server
  */
 public class Location {
-
+    @Expose
     private double x;
+    @Expose
     private double y;
+    @Expose
     private double z;
+    @Expose
     private float yaw;
+    @Expose
     private float pitch;
+    @Expose
     private World world;
 
-    public Location(double x, double y, double z, @NotNull World world) {
-        this.setX(x);
-        this.setY(y);
-        this.setZ(z);
-        this.setYaw(0);
-        this.setPitch(0);
-        this.setWorld(world);
-    }
-
-    public Location(double x, double y, double z, float yaw, float pitch,
-                    @NotNull World world) {
+    protected Location(double x, double y, double z, float yaw, float pitch, @NotNull World world) {
         this.setX(x);
         this.setY(y);
         this.setZ(z);
@@ -34,6 +30,16 @@ public class Location {
     }
 
     public Location() {
+    }
+
+    @NotNull
+    public static Location at(double x, double y, double z, float yaw, float pitch, @NotNull World world) {
+        return new Location(x, y, z, yaw, pitch, world);
+    }
+
+    @NotNull
+    public static Location at(double x, double y, double z, @NotNull World world) {
+        return Location.at(x, y, z, 0, 0, world);
     }
 
     /**

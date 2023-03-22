@@ -37,7 +37,7 @@ public class Spawn {
      */
     @NotNull
     public Position getPosition(@NotNull String server) {
-        return new Position(x, y, z, yaw, pitch, new World(worldName, UUID.fromString(worldUuid)), server);
+        return Position.at(x, y, z, yaw, pitch, World.from(worldName, UUID.fromString(worldUuid)), server);
     }
 
     /**

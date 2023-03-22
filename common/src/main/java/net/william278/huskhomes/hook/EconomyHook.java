@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A hook that provides economy features
  */
-public abstract class EconomyHook extends PluginHook {
+public abstract class EconomyHook extends Hook {
 
     protected EconomyHook(@NotNull HuskHomes implementor, @NotNull String hookName) {
         super(implementor, hookName);

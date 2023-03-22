@@ -20,7 +20,7 @@ import java.util.logging.Level;
 /**
  * Hooks into Plan to provide the {@link PlanDataExtension} with stats on the web panel
  */
-public class PlanHook extends PluginHook {
+public class PlanHook extends Hook {
 
     private final HuskHomes plugin;
 
@@ -30,13 +30,12 @@ public class PlanHook extends PluginHook {
     }
 
     @Override
-    public boolean initialize()  {
+    public void initialize()  {
         if (!areAllCapabilitiesAvailable()) {
-            return false;
+            return;
         }
         registerDataExtension();
         handlePlanReload();
-        return true;
     }
 
 

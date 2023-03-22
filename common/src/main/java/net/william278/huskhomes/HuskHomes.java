@@ -13,7 +13,7 @@ import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
-import net.william278.huskhomes.hook.PluginHook;
+import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
@@ -161,21 +161,21 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     void setServerSpawn(@NotNull Location location);
 
     /**
-     * Set of active {@link PluginHook}s running on the server
+     * Set of active {@link Hook}s running on the server
      *
-     * @return the {@link Set} of active {@link PluginHook}s
+     * @return the {@link Set} of active {@link Hook}s
      */
     @NotNull
-    Set<PluginHook> getPluginHooks();
+    Set<Hook> getPluginHooks();
 
     /**
-     * Finds the {@link PluginHook} of the given class instance from the set of active {@link PluginHook}s
+     * Finds the {@link Hook} of the given class instance from the set of active {@link Hook}s
      *
-     * @param hookClass the class of the {@link PluginHook} to get
-     * @param <H>       the type of the {@link PluginHook}
-     * @return the {@link PluginHook} instance, or an empty {@link Optional} if not found
+     * @param hookClass the class of the {@link Hook} to get
+     * @param <H>       the type of the {@link Hook}
+     * @return the {@link Hook} instance, or an empty {@link Optional} if not found
      */
-    default <H extends PluginHook> Optional<H> getHook(@NotNull Class<H> hookClass) {
+    default <H extends Hook> Optional<H> getHook(@NotNull Class<H> hookClass) {
         return getPluginHooks().stream()
                 .filter(hook -> hook.getClass().isInstance(hookClass))
                 .findFirst()

@@ -249,7 +249,7 @@ public class Settings {
     private boolean doMapHook = false;
 
     @YamlKey("map_hook.map_plugin")
-    private MapHook.MappingPlugin mappingPlugin = MapHook.MappingPlugin.DYNMAP;
+    private MapHook.Plugin type = MapHook.Plugin.DYNMAP;
 
     @YamlKey("map_hook.show_public_homes")
     private boolean publicHomesOnMap = true;
@@ -479,8 +479,8 @@ public class Settings {
         return doMapHook;
     }
 
-    public MapHook.MappingPlugin getMappingPlugin() {
-        return mappingPlugin;
+    public MapHook.Plugin getMappingPlugin() {
+        return type;
     }
 
     public boolean isPublicHomesOnMap() {

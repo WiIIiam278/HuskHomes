@@ -21,14 +21,12 @@ public class VaultEconomyHook extends EconomyHook {
     }
 
     @Override
-    public boolean initialize()  {
+    public void initialize()  {
         final RegisteredServiceProvider<Economy> economyProvider = ((BukkitHuskHomes) plugin).getServer()
                 .getServicesManager().getRegistration(Economy.class);
         if (economyProvider != null) {
             economy = economyProvider.getProvider();
-            return true;
         }
-        return false;
     }
 
     @Override

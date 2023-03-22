@@ -36,8 +36,8 @@ public class BlueMapHook extends MapHook {
 
             for (World world : plugin.getWorlds()) {
                 getMapWorld(world).ifPresent(mapWorld -> {
-                    final MarkerSet publicHomeMarkers = MarkerSet.builder().label("Public Homes").build();
-                    final MarkerSet warpsMarkers = MarkerSet.builder().label("Warps").build();
+                    final MarkerSet publicHomeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
+                    final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
 
                     for (BlueMapMap map : mapWorld.getMaps()) {
                         map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), publicHomeMarkers);

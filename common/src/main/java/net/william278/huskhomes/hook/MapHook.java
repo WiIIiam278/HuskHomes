@@ -7,8 +7,6 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
  * A hook for a mapping plugin, such as Dynmap
  */
@@ -103,6 +101,18 @@ public abstract class MapHook extends Hook {
     @NotNull
     protected final String getWarpsKey() {
         return plugin.getKey(getName().toLowerCase(), "warps", "markers").toString();
+    }
+
+    @NotNull
+    protected final String getPublicHomesMarkerSetName() {
+        return plugin.getLocales().getRawLocale("map_hook_public_homes_marker_set_name")
+                .orElse("Public Homes");
+    }
+
+    @NotNull
+    protected final String getWarpsMarkerSetName() {
+        return plugin.getLocales().getRawLocale("map_hook_warps_marker_set_name")
+                .orElse("Warps");
     }
 
     /**

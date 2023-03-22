@@ -94,6 +94,8 @@ economy_action_make_home_public: '[ℹ Hai pagato %1% per impostare la tua home 
 economy_action_random_teleport: '[ℹ Hai pagato %1% per teletrasportarti randomicamente.](gray)'
 economy_action_back_command: '[ℹ Hai pagato %1% per tornare alla posizione precedente.](gray)'
 return_by_death_notification: '[Vuoi ritornare dove sei morto?](gray) [[⏪ Teletrasportati…]](#00fb9a show_text=&#00fb9a&Clicca per teletrasportarti\n&7e tornare dove sei morto run_command=/huskhomes:back)'
+map_hook_public_homes_marker_set_name: 'Public Homes'
+map_hook_warps_marker_set_name: 'Warps'
 up_to_date: '[HuskHomes](#00fb9a bold) [| You are running the latest version of HuskHomes (v%1%).](#00fb9a)'
 update_available: '[HuskHomes](#ff7e5e bold) [| A new version of HuskHomes is available: v%1% (running: v%2%).](#ff7e5e)'
 error_home_name_taken: '[Errore:](#ff3300) [Hai già una home impostata con quel nome.](#ff7e5e)'

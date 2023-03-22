@@ -39,23 +39,19 @@ public class DynmapHook extends MapHook {
             @Override
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
                 dynmapApi = dynmapCommonAPI;
-                populateMap();
-            }
-        });
-    }
 
-    @Override
-    protected void populateMap() {
-        getDynmap().ifPresent(api -> {
-            if (plugin.getSettings().isPublicHomesOnMap()) {
-                getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME).orElseThrow();
-                api.getMarkerAPI().createMarkerSet(getPublicHomesKey(),
-                        "Public Homes", api.getMarkerAPI().getMarkerIcons(), false);
-            }
-            if (plugin.getSettings().isWarpsOnMap()) {
-                getMarkerIcon(WARP_MARKER_IMAGE_NAME).orElseThrow();
-                api.getMarkerAPI().createMarkerSet(getPublicHomesKey(),
-                        "Public Homes", api.getMarkerAPI().getMarkerIcons(), false);
+                if (plugin.getSettings().isPublicHomesOnMap()) {
+                    getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME).orElseThrow();
+                    dynmapApi.getMarkerAPI().createMarkerSet(getPublicHomesKey(),
+                            getPublicHomesMarkerSetName(), dynmapApi.getMarkerAPI().getMarkerIcons(), false);
+                }
+                if (plugin.getSettings().isWarpsOnMap()) {
+                    getMarkerIcon(WARP_MARKER_IMAGE_NAME).orElseThrow();
+                    dynmapApi.getMarkerAPI().createMarkerSet(getWarpsKey(),
+                            getWarpsMarkerSetName(), dynmapApi.getMarkerAPI().getMarkerIcons(), false);
+                }
+
+                populateMap();
             }
         });
     }
@@ -150,10 +146,10 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             warpsMarkers = api.getMarkerAPI().getMarkerSet(getWarpsKey());
             if (warpsMarkers == null) {
-                warpsMarkers = api.getMarkerAPI().createMarkerSet(getWarpsKey(), "Warps",
+                warpsMarkers = api.getMarkerAPI().createMarkerSet(getWarpsKey(), getWarpsMarkerSetName(),
                         api.getMarkerAPI().getMarkerIcons(), false);
             } else {
-                warpsMarkers.setMarkerSetLabel("Warps");
+                warpsMarkers.setMarkerSetLabel(getWarpsMarkerSetName());
             }
             return warpsMarkers;
         });
@@ -163,10 +159,10 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             publicHomesMarkers = api.getMarkerAPI().getMarkerSet(getPublicHomesKey());
             if (publicHomesMarkers == null) {
-                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(getPublicHomesKey(), "Public Homes",
+                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(getPublicHomesKey(), getPublicHomesMarkerSetName(),
                         api.getMarkerAPI().getMarkerIcons(), false);
             } else {
-                publicHomesMarkers.setMarkerSetLabel("Public Homes");
+                publicHomesMarkers.setMarkerSetLabel(getPublicHomesMarkerSetName());
             }
             return publicHomesMarkers;
         });

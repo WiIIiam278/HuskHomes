@@ -55,7 +55,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
         warp.getMeta().setName(optionalName.get());
         plugin.fireEvent(plugin.getWarpEditEvent(warp, executor), (event) -> {
             try {
-                plugin.getManager().warps().renameWarp(warp, warp.getName());
+                plugin.getManager().warps().setWarpName(warp, warp.getName());
             } catch (ValidationException e) {
                 e.dispatchWarpError(executor, plugin, warp.getName());
                 return;

@@ -35,10 +35,12 @@ public class Manager {
 
     // Update caches on all servers
     protected void propagateCacheUpdate() {
-        plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
-                .type(Message.Type.UPDATE_CACHES)
-                .scope(Message.Scope.SERVER)
-                .target(Message.TARGET_ALL)
-                .build().send(plugin.getMessenger(), user));
+        if (plugin.getSettings().isCrossServer()) {
+            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
+                    .type(Message.Type.UPDATE_CACHES)
+                    .scope(Message.Scope.SERVER)
+                    .target(Message.TARGET_ALL)
+                    .build().send(plugin.getMessenger(), user));
+        }
     }
 }

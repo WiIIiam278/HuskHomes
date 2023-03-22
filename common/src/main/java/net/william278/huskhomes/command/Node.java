@@ -170,7 +170,7 @@ public abstract class Node implements Executable {
     }
 
 
-    protected Optional<Teleportable> resolveTeleportable(@NotNull CommandUser executor, @NotNull String[] args) {
+    protected Optional<Teleportable> resolveTeleporter(@NotNull CommandUser executor, @NotNull String[] args) {
         return parseStringArg(args, 0).map(Teleportable::username)
                 .or(() -> executor instanceof Teleportable ? Optional.of((Teleportable) executor) : Optional.empty());
     }

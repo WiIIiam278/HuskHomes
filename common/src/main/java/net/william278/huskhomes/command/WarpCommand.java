@@ -36,7 +36,7 @@ public class WarpCommand extends SavedPositionCommand<Warp> {
             }
         }
 
-        final Optional<Teleportable> optionalTeleporter = resolveTeleportable(executor, args);
+        final Optional<Teleportable> optionalTeleporter = resolveTeleporter(executor, args);
         if (optionalTeleporter.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);

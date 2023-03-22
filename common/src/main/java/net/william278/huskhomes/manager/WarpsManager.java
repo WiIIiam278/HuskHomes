@@ -137,16 +137,16 @@ public class WarpsManager {
         this.cacheWarp(warp, true);
     }
 
-    public void renameWarp(@NotNull String name, @NotNull String newName) throws ValidationException {
+    public void setWarpName(@NotNull String name, @NotNull String newName) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        this.renameWarp(optionalWarp.get(), newName);
+        this.setWarpName(optionalWarp.get(), newName);
     }
 
-    public void renameWarp(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
+    public void setWarpName(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
         if (!plugin.getValidator().isValidName(newName)) {
             throw new ValidationException(ValidationException.Type.NAME_INVALID);
         }

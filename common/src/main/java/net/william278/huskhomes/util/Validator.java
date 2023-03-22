@@ -31,17 +31,17 @@ public class Validator {
     /**
      * Validate home and warp descriptions
      *
-     * @param meta The meta to validate
+     * @param description The meta to validate
      * @return Whether the meta is valid against the plugin settings
      */
-    public boolean isValidDescription(@NotNull String meta) {
-        return (isAsciiOnly(meta) || plugin.getSettings().isAllowUnicodeDescriptions())
-                && meta.length() <= MAX_DESCRIPTION_LENGTH;
+    public boolean isValidDescription(@NotNull String description) {
+        return (isAsciiOnly(description) || plugin.getSettings().isAllowUnicodeDescriptions())
+                && description.length() <= MAX_DESCRIPTION_LENGTH;
     }
 
     // Check if a string contains only ASCII characters
     private static boolean isAsciiOnly(@NotNull String string) {
-        return string.matches("\\A\\p{ASCII}*\\z");
+        return string.matches("\\A\\p{ASCII}*\\z") && !string.contains("\u0000");
     }
 
     // Check if a string contains whitespace

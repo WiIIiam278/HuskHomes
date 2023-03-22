@@ -40,12 +40,12 @@ public class DynmapHook extends MapHook {
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
                 dynmapApi = dynmapCommonAPI;
 
-                if (plugin.getSettings().isPublicHomesOnMap()) {
+                if (plugin.getSettings().doPublicHomesOnMap()) {
                     getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME).orElseThrow();
                     dynmapApi.getMarkerAPI().createMarkerSet(getPublicHomesKey(),
                             getPublicHomesMarkerSetName(), dynmapApi.getMarkerAPI().getMarkerIcons(), false);
                 }
-                if (plugin.getSettings().isWarpsOnMap()) {
+                if (plugin.getSettings().doWarpsOnMap()) {
                     getMarkerIcon(WARP_MARKER_IMAGE_NAME).orElseThrow();
                     dynmapApi.getMarkerAPI().createMarkerSet(getWarpsKey(),
                             getWarpsMarkerSetName(), dynmapApi.getMarkerAPI().getMarkerIcons(), false);

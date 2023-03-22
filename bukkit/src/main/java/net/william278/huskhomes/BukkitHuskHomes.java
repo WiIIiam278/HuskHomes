@@ -68,7 +68,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
-    private Set<Hook> hooks;
+    private List<Hook> hooks;
     private List<Command> commands;
     private Map<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
@@ -168,7 +168,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     private void loadHooks() {
-        this.hooks = new HashSet<>();
+        this.hooks = new ArrayList<>();
         if (settings.doEconomy()) {
             if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
                 hooks.add(new RedisEconomyHook(this));
@@ -314,7 +314,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     @NotNull
-    public Set<Hook> getPluginHooks() {
+    public List<Hook> getHooks() {
         return hooks;
     }
 

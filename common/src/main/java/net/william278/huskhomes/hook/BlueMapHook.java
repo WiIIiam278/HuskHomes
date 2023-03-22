@@ -10,6 +10,7 @@ import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -43,7 +43,7 @@ public class BlueMapHook extends MapHook {
             this.warpsMarkerSets = new HashMap<>();
 
             for (World world : plugin.getWorlds()) {
-                getMapWorld(world).ifPresent(mapWorld -> {
+                this.editMapWorld(world, (mapWorld -> {
                     final MarkerSet publicHomeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
                     final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
 
@@ -54,7 +54,7 @@ public class BlueMapHook extends MapHook {
 
                     publicHomesMarkerSets.put(world.getName(), publicHomeMarkers);
                     warpsMarkerSets.put(world.getName(), warpsMarkers);
-                });
+                }));
             }
 
             this.populateMap();
@@ -67,33 +67,30 @@ public class BlueMapHook extends MapHook {
             return;
         }
 
-        getPublicHomesMarkerSet(home.getWorld())
-                .ifPresent(markerSet -> {
-                    final String markerId = home.getOwner().getUuid() + ":" + home.getUuid();
-                    markerSet.remove(markerId);
-                    markerSet.put(markerId, POIMarker.builder()
-                            .label("/phome " + home.getOwner().getUsername() + "." + home.getName())
-                            .position(home.getX(), home.getY(), home.getZ())
-                            .maxDistance(5000)
-                            .icon(getIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), 25, 25)
-                            .build());
-                });
+        this.editPublicHomesMarkerSet(home.getWorld(), (markerSet -> {
+            final String markerId = home.getOwner().getUuid() + ":" + home.getUuid();
+            markerSet.remove(markerId);
+            markerSet.put(markerId, POIMarker.builder()
+                    .label("/phome " + home.getOwner().getUsername() + "." + home.getName())
+                    .position(home.getX(), home.getY(), home.getZ())
+                    .maxDistance(5000)
+                    .icon(getIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), 25, 25)
+                    .build());
+        }));
     }
 
     @Override
     public void removeHome(@NotNull Home home) {
-        getPublicHomesMarkerSet(home.getWorld())
-                .ifPresent(markerSet -> markerSet.remove(home.getOwner().getUuid() + ":" + home.getUuid()));
+        this.editPublicHomesMarkerSet(home.getWorld(), markerSet -> markerSet
+                .remove(home.getOwner().getUuid() + ":" + home.getUuid()));
 
     }
 
     @Override
     public void clearHomes(@NotNull User user) {
         if (publicHomesMarkerSets != null) {
-            for (MarkerSet markerSet : publicHomesMarkerSets.values()) {
-                markerSet.getMarkers().keySet()
-                        .removeIf(markerId -> markerId.startsWith(user.getUuid().toString()));
-            }
+            publicHomesMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().keySet()
+                    .removeIf(markerId -> markerId.startsWith(user.getUuid().toString())));
         }
     }
 
@@ -103,32 +100,27 @@ public class BlueMapHook extends MapHook {
             return;
         }
 
-        getWarpsMarkerSet(warp.getWorld())
-                .ifPresent(markerSet -> {
-                    final String markerId = warp.getUuid().toString();
-                    markerSet.remove(markerId);
-                    markerSet.put(markerId, POIMarker.builder()
-                            .label("/warp " + warp.getName())
-                            .position(warp.getX(), warp.getY(), warp.getZ())
-                            .maxDistance(5000)
-                            .icon(getIcon(WARP_MARKER_IMAGE_NAME), 25, 25)
-                            .build());
-                });
+        this.editWarpsMarkerSet(warp.getWorld(), (markerSet -> {
+            final String markerId = warp.getUuid().toString();
+            markerSet.remove(markerId);
+            markerSet.put(markerId, POIMarker.builder()
+                    .label("/warp " + warp.getName())
+                    .position(warp.getX(), warp.getY(), warp.getZ())
+                    .maxDistance(5000)
+                    .icon(getIcon(WARP_MARKER_IMAGE_NAME), 25, 25)
+                    .build());
+        }));
     }
 
     @Override
     public void removeWarp(@NotNull Warp warp) {
-        getWarpsMarkerSet(warp.getWorld())
-                .ifPresent(markerSet -> markerSet.remove(warp.getUuid().toString()));
+        editWarpsMarkerSet(warp.getWorld(), markerSet -> markerSet.remove(warp.getUuid().toString()));
     }
 
     @Override
     public void clearWarps() {
         if (warpsMarkerSets != null) {
-            for (MarkerSet markerSet : warpsMarkerSets.values()) {
-                markerSet.getMarkers().keySet()
-                        .forEach(markerSet::remove);
-            }
+            warpsMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().clear());
         }
     }
 
@@ -157,19 +149,24 @@ public class BlueMapHook extends MapHook {
         }).orElse(null);
     }
 
-    @NotNull
-    private Optional<MarkerSet> getPublicHomesMarkerSet(@NotNull World world) {
-        return publicHomesMarkerSets == null ? Optional.empty() : Optional.ofNullable(publicHomesMarkerSets.get(world.getName()));
+    private void editPublicHomesMarkerSet(@NotNull World world, @NotNull ThrowingConsumer<MarkerSet> editor) {
+        editMapWorld(world, (mapWorld -> {
+            if (publicHomesMarkerSets != null) {
+                editor.accept(publicHomesMarkerSets.get(world.getName()));
+            }
+        }));
     }
 
-    @NotNull
-    private Optional<MarkerSet> getWarpsMarkerSet(@NotNull World world) {
-        return warpsMarkerSets == null ? Optional.empty() : Optional.ofNullable(warpsMarkerSets.get(world.getName()));
+    private void editWarpsMarkerSet(@NotNull World world, @NotNull ThrowingConsumer<MarkerSet> editor) {
+        editMapWorld(world, (mapWorld -> {
+            if (warpsMarkerSets != null) {
+                editor.accept(warpsMarkerSets.get(world.getName()));
+            }
+        }));
     }
 
-    @NotNull
-    private Optional<BlueMapWorld> getMapWorld(@NotNull World world) {
-        return BlueMapAPI.getInstance().flatMap(api -> api.getWorld(world.getName()));
+    private void editMapWorld(@NotNull World world, @NotNull ThrowingConsumer<BlueMapWorld> editor) {
+        BlueMapAPI.getInstance().flatMap(api -> api.getWorld(world.getName())).ifPresent(editor);
     }
 
 }

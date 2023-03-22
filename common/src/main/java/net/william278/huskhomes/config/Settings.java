@@ -483,11 +483,11 @@ public class Settings {
         return type;
     }
 
-    public boolean isPublicHomesOnMap() {
+    public boolean doPublicHomesOnMap() {
         return publicHomesOnMap;
     }
 
-    public boolean isWarpsOnMap() {
+    public boolean doWarpsOnMap() {
         return warpsOnMap;
     }
 

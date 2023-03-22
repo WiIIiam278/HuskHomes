@@ -23,12 +23,12 @@ public abstract class MapHook extends Hook {
      * Populate the map with public homes and warps
      */
     protected void populateMap() {
-        if (plugin.getSettings().isPublicHomesOnMap()) {
+        if (plugin.getSettings().doPublicHomesOnMap()) {
             plugin.getDatabase()
                     .getLocalPublicHomes(plugin)
                     .forEach(this::updateHome);
         }
-        if (plugin.getSettings().isWarpsOnMap()) {
+        if (plugin.getSettings().doWarpsOnMap()) {
             plugin.getDatabase()
                     .getLocalWarps(plugin)
                     .forEach(this::updateWarp);
@@ -83,14 +83,14 @@ public abstract class MapHook extends Hook {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean isValidPosition(@NotNull SavedPosition position) {
-        if (position instanceof Warp && !plugin.getSettings().isWarpsOnMap()) {
+        if (position instanceof Warp && !plugin.getSettings().doWarpsOnMap()) {
             return false;
         }
-        if (position instanceof Home && !plugin.getSettings().isPublicHomesOnMap()) {
+        if (position instanceof Home && !plugin.getSettings().doPublicHomesOnMap()) {
             return false;
         }
 
-        return position.getServer().equals(plugin.getServerName());
+        return !plugin.getSettings().isCrossServer() || position.getServer().equals(plugin.getServerName());
     }
 
     @NotNull

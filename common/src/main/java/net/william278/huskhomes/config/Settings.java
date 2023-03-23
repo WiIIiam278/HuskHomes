@@ -146,13 +146,6 @@ public class Settings {
             SoundEffectAction.TELEPORTATION_CANCELLED.name().toLowerCase(), SoundEffectAction.TELEPORTATION_CANCELLED.defaultSoundEffect
     );
 
-    public Optional<String> getSoundEffect(@NotNull SoundEffectAction action) {
-        if (!isPlaySoundEffects()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(getSoundEffects().get(action.name().toLowerCase()));
-    }
-
     @YamlKey("general.brigadier_tab_completion")
     private boolean brigadierTabCompletion = true;
 
@@ -230,17 +223,6 @@ public class Settings {
             EconomyHook.Action.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.Action.RANDOM_TELEPORT.getDefaultCost(),
             EconomyHook.Action.BACK_COMMAND.name().toLowerCase(), EconomyHook.Action.BACK_COMMAND.getDefaultCost()
     );
-
-    public Optional<Double> getEconomyCost(@NotNull EconomyHook.Action action) {
-        if (!doEconomy()) {
-            return Optional.empty();
-        }
-        final Double cost = getEconomyCosts().get(action.name().toLowerCase());
-        if (cost != null && cost > 0d) {
-            return Optional.of(cost);
-        }
-        return Optional.empty();
-    }
 
     // Mapping plugins
     @YamlComment("Display public homes/warps on your web map (supports Dynmap and BlueMap)")
@@ -387,8 +369,11 @@ public class Settings {
         return playSoundEffects;
     }
 
-    public Map<String, String> getSoundEffects() {
-        return soundEffects;
+    public Optional<String> getSoundEffect(@NotNull SoundEffectAction action) {
+        if (!isPlaySoundEffects()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(soundEffects.get(action.name().toLowerCase()));
     }
 
     public boolean isCrossServer() {
@@ -467,8 +452,15 @@ public class Settings {
         return freeHomeSlots;
     }
 
-    public Map<String, Double> getEconomyCosts() {
-        return economyCosts;
+    public Optional<Double> getEconomyCost(@NotNull EconomyHook.Action action) {
+        if (!doEconomy()) {
+            return Optional.empty();
+        }
+        final Double cost = economyCosts.get(action.name().toLowerCase());
+        if (cost != null && cost > 0d) {
+            return Optional.of(cost);
+        }
+        return Optional.empty();
     }
 
     public boolean doMapHook() {
@@ -487,7 +479,7 @@ public class Settings {
         return disabledCommands.stream().anyMatch(disabled -> {
             final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
             return command.equalsIgnoreCase(type.getName())
-                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                    || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
         });
     }
 

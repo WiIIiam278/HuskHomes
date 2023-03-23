@@ -30,7 +30,7 @@ public class DynmapHook extends MapHook {
     private MarkerSet warpsMarkers;
 
     public DynmapHook(@NotNull HuskHomes plugin) {
-        super(plugin, Plugin.DYNMAP);
+        super(plugin, "Dynmap");
     }
 
     @Override
@@ -75,7 +75,7 @@ public class DynmapHook extends MapHook {
                                 .thumbnail(PUBLIC_HOME_MARKER_IMAGE_NAME)
                                 .field("Owner", home.getOwner().getUsername())
                                 .field("Description", plugin.getLocales().wrapText(home.getMeta().getDescription(), 60))
-                                .field("Command", "/phome " + home.getName())
+                                .field("Command", "/phome " + home.getOwner().getUsername() + "." + home.getName())
                                 .toHtml());
             });
         });
@@ -116,7 +116,7 @@ public class DynmapHook extends MapHook {
                         .setDescription(MarkerInformationPopup.create(warp.getName())
                                 .thumbnail(WARP_MARKER_IMAGE_NAME)
                                 .field("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription(), 60))
-                                .field("Command", "/phome " + warp.getName())
+                                .field("Command", "/warp " + warp.getName())
                                 .toHtml());
             });
         });

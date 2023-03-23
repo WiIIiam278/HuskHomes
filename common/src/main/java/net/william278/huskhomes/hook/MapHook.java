@@ -15,8 +15,8 @@ public abstract class MapHook extends Hook {
     protected static final String WARP_MARKER_IMAGE_NAME = "warp";
     protected static final String PUBLIC_HOME_MARKER_IMAGE_NAME = "public-home";
 
-    protected MapHook(@NotNull HuskHomes plugin, @NotNull MapHook.Plugin type) {
-        super(plugin, type.getDisplayName());
+    protected MapHook(@NotNull HuskHomes plugin, @NotNull String name) {
+        super(plugin, name);
     }
 
     /**
@@ -113,25 +113,6 @@ public abstract class MapHook extends Hook {
     protected final String getWarpsMarkerSetName() {
         return plugin.getLocales().getRawLocale("map_hook_warps_marker_set_name")
                 .orElse("Warps");
-    }
-
-    /**
-     * Identifies types of supported Map plugins
-     */
-    public enum Plugin {
-        DYNMAP("Dynmap"),
-        BLUEMAP("BlueMap");
-
-        private final String displayName;
-
-        Plugin(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-
-        @NotNull
-        public String getDisplayName() {
-            return displayName;
-        }
     }
 
 }

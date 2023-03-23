@@ -8,6 +8,7 @@ import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
@@ -22,7 +23,6 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.position.Location;
-import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -36,7 +36,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -169,26 +168,18 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     private void loadHooks() {
         this.hooks = new ArrayList<>();
-        if (settings.doEconomy()) {
+        if (getSettings().doEconomy()) {
             if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
                 hooks.add(new RedisEconomyHook(this));
             } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 hooks.add(new VaultEconomyHook(this));
             }
         }
-        if (settings.doMapHook()) {
-            switch (settings.getMappingPlugin()) {
-                case DYNMAP -> {
-                    final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
-                    if (dynmapPlugin != null) {
-                        hooks.add(new DynmapHook(this));
-                    }
-                }
-                case BLUEMAP -> {
-                    if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
-                        hooks.add(new BlueMapHook(this));
-                    }
-                }
+        if (getSettings().doMapHook()) {
+            if (Bukkit.getPluginManager().getPlugin("Dynmap") != null) {
+                hooks.add(new DynmapHook(this));
+            } else if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
+                hooks.add(new BlueMapHook(this));
             }
         }
         if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
@@ -440,9 +431,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().getDisplayName()));
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
-            if (getSettings().doMapHook()) {
-                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMappingPlugin().getDisplayName()));
-            }
+            getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
         } catch (Exception e) {
             log(Level.WARNING, "Failed to register metrics", e);
         }

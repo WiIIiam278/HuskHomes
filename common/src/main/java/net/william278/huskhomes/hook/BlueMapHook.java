@@ -33,7 +33,7 @@ public class BlueMapHook extends MapHook {
     private Map<String, MarkerSet> warpsMarkerSets;
 
     public BlueMapHook(@NotNull HuskHomes plugin) {
-        super(plugin, Plugin.BLUEMAP);
+        super(plugin, "BlueMap");
     }
 
     @Override

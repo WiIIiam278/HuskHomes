@@ -6,7 +6,6 @@ import net.william278.annotaml.YamlKey;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
@@ -244,12 +243,9 @@ public class Settings {
     }
 
     // Mapping plugins
-    @YamlComment("Display public homes/warps on web maps (DYNMAP, BLUEMAP)")
+    @YamlComment("Display public homes/warps on your web map (supports Dynmap and BlueMap)")
     @YamlKey("map_hook.enabled")
-    private boolean doMapHook = false;
-
-    @YamlKey("map_hook.map_plugin")
-    private MapHook.Plugin type = MapHook.Plugin.DYNMAP;
+    private boolean doMapHook = true;
 
     @YamlKey("map_hook.show_public_homes")
     private boolean publicHomesOnMap = true;
@@ -477,10 +473,6 @@ public class Settings {
 
     public boolean doMapHook() {
         return doMapHook;
-    }
-
-    public MapHook.Plugin getMappingPlugin() {
-        return type;
     }
 
     public boolean doPublicHomesOnMap() {

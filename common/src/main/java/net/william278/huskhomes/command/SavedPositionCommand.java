@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class SavedPositionCommand<T extends SavedPosition> extends Command {
+public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabProvider {
 
     private final Class<T> positionType;
     protected final List<String> arguments;

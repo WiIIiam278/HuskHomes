@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PublicHomeCommand extends HomeCommand {
+public class PublicHomeCommand extends HomeCommand implements TabProvider {
 
     protected PublicHomeCommand(@NotNull HuskHomes plugin) {
         super("phome", List.of("publichome"), plugin);

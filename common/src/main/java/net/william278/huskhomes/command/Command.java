@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Command extends Node implements TabProvider {
+public abstract class Command extends Node {
 
     private final String usage;
 
@@ -27,12 +27,6 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     public abstract void execute(@NotNull CommandUser executor, @NotNull String[] args);
-
-    @Override
-    @NotNull
-    public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
-        return List.of();
-    }
 
     @NotNull
     protected String[] removeFirstArg(@NotNull String[] args) {

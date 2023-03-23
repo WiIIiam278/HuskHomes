@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HuskHomesCommand extends Command {
+public class HuskHomesCommand extends Command implements TabProvider {
 
     private static final List<String> SUB_COMMANDS = List.of("about", "help", "reload", "update");
 

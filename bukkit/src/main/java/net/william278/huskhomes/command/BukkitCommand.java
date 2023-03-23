@@ -4,6 +4,7 @@ import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -38,7 +39,11 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
                                       @NotNull String alias, @NotNull String[] args) {
-        return this.command.getSuggestions(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
+        if (!(this.command instanceof TabProvider provider)) {
+            return List.of();
+        }
+        final CommandUser user = sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole();
+        return provider.getSuggestions(user, args);
     }
 
     public void register() {

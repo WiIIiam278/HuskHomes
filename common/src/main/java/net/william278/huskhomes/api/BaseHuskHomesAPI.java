@@ -550,22 +550,21 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport, @NotNull String... rtpArgs) {
-        plugin.runAsync(() -> {
-            final Optional<Position> position = plugin.getRandomTeleportEngine()
-                    .getRandomPosition(user.getPosition().getWorld(), rtpArgs);
-            if (position.isEmpty()) {
-                throw new IllegalStateException("Random teleport engine returned an empty position");
-            }
+        plugin.getRandomTeleportEngine()
+                .getRandomPosition(user.getPosition().getWorld(), rtpArgs).thenAccept(position -> {
+                    if (position.isEmpty()) {
+                        throw new IllegalStateException("Random teleport engine returned an empty position");
+                    }
 
-            final TeleportBuilder builder = Teleport.builder(plugin)
-                    .teleporter(user)
-                    .target(position.get());
-            if (timedTeleport) {
-                builder.toTimedTeleport().execute();
-            } else {
-                builder.toTeleport().execute();
-            }
-        });
+                    final TeleportBuilder builder = Teleport.builder(plugin)
+                            .teleporter(user)
+                            .target(position.get());
+                    if (timedTeleport) {
+                        builder.toTimedTeleport().execute();
+                    } else {
+                        builder.toTeleport().execute();
+                    }
+                });
     }
 
     /**

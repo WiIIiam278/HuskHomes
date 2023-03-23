@@ -2,7 +2,6 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
@@ -74,30 +73,33 @@ public class RtpCommand extends Command {
         // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
-        final Optional<Position> position = plugin.getRandomTeleportEngine()
-                .getRandomPosition(teleporter.getPosition().getWorld(), args.length > 1 ? removeFirstArg(args) : args);
-        if (position.isEmpty()) {
-            plugin.getLocales().getLocale("error_rtp_randomization_timeout")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
+        plugin.getRandomTeleportEngine()
+                .getRandomPosition(teleporter.getPosition().getWorld(), args.length > 1 ? removeFirstArg(args) : args)
+                .thenAccept(position -> {
+                    if (position.isEmpty()) {
+                        plugin.getLocales().getLocale("error_rtp_randomization_timeout")
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
 
-        final TeleportBuilder builder = Teleport.builder(plugin)
-                .teleporter(teleporter)
-                .target(position.get());
-        try {
-            if (executor.equals(teleporter)) {
-                builder.toTimedTeleport().execute();
-            } else {
-                builder.toTeleport().execute();
-            }
-        } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, args);
-            return;
-        }
+                    final TeleportBuilder builder = Teleport.builder(plugin)
+                            .teleporter(teleporter)
+                            .target(position.get());
+                    try {
+                        if (executor.equals(teleporter)) {
+                            builder.toTimedTeleport().execute();
+                        } else {
+                            builder.toTeleport().execute();
+                        }
+                    } catch (TeleportationException e) {
+                        e.displayMessage(executor, plugin, args);
+                        return;
+                    }
 
-        user.setRtpCooldown(Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES));
-        plugin.getDatabase().updateUserData(user);
+                    user.setRtpCooldown(Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES));
+                    plugin.getDatabase().updateUserData(user);
+                });
+
     }
 
 }

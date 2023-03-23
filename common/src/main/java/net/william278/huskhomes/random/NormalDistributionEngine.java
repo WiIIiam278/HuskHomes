@@ -37,7 +37,7 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
      */
     @NotNull
     public static Location generateLocation(@NotNull Location origin, float mean, float standardDeviation,
-                                               float spawnRadius, float maxRadius) {
+                                            float spawnRadius, float maxRadius) {
         // Generate random values
         final float radius = getDistributedRadius(mean, standardDeviation, spawnRadius, maxRadius);
         final float angle = getRandomAngle();
@@ -90,16 +90,18 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     @Override
-    public Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args) {
-        Optional<Location> location = generateSafeLocation(world).join();
-        int attempts = 0;
-        while (location.isEmpty()) {
-            location = generateSafeLocation(world).join();
-            if (attempts >= maxAttempts) {
-                return Optional.empty();
+    public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {
+        return CompletableFuture.supplyAsync(() -> {
+            Optional<Location> location = generateSafeLocation(world).join();
+            int attempts = 0;
+            while (location.isEmpty()) {
+                location = generateSafeLocation(world).join();
+                if (attempts >= maxAttempts) {
+                    return Optional.empty();
+                }
+                attempts++;
             }
-            attempts++;
-        }
-        return location.map(resolved -> Position.at(resolved, plugin.getServerName()));
+            return location.map(resolved -> Position.at(resolved, plugin.getServerName()));
+        });
     }
 }

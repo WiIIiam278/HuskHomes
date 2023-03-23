@@ -6,6 +6,7 @@ import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents an engine for generating random position targets
@@ -54,6 +55,6 @@ public abstract class RandomTeleportEngine {
      * @return The position, optionally, which will be empty if the random teleport engine timed out after a
      * {@link #maxAttempts configured number of attempts}
      */
-    public abstract Optional<Position> getRandomPosition(@NotNull World world, @NotNull String[] args);
+    public abstract CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args);
 
 }

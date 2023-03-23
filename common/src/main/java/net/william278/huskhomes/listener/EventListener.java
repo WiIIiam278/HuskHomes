@@ -2,7 +2,6 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
@@ -40,25 +39,24 @@ public class EventListener {
             if (plugin.getSettings().isCrossServer()) {
                 this.handleInboundTeleport(onlineUser);
 
-                // Update caches
+                // Send a player list update to other servers
+                this.sendPlayerListUpdates(onlineUser);
+
+                // Request updated player lists from other servers
                 if (plugin.getOnlineUsers().size() == 1) {
+                    plugin.runLater(() -> {
+                        plugin.getGlobalPlayerList().clear();
+                        Message.builder()
+                                .type(Message.Type.REQUEST_PLAYER_LIST)
+                                .scope(Message.Scope.SERVER)
+                                .target(Message.TARGET_ALL)
+                                .build().send(plugin.getMessenger(), onlineUser);
+                    }, 40L);
+
+                    // Update caches
                     plugin.getManager().homes().updatePublicHomeCache();
                     plugin.getManager().warps().updateWarpCache();
                 }
-
-                // Update the player list
-                plugin.runLater(() -> {
-                    // Send a player list update to other servers
-                    sendPlayerListUpdates(onlineUser);
-
-                    // Request updated player lists from other servers
-                    plugin.getGlobalPlayerList().clear();
-                    Message.builder()
-                            .scope(Message.Scope.SERVER)
-                            .target(Message.TARGET_ALL)
-                            .type(Message.Type.REQUEST_PLAYER_LIST)
-                            .build().send(plugin.getMessenger(), onlineUser);
-                }, plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE ? 40L : 0L);
             }
 
             // Cache this user's homes
@@ -152,7 +150,7 @@ public class EventListener {
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         // Set the player's last position to where they died
         if (plugin.getSettings().isBackCommandReturnByDeath()
-                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
     }
@@ -166,8 +164,8 @@ public class EventListener {
         plugin.runAsync(() -> {
             // Display the return by death via /back notification
             if (plugin.getSettings().isBackCommandReturnByDeath()
-                    && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
-                    && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+                && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
+                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
                 plugin.getLocales().getLocale("return_by_death_notification")
                         .ifPresent(onlineUser::sendMessage);
             }

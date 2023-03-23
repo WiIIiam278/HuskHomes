@@ -30,6 +30,7 @@ public class Payload {
 
     @Nullable
     @Expose
+    @SerializedName("string_list")
     private List<String> stringList;
 
     /**

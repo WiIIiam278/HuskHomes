@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -19,6 +20,8 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
     public EditWarpCommand(@NotNull HuskHomes plugin) {
         super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
+        addAdditionalPermissions(arguments.stream()
+                .collect(HashMap::new, (m, e) -> m.put(getPermission(e), false), HashMap::putAll));
     }
 
     @Override

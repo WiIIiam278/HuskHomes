@@ -25,6 +25,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         super(name, aliases, "<name>" + ((arguments.size() > 0) ? " [" + String.join("|", arguments) + "]" : ""), plugin);
         this.positionType = positionType;
         this.arguments = arguments;
+
+        addAdditionalPermissions(Map.of("other", false));
     }
 
     @NotNull
@@ -112,12 +114,6 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 .target(position)
                 .toTimedTeleport()
                 .execute();
-    }
-
-    @Override
-    @NotNull
-    public Map<String, Boolean> getAdditionalPermissions() {
-        return Map.of(getOtherPermission(), true);
     }
 
     @Override

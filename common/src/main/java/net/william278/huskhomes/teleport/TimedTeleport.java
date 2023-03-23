@@ -6,7 +6,6 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimedTeleport extends Teleport {
 
+    public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
     private final OnlineUser teleporter;
     private final Position startLocation;
     private final double startHealth;
@@ -32,7 +32,7 @@ public class TimedTeleport extends Teleport {
     @Override
     public void execute() throws TeleportationException {
         // Check if the teleporter can bypass warmup
-        if (timeLeft == 0 || teleporter.hasPermission(Permission.BYPASS_TELEPORT_WARMUP.node)) {
+        if (timeLeft == 0 || teleporter.hasPermission(BYPASS_PERMISSION)) {
             super.execute();
             return;
         }

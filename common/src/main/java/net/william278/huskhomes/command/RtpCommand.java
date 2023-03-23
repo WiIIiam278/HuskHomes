@@ -14,12 +14,17 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class RtpCommand extends Command {
 
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player]", plugin);
+        addAdditionalPermissions(Map.of(
+                "other", true,
+                "bypass_cooldown", true
+        ));
     }
 
     @Override
@@ -64,7 +69,7 @@ public class RtpCommand extends Command {
                 .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
         final Instant currentTime = Instant.now();
         if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
-                !executor.hasPermission(getPermission("bypass_cooldown"))) {
+            !executor.hasPermission(getPermission("bypass_cooldown"))) {
             plugin.getLocales().getLocale("error_rtp_cooldown",
                             Long.toString(currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1))
                     .ifPresent(executor::sendMessage);

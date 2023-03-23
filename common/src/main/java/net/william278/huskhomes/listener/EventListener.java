@@ -2,12 +2,13 @@ package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.command.BackCommand;
+import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -148,9 +149,8 @@ public class EventListener {
      * @param onlineUser the {@link OnlineUser} who died
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
-        // Set the player's last position to where they died
-        if (plugin.getSettings().isBackCommandReturnByDeath()
-            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+        if (plugin.getSettings().isBackCommandReturnByDeath() && plugin.getCommand(BackCommand.class)
+                .map(Command::getPermission).map(onlineUser::hasPermission).orElse(false)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
     }
@@ -163,9 +163,11 @@ public class EventListener {
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
         plugin.runAsync(() -> {
             // Display the return by death via /back notification
-            if (plugin.getSettings().isBackCommandReturnByDeath()
-                && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
-                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+            final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
+                    .map(command -> onlineUser.hasPermission(command.getPermission())
+                                    && onlineUser.hasPermission(command.getPermission("death")))
+                    .orElse(false);
+            if (plugin.getSettings().isBackCommandReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")
                         .ifPresent(onlineUser::sendMessage);
             }

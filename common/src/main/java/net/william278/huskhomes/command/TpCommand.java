@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ public class TpCommand extends Command implements TabProvider {
 
     protected TpCommand(@NotNull HuskHomes plugin) {
         super("tp", List.of("tpo"), "[<player|position>] [target]", plugin);
+        addAdditionalPermissions(Map.of("coordinates", true));
         setOperatorCommand(true);
     }
 
@@ -31,10 +33,11 @@ public class TpCommand extends Command implements TabProvider {
 
                 this.execute(executor, user, Target.username(args[0]), args);
             }
-            case 2 -> execute(executor, Teleportable.username(args[0]), Target.username(args[1]), args);
+            case 2 -> this.execute(executor, Teleportable.username(args[0]), Target.username(args[1]), args);
             default -> {
                 final Position basePosition = getBasePosition(executor);
-                Optional<Position> target = parsePositionArgs(basePosition, args, 0);
+                Optional<Position> target = executor.hasPermission(getPermission("coordinates"))
+                        ? parsePositionArgs(basePosition, args, 0) : Optional.empty();
                 if (target.isPresent()) {
                     if (!(executor instanceof OnlineUser user)) {
                         plugin.getLocales().getLocale("error_in_game_only")
@@ -46,7 +49,8 @@ public class TpCommand extends Command implements TabProvider {
                     return;
                 }
 
-                target = parsePositionArgs(basePosition, args, 1);
+                target = executor.hasPermission(getPermission("coordinates"))
+                        ? parsePositionArgs(basePosition, args, 0) : Optional.empty();
                 if (target.isPresent() && args.length >= 1) {
                     this.execute(executor, Teleportable.username(args[0]), target.get(), args);
                     return;

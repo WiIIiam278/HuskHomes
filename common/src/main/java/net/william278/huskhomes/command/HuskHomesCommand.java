@@ -10,18 +10,24 @@ import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class HuskHomesCommand extends Command implements TabProvider {
 
-    private static final List<String> SUB_COMMANDS = List.of("about", "help", "reload", "update");
+    private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
+            "about", false,
+            "help", false,
+            "reload", true,
+            "update", true
+    );
 
     private final UpdateChecker updateChecker;
     private final AboutMenu aboutMenu;
 
     protected HuskHomesCommand(@NotNull HuskHomes plugin) {
-        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS) + "]", plugin);
-        setOperatorCommand(true);
+        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS.keySet()) + "]", plugin);
+        addAdditionalPermissions(SUB_COMMANDS);
 
         this.updateChecker = plugin.getUpdateChecker();
         this.aboutMenu = AboutMenu.create("HuskHomes")
@@ -52,7 +58,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final String action = parseStringArg(args, 0).orElse("about");
-        if (SUB_COMMANDS.contains(action) && !executor.hasPermission(getPermission(action))) {
+        if (SUB_COMMANDS.containsKey(action) && !executor.hasPermission(getPermission(action))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -105,7 +111,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
     @Override
     @NotNull
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? SUB_COMMANDS : List.of();
+        return args.length < 2 ? SUB_COMMANDS.keySet().stream().sorted().toList() : List.of();
     }
 
 }

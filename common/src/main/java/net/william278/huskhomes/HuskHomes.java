@@ -7,23 +7,22 @@ import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.hook.Hook;
+import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.Permission;
 import net.william278.huskhomes.util.TaskRunner;
 import net.william278.huskhomes.util.Validator;
 import org.intellij.lang.annotations.Subst;
@@ -193,7 +192,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
-        if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
+        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
             final Optional<EconomyHook> hook = getEconomyHook();
             if (hook.isPresent()) {
                 if (cost.get() > hook.get().getPlayerBalance(player)) {
@@ -216,7 +215,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
         if (!getSettings().doEconomy()) return;
         final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
 
-        if (cost.isPresent() && !player.hasPermission(Permission.BYPASS_ECONOMY_CHECKS.node)) {
+        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
             final Optional<EconomyHook> hook = getEconomyHook();
             if (hook.isPresent()) {
                 hook.get().changePlayerBalance(player, -cost.get());

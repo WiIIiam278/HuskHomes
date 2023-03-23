@@ -4,16 +4,19 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class Command extends Node {
 
     private final String usage;
+    private final Map<String, Boolean> additionalPermissions;
 
     protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
         super(name, aliases, plugin);
         this.usage = usage;
+        this.additionalPermissions = new HashMap<>();
     }
 
     @Override
@@ -40,16 +43,20 @@ public abstract class Command extends Node {
         return "/" + getName() + " " + usage;
     }
 
+    public final void addAdditionalPermissions(@NotNull Map<String, Boolean> additionalPermissions) {
+        additionalPermissions.forEach((permission, value) -> this.additionalPermissions.put(getPermission(permission), value));
+    }
+
+    @NotNull
+    public final Map<String, Boolean> getAdditionalPermissions() {
+        return additionalPermissions;
+    }
+
     @NotNull
     public String getDescription() {
         return plugin.getLocales().getRawLocale(getName() + "_command_description")
                 .map(description -> plugin.getLocales().truncateText(description, 40))
                 .orElse(getUsage());
-    }
-
-    @NotNull
-    public Map<String, Boolean> getAdditionalPermissions() {
-        return Map.of();
     }
 
     @NotNull

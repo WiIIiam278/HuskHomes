@@ -1,9 +1,9 @@
 package net.william278.huskhomes.api;
 
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;

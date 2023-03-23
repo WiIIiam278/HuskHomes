@@ -2,7 +2,10 @@ package net.william278.huskhomes.database;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Server;
-import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.SavedPosition;
+import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;

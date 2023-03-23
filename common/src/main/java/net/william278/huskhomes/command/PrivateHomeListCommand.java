@@ -11,6 +11,7 @@ import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ public class PrivateHomeListCommand extends ListCommand {
 
     protected PrivateHomeListCommand(@NotNull HuskHomes plugin) {
         super("homelist", List.of("homes"), "[player] [page]", plugin);
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override

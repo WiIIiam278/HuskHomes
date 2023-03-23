@@ -10,12 +10,14 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class SpawnCommand extends Command {
 
     protected SpawnCommand(@NotNull HuskHomes plugin) {
         super("spawn", List.of(), "[player]", plugin);
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override

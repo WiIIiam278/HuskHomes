@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class EconomyHook extends Hook {
 
+    public static final String BYPASS_PERMISSION = "huskhomes.bypass_economy_checks";
+
     protected EconomyHook(@NotNull HuskHomes plugin, @NotNull String hookName) {
         super(plugin, hookName);
     }

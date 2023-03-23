@@ -1,6 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportEvent;
 import net.william278.huskhomes.hook.EconomyHook;
@@ -22,21 +23,23 @@ public class Teleport {
     protected final Teleportable teleporter;
     protected final Target target;
     protected final Type type;
-    protected final boolean updateLastPosition;
     protected final List<EconomyHook.Action> economyActions;
     private final boolean async;
+    protected final boolean updateLastPosition;
 
     protected Teleport(@NotNull OnlineUser executor, @NotNull Teleportable teleporter, @NotNull Target target,
                        @NotNull Type type, boolean updateLastPosition, @NotNull List<EconomyHook.Action> actions,
                        @NotNull HuskHomes plugin) {
+        this.plugin = plugin;
         this.executor = executor;
         this.teleporter = teleporter;
         this.target = target;
         this.type = type;
-        this.updateLastPosition = updateLastPosition;
         this.economyActions = actions;
         this.async = plugin.getSettings().isAsynchronousTeleports();
-        this.plugin = plugin;
+        this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
+                .map(command -> executor.hasPermission(command.getPermission()))
+                .orElse(false);
     }
 
     @NotNull

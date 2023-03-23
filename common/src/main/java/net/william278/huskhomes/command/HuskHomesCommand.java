@@ -61,7 +61,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
         switch (action.toLowerCase()) {
             case "about" -> executor.sendMessage(aboutMenu.toMineDown());
             case "help" -> executor.sendMessage(getCommandList(executor)
-                    .getNearestValidPage(parseIntArg(args, 0).orElse(1)));
+                    .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
             case "reload" -> {
                 if (!plugin.loadConfigs()) {
                     executor.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));

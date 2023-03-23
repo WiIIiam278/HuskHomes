@@ -50,7 +50,8 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
         }
 
         plugin.getLocales()
-                .getLocale(requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere" + "_request_sent", target)
+                .getLocale((requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
+                           + "_request_sent", target)
                 .ifPresent(onlineUser::sendMessage);
     }
 

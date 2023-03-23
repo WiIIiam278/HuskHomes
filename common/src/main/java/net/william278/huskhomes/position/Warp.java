@@ -11,9 +11,8 @@ public class Warp extends SavedPosition {
 
     private static final String PERMISSION_PREFIX = "huskhomes.command.warp.";
 
-    public Warp(double x, double y, double z, float yaw, float pitch,
-                @NotNull World world, @NotNull String server,
-                @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
+    private Warp(double x, double y, double z, float yaw, float pitch, @NotNull World world, @NotNull String server,
+                 @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
         super(x, y, z, yaw, pitch, world, server, positionMeta, uuid);
     }
 
@@ -23,8 +22,17 @@ public class Warp extends SavedPosition {
      * @param position The {@link Position} to save as a warp
      * @param meta     {@link PositionMeta} information about this position
      */
-    public Warp(@NotNull Position position, @NotNull PositionMeta meta) {
+    private Warp(@NotNull Position position, @NotNull PositionMeta meta) {
         super(position, meta);
+    }
+
+    public static Warp from(double x, double y, double z, float yaw, float pitch, @NotNull World world,
+                            @NotNull String server, @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
+        return new Warp(x, y, z, yaw, pitch, world, server, positionMeta, uuid);
+    }
+
+    public static Warp from(@NotNull Position position, @NotNull PositionMeta meta) {
+        return new Warp(position, meta);
     }
 
     @NotNull

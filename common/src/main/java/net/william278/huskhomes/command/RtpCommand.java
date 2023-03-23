@@ -64,13 +64,14 @@ public class RtpCommand extends Command {
                 .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
         final Instant currentTime = Instant.now();
         if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
-            !executor.hasPermission(getPermission("bypass_cooldown"))) {
+                !executor.hasPermission(getPermission("bypass_cooldown"))) {
             plugin.getLocales().getLocale("error_rtp_cooldown",
                             Long.toString(currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1))
                     .ifPresent(executor::sendMessage);
             return;
         }
 
+        // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
         final Optional<Position> position = plugin.getRandomTeleportEngine()

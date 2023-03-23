@@ -45,7 +45,7 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public Position getPosition() {
-        return new Position(BukkitAdapter.adaptLocation(player.getLocation())
+        return Position.at(BukkitAdapter.adaptLocation(player.getLocation())
                 .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
                 plugin.getServerName());
 
@@ -54,7 +54,7 @@ public class BukkitUser extends OnlineUser {
     @Override
     public Optional<Position> getBedSpawnPosition() {
         return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                .map(location -> new Position(location, plugin.getServerName()));
+                .map(location -> Position.at(location, plugin.getServerName()));
     }
 
     @Override

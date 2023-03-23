@@ -114,15 +114,15 @@ public abstract class Node implements Executable {
             return Optional.of(plugin.getWorlds().stream()
                     .filter(world -> world.getName().equalsIgnoreCase(worldName))
                     .findFirst()
-                    .orElse(new World(worldName, new UUID(0, 0), environment)));
+                    .orElse(World.from(worldName, new UUID(0, 0), environment)));
         }
         return Optional.empty();
     }
 
-    protected Optional<String> parseGreedyString(@NotNull String[] args, int startIndex) {
-        if (args.length > startIndex) {
+    protected Optional<String> parseGreedyArguments(@NotNull String[] args) {
+        if (args.length > 1) {
             final StringJoiner sentence = new StringJoiner(" ");
-            for (int i = startIndex; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
                 sentence.add(args[i]);
             }
             return Optional.of(sentence.toString().trim());
@@ -132,7 +132,7 @@ public abstract class Node implements Executable {
 
     protected Position getBasePosition(@NotNull CommandUser executor) {
         return executor instanceof OnlineUser user ? user.getPosition() : plugin.getSpawn()
-                .orElse(new Position(0, 0, 0, 0, 0, plugin.getWorlds().get(0), plugin.getServerName()));
+                .orElse(Position.at(0, 0, 0, 0, 0, plugin.getWorlds().get(0), plugin.getServerName()));
     }
 
     protected Optional<Position> parsePositionArgs(@NotNull Position basePosition, @NotNull String[] args, int startIndex) {
@@ -153,7 +153,7 @@ public abstract class Node implements Executable {
         final Optional<Float> yaw = parseFloatArg(args, startIndex + angleStartIndex);
         final Optional<Float> pitch = parseFloatArg(args, startIndex + angleStartIndex + 1);
 
-        return Optional.of(new Position(x.get(), y.get(), z.get(),
+        return Optional.of(Position.at(x.get(), y.get(), z.get(),
                 yaw.orElse(basePosition.getYaw()), pitch.orElse(basePosition.getPitch()),
                 world.orElse(basePosition.getWorld()), server.orElse(basePosition.getServer())));
     }

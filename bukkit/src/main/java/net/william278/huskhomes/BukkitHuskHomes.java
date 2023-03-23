@@ -22,7 +22,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.position.Location;
-import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -68,7 +68,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
-    private Set<PluginHook> pluginHooks;
+    private List<Hook> hooks;
     private List<Command> commands;
     private Map<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
@@ -168,12 +168,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     private void loadHooks() {
-        this.pluginHooks = new HashSet<>();
+        this.hooks = new ArrayList<>();
         if (settings.doEconomy()) {
             if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
-                pluginHooks.add(new RedisEconomyHook(this));
+                hooks.add(new RedisEconomyHook(this));
             } else if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-                pluginHooks.add(new VaultEconomyHook(this));
+                hooks.add(new VaultEconomyHook(this));
             }
         }
         if (settings.doMapHook()) {
@@ -181,24 +181,24 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 case DYNMAP -> {
                     final Plugin dynmapPlugin = Bukkit.getPluginManager().getPlugin("Dynmap");
                     if (dynmapPlugin != null) {
-                        pluginHooks.add(new DynMapHook(this, dynmapPlugin));
+                        hooks.add(new DynmapHook(this));
                     }
                 }
                 case BLUEMAP -> {
                     if (Bukkit.getPluginManager().getPlugin("BlueMap") != null) {
-                        pluginHooks.add(new BlueMapHook(this));
+                        hooks.add(new BlueMapHook(this));
                     }
                 }
             }
         }
         if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
-            pluginHooks.add(new PlanHook(this));
+            hooks.add(new PlanHook(this));
         }
 
-        if (pluginHooks.size() > 0) {
-            pluginHooks.forEach(PluginHook::initialize);
-            log(Level.INFO, "Registered " + pluginHooks.size() + " plugin hooks: " + pluginHooks.stream()
-                    .map(PluginHook::getHookName)
+        if (hooks.size() > 0) {
+            hooks.forEach(Hook::initialize);
+            log(Level.INFO, "Registered " + hooks.size() + " plugin hooks: " + hooks.stream()
+                    .map(Hook::getName)
                     .collect(Collectors.joining(", ")));
         }
     }
@@ -314,8 +314,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     @NotNull
-    public Set<PluginHook> getPluginHooks() {
-        return pluginHooks;
+    public List<Hook> getHooks() {
+        return hooks;
     }
 
     @Override
@@ -341,7 +341,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                     final int y = snapshot.getHighestBlockYAt(x, z);
                     final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
                     if (!isBlockUnsafe(blockType.getKey().toString())) {
-                        return new Location((location.getX() + dX) + 0.5d, y + 1.25d, (location.getZ() + dZ) + 0.5d, location.getWorld());
+                        return Location.at((location.getX() + dX) + 0.5d, y + 1.25d, (location.getZ() + dZ) + 0.5d, location.getWorld());
                     }
                 }
             }
@@ -441,7 +441,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
             if (getSettings().doMapHook()) {
-                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMappingPlugin().displayName));
+                metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMappingPlugin().getDisplayName()));
             }
         } catch (Exception e) {
             log(Level.WARNING, "Failed to register metrics", e);
@@ -484,6 +484,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     // Super constructor for unit testing
+    @SuppressWarnings("unused")
     protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
     }

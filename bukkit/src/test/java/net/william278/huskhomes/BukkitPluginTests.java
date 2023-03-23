@@ -271,9 +271,9 @@ public class BukkitPluginTests {
         @Order(4)
         public void testWarpRelocation(@NotNull String name, @NotNull Position position) {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position newPosition = new Position(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
+            final Position newPosition = Position.at(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                     0, 0, world, plugin.getServerName());
-            plugin.getManager().warps().relocateWarp(name, newPosition);
+            plugin.getManager().warps().setWarpPosition(name, newPosition);
 
             final Optional<Position> warpPosition = plugin.getDatabase().getWarp(name).map(warp -> warp);
             Assertions.assertTrue(warpPosition.isPresent());
@@ -288,7 +288,7 @@ public class BukkitPluginTests {
         @Order(5)
         public void testWarpOverwrite(@NotNull String name, @NotNull Position position) {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position newPosition = new Position(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
+            final Position newPosition = Position.at(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                     0, 0, world, plugin.getServerName());
             plugin.getManager().warps().createWarp(name, newPosition, true);
 
@@ -327,7 +327,7 @@ public class BukkitPluginTests {
         @NotNull
         public static Stream<Arguments> provideWarpData() {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position position = new Position(0, 0, 0, 0, 0, world, plugin.getServerName());
+            final Position position = Position.at(0, 0, 0, 0, 0, world, plugin.getServerName());
             return WARP_NAMES.stream()
                     .flatMap(name -> Stream.of(Arguments.of(name, position)));
         }
@@ -415,7 +415,7 @@ public class BukkitPluginTests {
         @Order(4)
         public void testHomeRelocation(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position newPosition = new Position(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
+            final Position newPosition = Position.at(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                     0, 0, world, plugin.getServerName());
             plugin.getManager().homes().setHomePosition(owner, name, newPosition);
             Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
@@ -434,7 +434,7 @@ public class BukkitPluginTests {
         @Order(5)
         public void testHomeOverwrite(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position newPosition = new Position(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
+            final Position newPosition = Position.at(position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                     0, 0, world, plugin.getServerName());
             plugin.getManager().homes().setHomePosition(owner, name, newPosition);
             Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
@@ -507,7 +507,7 @@ public class BukkitPluginTests {
         @NotNull
         public static Stream<Arguments> provideHomeData() {
             final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
-            final Position position = new Position(0, 0, 0, 0, 0, world, plugin.getServerName());
+            final Position position = Position.at(0, 0, 0, 0, 0, world, plugin.getServerName());
             return HOME_NAMES.stream()
                     .flatMap(name -> Stream.of(Arguments.of(homeOwner, name, position)));
         }

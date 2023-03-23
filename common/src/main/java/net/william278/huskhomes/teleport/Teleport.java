@@ -1,6 +1,7 @@
 package net.william278.huskhomes.teleport;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportEvent;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
@@ -85,8 +86,7 @@ public class Teleport {
                 fireEvent((event) -> {
                     executeEconomyActions();
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
-                    plugin.getLocales().getLocale("teleporting_complete")
-                            .ifPresent(teleporter::sendMessage);
+                    this.displayTeleportingComplete(teleporter);
                 });
                 return;
             }
@@ -98,8 +98,7 @@ public class Teleport {
                             .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
                             .target(username.name())
                             .build().send(plugin.getMessenger(), executor);
-                    plugin.getLocales().getLocale("teleporting_complete")
-                            .ifPresent(teleporter::sendMessage);
+                    this.displayTeleportingComplete(teleporter);
                 });
                 return;
             }
@@ -111,10 +110,9 @@ public class Teleport {
             executeEconomyActions();
 
             final Position target = (Position) this.target;
-            if (plugin.getSettings().isCrossServer() && target.getServer().equals(plugin.getServerName())) {
+            if (!plugin.getSettings().isCrossServer() || target.getServer().equals(plugin.getServerName())) {
                 teleporter.teleportLocally(target, async);
-                plugin.getLocales().getLocale("teleporting_complete")
-                        .ifPresent(teleporter::sendMessage);
+                this.displayTeleportingComplete(teleporter);
                 return;
             }
 
@@ -123,16 +121,19 @@ public class Teleport {
         });
     }
 
-    private void teleport(@NotNull OnlineUser teleporter, @NotNull Position target) {
-
-    }
-
     @NotNull
     private Optional<OnlineUser> resolveLocalTeleporter() throws TeleportationException {
         if (this.teleporter instanceof Username username) {
             return username.findLocally(plugin);
         }
         return Optional.of((OnlineUser) this.teleporter);
+    }
+
+    public void displayTeleportingComplete(@NotNull OnlineUser teleporter) {
+        plugin.getLocales().getLocale("teleporting_complete")
+                .ifPresent(teleporter::sendMessage);
+        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+                .ifPresent(teleporter::playSound);
     }
 
     // Fire the teleport event

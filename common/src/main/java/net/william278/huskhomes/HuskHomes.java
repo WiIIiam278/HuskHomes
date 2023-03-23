@@ -13,12 +13,12 @@ import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.hook.MapHook;
-import net.william278.huskhomes.hook.PluginHook;
+import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
@@ -161,43 +161,26 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     void setServerSpawn(@NotNull Location location);
 
     /**
-     * Set of active {@link PluginHook}s running on the server
+     * Set of active {@link Hook}s running on the server
      *
-     * @return the {@link Set} of active {@link PluginHook}s
+     * @return the {@link Set} of active {@link Hook}s
      */
     @NotNull
-    Set<PluginHook> getPluginHooks();
+    List<Hook> getHooks();
 
-    /**
-     * Finds the {@link PluginHook} of the given class instance from the set of active {@link PluginHook}s
-     *
-     * @param hookClass the class of the {@link PluginHook} to get
-     * @param <H>       the type of the {@link PluginHook}
-     * @return the {@link PluginHook} instance, or an empty {@link Optional} if not found
-     */
-    default <H extends PluginHook> Optional<H> getHook(@NotNull Class<H> hookClass) {
-        return getPluginHooks().stream()
-                .filter(hook -> hook.getClass().isInstance(hookClass))
-                .findFirst()
-                .map(hookClass::cast);
+    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
+        return getHooks().stream()
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .map(hookClass::cast)
+                .findFirst();
     }
 
-    /**
-     * Gets the {@link MapHook} being used to display public homes and warps on a web map, if there is one, and it is enabled
-     *
-     * @return the {@link MapHook} optionally being used
-     */
-    default Optional<MapHook> getMapHook() {
-        return getSettings().doMapHook() ? getHook(MapHook.class) : Optional.empty();
-    }
-
-    /**
-     * Gets the {@link EconomyHook} being used to charge players for commands, if there is one, and it is enabled
-     *
-     * @return the {@link EconomyHook} optionally being used
-     */
     default Optional<EconomyHook> getEconomyHook() {
-        return getSettings().doEconomy() ? getHook(EconomyHook.class) : Optional.empty();
+        return getHook(EconomyHook.class);
+    }
+
+    default Optional<MapHook> getMapHook() {
+        return getHook(MapHook.class);
     }
 
     /**

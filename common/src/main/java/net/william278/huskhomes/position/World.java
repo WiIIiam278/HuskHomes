@@ -16,12 +16,7 @@ public class World {
     @Nullable
     private Environment environment;
 
-    public World(@NotNull String name, @NotNull UUID uuid) {
-        this.setName(name);
-        this.setUuid(uuid);
-    }
-
-    public World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment) {
+    private World(@NotNull String name, @NotNull UUID uuid, @Nullable Environment environment) {
         this.setName(name);
         this.setUuid(uuid);
         this.setEnvironment(environment);
@@ -31,14 +26,25 @@ public class World {
     public World() {
     }
 
+    @NotNull
+    public static World from(@NotNull String name, @NotNull UUID uuid, @NotNull Environment environment) {
+        return new World(name, uuid, environment);
+    }
+
+    @NotNull
+    public static World from(@NotNull String name, @NotNull UUID uuid) {
+        return new World(name, uuid, null);
+    }
+
     /**
      * The name of this world, as defined by the world directory name
      */
+    @NotNull
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -50,13 +56,15 @@ public class World {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(@NotNull UUID uuid) {
         this.uuid = uuid;
     }
 
     /**
      * Environment of the world ({@link Environment#OVERWORLD}, {@link Environment#NETHER}, {@link Environment#THE_END},
      * or {@link Environment#CUSTOM})
+     * <p>
+     * Will return {@link Environment#OVERWORLD} if the environment is null
      */
     @NotNull
     public Environment getEnvironment() {

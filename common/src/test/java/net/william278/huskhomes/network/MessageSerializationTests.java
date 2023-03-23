@@ -28,8 +28,8 @@ public class MessageSerializationTests {
                     .type(Message.Type.TELEPORT_REQUEST)
                     .target("TestTarget")
                     .payload(Payload.withPosition(
-                            new Position(63.25, 127.43, -32, 180f, -94.3f,
-                                    new World("TestWorld", UUID.randomUUID()), "TestServer")))
+                            Position.at(63.25, 127.43, -32, 180f, -94.3f,
+                                    World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build(),
             Message.builder()
                     .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
@@ -45,8 +45,8 @@ public class MessageSerializationTests {
                     .type(Message.Type.TELEPORT_TO_POSITION)
                     .target("TestTarget")
                     .payload(Payload.withPosition(
-                            new Position(63.25, 127.43, -32, 180f, -94.3f,
-                                    new World("TestWorld", UUID.randomUUID()), "TestServer")))
+                            Position.at(63.25, 127.43, -32, 180f, -94.3f,
+                                    World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build()
     );
 

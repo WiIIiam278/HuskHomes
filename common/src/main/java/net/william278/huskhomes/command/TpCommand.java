@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public class TpCommand extends Command implements TabProvider {
 
-    protected TpCommand(@NotNull HuskHomes implementor) {
-        super("tp", List.of("tpo"), "[<player|position>] [target]", implementor);
+    protected TpCommand(@NotNull HuskHomes plugin) {
+        super("tp", List.of("tpo"), "[<player|position>] [target]", plugin);
         setOperatorCommand(true);
     }
 

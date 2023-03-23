@@ -100,7 +100,7 @@ public class Settings {
     private int maxPublicHomes = 10;
 
     @YamlKey("general.stack_permission_limits")
-    private boolean stackPermissionLimits = true;
+    private boolean stackPermissionLimits = false;
 
     @YamlKey("general.permission_restrict_warps")
     private boolean permissionRestrictWarps = false;
@@ -112,7 +112,7 @@ public class Settings {
     private int teleportWarmupTime = 5;
 
     @YamlKey("general.teleport_warmup_display")
-    private MessageDisplayType teleportWarmupDisplay = MessageDisplayType.ACTION_BAR;
+    private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
 
     @YamlKey("general.teleport_request_expiry_time")
     private int teleportRequestExpiryTime = 60;
@@ -249,7 +249,7 @@ public class Settings {
     private boolean doMapHook = false;
 
     @YamlKey("map_hook.map_plugin")
-    private MapHook.MappingPlugin mappingPlugin = MapHook.MappingPlugin.DYNMAP;
+    private MapHook.Plugin type = MapHook.Plugin.DYNMAP;
 
     @YamlKey("map_hook.show_public_homes")
     private boolean publicHomesOnMap = true;
@@ -351,7 +351,7 @@ public class Settings {
         return teleportWarmupTime;
     }
 
-    public MessageDisplayType getTeleportWarmupDisplay() {
+    public Locales.DisplaySlot getTeleportWarmupDisplay() {
         return teleportWarmupDisplay;
     }
 
@@ -479,15 +479,15 @@ public class Settings {
         return doMapHook;
     }
 
-    public MapHook.MappingPlugin getMappingPlugin() {
-        return mappingPlugin;
+    public MapHook.Plugin getMappingPlugin() {
+        return type;
     }
 
-    public boolean isPublicHomesOnMap() {
+    public boolean doPublicHomesOnMap() {
         return publicHomesOnMap;
     }
 
-    public boolean isWarpsOnMap() {
+    public boolean doWarpsOnMap() {
         return warpsOnMap;
     }
 
@@ -501,16 +501,6 @@ public class Settings {
 
     public boolean doBrigadierTabCompletion() {
         return brigadierTabCompletion;
-    }
-
-    /**
-     * Represents where a chat message should display
-     */
-    public enum MessageDisplayType {
-        MESSAGE,
-        ACTION_BAR,
-        SUBTITLE,
-        TITLE
     }
 
     /**

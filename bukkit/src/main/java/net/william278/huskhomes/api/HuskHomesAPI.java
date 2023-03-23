@@ -3,7 +3,7 @@ package net.william278.huskhomes.api;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
@@ -26,7 +26,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     /**
      * <b>(Internal use only)</b> - Instance of the API class
      */
-    private static final HuskHomesAPI INSTANCE = new HuskHomesAPI();
+    private static HuskHomesAPI instance;
 
     /**
      * <b>(Internal use only)</b> - Constructor, instantiating the API
@@ -40,8 +40,9 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      *
      * @return instance of the HuskHomes API
      */
+    @NotNull
     public static HuskHomesAPI getInstance() {
-        return INSTANCE;
+        return instance == null ? instance = new HuskHomesAPI() : instance;
     }
 
     /**
@@ -103,18 +104,19 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public Position adaptPosition(@NotNull org.bukkit.Location location, @NotNull String server) {
-        return new Position(Objects.requireNonNull(adaptLocation(location)), server);
+        return Position.at(Objects.requireNonNull(adaptLocation(location)), server);
     }
 
     /**
      * Returns a {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on.
+     *
      * @param location the bukkit location to get the {@link Position} instance for
      * @return the {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on
      * @since 4.0
      */
     @NotNull
     public Position adaptPosition(@NotNull org.bukkit.Location location) {
-        return new Position(Objects.requireNonNull(adaptLocation(location)), getServer());
+        return Position.at(Objects.requireNonNull(adaptLocation(location)), getServer());
     }
 
     /**

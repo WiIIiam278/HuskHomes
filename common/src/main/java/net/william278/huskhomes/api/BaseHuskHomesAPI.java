@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -124,6 +125,40 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Edit {@link SavedUser} data for a given player by username, if they exist.
+     *
+     * @param username The username of the user to edit data for.
+     * @param editor   A {@link Consumer} that will be passed the {@link SavedUser} to edit
+     * @since 4.0
+     */
+    public final void editUserData(@NotNull String username, @NotNull Consumer<SavedUser> editor) {
+        plugin.runAsync(() -> {
+            Optional<SavedUser> savedUser = plugin.getDatabase().getUserDataByName(username);
+            if (savedUser.isPresent()) {
+                editor.accept(savedUser.get());
+                plugin.getDatabase().updateUserData(savedUser.get());
+            }
+        });
+    }
+
+    /**
+     * Edit {@link SavedUser} data for the given player's account {@link UUID}, if they exist.
+     *
+     * @param uuid   The {@link UUID} of the user to edit data for.
+     * @param editor A {@link Consumer} that will be passed the {@link SavedUser} to edit
+     * @since 4.0
+     */
+    public final void editUserData(@NotNull UUID uuid, @NotNull Consumer<SavedUser> editor) {
+        plugin.runAsync(() -> {
+            Optional<SavedUser> savedUser = plugin.getDatabase().getUserData(uuid);
+            if (savedUser.isPresent()) {
+                editor.accept(savedUser.get());
+                plugin.getDatabase().updateUserData(savedUser.get());
+            }
+        });
+    }
+
+    /**
      * Get a list of {@link Home}s set by the given user.
      *
      * @param user The {@link User} to get the homes of
@@ -142,9 +177,20 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<List<Home>> getUserPublicHomes(@NotNull User user) {
-        return getUserHomes(user).thenApply(homes -> homes.stream()
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHomes(user).stream()
                 .filter(Home::isPublic)
                 .collect(Collectors.toList()));
+    }
+
+    /**
+     * Get a list of public homes local to this server
+     *
+     * @param user The {@link User} to get the local public homes of
+     * @return A {@link CompletableFuture} that will complete with a list of public {@link Home}s local to the server
+     * @since 4.0
+     */
+    public final CompletableFuture<List<Home>> getLocalPublicHomes(@NotNull User user) {
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalPublicHomes(plugin));
     }
 
     /**
@@ -169,6 +215,7 @@ public abstract class BaseHuskHomesAPI {
         return plugin.supplyAsync(() -> plugin.getDatabase().getHome(user, homeName));
     }
 
+
     /**
      * Get a {@link Home} from the database by its' unique id
      *
@@ -177,6 +224,141 @@ public abstract class BaseHuskHomesAPI {
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull UUID homeUuid) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getHome(homeUuid));
+    }
+
+    /**
+     * Create a home for a given user with the specified name and position
+     *
+     * @param owner    The {@link User} to create the home for
+     * @param name     The name of the home
+     * @param position The {@link Position} of the home
+     * @since 4.0
+     */
+    public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false));
+    }
+
+    /**
+     * Delete a home for a given user with the specified name
+     *
+     * @param owner The {@link User} to delete the home for
+     * @param name  The name of the home
+     * @since 4.0
+     */
+    public final void deleteHome(@NotNull User owner, @NotNull String name) {
+        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(owner, name));
+    }
+
+    /**
+     * Delete a home
+     *
+     * @param home The {@link Home} to delete
+     * @since 4.0
+     */
+    public final void deleteHome(@NotNull Home home) {
+        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(home));
+    }
+
+    /**
+     * Rename a home for a given user
+     *
+     * @param owner   The {@link User} to rename the home for
+     * @param oldName The name of the home to rename
+     * @param newName The new name of the home
+     * @since 4.0
+     */
+    public final void renameHome(@NotNull User owner, @NotNull String oldName, @NotNull String newName) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(owner, oldName, newName));
+    }
+
+    /**
+     * Rename a home
+     *
+     * @param home    The {@link Home} to rename
+     * @param newName The new name of the home
+     * @since 4.0
+     */
+    public final void renameHome(@NotNull Home home, @NotNull String newName) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(home, newName));
+    }
+
+    /**
+     * Set the privacy of a home
+     *
+     * @param owner    The {@link User} to set the privacy of the home for
+     * @param name     The name of the home
+     * @param isPublic Whether the home should be public or not
+     * @since 4.0
+     */
+    public final void setHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(owner, name, isPublic));
+    }
+
+    /**
+     * Set the privacy of a home
+     *
+     * @param home     The {@link Home} to set the privacy of
+     * @param isPublic Whether the home should be public or not
+     * @since 4.0
+     */
+    public final void setHomePrivacy(@NotNull Home home, boolean isPublic) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(home, isPublic));
+    }
+
+    /**
+     * Set the description of a home
+     *
+     * @param owner       The {@link User} to set the description of the home for
+     * @param name        The name of the home
+     * @param description The description of the home
+     * @since 4.0
+     */
+    public final void setHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(owner, name, description));
+    }
+
+    /**
+     * Set the description of a home
+     *
+     * @param home        The {@link Home} to set the description of
+     * @param description The description of the home
+     * @since 4.0
+     */
+    public final void setHomeDescription(@NotNull Home home, @NotNull String description) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(home, description));
+    }
+
+    /**
+     * Relocate a home for a given user
+     *
+     * @param owner    The {@link User} to relocate the home for
+     * @param name     The name of the home
+     * @param position The new {@link Position} of the home
+     * @since 4.0
+     */
+    public final void relocateHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(owner, name, position));
+    }
+
+    /**
+     * Relocate a home
+     *
+     * @param home     The {@link Home} to relocate
+     * @param position The new {@link Position} of the home
+     * @since 4.0
+     */
+    public final void relocateHome(@NotNull Home home, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(home, position));
+    }
+
+    /**
+     * Get a list of {@link Warp}s local to this server
+     *
+     * @return A {@link CompletableFuture} that will complete with a list of {@link Warp}s local to the server
+     * @since 4.0
+     */
+    public final CompletableFuture<List<Warp>> getLocalWarps() {
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalWarps(plugin));
     }
 
     /**
@@ -208,6 +390,95 @@ public abstract class BaseHuskHomesAPI {
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID warpUuid) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpUuid));
+    }
+
+    /**
+     * Create a new {@link Warp} with the given name and {@link Position}
+     *
+     * @param name     The name of the warp
+     * @param position The {@link Position} of the warp
+     * @since 4.0
+     */
+    public final void createWarp(@NotNull String name, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().warps().createWarp(name, position));
+    }
+
+    /**
+     * Delete a {@link Warp} with the given name
+     *
+     * @param name The name of the warp to delete
+     */
+    public final void deleteWarp(@NotNull String name) {
+        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(name));
+    }
+
+    /**
+     * Delete a {@link Warp}
+     *
+     * @param warp The {@link Warp} to delete
+     */
+    public final void deleteWarp(@NotNull Warp warp) {
+        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(warp));
+    }
+
+    /**
+     * Rename a {@link Warp} by name
+     *
+     * @param oldName The name of the warp to rename
+     * @param newName The new name of the warp
+     */
+    public final void renameWarp(@NotNull String oldName, @NotNull String newName) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(oldName, newName));
+    }
+
+    /**
+     * Rename a {@link Warp}
+     *
+     * @param warp    The {@link Warp} to rename
+     * @param newName The new name of the warp
+     */
+    public final void renameWarp(@NotNull Warp warp, @NotNull String newName) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(warp, newName));
+    }
+
+    /**
+     * Set the description of a {@link Warp} by name
+     *
+     * @param name        The name of the warp to set the description of
+     * @param description The new description of the warp
+     */
+    public final void setWarpDescription(@NotNull String name, @NotNull String description) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(name, description));
+    }
+
+    /**
+     * Set the description of a {@link Warp}
+     *
+     * @param warp        The {@link Warp} to set the description of
+     * @param description The new description of the warp
+     */
+    public final void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(warp, description));
+    }
+
+    /**
+     * Set the {@link Position} of a {@link Warp} by name
+     *
+     * @param name     The name of the warp to set the {@link Position} of
+     * @param position The new {@link Position} of the warp
+     */
+    public final void relocateWarp(@NotNull String name, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(name, position));
+    }
+
+    /**
+     * Set the {@link Position} of a {@link Warp}
+     *
+     * @param warp     The {@link Warp} to set the {@link Position} of
+     * @param position The new {@link Position} of the warp
+     */
+    public final void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(warp, position));
     }
 
     /**
@@ -278,7 +549,7 @@ public abstract class BaseHuskHomesAPI {
      * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
      * @since 3.0
      */
-    public final void randomlyTeleportPlayer(@NotNull OnlineUser user, final boolean timedTeleport, @NotNull String... rtpArgs) {
+    public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport, @NotNull String... rtpArgs) {
         plugin.runAsync(() -> {
             final Optional<Position> position = plugin.getRandomTeleportEngine()
                     .getRandomPosition(user.getPosition().getWorld(), rtpArgs);

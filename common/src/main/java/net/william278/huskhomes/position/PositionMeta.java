@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Represents metadata about a {@link Position}, used in {@link SavedPosition} implementations
@@ -16,24 +15,27 @@ import java.util.Optional;
 public class PositionMeta {
 
     private String name;
-    @Nullable
     private String description;
     private Map<String, String> tags;
     private Instant creationTime;
 
-    public PositionMeta(@NotNull String name, @NotNull String description, @NotNull Instant creationTime,
-                        @Nullable String serializedTags) {
+    private PositionMeta(@NotNull String name, @NotNull String description,
+                         @NotNull Instant creationTime, @Nullable String serializedTags) {
         this.setName(name);
         this.setDescription(description);
         this.setCreationTime(creationTime);
         this.setTags(deserializeTags(serializedTags));
     }
 
-    public PositionMeta(@NotNull String name, @NotNull String description) {
-        this.setName(name);
-        this.setDescription(description);
-        this.setCreationTime(Instant.now());
-        this.setTags(new HashMap<>());
+    @NotNull
+    public static PositionMeta from(@NotNull String name, @NotNull String description,
+                                    @NotNull Instant creationTime, @Nullable String serializedTags) {
+        return new PositionMeta(name, description, creationTime, serializedTags);
+    }
+
+    @NotNull
+    public static PositionMeta create(@NotNull String name, @NotNull String description) {
+        return PositionMeta.from(name, description, Instant.now(), "");
     }
 
     /**
@@ -42,6 +44,7 @@ public class PositionMeta {
      * @param serializedTags The JSON string to deserialize
      * @return The deserialized {@link Map}
      */
+    @NotNull
     private static Map<String, String> deserializeTags(@Nullable String serializedTags) {
         try {
             if (serializedTags == null || serializedTags.isBlank()) {
@@ -89,7 +92,7 @@ public class PositionMeta {
      */
     @NotNull
     public String getDescription() {
-        return Optional.ofNullable(description).orElse("");
+        return description;
     }
 
     public void setDescription(@Nullable String description) {

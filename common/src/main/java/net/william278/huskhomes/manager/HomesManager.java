@@ -150,7 +150,7 @@ public class HomesManager {
                     existing.update(position);
                     return existing;
                 })
-                .orElse(new Home(position, new PositionMeta(name, ""), owner));
+                .orElse(Home.from(position, PositionMeta.create(name, ""), owner));
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
     }
@@ -248,10 +248,6 @@ public class HomesManager {
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic == home.isPublic()) {
-            return;
-        }
-
         if (isPublic && home.getOwner() instanceof OnlineUser online) {
             final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)

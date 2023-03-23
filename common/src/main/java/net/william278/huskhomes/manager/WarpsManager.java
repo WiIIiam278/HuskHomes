@@ -91,7 +91,7 @@ public class WarpsManager {
                     existing.setPitch(position.getPitch());
                     return existing;
                 })
-                .orElse(new Warp(position, new PositionMeta(name, "")));
+                .orElse(Warp.from(position, PositionMeta.create(name, "")));
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
     }
@@ -122,16 +122,16 @@ public class WarpsManager {
         return deleted;
     }
 
-    public void relocateWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
+    public void setWarpPosition(@NotNull String name, @NotNull Position position) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        this.relocateWarp(optionalWarp.get(), position);
+        this.setWarpPosition(optionalWarp.get(), position);
     }
 
-    public void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
+    public void setWarpPosition(@NotNull Warp warp, @NotNull Position position) {
         warp.update(position);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);

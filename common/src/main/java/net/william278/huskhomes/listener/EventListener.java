@@ -22,8 +22,8 @@ public class EventListener {
     @NotNull
     protected final HuskHomes plugin;
 
-    protected EventListener(@NotNull HuskHomes implementor) {
-        this.plugin = implementor;
+    protected EventListener(@NotNull HuskHomes plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -89,11 +89,18 @@ public class EventListener {
             if (teleport.getType() == Teleport.Type.RESPAWN) {
                 final Optional<Position> bedPosition = teleporter.getBedSpawnPosition();
                 if (bedPosition.isEmpty()) {
-                    plugin.getLocalCachedSpawn()
-                            .map(spawn -> spawn.getPosition(plugin.getServerName()))
-                            .ifPresent(position -> teleporter.teleportLocally(position,
-                                    plugin.getSettings().isAsynchronousTeleports()));
-                    teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
+                    plugin.getSpawn().ifPresent(spawn -> {
+                        if (plugin.getSettings().isCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
+                            plugin.runLater(() -> Teleport.builder(plugin)
+                                    .teleporter(teleporter)
+                                    .target(spawn)
+                                    .updateLastPosition(false)
+                                    .toTeleport().execute(), 40L);
+                        } else {
+                            teleporter.teleportLocally(spawn, plugin.getSettings().isAsynchronousTeleports());
+                        }
+                        teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
+                    });
                 } else {
                     teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().isAsynchronousTeleports());
                 }
@@ -104,8 +111,7 @@ public class EventListener {
 
             teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().isAsynchronousTeleports());
             plugin.getDatabase().setCurrentTeleport(teleporter, null);
-            plugin.getLocales().getLocale("teleporting_complete")
-                    .ifPresent(teleporter::sendMessage);
+            teleport.displayTeleportingComplete(teleporter);
         });
     }
 
@@ -146,7 +152,7 @@ public class EventListener {
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         // Set the player's last position to where they died
         if (plugin.getSettings().isBackCommandReturnByDeath()
-            && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
     }
@@ -160,8 +166,8 @@ public class EventListener {
         plugin.runAsync(() -> {
             // Display the return by death via /back notification
             if (plugin.getSettings().isBackCommandReturnByDeath()
-                && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
-                && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
+                    && onlineUser.hasPermission(Permission.COMMAND_BACK.node)
+                    && onlineUser.hasPermission(Permission.COMMAND_BACK_RETURN_BY_DEATH.node)) {
                 plugin.getLocales().getLocale("return_by_death_notification")
                         .ifPresent(onlineUser::sendMessage);
             }

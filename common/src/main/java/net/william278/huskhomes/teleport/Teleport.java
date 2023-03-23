@@ -85,6 +85,10 @@ public class Teleport {
             if (localTarget.isPresent()) {
                 fireEvent((event) -> {
                     executeEconomyActions();
+                    if (updateLastPosition) {
+                        plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
+                    }
+
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
                     this.displayTeleportingComplete(teleporter);
                 });
@@ -98,7 +102,6 @@ public class Teleport {
                             .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
                             .target(username.name())
                             .build().send(plugin.getMessenger(), executor);
-                    this.displayTeleportingComplete(teleporter);
                 });
                 return;
             }
@@ -108,6 +111,9 @@ public class Teleport {
 
         fireEvent((event) -> {
             executeEconomyActions();
+            if (updateLastPosition) {
+                plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
+            }
 
             final Position target = (Position) this.target;
             if (!plugin.getSettings().isCrossServer() || target.getServer().equals(plugin.getServerName())) {

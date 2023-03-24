@@ -528,15 +528,26 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and dispatch a (timed) teleport
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport
      *
-     * @param onlineUser The {@link OnlineUser} to teleport
-     * @return A {@link TeleportBuilder} to construct and dispatch a (timed) teleport
-     * @since 3.1
+     * @param teleporter The {@link OnlineUser} to teleport
+     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * @since 4.0
      */
     @NotNull
-    public final TeleportBuilder teleportBuilder(@NotNull OnlineUser onlineUser) {
-        return Teleport.builder(plugin).teleporter(onlineUser);
+    public final TeleportBuilder teleportBuilder(@NotNull OnlineUser teleporter) {
+        return teleportBuilder().teleporter(teleporter);
+    }
+
+    /**
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport
+     *
+     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * @since 4.0
+     */
+    @NotNull
+    public final TeleportBuilder teleportBuilder() {
+        return Teleport.builder(plugin);
     }
 
 
@@ -571,7 +582,7 @@ public abstract class BaseHuskHomesAPI {
                         e.displayMessage(user, plugin, rtpArgs);
                     }
                 }).exceptionally(e -> {
-                   throw new IllegalStateException("Random teleport engine threw an exception", e);
+                    throw new IllegalStateException("Random teleport engine threw an exception", e);
                 });
     }
 

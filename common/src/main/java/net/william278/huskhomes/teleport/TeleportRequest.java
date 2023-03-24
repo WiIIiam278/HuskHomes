@@ -27,6 +27,7 @@ public class TeleportRequest {
     @Expose
     private Status status;
     @Expose
+    @SerializedName("recipient_name")
     private String recipientName;
 
     /**

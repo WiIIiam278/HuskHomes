@@ -361,7 +361,7 @@ public class Settings {
         return listItemsPerPage;
     }
 
-    public boolean isAsynchronousTeleports() {
+    public boolean doAsynchronousTeleports() {
         return asynchronousTeleports;
     }
 

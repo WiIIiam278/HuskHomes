@@ -36,7 +36,7 @@ public class Teleport {
         this.target = target;
         this.type = type;
         this.economyActions = actions;
-        this.async = plugin.getSettings().isAsynchronousTeleports();
+        this.async = plugin.getSettings().doAsynchronousTeleports();
         this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
                 .map(command -> executor.hasPermission(command.getPermission()))
                 .orElse(false);

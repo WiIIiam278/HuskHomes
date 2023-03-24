@@ -1,6 +1,7 @@
 package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,7 @@ public class Message {
     @Expose
     private String sender;
     @Expose
+    @SerializedName("source_server")
     private String sourceServer;
 
     private Message(@NotNull Type type, @NotNull Scope scope, @NotNull String target, @NotNull Payload payload) {
@@ -127,6 +129,12 @@ public class Message {
 
         @NotNull
         public Message build() {
+            if (type == null) {
+                throw new IllegalStateException("Message type must be set");
+            }
+            if (target == null) {
+                throw new IllegalStateException("Message target must be set");
+            }
             return new Message(type, scope, target, payload);
         }
 

@@ -57,7 +57,8 @@ public class RedisBroker extends PluginMessageBroker {
                             return;
                         }
 
-                        if (message.getTarget().equals(plugin.getServerName())) {
+                        if (message.getTarget().equals(plugin.getServerName())
+                            || message.getTarget().equals(Message.TARGET_ALL)) {
                             plugin.getOnlineUsers().stream()
                                     .findAny()
                                     .ifPresent(receiver -> handle(receiver, message));

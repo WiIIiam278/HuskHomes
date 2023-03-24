@@ -6,7 +6,6 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,8 +29,8 @@ public abstract class Broker {
      * @param receiver The user who received the message, if a receiver exists
      * @param message  The message
      */
-    protected void handle(@Nullable OnlineUser receiver, @NotNull Message message) {
-        if (message.getSourceServer().equals(getServer()) || receiver == null) {
+    protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
+        if (message.getSourceServer().equals(getServer())) {
             return;
         }
         switch (message.getType()) {

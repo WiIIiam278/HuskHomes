@@ -4,6 +4,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.command.Command;
+import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
@@ -11,6 +12,7 @@ import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -40,21 +42,11 @@ public class EventListener {
             if (plugin.getSettings().isCrossServer()) {
                 this.handleInboundTeleport(onlineUser);
 
-                // Send a player list update to other servers
-                this.sendPlayerListUpdates(onlineUser);
+                // Synchronize the global player list
+                plugin.runLater(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L);
 
                 // Request updated player lists from other servers
                 if (plugin.getOnlineUsers().size() == 1) {
-                    plugin.runLater(() -> {
-                        plugin.getGlobalPlayerList().clear();
-                        Message.builder()
-                                .type(Message.Type.REQUEST_PLAYER_LIST)
-                                .scope(Message.Scope.SERVER)
-                                .target(Message.TARGET_ALL)
-                                .build().send(plugin.getMessenger(), onlineUser);
-                    }, 40L);
-
-                    // Update caches
                     plugin.getManager().homes().updatePublicHomeCache();
                     plugin.getManager().warps().updateWarpCache();
                 }
@@ -96,19 +88,19 @@ public class EventListener {
                                     .updateLastPosition(false)
                                     .toTeleport().execute(), 40L);
                         } else {
-                            teleporter.teleportLocally(spawn, plugin.getSettings().isAsynchronousTeleports());
+                            teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
                         }
                         teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     });
                 } else {
-                    teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().isAsynchronousTeleports());
+                    teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
                 }
                 plugin.getDatabase().setCurrentTeleport(teleporter, null);
                 plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
                 return;
             }
 
-            teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().isAsynchronousTeleports());
+            teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().doAsynchronousTeleports());
             plugin.getDatabase().setCurrentTeleport(teleporter, null);
             teleport.displayTeleportingComplete(teleporter);
         });
@@ -128,19 +120,41 @@ public class EventListener {
 
         // Update global lists
         if (plugin.getSettings().isCrossServer()) {
+            final List<String> localPlayerList = plugin.getLocalPlayerList().stream()
+                    .filter(player -> !player.equals(onlineUser.getUsername()))
+                    .toList();
+
+            if (plugin.getSettings().getBrokerType() == Broker.Type.REDIS) {
+                this.synchronizeGlobalPlayerList(onlineUser, localPlayerList);
+                return;
+            }
+
             plugin.getOnlineUsers().stream()
                     .filter(user -> !user.equals(onlineUser))
                     .findAny()
-                    .ifPresent(this::sendPlayerListUpdates);
+                    .ifPresent(player -> this.synchronizeGlobalPlayerList(player, localPlayerList));
         }
     }
 
-    private void sendPlayerListUpdates(@NotNull OnlineUser user) {
+    // Synchronize the global player list
+    private void synchronizeGlobalPlayerList(@NotNull OnlineUser user, @NotNull List<String> localPlayerList) {
+        // Send this server's player list to all servers
         Message.builder()
+                .type(Message.Type.PLAYER_LIST)
                 .scope(Message.Scope.SERVER)
                 .target(Message.TARGET_ALL)
-                .payload(Payload.withStringList(plugin.getLocalPlayerList()))
+                .payload(Payload.withStringList(localPlayerList))
                 .build().send(plugin.getMessenger(), user);
+
+        // Clear cached global player lists and request updated lists from all servers
+        if (plugin.getOnlineUsers().size() == 1) {
+            plugin.getGlobalPlayerList().clear();
+            Message.builder()
+                    .type(Message.Type.REQUEST_PLAYER_LIST)
+                    .scope(Message.Scope.SERVER)
+                    .target(Message.TARGET_ALL)
+                    .build().send(plugin.getMessenger(), user);
+        }
     }
 
     /**

@@ -141,7 +141,7 @@ public class Teleport {
     public void displayTeleportingComplete(@NotNull OnlineUser teleporter) {
         plugin.getLocales().getLocale("teleporting_complete")
                 .ifPresent(teleporter::sendMessage);
-        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
                 .ifPresent(teleporter::playSound);
     }
 

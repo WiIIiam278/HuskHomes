@@ -55,7 +55,6 @@ public abstract class Command extends Node {
     @NotNull
     public String getDescription() {
         return plugin.getLocales().getRawLocale(getName() + "_command_description")
-                .map(description -> plugin.getLocales().truncateText(description, 40))
                 .orElse(getUsage());
     }
 

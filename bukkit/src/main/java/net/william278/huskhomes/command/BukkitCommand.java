@@ -60,18 +60,18 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         }
 
         // Register permissions
-        addPermission(command.getPermission(), command.getUsage(), command.isOperatorCommand());
+        addPermission(command.getPermission(), command.getUsage(), getPermissionDefault(command.isOperatorCommand()));
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
-                .map((entry) -> addPermission(entry.getKey(), "", entry.getValue()))
+                .map((entry) -> addPermission(entry.getKey(), "", getPermissionDefault(entry.getValue())))
                 .filter(Objects::nonNull)
                 .toList();
-        addPermission(command.getPermission("*"), command.getUsage(), command.isOperatorCommand(),
+        addPermission(command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
                 childNodes.toArray(new Permission[0]));
     }
 
     @Nullable
-    private Permission addPermission(@NotNull String node, @NotNull String description, boolean operatorCommand, @NotNull Permission... children) {
+    private Permission addPermission(@NotNull String node, @NotNull String description, @NotNull PermissionDefault permissionDefault, @NotNull Permission... children) {
         final Map<String, Boolean> childNodes = Arrays.stream(children)
                 .map(Permission::getName)
                 .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
@@ -83,13 +83,18 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
 
         Permission permission;
         if (description.isEmpty()) {
-            permission = new Permission(node, operatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE, childNodes);
+            permission = new Permission(node, permissionDefault, childNodes);
         } else {
-            permission = new Permission(node, description, operatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE, childNodes);
+            permission = new Permission(node, description, permissionDefault, childNodes);
         }
         manager.addPermission(permission);
 
         return permission;
+    }
+
+    @NotNull
+    private static PermissionDefault getPermissionDefault(boolean isOperatorCommand) {
+        return isOperatorCommand ? PermissionDefault.OP : PermissionDefault.FALSE;
     }
 
     /**

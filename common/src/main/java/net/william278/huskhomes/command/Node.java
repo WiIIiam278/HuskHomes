@@ -43,11 +43,13 @@ public abstract class Node implements Executable {
 
     @NotNull
     public String getPermission(@NotNull String... child) {
-        return new StringJoiner(".")
+        final StringJoiner joiner = new StringJoiner(".")
                 .add(PERMISSION_PREFIX)
-                .add(getName())
-                .add(String.join(".", child))
-                .toString();
+                .add(getName());
+        for (final String node : child) {
+            joiner.add(node);
+        }
+        return joiner.toString().trim();
     }
 
     public boolean isOperatorCommand() {

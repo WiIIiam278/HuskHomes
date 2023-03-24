@@ -9,12 +9,14 @@ import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BackCommand extends InGameCommand {
 
     protected BackCommand(@NotNull HuskHomes plugin) {
         super("back", List.of(), "", plugin);
+        addAdditionalPermissions(Map.of("death", false));
     }
 
     @Override

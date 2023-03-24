@@ -20,6 +20,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
     public EditWarpCommand(@NotNull HuskHomes plugin) {
         super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
+        setOperatorCommand(true);
         addAdditionalPermissions(arguments.stream()
                 .collect(HashMap::new, (m, e) -> m.put(getPermission(e), false), HashMap::putAll));
     }

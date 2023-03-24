@@ -551,26 +551,28 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport, @NotNull String... rtpArgs) {
-        plugin.runAsync(() -> {
-            final Optional<Position> position = plugin.getRandomTeleportEngine()
-                    .getRandomPosition(user.getPosition().getWorld(), rtpArgs);
-            if (position.isEmpty()) {
-                throw new IllegalStateException("Random teleport engine returned an empty position");
-            }
+        plugin.getRandomTeleportEngine()
+                .getRandomPosition(user.getPosition().getWorld(), rtpArgs)
+                .thenAccept(position -> {
+                    if (position.isEmpty()) {
+                        throw new IllegalStateException("Random teleport engine returned an empty position");
+                    }
 
-            final TeleportBuilder builder = Teleport.builder(plugin)
-                    .teleporter(user)
-                    .target(position.get());
-            try {
-                if (timedTeleport) {
-                    builder.toTimedTeleport().execute();
-                } else {
-                    builder.toTeleport().execute();
-                }
-            } catch (TeleportationException e) {
-                e.displayMessage(user, plugin, rtpArgs);
-            }
-        });
+                    final TeleportBuilder builder = Teleport.builder(plugin)
+                            .teleporter(user)
+                            .target(position.get());
+                    try {
+                        if (timedTeleport) {
+                            builder.toTimedTeleport().execute();
+                        } else {
+                            builder.toTeleport().execute();
+                        }
+                    } catch (TeleportationException e) {
+                        e.displayMessage(user, plugin, rtpArgs);
+                    }
+                }).exceptionally(e -> {
+                   throw new IllegalStateException("Random teleport engine threw an exception", e);
+                });
     }
 
     /**

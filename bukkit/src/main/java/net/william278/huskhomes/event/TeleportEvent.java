@@ -10,13 +10,15 @@ public class TeleportEvent extends Event implements ITeleportEvent {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Teleport teleport;
+    private boolean cancelled;
 
     public TeleportEvent(@NotNull Teleport teleport) {
         this.teleport = teleport;
     }
 
     @Override
-    public @NotNull Teleport getTeleport() {
+    @NotNull
+    public Teleport getTeleport() {
         return teleport;
     }
 
@@ -31,4 +33,13 @@ public class TeleportEvent extends Event implements ITeleportEvent {
         return HANDLER_LIST;
     }
 
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
 }

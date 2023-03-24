@@ -50,7 +50,7 @@ public class TpCommand extends Command implements TabProvider {
                 }
 
                 target = executor.hasPermission(getPermission("coordinates"))
-                        ? parsePositionArgs(basePosition, args, 0) : Optional.empty();
+                        ? parsePositionArgs(basePosition, args, 1) : Optional.empty();
                 if (target.isPresent() && args.length >= 1) {
                     this.execute(executor, Teleportable.username(args[0]), target.get(), args);
                     return;

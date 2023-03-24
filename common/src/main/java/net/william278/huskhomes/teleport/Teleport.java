@@ -65,8 +65,8 @@ public class Teleport {
                 if (target instanceof Username username) {
                     Message.builder()
                             .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
-                            .target(username.name())
-                            .payload(Payload.withString(teleporter.name()))
+                            .target(teleporter.name())
+                            .payload(Payload.withString(username.name()))
                             .build().send(plugin.getMessenger(), executor);
                     return;
                 }

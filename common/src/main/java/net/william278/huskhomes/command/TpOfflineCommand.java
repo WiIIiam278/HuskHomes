@@ -55,9 +55,6 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
                     .teleporter(user)
                     .target(position.get())
                     .toTeleport().execute();
-
-            plugin.getLocales().getLocale("teleporting_offline_complete", target.getUsername())
-                    .ifPresent(user::sendMessage);
         } catch (TeleportationException e) {
             e.displayMessage(user, plugin, args);
         }

@@ -21,9 +21,14 @@ public class User {
      * @param uuid     Minecraft account {@link UUID} of the player
      * @param username Username of the player
      */
-    public User(@NotNull UUID uuid, @NotNull String username) {
+    protected User(@NotNull UUID uuid, @NotNull String username) {
         this.uuid = uuid;
         this.username = username;
+    }
+
+    @NotNull
+    public static User of(@NotNull UUID uuid, @NotNull String username) {
+        return new User(uuid, username);
     }
 
     @Override

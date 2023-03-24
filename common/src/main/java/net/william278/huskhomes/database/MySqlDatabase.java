@@ -246,7 +246,7 @@ public class MySqlDatabase extends Database {
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     return Optional.of(new SavedUser(
-                            new User(UUID.fromString(resultSet.getString("uuid")),
+                            User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
                             resultSet.getBoolean("ignoring_requests"),
@@ -272,7 +272,7 @@ public class MySqlDatabase extends Database {
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     return Optional.of(new SavedUser(
-                            new User(UUID.fromString(resultSet.getString("uuid")),
+                            User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
                             resultSet.getBoolean("ignoring_requests"),
@@ -387,7 +387,7 @@ public class MySqlDatabase extends Database {
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
                             UUID.fromString(resultSet.getString("home_uuid")),
-                            new User(UUID.fromString(resultSet.getString("owner_uuid")),
+                            User.of(UUID.fromString(resultSet.getString("owner_uuid")),
                                     resultSet.getString("owner_username")),
                             resultSet.getBoolean("public")));
                 }
@@ -464,7 +464,7 @@ public class MySqlDatabase extends Database {
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
                             UUID.fromString(resultSet.getString("home_uuid")),
-                            new User(UUID.fromString(resultSet.getString("owner_uuid")),
+                            User.of(UUID.fromString(resultSet.getString("owner_uuid")),
                                     resultSet.getString("owner_username")),
                             resultSet.getBoolean("public")));
                 }

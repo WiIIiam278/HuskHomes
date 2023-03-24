@@ -65,6 +65,7 @@ public class TpCommand extends Command implements TabProvider {
     // Execute a teleport
     private void execute(@NotNull CommandUser executor, @NotNull Teleportable teleportable, @NotNull Target target,
                          @NotNull String[] args) {
+        // Build and execute the teleport
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleportable)
                 .target(target);
@@ -75,6 +76,20 @@ public class TpCommand extends Command implements TabProvider {
             builder.toTeleport().execute();
         } catch (TeleportationException e) {
             e.displayMessage(executor, plugin, args);
+            return;
+        }
+
+        // Display teleport completion message
+        final String teleporterName = teleportable instanceof OnlineUser user
+                ? user.getUsername() : ((Username) teleportable).name();
+        if (target instanceof Position position) {
+            plugin.getLocales().getLocale("teleporting_other_complete_position", teleporterName,
+                            Integer.toString((int) position.getX()), Integer.toString((int) position.getY()),
+                            Integer.toString((int) position.getZ()))
+                    .ifPresent(executor::sendMessage);
+        } else {
+            plugin.getLocales().getLocale("teleporting_other_complete", teleporterName, ((Username) target).name())
+                    .ifPresent(executor::sendMessage);
         }
     }
 

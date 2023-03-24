@@ -20,6 +20,12 @@ public class TpAllCommand extends InGameCommand {
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        if (plugin.getGlobalPlayerList().size() <= 1) {
+            plugin.getLocales().getLocale("error_no_players_online")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
         final Position targetPosition = executor.getPosition();
         try {
             for (OnlineUser user : plugin.getOnlineUsers()) {

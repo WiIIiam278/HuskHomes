@@ -15,6 +15,12 @@ public class TpaAllCommand extends InGameCommand {
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        if (plugin.getGlobalPlayerList().size() <= 1) {
+            plugin.getLocales().getLocale("error_no_players_online")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
         if (plugin.getManager().requests().isIgnoringRequests(executor)) {
             plugin.getLocales().getLocale("error_ignoring_teleport_requests")
                     .ifPresent(executor::sendMessage);

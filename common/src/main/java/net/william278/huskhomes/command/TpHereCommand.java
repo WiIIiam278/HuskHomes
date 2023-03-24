@@ -31,6 +31,9 @@ public class TpHereCommand extends InGameCommand implements UserListTabProvider 
                     .teleporter(optionalTarget.get())
                     .target(executor.getPosition())
                     .toTeleport().execute();
+
+            plugin.getLocales().getLocale("teleporting_other_complete",
+                    optionalTarget.get(), executor.getUsername());
         } catch (TeleportationException e) {
             e.displayMessage(executor, plugin, args);
         }

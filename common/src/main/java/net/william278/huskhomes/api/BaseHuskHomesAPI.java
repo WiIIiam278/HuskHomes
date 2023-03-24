@@ -16,6 +16,7 @@ import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -352,6 +353,46 @@ public abstract class BaseHuskHomesAPI {
         plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(home, position));
     }
 
+
+    /**
+     * Set the meta tags of a home
+     *
+     * @param owner The {@link User} to set the meta tags of the home for
+     * @param name  The name of the home
+     * @param tags  The meta tags to set
+     * @since 4.0
+     */
+    public final void setHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Map<String, String> tags) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(owner, name, tags));
+    }
+
+    /**
+     * Set the meta tags of a home
+     *
+     * @param home The {@link Home} to set the meta tags of
+     * @param tags The meta tags to set
+     * @since 4.0
+     */
+    public final void setHomeMetaTags(@NotNull Home home, @NotNull Map<String, String> tags) {
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(home, tags));
+    }
+
+    /**
+     * Edit the meta tags of a home
+     *
+     * @param owner     The {@link User} to edit the meta tags of the home for
+     * @param name      The name of the home
+     * @param tagEditor The {@link Consumer} to edit the meta tags with
+     * @since 4.0
+     */
+    public final void editHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Consumer<Map<String, String>> tagEditor) {
+        plugin.runAsync(() -> plugin.getDatabase().getHome(owner, name).ifPresent(home -> {
+            final Map<String, String> tags = home.getMeta().getTags();
+            tagEditor.accept(tags);
+            setHomeMetaTags(home, tags);
+        }));
+    }
+
     /**
      * Get a list of {@link Warp}s local to this server
      *
@@ -481,6 +522,45 @@ public abstract class BaseHuskHomesAPI {
     public final void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
         plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(warp, position));
     }
+
+    /**
+     * Set the meta tags of a {@link Warp} by name
+     *
+     * @param name The name of the warp to set the meta tags of
+     * @param tags The new meta tags of the warp
+     * @since 4.0
+     */
+    public final void setWarpMetaTags(@NotNull String name, @NotNull Map<String, String> tags) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(name, tags));
+    }
+
+    /**
+     * Set the meta tags of a {@link Warp}
+     *
+     * @param warp The {@link Warp} to set the meta tags of
+     * @param tags The new meta tags of the warp
+     * @since 4.0
+     */
+    public final void setWarpMetaTags(@NotNull Warp warp, @NotNull Map<String, String> tags) {
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(warp, tags));
+    }
+
+    /**
+     * Edit the meta tags of a {@link Warp} by name
+     *
+     * @param name      The name of the warp to edit the meta tags of
+     * @param tagEditor A {@link Consumer} that will be passed the current meta tags of the warp
+     *                  and should edit them in-place
+     * @since 4.0
+     */
+    public final void editWarpMetaTag(@NotNull String name, @NotNull Consumer<Map<String, String>> tagEditor) {
+        plugin.runAsync(() -> plugin.getDatabase().getWarp(name).ifPresent(warp -> {
+            final Map<String, String> tags = warp.getMeta().getTags();
+            tagEditor.accept(tags);
+            setWarpMetaTags(warp, tags);
+        }));
+    }
+
 
     /**
      * Get the canonical {@link Position} of the spawn point. Note that if cross-server and global spawn

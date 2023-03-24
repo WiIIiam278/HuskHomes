@@ -11,6 +11,7 @@ import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -171,6 +172,21 @@ public class WarpsManager {
         }
 
         warp.getMeta().setDescription(description);
+        plugin.getDatabase().saveWarp(warp);
+        this.cacheWarp(warp, true);
+    }
+
+    public void setWarpMetaTags(@NotNull String name, @NotNull Map<String, String> tags) throws ValidationException {
+        final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
+        if (optionalWarp.isEmpty()) {
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
+        }
+
+        this.setWarpMetaTags(optionalWarp.get(), tags);
+    }
+
+    public void setWarpMetaTags(@NotNull Warp warp, @NotNull Map<String, String> tags) {
+        warp.getMeta().setTags(tags);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
     }

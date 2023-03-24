@@ -264,4 +264,19 @@ public class HomesManager {
         this.cacheHome(home, true);
     }
 
+    public void setHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Map<String, String> tags) throws ValidationException {
+        final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
+        if (optionalHome.isEmpty()) {
+            throw new ValidationException(ValidationException.Type.NOT_FOUND);
+        }
+
+        this.setHomeMetaTags(optionalHome.get(), tags);
+    }
+
+    public void setHomeMetaTags(@NotNull Home home, @NotNull Map<String, String> tags) {
+        home.getMeta().setTags(tags);
+        plugin.getDatabase().saveHome(home);
+        this.cacheHome(home, true);
+    }
+
 }

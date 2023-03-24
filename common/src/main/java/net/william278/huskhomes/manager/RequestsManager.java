@@ -6,6 +6,7 @@ import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportRequest;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -251,8 +252,7 @@ public class RequestsManager {
      * @param recipient The recipient of the request
      * @param accepted  Whether the request should be accepted or not
      */
-    private void handleRequestResponse(@NotNull TeleportRequest request, @NotNull OnlineUser recipient,
-                                       boolean accepted) {
+    private void handleRequestResponse(@NotNull TeleportRequest request, @NotNull OnlineUser recipient, boolean accepted) {
         // Remove the request(s) from the sender from the recipient's queue
         removeTeleportRequest(request.getRequesterName(), recipient);
 
@@ -297,7 +297,11 @@ public class RequestsManager {
                 builder.target(request.getRequesterName());
             }
 
-            builder.toTimedTeleport().execute();
+            try {
+                builder.toTimedTeleport().execute();
+            } catch (TeleportationException e) {
+                e.displayMessage(recipient, plugin, new String[0]);
+            }
         }
 
     }
@@ -315,11 +319,15 @@ public class RequestsManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.getType() == TeleportRequest.Type.TPA)) {
-            Teleport.builder(plugin)
-                    .teleporter(requester)
-                    .target(request.getRecipientName())
-                    .toTimedTeleport()
-                    .execute();
+            try {
+                Teleport.builder(plugin)
+                        .teleporter(requester)
+                        .target(request.getRecipientName())
+                        .toTimedTeleport()
+                        .execute();
+            } catch (TeleportationException e) {
+                e.displayMessage(requester, plugin, new String[0]);
+            }
         }
     }
 

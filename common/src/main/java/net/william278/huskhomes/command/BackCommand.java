@@ -4,6 +4,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,12 +26,16 @@ public class BackCommand extends InGameCommand {
             return;
         }
 
-        Teleport.builder(plugin)
-                .teleporter(executor)
-                .target(lastPosition.get())
-                .economyActions(EconomyHook.Action.BACK_COMMAND)
-                .toTimedTeleport()
-                .execute();
+        try {
+            Teleport.builder(plugin)
+                    .teleporter(executor)
+                    .target(lastPosition.get())
+                    .economyActions(EconomyHook.Action.BACK_COMMAND)
+                    .toTimedTeleport()
+                    .execute();
+        } catch (TeleportationException e) {
+            e.displayMessage(executor, plugin, args);
+        }
     }
 
 }

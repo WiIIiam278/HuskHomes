@@ -5,6 +5,7 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,11 +21,16 @@ public class TpAllCommand extends InGameCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Position targetPosition = executor.getPosition();
-        for (OnlineUser user : plugin.getOnlineUsers()) {
-            Teleport.builder(plugin)
-                    .teleporter(user)
-                    .target(targetPosition)
-                    .toTeleport().execute();
+        try {
+            for (OnlineUser user : plugin.getOnlineUsers()) {
+                Teleport.builder(plugin)
+                        .teleporter(user)
+                        .target(targetPosition)
+                        .toTeleport().execute();
+            }
+        } catch (TeleportationException e) {
+            e.displayMessage(executor, plugin, args);
+            return;
         }
 
         if (plugin.getSettings().isCrossServer()) {

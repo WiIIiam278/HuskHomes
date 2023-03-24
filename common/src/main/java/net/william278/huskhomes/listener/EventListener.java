@@ -9,6 +9,7 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,11 +83,17 @@ public class EventListener {
                 if (bedPosition.isEmpty()) {
                     plugin.getSpawn().ifPresent(spawn -> {
                         if (plugin.getSettings().isCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
-                            plugin.runLater(() -> Teleport.builder(plugin)
-                                    .teleporter(teleporter)
-                                    .target(spawn)
-                                    .updateLastPosition(false)
-                                    .toTeleport().execute(), 40L);
+                            plugin.runLater(() -> {
+                                try {
+                                    Teleport.builder(plugin)
+                                            .teleporter(teleporter)
+                                            .target(spawn)
+                                            .updateLastPosition(false)
+                                            .toTeleport().execute();
+                                } catch (TeleportationException e) {
+                                    e.displayMessage(teleporter, plugin, new String[0]);
+                                }
+                            }, 40L);
                         } else {
                             teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
                         }

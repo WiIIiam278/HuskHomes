@@ -65,10 +65,10 @@ public class TpCommand extends Command implements TabProvider {
     // Execute a teleport
     private void execute(@NotNull CommandUser executor, @NotNull Teleportable teleportable, @NotNull Target target,
                          @NotNull String[] args) {
+        final TeleportBuilder builder = Teleport.builder(plugin)
+                .teleporter(teleportable)
+                .target(target);
         try {
-            final TeleportBuilder builder = Teleport.builder(plugin)
-                    .teleporter(teleportable)
-                    .target(target);
             if (executor instanceof OnlineUser user) {
                 builder.executor(user);
             }

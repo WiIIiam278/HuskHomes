@@ -9,6 +9,7 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -560,10 +561,14 @@ public abstract class BaseHuskHomesAPI {
             final TeleportBuilder builder = Teleport.builder(plugin)
                     .teleporter(user)
                     .target(position.get());
-            if (timedTeleport) {
-                builder.toTimedTeleport().execute();
-            } else {
-                builder.toTeleport().execute();
+            try {
+                if (timedTeleport) {
+                    builder.toTimedTeleport().execute();
+                } else {
+                    builder.toTeleport().execute();
+                }
+            } catch (TeleportationException e) {
+                e.displayMessage(user, plugin, rtpArgs);
             }
         });
     }

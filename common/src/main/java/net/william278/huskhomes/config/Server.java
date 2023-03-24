@@ -11,9 +11,12 @@ import java.nio.file.Path;
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃ Server ID cache. Must match  ┃
-        ┃ server name in proxy config. ┃
-        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
+        ┃  HuskHomes Server ID config  ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ This file should contain the ID of this server as defined in your proxy config.
+        ┣╸ If you join it using /server alpha, then set it to 'alpha' (case-sensitive)
+        ┗╸ You only need to touch this if you're using cross-server mode.""")
 public class Server {
 
     /**
@@ -29,11 +32,11 @@ public class Server {
         }
     }
 
-    @YamlKey("server_name")
-    private String name = getDefaultServerName();
+    @YamlKey("name")
+    private String serverName = getDefaultServerName();
 
-    public Server(@NotNull String name) {
-        this.setName(name);
+    public Server(@NotNull String serverName) {
+        this.serverName = serverName;
     }
 
     @SuppressWarnings("unused")
@@ -54,10 +57,7 @@ public class Server {
      */
     @NotNull
     public String getName() {
-        return name;
+        return serverName;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 }

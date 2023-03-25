@@ -8,8 +8,9 @@ import java.util.List;
 
 public class DisabledCommand extends Command {
 
-    public DisabledCommand(@NotNull HuskHomes plugin) {
-        super("", List.of(), "", plugin);
+    public DisabledCommand(@NotNull String name, @NotNull HuskHomes plugin) {
+        super(name, List.of(), "", plugin);
+        setOperatorCommand(true);
     }
 
     @Override
@@ -17,4 +18,5 @@ public class DisabledCommand extends Command {
         plugin.getLocales().getLocale("error_command_disabled")
                 .ifPresent(executor::sendMessage);
     }
+
 }

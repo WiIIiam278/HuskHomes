@@ -140,7 +140,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 .map(type -> {
                     final Command command = type.getCommand();
                     if (settings.isCommandDisabled(command)) {
-                        new BukkitCommand(new DisabledCommand(this), this).register();
+                        new BukkitCommand(new DisabledCommand(command.getName(), this), this).register();
                         return null;
                     } else {
                         new BukkitCommand(command, this).register();

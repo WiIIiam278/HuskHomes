@@ -49,7 +49,7 @@ public class WarpsManager {
     }
 
     private void propagateCacheUpdate(@NotNull UUID warpId) {
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
                     .type(Message.Type.UPDATE_WARP)
                     .scope(Message.Scope.SERVER)

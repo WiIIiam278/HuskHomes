@@ -41,6 +41,9 @@ jobs:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-dependencies: |
+            bluemap | suggests | *
+            dynmap | suggests | *
           files-primary: target/HuskHomes-Plugin-*.jar
           name: HuskHomes v${{ env.version_name }}
           version: ${{ env.version_name }}

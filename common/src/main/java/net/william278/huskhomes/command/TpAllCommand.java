@@ -39,7 +39,7 @@ public class TpAllCommand extends InGameCommand {
             return;
         }
 
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             Message.builder()
                     .target(Message.TARGET_ALL)
                     .type(Message.Type.TELEPORT_TO_POSITION)

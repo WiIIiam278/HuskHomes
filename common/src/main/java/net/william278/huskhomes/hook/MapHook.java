@@ -90,7 +90,7 @@ public abstract class MapHook extends Hook {
             return false;
         }
 
-        return !plugin.getSettings().isCrossServer() || position.getServer().equals(plugin.getServerName());
+        return !plugin.getSettings().doCrossServer() || position.getServer().equals(plugin.getServerName());
     }
 
     @NotNull

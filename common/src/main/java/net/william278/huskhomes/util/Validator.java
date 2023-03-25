@@ -23,7 +23,7 @@ public class Validator {
      * @return True if the name is valid as per the plugin settings, false otherwise
      */
     public boolean isValidName(@NotNull String name) {
-        return (isAsciiOnly(name) || plugin.getSettings().isAllowUnicodeNames())
+        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
                 && !containsWhitespace(name)
                 && name.length() <= MAX_NAME_LENGTH && name.length() >= MIN_NAME_LENGTH;
     }
@@ -35,7 +35,7 @@ public class Validator {
      * @return Whether the meta is valid against the plugin settings
      */
     public boolean isValidDescription(@NotNull String description) {
-        return (isAsciiOnly(description) || plugin.getSettings().isAllowUnicodeDescriptions())
+        return (isAsciiOnly(description) || plugin.getSettings().doAllowUnicodeDescriptions())
                 && description.length() <= MAX_DESCRIPTION_LENGTH;
     }
 

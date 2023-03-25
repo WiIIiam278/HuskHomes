@@ -80,7 +80,7 @@ public class HomesManager {
     }
 
     private void propagateCacheUpdate(@NotNull UUID homeId) {
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
                     .type(Message.Type.UPDATE_HOME)
                     .scope(Message.Scope.SERVER)

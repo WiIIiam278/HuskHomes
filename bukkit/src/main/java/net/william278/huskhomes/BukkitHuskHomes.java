@@ -117,7 +117,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         this.manager = new Manager(this);
 
         // Initialize the network messenger if proxy mode is enabled
-        if (getSettings().isCrossServer()) {
+        if (getSettings().doCrossServer()) {
             initialize("message broker", (plugin) -> {
                 broker = switch (settings.getBrokerType()) {
                     case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
@@ -391,7 +391,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             this.locales = Annotaml.create(new File(getDataFolder(), "messages_" + settings.getLanguage() + ".yml"), languagePresets).get();
 
             // Load server from file
-            if (settings.isCrossServer()) {
+            if (settings.doCrossServer()) {
                 this.server = Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get();
             } else {
                 this.server = new Server(Server.getDefaultServerName());
@@ -423,8 +423,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void registerMetrics(int metricsId) {
         try {
             final Metrics metrics = new Metrics(this, metricsId);
-            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().isCrossServer())));
-            if (getSettings().isCrossServer()) {
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
+            if (getSettings().doCrossServer()) {
                 metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getBrokerType().getDisplayName()));
             }
             metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));

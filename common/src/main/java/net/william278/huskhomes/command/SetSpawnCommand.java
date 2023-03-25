@@ -19,7 +19,7 @@ public class SetSpawnCommand extends InGameCommand {
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Position position = executor.getPosition();
         try {
-            if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalSpawn()) {
+            if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalSpawn()) {
                 final String warpName = plugin.getSettings().getGlobalSpawnName();
                 plugin.getManager().warps().createWarp(warpName, position, true);
                 plugin.getLocales().getRawLocale("spawn_warp_default_description")

@@ -147,7 +147,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
      */
     default Optional<Position> getSpawn() {
-        return getSettings().isCrossServer() && getSettings().isGlobalSpawn()
+        return getSettings().doCrossServer() && getSettings().isGlobalSpawn()
                 ? getDatabase().getWarp(getSettings().getGlobalSpawnName()).map(warp -> (Position) warp)
                 : getLocalCachedSpawn().map(spawn -> spawn.getPosition(getServerName()));
     }

@@ -24,9 +24,9 @@ public class PrivateHomeListCommand extends ListCommand {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final Optional<String> homeOwner = args.length == 2 ? parseStringArg(args, 0)
+        final Optional<String> homeOwner = args.length > 0 ? parseStringArg(args, 0)
                 : executor instanceof OnlineUser user ? Optional.of(user.getUsername()) : Optional.empty();
-        final int pageNumber = parseIntArg(args, args.length > 0 ? args.length - 1 : 0).orElse(1);
+        final int pageNumber = parseIntArg(args, args.length > 1 ? 1 : 0).orElse(1);
         if (homeOwner.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -46,7 +46,7 @@ public class PrivateHomeListCommand extends ListCommand {
 
         final User user = targetUser.get();
         if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())
-                && !executor.hasPermission(getPermission("other"))) {
+            && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;

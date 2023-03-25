@@ -57,6 +57,13 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private Optional<Home> resolveHome(@NotNull CommandUser executor, @NotNull String homeName) {
         if (homeName.contains(".")) {
             final String[] splitHomeName = homeName.split("\\.");
+            if (splitHomeName.length != 2) {
+                plugin.getLocales().getLocale("error_invalid_syntax",
+                                "/" + getName() + " <owner_name.home_name>")
+                        .ifPresent(executor::sendMessage);
+                return Optional.empty();
+            }
+
             final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(splitHomeName[0])
                     .flatMap(owner -> plugin.getDatabase().getHome(owner.getUser(), splitHomeName[1]));
 

@@ -22,7 +22,7 @@ commands:
   sethome:
     usage: /sethome <name>
   homelist:
-    usage: /homelist [page]
+    usage: /homelist [player] [page]
     aliases: [homes]
   delhome:
     usage: /delhome <name>

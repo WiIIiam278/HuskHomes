@@ -3,10 +3,7 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Home;
-import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.*;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,13 +35,22 @@ public class PrivateHomeListCommand extends ListCommand {
 
     protected void showHomeList(@NotNull CommandUser executor, @NotNull String homeOwner, int pageNumber) {
         final Optional<User> targetUser = plugin.getDatabase().getUserDataByName(homeOwner).map(SavedUser::getUser);
+        final User user;
+        final int page;
         if (targetUser.isEmpty()) {
-            plugin.getLocales().getLocale("error_player_not_found", homeOwner)
-                    .ifPresent(executor::sendMessage);
-            return;
+            final Optional<Integer> pageNumberArg = parseIntArg(new String[]{homeOwner}, 0);
+            if (pageNumberArg.isEmpty() || !(executor instanceof OnlineUser onlineUser)) {
+                plugin.getLocales().getLocale("error_player_not_found", homeOwner)
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            page = pageNumberArg.get();
+            user = onlineUser;
+        } else {
+            user = targetUser.get();
+            page = pageNumber;
         }
 
-        final User user = targetUser.get();
         if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())
             && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
@@ -53,7 +59,7 @@ public class PrivateHomeListCommand extends ListCommand {
         }
 
         if (cachedLists.containsKey(user.getUuid())) {
-            executor.sendMessage(cachedLists.get(user.getUuid()).getNearestValidPage(pageNumber));
+            executor.sendMessage(cachedLists.get(user.getUuid()).getNearestValidPage(page));
             return;
         }
 
@@ -61,7 +67,7 @@ public class PrivateHomeListCommand extends ListCommand {
         plugin.fireEvent(plugin.getViewHomeListEvent(homes, executor, false),
                 (event) -> this.generateList(executor, user, event.getHomes()).ifPresent(homeList -> {
                     cachedLists.put(user.getUuid(), homeList);
-                    executor.sendMessage(homeList.getNearestValidPage(pageNumber));
+                    executor.sendMessage(homeList.getNearestValidPage(page));
                 }));
     }
 

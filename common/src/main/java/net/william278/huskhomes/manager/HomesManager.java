@@ -1,6 +1,7 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.command.ListCommand;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
@@ -59,6 +60,10 @@ public class HomesManager {
             plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
         }
 
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         if (propagate) {
             propagateCacheUpdate(home.getUuid());
         }
@@ -74,6 +79,10 @@ public class HomesManager {
             return false;
         });
 
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         if (propagate) {
             this.propagateCacheUpdate(homeId);
         }

@@ -1,6 +1,7 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.command.ListCommand;
 import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
@@ -29,6 +30,11 @@ public class WarpsManager {
         warps.remove(warp);
         warps.add(warp);
         plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         if (propagate) {
             this.propagateCacheUpdate(warp.getUuid());
         }
@@ -43,6 +49,10 @@ public class WarpsManager {
             return false;
         });
 
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         if (propagate) {
             this.propagateCacheUpdate(warpId);
         }

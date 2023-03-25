@@ -18,4 +18,8 @@ public abstract class ListCommand extends Command {
         this.cachedLists = new HashMap<>();
     }
 
+    public void invalidateCaches() {
+        cachedLists.clear();
+    }
+
 }

@@ -46,7 +46,7 @@ public class PlanHook extends Hook {
 
     private void registerDataExtension() {
         try {
-            ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase(), plugin.getSettings().isCrossServer()));
+            ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase(), plugin.getSettings().doCrossServer()));
         } catch (IllegalStateException planIsNotEnabled) {
             plugin.log(Level.SEVERE, "Plan extension hook failed to register. Plan is not enabled.", planIsNotEnabled);
             // Plan is not enabled, handle exception

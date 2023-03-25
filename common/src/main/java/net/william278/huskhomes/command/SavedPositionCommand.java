@@ -95,7 +95,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
         final Optional<Warp> warp = plugin.getDatabase().getWarp(warpName);
-        if (warp.isPresent() && executor instanceof OnlineUser user && plugin.getSettings().isPermissionRestrictWarps()
+        if (warp.isPresent() && executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
             && (!user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName)))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);

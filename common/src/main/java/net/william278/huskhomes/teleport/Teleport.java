@@ -56,7 +56,7 @@ public class Teleport {
         // Teleport a user on another server
         if (localTeleporter.isEmpty()) {
             final Username teleporter = (Username) this.teleporter;
-            if (!plugin.getSettings().isCrossServer()) {
+            if (!plugin.getSettings().doCrossServer()) {
                 throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND);
             }
 
@@ -98,7 +98,7 @@ public class Teleport {
                 return;
             }
 
-            if (plugin.getSettings().isCrossServer()) {
+            if (plugin.getSettings().doCrossServer()) {
                 fireEvent((event) -> {
                     executeEconomyActions();
                     Message.builder()
@@ -119,7 +119,7 @@ public class Teleport {
             }
 
             final Position target = (Position) this.target;
-            if (!plugin.getSettings().isCrossServer() || target.getServer().equals(plugin.getServerName())) {
+            if (!plugin.getSettings().doCrossServer() || target.getServer().equals(plugin.getServerName())) {
                 teleporter.teleportLocally(target, async);
                 this.displayTeleportingComplete(teleporter);
                 return;

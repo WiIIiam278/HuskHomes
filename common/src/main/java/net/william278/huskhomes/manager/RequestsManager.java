@@ -121,7 +121,7 @@ public class RequestsManager {
             sendLocalTeleportRequest(request, onlineUser);
         }
 
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST)
                     .payload(Payload.withTeleportRequest(request))
@@ -151,7 +151,7 @@ public class RequestsManager {
         }
 
         // If the player couldn't be found locally, send the request cross-server
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             request.setRecipientName(targetUser);
             Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST)
@@ -272,7 +272,7 @@ public class RequestsManager {
         final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.getRequesterName());
         if (localRequester.isPresent()) {
             handleLocalRequestResponse(localRequester.get(), request);
-        } else if (plugin.getSettings().isCrossServer()) {
+        } else if (plugin.getSettings().doCrossServer()) {
             Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
                     .payload(Payload.withTeleportRequest(request))

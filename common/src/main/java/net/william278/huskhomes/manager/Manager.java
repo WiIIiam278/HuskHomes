@@ -35,7 +35,7 @@ public class Manager {
 
     // Update caches on all servers
     protected void propagateCacheUpdate() {
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
                     .type(Message.Type.UPDATE_CACHES)
                     .scope(Message.Scope.SERVER)

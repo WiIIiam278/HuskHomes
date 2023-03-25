@@ -98,7 +98,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserRespawnPosition(@NotNull User user) {
-        if (!plugin.getSettings().isCrossServer() || plugin.getSettings().isGlobalRespawning()) {
+        if (!plugin.getSettings().doCrossServer() || plugin.getSettings().isGlobalRespawning()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
         return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user));

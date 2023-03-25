@@ -141,7 +141,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                         .ifPresent(this::add);
             }
 
-            if (!plugin.getSettings().isCrossServer()) {
+            if (!plugin.getSettings().doCrossServer()) {
                 plugin.getLocales().getLocale("edit_warp_menu_world", warp.getWorld().getName()).ifPresent(this::add);
             } else {
                 plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.getWorld().getName(), warp.getServer()).ifPresent(this::add);

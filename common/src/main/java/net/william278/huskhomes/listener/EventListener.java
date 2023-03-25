@@ -40,7 +40,7 @@ public class EventListener {
             plugin.getDatabase().ensureUser(onlineUser);
 
             // Handle cross server checks
-            if (plugin.getSettings().isCrossServer()) {
+            if (plugin.getSettings().doCrossServer()) {
                 this.handleInboundTeleport(onlineUser);
 
                 // Synchronize the global player list
@@ -82,7 +82,7 @@ public class EventListener {
                 final Optional<Position> bedPosition = teleporter.getBedSpawnPosition();
                 if (bedPosition.isEmpty()) {
                     plugin.getSpawn().ifPresent(spawn -> {
-                        if (plugin.getSettings().isCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
+                        if (plugin.getSettings().doCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
                             plugin.runLater(() -> {
                                 try {
                                     Teleport.builder(plugin)
@@ -126,7 +126,7 @@ public class EventListener {
         plugin.getManager().homes().removeUserHomes(onlineUser);
 
         // Update global lists
-        if (plugin.getSettings().isCrossServer()) {
+        if (plugin.getSettings().doCrossServer()) {
             final List<String> localPlayerList = plugin.getLocalPlayerList().stream()
                     .filter(player -> !player.equals(onlineUser.getUsername()))
                     .toList();
@@ -170,7 +170,7 @@ public class EventListener {
      * @param onlineUser the {@link OnlineUser} who died
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
-        if (plugin.getSettings().isBackCommandReturnByDeath() && plugin.getCommand(BackCommand.class)
+        if (plugin.getSettings().doBackCommandReturnByDeath() && plugin.getCommand(BackCommand.class)
                 .map(Command::getPermission).map(onlineUser::hasPermission).orElse(false)) {
             plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
         }
@@ -188,13 +188,13 @@ public class EventListener {
                     .map(command -> onlineUser.hasPermission(command.getPermission())
                                     && onlineUser.hasPermission(command.getPermission("death")))
                     .orElse(false);
-            if (plugin.getSettings().isBackCommandReturnByDeath() && canReturnByDeath) {
+            if (plugin.getSettings().doBackCommandReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")
                         .ifPresent(onlineUser::sendMessage);
             }
 
             // Respawn the player cross-server if needed
-            if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning()) {
+            if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning()) {
                 plugin.getDatabase().getRespawnPosition(onlineUser).ifPresent(respawnPosition -> {
                     if (!respawnPosition.getServer().equals(plugin.getServerName())) {
                         Teleport.builder(plugin)
@@ -216,7 +216,7 @@ public class EventListener {
      * @param sourcePosition the source {@link Position} they came from
      */
     protected final void handlePlayerTeleport(@NotNull OnlineUser onlineUser, @NotNull Position sourcePosition) {
-        if (!plugin.getSettings().isBackCommandSaveOnTeleportEvent()) {
+        if (!plugin.getSettings().doBackCommandSaveOnTeleportEvent()) {
             return;
         }
 
@@ -231,7 +231,7 @@ public class EventListener {
      * @param position   the new spawn point
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-        if (plugin.getSettings().isCrossServer() && plugin.getSettings().isGlobalRespawning()) {
+        if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
     }

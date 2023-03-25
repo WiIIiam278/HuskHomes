@@ -233,7 +233,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         .ifPresent(this::add);
             }
 
-            if (!plugin.getSettings().isCrossServer()) {
+            if (!plugin.getSettings().doCrossServer()) {
                 plugin.getLocales().getLocale("edit_home_menu_world", home.getWorld().getName())
                         .ifPresent(this::add);
             } else {

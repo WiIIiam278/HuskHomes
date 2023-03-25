@@ -317,7 +317,7 @@ public class Settings {
         return stackPermissionLimits;
     }
 
-    public boolean isPermissionRestrictWarps() {
+    public boolean doPermissionRestrictWarps() {
         return permissionRestrictWarps;
     }
 
@@ -341,19 +341,19 @@ public class Settings {
         return strictTpaHereRequests;
     }
 
-    public boolean isAllowUnicodeNames() {
+    public boolean doAllowUnicodeNames() {
         return allowUnicodeNames;
     }
 
-    public boolean isAllowUnicodeDescriptions() {
+    public boolean doAllowUnicodeDescriptions() {
         return allowUnicodeDescriptions;
     }
 
-    public boolean isBackCommandReturnByDeath() {
+    public boolean doBackCommandReturnByDeath() {
         return backCommandReturnByDeath;
     }
 
-    public boolean isBackCommandSaveOnTeleportEvent() {
+    public boolean doBackCommandSaveOnTeleportEvent() {
         return backCommandSaveOnTeleportEvent;
     }
 
@@ -365,18 +365,18 @@ public class Settings {
         return asynchronousTeleports;
     }
 
-    public boolean isPlaySoundEffects() {
+    public boolean doPlaySoundEffects() {
         return playSoundEffects;
     }
 
     public Optional<String> getSoundEffect(@NotNull SoundEffectAction action) {
-        if (!isPlaySoundEffects()) {
+        if (!doPlaySoundEffects()) {
             return Optional.empty();
         }
         return Optional.ofNullable(soundEffects.get(action.name().toLowerCase()));
     }
 
-    public boolean isCrossServer() {
+    public boolean doCrossServer() {
         return crossServer;
     }
 

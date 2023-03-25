@@ -227,8 +227,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
             if (home.getMeta().getDescription().length() > 0) {
                 plugin.getLocales().getLocale("edit_home_menu_description",
-                                home.getMeta().getDescription().length() > 50
-                                        ? home.getMeta().getDescription().substring(0, 49).trim() + "…" : home.getMeta().getDescription(),
+                                plugin.getLocales().truncateText(home.getMeta().getDescription(), 50),
                                 plugin.getLocales().wrapText(home.getMeta().getDescription(), 40))
                         .ifPresent(this::add);
             }

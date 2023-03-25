@@ -135,8 +135,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
             if (warp.getMeta().getDescription().length() > 0) {
                 plugin.getLocales().getLocale("edit_warp_menu_description",
-                                warp.getMeta().getDescription().length() > 50
-                                        ? warp.getMeta().getDescription().substring(0, 49).trim() + "…" : warp.getMeta().getDescription(),
+                                plugin.getLocales().truncateText(warp.getMeta().getDescription(), 50),
                                 plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
                         .ifPresent(this::add);
             }

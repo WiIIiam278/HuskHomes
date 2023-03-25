@@ -41,9 +41,6 @@ public class Locales {
      * @return An {@link Optional} containing the locale corresponding to the id, if it exists
      */
     public Optional<String> getRawLocale(@NotNull String localeId) {
-        if (!rawLocales.containsKey(localeId)) { // debug
-            return Optional.of(localeId + " (missing locale)"); // debug
-        } // debug
         return Optional.ofNullable(rawLocales.get(localeId)).map(StringEscapeUtils::unescapeJava);
     }
 

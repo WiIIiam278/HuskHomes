@@ -101,7 +101,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
 
     @NotNull
     private static PermissionDefault getPermissionDefault(boolean isOperatorCommand) {
-        return isOperatorCommand ? PermissionDefault.OP : PermissionDefault.FALSE;
+        return isOperatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE;
     }
 
     /**

@@ -48,7 +48,14 @@ public class RedisBroker extends PluginMessageBroker {
                             return;
                         }
 
-                        final Message message = plugin.getGson().fromJson(encodedMessage, Message.class);
+                        final Message message;
+                        try {
+                            message = plugin.getGson().fromJson(encodedMessage, Message.class);
+                        } catch (Exception e) {
+                            plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
+                            return;
+                        }
+
                         if (message.getScope() == Message.Scope.PLAYER) {
                             plugin.getOnlineUsers().stream()
                                     .filter(online -> message.getTarget().equals(Message.TARGET_ALL)

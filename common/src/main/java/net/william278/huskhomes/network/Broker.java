@@ -18,7 +18,7 @@ public abstract class Broker {
     /**
      * Create a new broker
      *
-     * @param plugin the HuskTowns plugin instance
+     * @param plugin the HuskHomes plugin instance
      */
     protected Broker(@NotNull HuskHomes plugin) {
         this.plugin = plugin;

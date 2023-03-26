@@ -48,15 +48,9 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
 
     public void register() {
         // Register with bukkit
-        final PluginCommand pluginCommand = Objects.requireNonNull(plugin.getCommand(command.getName()));
-        pluginCommand.setExecutor(this);
-        pluginCommand.setTabCompleter(this);
-        pluginCommand.setDescription(command.getDescription());
-        pluginCommand.setPermission(command.getPermission());
-
-        // Register commodore TAB completion
-        if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
-            BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
+        final PluginCommand pluginCommand = plugin.getCommand(command.getName());
+        if (pluginCommand == null) {
+            throw new IllegalStateException("Command " + command.getName() + " not found in plugin.yml");
         }
 
         // Register permissions
@@ -66,8 +60,21 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
                 .map((entry) -> addPermission(entry.getKey(), "", getPermissionDefault(entry.getValue())))
                 .filter(Objects::nonNull)
                 .toList();
-        addPermission(command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
-                childNodes.toArray(new Permission[0]));
+        if (!childNodes.isEmpty()) {
+            addPermission(command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
+                    childNodes.toArray(new Permission[0]));
+        }
+
+        // Set command parameters
+        pluginCommand.setExecutor(this);
+        pluginCommand.setTabCompleter(this);
+        pluginCommand.setDescription(command.getDescription());
+        pluginCommand.setPermission(command.getPermission());
+
+        // Register commodore TAB completion
+        if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
+            BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
+        }
     }
 
     @Nullable

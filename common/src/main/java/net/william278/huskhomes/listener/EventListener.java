@@ -195,7 +195,7 @@ public class EventListener {
 
             // Respawn the player cross-server if needed
             if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning()) {
-                plugin.getDatabase().getRespawnPosition(onlineUser).ifPresent(respawnPosition -> {
+                plugin.getDatabase().getRespawnPosition(onlineUser).ifPresentOrElse(respawnPosition -> {
                     if (!respawnPosition.getServer().equals(plugin.getServerName())) {
                         Teleport.builder(plugin)
                                 .teleporter(onlineUser)
@@ -204,7 +204,16 @@ public class EventListener {
                                 .toTeleport()
                                 .execute();
                     }
-                });
+                }, () -> plugin.getSpawn().ifPresent(spawn -> {
+                    if (!spawn.getServer().equals(plugin.getServerName())) {
+                        Teleport.builder(plugin)
+                                .teleporter(onlineUser)
+                                .type(Teleport.Type.RESPAWN)
+                                .target(spawn)
+                                .toTeleport()
+                                .execute();
+                    }
+                }));
             }
         });
     }

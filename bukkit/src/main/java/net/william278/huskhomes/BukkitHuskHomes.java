@@ -144,7 +144,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                         return null;
                     } else {
                         new BukkitCommand(command, this).register();
-                        return type.getCommand();
+                        return command;
                     }
                 })
                 .filter(Objects::nonNull)

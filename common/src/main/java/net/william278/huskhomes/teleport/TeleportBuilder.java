@@ -27,7 +27,7 @@ public class TeleportBuilder {
     }
 
     @NotNull
-    public TimedTeleport toTimedTeleport() throws IllegalStateException {
+    public TimedTeleport toTimedTeleport() throws TeleportationException, IllegalStateException {
         validateTeleport();
         if (!(teleporter instanceof OnlineUser onlineTeleporter)) {
             throw new IllegalStateException("Teleporter must be an OnlineUser for timed teleportation");
@@ -36,19 +36,20 @@ public class TeleportBuilder {
                 plugin.getSettings().getTeleportWarmupTime(), updateLastPosition, economyActions, plugin);
     }
 
-    private void validateTeleport() throws IllegalStateException {
+    private void validateTeleport() throws TeleportationException {
         if (teleporter == null) {
-            throw new IllegalStateException("Teleporter must be set");
+            throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND);
         }
         if (executor == null) {
             if (teleporter instanceof OnlineUser onlineUser) {
                 executor = onlineUser;
             } else {
-                throw new IllegalStateException("Executor must be set if teleporter is not an OnlineUser");
+                executor = ((Username) teleporter).findLocally(plugin)
+                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND));
             }
         }
         if (target == null) {
-            throw new IllegalStateException("Target must be set");
+            throw new TeleportationException(TeleportationException.Type.TARGET_NOT_FOUND);
         }
     }
 

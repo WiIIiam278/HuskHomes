@@ -9,6 +9,7 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -193,20 +194,34 @@ public class EventListener {
                         .ifPresent(onlineUser::sendMessage);
             }
 
-            // Respawn the player cross-server if needed
+            // Respawn the player via the global respawn system
             if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning()) {
-                plugin.getDatabase().getRespawnPosition(onlineUser).or(plugin::getSpawn).ifPresent(position -> {
-                    if (!position.getServer().equals(plugin.getServerName())) {
-                        Teleport.builder(plugin)
-                                .teleporter(onlineUser)
-                                .type(Teleport.Type.RESPAWN)
-                                .target(position)
-                                .toTeleport()
-                                .execute();
-                    }
-                });
+                this.respawnGlobally(onlineUser);
             }
         });
+    }
+
+    // Respawn a player to where they should be
+    private void respawnGlobally(@NotNull OnlineUser onlineUser) {
+        final TeleportBuilder builder = Teleport.builder(plugin)
+                .teleporter(onlineUser)
+                .type(Teleport.Type.RESPAWN)
+                .updateLastPosition(false);
+
+        plugin.getDatabase()
+                .getRespawnPosition(onlineUser)
+                .or(() -> {
+                    builder.type(Teleport.Type.TELEPORT);
+                    return plugin.getSpawn();
+                })
+                .ifPresent(position -> {
+                    builder.target(position);
+                    try {
+                        builder.toTeleport().execute();
+                    } catch (TeleportationException e) {
+                        e.displayMessage(onlineUser, plugin, new String[0]);
+                    }
+                });
     }
 
     /**

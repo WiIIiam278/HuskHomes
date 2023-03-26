@@ -12,7 +12,7 @@ import java.util.Optional;
 public class WarpCommand extends SavedPositionCommand<Warp> {
 
     protected WarpCommand(@NotNull HuskHomes plugin) {
-        super("warp", List.of(), Warp.class, List.of(), plugin);
+        super("warp", List.of(), Warp.class, List.of("player"), plugin);
     }
 
     @Override

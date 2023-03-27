@@ -8,6 +8,7 @@ import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,6 +80,17 @@ public class WarpsManager {
     @NotNull
     public List<String> getWarps() {
         return warps.stream().map(Warp::getName).toList();
+    }
+
+    @NotNull
+    public List<String> getUsableWarps(@NotNull CommandUser user) {
+        if (!plugin.getSettings().doPermissionRestrictWarps()) {
+            return getWarps();
+        }
+        return warps.stream()
+                .filter(warp -> user.hasPermission(warp.getPermission()) || user.hasPermission(Warp.getWildcardPermission()))
+                .map(Warp::getName)
+                .toList();
     }
 
     public void createWarp(@NotNull String name, @NotNull Position position, boolean overwrite) throws ValidationException {

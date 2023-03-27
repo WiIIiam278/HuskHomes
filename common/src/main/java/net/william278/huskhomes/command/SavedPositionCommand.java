@@ -154,7 +154,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             };
         } else {
             return switch (args.length) {
-                case 0, 1 -> filter(plugin.getManager().warps().getWarps(), args);
+                case 0, 1 -> filter(plugin.getManager().warps().getUsableWarps(executor), args);
                 case 2 -> filter(arguments.stream().toList(), args);
                 default -> List.of();
             };

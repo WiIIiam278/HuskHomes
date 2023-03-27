@@ -56,21 +56,19 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     private Optional<Home> resolveHome(@NotNull CommandUser executor, @NotNull String homeName) {
         if (homeName.contains(".")) {
-            final String[] splitHomeName = homeName.split("\\.");
-            if (splitHomeName.length != 2) {
-                plugin.getLocales().getLocale("error_invalid_syntax",
-                                "/" + getName() + " <owner_name.home_name>")
+            final String ownerUsername = homeName.substring(0, homeName.indexOf("."));
+            final String ownerHomeName = homeName.substring(homeName.indexOf(".") + 1);
+            if (ownerUsername.isBlank() || ownerHomeName.isBlank()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
 
-            final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(splitHomeName[0])
-                    .flatMap(owner -> plugin.getDatabase().getHome(owner.getUser(), splitHomeName[1]));
-
+            final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(ownerUsername)
+                    .flatMap(owner -> plugin.getDatabase().getHome(owner.getUser(), ownerHomeName));
             if (optionalHome.isEmpty()) {
                 plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())
-                                        ? "error_home_invalid_other" : "error_public_home_invalid",
-                                splitHomeName[0], splitHomeName[1])
+                                ? "error_home_invalid_other" : "error_public_home_invalid", ownerUsername, ownerHomeName)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
@@ -78,8 +76,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
                 && !user.hasPermission(getOtherPermission())) {
-                plugin.getLocales().getLocale("error_public_home_invalid",
-                                splitHomeName[0], splitHomeName[1])
+                plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHomeName)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }

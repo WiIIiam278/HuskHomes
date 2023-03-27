@@ -174,14 +174,14 @@ public class BukkitPluginTests {
 
         @DisplayName("Test Validator Accepts Valid Names")
         @ParameterizedTest(name = "Valid Name: \"{0}\"")
-        @ValueSource(strings = {"ValidName", "Valid_Name", "Valid-Name", "Valid.Name", "ValidName123", "ValidName-123", "ValidName_123", "V"})
+        @ValueSource(strings = {"ValidName", "Valid_Name", "Valid-Name", "ValidN4me", "ValidName123", "ValidName-123", "ValidName_123", "V"})
         public void testValidNameIsValid(@NotNull String name) {
             Assertions.assertTrue(plugin.getValidator().isValidName(name));
         }
 
         @DisplayName("Test Validator Rejects Invalid Names")
         @ParameterizedTest(name = "Invalid Name: \"{0}\"")
-        @ValueSource(strings = {"Invalid Name", "•♣♠", "Invali♣Name", "", " ", "\0", "InvalidName12345678901234567890"})
+        @ValueSource(strings = {"Invalid Name", "•♣♠", "Invali♣Name", "Invalid.Name", "", " ", "\0", "InvalidName12345678901234567890"})
         public void testInvalidNameIsInvalid(@NotNull String name) {
             Assertions.assertFalse(plugin.getValidator().isValidName(name));
         }

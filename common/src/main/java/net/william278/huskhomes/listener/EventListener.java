@@ -96,19 +96,31 @@ public class EventListener {
                                 }
                             }, 40L);
                         } else {
-                            teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
+                            try {
+                                teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
+                            } catch (TeleportationException e) {
+                                e.displayMessage(teleporter, plugin, new String[0]);
+                            }
                         }
                         teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
                     });
                 } else {
-                    teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
+                    try {
+                        teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
+                    } catch (TeleportationException e) {
+                        e.displayMessage(teleporter, plugin, new String[0]);
+                    }
                 }
                 plugin.getDatabase().setCurrentTeleport(teleporter, null);
                 plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
                 return;
             }
 
-            teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().doAsynchronousTeleports());
+            try {
+                teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().doAsynchronousTeleports());
+            } catch (TeleportationException e) {
+                e.displayMessage(teleporter, plugin, new String[0]);
+            }
             plugin.getDatabase().setCurrentTeleport(teleporter, null);
             teleport.displayTeleportingComplete(teleporter);
         });
@@ -187,7 +199,7 @@ public class EventListener {
             // Display the return by death via /back notification
             final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
                     .map(command -> onlineUser.hasPermission(command.getPermission())
-                                    && onlineUser.hasPermission(command.getPermission("death")))
+                            && onlineUser.hasPermission(command.getPermission("death")))
                     .orElse(false);
             if (plugin.getSettings().doBackCommandReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")

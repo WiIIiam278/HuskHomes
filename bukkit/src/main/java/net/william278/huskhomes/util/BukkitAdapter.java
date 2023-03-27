@@ -25,10 +25,21 @@ public final class BukkitAdapter {
             world = Bukkit.getWorld(location.getWorld().getUuid());
         }
         if (world == null) {
+            world = Bukkit.getWorlds().stream()
+                    .filter(w -> w.getEnvironment().name().equalsIgnoreCase(location.getWorld().getEnvironment().name()))
+                    .findFirst().orElse(null);
+        }
+        if (world == null) {
             return Optional.empty();
         }
-        return Optional.of(new org.bukkit.Location(world, location.getX(), location.getY(), location.getZ(),
-                location.getYaw(), location.getPitch()));
+        return Optional.of(new org.bukkit.Location(
+                world,
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch()
+        ));
     }
 
     /**

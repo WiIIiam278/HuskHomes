@@ -12,6 +12,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleportable;
+import net.william278.huskhomes.teleport.TeleportationException;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
@@ -159,7 +160,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
      */
-    public abstract void teleportLocally(@NotNull Location location, boolean asynchronous);
+    public abstract void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException;
 
     /**
      * Send a plugin message to the user

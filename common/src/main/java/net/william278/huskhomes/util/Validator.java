@@ -24,7 +24,7 @@ public class Validator {
      */
     public boolean isValidName(@NotNull String name) {
         return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
-                && !containsWhitespace(name)
+                && !containsWhitespace(name) && !name.contains(".")
                 && name.length() <= MAX_NAME_LENGTH && name.length() >= MIN_NAME_LENGTH;
     }
 

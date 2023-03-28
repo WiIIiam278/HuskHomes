@@ -27,7 +27,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         this.positionType = positionType;
         this.arguments = arguments;
 
-        addAdditionalPermissions(Map.of("other", false));
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @NotNull

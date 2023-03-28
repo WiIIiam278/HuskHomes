@@ -10,6 +10,8 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class PlaceholderAPIHook extends Hook {
 
     public PlaceholderAPIHook(@NotNull HuskHomes plugin) {
@@ -41,8 +43,8 @@ public class PlaceholderAPIHook extends Hook {
             final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer());
             return switch (params) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
-                        .getUserHomes().get(player.getUsername())
-                        .size());
+                        .getUserHomes()
+                        .getOrDefault(player.getUsername(), List.of()).size());
                 case "max_homes" -> String.valueOf(player.getMaxHomes(
                         plugin.getSettings().getMaxHomes(),
                         plugin.getSettings().doStackPermissionLimits()
@@ -58,14 +60,15 @@ public class PlaceholderAPIHook extends Hook {
                 case "home_slots" -> String.valueOf(plugin.getSavedUser(player)
                         .map(SavedUser::getHomeSlots)
                         .orElse(0));
-                case "homes_list" -> String.join(", ", plugin.getManager()
-                        .homes().getUserHomes()
-                        .get(player.getUsername()));
+                case "homes_list" -> String.join(", ", plugin.getManager().homes()
+                        .getUserHomes()
+                        .getOrDefault(player.getUsername(), List.of()));
                 case "public_homes_count" -> String.valueOf(plugin.getManager().homes()
-                        .getPublicHomes().get(player.getUsername())
-                        .size());
+                        .getPublicHomes()
+                        .getOrDefault(player.getUsername(), List.of()).size());
                 case "public_homes_list" -> String.join(", ", plugin.getManager().homes()
-                        .getPublicHomeNames());
+                        .getPublicHomes()
+                        .getOrDefault(player.getUsername(), List.of()));
                 case "ignoring_tp_requests" -> getBooleanValue(plugin.getManager().requests()
                         .isIgnoringRequests(player));
                 default -> null;

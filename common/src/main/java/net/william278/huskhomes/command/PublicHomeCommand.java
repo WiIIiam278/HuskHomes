@@ -27,7 +27,7 @@ public class PublicHomeCommand extends HomeCommand implements TabProvider {
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
         if (args.length <= 2) {
-            return filter(reduceHomeList(plugin.getManager().homes().getPublicHomes()), args);
+            return filter(plugin.getManager().homes().getPublicHomeNames(), args);
         }
         return List.of();
     }

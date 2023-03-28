@@ -134,11 +134,10 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull String username, @NotNull Consumer<SavedUser> editor) {
-        plugin.runAsync(() -> {
-            Optional<SavedUser> savedUser = plugin.getDatabase().getUserDataByName(username);
-            if (savedUser.isPresent()) {
-                editor.accept(savedUser.get());
-                plugin.getDatabase().updateUserData(savedUser.get());
+        plugin.getSavedUsers().stream().findAny().ifPresent(savedUser -> {
+            if (savedUser.getUsername().equalsIgnoreCase(username)) {
+                editor.accept(savedUser);
+                saveUserData(savedUser);
             }
         });
     }
@@ -151,11 +150,10 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull UUID uuid, @NotNull Consumer<SavedUser> editor) {
-        plugin.runAsync(() -> {
-            Optional<SavedUser> savedUser = plugin.getDatabase().getUserData(uuid);
-            if (savedUser.isPresent()) {
-                editor.accept(savedUser.get());
-                plugin.getDatabase().updateUserData(savedUser.get());
+        plugin.getSavedUsers().stream().findAny().ifPresent(savedUser -> {
+            if (savedUser.getUser().getUuid().equals(uuid)) {
+                editor.accept(savedUser);
+                saveUserData(savedUser);
             }
         });
     }

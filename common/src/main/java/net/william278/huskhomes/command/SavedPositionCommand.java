@@ -12,7 +12,6 @@ import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -137,14 +136,14 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 case 0, 1 -> {
                     if (args.length == 1 && args[0].contains(".")) {
                         if (executor.hasPermission(getOtherPermission())) {
-                            yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
+                            yield filter(plugin.getManager().homes().getUserHomeNames(), args);
                         }
-                        yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
+                        yield filter(plugin.getManager().homes().getUserHomeNames(), args);
                     }
                     if (executor instanceof OnlineUser user) {
                         yield filter(plugin.getManager().homes().getUserHomes().get(user.getUsername()), args);
                     }
-                    yield filter(reduceHomeList(plugin.getManager().homes().getUserHomes()), args);
+                    yield filter(plugin.getManager().homes().getUserHomeNames(), args);
                 }
                 case 2 -> filter(arguments.stream().toList(), args);
                 default -> List.of();
@@ -156,13 +155,6 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 default -> List.of();
             };
         }
-    }
-
-    @NotNull
-    protected static List<String> reduceHomeList(@NotNull Map<String, List<String>> cachedMap) {
-        final List<String> homeNames = new ArrayList<>();
-        cachedMap.forEach((key, value) -> value.forEach(home -> homeNames.add(key + "." + home)));
-        return homeNames;
     }
 
 }

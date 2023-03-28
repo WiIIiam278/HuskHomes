@@ -64,11 +64,14 @@ public class RtpCommand extends Command {
             return;
         }
 
-        final SavedUser user = plugin.getDatabase().getUserData(teleporter.getUuid())
+        plugin.editUserData(teleporter, (SavedUser user) -> {
+
+        });
+        final SavedUser user = plugin.getSavedUser(teleporter)
                 .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
         final Instant currentTime = Instant.now();
         if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
-            !executor.hasPermission(getPermission("bypass_cooldown"))) {
+                !executor.hasPermission(getPermission("bypass_cooldown"))) {
             plugin.getLocales().getLocale("error_rtp_cooldown",
                             Long.toString(currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1))
                     .ifPresent(executor::sendMessage);
@@ -101,8 +104,8 @@ public class RtpCommand extends Command {
                         return;
                     }
 
-                    user.setRtpCooldown(Instant.now().plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES));
-                    plugin.getDatabase().updateUserData(user);
+                    plugin.editUserData(teleporter, (SavedUser saved) -> saved.setRtpCooldown(Instant.now()
+                            .plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES)));
                 });
     }
 

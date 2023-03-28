@@ -8,6 +8,7 @@ import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,27 +24,10 @@ public class RequestsManager {
 
     // Map of user UUIDs to a queue of received teleport requests
     private final Map<UUID, Deque<TeleportRequest>> requests;
-    // Set of users who are ignoring tpa requests
-    private final Set<UUID> ignoringRequests;
 
     public RequestsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
         this.requests = new HashMap<>();
-        this.ignoringRequests = new HashSet<>();
-    }
-
-    /**
-     * Mark a user as ignoring or listening to tpa requests
-     *
-     * @param user     the user to update
-     * @param ignoring whether the user should be ignoring requests
-     */
-    public void setIgnoringRequests(@NotNull User user, boolean ignoring) {
-        if (ignoring) {
-            this.ignoringRequests.add(user.getUuid());
-        } else {
-            this.ignoringRequests.remove(user.getUuid());
-        }
     }
 
     /**
@@ -53,7 +37,7 @@ public class RequestsManager {
      * @return {@code true} if the user is ignoring tpa requests
      */
     public boolean isIgnoringRequests(@NotNull User user) {
-        return this.ignoringRequests.contains(user.getUuid());
+        return plugin.getSavedUser(user).map(SavedUser::isIgnoringTeleports).orElse(false);
     }
 
     /**
@@ -189,7 +173,7 @@ public class RequestsManager {
         // Add the request and display a message to the recipient
         addTeleportRequest(request, recipient);
         plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                                      + "_request_received", request.getRequesterName())
+                        + "_request_received", request.getRequesterName())
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                 .ifPresent(recipient::sendMessage);

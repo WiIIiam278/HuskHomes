@@ -29,6 +29,7 @@ import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -58,6 +59,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
      */
     private static final int METRICS_ID = 8430;
+    private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
     private Database database;
@@ -91,6 +93,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void onEnable() {
         // Create adventure audience
         this.audiences = BukkitAudiences.create(this);
+        this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
         this.validator = new Validator(this);
@@ -185,6 +188,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         if (Bukkit.getPluginManager().getPlugin("Plan") != null) {
             hooks.add(new PlanHook(this));
         }
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            hooks.add(new PlaceholderAPIHook(this));
+        }
 
         if (hooks.size() > 0) {
             hooks.forEach(Hook::initialize);
@@ -231,6 +237,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public List<OnlineUser> getOnlineUsers() {
         return Bukkit.getOnlinePlayers().stream().map(player -> (OnlineUser) BukkitUser.adapt(player)).toList();
+    }
+
+    @NotNull
+    @Override
+    public Set<SavedUser> getSavedUsers() {
+        return savedUsers;
     }
 
     @NotNull

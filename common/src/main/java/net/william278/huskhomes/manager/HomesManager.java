@@ -42,6 +42,31 @@ public class HomesManager {
                         HashMap::putAll);
     }
 
+    @NotNull
+    public List<String> getUserHomeNames() {
+        return userHomes.entrySet().stream()
+                .flatMap(e -> e.getValue().stream()
+                        .map(home -> home.getOwner().getUsername() + "." + home.getName()))
+                .toList();
+    }
+
+    /**
+     * Cached public homes - maps a username to a list of their public homes
+     */
+    @NotNull
+    public Map<String, List<String>> getPublicHomes() {
+        return publicHomes.stream()
+                .collect(HashMap::new, (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
+                        HashMap::putAll);
+    }
+
+    @NotNull
+    public List<String> getPublicHomeNames() {
+        return publicHomes.stream()
+                .map(home -> home.getOwner().getUsername() + "." + home.getName())
+                .toList();
+    }
+
     public void cacheUserHomes(@NotNull User user) {
         userHomes.put(user.getUsername(), new ConcurrentLinkedQueue<>(plugin.getDatabase().getHomes(user)));
     }
@@ -107,15 +132,6 @@ public class HomesManager {
         userHomes.remove(user.getUuid().toString());
     }
 
-    /**
-     * Cached public homes - maps a username to a list of their public homes
-     */
-    @NotNull
-    public Map<String, List<String>> getPublicHomes() {
-        return publicHomes.stream()
-                .collect(HashMap::new, (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
-                        HashMap::putAll);
-    }
 
     public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
                            boolean overwrite, boolean buyAdditionalSlots) throws ValidationException {
@@ -138,7 +154,7 @@ public class HomesManager {
         }
 
         // Validate against user home slots
-        final SavedUser savedOwner = plugin.getDatabase().getUserData(owner.getUuid())
+        final SavedUser savedOwner = plugin.getSavedUser(owner)
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
         if (plugin.getSettings().doEconomy() && homeCount >= savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
@@ -150,8 +166,7 @@ public class HomesManager {
             }
 
             plugin.performEconomyTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
-            savedOwner.setHomeSlots(savedOwner.getHomeSlots() + 1);
-            plugin.getDatabase().updateUserData(savedOwner);
+            plugin.editUserData(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
         }
 
         final Home home = existingHome

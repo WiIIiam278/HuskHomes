@@ -20,11 +20,7 @@ public class TpIgnoreCommand extends InGameCommand {
         final RequestsManager manager = plugin.getManager().requests();
         final boolean isIgnoringRequests = !manager.isIgnoringRequests(onlineUser);
 
-        final SavedUser user = plugin.getDatabase().getUserData(onlineUser.getUuid())
-                .orElseThrow(() -> new IllegalStateException("User data not found for " + onlineUser.getUsername()));
-        user.setIgnoringTeleports(isIgnoringRequests);
-        manager.setIgnoringRequests(onlineUser, isIgnoringRequests);
-        plugin.getDatabase().updateUserData(user);
+        plugin.editUserData(onlineUser, (SavedUser user) -> user.setIgnoringTeleports(isIgnoringRequests));
 
         plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
                         plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))

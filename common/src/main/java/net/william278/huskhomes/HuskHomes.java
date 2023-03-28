@@ -23,6 +23,8 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TaskRunner;
 import net.william278.huskhomes.util.Validator;
 import org.intellij.lang.annotations.Subst;
@@ -33,6 +35,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -53,6 +56,23 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     @NotNull
     List<OnlineUser> getOnlineUsers();
+
+    @NotNull
+    Set<SavedUser> getSavedUsers();
+
+    default Optional<SavedUser> getSavedUser(@NotNull User user) {
+        return getSavedUsers().stream()
+                .filter(savedUser -> savedUser.getUser().equals(user))
+                .findFirst();
+    }
+
+    default void editUserData(@NotNull User user, @NotNull Consumer<SavedUser> editor) {
+        runAsync(() -> getSavedUser(user)
+                .ifPresent(result -> {
+                    editor.accept(result);
+                    getDatabase().updateUserData(result);
+                }));
+    }
 
     /**
      * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match

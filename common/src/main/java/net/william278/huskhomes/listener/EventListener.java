@@ -59,11 +59,10 @@ public class EventListener {
 
             // Set their ignoring requests state
             plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
-                final boolean ignoringRequests = userData.isIgnoringTeleports();
-                plugin.getManager().requests().setIgnoringRequests(onlineUser, ignoringRequests);
+                plugin.getSavedUsers().add(userData);
 
                 // Send a reminder message if they are still ignoring requests
-                if (ignoringRequests) {
+                if (userData.isIgnoringTeleports()) {
                     plugin.getLocales().getRawLocale("tpignore_on_notification", plugin.getLocales()
                             .getRawLocale("tpignore_toggle_button")
                             .orElse("")).ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));

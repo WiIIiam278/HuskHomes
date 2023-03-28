@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'net.william278'
-version "$ext.plugin_version+${versionMetadata()}"
+version "$ext.plugin_version-${versionMetadata()}"
 
 ext {
     set 'version', version.toString()

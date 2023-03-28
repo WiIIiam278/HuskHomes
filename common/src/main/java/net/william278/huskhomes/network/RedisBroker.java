@@ -78,9 +78,11 @@ public class RedisBroker extends PluginMessageBroker {
 
     @Override
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            jedis.publish(getSubChannelId(), plugin.getGson().toJson(message));
-        }
+        plugin.runAsync(() -> {
+            try (Jedis jedis = jedisPool.getResource()) {
+                jedis.publish(getSubChannelId(), plugin.getGson().toJson(message));
+            }
+        });
     }
 
     @Override

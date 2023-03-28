@@ -22,8 +22,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     public EditHomeCommand(@NotNull HuskHomes plugin) {
         super("edithome", List.of(), Home.class, List.of("rename", "description", "relocate", "privacy"), plugin);
-        addAdditionalPermissions(arguments.stream()
-                .collect(HashMap::new, (m, e) -> m.put(getPermission(e), false), HashMap::putAll));
+        addAdditionalPermissions(arguments.stream().collect(HashMap::new, (m, e) -> m.put(e, false), HashMap::putAll));
     }
 
     @Override

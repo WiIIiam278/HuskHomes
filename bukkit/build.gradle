@@ -1,7 +1,11 @@
+plugins {
+    id 'maven-publish'
+}
+
 dependencies {
     implementation project(path: ':common')
 
-    implementation 'org.bstats:bstats-bukkit:3.0.1'
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'me.lucko:commodore:2.2'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
@@ -47,4 +51,16 @@ shadowJar {
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'net.william278'
+            artifactId = 'huskhomes'
+            version = "$rootProject.version"
+
+            artifact jar
+        }
+    }
 }

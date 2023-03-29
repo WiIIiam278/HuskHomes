@@ -414,7 +414,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             throw new IllegalArgumentException("Cannot create a key with no data");
         }
         @Subst("foo") final String joined = String.join("/", data);
-        return Key.key("husktowns", joined);
+        return Key.key("huskhomes", joined);
     }
 
     @NotNull

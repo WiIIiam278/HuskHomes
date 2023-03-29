@@ -3,8 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.ajoberstar.grgit' version '5.0.0'
-    id 'java'
     id 'maven-publish'
+    id 'java'
 }
 
 group 'net.william278'
@@ -31,9 +31,9 @@ allprojects {
         mavenCentral()
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-        maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://repo.mikeprimm.com/' }
@@ -62,40 +62,15 @@ subprojects {
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
 
+    if ('paper'.contains(project.name)) {
+        compileJava.options.release.set 17
+    }
+
     if (['bukkit', 'paper', 'plugin'].contains(project.name)) {
         shadowJar {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
-
-        // API publishing
-        if ('bukkit'.contains(project.name)) {
-            java {
-                withSourcesJar()
-                withJavadocJar()
-            }
-            sourcesJar {
-                destinationDirectory.set(file("$rootDir/target"))
-            }
-            javadocJar {
-                destinationDirectory.set(file("$rootDir/target"))
-            }
-            shadowJar.dependsOn(sourcesJar, javadocJar)
-
-            publishing {
-                publications {
-                    mavenJava(MavenPublication) {
-                        groupId = 'net.william278'
-                        artifactId = 'huskhomes'
-                        version = "$rootProject.version"
-                        artifact shadowJar
-                        artifact javadocJar
-                        artifact sourcesJar
-                    }
-                }
-            }
-        }
-
         jar.dependsOn shadowJar
         clean.delete "$rootDir/target"
     }

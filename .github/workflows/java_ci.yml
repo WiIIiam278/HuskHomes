@@ -17,7 +17,7 @@ jobs:
       - name: Set up JDK 16
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
+          java-version: '17'
           distribution: 'temurin'
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
@@ -44,6 +44,7 @@ jobs:
           modrinth-dependencies: |
             bluemap | suggests | *
             dynmap | suggests | *
+            pl3xmap | suggests | *
           files-primary: target/HuskHomes-Plugin-*.jar
           name: HuskHomes v${{ env.version_name }}
           version: ${{ env.version_name }}

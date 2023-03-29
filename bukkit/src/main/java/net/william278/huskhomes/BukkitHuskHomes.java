@@ -133,25 +133,22 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
         // Register plugin hooks (Economy, Maps, Plan)
-        initialize("hooks", (plugin) -> loadHooks());
+        initialize("hooks", (plugin) -> {
+            this.prepareHooks();
+
+            if (hooks.size() > 0) {
+                hooks.forEach(Hook::initialize);
+                log(Level.INFO, "Registered " + hooks.size() + " plugin hooks: " + hooks.stream()
+                        .map(Hook::getName)
+                        .collect(Collectors.joining(", ")));
+            }
+        });
 
         // Register events
         initialize("events", (plugin) -> this.eventListener = new BukkitEventListener(this));
 
         // Register commands
-        initialize("commands", (plugin) -> this.commands = Arrays.stream(BukkitCommand.Type.values())
-                .map(type -> {
-                    final Command command = type.getCommand();
-                    if (settings.isCommandDisabled(command)) {
-                        new BukkitCommand(new DisabledCommand(command.getName(), this), this).register();
-                        return null;
-                    } else {
-                        new BukkitCommand(command, this).register();
-                        return command;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+        initialize("commands", (plugin) -> this.commands = registerCommands());
 
         // Hook into bStats and check for updates
         initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
@@ -169,7 +166,24 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         log(Level.INFO, "Successfully initialized " + name);
     }
 
-    private void loadHooks() {
+    @NotNull
+    protected List<Command> registerCommands() {
+        return Arrays.stream(BukkitCommand.Type.values())
+                .map(type -> {
+                    final Command command = type.getCommand();
+                    if (settings.isCommandDisabled(command)) {
+                        new BukkitCommand(new DisabledCommand(command.getName(), this), this).register();
+                        return null;
+                    } else {
+                        new BukkitCommand(command, this).register();
+                        return command;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    protected void prepareHooks() {
         this.hooks = new ArrayList<>();
         if (getSettings().doEconomy()) {
             if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
@@ -190,13 +204,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         }
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             hooks.add(new PlaceholderAPIHook(this));
-        }
-
-        if (hooks.size() > 0) {
-            hooks.forEach(Hook::initialize);
-            log(Level.INFO, "Registered " + hooks.size() + " plugin hooks: " + hooks.stream()
-                    .map(Hook::getName)
-                    .collect(Collectors.joining(", ")));
         }
     }
 

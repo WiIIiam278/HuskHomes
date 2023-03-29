@@ -43,7 +43,7 @@ All of this is supported on standalone and cross-server setups; players can set 
 **⭐ Extensible API & open-source** &mdash; Still not enough? Extend the plugin with the HuskHomes API. Or, submit a pull request—we're open-source!
 
 ## Building
-To build HuskHomes, simply run the following in the root of the repository:
+HuskHomes requires Java 17 to build (required for Paper plugin 1.19.x support). To build, simply run the following in the root of the repository:
 
 ```bash
 ./gradlew clean build

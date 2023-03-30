@@ -7,7 +7,7 @@ dependencies {
     implementation project(path: ':bukkit')
 
     compileOnly 'io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT'
-    compileOnly 'maven.modrinth:pl3xmap:1.19.3-321'
+    compileOnly 'maven.modrinth:pl3xmap:1.19.4-332'
 
     compileOnly 'org.bstats:bstats-bukkit:3.0.2'
     compileOnly 'org.jetbrains:annotations:24.0.1'

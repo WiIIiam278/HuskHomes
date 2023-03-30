@@ -97,12 +97,12 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     private void registerIcon(@NotNull Key key, @NotNull String iconFileName) {
         try (InputStream iconStream = plugin.getResource(iconFileName)) {
             if (iconStream == null) {
-                plugin.log(Level.WARNING, "Failed to load Pl3xMap icon for warps: icon file not found");
+                plugin.log(Level.WARNING, "Failed to load Pl3xMap icon ("+ key + "): icon file not found");
                 return;
             }
             Pl3xMap.api().getIconRegistry().register(new IconImage(key, ImageIO.read(iconStream), "png"));
         } catch (IOException e) {
-            plugin.log(Level.WARNING, "Failed to load Pl3xMap icon for warps: " + e.getMessage());
+            plugin.log(Level.WARNING, "Failed to load Pl3xMap icon ("+ key + "): " + e.getMessage(), e);
         }
     }
 

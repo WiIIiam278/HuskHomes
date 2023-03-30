@@ -4,7 +4,6 @@ import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.PaperCommand;
 import net.william278.huskhomes.hook.Pl3xMapHook;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -15,17 +14,17 @@ import java.util.stream.Collectors;
 public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
-    protected void prepareHooks() {
-        super.prepareHooks();
+    public void registerHooks() {
+        super.registerHooks();
 
-        if (getMapHook().isEmpty() && Bukkit.getServer().getPluginManager().getPlugin("Pl3xMap") != null) {
+        if (getMapHook().isEmpty() && isDependencyLoaded("Pl3xMap")) {
             getHooks().add(new Pl3xMapHook(this));
         }
     }
 
     @NotNull
     @Override
-    protected List<Command> registerCommands() {
+    public List<Command> registerCommands() {
         return Arrays.stream(BukkitCommand.Type.values())
                 .map(type -> {
                     final Command command = type.getCommand();

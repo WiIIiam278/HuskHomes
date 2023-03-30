@@ -6,7 +6,6 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
-import net.william278.huskhomes.command.RtpCommand;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
@@ -25,9 +24,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Uses MockBukkit to test the plugin on a mock Spigot server implementing the Bukkit 1.16 API.
+ * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.16 API.
  */
-@DisplayName("Bukkit Plugin Tests")
+@DisplayName("Bukkit Plugin Tests (1.16.5)")
 public class BukkitPluginTests {
 
     private static ServerMock server;
@@ -154,7 +153,6 @@ public class BukkitPluginTests {
 
             final BukkitUser playerUser = BukkitUser.adapt(player);
             return commands.stream()
-                    .filter(command -> !(command instanceof RtpCommand))
                     .flatMap(command -> Stream.of(Arguments.of(command, playerUser, command.getName())));
         }
 
@@ -162,7 +160,6 @@ public class BukkitPluginTests {
             final List<Command> commands = plugin.getCommands();
             final ConsoleUser console = plugin.getConsole();
             return commands.stream()
-                    .filter(command -> !(command instanceof RtpCommand))
                     .flatMap(command -> Stream.of(Arguments.of(command, console, command.getName())));
         }
 

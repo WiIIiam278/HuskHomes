@@ -3,6 +3,7 @@ package net.william278.huskhomes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
+import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.Command;
@@ -12,9 +13,7 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
-import net.william278.huskhomes.hook.EconomyHook;
-import net.william278.huskhomes.hook.Hook;
-import net.william278.huskhomes.hook.MapHook;
+import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
@@ -26,13 +25,17 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TaskRunner;
+import net.william278.huskhomes.util.ThrowingConsumer;
+import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -75,6 +78,22 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     }
 
     /**
+     * Initialize a faucet of the plugin
+     *
+     * @param name   the name of the faucet
+     * @param runner a runnable for initializing the faucet
+     */
+    default void initialize(@NotNull String name, @NotNull ThrowingConsumer<HuskHomes> runner) {
+        log(Level.INFO, "Initializing " + name + "...");
+        try {
+            runner.accept(this);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to initialize " + name, e);
+        }
+        log(Level.INFO, "Successfully initialized " + name);
+    }
+
+    /**
      * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
      *
      * @param playerName the name of the player to find
@@ -98,6 +117,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     @NotNull
     Settings getSettings();
 
+    void setSettings(@NotNull Settings settings);
+
     /**
      * The plugin messages loaded from file
      *
@@ -105,6 +126,41 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     @NotNull
     Locales getLocales();
+
+    void setLocales(@NotNull Locales locales);
+
+    /**
+     * The local {@link Spawn} location of this server, as cached to disk
+     *
+     * @return the {@link Spawn} location data
+     * @see #getSpawn() for the canonical spawn point to use
+     */
+    Optional<Spawn> getServerSpawn();
+
+    void setServerSpawn(@NotNull Spawn spawn);
+
+    /**
+     * The canonical spawn {@link Position} of this server, if it has been set
+     *
+     * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
+     */
+    default Optional<Position> getSpawn() {
+        return getSettings().doCrossServer() && getSettings().isGlobalSpawn()
+                ? getDatabase().getWarp(getSettings().getGlobalSpawnName()).map(warp -> (Position) warp)
+                : getServerSpawn().map(spawn -> spawn.getPosition(getServerName()));
+    }
+
+    /**
+     * Returns the {@link Server} the plugin is on
+     *
+     * @return The {@link Server} object
+     */
+    @NotNull
+    String getServerName();
+
+    void setServer(@NotNull Server server);
+
+    void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks);
 
     /**
      * The {@link Database} that stores persistent plugin data
@@ -153,24 +209,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine);
 
-    /**
-     * The local {@link Spawn} location of this server, as cached to disk
-     *
-     * @return the {@link Spawn} location data
-     * @see #getSpawn() for the canonical spawn point to use
-     */
-    Optional<Spawn> getLocalCachedSpawn();
-
-    /**
-     * The canonical spawn {@link Position} of this server, if it has been set
-     *
-     * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
-     */
-    default Optional<Position> getSpawn() {
-        return getSettings().doCrossServer() && getSettings().isGlobalSpawn()
-                ? getDatabase().getWarp(getSettings().getGlobalSpawnName()).map(warp -> (Position) warp)
-                : getLocalCachedSpawn().map(spawn -> spawn.getPosition(getServerName()));
-    }
 
     /**
      * Update the {@link Spawn} position to a location on the server
@@ -186,6 +224,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     @NotNull
     List<Hook> getHooks();
+
+    void setHooks(@NotNull List<Hook> hooks);
 
     default <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
         return getHooks().stream()
@@ -252,15 +292,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
      * possible to find one
      */
-    CompletableFuture<Optional<Location>> resolveSafeGroundLocation(@NotNull Location location);
-
-    /**
-     * Returns the {@link Server} the plugin is on
-     *
-     * @return The {@link Server} object
-     */
-    @NotNull
-    String getServerName();
+    CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location);
 
     /**
      * Returns a resource read from the plugin resources folder
@@ -311,6 +343,26 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     }
 
     @NotNull
+    List<Command> registerCommands();
+
+    default void registerHooks() {
+        final ArrayList<Hook> hooks = new ArrayList<>();
+        if (getSettings().doMapHook()) {
+            if (isDependencyLoaded("Dynmap")) {
+                getHooks().add(new DynmapHook(this));
+            } else if (isDependencyLoaded("BlueMap")) {
+                getHooks().add(new BlueMapHook(this));
+            }
+        }
+        if (isDependencyLoaded("Plan")) {
+            getHooks().add(new PlanHook(this));
+        }
+        setHooks(hooks);
+    }
+
+    boolean isDependencyLoaded(@NotNull String name);
+
+    @NotNull
     Map<String, List<String>> getGlobalPlayerList();
 
     @NotNull
@@ -355,7 +407,38 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      * @return {@code true} if the reload was successful, {@code false} otherwise
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean loadConfigs();
+    default boolean loadConfigs() {
+        try {
+            // Load settings
+            setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
+
+            // Load locales from language preset default
+            final Locales languagePresets = Annotaml.create(Locales.class, Objects.requireNonNull(getResource("locales/" + getSettings().getLanguage() + ".yml"))).get();
+            setLocales(Annotaml.create(new File(getDataFolder(), "messages_" + getSettings().getLanguage() + ".yml"), languagePresets).get());
+
+            // Load server from file
+            if (getSettings().doCrossServer()) {
+                setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
+            } else {
+                setServer(new Server(Server.getDefaultServerName()));
+            }
+
+            // Load spawn location from file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists()) {
+                setServerSpawn(Annotaml.create(spawnFile, Spawn.class).get());
+            }
+
+            // Load unsafe blocks from resources
+            final InputStream blocksResource = getResource("safety/unsafe_blocks.yml");
+            setUnsafeBlocks(Annotaml.create(new UnsafeBlocks(), Objects.requireNonNull(blocksResource)).get());
+
+            return true;
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            log(Level.SEVERE, "Failed to reload HuskHomes config or messages file", e);
+        }
+        return false;
+    }
 
     @NotNull
     default UpdateChecker getUpdateChecker() {
@@ -414,7 +497,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             throw new IllegalArgumentException("Cannot create a key with no data");
         }
         @Subst("foo") final String joined = String.join("/", data);
-        return Key.key("husktowns", joined);
+        return Key.key("huskhomes", joined);
     }
 
     @NotNull

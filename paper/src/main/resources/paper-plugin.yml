@@ -1,0 +1,92 @@
+name: 'HuskHomes'
+description: 'A powerful, intuitive and flexible teleportation suite'
+author: 'William278'
+website: 'https://william278.net/'
+main: 'net.william278.huskhomes.PaperHuskHomes'
+loader: 'net.william278.huskhomes.PaperHuskHomesLoader'
+version: '${version}'
+api-version: 1.19
+dependencies:
+  - name: Vault
+    required: false
+  - name: RedisEconomy
+    required: false
+  - name: dynmap
+    required: false
+  - name: BlueMap
+    required: false
+  - name: Plan
+    required: false
+  - name: Pl3xMap
+    required: false
+load-after:
+  - name: Vault
+  - name: RedisEconomy
+  - name: dynmap
+  - name: BlueMap
+  - name: Plan
+  - name: Pl3xMap
+
+commands:
+  home:
+    usage: /home <name>
+  sethome:
+    usage: /sethome <name>
+  homelist:
+    usage: /homelist [player] [page]
+    aliases: [homes]
+  delhome:
+    usage: /delhome <name>
+  edithome:
+    usage: /edithome <name> [rename|description|relocate|privacy] [args]
+  phome:
+    usage: /phome [<owner_name>.<home_name>]
+    aliases:  [publichome]
+  phomelist:
+    usage: /phomelist [page]
+    aliases:  [publichomelist, phomes]
+  warp:
+    usage: /warp <name>
+  setwarp:
+    usage: /setwarp <name>
+  warplist:
+    usage: /warplist [page]
+    aliases: [warps]
+  delwarp:
+    usage: /delwarp <name>
+  editwarp:
+    usage: /editwarp <name> [rename|description|relocate] [args]
+  tp:
+    usage: /tp <target> [destination]
+    aliases: [tpo]
+  tphere:
+    usage: /tphere <player>
+    aliases: [tpohere]
+  tpa:
+    usage: /tpa <player>
+  tpahere:
+    usage: /tpahere <player>
+  tpaccept:
+    usage: /tpaccept [player]
+    aliases: [tpyes]
+  tpdecline:
+    usage: /tpdecline [player]
+    aliases: [tpdeny, tpno]
+  rtp:
+    usage: /rtp [player]
+  tpignore:
+    usage: /tpignore
+  tpoffline:
+    usage: /tpoffline <player>
+  tpall:
+    usage: /tpall
+  tpaall:
+    usage: /tpaall
+  spawn:
+    usage: /spawn
+  setspawn:
+    usage: /setspawn
+  back:
+    usage: /back
+  huskhomes:
+    usage: /huskhomes [about|help|reload|update]

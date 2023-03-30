@@ -54,14 +54,14 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         }
 
         // Register permissions
-        addPermission(command.getPermission(), command.getUsage(), getPermissionDefault(command.isOperatorCommand()));
+        addPermission(plugin, command.getPermission(), command.getUsage(), getPermissionDefault(command.isOperatorCommand()));
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
-                .map((entry) -> addPermission(entry.getKey(), "", getPermissionDefault(entry.getValue())))
+                .map((entry) -> addPermission(plugin, entry.getKey(), "", getPermissionDefault(entry.getValue())))
                 .filter(Objects::nonNull)
                 .toList();
         if (!childNodes.isEmpty()) {
-            addPermission(command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
+            addPermission(plugin, command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
                     childNodes.toArray(new Permission[0]));
         }
 
@@ -78,7 +78,8 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     }
 
     @Nullable
-    private Permission addPermission(@NotNull String node, @NotNull String description, @NotNull PermissionDefault permissionDefault, @NotNull Permission... children) {
+    protected static Permission addPermission(@NotNull BukkitHuskHomes plugin, @NotNull String node, @NotNull String description,
+                                              @NotNull PermissionDefault permissionDefault, @NotNull Permission... children) {
         final Map<String, Boolean> childNodes = Arrays.stream(children)
                 .map(Permission::getName)
                 .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
@@ -100,7 +101,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     }
 
     @NotNull
-    private static PermissionDefault getPermissionDefault(boolean isOperatorCommand) {
+    protected static PermissionDefault getPermissionDefault(boolean isOperatorCommand) {
         return isOperatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE;
     }
 

@@ -8,4 +8,5 @@ rootProject.name = 'HuskHomes'
 
 include 'common'
 include 'bukkit'
+include 'paper'
 include 'plugin'

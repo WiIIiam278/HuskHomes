@@ -40,7 +40,7 @@ public abstract class RandomTeleportEngine {
      */
     @NotNull
     protected Position getCenterPoint(@NotNull World world) {
-        return plugin.getLocalCachedSpawn()
+        return plugin.getServerSpawn()
                 .map(s -> s.getPosition(plugin.getServerName()))
                 .orElse(Position.at(0d, 128d, 0d, 0f, 0f,
                         world, plugin.getServerName()));

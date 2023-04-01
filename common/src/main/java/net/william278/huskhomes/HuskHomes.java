@@ -346,7 +346,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     List<Command> registerCommands();
 
     default void registerHooks() {
-        final ArrayList<Hook> hooks = new ArrayList<>();
+        setHooks(new ArrayList<>());
+
         if (getSettings().doMapHook()) {
             if (isDependencyLoaded("Dynmap")) {
                 getHooks().add(new DynmapHook(this));
@@ -357,7 +358,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
         if (isDependencyLoaded("Plan")) {
             getHooks().add(new PlanHook(this));
         }
-        setHooks(hooks);
     }
 
     boolean isDependencyLoaded(@NotNull String name);

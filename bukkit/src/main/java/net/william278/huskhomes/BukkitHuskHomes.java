@@ -191,6 +191,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void registerHooks() {
         HuskHomes.super.registerHooks();
+
         if (getSettings().doEconomy()) {
             if (isDependencyLoaded("RedisEconomy")) {
                 getHooks().add(new RedisEconomyHook(this));

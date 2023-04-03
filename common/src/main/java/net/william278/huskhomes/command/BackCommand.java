@@ -33,6 +33,7 @@ public class BackCommand extends InGameCommand {
                     .teleporter(executor)
                     .target(lastPosition.get())
                     .economyActions(EconomyHook.Action.BACK_COMMAND)
+                    .type(Teleport.Type.BACK)
                     .toTimedTeleport()
                     .execute();
         } catch (TeleportationException e) {

@@ -79,39 +79,7 @@ public class EventListener {
     private void handleInboundTeleport(@NotNull OnlineUser teleporter) {
         plugin.getDatabase().getCurrentTeleport(teleporter).ifPresent(teleport -> {
             if (teleport.getType() == Teleport.Type.RESPAWN) {
-                final Optional<Position> bedPosition = teleporter.getBedSpawnPosition();
-                if (bedPosition.isEmpty()) {
-                    plugin.getSpawn().ifPresent(spawn -> {
-                        if (plugin.getSettings().doCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
-                            plugin.runLater(() -> {
-                                try {
-                                    Teleport.builder(plugin)
-                                            .teleporter(teleporter)
-                                            .target(spawn)
-                                            .updateLastPosition(false)
-                                            .toTeleport().execute();
-                                } catch (TeleportationException e) {
-                                    e.displayMessage(teleporter, plugin, new String[0]);
-                                }
-                            }, 40L);
-                        } else {
-                            try {
-                                teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
-                            } catch (TeleportationException e) {
-                                e.displayMessage(teleporter, plugin, new String[0]);
-                            }
-                        }
-                        teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
-                    });
-                } else {
-                    try {
-                        teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
-                    } catch (TeleportationException e) {
-                        e.displayMessage(teleporter, plugin, new String[0]);
-                    }
-                }
-                plugin.getDatabase().setCurrentTeleport(teleporter, null);
-                plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
+                handleInboundRespawn(teleporter);
                 return;
             }
 
@@ -123,6 +91,47 @@ public class EventListener {
             plugin.getDatabase().setCurrentTeleport(teleporter, null);
             teleport.displayTeleportingComplete(teleporter);
         });
+    }
+
+    /**
+     * Handle an inbound global respawn
+     *
+     * @param teleporter the user to handle the checks for
+     */
+    private void handleInboundRespawn(@NotNull OnlineUser teleporter) {
+        final Optional<Position> bedPosition = teleporter.getBedSpawnPosition();
+        if (bedPosition.isEmpty()) {
+            plugin.getSpawn().ifPresent(spawn -> {
+                if (plugin.getSettings().doCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
+                    plugin.runLater(() -> {
+                        try {
+                            Teleport.builder(plugin)
+                                    .teleporter(teleporter)
+                                    .target(spawn)
+                                    .updateLastPosition(false)
+                                    .toTeleport().execute();
+                        } catch (TeleportationException e) {
+                            e.displayMessage(teleporter, plugin, new String[0]);
+                        }
+                    }, 40L);
+                } else {
+                    try {
+                        teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
+                    } catch (TeleportationException e) {
+                        e.displayMessage(teleporter, plugin, new String[0]);
+                    }
+                }
+                teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
+            });
+        } else {
+            try {
+                teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
+            } catch (TeleportationException e) {
+                e.displayMessage(teleporter, plugin, new String[0]);
+            }
+        }
+        plugin.getDatabase().setCurrentTeleport(teleporter, null);
+        plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
     }
 
     /**
@@ -198,7 +207,7 @@ public class EventListener {
             // Display the return by death via /back notification
             final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
                     .map(command -> onlineUser.hasPermission(command.getPermission())
-                            && onlineUser.hasPermission(command.getPermission("death")))
+                                    && onlineUser.hasPermission(command.getPermission("death")))
                     .orElse(false);
             if (plugin.getSettings().doBackCommandReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")

@@ -184,7 +184,8 @@ public class Teleport {
      */
     public enum Type {
         TELEPORT(0),
-        RESPAWN(1);
+        RESPAWN(1),
+        BACK(2);
 
         private final int typeId;
 

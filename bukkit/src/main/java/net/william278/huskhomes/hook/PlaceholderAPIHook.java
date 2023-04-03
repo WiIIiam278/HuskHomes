@@ -45,18 +45,9 @@ public class PlaceholderAPIHook extends Hook {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()
                         .getOrDefault(player.getUsername(), List.of()).size());
-                case "max_homes" -> String.valueOf(player.getMaxHomes(
-                        plugin.getSettings().getMaxHomes(),
-                        plugin.getSettings().doStackPermissionLimits()
-                ));
-                case "max_public_homes" -> String.valueOf(player.getMaxPublicHomes(
-                        plugin.getSettings().getMaxPublicHomes(),
-                        plugin.getSettings().doStackPermissionLimits()
-                ));
-                case "free_home_slots" -> String.valueOf(player.getFreeHomes(
-                        plugin.getSettings().getFreeHomeSlots(),
-                        plugin.getSettings().doStackPermissionLimits()
-                ));
+                case "max_homes" -> String.valueOf(plugin.getManager().homes().getMaxHomes(player));
+                case "max_public_homes" -> String.valueOf(plugin.getManager().homes().getMaxPublicHomes(player));
+                case "free_home_slots" -> String.valueOf(plugin.getManager().homes().getFreeHomes(player));
                 case "home_slots" -> String.valueOf(plugin.getSavedUser(player)
                         .map(SavedUser::getHomeSlots)
                         .orElse(0));

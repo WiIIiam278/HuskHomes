@@ -2,6 +2,7 @@ package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 public class ValidationException extends IllegalArgumentException {
@@ -25,10 +26,12 @@ public class ValidationException extends IllegalArgumentException {
                     .getLocale("error_home_name_characters", args)
                     .ifPresent(viewer::sendMessage);
             case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> plugin.getLocales()
-                    .getLocale("error_set_home_maximum_homes", args)
+                    .getLocale("error_set_home_maximum_homes", Integer.toString(plugin.getManager().homes()
+                            .getMaxHomes(viewer instanceof OnlineUser user ? user : null)))
                     .ifPresent(viewer::sendMessage);
             case REACHED_MAX_PUBLIC_HOMES -> plugin.getLocales()
-                    .getLocale("error_edit_home_maximum_public_homes", args)
+                    .getLocale("error_edit_home_maximum_public_homes", Integer.toString(plugin.getManager().homes()
+                            .getMaxPublicHomes(viewer instanceof OnlineUser user ? user : null)))
                     .ifPresent(viewer::sendMessage);
             case DESCRIPTION_INVALID -> plugin.getLocales()
                     .getLocale("error_home_description_characters", args)

@@ -13,6 +13,7 @@ import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,18 +146,14 @@ public class HomesManager {
 
         // Validate against user max homes
         final int homeCount = plugin.getDatabase().getHomes(owner).size();
-        int maxHomes = plugin.getSettings().getMaxHomes();
-        if (owner instanceof OnlineUser online) {
-            maxHomes = online.getMaxHomes(maxHomes, plugin.getSettings().doStackPermissionLimits());
-        }
-        if (homeCount >= maxHomes) {
+        if (homeCount >= getMaxHomes(owner)) {
             throw new ValidationException(ValidationException.Type.REACHED_MAX_HOMES);
         }
 
         // Validate against user home slots
         final SavedUser savedOwner = plugin.getSavedUser(owner)
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
-        if (plugin.getSettings().doEconomy() && homeCount >= savedOwner.getHomeSlots()) {
+        if (plugin.getSettings().doEconomy() && homeCount >= getFreeHomes(owner) && homeCount >= savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
             }
@@ -272,13 +269,11 @@ public class HomesManager {
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic && home.getOwner() instanceof OnlineUser online) {
+        if (isPublic) {
             final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)
                     .toList().size();
-            final int publicSlots = online.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),
-                    plugin.getSettings().doStackPermissionLimits());
-            if (publicHomes >= publicSlots) {
+            if (publicHomes >= getMaxPublicHomes(home.getOwner())) {
                 throw new ValidationException(ValidationException.Type.REACHED_MAX_PUBLIC_HOMES);
             }
         }
@@ -301,6 +296,27 @@ public class HomesManager {
         home.getMeta().setTags(tags);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
+    }
+
+    public int getMaxHomes(@Nullable User user) {
+        return user instanceof OnlineUser online ? online.getMaxHomes(
+                plugin.getSettings().getMaxHomes(),
+                plugin.getSettings().doStackPermissionLimits()
+        ) : plugin.getSettings().getMaxHomes();
+    }
+
+    public int getMaxPublicHomes(@Nullable User user) {
+        return user instanceof OnlineUser online ? online.getMaxPublicHomes(
+                plugin.getSettings().getMaxPublicHomes(),
+                plugin.getSettings().doStackPermissionLimits()
+        ) : plugin.getSettings().getMaxPublicHomes();
+    }
+
+    public int getFreeHomes(@Nullable User user) {
+        return user instanceof OnlineUser online ? online.getFreeHomes(
+                plugin.getSettings().getFreeHomeSlots(),
+                plugin.getSettings().doStackPermissionLimits()
+        ) : plugin.getSettings().getFreeHomeSlots();
     }
 
 }

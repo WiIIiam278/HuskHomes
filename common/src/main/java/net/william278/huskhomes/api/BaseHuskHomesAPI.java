@@ -578,7 +578,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getMaxHomeSlots(@NotNull OnlineUser user) {
-        return user.getMaxHomes(plugin.getSettings().getMaxHomes(), plugin.getSettings().doStackPermissionLimits());
+        return plugin.getManager().homes().getMaxHomes(user);
     }
 
     /**
@@ -591,7 +591,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getFreeHomeSlots(@NotNull OnlineUser user) {
-        return user.getFreeHomes(plugin.getSettings().getFreeHomeSlots(), plugin.getSettings().doStackPermissionLimits());
+        return plugin.getManager().homes().getFreeHomes(user);
     }
 
     /**
@@ -602,7 +602,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final int getMaxPublicHomeSlots(@NotNull OnlineUser user) {
-        return user.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(), plugin.getSettings().doStackPermissionLimits());
+        return plugin.getManager().homes().getMaxPublicHomes(user);
     }
 
     /**

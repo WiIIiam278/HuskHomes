@@ -170,10 +170,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             try {
                 plugin.getManager().homes().setHomePrivacy(event.getHome(), home.isPublic());
             } catch (ValidationException e) {
-                int maxHomes = executor instanceof OnlineUser user ?
-                        user.getMaxPublicHomes(plugin.getSettings().getMaxPublicHomes(),
-                                plugin.getSettings().doStackPermissionLimits()) :
-                        plugin.getSettings().getMaxPublicHomes();
+                int maxHomes = plugin.getManager().homes().getMaxPublicHomes(executor instanceof OnlineUser user ? user : null);
                 e.dispatchHomeError(executor, false, plugin, Integer.toString(maxHomes));
                 return;
             }

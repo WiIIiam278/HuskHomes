@@ -493,7 +493,8 @@ public class Settings {
     public enum SoundEffectAction {
         TELEPORTATION_COMPLETE("entity.enderman.teleport"),
         TELEPORTATION_WARMUP("block.note_block.banjo"),
-        TELEPORTATION_CANCELLED("entity.item.break");
+        TELEPORTATION_CANCELLED("entity.item.break"),
+        TELEPORT_REQUEST_RECEIVED("entity.experience_orb.pickup");
         private final String defaultSoundEffect;
 
         SoundEffectAction(@NotNull String defaultSoundEffect) {

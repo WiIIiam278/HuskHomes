@@ -1,6 +1,7 @@
 package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
@@ -177,6 +178,8 @@ public class RequestsManager {
                 .ifPresent(recipient::sendMessage);
         plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                 .ifPresent(recipient::sendMessage);
+        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORT_REQUEST_RECEIVED)
+                .ifPresent(recipient::playSound);
     }
 
     /**

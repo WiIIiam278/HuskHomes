@@ -11,6 +11,8 @@ dependencies:
     required: false
   - name: RedisEconomy
     required: false
+  - name: PlaceholderAPI
+    required: false
   - name: dynmap
     required: false
   - name: BlueMap
@@ -22,6 +24,7 @@ dependencies:
 load-after:
   - name: Vault
   - name: RedisEconomy
+  - name: PlaceholderAPI
   - name: dynmap
   - name: BlueMap
   - name: Plan

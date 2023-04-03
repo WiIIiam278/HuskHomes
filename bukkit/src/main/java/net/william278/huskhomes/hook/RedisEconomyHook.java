@@ -11,9 +11,9 @@ public class RedisEconomyHook extends VaultEconomyHook {
     }
 
     @Override
-    public void initialize()  {
+    public void initialize() {
         RedisEconomyAPI api = RedisEconomyAPI.getAPI();
-        if (api != null) {
+        if (api != null && !plugin.getSettings().getRedisEconomyName().equals("vault")) {
             economy = api.getCurrencyByName(plugin.getSettings().getRedisEconomyName());
             if (economy != null) {
                 return;

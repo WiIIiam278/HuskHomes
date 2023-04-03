@@ -4,8 +4,10 @@ import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,21 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     default ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return new TeleportWarmupEvent(teleport, duration);
+    }
+
+    @Override
+    default ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, @NotNull TeleportRequest request) {
+        return new SendTeleportRequestEvent(sender, request);
+    }
+
+    @Override
+    default IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+        return new ReceiveTeleportRequestEvent(recipient, request);
+    }
+
+    @Override
+    default IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+        return new ReplyTeleportRequestEvent(recipient, request);
     }
 
     @Override

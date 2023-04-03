@@ -131,18 +131,19 @@ public class RequestsManager {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
             }
-            sendLocalTeleportRequest(request, localTarget.get());
+            plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request),
+                    (event -> sendLocalTeleportRequest(request, localTarget.get())));
             return;
         }
 
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().doCrossServer()) {
             request.setRecipientName(targetUser);
-            Message.builder()
+            plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request), (event -> Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST)
                     .payload(Payload.withTeleportRequest(request))
                     .target(targetUser)
-                    .build().send(plugin.getMessenger(), requester);
+                    .build().send(plugin.getMessenger(), requester)));
             return;
         }
         throw new IllegalArgumentException("Player not found");
@@ -172,14 +173,16 @@ public class RequestsManager {
         }
 
         // Add the request and display a message to the recipient
-        addTeleportRequest(request, recipient);
-        plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                        + "_request_received", request.getRequesterName())
-                .ifPresent(recipient::sendMessage);
-        plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
-                .ifPresent(recipient::sendMessage);
-        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORT_REQUEST_RECEIVED)
-                .ifPresent(recipient::playSound);
+        plugin.fireEvent(plugin.getReceiveTeleportRequestEvent(recipient, request), (event -> {
+            addTeleportRequest(request, recipient);
+            plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
+                                          + "_request_received", request.getRequesterName())
+                    .ifPresent(recipient::sendMessage);
+            plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
+                    .ifPresent(recipient::sendMessage);
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORT_REQUEST_RECEIVED)
+                    .ifPresent(recipient::playSound);
+        }));
     }
 
     /**
@@ -248,49 +251,50 @@ public class RequestsManager {
             plugin.getLocales().getLocale("error_teleport_request_expired").ifPresent(recipient::sendMessage);
             return;
         }
-
-        // Send request response confirmation to the recipient
-        plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
-                        request.getRequesterName())
-                .ifPresent(recipient::sendMessage);
         request.setStatus(accepted ? TeleportRequest.Status.ACCEPTED : TeleportRequest.Status.DECLINED);
 
-        // Send request response to the sender
-        final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.getRequesterName());
-        if (localRequester.isPresent()) {
-            handleLocalRequestResponse(localRequester.get(), request);
-        } else if (plugin.getSettings().doCrossServer()) {
-            Message.builder()
-                    .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
-                    .payload(Payload.withTeleportRequest(request))
-                    .target(request.getRequesterName())
-                    .build()
-                    .send(plugin.getMessenger(), recipient);
-        } else {
-            plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
+        // Fire event and send request response confirmation to the recipient
+        plugin.fireEvent(plugin.getReplyTeleportRequestEvent(recipient, request), (event -> {
+            plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
+                            request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
-            return;
-        }
 
-        // If the request is a tpa here request, teleport the recipient to the sender
-        if (accepted && request.getType() == TeleportRequest.Type.TPA_HERE) {
-            final TeleportBuilder builder = Teleport.builder(plugin)
-                    .teleporter(recipient);
-
-            // Strict /tpahere requests will teleport to where the sender was when typing the command
-            if (plugin.getSettings().doStrictTpaHereRequests()) {
-                builder.target(request.getRequesterPosition());
+            // Find the requester and inform them of the response
+            final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.getRequesterName());
+            if (localRequester.isPresent()) {
+                handleLocalRequestResponse(localRequester.get(), request);
+            } else if (plugin.getSettings().doCrossServer()) {
+                Message.builder()
+                        .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
+                        .payload(Payload.withTeleportRequest(request))
+                        .target(request.getRequesterName())
+                        .build()
+                        .send(plugin.getMessenger(), recipient);
             } else {
-                builder.target(request.getRequesterName());
+                plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
+                        .ifPresent(recipient::sendMessage);
+                return;
             }
 
-            try {
-                builder.toTimedTeleport().execute();
-            } catch (TeleportationException e) {
-                e.displayMessage(recipient, plugin, new String[0]);
-            }
-        }
+            // If the request is a tpa here request, teleport the recipient to the sender
+            if (accepted && request.getType() == TeleportRequest.Type.TPA_HERE) {
+                final TeleportBuilder builder = Teleport.builder(plugin)
+                        .teleporter(recipient);
 
+                // Strict /tpahere requests will teleport to where the sender was when typing the command
+                if (plugin.getSettings().doStrictTpaHereRequests()) {
+                    builder.target(request.getRequesterPosition());
+                } else {
+                    builder.target(request.getRequesterName());
+                }
+
+                try {
+                    builder.toTimedTeleport().execute();
+                } catch (TeleportationException e) {
+                    e.displayMessage(recipient, plugin, new String[0]);
+                }
+            }
+        }));
     }
 
     /**

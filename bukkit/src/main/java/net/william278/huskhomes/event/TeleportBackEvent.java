@@ -2,10 +2,11 @@ package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class TeleportBackEvent extends TeleportEvent implements ITeleportBackEvent {
+public class TeleportBackEvent extends TeleportEvent implements ITeleportBackEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 

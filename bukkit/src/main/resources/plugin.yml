@@ -12,6 +12,8 @@ softdepend:
   - dynmap
   - BlueMap
   - Plan
+loadbefore:
+  - Essentials
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'
@@ -19,64 +21,64 @@ libraries:
 
 commands:
   home:
-    usage: /home <name>
+    usage: /<command> <name>
   sethome:
-    usage: /sethome <name>
+    usage: /<command> <name>
   homelist:
-    usage: /homelist [player] [page]
+    usage: /<command> [player] [page]
     aliases: [homes]
   delhome:
-    usage: /delhome <name>
+    usage: /<command> <name>
   edithome:
-    usage: /edithome <name> [rename|description|relocate|privacy] [args]
+    usage: /<command> <name> [rename|description|relocate|privacy] [args]
   phome:
-    usage: /phome [<owner_name>.<home_name>]
+    usage: /<command> [<owner_name>.<home_name>]
     aliases:  [publichome]
   phomelist:
-    usage: /phomelist [page]
+    usage: /<command> [page]
     aliases:  [publichomelist, phomes]
   warp:
-    usage: /warp <name>
+    usage: /<command> <name>
   setwarp:
-    usage: /setwarp <name>
+    usage: /<command> <name>
   warplist:
-    usage: /warplist [page]
+    usage: /<command> [page]
     aliases: [warps]
   delwarp:
-    usage: /delwarp <name>
+    usage: /<command> <name>
   editwarp:
-    usage: /editwarp <name> [rename|description|relocate] [args]
+    usage: /<command> <name> [rename|description|relocate] [args]
   tp:
-    usage: /tp <target> [destination]
+    usage: /<command> <target> [destination]
     aliases: [tpo]
   tphere:
-    usage: /tphere <player>
+    usage: /<command> <player>
     aliases: [tpohere]
   tpa:
-    usage: /tpa <player>
+    usage: /<command> <player>
   tpahere:
-    usage: /tpahere <player>
+    usage: /<command> <player>
   tpaccept:
-    usage: /tpaccept [player]
+    usage: /<command> [player]
     aliases: [tpyes]
   tpdecline:
-    usage: /tpdecline [player]
+    usage: /<command> [player]
     aliases: [tpdeny, tpno]
   rtp:
-    usage: /rtp [player]
+    usage: /<command> [player]
   tpignore:
-    usage: /tpignore
+    usage: /<command>
   tpoffline:
-    usage: /tpoffline <player>
+    usage: /<command> <player>
   tpall:
-    usage: /tpall
+    usage: /<command>
   tpaall:
-    usage: /tpaall
+    usage: /<command>
   spawn:
-    usage: /spawn
+    usage: /<command>
   setspawn:
-    usage: /setspawn
+    usage: /<command>
   back:
-    usage: /back
+    usage: /<command>
   huskhomes:
-    usage: /huskhomes [about|help|reload|update]
+    usage: /<command> [about|help|reload|update]

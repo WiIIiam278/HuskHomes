@@ -71,6 +71,35 @@ subprojects {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
+
+        // API publishing
+        if (['bukkit'].contains(project.name)) {
+            java {
+                withSourcesJar()
+                withJavadocJar()
+            }
+            sourcesJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            javadocJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            shadowJar.dependsOn(sourcesJar, javadocJar)
+
+            publishing {
+                publications {
+                    mavenJava(MavenPublication) {
+                        groupId = 'net.william278'
+                        artifactId = 'huskhomes'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact javadocJar
+                        artifact sourcesJar
+                    }
+                }
+            }
+        }
+
         jar.dependsOn shadowJar
         clean.delete "$rootDir/target"
     }

@@ -1,7 +1,3 @@
-plugins {
-    id 'maven-publish'
-}
-
 dependencies {
     implementation project(path: ':common')
 
@@ -51,16 +47,4 @@ shadowJar {
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = 'net.william278'
-            artifactId = 'huskhomes'
-            version = "$rootProject.version"
-
-            artifact jar
-        }
-    }
 }

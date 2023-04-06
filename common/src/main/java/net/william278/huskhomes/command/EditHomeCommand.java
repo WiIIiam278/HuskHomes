@@ -152,20 +152,16 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        final Optional<String> privacyArg = parseStringArg(args, 1).map(String::toLowerCase);
-        if (privacyArg.isEmpty() || !(privacyArg.get().equals("public") || privacyArg.get().equals("private"))) {
-            plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/edithome " + home.getName() + " privacy <public|private>")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
         // Check against economy
         if (executor instanceof OnlineUser user && !plugin.validateEconomyCheck(user, EconomyHook.Action.MAKE_HOME_PUBLIC)) {
             return;
         }
 
-        home.setPublic(privacyArg.get().equals("public"));
+        // Set the home privacy
+        home.setPublic(parseStringArg(args, 1)
+                .map(String::toLowerCase).map("public"::equals)
+                .orElse(!home.isPublic()));
+
         plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
             try {
                 plugin.getManager().homes().setHomePrivacy(event.getHome(), home.isPublic());
@@ -251,7 +247,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
-                                                  + (home.isPublic() ? "private" : "public"), escapedName)
+                                            + (home.isPublic() ? "private" : "public"), escapedName)
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
             plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",

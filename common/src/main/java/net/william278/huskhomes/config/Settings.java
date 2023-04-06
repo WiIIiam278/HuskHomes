@@ -143,7 +143,8 @@ public class Settings {
     private Map<String, String> soundEffects = Map.of(
             SoundEffectAction.TELEPORTATION_COMPLETE.name().toLowerCase(), SoundEffectAction.TELEPORTATION_COMPLETE.defaultSoundEffect,
             SoundEffectAction.TELEPORTATION_WARMUP.name().toLowerCase(), SoundEffectAction.TELEPORTATION_WARMUP.defaultSoundEffect,
-            SoundEffectAction.TELEPORTATION_CANCELLED.name().toLowerCase(), SoundEffectAction.TELEPORTATION_CANCELLED.defaultSoundEffect
+            SoundEffectAction.TELEPORTATION_CANCELLED.name().toLowerCase(), SoundEffectAction.TELEPORTATION_CANCELLED.defaultSoundEffect,
+            SoundEffectAction.TELEPORT_REQUEST_RECEIVED.name().toLowerCase(), SoundEffectAction.TELEPORT_REQUEST_RECEIVED.defaultSoundEffect
     );
 
     @YamlKey("general.brigadier_tab_completion")

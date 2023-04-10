@@ -1,5 +1,6 @@
 package net.william278.huskhomes.teleport;
 
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
@@ -9,6 +10,7 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -146,7 +148,7 @@ public class Teleport {
     }
 
     // Fire the teleport event
-    private void fireEvent(@NotNull Consumer<ITeleportEvent> afterFired) {
+    private void fireEvent(@NotNull ThrowingConsumer<ITeleportEvent> afterFired) {
         plugin.fireEvent(plugin.getTeleportEvent(this), afterFired);
     }
 

@@ -9,9 +9,9 @@ import java.util.function.Supplier;
 public interface TaskRunner {
     int runAsync(@NotNull Runnable runnable);
     <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
-    int runSync(@NotNull Runnable runnable);
+    void runSync(@NotNull Runnable runnable);
     int runAsyncRepeating(@NotNull Runnable runnable, long delay);
-    int runLater(@NotNull Runnable runnable, long delay);
+    void runLater(@NotNull Runnable runnable, long delay);
     void cancelTask(int taskId);
     void cancelAllTasks();
     @NotNull

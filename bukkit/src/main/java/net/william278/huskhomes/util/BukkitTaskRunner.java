@@ -23,8 +23,8 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
-    default int runSync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTask((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
+    default void runSync(@NotNull Runnable runnable) {
+        Bukkit.getScheduler().runTask((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
     }
 
     @Override
@@ -36,8 +36,8 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
-    default int runLater(@NotNull Runnable runnable, long delay) {
-        return Bukkit.getScheduler().runTaskLater((BukkitHuskHomes) getPlugin(), runnable, delay).getTaskId();
+    default void runLater(@NotNull Runnable runnable, long delay) {
+        Bukkit.getScheduler().runTaskLater((BukkitHuskHomes) getPlugin(), runnable, delay).getTaskId();
     }
 
     @Override

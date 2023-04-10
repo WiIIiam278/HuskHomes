@@ -24,20 +24,3 @@ dependencies {
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.1923'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'
 }
-
-shadowJar {
-    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
-    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
-    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
-    relocate 'de.themoep', 'net.william278.huskhomes.libraries'
-    relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
-    relocate 'org.intellij', 'net.william278.huskhomes.libraries'
-    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
-    relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
-    relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
-    relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
-    relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
-    relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
-    relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
-    relocate 'net.kyori', 'net.william278.huskhomes.libraries'
-}

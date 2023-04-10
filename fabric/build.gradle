@@ -1,0 +1,21 @@
+plugins {
+    id 'fabric-loom' version '1.1.12'
+}
+
+dependencies {
+    implementation project(path: ':common')
+
+    minecraft 'com.mojang:minecraft:1.19.4'
+    mappings 'net.fabricmc:yarn:1.19.4+build.2'
+
+    modImplementation 'net.kyori:adventure-platform-fabric:5.8.0'
+    modImplementation 'redis.clients:jedis:' + jedis_version
+    modImplementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
+    modImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
+
+    modCompileOnly 'net.fabricmc:fabric-loader:0.14.19'
+    modCompileOnly 'net.fabricmc.fabric-api:fabric-api:0.77.0+1.19.4'
+    modCompileOnly 'org.jetbrains:annotations:24.0.1'
+    modCompileOnly 'net.william278:Annotaml:2.0.1'
+    modCompileOnly 'net.william278:DesertWell:1.1.1'
+}

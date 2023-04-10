@@ -29,6 +29,7 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
@@ -51,7 +52,7 @@ allprojects {
     }
 
     processResources {
-        filesNotMatching(['**/*.png', '**/*.svg']) {
+        filesMatching(['**/*.json', '**/*.yml']) {
             filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
                     tokens: rootProject.ext.properties
         }
@@ -61,18 +62,18 @@ allprojects {
 subprojects {
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+    compileJava.options.encoding = 'UTF-8'
 
-    if ('paper'.contains(project.name)) {
+    if (['paper', 'fabric'].contains(project.name)) {
         compileJava.options.release.set 17
     }
 
-    if (['bukkit', 'paper', 'plugin'].contains(project.name)) {
+    if (['bukkit', 'paper', 'plugin', 'fabric'].contains(project.name)) {
         shadowJar {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
 
-        // API publishing
         if (['bukkit'].contains(project.name)) {
             java {
                 withSourcesJar()
@@ -121,3 +122,4 @@ def versionMetadata() {
     }
     return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }
+

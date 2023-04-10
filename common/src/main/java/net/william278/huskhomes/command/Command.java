@@ -33,14 +33,22 @@ public abstract class Command extends Node {
 
     @NotNull
     protected String[] removeFirstArg(@NotNull String[] args) {
+        if (args.length <= 1) {
+            return new String[0];
+        }
         String[] newArgs = new String[args.length - 1];
         System.arraycopy(args, 1, newArgs, 0, args.length - 1);
         return newArgs;
     }
 
     @NotNull
+    public final String getRawUsage() {
+        return usage;
+    }
+
+    @NotNull
     public final String getUsage() {
-        return "/" + getName() + " " + usage;
+        return "/" + getName() + " " + getRawUsage();
     }
 
     public final void addAdditionalPermissions(@NotNull Map<String, Boolean> additionalPermissions) {

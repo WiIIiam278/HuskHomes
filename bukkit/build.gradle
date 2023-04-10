@@ -43,7 +43,6 @@ shadowJar {
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
     relocate 'net.kyori', 'net.william278.huskhomes.libraries'
-
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'

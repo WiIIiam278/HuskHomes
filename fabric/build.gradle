@@ -2,6 +2,9 @@ plugins {
     id 'fabric-loom' version '1.1-SNAPSHOT'
 }
 
+apply plugin: 'fabric-loom'
+loom.serverOnlyMinecraftJar()
+
 dependencies {
     minecraft 'com.mojang:minecraft:1.19.4'
     mappings 'net.fabricmc:yarn:1.19.4+build.2'
@@ -18,39 +21,25 @@ dependencies {
     fabricApiModules.forEach {
         modImplementation(fabricApi.module(it, '0.77.0+1.19.4'))
     }
-    include(modImplementation 'net.kyori:adventure-platform-fabric:5.8.0' )
-    include(modImplementation 'me.lucko:fabric-permissions-api:0.2-SNAPSHOT' )
+    modImplementation include('net.kyori:adventure-platform-fabric:5.8.0')
+    modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
 
-    include(implementation 'redis.clients:jedis:' + jedis_version)
-    include(implementation 'com.mysql:mysql-connector-j:' + mysql_driver_version)
-    include(implementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version)
+    implementation include('redis.clients:jedis:' + jedis_version)
+    implementation include('com.mysql:mysql-connector-j:' + mysql_driver_version)
+    implementation include('org.xerial:sqlite-jdbc:' + sqlite_driver_version)
+
     compileOnly 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'net.william278:Annotaml:2.0.1'
-    compileOnly 'net.william278:DesertWell:1.1.1'
 
-    implementation project(path: ':common')
+    shadow project(path: ":common")
 }
 
 shadowJar {
-    dependencies {
-        include(project(path: ':common'))
-        include(dependency('net.william278:.*'))
-        include(dependency('org.apache.commons:.*'))
-        include(dependency('de.themoep:.*'))
-        include(dependency('org.jetbrains:.*'))
-        include(dependency('org.intellij:.*'))
-        include(dependency('com.zaxxer:.*'))
-        include(dependency('dev.dejvokep:boostedyaml:.*'))
-        include(dependency('org.yaml:snakeyaml:.*'))
-        include(dependency('com.google:.*'))
-        include(dependency('net.kyori:.*'))
-        include(dependency('me.lucko:.*'))
-        include(dependency('redis.clients:.*'))
-        include(dependency('com.mysql:.*'))
-        include(dependency('org.xerial:.*'))
-        exclude('net.fabricmc:.*')
-        exclude '/mappings/*'
-    }
+    configurations = [project.configurations.shadow]
+    destinationDirectory.set(file("$projectDir/build/libs"))
+
+    exclude('net.fabricmc:.*')
+    exclude('net.kyori:.*')
+    exclude '/mappings/*'
 
     relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
     relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
@@ -65,9 +54,16 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
-    relocate 'net.kyori', 'net.william278.huskhomes.libraries'
-    relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
-    relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
-    relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
-    relocate 'me.lucko.fabric.api.permissions.v0', 'net.william278.huskhomes.libraries.luckperms'
 }
+
+remapJar {
+    dependsOn tasks.shadowJar
+    mustRunAfter tasks.shadowJar
+    inputFile = shadowJar.archiveFile.get()
+    addNestedDependencies = true
+
+    destinationDirectory.set(file("$rootDir/target/"))
+    archiveClassifier.set('')
+}
+
+shadowJar.finalizedBy(remapJar)

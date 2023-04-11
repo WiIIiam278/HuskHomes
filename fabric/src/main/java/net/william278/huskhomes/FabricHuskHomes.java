@@ -144,7 +144,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private void onEnable() {
         // Create adventure audience
-        this.audiences = FabricServerAudiences.builder(minecraftServer).build();
+        this.audiences = FabricServerAudiences.of(minecraftServer);
 
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
@@ -397,9 +397,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
                 .filter(command -> !settings.isCommandDisabled(command))
                 .toList();
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                commands.forEach(command -> new FabricCommand(command, this)
-                        .register(dispatcher, registryAccess, environment)));
+        CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
+                commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
 
         return commands;
     }

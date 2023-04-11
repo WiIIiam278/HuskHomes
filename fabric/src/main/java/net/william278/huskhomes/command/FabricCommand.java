@@ -25,8 +25,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.PermissionCheckEvent;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.william278.huskhomes.FabricHuskHomes;
@@ -51,9 +49,7 @@ public class FabricCommand {
         this.plugin = plugin;
     }
 
-    public void register(@NotNull CommandDispatcher<ServerCommandSource> dispatcher,
-                         @SuppressWarnings("unused") @NotNull CommandRegistryAccess registryAccess,
-                         @SuppressWarnings("unused") @NotNull CommandManager.RegistrationEnvironment environment) {
+    public void register(@NotNull CommandDispatcher<ServerCommandSource> dispatcher) {
         // Register brigadier command
         final LiteralArgumentBuilder<ServerCommandSource> builder = literal(command.getName())
                 .requires(Permissions.require(command.getPermission(), command.isOperatorCommand() ? 3 : 0))

@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly project(path: ':common')
-    implementation project(path: ':bukkit')
+    implementation project(':bukkit')
+    compileOnly project(':common')
 
     compileOnly 'io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT'
     compileOnly 'maven.modrinth:pl3xmap:1.19.3-321'

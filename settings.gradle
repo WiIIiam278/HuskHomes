@@ -1,12 +1,15 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        maven { url 'https://maven.fabricmc.net/' }
     }
 }
 
 rootProject.name = 'HuskHomes'
-
-include 'common'
-include 'bukkit'
-include 'paper'
-include 'plugin'
+include(
+        'common',
+        'bukkit',
+        'paper',
+        'plugin',
+        'fabric'
+)

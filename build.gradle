@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'org.ajoberstar.grgit' version '5.0.0'
     id 'maven-publish'
     id 'java'
@@ -9,6 +10,7 @@ plugins {
 
 group 'net.william278'
 version "$ext.plugin_version-${versionMetadata()}"
+defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
@@ -19,6 +21,7 @@ ext {
 
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
@@ -29,6 +32,7 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
@@ -50,29 +54,40 @@ allprojects {
         useJUnitPlatform()
     }
 
+    license {
+        header = rootProject.file('HEADER')
+        include '**/*.java'
+        newLine = true
+    }
+
     processResources {
-        filesNotMatching(['**/*.png', '**/*.svg']) {
+        filesMatching(['**/*.json', '**/*.yml']) {
             filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
                     tokens: rootProject.ext.properties
         }
     }
+
 }
 
 subprojects {
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+    compileJava.options.encoding = 'UTF-8'
 
-    if ('paper'.contains(project.name)) {
+    jar {
+        from '../LICENSE'
+    }
+
+    if (['paper', 'fabric'].contains(project.name)) {
         compileJava.options.release.set 17
     }
 
-    if (['bukkit', 'paper', 'plugin'].contains(project.name)) {
+    if (['bukkit', 'paper', 'plugin', 'fabric'].contains(project.name)) {
         shadowJar {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
 
-        // API publishing
         if (['bukkit'].contains(project.name)) {
             java {
                 withSourcesJar()
@@ -121,3 +136,4 @@ def versionMetadata() {
     }
     return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }
+

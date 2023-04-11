@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "huskhomes",
+  "version": "${version}",
+  "name": "HuskHomes",
+  "icon": "assets/huskhomes/icon.png",
+  "description": "A powerful, intuitive and flexible teleportation suite",
+  "authors": [
+    {
+      "name": "William278",
+      "contact": {
+        "sources": "https://github.com/WiIIiam278/",
+        "homepage": "https://william278.net/"
+      }
+    }
+  ],
+  "license": "Apache-2.0",
+  "contact": {
+    "homepage": "https://william278.net/project/huskhomes/",
+    "repo": "https://github.com/WiIIiam278/HuskHomes2",
+    "issues": "https://github.com/WiIIiam278/HuskHomes2/issues"
+  },
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "net.william278.huskhomes.FabricHuskHomes"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.19",
+    "minecraft": ">=1.19.4",
+    "fabric-api": "*"
+  },
+  "custom": {
+    "modmenu:api": true
+  }
+}

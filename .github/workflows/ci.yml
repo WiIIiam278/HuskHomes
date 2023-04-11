@@ -1,5 +1,5 @@
 # Builds, tests the project with Gradle and uploads to Modrinth
-name: Java CI
+name: CI Tests & Publish
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
       - name: Get Version
         run: |
           echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
-      - name: Upload to Modrinth
+      - name: Upload to Modrinth (Spigot)
         uses: Kir-Antipov/mc-publish@v3.2
         with:
           modrinth-id: J6U9o3JG
@@ -46,7 +46,7 @@ jobs:
             dynmap | suggests | *
             pl3xmap | suggests | *
           files-primary: target/HuskHomes-Plugin-*.jar
-          name: HuskHomes v${{ env.version_name }}
+          name: HuskHomes (Spigot) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}
@@ -60,8 +60,36 @@ jobs:
             1.18.2
             1.19.4
           java: 16
+      - name: Upload to Modrinth & CurseForge (Fabric)
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            bluemap | suggests | *
+            dynmap | suggests | *
+            luckperms | suggests | *
+          files-primary: target/HuskHomes-Fabric-*.jar
+          name: HuskHomes (Fabric) v${{ env.version_name }}
+          version: ${{ env.version_name }}
+          version-type: alpha
+          changelog: ${{ github.event.head_commit.message }}
+          loaders: |
+            fabric
+          game-versions: |
+            1.19.4
+          java: 17
+      - name: Upload GitHub Artifact (Spigot)
+        uses: actions/upload-artifact@v2
+        with:
+          name: HuskHomes (Spigot)
+          path: target/HuskHomes-Plugin-*.jar
       - name: Upload GitHub Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: HuskHomes Plugin
-          path: target/HuskHomes-Plugin-*.jar
+          name: HuskHomes (Fabric)
+          path: target/HuskHomes-Fabric-*.jar

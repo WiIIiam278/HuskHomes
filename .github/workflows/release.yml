@@ -1,0 +1,88 @@
+# Publishes a release to Modrinth and CurseForge when a release is published on GitHub.
+name: Release Test & Publish
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build test
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+      - name: Upload to Modrinth (Spigot)
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-dependencies: |
+            bluemap | suggests | *
+            dynmap | suggests | *
+            pl3xmap | suggests | *
+          files-primary: target/HuskHomes-Plugin-*.jar
+          name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          version-type: release
+          changelog: ${{ github.event.release.body }}
+          loaders: |
+            spigot
+            paper
+            purpur
+          game-versions: |
+            1.16.5
+            1.17.1
+            1.18.2
+            1.19.4
+          java: 16
+      - name: Upload to Modrinth & CurseForge (Fabric)
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            bluemap | suggests | *
+            dynmap | suggests | *
+            luckperms | suggests | *
+          files-primary: target/HuskHomes-Fabric-*.jar
+          name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          version-type: release
+          changelog: ${{ github.event.release.body }}
+          loaders: |
+            fabric
+          game-versions: |
+            1.19.4
+          java: 17
+      - name: Upload GitHub Artifact (Spigot)
+        uses: actions/upload-artifact@v2
+        with:
+          name: HuskHomes (Spigot)
+          path: target/HuskHomes-Plugin-*.jar
+      - name: Upload GitHub Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: HuskHomes (Fabric)
+          path: target/HuskHomes-Fabric-*.jar

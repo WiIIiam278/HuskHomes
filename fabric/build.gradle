@@ -33,9 +33,22 @@ dependencies {
 
 shadowJar {
     dependencies {
-        exclude('net.fabricmc:.*')
-        exclude(dependency('com.mojang:brigadier'))
+        include(project(path: ':common'))
         include(dependency('net.william278:.*'))
+        include(dependency('org.apache.commons:.*'))
+        include(dependency('de.themoep:.*'))
+        include(dependency('org.jetbrains:.*'))
+        include(dependency('org.intellij:.*'))
+        include(dependency('com.zaxxer:.*'))
+        include(dependency('dev.dejvokep:boostedyaml:.*'))
+        include(dependency('org.yaml:snakeyaml:.*'))
+        include(dependency('com.google:.*'))
+        include(dependency('net.kyori:.*'))
+        include(dependency('me.lucko:.*'))
+        include(dependency('redis.clients:.*'))
+        include(dependency('com.mysql:.*'))
+        include(dependency('org.xerial:.*'))
+        exclude('net.fabricmc:.*')
         exclude '/mappings/*'
     }
 

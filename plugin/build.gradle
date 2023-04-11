@@ -1,4 +1,5 @@
 dependencies {
     implementation project(path: ':bukkit', configuration: 'shadow')
     runtimeOnly project(path: ':paper')
+    runtimeOnly project(path: ':fabric')
 }

@@ -1,8 +1,30 @@
+/*
+ * This file is part of HuskHomes, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.william278.huskhomes.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.lucko.fabric.api.permissions.v0.PermissionCheckEvent;
+import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -12,6 +34,8 @@ import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.FabricUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -30,15 +54,28 @@ public class FabricCommand {
     public void register(@NotNull CommandDispatcher<ServerCommandSource> dispatcher,
                          @SuppressWarnings("unused") @NotNull CommandRegistryAccess registryAccess,
                          @SuppressWarnings("unused") @NotNull CommandManager.RegistrationEnvironment environment) {
+        // Register brigadier command
         final LiteralArgumentBuilder<ServerCommandSource> builder = literal(command.getName())
-                .requires(source -> source.hasPermissionLevel(command.isOperatorCommand() ? 2 : 0))
+                .requires(Permissions.require(command.getPermission(), command.isOperatorCommand() ? 3 : 0))
                 .executes(getBrigadierExecutor());
+        plugin.getPermissions().put(command.getPermission(), command.isOperatorCommand());
         if (!command.getRawUsage().isBlank()) {
             builder.then(argument(command.getRawUsage().replaceAll("[<>\\[\\]]", ""), greedyString())
                     .executes(getBrigadierExecutor())
                     .suggests(getBrigadierSuggester()));
         }
 
+        // Register additional permissions
+        final Map<String, Boolean> permissions = command.getAdditionalPermissions();
+        permissions.forEach((permission, isOp) -> plugin.getPermissions().put(permission, isOp));
+        PermissionCheckEvent.EVENT.register((player, node) -> {
+            if (permissions.containsKey(node) && permissions.get(node) && player.hasPermissionLevel(3)) {
+                return TriState.TRUE;
+            }
+            return TriState.DEFAULT;
+        });
+
+        // Register aliases
         final LiteralCommandNode<ServerCommandSource> node = dispatcher.register(builder);
         dispatcher.register(literal("huskhomes:" + command.getName()).executes(getBrigadierExecutor()).redirect(node));
         command.getAliases().forEach(alias -> dispatcher.register(literal(alias).executes(getBrigadierExecutor()).redirect(node)));

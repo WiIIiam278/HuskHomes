@@ -6,9 +6,10 @@ pluginManagement {
 }
 
 rootProject.name = 'HuskHomes'
-
-include 'common'
-include 'bukkit'
-include 'paper'
-include 'plugin'
-include 'fabric'
+include(
+        'common',
+        'bukkit',
+        'paper',
+        'plugin',
+        'fabric'
+)

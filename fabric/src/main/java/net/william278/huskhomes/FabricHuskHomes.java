@@ -1,12 +1,37 @@
+/*
+ * This file is part of HuskHomes, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.william278.huskhomes;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
@@ -35,7 +60,6 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.CustomPayloadCallback;
 import net.william278.huskhomes.util.FabricTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
@@ -55,7 +79,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTaskRunner, FabricEventDispatcher {
+public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
+        FabricTaskRunner, FabricEventDispatcher, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -68,6 +93,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private final ModContainer modContainer = FabricLoader.getInstance()
             .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
+    private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -93,6 +119,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         instance = this;
 
         // Get plugin version from mod container
+        this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -406,13 +433,17 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void initializePluginChannels() {
-        CustomPayloadCallback.EVENT.register((channel, byteBuf) -> {
-            if (channel.equals(PluginMessageBroker.BUNGEE_CHANNEL_ID)
-                && broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-                //pluginMessenger.onReceive(channel, FabricUser.adapt(player), byteBuf);
-            }
-        });
+        ServerPlayNetworking.registerGlobalReceiver(new Identifier("bungeecord", "main"), this);
+    }
+
+    // When a plugin message is received by the server
+    @Override
+    public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
+                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf, @NotNull PacketSender responseSender) {
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            pluginMessenger.onReceive(PluginMessageBroker.BUNGEE_CHANNEL_ID, FabricUser.adapt(this, player), buf.readByteArray());
+        }
     }
 
     @Override
@@ -428,6 +459,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             logEvent = logEvent.setCause(exceptions[0]);
         }
         logEvent.log(message);
+    }
+
+    @NotNull
+    public Map<String, Boolean> getPermissions() {
+        return permissions;
     }
 
     @NotNull

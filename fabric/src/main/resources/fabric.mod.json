@@ -26,13 +26,11 @@
       "net.william278.huskhomes.FabricHuskHomes"
     ]
   },
-  "mixins": [
-    "huskhomes.mixins.json"
-  ],
   "depends": {
     "fabricloader": ">=0.14.17",
     "minecraft": ">=1.19.4",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "fabric-permissions-api-v0": "*"
   },
   "custom": {
     "modmenu:api": true

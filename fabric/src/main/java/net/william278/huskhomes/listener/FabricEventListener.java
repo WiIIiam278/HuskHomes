@@ -27,6 +27,8 @@ import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.user.FabricUser;
 import org.jetbrains.annotations.NotNull;
 
+// Note that the teleport event and update player respawn position events are not handled on Fabric.
+// The "update last position on teleport event" and "global respawn" features are not supported on Fabric.
 public class FabricEventListener extends EventListener {
 
     public FabricEventListener(@NotNull FabricHuskHomes plugin) {
@@ -57,9 +59,6 @@ public class FabricEventListener extends EventListener {
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> handlePlayerRespawn(
                 FabricUser.adapt(plugin, newPlayer)
         ));
-
-        // todo: Teleport event
-        // todo: Update Spawn Position Event
     }
 
 }

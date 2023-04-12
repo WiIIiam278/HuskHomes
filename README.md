@@ -1,6 +1,6 @@
 <p align="center">
     <img src="images/banner.png" alt="HuskHomes" />
-    <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/java_ci.yml">
+    <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskHomes2/java_ci.yml?branch=master&logo=github"/>
     </a> 
     <a href="https://jitpack.io/#net.william278/HuskHomes2">

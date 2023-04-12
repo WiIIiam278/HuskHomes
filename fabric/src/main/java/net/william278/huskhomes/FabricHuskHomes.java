@@ -67,7 +67,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.spi.LoggingEventBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -321,7 +320,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             // Update the world spawn location, too
             minecraftServer.getWorlds().forEach(world -> {
                 if (world.getRegistryKey().getValue().asString().equals(location.getWorld().getName())) {
-                    world.setSpawnPos(BlockPos.ofFloored(location.getX(), location.getY(), location.getZ()), 0);
+                    world.setSpawnPos(new BlockPos(location.getX(), location.getY(), location.getZ()), 0);
                 }
             });
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -447,17 +446,29 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions) {
-        LoggingEventBuilder logEvent = LOGGER.makeLoggingEventBuilder(
-                switch (level.getName()) {
-                    case "WARNING" -> org.slf4j.event.Level.WARN;
-                    case "SEVERE" -> org.slf4j.event.Level.ERROR;
-                    default -> org.slf4j.event.Level.INFO;
+        switch (level.getName()) {
+            case "WARNING" -> {
+                if (exceptions.length >= 1) {
+                    LOGGER.warn(message, exceptions[0]);
+                } else {
+                    LOGGER.warn(message);
                 }
-        );
-        if (exceptions.length >= 1) {
-            logEvent = logEvent.setCause(exceptions[0]);
+            }
+            case "SEVERE" -> {
+                if (exceptions.length >= 1) {
+                    LOGGER.error(message, exceptions[0]);
+                } else {
+                    LOGGER.error(message);
+                }
+            }
+            default -> {
+                if (exceptions.length >= 1) {
+                    LOGGER.info(message, exceptions[0]);
+                } else {
+                    LOGGER.info(message);
+                }
+            }
         }
-        logEvent.log(message);
     }
 
     @NotNull

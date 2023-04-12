@@ -6,9 +6,9 @@ apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 dependencies {
-    minecraft 'com.mojang:minecraft:1.19.4'
-    mappings 'net.fabricmc:yarn:1.19.4+build.2'
-    modImplementation 'net.fabricmc:fabric-loader:0.14.19'
+    minecraft 'com.mojang:minecraft:1.19.2'
+    mappings 'net.fabricmc:yarn:1.19.2+build.28'
+    modImplementation 'net.fabricmc:fabric-loader:0.14.17'
 
     // Fabric API modules
     Set<String> fabricApiModules = [
@@ -19,9 +19,9 @@ dependencies {
             'fabric-networking-api-v1'
     ]
     fabricApiModules.forEach {
-        modImplementation(fabricApi.module(it, '0.77.0+1.19.4'))
+        modImplementation(fabricApi.module(it, '0.76.0+1.19.2'))
     }
-    modImplementation include('net.kyori:adventure-platform-fabric:5.8.0')
+    modImplementation include('net.kyori:adventure-platform-fabric:5.5.1')
     modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
 
     implementation include('redis.clients:jedis:' + jedis_version)

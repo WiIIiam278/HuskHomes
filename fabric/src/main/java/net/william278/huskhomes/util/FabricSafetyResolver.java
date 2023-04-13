@@ -2,12 +2,12 @@ package net.william278.huskhomes.util;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
@@ -38,7 +38,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
                 final BlockState blockState = world.getBlockState(blockPos.withY(highestY));
 
                 final Material material = blockState.getMaterial();
-                final Identifier blockId = Registries.BLOCK.getId(blockState.getBlock());
+                final Identifier blockId = Registry.BLOCK.getId(blockState.getBlock());
                 if (!material.isLiquid() && material != Material.FIRE && isBlockSafe(blockId.toString())) {
                     return CompletableFuture.completedFuture(Optional.of(Location.at(
                             blockPos.getX() + 0.5,

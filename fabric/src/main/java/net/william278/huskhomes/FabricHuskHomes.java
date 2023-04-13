@@ -27,18 +27,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.Command;
@@ -66,6 +60,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.util.FabricSafetyResolver;
 import net.william278.huskhomes.util.FabricTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
@@ -81,12 +76,11 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, ServerPlayNetworking.PlayChannelHandler {
+        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -281,6 +275,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.unsafeBlocks = unsafeBlocks;
     }
 
+    @NotNull
+    @Override
+    public UnsafeBlocks getUnsafeBlocks() {
+        return unsafeBlocks;
+    }
+
     @Override
     @NotNull
     public Database getDatabase() {
@@ -344,48 +344,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public void setHooks(@NotNull List<Hook> hooks) {
         this.hooks = hooks;
-    }
-
-    @Override
-    public CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
-        final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
-        final Optional<ServerWorld> locationWorld = minecraftServer.getWorldRegistryKeys().stream()
-                .filter(key -> key.getValue().equals(worldId)).findFirst()
-                .map(minecraftServer::getWorld);
-        if (locationWorld.isEmpty()) {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-        final ServerWorld world = locationWorld.get();
-
-        final BlockPos.Mutable blockPos = new BlockPos.Mutable(location.getX(), location.getY(), location.getZ());
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
-                final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                final BlockState blockState = world.getBlockState(blockPos.withY(highestY));
-
-                final Material material = blockState.getMaterial();
-                final Identifier blockId = Registries.BLOCK.getId(blockState.getBlock());
-                if (!material.isLiquid() && material != Material.FIRE && !unsafeBlocks.isUnsafe(blockId.toString())) {
-                    return CompletableFuture.completedFuture(Optional.of(Location.at(
-                            blockPos.getX() + 0.5,
-                            highestY + 1,
-                            blockPos.getZ() + 0.5,
-                            location.getWorld()
-                    )));
-                }
-            }
-        }
-
-        return CompletableFuture.completedFuture(Optional.empty());
-    }
-
-    private int getHighestYAt(@NotNull BlockView blockView, int x, int y, int z) {
-        final BlockPos.Mutable cursor = new BlockPos.Mutable(x, y, z);
-        while (blockView.getBlockState(cursor).isAir() && cursor.getY() > blockView.getBottomY()) {
-            cursor.move(Direction.DOWN);
-        }
-        return cursor.getY();
     }
 
     @Override
@@ -461,11 +419,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public Set<UUID> getCurrentlyOnWarmup() {
         return currentlyOnWarmup;
-    }
-
-    @Override
-    public boolean isBlockUnsafe(@NotNull String blockId) {
-        return unsafeBlocks.isUnsafe(blockId);
     }
 
     @Override

@@ -43,10 +43,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.util.TaskRunner;
-import net.william278.huskhomes.util.ThrowingConsumer;
-import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.Validator;
+import net.william278.huskhomes.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +53,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -64,7 +60,7 @@ import java.util.stream.Stream;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher {
+public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -180,6 +176,9 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     void setServer(@NotNull Server server);
 
     void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks);
+
+    @NotNull
+    UnsafeBlocks getUnsafeBlocks();
 
     /**
      * The {@link Database} that stores persistent plugin data
@@ -303,15 +302,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             }
         }
     }
-
-    /**
-     * Returns a safe ground location for the specified {@link Location} if possible
-     *
-     * @param location the {@link Location} to find a safe ground location for
-     * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
-     * possible to find one
-     */
-    CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location);
 
     /**
      * Returns a resource read from the plugin resources folder
@@ -474,14 +464,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             });
         }
     }
-
-    /**
-     * Returns if the block, by provided identifier, is unsafe
-     *
-     * @param blockId The block identifier (e.g. {@code minecraft:stone})
-     * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
-     */
-    boolean isBlockUnsafe(@NotNull String blockId);
 
     /**
      * Registers the plugin with bStats metrics

@@ -60,6 +60,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.util.FabricSafetyResolver;
 import net.william278.huskhomes.util.FabricTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
@@ -74,12 +75,11 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, ServerPlayNetworking.PlayChannelHandler {
+        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -274,6 +274,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.unsafeBlocks = unsafeBlocks;
     }
 
+    @NotNull
+    @Override
+    public UnsafeBlocks getUnsafeBlocks() {
+        return unsafeBlocks;
+    }
+
     @Override
     @NotNull
     public Database getDatabase() {
@@ -337,11 +343,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public void setHooks(@NotNull List<Hook> hooks) {
         this.hooks = hooks;
-    }
-
-    @Override
-    public CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
-        return CompletableFuture.completedFuture(Optional.of(location)); //todo
     }
 
     @Override
@@ -417,11 +418,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public Set<UUID> getCurrentlyOnWarmup() {
         return currentlyOnWarmup;
-    }
-
-    @Override
-    public boolean isBlockUnsafe(@NotNull String blockId) {
-        return unsafeBlocks.isUnsafe(blockId);
     }
 
     @Override

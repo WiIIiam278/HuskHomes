@@ -502,7 +502,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      * @param message    the message to log
      * @param exceptions any exceptions to log
      */
-    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions);
+    void log(@NotNull Level level, @NotNull String message, Throwable... exceptions);
 
     /**
      * Create a resource key namespaced with the plugin id

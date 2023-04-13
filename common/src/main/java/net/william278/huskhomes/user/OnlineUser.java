@@ -158,8 +158,10 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public final void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
                                 @NotNull String soundEffect) throws IllegalArgumentException {
         try {
-            getAudience().playSound(Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER,
-                    1.0f, 1.0f), Sound.Emitter.self());
+            getAudience().playSound(
+                    Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER, 1.0f, 1.0f),
+                    Sound.Emitter.self()
+            );
         } catch (InvalidKeyException e) {
             throw new IllegalArgumentException("Invalid sound effect name: " + soundEffect);
         }

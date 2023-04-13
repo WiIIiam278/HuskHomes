@@ -90,7 +90,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().computeIfPresent(node, (key, isOp) -> isOp));
+        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().getOrDefault(node, true));
         return Permissions.check(player, node, !requiresOp || player.hasPermissionLevel(3));
     }
 

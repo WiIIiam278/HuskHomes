@@ -81,7 +81,8 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
      */
     private CompletableFuture<Optional<Location>> generateSafeLocation(@NotNull World world) {
         return plugin.findSafeGroundLocation(generateLocation(
-                getCenterPoint(world), mean, standardDeviation, spawnRadius, radius));
+                getCenterPoint(world), mean, standardDeviation, spawnRadius, radius
+        ));
     }
 
     /**

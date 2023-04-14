@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "HuskHomes",
   "icon": "assets/huskhomes/icon.png",
-  "description": "A powerful, intuitive and flexible teleportation suite",
+  "description": "${description}",
   "authors": [
     {
       "name": "William278",

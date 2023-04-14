@@ -38,6 +38,7 @@ jobs:
             bluemap | suggests | *
             dynmap | suggests | *
             pl3xmap | suggests | *
+            plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Plugin-*.jar
           name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
@@ -47,6 +48,28 @@ jobs:
             spigot
             paper
             purpur
+          game-versions: |
+            1.16.5
+            1.17.1
+            1.18.2
+            1.19.4
+          java: 16
+      - name: Upload to Modrinth (Sponge)
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-dependencies: |
+            bluemap | suggests | *
+            plan-player-analytics | suggests | *
+          files-primary: target/HuskHomes-Sponge-*.jar
+          name: HuskHomes (Sponge) v${{ github.event.release.tag_name }}
+          version: ${{ env.version_name }}
+          version-type: release
+          changelog: ${{ github.event.release.body }}
+          loaders: |
+            sponge
           game-versions: |
             1.16.5
             1.17.1
@@ -66,6 +89,7 @@ jobs:
             bluemap | suggests | *
             dynmap | suggests | *
             luckperms | suggests | *
+            plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Fabric-*.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
@@ -81,6 +105,11 @@ jobs:
         with:
           name: HuskHomes (Spigot)
           path: target/HuskHomes-Plugin-*.jar
+      - name: Upload GitHub Artifact (Sponge)
+        uses: actions/upload-artifact@v2
+        with:
+          name: HuskHomes (Sponge)
+          path: target/HuskHomes-Sponge-*.jar
       - name: Upload GitHub Artifact
         uses: actions/upload-artifact@v2
         with:

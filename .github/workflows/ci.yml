@@ -45,7 +45,7 @@ jobs:
             bluemap | suggests | *
             dynmap | suggests | *
             pl3xmap | suggests | *
-            plan | suggests | *
+            plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Plugin-*.jar
           name: HuskHomes (Spigot) v${{ env.version_name }}
           version: ${{ env.version_name }}
@@ -95,7 +95,7 @@ jobs:
             fabric-api | requires | *
             bluemap | suggests | *
             dynmap | suggests | *
-            plan | suggests | *
+            plan-player-analytics | suggests | *
             luckperms | suggests | *
           files-primary: target/HuskHomes-Fabric-*.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
@@ -117,7 +117,7 @@ jobs:
         with:
           name: HuskHomes (Sponge)
           path: target/HuskHomes-Sponge-*.jar
-      - name: Upload GitHub Artifact
+      - name: Upload GitHub Artifact (Fabric)
         uses: actions/upload-artifact@v2
         with:
           name: HuskHomes (Fabric)

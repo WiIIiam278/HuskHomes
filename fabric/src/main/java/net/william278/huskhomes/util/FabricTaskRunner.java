@@ -22,9 +22,7 @@ package net.william278.huskhomes.util;
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 public interface FabricTaskRunner extends TaskRunner {
@@ -53,14 +51,14 @@ public interface FabricTaskRunner extends TaskRunner {
         int taskId = tasks.size();
         final CompletableFuture<?> future = new CompletableFuture<>();
 
-        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
             if (future.isCancelled()) {
                 executor.shutdown();
                 return;
             }
             runnable.run();
-        }, 0, delay * 50, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }, 0, delay * 50, TimeUnit.MILLISECONDS);
 
         tasks.put(taskId, future);
         return taskId;

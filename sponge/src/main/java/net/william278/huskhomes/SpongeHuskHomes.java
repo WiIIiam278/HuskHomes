@@ -19,24 +19,11 @@
 
 package net.william278.huskhomes;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.kyori.adventure.platform.fabric.FabricServerAudiences;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import com.google.inject.Inject;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.huskhomes.command.Command;
-import net.william278.huskhomes.command.FabricCommand;
+import net.william278.huskhomes.command.SpongeCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
@@ -44,10 +31,10 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
-import net.william278.huskhomes.event.FabricEventDispatcher;
+import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
-import net.william278.huskhomes.listener.EventListener;
-import net.william278.huskhomes.listener.FabricEventListener;
+import net.william278.huskhomes.hook.SpongeEconomyHook;
+import net.william278.huskhomes.listener.SpongeEventListener;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
@@ -57,68 +44,85 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.FabricSafetyResolver;
-import net.william278.huskhomes.util.FabricTaskRunner;
+import net.william278.huskhomes.user.SpongeUser;
+import net.william278.huskhomes.util.SpongeSafetyResolver;
+import net.william278.huskhomes.util.SpongeTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.command.Command.Raw;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.network.EngineConnection;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataHandler;
+import org.spongepowered.math.vector.Vector3i;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
+@Plugin("huskhomes")
+public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafetyResolver, SpongeEventDispatcher, RawPlayDataHandler<EngineConnection> {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
-    private static FabricHuskHomes instance;
+    private static final ResourceKey PLUGIN_MESSAGE_CHANNEL_KEY = ResourceKey.of("bungeecord", "main");
 
-    @NotNull
-    public static FabricHuskHomes getInstance() {
+    // Instance of the plugin
+    private static SpongeHuskHomes instance;
+
+    public static SpongeHuskHomes getInstance() {
         return instance;
     }
 
-    private final ModContainer modContainer = FabricLoader.getInstance()
-            .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
-    private MinecraftServer minecraftServer;
-    private Map<String, Boolean> permissions;
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private Path pluginDirectory;
+    @Inject
+    private PluginContainer pluginContainer;
+    @Inject
+    private Game game;
+
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
     private Database database;
     private Validator validator;
     private Manager manager;
-    private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
-    private List<Command> commands;
+    private List<SpongeCommand> commands;
     private Map<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
     private Broker broker;
-    private FabricServerAudiences audiences;
+    private RawPlayDataChannel channel;
 
-    @Override
-    public void onInitializeServer() {
-        // Set instance
+    @Listener
+    public void onConstructPlugin(final ConstructPluginEvent event) {
         instance = this;
 
         // Get plugin version from mod container
-        this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -131,20 +135,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             }
         });
 
-        // Pre-register commands
-        initialize("commands", (plugin) -> this.commands = registerCommands());
-
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            this.minecraftServer = server;
-            this.onEnable();
-        });
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.onDisable());
-    }
-
-    private void onEnable() {
-        // Create adventure audience
-        this.audiences = FabricServerAudiences.of(minecraftServer);
-
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {
@@ -154,9 +144,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
             database.initialize();
         });
-
-        // Initialize the manager
-        this.manager = new Manager(this);
 
         // Initialize the network messenger if proxy mode is enabled
         if (getSettings().doCrossServer()) {
@@ -169,9 +156,24 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             });
         }
 
+        this.checkForUpdates();
+    }
+
+    @Listener
+    public void onServerStarted(final StartedEngineEvent<org.spongepowered.api.Server> event) {
+        // Initialize the manager
+        this.manager = new Manager(this);
+
+        // Setup RTP engine
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
-        // Register plugin hooks (Economy, Maps, Plan)
+        // Register events
+        initialize("events", (plugin) -> new SpongeEventListener(this));
+
+        // Register permissions
+        initialize("permissions", (plugin) -> registerPermissions());
+
+        // Initialize hooks
         initialize("hooks", (plugin) -> {
             this.registerHooks();
 
@@ -182,52 +184,35 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
                         .collect(Collectors.joining(", ")));
             }
         });
-
-        // Register events
-        initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
-
-        this.checkForUpdates();
     }
 
-    private void onDisable() {
-        if (this.eventListener != null) {
-            this.eventListener.handlePluginDisable();
-        }
-        if (database != null) {
-            database.terminate();
-        }
-        if (broker != null) {
-            broker.close();
-        }
-        if (audiences != null) {
-            audiences.close();
-            audiences = null;
-        }
-        cancelAllTasks();
+    @Listener
+    public void onRegisterCommands(final RegisterCommandEvent<Raw> event) {
+        initialize("commands", (plugin) -> this.commands = registerCommands(event));
     }
 
-    @Override
     @NotNull
+    @Override
     public ConsoleUser getConsole() {
-        return new ConsoleUser(audiences.console());
+        return new ConsoleUser(game.server());
     }
 
-    @Override
     @NotNull
+    @Override
     public List<OnlineUser> getOnlineUsers() {
-        return minecraftServer.getPlayerManager().getPlayerList()
-                .stream().map(user -> (OnlineUser) FabricUser.adapt(this, user))
-                .toList();
+        return game.server().onlinePlayers().stream()
+                .map(SpongeUser::adapt)
+                .collect(Collectors.toList());
     }
 
-    @Override
     @NotNull
+    @Override
     public Set<SavedUser> getSavedUsers() {
         return savedUsers;
     }
 
-    @Override
     @NotNull
+    @Override
     public Settings getSettings() {
         return settings;
     }
@@ -237,8 +222,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.settings = settings;
     }
 
-    @Override
     @NotNull
+    @Override
     public Locales getLocales() {
         return locales;
     }
@@ -258,8 +243,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.serverSpawn = spawn;
     }
 
-    @Override
     @NotNull
+    @Override
     public String getServerName() {
         return server.getName();
     }
@@ -280,26 +265,26 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return unsafeBlocks;
     }
 
-    @Override
     @NotNull
+    @Override
     public Database getDatabase() {
         return database;
     }
 
-    @Override
     @NotNull
+    @Override
     public Validator getValidator() {
         return validator;
     }
 
-    @Override
     @NotNull
+    @Override
     public Manager getManager() {
         return manager;
     }
 
-    @Override
     @NotNull
+    @Override
     public Broker getMessenger() {
         if (broker == null) {
             throw new IllegalStateException("Attempted to access message broker when it was not initialized");
@@ -307,8 +292,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return broker;
     }
 
-    @Override
     @NotNull
+    @Override
     public RandomTeleportEngine getRandomTeleportEngine() {
         return randomTeleportEngine;
     }
@@ -324,9 +309,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             this.serverSpawn = Annotaml.create(new File(getDataFolder(), "spawn.yml"), new Spawn(location)).get();
 
             // Update the world spawn location, too
-            minecraftServer.getWorlds().forEach(world -> {
-                if (world.getRegistryKey().getValue().asString().equals(location.getWorld().getName())) {
-                    world.setSpawnPos(new BlockPos(location.getX(), location.getY(), location.getZ()), 0);
+            game.server().worldManager().worlds().forEach(world -> {
+                if (world.properties().key().asString().equals(location.getWorld().getName())) {
+                    world.properties().setSpawnPosition(Vector3i.from(
+                            (int) location.getX(), (int) location.getY(), (int) location.getZ())
+                    );
                 }
             });
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -334,8 +321,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
     }
 
-    @Override
     @NotNull
+    @Override
     public List<Hook> getHooks() {
         return hooks;
     }
@@ -346,140 +333,143 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
+    public void registerHooks() {
+        HuskHomes.super.registerHooks();
+
+        // Register the sponge economy service if it is available
+        if (getSettings().doEconomy() && getGame().server().serviceProvider().economyService().isPresent()) {
+            getHooks().add(new SpongeEconomyHook(this));
+        }
+    }
+
     @Nullable
+    @Override
     public InputStream getResource(@NotNull String name) {
-        return this.modContainer.findPath(name)
-                .map(path -> {
-                    try {
-                        return Files.newInputStream(path);
-                    } catch (IOException e) {
-                        log(Level.WARNING, "Failed to load resource: " + name, e);
-                    }
-                    return null;
-                })
-                .orElse(this.getClass().getClassLoader().getResourceAsStream(name));
+        return pluginContainer.openResource(URI.create(name))
+                .orElse(null);
     }
 
-    @Override
     @NotNull
+    @Override
     public File getDataFolder() {
-        return FabricLoader.getInstance().getConfigDir().resolve("huskhomes").toFile();
+        return pluginDirectory.toFile();
     }
 
-    @Override
     @NotNull
+    @Override
     public List<World> getWorlds() {
-        final List<World> worlds = new ArrayList<>();
-        minecraftServer.getWorlds().forEach(world -> worlds.add(World.from(
-                world.getRegistryKey().getValue().asString(),
-                UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
-        )));
-        return worlds;
+        return game.server().worldManager().worlds()
+                .stream()
+                .map(world -> World.from(world.key().toString(), world.uniqueId()))
+                .collect(Collectors.toList());
     }
 
-    @Override
     @NotNull
+    @Override
     public Version getVersion() {
-        return Version.fromString(modContainer.getMetadata().getVersion().getFriendlyString(), "-");
+        return Version.fromString(pluginContainer.metadata().version().toString(), "-");
     }
 
+    @NotNull
     @Override
-    @NotNull
     public List<Command> getCommands() {
-        return commands;
+        return commands.stream().map(SpongeCommand::getCommand).collect(Collectors.toList());
     }
 
     @NotNull
-    public List<Command> registerCommands() {
-        final List<Command> commands = Arrays.stream(FabricCommand.Type.values())
-                .map(FabricCommand.Type::getCommand)
-                .filter(command -> !settings.isCommandDisabled(command))
-                .toList();
-
-        CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
-                commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
-
+    public List<SpongeCommand> registerCommands(@NotNull RegisterCommandEvent<Raw> event) {
+        final List<SpongeCommand> commands = new ArrayList<>();
+        for (SpongeCommand.Type type : SpongeCommand.Type.values()) {
+            final SpongeCommand command = new SpongeCommand(type.getCommand(), this);
+            commands.add(command);
+            command.registerCommand(event);
+        }
         return commands;
+    }
+
+    public void registerPermissions() {
+        commands.forEach(SpongeCommand::registerPermissions);
     }
 
     @Override
     public boolean isDependencyLoaded(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name);
+        return game.pluginManager().plugin(name).isPresent();
     }
 
-    @Override
     @NotNull
+    @Override
     public Map<String, List<String>> getGlobalPlayerList() {
         return globalPlayerList;
     }
 
-    @Override
     @NotNull
+    @Override
     public Set<UUID> getCurrentlyOnWarmup() {
         return currentlyOnWarmup;
     }
 
     @Override
     public void registerMetrics(int metricsId) {
-        // No metrics for Fabric
+        // No metrics for Sponge
     }
 
     @Override
     public void initializePluginChannels() {
-        ServerPlayNetworking.registerGlobalReceiver(new Identifier("bungeecord", "main"), this);
+        this.channel = game.channelManager().ofType(PLUGIN_MESSAGE_CHANNEL_KEY, RawDataChannel.class).play();
+        this.channel.addHandler(this);
     }
 
-    // When a plugin message is received by the server
     @Override
-    public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
-                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf, @NotNull PacketSender responseSender) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(PluginMessageBroker.BUNGEE_CHANNEL_ID, FabricUser.adapt(this, player), buf.readByteArray());
+    public void handlePayload(@NotNull ChannelBuf pluginMessage, @NotNull EngineConnection connection) {
+        final Optional<OnlineUser> playerConnection = getOnlineUsers().stream()
+                .filter(onlineUser -> ((SpongeUser) onlineUser).getPlayer().connection().equals(connection))
+                .findFirst();
+
+        // Get the associated engine connection
+        if (playerConnection.isEmpty()) {
+            log(Level.WARNING, "Received a message from a player that is not online");
+            return;
+        }
+
+        // Read the message and handle
+        final SpongeUser user = (SpongeUser) playerConnection.get();
+        final String channel = pluginMessage.readUTF();
+        if (broker instanceof PluginMessageBroker messenger) {
+            messenger.onReceive(channel, user, pluginMessage.readBytes(pluginMessage.available()));
         }
     }
 
     @Override
-    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions) {
-        switch (level.getName()) {
-            case "WARNING" -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.warn(message, exceptions[0]);
-                } else {
-                    LOGGER.warn(message);
-                }
-            }
-            case "SEVERE" -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.error(message, exceptions[0]);
-                } else {
-                    LOGGER.error(message);
-                }
-            }
-            default -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.info(message, exceptions[0]);
-                } else {
-                    LOGGER.info(message);
-                }
-            }
+    public void log(@NotNull Level level, @NotNull String message, Throwable... exceptions) {
+        final org.apache.logging.log4j.Level adaptedLevel = Optional
+                .ofNullable(org.apache.logging.log4j.Level.getLevel(level.getName()))
+                .orElse(org.apache.logging.log4j.Level.INFO);
+
+        if (exceptions.length > 0) {
+            pluginContainer.logger().log(adaptedLevel, message, exceptions[0]);
+            return;
         }
+        pluginContainer.logger().log(adaptedLevel, message);
     }
 
     @NotNull
-    public Map<String, Boolean> getPermissions() {
-        return permissions;
+    public PluginContainer getPluginContainer() {
+        return pluginContainer;
     }
 
     @NotNull
-    public MinecraftServer getMinecraftServer() {
-        return minecraftServer;
+    public Game getGame() {
+        return game;
     }
 
+    @NotNull
+    public RawPlayDataChannel getPluginMessageChannel() {
+        return channel;
+    }
+
+    @NotNull
     @Override
-    @NotNull
-    public FabricHuskHomes getPlugin() {
+    public SpongeHuskHomes getPlugin() {
         return this;
     }
-
 }

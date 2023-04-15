@@ -351,9 +351,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 .map(type::cast);
     }
 
-    @NotNull
-    List<Command> registerCommands();
-
     default void registerHooks() {
         setHooks(new ArrayList<>());
 

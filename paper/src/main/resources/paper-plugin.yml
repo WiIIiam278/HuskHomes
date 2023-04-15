@@ -1,5 +1,5 @@
 name: 'HuskHomes'
-description: 'A powerful, intuitive and flexible teleportation suite'
+description: '${description}'
 author: 'William278'
 website: 'https://william278.net/'
 main: 'net.william278.huskhomes.PaperHuskHomes'

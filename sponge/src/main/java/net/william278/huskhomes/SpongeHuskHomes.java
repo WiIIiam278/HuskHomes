@@ -34,6 +34,7 @@ import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.SpongeEconomyHook;
+import net.william278.huskhomes.listener.SpongeEventListener;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
@@ -109,7 +110,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     private Spawn serverSpawn;
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
-    private List<Command> commands;
+    private List<SpongeCommand> commands;
     private Map<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
     private Server server;
@@ -144,9 +145,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
             database.initialize();
         });
 
-        // Initialize the manager
-        this.manager = new Manager(this);
-
         // Initialize the network messenger if proxy mode is enabled
         if (getSettings().doCrossServer()) {
             initialize(settings.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
@@ -158,17 +156,24 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
             });
         }
 
-        setRandomTeleportEngine(new NormalDistributionEngine(this));
-
-        // Register events
-        initialize("events", (plugin) -> {
-        });
-
         this.checkForUpdates();
     }
 
     @Listener
     public void onServerStarted(final StartedEngineEvent<org.spongepowered.api.Server> event) {
+        // Initialize the manager
+        this.manager = new Manager(this);
+
+        // Setup RTP engine
+        setRandomTeleportEngine(new NormalDistributionEngine(this));
+
+        // Register events
+        initialize("events", (plugin) -> new SpongeEventListener(this));
+
+        // Register permissions
+        initialize("permissions", (plugin) -> registerPermissions());
+
+        // Initialize hooks
         initialize("hooks", (plugin) -> {
             this.registerHooks();
 
@@ -230,7 +235,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
 
     @Override
     public Optional<Spawn> getServerSpawn() {
-        return Optional.of(serverSpawn);
+        return Optional.ofNullable(serverSpawn);
     }
 
     @Override
@@ -362,24 +367,28 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @NotNull
     @Override
     public Version getVersion() {
-        return Version.fromString(pluginContainer.metadata().version().getQualifier(), "-");
+        return Version.fromString(pluginContainer.metadata().version().toString(), "-");
     }
 
     @NotNull
     @Override
     public List<Command> getCommands() {
-        return commands;
+        return commands.stream().map(SpongeCommand::getCommand).collect(Collectors.toList());
     }
 
     @NotNull
-    public List<Command> registerCommands(@NotNull RegisterCommandEvent<Raw> event) {
-        final List<Command> commands = new ArrayList<>();
+    public List<SpongeCommand> registerCommands(@NotNull RegisterCommandEvent<Raw> event) {
+        final List<SpongeCommand> commands = new ArrayList<>();
         for (SpongeCommand.Type type : SpongeCommand.Type.values()) {
-            final Command command = type.getCommand();
-            new SpongeCommand(command, this).register(event);
+            final SpongeCommand command = new SpongeCommand(type.getCommand(), this);
             commands.add(command);
+            command.registerCommand(event);
         }
         return commands;
+    }
+
+    public void registerPermissions() {
+        commands.forEach(SpongeCommand::registerPermissions);
     }
 
     @Override

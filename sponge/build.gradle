@@ -55,6 +55,7 @@ shadowJar {
     archiveClassifier.set('')
 
     exclude('org.spongepowered:.*')
+    exclude('net.kyori:.*')
 
     relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
     relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
@@ -69,5 +70,4 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
-    relocate 'net.kyori', 'net.william278.huskhomes.libraries'
 }

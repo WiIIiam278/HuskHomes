@@ -20,7 +20,6 @@
 package net.william278.huskhomes.command;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.CommandUser;
@@ -52,20 +51,17 @@ public class SpongeCommand implements Raw {
     }
 
     // Register command
-    public void register(@NotNull RegisterCommandEvent<Raw> event) {
+    public void registerCommand(@NotNull RegisterCommandEvent<Raw> event) {
         event.register(
                 plugin.getPluginContainer(),
                 this,
                 command.getName(),
                 command.getAliases().toArray(String[]::new)
         );
-
-        this.registerPermissions();
     }
 
     // Register command permissions
-    private void registerPermissions() {
-        final String HELP_URL = "https://william278.net/docs/huskhomes/commands";
+    public void registerPermissions() {
         final Map<String, Boolean> permissionDescriptions = new HashMap<>(command.getAdditionalPermissions());
         permissionDescriptions.put(command.getPermission(), command.isOperatorCommand());
 
@@ -73,18 +69,23 @@ public class SpongeCommand implements Raw {
             final PermissionDescription.Builder builder = plugin.getGame().server()
                     .serviceProvider().permissionService()
                     .newDescriptionBuilder(plugin.getPluginContainer())
-                    .id(node.getKey())
-                    .description(Component.text(HELP_URL)
-                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, HELP_URL)));
+                    .id(node.getKey());
 
             // Set default access level
             if (node.getValue()) {
-                builder.defaultValue(Tristate.TRUE).assign(PermissionDescription.ROLE_USER, true);
+                builder.defaultValue(Tristate.UNDEFINED)
+                        .assign(PermissionDescription.ROLE_ADMIN, true);
             } else {
-                builder.defaultValue(Tristate.FALSE).assign(PermissionDescription.ROLE_ADMIN, true);
+                builder.defaultValue(Tristate.TRUE)
+                        .assign(PermissionDescription.ROLE_USER, true);
             }
             builder.register();
         }
+    }
+
+    @NotNull
+    public Command getCommand() {
+        return command;
     }
 
     @Override

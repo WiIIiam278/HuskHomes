@@ -20,6 +20,7 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Home;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -43,7 +44,7 @@ public class Validator {
      */
     public boolean isValidName(@NotNull String name) {
         return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
-                && !containsWhitespace(name) && !name.contains(".")
+                && !containsWhitespace(name) && !name.contains(Home.IDENTIFIER_DELIMITER)
                 && name.length() <= MAX_NAME_LENGTH && name.length() >= MIN_NAME_LENGTH;
     }
 

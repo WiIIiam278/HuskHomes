@@ -75,9 +75,9 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     public abstract void execute(@NotNull CommandUser executor, @NotNull T position, @NotNull String[] arguments);
 
     private Optional<Home> resolveHome(@NotNull CommandUser executor, @NotNull String homeName) {
-        if (homeName.contains(".")) {
-            final String ownerUsername = homeName.substring(0, homeName.indexOf("."));
-            final String ownerHomeName = homeName.substring(homeName.indexOf(".") + 1);
+        if (homeName.contains(Home.IDENTIFIER_DELIMITER)) {
+            final String ownerUsername = homeName.substring(0, homeName.indexOf(Home.IDENTIFIER_DELIMITER));
+            final String ownerHomeName = homeName.substring(homeName.indexOf(Home.IDENTIFIER_DELIMITER) + 1);
             if (ownerUsername.isBlank() || ownerHomeName.isBlank()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
@@ -178,7 +178,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         if (positionType == Home.class) {
             return switch (args.length) {
                 case 0, 1 -> {
-                    if (args.length == 1 && args[0].contains(".")) {
+                    if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
                         if (executor.hasPermission(getOtherPermission())) {
                             yield filter(plugin.getManager().homes().getUserHomeNames(), args);
                         }

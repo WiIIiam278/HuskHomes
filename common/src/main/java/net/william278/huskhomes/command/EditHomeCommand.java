@@ -21,7 +21,6 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
@@ -198,11 +197,11 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             final String privacy = home.isPublic() ? "public" : "private";
             if (ownerEditing) {
                 plugin.getLocales().getLocale("edit_home_privacy_" + privacy + "_success",
-                                home.getMeta().getName())
+                                home.getName())
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("edit_home_privacy_" + privacy + "_success_other",
-                                home.getOwner().getUsername(), home.getMeta().getName())
+                                home.getOwner().getUsername(), home.getName())
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -222,10 +221,10 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                                                boolean showTeleportButton, boolean showPrivacyToggleButton) {
         return new ArrayList<>() {{
             if (!otherViewer) {
-                plugin.getLocales().getLocale("edit_home_menu_title", home.getMeta().getName())
+                plugin.getLocales().getLocale("edit_home_menu_title", home.getName())
                         .ifPresent(this::add);
             } else {
-                plugin.getLocales().getLocale("edit_home_menu_title_other", home.getOwner().getUsername(), home.getMeta().getName())
+                plugin.getLocales().getLocale("edit_home_menu_title_other", home.getOwner().getUsername(), home.getName())
                         .ifPresent(this::add);
             }
 
@@ -256,21 +255,17 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                             String.format("%.2f", home.getYaw()), String.format("%.2f", home.getPitch()))
                     .ifPresent(this::add);
 
-            final String formattedName = home.getOwner().getUsername() + "." + home.getMeta().getName();
             if (showTeleportButton) {
-                plugin.getLocales().getLocale("edit_home_menu_use_buttons",
-                                formattedName)
+                plugin.getLocales().getLocale("edit_home_menu_use_buttons", home.getSafeIdentifier())
                         .ifPresent(this::add);
             }
-            final String escapedName = Locales.escapeText(formattedName);
-            plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", escapedName,
+            plugin.getLocales().getRawLocale("edit_home_menu_manage_buttons", home.getSafeIdentifier(),
                             showPrivacyToggleButton ? plugin.getLocales()
                                     .getRawLocale("edit_home_menu_privacy_button_"
-                                            + (home.isPublic() ? "private" : "public"), escapedName)
+                                            + (home.isPublic() ? "private" : "public"), home.getSafeIdentifier())
                                     .orElse("") : "")
                     .map(MineDown::new).ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons",
-                            formattedName)
+            plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons", home.getSafeIdentifier())
                     .ifPresent(this::add);
         }};
     }

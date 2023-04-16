@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.position;
 
+import net.william278.huskhomes.config.Locales;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -79,10 +80,26 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
         return uuid;
     }
 
+    /**
+     * Get the identifier for this position. This is the name, unless the name contains
+     * characters that are not allowed in a command argument, in which case it is the UUID.
+     *
+     * @return The identifier for this position
+     */
+    @NotNull
+    public String getSafeIdentifier() {
+        return Locales.escapeText(getIdentifier()).equals(getIdentifier()) ? getIdentifier() : getUuid().toString();
+    }
+
+    @NotNull
+    public String getIdentifier() {
+        return getName();
+    }
+
     // Compare based on names for alphabetical sorting
     @Override
     public int compareTo(@NotNull SavedPosition o) {
-        return this.getMeta().getName().compareTo(o.getMeta().getName());
+        return this.getName().compareTo(o.getName());
     }
 
     @Override

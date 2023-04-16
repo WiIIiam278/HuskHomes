@@ -29,6 +29,7 @@ import java.util.UUID;
  */
 public class Home extends SavedPosition {
 
+    public static final String IDENTIFIER_DELIMITER = ".";
     private final User owner;
     private boolean isPublic;
 
@@ -74,4 +75,17 @@ public class Home extends SavedPosition {
     public void setPublic(boolean aPublic) {
         isPublic = aPublic;
     }
+
+    @NotNull
+    @Override
+    public String getSafeIdentifier() {
+        return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
+    }
+
+    @NotNull
+    @Override
+    public String getIdentifier() {
+        return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getIdentifier();
+    }
+
 }

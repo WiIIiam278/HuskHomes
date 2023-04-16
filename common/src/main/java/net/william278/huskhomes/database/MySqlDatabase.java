@@ -172,7 +172,7 @@ public class MySqlDatabase extends Database {
                 Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, setPosition(position, connection));
-            statement.setString(2, position.getMeta().getName());
+            statement.setString(2, position.getName());
             statement.setString(3, position.getMeta().getDescription());
             statement.setString(4, position.getMeta().getSerializedTags());
             statement.setTimestamp(5, Timestamp.from(position.getMeta().getCreationTime()));
@@ -205,7 +205,7 @@ public class MySqlDatabase extends Database {
                         `description`=?,
                         `tags`=?
                         WHERE `id`=?;"""))) {
-                    updateStatement.setString(1, position.getMeta().getName());
+                    updateStatement.setString(1, position.getName());
                     updateStatement.setString(2, position.getMeta().getDescription());
                     updateStatement.setString(3, position.getMeta().getSerializedTags());
                     updateStatement.setInt(4, savedPositionId);

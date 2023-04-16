@@ -94,7 +94,7 @@ public class DynmapHook extends MapHook {
                                 .thumbnail(PUBLIC_HOME_MARKER_IMAGE_NAME)
                                 .field("Owner", home.getOwner().getUsername())
                                 .field("Description", plugin.getLocales().wrapText(home.getMeta().getDescription(), 60))
-                                .field("Command", "/phome " + home.getOwner().getUsername() + "." + home.getName())
+                                .field("Command", "/phome " + home.getIdentifier())
                                 .toHtml());
             });
         });

@@ -9,7 +9,7 @@ plugins {
 }
 
 group 'net.william278'
-version "$ext.plugin_version-${versionMetadata()}"
+version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
 defaultTasks 'licenseFormat', 'build'
 
@@ -135,8 +135,8 @@ def versionMetadata() {
 
     // Otherwise, get the last commit hash and if it's a clean head
     if (grgit == null) {
-        return System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
     }
-    return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }
 

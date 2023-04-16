@@ -29,11 +29,13 @@ import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabProvider {
 
@@ -83,7 +85,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             }
 
             final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(ownerUsername)
-                    .flatMap(owner -> plugin.getDatabase().getHome(owner.getUser(), ownerHomeName));
+                    .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHomeName));
             if (optionalHome.isEmpty()) {
                 plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())
                                 ? "error_home_invalid_other" : "error_public_home_invalid", ownerUsername, ownerHomeName)
@@ -101,7 +103,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
             return optionalHome;
         } else if (executor instanceof OnlineUser owner) {
-            final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, homeName);
+            final Optional<Home> optionalHome = resolveHomeByName(owner, homeName);
             if (optionalHome.isEmpty()) {
                 plugin.getLocales().getLocale("error_home_invalid", homeName)
                         .ifPresent(executor::sendMessage);
@@ -115,8 +117,20 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         }
     }
 
+    private Optional<Home> resolveHomeByName(@NotNull User owner, @NotNull String homeName) {
+        return plugin.getDatabase()
+                .getHome(owner, homeName)
+                .or(() -> {
+                    try {
+                        return plugin.getDatabase().getHome(UUID.fromString(homeName));
+                    } catch (IllegalArgumentException e) {
+                        return Optional.empty();
+                    }
+                });
+    }
+
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
-        final Optional<Warp> warp = plugin.getDatabase().getWarp(warpName);
+        final Optional<Warp> warp = resolveWarpByName(warpName);
         if (warp.isPresent() && executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
             && (!user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName)))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
@@ -124,6 +138,17 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
         return warp;
+    }
+
+    private Optional<Warp> resolveWarpByName(@NotNull String warpName) {
+        return plugin.getDatabase().getWarp(warpName)
+                .or(() -> {
+                    try {
+                        return plugin.getDatabase().getWarp(UUID.fromString(warpName));
+                    } catch (IllegalArgumentException e) {
+                        return Optional.empty();
+                    }
+                });
     }
 
     protected void teleport(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull T position) {

@@ -379,7 +379,6 @@ public class BukkitPluginTests {
                     .anyMatch(home -> home.equals(name)));
         }
 
-        // rename
         @DisplayName("Test Home Renaming")
         @ParameterizedTest(name = "Rename: \"{1}\" > \"{1}2\"")
         @MethodSource("provideHomeData")
@@ -407,7 +406,6 @@ public class BukkitPluginTests {
                     .anyMatch(home -> home.equals(name)));
         }
 
-        // description
         @DisplayName("Test Home Description")
         @ParameterizedTest(name = "Edit Description: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -424,7 +422,6 @@ public class BukkitPluginTests {
             Assertions.assertEquals(description, homeDescription.get());
         }
 
-        // relocate
         @DisplayName("Test Home Relocation")
         @ParameterizedTest(name = "Relocate: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -443,7 +440,6 @@ public class BukkitPluginTests {
             Assertions.assertEquals(newPosition.getZ(), homePosition.get().getZ());
         }
 
-        // overwrite
         @DisplayName("Test Home Overwrite")
         @ParameterizedTest(name = "Overwrite: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -462,7 +458,6 @@ public class BukkitPluginTests {
             Assertions.assertEquals(newPosition.getZ(), homePosition.get().getZ());
         }
 
-        // make public
         @DisplayName("Test Making Home Public")
         @ParameterizedTest(name = "Make Public: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -477,7 +472,6 @@ public class BukkitPluginTests {
             Assertions.assertTrue(plugin.getManager().homes().getPublicHomes().get(owner.getUsername()).contains(name));
         }
 
-        // make private
         @DisplayName("Test Making Home Private")
         @ParameterizedTest(name = "Make Private: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -494,7 +488,6 @@ public class BukkitPluginTests {
                     .contains(name));
         }
 
-        // delete
         @DisplayName("Test Home Deletion")
         @ParameterizedTest(name = "Delete: \"{1}\"")
         @MethodSource("provideHomeData")
@@ -509,7 +502,6 @@ public class BukkitPluginTests {
             plugin.getManager().homes().createHome(owner, name, position);
         }
 
-        // delete all
         @DisplayName("Test Deleting All Homes")
         @Order(9)
         @Test

@@ -141,7 +141,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
     @NotNull
     private List<MineDown> getWarpEditorWindow(@NotNull Warp warp) {
         return new ArrayList<>() {{
-            plugin.getLocales().getLocale("edit_warp_menu_title", warp.getMeta().getName())
+            plugin.getLocales().getLocale("edit_warp_menu_title", warp.getName())
                     .ifPresent(this::add);
 
             plugin.getLocales().getLocale("edit_warp_menu_metadata",
@@ -169,11 +169,11 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                             String.format("%.2f", warp.getYaw()), String.format("%.2f", warp.getPitch()))
                     .ifPresent(this::add);
 
-            plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.getMeta().getName())
+            plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.getSafeIdentifier())
                     .ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.getMeta().getName())
+            plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.getSafeIdentifier())
                     .ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.getMeta().getName())
+            plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.getSafeIdentifier())
                     .ifPresent(this::add);
         }};
     }

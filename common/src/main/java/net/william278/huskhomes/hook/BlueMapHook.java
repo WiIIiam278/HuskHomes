@@ -90,7 +90,7 @@ public class BlueMapHook extends MapHook {
             final String markerId = home.getOwner().getUuid() + ":" + home.getUuid();
             markerSet.remove(markerId);
             markerSet.put(markerId, POIMarker.builder()
-                    .label("/phome " + home.getOwner().getUsername() + "." + home.getName())
+                    .label("/phome " + home.getIdentifier())
                     .position(home.getX(), home.getY(), home.getZ())
                     .maxDistance(5000)
                     .icon(getIcon(PUBLIC_HOME_MARKER_IMAGE_NAME), 25, 25)

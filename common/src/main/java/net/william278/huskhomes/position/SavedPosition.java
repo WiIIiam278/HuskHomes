@@ -88,7 +88,7 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
      */
     @NotNull
     public String getSafeIdentifier() {
-        return Locales.escapeText(getIdentifier()).equals(getIdentifier()) ? getIdentifier() : getUuid().toString();
+        return Locales.escapeText(getName()).equals(getName()) ? getName() : getUuid().toString();
     }
 
     @NotNull

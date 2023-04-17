@@ -8,7 +8,7 @@ loom.serverOnlyMinecraftJar()
 dependencies {
     minecraft 'com.mojang:minecraft:1.19.4'
     mappings 'net.fabricmc:yarn:1.19.4+build.2'
-    modImplementation 'net.fabricmc:fabric-loader:0.14.17'
+    modImplementation 'net.fabricmc:fabric-loader:0.14.19'
 
     // Fabric API modules
     Set<String> fabricApiModules = [

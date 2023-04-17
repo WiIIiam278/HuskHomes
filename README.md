@@ -1,5 +1,4 @@
 <!--suppress ALL -->
-<h4>
 <p align="center">
     <img src="images/banner.png" alt="HuskHomes" />
     <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
@@ -26,7 +25,6 @@
     </b>
 </p>
 <br/>
-</h4>
 
 **HuskHomes** is a powerful, intuitive and flexible teleportation plugin for _Minecraft: Java Edition_ servers. HuskHomes contains a meaty&mdash;but not bloated&mdash;set of player teleportation features, including set homes, warps, public homes, teleport requests, previous and offline position teleporting&mdash;and more. 
 

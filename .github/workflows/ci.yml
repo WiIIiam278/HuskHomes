@@ -4,6 +4,10 @@ name: CI Tests & Publish
 on:
   push:
     branches: [ 'master' ]
+    paths-ignore:
+      - 'docs/**'
+      - 'workflows/**'
+      - 'README.md'
 
 permissions:
   contents: read

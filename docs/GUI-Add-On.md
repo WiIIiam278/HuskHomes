@@ -1,4 +1,4 @@
-**HuskHomesGUI** is an add-on for HuskHomes that lets you view and edit homes through a GUI (chest-style) menu, rather than the chat menus.
+HuskHomesGUI is an add-on for HuskHomes that lets you view and edit homes through a GUI (chest-style) menu, rather than the chat menus.
 
 ![image](https://user-images.githubusercontent.com/31187453/216150666-aab981ba-3d44-471b-9e54-72dd5034bbee.png)
 

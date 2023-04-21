@@ -44,8 +44,8 @@ These instructions are for installing HuskHomes on multiple Spigot, Fabric or Sp
 - Restart each server again. A `server.yml` file should generate inside the plugin config directory you navigated to earlier
 - Set the `name` of the server in this file to the ID of this server as defined in the config of your proxy (e.g. if this is the "hub" server you access with `/server hub`, put "hub" here)
 ### 5. Restart your servers one last time
-- Provided your MySQL datbase credentials were correct, your network should now be setup to use HuskHomes!
-- You can delete the `HuskHomesData.db` SQLite flatfile that was generated, if you would like.
+- Provided your MySQL database credentials were correct, your network should now be setup to use HuskHomes!
+- You can delete the `HuskHomesData.db` SQLite flat file that was generated, if you would like.
 
 ## Next steps
 * [Commands & Permissions](Commands)

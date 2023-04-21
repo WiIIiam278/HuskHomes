@@ -15,6 +15,6 @@ You can set prices to charge for these actions.
 | Action                 | Description                                 | Default Price |
 |------------------------|---------------------------------------------|---------------|
 | `ADDITIONAL_HOME_SLOT` | When a user wants to buy another home slot  | `$100.00`     |
-| `MAKE_HOME_PUBLIC`     | When a user wants to make thier home public | `$50.00`      |
+| `MAKE_HOME_PUBLIC`     | When a user wants to make their home public | `$50.00`      |
 | `RANDOM_TELEPORT`      | When a user executes /rtp                   | `$25.00`      |
 | `BACK_COMMAND`         | When a user executes /back                  | `$0.00`       |

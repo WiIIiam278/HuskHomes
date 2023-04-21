@@ -9,4 +9,4 @@ HuskHomes supports displaying statistics about user sethomes on your [Player Ana
 ## Setup
 1. Install Plan to your Spigot server(s) with HuskHomes installed
 2. Configure Plan as necessary and restart your servers
-3. Data will start showing up on Player pages on the "Plugins" panel, under "HuskHomes."
+3. Data will start showing up on Player pages on the "Plugins" panel, under "HuskHomes"

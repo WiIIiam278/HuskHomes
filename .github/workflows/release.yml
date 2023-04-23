@@ -28,8 +28,8 @@ jobs:
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
-      - name: Upload to Modrinth (Spigot)
-        uses: Kir-Antipov/mc-publish@v3.2
+      - name: Upload to Modrinth & Hangar (Spigot)
+        uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -39,6 +39,8 @@ jobs:
             dynmap | suggests | *
             pl3xmap | suggests | *
             plan-player-analytics | suggests | *
+          hangar-id: William278/HuskHomes
+          hangar-token: ${{ secrets.HANGAR_API_KEY }}
           files-primary: target/HuskHomes-Plugin-*.jar
           name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
@@ -55,7 +57,7 @@ jobs:
             1.19.4
           java: 16
       - name: Upload to Modrinth (Sponge)
-        uses: Kir-Antipov/mc-publish@v3.2
+        uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -77,7 +79,7 @@ jobs:
             1.19.4
           java: 16
       - name: Upload to Modrinth & CurseForge (Fabric)
-        uses: Kir-Antipov/mc-publish@v3.2
+        uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false

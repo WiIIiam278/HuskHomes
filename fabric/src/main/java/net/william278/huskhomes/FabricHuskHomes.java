@@ -430,12 +430,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         ServerPlayNetworking.registerGlobalReceiver(new Identifier("bungeecord", "main"), this);
     }
 
-    // When a plugin message is received by the server
+    // When the server receives a plugin message
     @Override
     public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
-                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf, @NotNull PacketSender responseSender) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
+                        @NotNull PacketSender responseSender) {
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(PluginMessageBroker.BUNGEE_CHANNEL_ID, FabricUser.adapt(this, player), buf.readByteArray());
         }
     }

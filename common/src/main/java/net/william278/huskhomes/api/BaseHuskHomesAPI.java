@@ -94,6 +94,17 @@ public abstract class BaseHuskHomesAPI {
     public CompletableFuture<Optional<Position>> getUserLastPosition(@NotNull User user) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getLastPosition(user));
     }
+    
+    /**
+     * Set the last {@link Position}, as used in the {@code /back} command, for this user
+     *
+     * @param user The {@link User} to set the last position for
+     * @param position The {@link Position} to set as the user's last position
+     * @since 4.2
+     */
+    public void setUserLastPosition(@NotNull User user, @NotNull Position position) {
+        plugin.runAsync(() -> plugin.getDatabase().setLastPosition(user, position));
+    }
 
     /**
      * Returns where the user last disconnected from a server

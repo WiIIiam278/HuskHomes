@@ -23,8 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.UpdateChecker;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.UpdateChecker;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
@@ -181,7 +181,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     UnsafeBlocks getUnsafeBlocks();
 
     /**
-     * The {@link Database} that stores persistent plugin data
+     * The {@link Database} that store persistent plugin data
      *
      * @return the {@link Database} implementation for accessing data
      */
@@ -189,7 +189,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     Database getDatabase();
 
     /**
-     * The {@link Validator} for validating thome names and descriptions
+     * The {@link Validator} for validating home names and descriptions
      *
      * @return the {@link Validator} instance
      */
@@ -448,15 +448,19 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
 
     @NotNull
     default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
+        return UpdateChecker.builder()
+                .currentVersion(getVersion())
+                .endpoint(UpdateChecker.Endpoint.SPIGOT)
+                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
+                .build();
     }
 
     default void checkForUpdates() {
         if (getSettings().doCheckForUpdates()) {
-            getUpdateChecker().isUpToDate().thenAccept(updated -> {
-                if (!updated) {
-                    getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,
-                            "A new version of HuskTowns is available: v" + latest + " (running v" + getVersion() + ")"));
+            getUpdateChecker().check().thenAccept(checked -> {
+                if (!checked.isUpToDate()) {
+                    log(Level.WARNING, "A new version of HuskTowns is available: v"
+                                       + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });
         }

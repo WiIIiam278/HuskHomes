@@ -20,8 +20,10 @@
 package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.desertwell.AboutMenu;
-import net.william278.desertwell.UpdateChecker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.william278.desertwell.about.AboutMenu;
+import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.user.CommandUser;
@@ -49,30 +51,32 @@ public class HuskHomesCommand extends Command implements TabProvider {
         addAdditionalPermissions(SUB_COMMANDS);
 
         this.updateChecker = plugin.getUpdateChecker();
-        this.aboutMenu = AboutMenu.create("HuskHomes")
-                .withDescription("A powerful, intuitive and flexible teleportation suite")
-                .withVersion(plugin.getVersion())
-                .addAttribution("Author",
-                        AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
-                .addAttribution("Contributors",
-                        AboutMenu.Credit.of("imDaniX").withDescription("Code, refactoring"),
-                        AboutMenu.Credit.of("Log1x").withDescription("Code"))
-                .addAttribution("Translators",
-                        AboutMenu.Credit.of("SnivyJ").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("ApliNi").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("Wtq_").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
-                        AboutMenu.Credit.of("davgo0103").withDescription("Traditional Chinese (zh-tw)"),
-                        AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
-                        AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),
-                        AboutMenu.Credit.of("anchelthe").withDescription("Spanish (es-es)"),
-                        AboutMenu.Credit.of("Chiquis2005").withDescription("Spanish (es-es)"),
-                        AboutMenu.Credit.of("Ceddix").withDescription("German, (de-de)"),
-                        AboutMenu.Credit.of("Pukejoy_1").withDescription("Bulgarian (bg-bg)"))
-                .addButtons(
-                        AboutMenu.Link.of("https://william278.net/docs/huskhomes").withText("Documentation").withIcon("⛏"),
-                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
-                        AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").withText("Discord").withIcon("⭐").withColor("#6773f5"));
+        this.aboutMenu = AboutMenu.builder()
+                .title(Component.text("HuskHomes"))
+                .description(Component.text("A powerful, intuitive and flexible teleportation suite"))
+                .version(plugin.getVersion())
+                .credits("Author",
+                        AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
+                .credits("Contributors",
+                        AboutMenu.Credit.of("imDaniX").description("Code, refactoring"),
+                        AboutMenu.Credit.of("Log1x").description("Code"))
+                .credits("Translators",
+                        AboutMenu.Credit.of("SnivyJ").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("ApliNi").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("TonyPak").description("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("davgo0103").description("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("Villag3r_").description("Italian (it-it)"),
+                        AboutMenu.Credit.of("ReferTV").description("Polish (pl)"),
+                        AboutMenu.Credit.of("anchelthe").description("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Chiquis2005").description("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Ceddix").description("German, (de-de)"),
+                        AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"))
+                .buttons(
+                        AboutMenu.Link.of("https://william278.net/docs/huskhomes").text("Documentation").icon("⛏"),
+                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
+                        AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5)))
+                .build();
     }
 
     @Override
@@ -85,7 +89,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
         }
 
         switch (action.toLowerCase()) {
-            case "about" -> executor.sendMessage(aboutMenu.toMineDown());
+            case "about" -> executor.sendMessage(aboutMenu.toComponent());
             case "help" -> executor.sendMessage(getCommandList(executor)
                     .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
             case "reload" -> {
@@ -95,15 +99,14 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 }
                 executor.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
             }
-            case "update" -> updateChecker.isUpToDate().thenAccept(upToDate -> {
-                if (upToDate) {
+            case "update" -> updateChecker.check().thenAccept(checked -> {
+                if (checked.isUpToDate()) {
                     plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-                updateChecker.getLatestVersion().thenAccept(latest -> plugin.getLocales()
-                        .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
-                        .ifPresent(executor::sendMessage));
+                plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
+                        plugin.getVersion().toString()).ifPresent(executor::sendMessage);
             });
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);

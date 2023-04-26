@@ -21,7 +21,7 @@ package net.william278.huskhomes;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.DisabledCommand;

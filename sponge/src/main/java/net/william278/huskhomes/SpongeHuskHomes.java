@@ -21,7 +21,7 @@ package net.william278.huskhomes;
 
 import com.google.inject.Inject;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.SpongeCommand;
 import net.william278.huskhomes.config.Locales;

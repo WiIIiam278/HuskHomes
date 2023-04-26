@@ -371,12 +371,16 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     @NotNull
     Map<String, List<String>> getGlobalPlayerList();
 
-    @NotNull
-    default List<String> getPlayerList() {
+    default List<String> getPlayerList(boolean includeVanished) {
         return Stream.concat(
                 getGlobalPlayerList().values().stream().flatMap(Collection::stream),
-                getLocalPlayerList().stream()
+                getLocalPlayerList(includeVanished).stream()
         ).distinct().sorted().toList();
+    }
+
+    @NotNull
+    default List<String> getPlayerList() {
+        return getPlayerList(true);
     }
 
     default void setPlayerList(@NotNull String server, @NotNull List<String> players) {
@@ -388,10 +392,15 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     }
 
     @NotNull
-    default List<String> getLocalPlayerList() {
+    default List<String> getLocalPlayerList(boolean includeVanished) {
         return getOnlineUsers().stream()
+                .filter(user -> includeVanished || !user.isVanished())
                 .map(OnlineUser::getUsername)
                 .toList();
+    }
+
+    default List<String> getLocalPlayerList() {
+        return getLocalPlayerList(true);
     }
 
     @NotNull

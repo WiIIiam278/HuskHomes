@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes;
 
+import io.netty.buffer.ByteBufUtil;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -435,8 +436,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
                         @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
                         @NotNull PacketSender responseSender) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(PluginMessageBroker.BUNGEE_CHANNEL_ID, FabricUser.adapt(this, player), buf.readByteArray());
+        if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            messenger.onReceive(
+                    PluginMessageBroker.BUNGEE_CHANNEL_ID,
+                    FabricUser.adapt(this, player),
+                    ByteBufUtil.getBytes(buf)
+            );
         }
     }
 

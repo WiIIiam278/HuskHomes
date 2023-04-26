@@ -434,7 +434,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
         // Read the message and handle
         final SpongeUser user = (SpongeUser) playerConnection.get();
         final String channel = pluginMessage.readUTF();
-        if (broker instanceof PluginMessageBroker messenger) {
+        if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(channel, user, pluginMessage.readBytes(pluginMessage.available()));
         }
     }

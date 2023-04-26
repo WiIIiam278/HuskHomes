@@ -150,6 +150,9 @@ public class RequestsManager {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
             }
+            if (localTarget.get().isVanished()) {
+                throw new IllegalArgumentException("Cannot send a teleport request to a vanished player");
+            }
             plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request),
                     (event -> sendLocalTeleportRequest(request, localTarget.get())));
             return;
@@ -323,7 +326,15 @@ public class RequestsManager {
      * @param request   The {@link TeleportRequest} to handle
      */
     public void handleLocalRequestResponse(@NotNull OnlineUser requester, @NotNull TeleportRequest request) {
-        boolean accepted = request.getStatus() == TeleportRequest.Status.ACCEPTED;
+        // If the request was ignored, act as if the player was not found
+        if (request.getStatus() == TeleportRequest.Status.IGNORED) {
+            plugin.getLocales().getLocale("error_player_not_found", request.getRecipientName())
+                    .ifPresent(requester::sendMessage);
+            return;
+        }
+
+        // Send the response confirmation to the requester
+        final boolean accepted = request.getStatus() == TeleportRequest.Status.ACCEPTED;
         plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined"),
                 request.getRecipientName()).ifPresent(requester::sendMessage);
 

@@ -21,7 +21,7 @@ package net.william278.huskhomes;
 
 import com.google.inject.Inject;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.SpongeCommand;
 import net.william278.huskhomes.config.Locales;
@@ -434,7 +434,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
         // Read the message and handle
         final SpongeUser user = (SpongeUser) playerConnection.get();
         final String channel = pluginMessage.readUTF();
-        if (broker instanceof PluginMessageBroker messenger) {
+        if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(channel, user, pluginMessage.readBytes(pluginMessage.available()));
         }
     }

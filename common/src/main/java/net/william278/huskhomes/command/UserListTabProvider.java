@@ -31,7 +31,7 @@ public interface UserListTabProvider extends TabProvider {
     @Override
     @Nullable
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? getPlugin().getPlayerList() : null;
+        return args.length < 2 ? getPlugin().getPlayerList(false) : null;
     }
 
     @NotNull

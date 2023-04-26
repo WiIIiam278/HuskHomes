@@ -126,7 +126,7 @@ public class TpCommand extends Command implements TabProvider {
                         ((int) basePosition.getX() + " " + (int) basePosition.getY()),
                         ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
                         : List.of());
-                completions.addAll(plugin.getPlayerList());
+                completions.addAll(plugin.getPlayerList(false));
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -143,7 +143,7 @@ public class TpCommand extends Command implements TabProvider {
                             ((int) basePosition.getX() + " " + (int) basePosition.getY()),
                             ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
                             : List.of());
-                    completions.addAll(plugin.getPlayerList());
+                    completions.addAll(plugin.getPlayerList(false));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))

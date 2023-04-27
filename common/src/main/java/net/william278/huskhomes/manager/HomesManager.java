@@ -49,7 +49,7 @@ public class HomesManager {
         this.publicHomes = new ConcurrentLinkedQueue<>(plugin.getDatabase().getPublicHomes());
         this.userHomes = new ConcurrentHashMap<>();
         plugin.runAsync(() -> plugin.getOnlineUsers()
-                .forEach(this::cacheUserHomes), null);
+                .forEach(this::cacheUserHomes));
     }
 
     /**

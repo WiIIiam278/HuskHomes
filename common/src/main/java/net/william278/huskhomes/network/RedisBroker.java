@@ -101,7 +101,7 @@ public class RedisBroker extends PluginMessageBroker {
             try (Jedis jedis = jedisPool.getResource()) {
                 jedis.publish(getSubChannelId(), plugin.getGson().toJson(message));
             }
-        }, null);
+        });
     }
 
     @Override

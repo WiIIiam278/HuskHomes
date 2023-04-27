@@ -20,7 +20,6 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.position.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -29,33 +28,13 @@ import java.util.function.Supplier;
 public interface TaskRunner {
     int runAsync(@NotNull Runnable runnable);
 
-    default int runAsync(@NotNull Runnable runnable, Location location) {
-        return runAsync(runnable);
-    }
-
     <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
-
-    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier, Location location) {
-        return supplyAsync(supplier);
-    }
 
     void runSync(@NotNull Runnable runnable);
 
-    default void runSync(@NotNull Runnable runnable, Location location) {
-        runSync(runnable);
-    }
-
     int runAsyncRepeating(@NotNull Runnable runnable, long delay);
 
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay, Location location) {
-        return runAsyncRepeating(runnable, delay);
-    }
-
     void runLater(@NotNull Runnable runnable, long delay);
-
-    default void runLater(@NotNull Runnable runnable, long delay, Location location) {
-        runLater(runnable, delay);
-    }
 
     void cancelTask(int taskId);
 

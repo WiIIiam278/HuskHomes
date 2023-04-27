@@ -64,7 +64,7 @@ public class EventListener {
                 this.handleInboundTeleport(onlineUser);
 
                 // Synchronize the global player list
-                plugin.runLater(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L, null);
+                plugin.runLater(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L);
 
                 // Request updated player lists from other servers
                 if (plugin.getOnlineUsers().size() == 1) {
@@ -87,7 +87,7 @@ public class EventListener {
                             .orElse("")).ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
                 }
             });
-        }, null);
+        });
     }
 
     /**
@@ -132,7 +132,7 @@ public class EventListener {
                         } catch (TeleportationException e) {
                             e.displayMessage(teleporter, plugin, new String[0]);
                         }
-                    }, 40L, null);
+                    }, 40L);
                 } else {
                     try {
                         teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
@@ -237,7 +237,7 @@ public class EventListener {
             if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning()) {
                 this.respawnGlobally(onlineUser);
             }
-        }, null);
+        });
     }
 
     // Respawn a player to where they should be
@@ -275,7 +275,7 @@ public class EventListener {
         }
 
         plugin.runAsync(() -> plugin.getDatabase().getUserData(onlineUser.getUuid())
-                .ifPresent(data -> plugin.getDatabase().setLastPosition(data.getUser(), sourcePosition)), null);
+                .ifPresent(data -> plugin.getDatabase().setLastPosition(data.getUser(), sourcePosition)));
     }
 
     /**

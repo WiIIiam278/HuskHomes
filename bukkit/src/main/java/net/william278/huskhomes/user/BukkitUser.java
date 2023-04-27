@@ -120,7 +120,7 @@ public class BukkitUser extends OnlineUser {
             } else {
                 player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
-        }, location);
+        });
     }
 
     /**

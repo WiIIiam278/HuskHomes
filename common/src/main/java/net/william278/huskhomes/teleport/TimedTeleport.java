@@ -101,7 +101,7 @@ public class TimedTeleport extends Teleport {
                     plugin.cancelTask(warmupTaskId.get());
                 }
             });
-            warmupTaskId.set(plugin.runAsyncRepeating(countdownRunnable, 20L, null));
+            warmupTaskId.set(plugin.runAsyncRepeating(countdownRunnable, 20L));
         });
     }
 

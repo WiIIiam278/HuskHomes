@@ -140,6 +140,7 @@ public class PaperHuskHomes extends BukkitHuskHomes {
     public void cancelTask(int taskId) {
         if (getGlobalRegionScheduler() != null) {
             scheduledTasks.get(taskId).cancel();
+            scheduledTasks.remove(taskId);
             return;
         }
         super.cancelTask(taskId);

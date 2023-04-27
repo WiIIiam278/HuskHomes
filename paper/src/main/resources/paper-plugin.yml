@@ -4,6 +4,7 @@ author: 'William278'
 website: 'https://william278.net/'
 main: 'net.william278.huskhomes.PaperHuskHomes'
 loader: 'net.william278.huskhomes.PaperHuskHomesLoader'
+folia-supported: true
 version: '${version}'
 api-version: 1.19
 dependencies:

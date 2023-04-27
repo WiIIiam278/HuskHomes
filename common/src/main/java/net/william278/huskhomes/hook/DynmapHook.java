@@ -97,7 +97,7 @@ public class DynmapHook extends MapHook {
                                 .field("Command", "/phome " + home.getIdentifier())
                                 .toHtml());
             });
-        });
+        }, null);
     }
 
     @Override
@@ -107,14 +107,14 @@ public class DynmapHook extends MapHook {
             getPublicHomesMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
                     .filter(marker -> marker.getMarkerID().equals(markerId))
                     .forEach(Marker::deleteMarker));
-        });
+        }, null);
     }
 
     @Override
     public void clearHomes(@NotNull User user) {
         plugin.runSync(() -> getPublicHomesMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
                 .filter(marker -> marker.getMarkerID().startsWith(user.getUuid().toString()))
-                .forEach(Marker::deleteMarker)));
+                .forEach(Marker::deleteMarker)), null);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class DynmapHook extends MapHook {
                                 .field("Command", "/warp " + warp.getName())
                                 .toHtml());
             });
-        });
+        }, null);
     }
 
     @Override
@@ -148,13 +148,13 @@ public class DynmapHook extends MapHook {
             getWarpsMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
                     .filter(marker -> marker.getMarkerID().equals(markerId))
                     .forEach(Marker::deleteMarker));
-        });
+        }, null);
     }
 
     @Override
     public void clearWarps() {
         plugin.runSync(() -> getWarpsMarkerSet().ifPresent(markerSet -> markerSet.getMarkers()
-                .forEach(Marker::deleteMarker)));
+                .forEach(Marker::deleteMarker)), null);
     }
 
     private Optional<DynmapCommonAPI> getDynmap() {

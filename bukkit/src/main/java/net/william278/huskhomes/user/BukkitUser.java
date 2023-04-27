@@ -65,7 +65,7 @@ public class BukkitUser extends OnlineUser {
     @Override
     public Position getPosition() {
         return Position.at(BukkitAdapter.adaptLocation(player.getLocation())
-                .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
+                        .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
                 plugin.getServerName());
 
     }
@@ -114,14 +114,13 @@ public class BukkitUser extends OnlineUser {
         if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES);
         }
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.runAsync(() -> {
             if (asynchronous) {
                 PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             } else {
                 player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
-        });
+        }, location);
     }
 
     /**

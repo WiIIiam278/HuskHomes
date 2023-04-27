@@ -122,6 +122,6 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
                 attempts++;
             }
             return location.map(resolved -> Position.at(resolved, plugin.getServerName()));
-        });
+        }, null);
     }
 }

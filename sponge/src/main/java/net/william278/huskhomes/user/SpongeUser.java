@@ -104,7 +104,7 @@ public class SpongeUser extends OnlineUser {
                 return;
             }
             player.setLocation(serverLocation.get());
-        });
+        }, location);
     }
 
     @Override

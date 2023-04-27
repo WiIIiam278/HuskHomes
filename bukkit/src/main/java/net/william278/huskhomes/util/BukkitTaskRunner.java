@@ -21,6 +21,7 @@ package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import org.bukkit.Bukkit;
+import net.william278.huskhomes.position.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -29,12 +30,12 @@ import java.util.function.Supplier;
 
 public interface BukkitTaskRunner extends TaskRunner {
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
+    default int runAsync(@NotNull Runnable runnable, Location location) {
         return Bukkit.getScheduler().runTaskAsynchronously((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
     }
 
     @Override
-    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
+    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier, Location location) {
         final CompletableFuture<T> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskAsynchronously((BukkitHuskHomes) getPlugin(),
                 () -> future.complete(supplier.get()));
@@ -42,12 +43,12 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runSync(@NotNull Runnable runnable) {
-        Bukkit.getScheduler().runTask((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
+    default void runSync(@NotNull Runnable runnable, Location location) {
+        Bukkit.getScheduler().runTask((BukkitHuskHomes) getPlugin(), runnable);
     }
 
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long period) {
+    default int runAsyncRepeating(@NotNull Runnable runnable, long period, Location location) {
         AtomicInteger taskId = new AtomicInteger();
         taskId.set(Bukkit.getScheduler().runTaskTimerAsynchronously((BukkitHuskHomes) getPlugin(),
                 runnable, 0, period).getTaskId());
@@ -55,7 +56,7 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runLater(@NotNull Runnable runnable, long delay) {
+    default void runLater(@NotNull Runnable runnable, long delay, Location location) {
         Bukkit.getScheduler().runTaskLater((BukkitHuskHomes) getPlugin(), runnable, delay).getTaskId();
     }
 

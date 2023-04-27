@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.1923'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.5.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
+    compileOnly 'dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.1923'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'

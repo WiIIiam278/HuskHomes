@@ -20,6 +20,7 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.SpongeHuskHomes;
+import net.william278.huskhomes.position.Location;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
@@ -34,7 +35,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     Map<Integer, CancellableRunnable> tasks = new HashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
+    default int runAsync(@NotNull Runnable runnable, Location location) {
         final CancellableRunnable task = wrap(runnable);
         final int taskId = tasks.size();
         tasks.put(taskId, task);
@@ -49,7 +50,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
+    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier, Location location) {
         final CompletableFuture<T> future = new CompletableFuture<>();
 
         getPlugin().getGame().asyncScheduler()
@@ -62,7 +63,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runSync(@NotNull Runnable runnable) {
+    default void runSync(@NotNull Runnable runnable, Location location) {
         getPlugin().getGame().server().scheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())
@@ -71,7 +72,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
+    default int runAsyncRepeating(@NotNull Runnable runnable, long delay, Location location) {
         final CancellableRunnable task = wrap(runnable);
         final int taskId = tasks.size();
         tasks.put(taskId, task);
@@ -87,7 +88,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runLater(@NotNull Runnable runnable, long delay) {
+    default void runLater(@NotNull Runnable runnable, long delay, Location location) {
         getPlugin().getGame().server().scheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())

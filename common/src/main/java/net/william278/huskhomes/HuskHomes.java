@@ -89,7 +89,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 .ifPresent(result -> {
                     editor.accept(result);
                     getDatabase().updateUserData(result);
-                }));
+                }), null);
     }
 
     /**

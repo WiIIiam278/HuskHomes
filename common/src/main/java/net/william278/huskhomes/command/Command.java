@@ -45,7 +45,7 @@ public abstract class Command extends Node {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.runAsync(() -> this.execute(executor, args));
+        plugin.runAsync(() -> this.execute(executor, args), null);
     }
 
     public abstract void execute(@NotNull CommandUser executor, @NotNull String[] args);

@@ -50,9 +50,9 @@ public interface EventDispatcher {
     default <T extends Event> void fireEvent(@NotNull T event, @Nullable Consumer<T> callback) {
         getPlugin().runSync(() -> {
             if (!fireIsCancelled(event) && callback != null) {
-                getPlugin().runAsync(() -> callback.accept(event));
+                getPlugin().runAsync(() -> callback.accept(event), null);
             }
-        });
+        }, null);
     }
 
     /**

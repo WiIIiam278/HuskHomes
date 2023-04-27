@@ -74,7 +74,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         plugin.runAsync(() -> {
             plugin.getDatabase().getLocalPublicHomes(plugin).forEach(this::updateHome);
             plugin.getDatabase().getLocalWarps(plugin).forEach(this::updateWarp);
-        });
+        }, null);
     }
 
     @Override

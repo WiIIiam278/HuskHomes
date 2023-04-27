@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes;
 
+import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
+import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
@@ -77,11 +79,13 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
      */
     private static final int METRICS_ID = 8430;
     private Set<SavedUser> savedUsers;
+    private final JavaPlugin javaPlugin = this;
     private Settings settings;
     private Locales locales;
     private Database database;
     private Validator validator;
     private Manager manager;
+    private final boolean folia = isFolia();
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
@@ -457,6 +461,31 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
                 && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
+        }
+    }
+
+    public RegionScheduler getRegionScheduler() {
+        if (folia) {
+            return this.javaPlugin.getServer().getRegionScheduler();
+        } else {
+            return null;
+        }
+    }
+
+    public GlobalRegionScheduler getGlobalRegionScheduler() {
+        if (folia) {
+            return this.javaPlugin.getServer().getGlobalRegionScheduler();
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 

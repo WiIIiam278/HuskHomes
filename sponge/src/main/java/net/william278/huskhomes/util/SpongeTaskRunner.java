@@ -20,7 +20,6 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.SpongeHuskHomes;
-import net.william278.huskhomes.position.Location;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;

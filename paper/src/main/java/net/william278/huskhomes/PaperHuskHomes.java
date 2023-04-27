@@ -34,9 +34,8 @@ import java.util.stream.Collectors;
 public class PaperHuskHomes extends BukkitHuskHomes implements FoliaTaskRunner {
 
     private final static String FOLIA_SCHEDULER_CLASS_NAME = "io.papermc.paper.threadedregions.scheduler.RegionScheduler";
-    public static final boolean folia = isFolia();
 
-    private static boolean isFolia() {
+    public static boolean isFolia() {
         try {
             Class.forName(FOLIA_SCHEDULER_CLASS_NAME);
             return true;
@@ -68,5 +67,21 @@ public class PaperHuskHomes extends BukkitHuskHomes implements FoliaTaskRunner {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void cancelTask(int taskId) {
+        if (folia) {
+            scheduledTasks.get(taskId).cancel();
+        }
+        super.cancelTask(taskId);
+    }
+
+    @Override
+    public void cancelAllTasks() {
+        if (folia) {
+            getServer().getGlobalRegionScheduler().cancelTasks(this);
+        }
+        super.cancelAllTasks();
     }
 }

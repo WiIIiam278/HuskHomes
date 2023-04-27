@@ -31,24 +31,24 @@ public interface FabricTaskRunner extends TaskRunner {
     ConcurrentHashMap<Integer, CompletableFuture<?>> tasks = new ConcurrentHashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable, Location location) {
+    default int runAsync(@NotNull Runnable runnable) {
         int taskId = tasks.size();
         tasks.put(taskId, CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer()));
         return taskId;
     }
 
     @Override
-    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier, Location location) {
+    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         return CompletableFuture.supplyAsync(supplier, getPlugin().getMinecraftServer());
     }
 
     @Override
-    default void runSync(@NotNull Runnable runnable, Location location) {
+    default void runSync(@NotNull Runnable runnable) {
         getPlugin().getMinecraftServer().executeSync(runnable);
     }
 
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay, Location location) {
+    default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
         int taskId = tasks.size();
         final CompletableFuture<?> future = new CompletableFuture<>();
 
@@ -66,7 +66,7 @@ public interface FabricTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runLater(@NotNull Runnable runnable, long delay, Location location) {
+    default void runLater(@NotNull Runnable runnable, long delay) {
         CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(delay * 50);

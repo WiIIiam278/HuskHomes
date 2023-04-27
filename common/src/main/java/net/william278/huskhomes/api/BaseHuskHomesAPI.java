@@ -70,7 +70,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull UUID uuid) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getUserData(uuid), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUserData(uuid));
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull String username) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getUserDataByName(username), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUserDataByName(username));
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserLastPosition(@NotNull User user) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getLastPosition(user), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLastPosition(user));
     }
     
     /**
@@ -103,7 +103,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.2
      */
     public void setUserLastPosition(@NotNull User user, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getDatabase().setLastPosition(user, position), null);
+        plugin.runAsync(() -> plugin.getDatabase().setLastPosition(user, position));
     }
 
     /**
@@ -114,7 +114,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserOfflinePosition(@NotNull User user) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getOfflinePosition(user), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getOfflinePosition(user));
     }
 
     /**
@@ -131,7 +131,7 @@ public abstract class BaseHuskHomesAPI {
         if (!plugin.getSettings().doCrossServer() || plugin.getSettings().isGlobalRespawning()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user));
     }
 
     /**
@@ -153,7 +153,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final void saveUserData(@NotNull SavedUser savedUser) {
-        plugin.runAsync(() -> plugin.getDatabase().updateUserData(savedUser), null);
+        plugin.runAsync(() -> plugin.getDatabase().updateUserData(savedUser));
     }
 
     /**
@@ -195,7 +195,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with a list of {@link Home}s set by the user
      */
     public final CompletableFuture<List<Home>> getUserHomes(@NotNull User user) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getHomes(user), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHomes(user));
     }
 
     /**
@@ -209,7 +209,7 @@ public abstract class BaseHuskHomesAPI {
     public final CompletableFuture<List<Home>> getUserPublicHomes(@NotNull User user) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getHomes(user).stream()
                 .filter(Home::isPublic)
-                .collect(Collectors.toList()), null);
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -220,7 +220,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final CompletableFuture<List<Home>> getLocalPublicHomes(@NotNull User user) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalPublicHomes(plugin), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalPublicHomes(plugin));
     }
 
     /**
@@ -230,7 +230,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<List<Home>> getPublicHomes() {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getPublicHomes(), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getPublicHomes());
     }
 
     /**
@@ -242,7 +242,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(user, homeName), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(user, homeName));
     }
 
 
@@ -253,7 +253,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull UUID homeUuid) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(homeUuid), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getHome(homeUuid));
     }
 
     /**
@@ -265,7 +265,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false), null);
+        plugin.runAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false));
     }
 
     /**
@@ -276,7 +276,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void deleteHome(@NotNull User owner, @NotNull String name) {
-        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(owner, name), null);
+        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(owner, name));
     }
 
     /**
@@ -286,7 +286,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void deleteHome(@NotNull Home home) {
-        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(home), null);
+        plugin.runAsync(() -> plugin.getManager().homes().deleteHome(home));
     }
 
     /**
@@ -298,7 +298,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void renameHome(@NotNull User owner, @NotNull String oldName, @NotNull String newName) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(owner, oldName, newName), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(owner, oldName, newName));
     }
 
     /**
@@ -309,7 +309,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void renameHome(@NotNull Home home, @NotNull String newName) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(home, newName), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeName(home, newName));
     }
 
     /**
@@ -321,7 +321,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomePrivacy(@NotNull User owner, @NotNull String name, boolean isPublic) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(owner, name, isPublic), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(owner, name, isPublic));
     }
 
     /**
@@ -332,7 +332,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(home, isPublic), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePrivacy(home, isPublic));
     }
 
     /**
@@ -344,7 +344,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(owner, name, description), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(owner, name, description));
     }
 
     /**
@@ -355,7 +355,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomeDescription(@NotNull Home home, @NotNull String description) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(home, description), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeDescription(home, description));
     }
 
     /**
@@ -367,7 +367,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void relocateHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(owner, name, position), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(owner, name, position));
     }
 
     /**
@@ -378,7 +378,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void relocateHome(@NotNull Home home, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(home, position), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomePosition(home, position));
     }
 
 
@@ -391,7 +391,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Map<String, String> tags) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(owner, name, tags), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(owner, name, tags));
     }
 
     /**
@@ -402,7 +402,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setHomeMetaTags(@NotNull Home home, @NotNull Map<String, String> tags) {
-        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(home, tags), null);
+        plugin.runAsync(() -> plugin.getManager().homes().setHomeMetaTags(home, tags));
     }
 
     /**
@@ -418,7 +418,7 @@ public abstract class BaseHuskHomesAPI {
             final Map<String, String> tags = home.getMeta().getTags();
             tagEditor.accept(tags);
             setHomeMetaTags(home, tags);
-        }), null);
+        }));
     }
 
     /**
@@ -428,7 +428,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final CompletableFuture<List<Warp>> getLocalWarps() {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalWarps(plugin), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getLocalWarps(plugin));
     }
 
     /**
@@ -438,7 +438,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<List<Warp>> getWarps() {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getWarps(), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarps());
     }
 
     /**
@@ -449,7 +449,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpName), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpName));
     }
 
     /**
@@ -459,7 +459,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID warpUuid) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpUuid), null);
+        return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpUuid));
     }
 
     /**
@@ -470,7 +470,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void createWarp(@NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().warps().createWarp(name, position), null);
+        plugin.runAsync(() -> plugin.getManager().warps().createWarp(name, position));
     }
 
     /**
@@ -479,7 +479,7 @@ public abstract class BaseHuskHomesAPI {
      * @param name The name of the warp to delete
      */
     public final void deleteWarp(@NotNull String name) {
-        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(name), null);
+        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(name));
     }
 
     /**
@@ -488,7 +488,7 @@ public abstract class BaseHuskHomesAPI {
      * @param warp The {@link Warp} to delete
      */
     public final void deleteWarp(@NotNull Warp warp) {
-        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(warp), null);
+        plugin.runAsync(() -> plugin.getManager().warps().deleteWarp(warp));
     }
 
     /**
@@ -498,7 +498,7 @@ public abstract class BaseHuskHomesAPI {
      * @param newName The new name of the warp
      */
     public final void renameWarp(@NotNull String oldName, @NotNull String newName) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(oldName, newName), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(oldName, newName));
     }
 
     /**
@@ -508,7 +508,7 @@ public abstract class BaseHuskHomesAPI {
      * @param newName The new name of the warp
      */
     public final void renameWarp(@NotNull Warp warp, @NotNull String newName) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(warp, newName), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpName(warp, newName));
     }
 
     /**
@@ -518,7 +518,7 @@ public abstract class BaseHuskHomesAPI {
      * @param description The new description of the warp
      */
     public final void setWarpDescription(@NotNull String name, @NotNull String description) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(name, description), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(name, description));
     }
 
     /**
@@ -528,7 +528,7 @@ public abstract class BaseHuskHomesAPI {
      * @param description The new description of the warp
      */
     public final void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(warp, description), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpDescription(warp, description));
     }
 
     /**
@@ -538,7 +538,7 @@ public abstract class BaseHuskHomesAPI {
      * @param position The new {@link Position} of the warp
      */
     public final void relocateWarp(@NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(name, position), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(name, position));
     }
 
     /**
@@ -548,7 +548,7 @@ public abstract class BaseHuskHomesAPI {
      * @param position The new {@link Position} of the warp
      */
     public final void relocateWarp(@NotNull Warp warp, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(warp, position), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpPosition(warp, position));
     }
 
     /**
@@ -559,7 +559,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setWarpMetaTags(@NotNull String name, @NotNull Map<String, String> tags) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(name, tags), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(name, tags));
     }
 
     /**
@@ -570,7 +570,7 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void setWarpMetaTags(@NotNull Warp warp, @NotNull Map<String, String> tags) {
-        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(warp, tags), null);
+        plugin.runAsync(() -> plugin.getManager().warps().setWarpMetaTags(warp, tags));
     }
 
     /**
@@ -586,7 +586,7 @@ public abstract class BaseHuskHomesAPI {
             final Map<String, String> tags = warp.getMeta().getTags();
             tagEditor.accept(tags);
             setWarpMetaTags(warp, tags);
-        }), null);
+        }));
     }
 
 
@@ -597,7 +597,7 @@ public abstract class BaseHuskHomesAPI {
      * @return A {@link CompletableFuture} that will complete with the {@link Position} of the spawn point
      */
     public final CompletableFuture<Optional<? extends Position>> getSpawn() {
-        return plugin.supplyAsync(plugin::getSpawn, null);
+        return plugin.supplyAsync(plugin::getSpawn);
     }
 
     /**

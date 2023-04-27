@@ -97,7 +97,7 @@ public class DynmapHook extends MapHook {
                                 .field("Command", "/phome " + home.getIdentifier())
                                 .toHtml());
             });
-        }, null);
+        });
     }
 
     @Override
@@ -107,7 +107,7 @@ public class DynmapHook extends MapHook {
             getPublicHomesMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
                     .filter(marker -> marker.getMarkerID().equals(markerId))
                     .forEach(Marker::deleteMarker));
-        }, null);
+        });
     }
 
     @Override

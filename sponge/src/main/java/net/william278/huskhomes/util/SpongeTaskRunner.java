@@ -35,7 +35,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     Map<Integer, CancellableRunnable> tasks = new HashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable, Location location) {
+    default int runAsync(@NotNull Runnable runnable) {
         final CancellableRunnable task = wrap(runnable);
         final int taskId = tasks.size();
         tasks.put(taskId, task);
@@ -50,7 +50,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier, Location location) {
+    default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         final CompletableFuture<T> future = new CompletableFuture<>();
 
         getPlugin().getGame().asyncScheduler()
@@ -63,7 +63,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runSync(@NotNull Runnable runnable, Location location) {
+    default void runSync(@NotNull Runnable runnable) {
         getPlugin().getGame().server().scheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())
@@ -72,7 +72,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay, Location location) {
+    default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
         final CancellableRunnable task = wrap(runnable);
         final int taskId = tasks.size();
         tasks.put(taskId, task);
@@ -88,7 +88,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void runLater(@NotNull Runnable runnable, long delay, Location location) {
+    default void runLater(@NotNull Runnable runnable, long delay) {
         getPlugin().getGame().server().scheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())

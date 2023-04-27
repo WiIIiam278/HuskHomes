@@ -52,7 +52,7 @@ public interface EventDispatcher {
             if (!fireIsCancelled(event) && callback != null) {
                 getPlugin().runAsync(() -> callback.accept(event), null);
             }
-        }, null);
+        });
     }
 
     /**

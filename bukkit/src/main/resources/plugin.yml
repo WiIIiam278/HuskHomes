@@ -5,7 +5,6 @@ website: 'https://william278.net/'
 main: 'net.william278.huskhomes.BukkitHuskHomes'
 version: '${version}'
 api-version: 1.16
-folia-supported: true
 softdepend:
   - Vault
   - RedisEconomy

@@ -114,13 +114,14 @@ public class BukkitUser extends OnlineUser {
         if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES);
         }
-        plugin.runAsync(() -> {
+
+        plugin.runSync(() -> {
             if (asynchronous) {
                 PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             } else {
                 player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
-        }, location);
+        }, null);
     }
 
     /**

@@ -79,18 +79,16 @@ public class PaperHuskHomes extends BukkitHuskHomes {
     public int runAsync(@NotNull Runnable runnable) {
         if (folia) {
             return paperTaskRunner.runAsync(runnable); // For Folia
-        } else {
-            return super.runAsync(runnable); // For Paper and forks
         }
+        return super.runAsync(runnable); // For Paper and forks
     }
 
     @Override
     public <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         if (folia) {
             return paperTaskRunner.supplyAsync(supplier);
-        } else {
-            return super.supplyAsync(supplier);
         }
+        return super.supplyAsync(supplier);
     }
 
     @Override
@@ -106,9 +104,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
     public int runAsyncRepeating(@NotNull Runnable runnable, long period) {
         if (folia) {
             return paperTaskRunner.runAsyncRepeating(runnable, period);
-        } else {
-            return super.runAsyncRepeating(runnable, period);
         }
+        return super.runAsyncRepeating(runnable, period);
     }
 
     @Override

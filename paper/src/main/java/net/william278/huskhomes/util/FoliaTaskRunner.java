@@ -54,14 +54,13 @@ public interface FoliaTaskRunner extends TaskRunner {
     ArrayList<ScheduledTask> scheduledTasks = new ArrayList<>();
 
     default int runAsync(@NotNull Runnable runnable, Location location) {
+        // For folia
         if (getGlobalRegionScheduler() != null) {
-            // For folia
             if (location != null) {
                 getRegionScheduler().run((BukkitHuskHomes) getPlugin(), new org.bukkit.Location(getServer().getWorld(location.getWorld().getUuid()), location.getX(), location.getY(), location.getZ()), scheduledTask -> {
                     runnable.run();
                     scheduledTasks.add(scheduledTask);
                 });
-                // For paper
             } else {
                 getGlobalRegionScheduler().run((BukkitHuskHomes) getPlugin(), scheduledTask -> {
                     runnable.run();
@@ -70,6 +69,7 @@ public interface FoliaTaskRunner extends TaskRunner {
             }
             return scheduledTasks.size() - 1;
         }
+        // For other
         return this.runAsync(runnable);
     }
 

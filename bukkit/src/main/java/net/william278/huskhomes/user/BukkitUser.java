@@ -26,7 +26,6 @@ import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.util.BukkitAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -121,7 +120,7 @@ public class BukkitUser extends OnlineUser {
             } else {
                 player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
-        }, null);
+        }, location);
     }
 
     /**

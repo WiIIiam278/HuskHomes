@@ -19,15 +19,16 @@
 
 package net.william278.huskhomes;
 
-import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.PaperCommand;
 import net.william278.huskhomes.hook.Pl3xMapHook;
+import net.william278.huskhomes.util.PaperTaskRunner;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -35,6 +36,10 @@ import java.util.stream.Collectors;
 public class PaperHuskHomes extends BukkitHuskHomes {
 
     private final static String FOLIA_SCHEDULER_CLASS_NAME = "io.papermc.paper.threadedregions.scheduler.RegionScheduler";
+
+    final PaperTaskRunner paperTaskRunner = new PaperTaskRunner((PaperHuskHomes) getPlugin());
+
+    private final boolean folia = isFolia(); // Always throw ClassNotFoundException not good
 
     public static boolean isFolia() {
         try {
@@ -44,16 +49,6 @@ public class PaperHuskHomes extends BukkitHuskHomes {
             return false;
         }
     }
-    boolean folia = PaperHuskHomes.isFolia();
-
-    Optional<GlobalRegionScheduler> getGlobalRegionScheduler() {
-        if (!folia) {
-            return Optional.empty();
-        }
-        return Optional.of(getServer().getGlobalRegionScheduler());
-    }
-
-    final ArrayList<ScheduledTask> scheduledTasks = new ArrayList<>();
 
     @Override
     public void registerHooks() {
@@ -82,20 +77,17 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public int runAsync(@NotNull Runnable runnable) {
-        if (getGlobalRegionScheduler().isPresent()) {
-            getGlobalRegionScheduler().get().run(this, scheduledTasks::add);
-            return scheduledTasks.size() - 1;
+        if (folia) {
+            return paperTaskRunner.runAsync(runnable); // For Folia
         } else {
-            return super.runAsync(runnable);
+            return super.runAsync(runnable); // For Paper and forks
         }
     }
 
     @Override
     public <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
-        final CompletableFuture<T> future = new CompletableFuture<>();
-        if (getGlobalRegionScheduler().isPresent()) {
-            getGlobalRegionScheduler().get().run(this, scheduledTask -> future.complete(supplier.get()));
-            return future;
+        if (folia) {
+            return paperTaskRunner.supplyAsync(supplier);
         } else {
             return super.supplyAsync(supplier);
         }
@@ -103,8 +95,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public void runSync(@NotNull Runnable runnable) {
-        if (getGlobalRegionScheduler().isPresent()) {
-            getGlobalRegionScheduler().get().execute(this, runnable);
+        if (folia) {
+            paperTaskRunner.runSync(runnable);
         } else {
             super.runSync(runnable);
         }
@@ -112,9 +104,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public int runAsyncRepeating(@NotNull Runnable runnable, long period) {
-        if (getGlobalRegionScheduler().isPresent()) {
-            getGlobalRegionScheduler().get().runAtFixedRate(this, scheduledTasks::add, 1, period);
-            return scheduledTasks.size() - 1;
+        if (folia) {
+            return paperTaskRunner.runAsyncRepeating(runnable, period);
         } else {
             return super.runAsyncRepeating(runnable, period);
         }
@@ -122,8 +113,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public void runLater(@NotNull Runnable runnable, long delay) {
-        if (getGlobalRegionScheduler().isPresent()) {
-            getGlobalRegionScheduler().get().runDelayed(this, scheduledTask -> runnable.run(), delay);
+        if (folia) {
+            paperTaskRunner.runLater(runnable, delay);
         } else {
             super.runLater(runnable, delay);
         }
@@ -131,17 +122,19 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public void cancelTask(int taskId) {
-        if (!folia) {
+        if (folia) {
+            paperTaskRunner.cancelTask(taskId);
+        } else {
             super.cancelTask(taskId);
         }
-        scheduledTasks.get(taskId).cancel();
     }
 
     @Override
     public void cancelAllTasks() {
-        if (!folia) {
+        if (folia) {
+            paperTaskRunner.cancelAllTasks();
+        } else {
             super.cancelAllTasks();
         }
-        getServer().getGlobalRegionScheduler().cancelTasks(this);
     }
 }

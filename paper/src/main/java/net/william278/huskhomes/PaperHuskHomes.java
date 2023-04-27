@@ -71,17 +71,17 @@ public class PaperHuskHomes extends BukkitHuskHomes implements FoliaTaskRunner {
 
     @Override
     public void cancelTask(int taskId) {
-        if (folia) {
-            scheduledTasks.get(taskId).cancel();
+        if (!folia) {
+            super.cancelTask(taskId);
         }
-        super.cancelTask(taskId);
+        scheduledTasks.get(taskId).cancel();
     }
 
     @Override
     public void cancelAllTasks() {
-        if (folia) {
-            getServer().getGlobalRegionScheduler().cancelTasks(this);
+        if (!folia) {
+            super.cancelAllTasks();
         }
-        super.cancelAllTasks();
+        getServer().getGlobalRegionScheduler().cancelTasks(this);
     }
 }

@@ -33,7 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
+public class PaperHuskHomes extends BukkitHuskHomes {
+
+    PaperTaskRunner paperTaskRunner = new PaperTaskRunner((PaperHuskHomes) getPlugin());
 
     private final static String FOLIA_SCHEDULER_CLASS_NAME = "io.papermc.paper.threadedregions.scheduler.RegionScheduler";
 
@@ -74,7 +76,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public int runAsync(@NotNull Runnable runnable) {
         if (isFolia()) {
-            return this.runAsync(runnable); // For Folia
+            return paperTaskRunner.runAsync(runnable); // For Folia
         }
         return super.runAsync(runnable); // For Paper and forks
     }
@@ -82,7 +84,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         if (isFolia()) {
-            return this.supplyAsync(supplier);
+            return paperTaskRunner.supplyAsync(supplier);
         }
         return super.supplyAsync(supplier);
     }
@@ -90,7 +92,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public void runSync(@NotNull Runnable runnable) {
         if (isFolia()) {
-            this.runSync(runnable);
+            paperTaskRunner.runSync(runnable);
         } else {
             super.runSync(runnable);
         }
@@ -99,7 +101,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public int runAsyncRepeating(@NotNull Runnable runnable, long period) {
         if (isFolia()) {
-            return this.runAsyncRepeating(runnable, period);
+            return paperTaskRunner.runAsyncRepeating(runnable, period);
         }
         return super.runAsyncRepeating(runnable, period);
     }
@@ -107,7 +109,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public void runLater(@NotNull Runnable runnable, long delay) {
         if (isFolia()) {
-            this.runLater(runnable, delay);
+            paperTaskRunner.runLater(runnable, delay);
         } else {
             super.runLater(runnable, delay);
         }
@@ -116,7 +118,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public void cancelTask(int taskId) {
         if (isFolia()) {
-            this.cancelTask(taskId);
+            paperTaskRunner.cancelTask(taskId);
         } else {
             super.cancelTask(taskId);
         }
@@ -125,7 +127,7 @@ public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
     @Override
     public void cancelAllTasks() {
         if (isFolia()) {
-            this.cancelAllTasks();
+            paperTaskRunner.cancelAllTasks();
         } else {
             super.cancelAllTasks();
         }

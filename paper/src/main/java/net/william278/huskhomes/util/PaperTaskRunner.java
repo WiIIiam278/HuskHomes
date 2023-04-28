@@ -20,6 +20,7 @@
 package net.william278.huskhomes.util;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,14 +29,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public interface PaperTaskRunner extends TaskRunner {
+public class PaperTaskRunner implements TaskRunner {
+
+    PaperHuskHomes plugin;
+
+    public PaperTaskRunner(PaperHuskHomes plugin) {
+        this.plugin = plugin;
+    }
 
     AtomicInteger atomicInteger = new AtomicInteger(0);
     ConcurrentHashMap<Integer, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>();
 
-    default int runAsync(@NotNull Runnable runnable) {
+    public int runAsync(@NotNull Runnable runnable) {
         int id = atomicInteger.getAndIncrement();
-        PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
         plugin.getServer().getGlobalRegionScheduler().run(plugin, scheduledTask -> {
             runnable.run();
             scheduledTasks.put(id, scheduledTask);
@@ -43,21 +49,20 @@ public interface PaperTaskRunner extends TaskRunner {
         return id;
     }
 
-    default  <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
+    public  <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         final CompletableFuture<T> future = new CompletableFuture<>();
         PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
         plugin.getServer().getGlobalRegionScheduler().run(plugin, scheduledTask -> future.complete(supplier.get()));
         return future;
     }
 
-    default void runSync(@NotNull Runnable runnable) {
+    public void runSync(@NotNull Runnable runnable) {
         PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
         plugin.getServer().getGlobalRegionScheduler().execute(plugin, runnable);
     }
 
-    default int runAsyncRepeating(@NotNull Runnable runnable, long period) {
+    public int runAsyncRepeating(@NotNull Runnable runnable, long period) {
         int id = atomicInteger.getAndIncrement();
-        PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
         plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
             runnable.run();
             scheduledTasks.put(id, scheduledTask);
@@ -65,18 +70,22 @@ public interface PaperTaskRunner extends TaskRunner {
         return id;
     }
 
-    default void runLater(@NotNull Runnable runnable, long delay) {
-        PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
+    public void runLater(@NotNull Runnable runnable, long delay) {
         plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin, scheduledTask -> runnable.run(), delay);
     }
 
-    default void cancelTask(int taskId) {
+    public void cancelTask(int taskId) {
         scheduledTasks.get(taskId).cancel();
         scheduledTasks.remove(taskId);
     }
 
-    default void cancelAllTasks() {
-        PaperHuskHomes plugin = (PaperHuskHomes) getPlugin();
+    public void cancelAllTasks() {
         plugin.getServer().getGlobalRegionScheduler().cancelTasks(plugin);
+    }
+
+    @NotNull
+    @Override
+    public HuskHomes getPlugin() {
+        return plugin;
     }
 }

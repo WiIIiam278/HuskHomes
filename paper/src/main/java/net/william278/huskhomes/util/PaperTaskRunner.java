@@ -31,14 +31,14 @@ import java.util.function.Supplier;
 
 public class PaperTaskRunner implements TaskRunner {
 
-    PaperHuskHomes plugin;
+    private final PaperHuskHomes plugin;
 
     public PaperTaskRunner(PaperHuskHomes plugin) {
         this.plugin = plugin;
     }
 
-    AtomicInteger atomicInteger = new AtomicInteger(0);
-    ConcurrentHashMap<Integer, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>();
+    private final AtomicInteger atomicInteger = new AtomicInteger(0);
+    private final ConcurrentHashMap<Integer, ScheduledTask> scheduledTasks = new ConcurrentHashMap<>();
 
     public int runAsync(@NotNull Runnable runnable) {
         int id = atomicInteger.getAndIncrement();

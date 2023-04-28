@@ -33,13 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class PaperHuskHomes extends BukkitHuskHomes {
+public class PaperHuskHomes extends BukkitHuskHomes implements PaperTaskRunner {
 
     private final static String FOLIA_SCHEDULER_CLASS_NAME = "io.papermc.paper.threadedregions.scheduler.RegionScheduler";
-
-    final PaperTaskRunner paperTaskRunner = new PaperTaskRunner((PaperHuskHomes) getPlugin());
-
-    private final boolean folia = isFolia(); // Always throw ClassNotFoundException not good
 
     public static boolean isFolia() {
         try {
@@ -77,24 +73,24 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public int runAsync(@NotNull Runnable runnable) {
-        if (folia) {
-            return paperTaskRunner.runAsync(runnable); // For Folia
+        if (isFolia()) {
+            return this.runAsync(runnable); // For Folia
         }
         return super.runAsync(runnable); // For Paper and forks
     }
 
     @Override
     public <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
-        if (folia) {
-            return paperTaskRunner.supplyAsync(supplier);
+        if (isFolia()) {
+            return this.supplyAsync(supplier);
         }
         return super.supplyAsync(supplier);
     }
 
     @Override
     public void runSync(@NotNull Runnable runnable) {
-        if (folia) {
-            paperTaskRunner.runSync(runnable);
+        if (isFolia()) {
+            this.runSync(runnable);
         } else {
             super.runSync(runnable);
         }
@@ -102,16 +98,16 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public int runAsyncRepeating(@NotNull Runnable runnable, long period) {
-        if (folia) {
-            return paperTaskRunner.runAsyncRepeating(runnable, period);
+        if (isFolia()) {
+            return this.runAsyncRepeating(runnable, period);
         }
         return super.runAsyncRepeating(runnable, period);
     }
 
     @Override
     public void runLater(@NotNull Runnable runnable, long delay) {
-        if (folia) {
-            paperTaskRunner.runLater(runnable, delay);
+        if (isFolia()) {
+            this.runLater(runnable, delay);
         } else {
             super.runLater(runnable, delay);
         }
@@ -119,8 +115,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public void cancelTask(int taskId) {
-        if (folia) {
-            paperTaskRunner.cancelTask(taskId);
+        if (isFolia()) {
+            this.cancelTask(taskId);
         } else {
             super.cancelTask(taskId);
         }
@@ -128,8 +124,8 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     public void cancelAllTasks() {
-        if (folia) {
-            paperTaskRunner.cancelAllTasks();
+        if (isFolia()) {
+            this.cancelAllTasks();
         } else {
             super.cancelAllTasks();
         }

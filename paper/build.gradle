@@ -42,6 +42,7 @@ shadowJar {
     relocate 'net.kyori', 'net.william278.huskhomes.libraries'
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'space.arim.morepaperlib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
 }
 

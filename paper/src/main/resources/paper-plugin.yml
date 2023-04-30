@@ -6,6 +6,7 @@ main: 'net.william278.huskhomes.PaperHuskHomes'
 loader: 'net.william278.huskhomes.PaperHuskHomesLoader'
 version: '${version}'
 api-version: 1.19
+folia-supported: true
 dependencies:
   - name: Vault
     required: false

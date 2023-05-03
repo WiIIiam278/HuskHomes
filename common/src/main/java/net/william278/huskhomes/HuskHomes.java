@@ -359,6 +359,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 getHooks().add(new DynmapHook(this));
             } else if (isDependencyLoaded("BlueMap")) {
                 getHooks().add(new BlueMapHook(this));
+            } else if (isDependencyLoaded("Pl3xMap")) {
+                getHooks().add(new Pl3xMapHook(this));
             }
         }
         if (isDependencyLoaded("Plan")) {

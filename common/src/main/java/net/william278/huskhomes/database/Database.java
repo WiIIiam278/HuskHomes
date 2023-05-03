@@ -208,13 +208,26 @@ public abstract class Database {
     }
 
     /**
-     * Get a {@link Home} set by a {@link User}
+     * Get a {@link Home} with the given name, set by the given {@link User}
      *
      * @param user     The {@link User} who set the home
-     * @param homeName The <i>case-insensitive</i> name of the home to get
+     * @param homeName The name of the home to get
+     * @return A future returning an optional with the {@link Home} present if it exists
+     * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
+     */
+    public final Optional<Home> getHome(@NotNull User user, @NotNull String homeName) {
+        return this.getHome(user, homeName, plugin.getSettings().caseInsensitiveNames());
+    }
+
+    /**
+     * Get a {@link Home} with the given name, set by the given {@link User}
+     *
+     * @param user            The {@link User} who set the home
+     * @param homeName        The name of the home to get
+     * @param caseInsensitive Whether the name lookup query should be case-insensitive
      * @return A future returning an optional with the {@link Home} present if it exists
      */
-    public abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName);
+    protected abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive);
 
     /**
      * Get a {@link Home} by its unique id
@@ -225,12 +238,24 @@ public abstract class Database {
     public abstract Optional<Home> getHome(@NotNull UUID uuid);
 
     /**
-     * Get a {@link Warp} with the given name (<i>case-insensitive</i>)
+     * Get a {@link Warp} with the given name
      *
-     * @param warpName The <i>case-insensitive</i> name of the warp to get
+     * @param warpName The name of the warp to get
+     * @return A future returning an optional with the {@link Warp} present if it exists
+     * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
+     */
+    public final Optional<Warp> getWarp(@NotNull String warpName) {
+        return getWarp(warpName, plugin.getSettings().caseInsensitiveNames());
+    }
+
+    /**
+     * Get a {@link Warp} with the given name
+     *
+     * @param warpName        The name of the warp to get
+     * @param caseInsensitive Whether the search should be case-insensitive
      * @return A future returning an optional with the {@link Warp} present if it exists
      */
-    public abstract Optional<Warp> getWarp(@NotNull String warpName);
+    protected abstract Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive);
 
     /**
      * Get a {@link Warp} by its unique id

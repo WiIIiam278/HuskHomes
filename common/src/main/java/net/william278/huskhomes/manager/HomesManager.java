@@ -186,6 +186,7 @@ public class HomesManager {
 
         final Home home = existingHome
                 .map(existing -> {
+                    existing.getMeta().setName(name);
                     existing.update(position);
                     return existing;
                 })

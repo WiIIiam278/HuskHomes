@@ -427,7 +427,7 @@ public class MySqlDatabase extends Database {
                     INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                     INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `owner_uuid`=?
-                    AND `name`=?;"""))) {
+                    AND UPPER(`name`) LIKE UPPER(?);"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, homeName);
 
@@ -502,7 +502,7 @@ public class MySqlDatabase extends Database {
                     FROM `%warps_table%`
                     INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                     INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    WHERE `name`=?;"""))) {
+                    WHERE UPPER(`name`) LIKE UPPER(?);"""))) {
                 statement.setString(1, warpName);
 
                 final ResultSet resultSet = statement.executeQuery();

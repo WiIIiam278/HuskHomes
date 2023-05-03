@@ -95,7 +95,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
-                && !user.hasPermission(getOtherPermission())) {
+                    && !user.hasPermission(getOtherPermission())) {
                 plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHomeName)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
@@ -131,8 +131,13 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
         final Optional<Warp> warp = resolveWarpByName(warpName);
+        if (warp.isEmpty()) {
+            plugin.getLocales().getLocale("error_warp_invalid", warpName)
+                    .ifPresent(executor::sendMessage);
+            return Optional.empty();
+        }
         if (warp.isPresent() && executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
-            && (!user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName)))) {
+                && (!user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName)))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -141,7 +146,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     private Optional<Warp> resolveWarpByName(@NotNull String warpName) {
-        return plugin.getDatabase().getWarp(warpName)
+        return Optional.of(plugin.getDatabase().getWarps().stream().findAny()
+                        .filter(warp -> warp.getName().equalsIgnoreCase(warpName)).get())
                 .or(() -> {
                     try {
                         return plugin.getDatabase().getWarp(UUID.fromString(warpName));

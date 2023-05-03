@@ -138,7 +138,7 @@ public class Settings {
     private boolean strictTpaHereRequests = true;
 
     @YamlKey("general.case_insensitive_names")
-    private boolean caseInsensitiveNames = true;
+    private boolean caseInsensitiveNames = false;
 
     @YamlKey("general.allow_unicode_names")
     private boolean allowUnicodeNames = false;

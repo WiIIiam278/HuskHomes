@@ -227,7 +227,7 @@ public abstract class Database {
      * @param caseInsensitive Whether the name lookup query should be case-insensitive
      * @return A future returning an optional with the {@link Home} present if it exists
      */
-    protected abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive);
+    public abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive);
 
     /**
      * Get a {@link Home} by its unique id
@@ -255,7 +255,7 @@ public abstract class Database {
      * @param caseInsensitive Whether the search should be case-insensitive
      * @return A future returning an optional with the {@link Warp} present if it exists
      */
-    protected abstract Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive);
+    public abstract Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive);
 
     /**
      * Get a {@link Warp} by its unique id

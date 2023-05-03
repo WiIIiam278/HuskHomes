@@ -336,12 +336,12 @@ public class BukkitPluginTests {
         @Order(8)
         public void testWarpCaseInsensitiveQuery(@NotNull String name, @SuppressWarnings("unused") @NotNull Position position) {
             final String nameUpper = name.toUpperCase();
-            final Optional<Warp> nameUpperWarp = plugin.getDatabase().getWarp(nameUpper);
+            final Optional<Warp> nameUpperWarp = plugin.getDatabase().getWarp(nameUpper, true);
             Assertions.assertTrue(nameUpperWarp.isPresent());
             Assertions.assertEquals(name, nameUpperWarp.get().getName());
 
             final String nameLower = name.toLowerCase();
-            final Optional<Warp> nameLowerWarp = plugin.getDatabase().getWarp(nameLower);
+            final Optional<Warp> nameLowerWarp = plugin.getDatabase().getWarp(nameLower, true);
             Assertions.assertTrue(nameLowerWarp.isPresent());
             Assertions.assertEquals(name, nameLowerWarp.get().getName());
         }
@@ -510,12 +510,12 @@ public class BukkitPluginTests {
         @Order(8)
         public void testWarpCaseInsensitiveQuery(@NotNull OnlineUser owner, @NotNull String name, @SuppressWarnings("unused") @NotNull Position position) {
             final String nameUpper = name.toUpperCase();
-            final Optional<Home> nameUpperWarp = plugin.getDatabase().getHome(owner, nameUpper);
+            final Optional<Home> nameUpperWarp = plugin.getDatabase().getHome(owner, nameUpper, true);
             Assertions.assertTrue(nameUpperWarp.isPresent());
             Assertions.assertEquals(name, nameUpperWarp.get().getName());
 
             final String nameLower = name.toLowerCase();
-            final Optional<Home> nameLowerWarp = plugin.getDatabase().getHome(owner, nameLower);
+            final Optional<Home> nameLowerWarp = plugin.getDatabase().getHome(owner, nameLower, true);
             Assertions.assertTrue(nameLowerWarp.isPresent());
             Assertions.assertEquals(name, nameLowerWarp.get().getName());
         }

@@ -132,7 +132,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private Optional<Warp> resolveWarp(@NotNull CommandUser executor, @NotNull String warpName) {
         final Optional<Warp> warp = resolveWarpByName(warpName);
         if (warp.isEmpty()) {
-            plugin.getLocales().getLocale("error_home_invalid", warpName)
+            plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }

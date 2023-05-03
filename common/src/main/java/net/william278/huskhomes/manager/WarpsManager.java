@@ -124,13 +124,8 @@ public class WarpsManager {
 
         final Warp warp = existingWarp
                 .map(existing -> {
-                    existing.setX(position.getX());
-                    existing.setY(position.getY());
-                    existing.setZ(position.getZ());
-                    existing.setWorld(position.getWorld());
-                    existing.setServer(position.getServer());
-                    existing.setYaw(position.getYaw());
-                    existing.setPitch(position.getPitch());
+                    existing.getMeta().setName(name);
+                    existing.update(position);
                     return existing;
                 })
                 .orElse(Warp.from(position, PositionMeta.create(name, "")));

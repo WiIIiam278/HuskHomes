@@ -137,6 +137,9 @@ public class Settings {
     @YamlKey("general.strict_tpa_here_requests")
     private boolean strictTpaHereRequests = true;
 
+    @YamlKey("general.case_insensitive_names")
+    private boolean caseInsensitiveNames = true;
+
     @YamlKey("general.allow_unicode_names")
     private boolean allowUnicodeNames = false;
 
@@ -360,6 +363,8 @@ public class Settings {
     public boolean doStrictTpaHereRequests() {
         return strictTpaHereRequests;
     }
+
+    public boolean caseInsensitiveNames() { return caseInsensitiveNames; }
 
     public boolean doAllowUnicodeNames() {
         return allowUnicodeNames;

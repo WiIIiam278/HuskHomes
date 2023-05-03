@@ -46,8 +46,8 @@ jobs:
           modrinth-featured: false
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-dependencies: |
-            bluemap | suggests | *
             dynmap | suggests | *
+            bluemap | suggests | *
             pl3xmap | suggests | *
             plan-player-analytics | suggests | *
           hangar-id: William278/HuskHomes
@@ -101,11 +101,11 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           dependencies: |
             fabric-api | requires | *
-            bluemap | suggests | *
             dynmap | suggests | *
+            bluemap | suggests | *
             pl3xmap | suggests | *
-            plan-player-analytics | suggests | *
             luckperms | suggests | *
+            plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Fabric-*.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}

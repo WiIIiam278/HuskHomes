@@ -146,8 +146,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     private Optional<Warp> resolveWarpByName(@NotNull String warpName) {
-        return plugin.getDatabase().getWarps().stream().findAny()
-                        .filter(warp -> warp.getName().equalsIgnoreCase(warpName))
+        return plugin.getDatabase().getWarp(warpName)
                 .or(() -> {
                     try {
                         return plugin.getDatabase().getWarp(UUID.fromString(warpName));

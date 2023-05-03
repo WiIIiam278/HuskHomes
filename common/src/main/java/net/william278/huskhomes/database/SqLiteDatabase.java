@@ -513,8 +513,8 @@ public class SqLiteDatabase extends Database {
                     FROM `%warps_table%`
                     INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                     INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    WHERE `name`=?;"""))) {
-                statement.setString(1, warpName);
+                    WHERE UPPER(`name`)=?;"""))) {
+                statement.setString(1, warpName.toUpperCase());
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {

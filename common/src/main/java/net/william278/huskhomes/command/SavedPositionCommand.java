@@ -146,6 +146,10 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     private Optional<Warp> resolveWarpByName(@NotNull String warpName) {
+        if (plugin.getDatabase().getWarps().stream().findAny()
+                .filter(warp -> warp.getName().equalsIgnoreCase(warpName)).isEmpty()) {
+            return Optional.empty();
+        }
         return Optional.of(plugin.getDatabase().getWarps().stream().findAny()
                         .filter(warp -> warp.getName().equalsIgnoreCase(warpName)).get())
                 .or(() -> {

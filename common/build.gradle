@@ -13,7 +13,7 @@ dependencies {
     api 'com.google.code.gson:gson:2.10.1'
     api 'net.william278:Annotaml:2.0.1'
     api 'net.william278:PagineDown:1.1'
-    api 'net.william278:DesertWell:2.0.2'
+    api 'net.william278:DesertWell:2.0.3'
     api 'dev.dejvokep:boosted-yaml:1.3.1'
     api 'net.kyori:adventure-api:4.13.1'
     api('com.zaxxer:HikariCP:5.0.1') {

@@ -23,7 +23,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.User;
-import org.apache.commons.text.StringEscapeUtils;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.Marker;
@@ -32,8 +31,6 @@ import org.dynmap.markers.MarkerSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,6 +38,7 @@ import java.util.Optional;
  */
 public class DynmapHook extends MapHook {
 
+    private static final String ICON_PATH = "/tiles/_markers_/";
     @Nullable
     private DynmapCommonAPI dynmapApi;
     @Nullable
@@ -90,12 +88,9 @@ public class DynmapHook extends MapHook {
                 markerSet.createMarker(markerId, home.getName(), home.getWorld().getName(),
                                 home.getX(), home.getY(), home.getZ(),
                                 getMarkerIcon(PUBLIC_HOME_MARKER_IMAGE_NAME).orElseThrow(), false)
-                        .setDescription(MarkerInformationPopup.create(home.getName())
-                                .thumbnail(PUBLIC_HOME_MARKER_IMAGE_NAME)
-                                .field("Owner", home.getOwner().getUsername())
-                                .field("Description", plugin.getLocales().wrapText(home.getMeta().getDescription(), 60))
-                                .field("Command", "/phome " + home.getIdentifier())
-                                .toHtml());
+                        .setDescription(MarkerInformationPopup.publicHome(
+                                home, ICON_PATH + PUBLIC_HOME_MARKER_IMAGE_NAME, plugin
+                        ).toHtml());
             });
         });
     }
@@ -132,11 +127,9 @@ public class DynmapHook extends MapHook {
                 markerSet.createMarker(markerId, warp.getName(), warp.getWorld().getName(),
                                 warp.getX(), warp.getY(), warp.getZ(),
                                 getMarkerIcon(WARP_MARKER_IMAGE_NAME).orElseThrow(), false)
-                        .setDescription(MarkerInformationPopup.create(warp.getName())
-                                .thumbnail(WARP_MARKER_IMAGE_NAME)
-                                .field("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription(), 60))
-                                .field("Command", "/warp " + warp.getName())
-                                .toHtml());
+                        .setDescription(MarkerInformationPopup.warp(
+                                warp, ICON_PATH + WARP_MARKER_IMAGE_NAME, plugin
+                        ).toHtml());
             });
         });
     }
@@ -196,63 +189,6 @@ public class DynmapHook extends MapHook {
             }
             return icon;
         });
-    }
-
-    /**
-     * Creates an HTML Dynmap marker information popup widget
-     */
-    private static class MarkerInformationPopup {
-        @NotNull
-        private final String title;
-
-        @Nullable
-        private String thumbnailMarkerId;
-
-        @NotNull
-        private final Map<String, String> fields;
-
-        private MarkerInformationPopup(@NotNull String title) {
-            this.title = title;
-            this.fields = new HashMap<>();
-        }
-
-        @NotNull
-        private static DynmapHook.MarkerInformationPopup create(@NotNull String title) {
-            return new MarkerInformationPopup(title);
-        }
-
-        @NotNull
-        private DynmapHook.MarkerInformationPopup thumbnail(@NotNull String thumbnailMarkerId) {
-            this.thumbnailMarkerId = thumbnailMarkerId;
-            return this;
-        }
-
-        @NotNull
-        private DynmapHook.MarkerInformationPopup field(@NotNull String key, @NotNull String value) {
-            fields.put(key, value);
-            return this;
-        }
-
-        @NotNull
-        private String toHtml() {
-            final StringBuilder html = new StringBuilder();
-            html.append("<div class=\"infowindow\">");
-            if (thumbnailMarkerId != null) {
-                html.append("<img src=\"/tiles/_markers_/")
-                        .append(thumbnailMarkerId)
-                        .append(".png\" class=\"thumbnail\"/>")
-                        .append("&nbsp;");
-            }
-            html.append("<span style=\"font-weight: bold;\">")
-                    .append(StringEscapeUtils.escapeHtml4(title))
-                    .append("</span><br/>");
-            fields.forEach((key, value) -> html.append("<span style=\"font-weight: bold;\">")
-                    .append(StringEscapeUtils.escapeHtml4(key))
-                    .append(": </span><span>")
-                    .append(StringEscapeUtils.escapeHtml4(value))
-                    .append("</span><br/>"));
-            return html.toString();
-        }
     }
 
 }

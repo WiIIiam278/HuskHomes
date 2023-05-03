@@ -103,6 +103,7 @@ jobs:
             fabric-api | requires | *
             bluemap | suggests | *
             dynmap | suggests | *
+            pl3xmap | suggests | *
             plan-player-analytics | suggests | *
             luckperms | suggests | *
           files-primary: target/HuskHomes-Fabric-*.jar

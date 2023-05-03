@@ -19,19 +19,19 @@
 
 package net.william278.huskhomes.hook;
 
-import net.pl3x.map.Key;
-import net.pl3x.map.Pl3xMap;
-import net.pl3x.map.event.EventHandler;
-import net.pl3x.map.event.EventListener;
-import net.pl3x.map.event.server.ServerLoadedEvent;
-import net.pl3x.map.event.world.WorldLoadedEvent;
-import net.pl3x.map.event.world.WorldUnloadedEvent;
-import net.pl3x.map.image.IconImage;
-import net.pl3x.map.markers.Point;
-import net.pl3x.map.markers.layer.SimpleLayer;
-import net.pl3x.map.markers.marker.Icon;
-import net.pl3x.map.markers.marker.Marker;
-import net.pl3x.map.world.World;
+import net.kyori.adventure.key.Key;
+import net.pl3x.map.core.Pl3xMap;
+import net.pl3x.map.core.event.EventHandler;
+import net.pl3x.map.core.event.EventListener;
+import net.pl3x.map.core.event.server.ServerLoadedEvent;
+import net.pl3x.map.core.event.world.WorldLoadedEvent;
+import net.pl3x.map.core.event.world.WorldUnloadedEvent;
+import net.pl3x.map.core.image.IconImage;
+import net.pl3x.map.core.markers.Point;
+import net.pl3x.map.core.markers.layer.SimpleLayer;
+import net.pl3x.map.core.markers.marker.Icon;
+import net.pl3x.map.core.markers.marker.Marker;
+import net.pl3x.map.core.world.World;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
@@ -56,8 +56,8 @@ public class Pl3xMapHook extends MapHook implements EventListener {
 
     public Pl3xMapHook(@NotNull HuskHomes plugin) {
         super(plugin, "Pl3xMap");
-        this.warpsLayerKey = Key.of("warp_markers");
-        this.publicHomesLayerKey = Key.of("public_home_markers");
+        this.warpsLayerKey = plugin.getKey("warp_markers");
+        this.publicHomesLayerKey = plugin.getKey("public_home_markers");
     }
 
     @Override
@@ -116,12 +116,12 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     private void registerIcon(@NotNull Key key, @NotNull String iconFileName) {
         try (InputStream iconStream = plugin.getResource(iconFileName)) {
             if (iconStream == null) {
-                plugin.log(Level.WARNING, "Failed to load Pl3xMap icon ("+ key + "): icon file not found");
+                plugin.log(Level.WARNING, "Failed to load Pl3xMap icon (" + key + "): icon file not found");
                 return;
             }
-            Pl3xMap.api().getIconRegistry().register(new IconImage(key, ImageIO.read(iconStream), "png"));
+            Pl3xMap.api().getIconRegistry().register(new IconImage(key.asString(), ImageIO.read(iconStream), "png"));
         } catch (IOException e) {
-            plugin.log(Level.WARNING, "Failed to load Pl3xMap icon ("+ key + "): " + e.getMessage(), e);
+            plugin.log(Level.WARNING, "Failed to load Pl3xMap icon (" + key + "): " + e.getMessage(), e);
         }
     }
 
@@ -138,21 +138,21 @@ public class Pl3xMapHook extends MapHook implements EventListener {
 
     @SuppressWarnings("unused")
     @EventHandler
-    public void onServerLoaded(ServerLoadedEvent event) {
-        Pl3xMap.api().getWorldRegistry().entries().values().forEach(this::registerLayers);
+    public void onServerLoaded(@NotNull ServerLoadedEvent event) {
+        Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
     }
 
     @SuppressWarnings("unused")
     @EventHandler
-    public void onWorldLoaded(WorldLoadedEvent event) {
+    public void onWorldLoaded(@NotNull WorldLoadedEvent event) {
         registerLayers(event.getWorld());
     }
 
     @SuppressWarnings("unused")
     @EventHandler
-    public void onWorldUnloaded(WorldUnloadedEvent event) {
-        event.getWorld().getLayerRegistry().unregister(warpsLayerKey);
-        event.getWorld().getLayerRegistry().unregister(publicHomesLayerKey);
+    public void onWorldUnloaded(@NotNull WorldUnloadedEvent event) {
+        event.getWorld().getLayerRegistry().unregister(warpsLayerKey.asString());
+        event.getWorld().getLayerRegistry().unregister(publicHomesLayerKey.asString());
     }
 
     public static class WarpsLayer extends SimpleLayer {
@@ -161,7 +161,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         private final World mapWorld;
 
         public WarpsLayer(@NotNull Pl3xMapHook hook, @NotNull World mapWorld) {
-            super(hook.warpsLayerKey, hook::getWarpsMarkerSetName);
+            super(hook.warpsLayerKey.asString(), hook::getWarpsMarkerSetName);
             this.hook = hook;
             this.mapWorld = mapWorld;
         }
@@ -172,9 +172,9 @@ public class Pl3xMapHook extends MapHook implements EventListener {
             return hook.warps.stream()
                     .filter(warp -> warp.getWorld().getName().equals(mapWorld.getName()))
                     .map(warp -> Icon.of(
-                            Key.of("warp_" + warp.getUuid()),
+                            hook.plugin.getKey("warp_" + warp.getUuid()).asString(),
                             Point.of(warp.getX(), warp.getZ()),
-                            hook.warpsLayerKey
+                            hook.warpsLayerKey.asString()
                     ))
                     .collect(Collectors.toCollection(LinkedList::new));
         }
@@ -187,7 +187,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         private final World mapWorld;
 
         public PublicHomesLayer(@NotNull Pl3xMapHook hook, @NotNull World mapWorld) {
-            super(hook.publicHomesLayerKey, hook::getPublicHomesMarkerSetName);
+            super(hook.publicHomesLayerKey.asString(), hook::getPublicHomesMarkerSetName);
             this.hook = hook;
             this.mapWorld = mapWorld;
         }
@@ -198,9 +198,9 @@ public class Pl3xMapHook extends MapHook implements EventListener {
             return hook.publicHomes.stream()
                     .filter(home -> home.getWorld().getName().equals(mapWorld.getName()))
                     .map(home -> Icon.of(
-                            Key.of("public_home_" + home.getUuid()),
+                            hook.plugin.getKey("public_home_" + home.getUuid()).asString(),
                             Point.of(home.getX(), home.getZ()),
-                            hook.publicHomesLayerKey
+                            hook.publicHomesLayerKey.asString()
                     ))
                     .collect(Collectors.toCollection(LinkedList::new));
         }

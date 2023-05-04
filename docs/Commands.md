@@ -83,12 +83,11 @@ Note that these permission-set values override the values set in the plugin conf
 <details>
 <summary>Return to where you died with /back</summary>
 
-This permission controls whether users can return to where they died. Note that return by death must be enabled in the
-config for this to work.
+This permission controls whether users can return to where they died. Note that return by death must be enabled in the plugin [[config files]] for this to work.
 
-| Permission                     | Command | Description                           |
-|--------------------------------|---------|---------------------------------------|
-| `huskhomes.command.back.death` | `/back` | Use /back to return to where you died |
+| Permission                     | Command | Default | Description                           |
+|--------------------------------|---------|:-------:|---------------------------------------|
+| `huskhomes.command.back.death` | `/back` |    ✅    | Use /back to return to where you died |
 </details>
 
 <details>
@@ -96,13 +95,13 @@ config for this to work.
 
 These permissions allow you to make a home public/private (toggling its privacy). There are also permissions that let you use, edit and delete homes that have not been set publicly.
 
-| Permission                           | Command                                                                             | Description                                  |
-|--------------------------------------|-------------------------------------------------------------------------------------|----------------------------------------------|
-| `huskhomes.command.edithome.privacy` | `/edithome <name> privacy [public/private]`                                         | Modify the privacy of a home                 |
-| `huskhomes.command.home.other`       | `/homelist <player> [page]`                                                         | View a list of a user's homes                |
-| `huskhomes.command.home.other`       | `/home [<owner_name>.<home_name>]`                                                  | Teleport to a user's home, public or private |
-| `huskhomes.command.edithome.other`   | `/edithome [<owner_name>.<home_name>] [rename/description/relocate/privacy] [args]` | Edit a user's home                           |
-| `huskhomes.command.delhome.other`    | `/delhome [<owner_name>.<home_name>]`                                               | Delete a user's home                         |
+| Command                                                                             | Permission                           | Default | Description                                  |
+|-------------------------------------------------------------------------------------|--------------------------------------|:-------:|----------------------------------------------|
+| `/edithome <name> privacy [public/private]`                                         | `huskhomes.command.edithome.privacy` |    ❌    | Modify the privacy of a home                 |
+| `/homelist <player> [page]`                                                         | `huskhomes.command.home.other`       |    ❌    | View a list of a user's homes                |
+| `/home [<owner_name>.<home_name>]`                                                  | `huskhomes.command.home.other`       |    ❌    | Teleport to a user's home, public or private |
+| `/edithome [<owner_name>.<home_name>] [rename/description/relocate/privacy] [args]` | `huskhomes.command.edithome.other`   |    ❌    | Edit a user's home                           |
+| `/delhome [<owner_name>.<home_name>]`                                               | `huskhomes.command.delhome.other`    |    ❌    | Delete a user's home                         |
 </details>
 
 
@@ -111,11 +110,11 @@ These permissions allow you to make a home public/private (toggling its privacy)
 
 These permissions let you bypass teleportation warmup checks, rtp cooldown checks and economy checks
 
-| Permission                         | Description                                |
-|------------------------------------|--------------------------------------------|
-| `huskhomes.bypass_teleport_warmup` | Bypass timed teleportation warmups&dagger; |
-| `huskhomes.bypass_economy_checks`  | Bypass economy checks                      |
-| `huskhomes.rtp.bypass_cooldown`    | Bypass the cooldown on /rtp&ddagger;       |
+| Permission                              | Default | Description                                |
+|-----------------------------------------|:-------:|--------------------------------------------|
+| `huskhomes.bypass_teleport_warmup`      |  Unset  | Bypass timed teleportation warmups&dagger; |
+| `huskhomes.bypass_economy_checks`       |  Unset  | Bypass economy checks                      |
+| `huskhomes.command.rtp.bypass_cooldown` |    ❌    | Bypass the cooldown on /rtp&ddagger;       |
 
 &dagger;This is not effective when the teleport warmup time is set `<= 0` in the config file.
 
@@ -125,16 +124,16 @@ These permissions let you bypass teleportation warmup checks, rtp cooldown check
 <details>
 <summary>Advanced teleportation</summary>
 
-These permissions allow you to use /tp and /rtp to teleport other players remotely and to coordinates.
+These permissions allow you to use /tp and /rtp to teleport other players remotely and to co-ordinates.
 
-| Permission                         | Command                                     | Description                            |
-|------------------------------------|---------------------------------------------|----------------------------------------|
-| `huskhomes.command.tp.other`       | `/tp [player] [target] `                    | Teleport another player                |
-| `huskhomes.command.tp.coordinates` | `/tp [player] <x> <y> <z> [world] [server]` | Teleport to a set of coordinates.      |
-| `huskhomes.command.rtp.other`      | `/rtp [player] [world]`                     | Randomly teleport another player.      |
-| `huskhomes.command.rtp.world`      | `/rtp [player] [world]`                     | Randomly teleport in a specific world. |
-| `huskhomes.command.spawn.other`    | `/spawn [player]`                           | Teleport another player to spawn.      |
-| `huskhomes.command.warp.other`     | `/warp [name] [player]`                     | Teleport another player to a warp.     |
+| Command                                     | Permission                         | Default | Description                            |
+|---------------------------------------------|------------------------------------|:-------:|----------------------------------------|
+| `/tp [player] [target] `                    | `huskhomes.command.tp.other`       |    ❌    | Teleport another player                |
+| `/tp [player] <x> <y> <z> [world] [server]` | `huskhomes.command.tp.coordinates` |    ❌    | Teleport to a set of coordinates.      |
+| `/rtp [player] [world]`                     | `huskhomes.command.rtp.other`      |    ❌    | Randomly teleport another player.      |
+| `/rtp [player] [world]`                     | `huskhomes.command.rtp.world`      |    ❌    | Randomly teleport in a specific world. |
+| `/spawn [player]`                           | `huskhomes.command.spawn.other`    |    ❌    | Teleport another player to spawn.      |
+| `/warp [name] [player]`                     | `huskhomes.command.warp.other`     |    ❌    | Teleport another player to a warp.     |
 </details>
 
 <details>
@@ -142,11 +141,11 @@ These permissions allow you to use /tp and /rtp to teleport other players remote
 
 These permissions control what arguments of the /huskhomes command a user may use.
 
-| Permission                           | Command                          | Description                                |
-|--------------------------------------|----------------------------------|--------------------------------------------|
-| `huskhomes.command.huskhomes.help`   | `/huskhomes help [page]`         | View a list of HuskHomes commands          |
-| `huskhomes.command.huskhomes.about`  | `/huskhomes [about]`             | View the plugin about menu                 |
-| `huskhomes.command.huskhomes.reload` | `/huskhomes reload`              | Reload the plugin config and message files |
-| `huskhomes.command.huskhomes.import` | `/huskhomes import [list/start]` | Import data from other plugins/mods        |
-| `huskhomes.command.huskhomes.update` | `/huskhomes update`              | Check for updates                          |
+| Command                          | Permission                           | Default | Description                                |
+|----------------------------------|--------------------------------------|:-------:|--------------------------------------------|
+| `/huskhomes help [page]`         | `huskhomes.command.huskhomes.help`   |    ✅    | View a list of HuskHomes commands          |
+| `/huskhomes [about]`             | `huskhomes.command.huskhomes.about`  |    ✅    | View the plugin about menu                 |
+| `/huskhomes reload`              | `huskhomes.command.huskhomes.reload` |    ❌    | Reload the plugin config and message files |
+| `/huskhomes import [list/start]` | `huskhomes.command.huskhomes.import` |    ❌    | Import data from other plugins/mods        |
+| `/huskhomes update`              | `huskhomes.command.huskhomes.update` |    ❌    | Check for updates                          |
 </details>

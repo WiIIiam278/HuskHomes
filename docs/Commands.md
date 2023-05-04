@@ -5,38 +5,38 @@ HuskHomes provides a range of commands for you to use. This page will detail the
 
 This is a table of HuskHomes' commands and their required permission nodes. Additional permissions provided by the plugin to control other variables are detailed further below!
 
-| Command                                                         | Description                                         | Base Permission               | Default |
-|-----------------------------------------------------------------|-----------------------------------------------------|-------------------------------|:-------:|
-| `/home <name>`                                                  | Teleport to a home                                  | `huskhomes.command.home`      |    ✅    |
-| `/homelist [page]`                                              | Get a list of your homes                            | `huskhomes.command.homelist`  |    ✅    |
-| `/sethome <name>`                                               | Set a new home with given name                      | `huskhomes.command.sethome`   |    ✅    |
-| `/delhome <name>`                                               | Delete a home you previously set                    | `huskhomes.command.delhome`   |    ✅    |
-| `/edithome <name> [rename/description/relocate/privacy] [args]` | Edit one of your homes                              | `huskhomes.command.edithome`  |    ✅    |
-| `/phome [<owner_name.home_name>]`                               | Teleport to a public home                           | `huskhomes.command.phome`     |    ✅    |
-| `/phomelist [page]`                                             | View the list of public homes                       | `huskhomes.command.phomelist` |    ✅    |
-| `/warp <name>`                                                  | Teleport to a warp                                  | `huskhomes.command.warp`      |    ✅    |
-| `/warplist [page]`                                              | View the list of warps                              | `huskhomes.command.warplist`  |    ✅    |
-| `/setwarp <name>`                                               | Set a new warp with given name                      | `huskhomes.command.setwarp`   |    ❌    |
-| `/delwarp <name>`                                               | Delete a warp                                       | `huskhomes.command.delwarp`   |    ❌    |
-| `/editwarp <name> [rename/description/relocate] [args]`         | Edit a warp                                         | `huskhomes.command.editwarp`  |    ❌    |
-| `/tp <target> [destination]`                                    | Teleport to another player or location              | `huskhomes.command.tp`        |    ❌    |
-| `/tphere <player>`                                              | Teleport another player to you                      | `huskhomes.command.tphere`    |    ❌    |
-| `/tpa <player>`                                                 | Request to teleport to another player               | `huskhomes.command.tpa`       |    ✅    |
-| `/tpahere <player>`                                             | Request another player to teleport to you           | `huskhomes.command.tpahere`   |    ✅    |
-| `/tpaccept [player]`                                            | Accept a teleport request                           | `huskhomes.command.tpaccept`  |    ✅    |
-| `/tpdecline [player]`                                           | Decline a teleport request                          | `huskhomes.command.tpdecline` |    ✅    |
-| `/rtp [player] [world]`                                         | Teleport randomly into the wild                     | `huskhomes.command.rtp`       |    ✅    |
-| `/tpignore`                                                     | Ignore incoming teleport requests                   | `huskhomes.command.tpignore`  |    ✅    |
-| `/tpoffline <player>`                                           | Teleport to where a player was last online          | `huskhomes.command.tpoffline` |    ❌    |
-| `/tpall`                                                        | Teleport everyone to your position                  | `huskhomes.command.tpall`     |    ❌    |
-| `/tpaall`                                                       | Request that everyone teleports to you              | `huskhomes.command.tpaall`    |    ❌    |
-| `/spawn`                                                        | Teleport to spawn                                   | `huskhomes.command.spawn`     |    ✅    |
-| `/setspawn`                                                     | Set the spawn position                              | `huskhomes.command.setspawn`  |    ❌    |
-| `/back`                                                         | Return to your previous position, or where you died | `huskhomes.command.back`      |    ✅    |
-| `/huskhomes [about/help/reload/import/update]`                  | View plugin information & reload configs            | `huskhomes.command.huskhomes` |    ✅    |
+| Command                                                         | Description                                         | Base Permission&dagger;       | Default&ddagger; |
+|-----------------------------------------------------------------|-----------------------------------------------------|-------------------------------|:----------------:|
+| `/home <name>`                                                  | Teleport to a home                                  | `huskhomes.command.home`      |        ✅         |
+| `/homelist [page]`                                              | Get a list of your homes                            | `huskhomes.command.homelist`  |        ✅         |
+| `/sethome <name>`                                               | Set a new home with given name                      | `huskhomes.command.sethome`   |        ✅         |
+| `/delhome <name>`                                               | Delete a home you previously set                    | `huskhomes.command.delhome`   |        ✅         |
+| `/edithome <name> [rename/description/relocate/privacy] [args]` | Edit one of your homes                              | `huskhomes.command.edithome`  |        ✅         |
+| `/phome [<owner_name.home_name>]`                               | Teleport to a public home                           | `huskhomes.command.phome`     |        ✅         |
+| `/phomelist [page]`                                             | View the list of public homes                       | `huskhomes.command.phomelist` |        ✅         |
+| `/warp <name>`                                                  | Teleport to a warp                                  | `huskhomes.command.warp`      |        ✅         |
+| `/warplist [page]`                                              | View the list of warps                              | `huskhomes.command.warplist`  |        ✅         |
+| `/setwarp <name>`                                               | Set a new warp with given name                      | `huskhomes.command.setwarp`   |        ❌         |
+| `/delwarp <name>`                                               | Delete a warp                                       | `huskhomes.command.delwarp`   |        ❌         |
+| `/editwarp <name> [rename/description/relocate] [args]`         | Edit a warp                                         | `huskhomes.command.editwarp`  |        ❌         |
+| `/tp <target> [destination]`                                    | Teleport to another player or location              | `huskhomes.command.tp`        |        ❌         |
+| `/tphere <player>`                                              | Teleport another player to you                      | `huskhomes.command.tphere`    |        ❌         |
+| `/tpa <player>`                                                 | Request to teleport to another player               | `huskhomes.command.tpa`       |        ✅         |
+| `/tpahere <player>`                                             | Request another player to teleport to you           | `huskhomes.command.tpahere`   |        ✅         |
+| `/tpaccept [player]`                                            | Accept a teleport request                           | `huskhomes.command.tpaccept`  |        ✅         |
+| `/tpdecline [player]`                                           | Decline a teleport request                          | `huskhomes.command.tpdecline` |        ✅         |
+| `/rtp [player] [world]`                                         | Teleport randomly into the wild                     | `huskhomes.command.rtp`       |        ✅         |
+| `/tpignore`                                                     | Ignore incoming teleport requests                   | `huskhomes.command.tpignore`  |        ✅         |
+| `/tpoffline <player>`                                           | Teleport to where a player was last online          | `huskhomes.command.tpoffline` |        ❌         |
+| `/tpall`                                                        | Teleport everyone to your position                  | `huskhomes.command.tpall`     |        ❌         |
+| `/tpaall`                                                       | Request that everyone teleports to you              | `huskhomes.command.tpaall`    |        ❌         |
+| `/spawn`                                                        | Teleport to spawn                                   | `huskhomes.command.spawn`     |        ✅         |
+| `/setspawn`                                                     | Set the spawn position                              | `huskhomes.command.setspawn`  |        ❌         |
+| `/back`                                                         | Return to your previous position, or where you died | `huskhomes.command.back`      |        ✅         |
+| `/huskhomes [about/help/reload/import/update]`                  | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
 
-* **Base Permission** &mdash; Required permission for basic command execution; some commands require additional permissions for certain functions (See below&hellip;)
-* **Default** &mdash; ✅ = Accessible by all players by default &mdash; ❌ = Accessible only by server operators by default.
+* &dagger; **Base Permission** &mdash; Required permission for basic command execution; some commands require additional permissions for certain functions ([See below&hellip;](#other-permissions))
+* &ddagger; **Default** &mdash; ✅ = Accessible by all players by default &mdash; ❌ = Accessible only by server operators by default.
 
 ### Command Aliases
 The following commands have aliases that can also be used for convenience:

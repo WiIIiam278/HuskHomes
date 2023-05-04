@@ -74,7 +74,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(user, args)
+            case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(args)
                     : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
             case 2 -> user.hasPermission("world") ? plugin.getWorlds().stream().map(World::getName).toList()
                     : List.of();

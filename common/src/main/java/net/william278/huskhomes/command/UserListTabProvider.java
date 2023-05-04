@@ -35,7 +35,7 @@ public interface UserListTabProvider extends TabProvider {
     }
 
     @Nullable
-    default List<String> suggestLocal(@NotNull CommandUser user, @NotNull String[] args) {
+    default List<String> suggestLocal(@NotNull String[] args) {
         return args.length < 2 ? getPlugin().getLocalPlayerList(false) : null;
     }
 

@@ -47,7 +47,7 @@ public abstract class Importer extends Hook {
         }
 
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
-        log(user, Level.INFO, "✔ Completed import of " + name + " (took " + timeTaken + "s)");
+        log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
     }
 
     protected abstract int importData(@NotNull ImportData importData) throws Throwable;

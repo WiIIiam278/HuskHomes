@@ -142,10 +142,11 @@ These permissions allow you to use /tp and /rtp to teleport other players remote
 
 These permissions control what arguments of the /huskhomes command a user may use.
 
-| Permission                           | Command                  | Description                                |
-|--------------------------------------|--------------------------|--------------------------------------------|
-| `huskhomes.command.huskhomes.help`   | `/huskhomes help [page]` | View a list of HuskHomes commands          |
-| `huskhomes.command.huskhomes.about`  | `/huskhomes [about]`     | View the plugin about menu                 |
-| `huskhomes.command.huskhomes.reload` | `/huskhomes reload`      | Reload the plugin config and message files |
-| `huskhomes.command.huskhomes.update` | `/huskhomes update`      | Check for updates                          |
+| Permission                           | Command                          | Description                                |
+|--------------------------------------|----------------------------------|--------------------------------------------|
+| `huskhomes.command.huskhomes.help`   | `/huskhomes help [page]`         | View a list of HuskHomes commands          |
+| `huskhomes.command.huskhomes.about`  | `/huskhomes [about]`             | View the plugin about menu                 |
+| `huskhomes.command.huskhomes.reload` | `/huskhomes reload`              | Reload the plugin config and message files |
+| `huskhomes.command.huskhomes.import` | `/huskhomes import [list/start]` | Import data from other plugins/mods        |
+| `huskhomes.command.huskhomes.update` | `/huskhomes update`              | Check for updates                          |
 </details>

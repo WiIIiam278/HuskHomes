@@ -288,11 +288,11 @@ public class HomesManager {
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic) {
+        if (isPublic && home.getOwner() instanceof OnlineUser online) {
             final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)
                     .toList().size();
-            if (publicHomes >= getMaxPublicHomes(home.getOwner())) {
+            if (publicHomes >= getMaxPublicHomes(online)) {
                 throw new ValidationException(ValidationException.Type.REACHED_MAX_PUBLIC_HOMES);
             }
         }

@@ -39,12 +39,12 @@ database:
       keepalive: 30000
       timeout: 20000
   table_names:
-    player_data: huskhomes_users
-    saved_position_data: huskhomes_saved_positions
-    position_data: huskhomes_position_data
     home_data: huskhomes_homes
     warp_data: huskhomes_warps
     teleport_data: huskhomes_teleports
+    player_data: huskhomes_users
+    saved_position_data: huskhomes_saved_positions
+    position_data: huskhomes_position_data
 general:
   # General plugin settings
   max_homes: 10
@@ -56,6 +56,7 @@ general:
   teleport_warmup_display: ACTION_BAR
   teleport_request_expiry_time: 60
   strict_tpa_here_requests: true
+  case_insensitive_names: false
   allow_unicode_names: false
   allow_unicode_descriptions: true
   back_command_return_by_death: true
@@ -64,10 +65,10 @@ general:
   asynchronous_teleports: true
   play_sound_effects: true
   sound_effects:
-    teleportation_cancelled: entity.item.break
-    teleportation_warmup: block.note_block.banjo
     teleportation_complete: entity.enderman.teleport
     teleport_request_received: entity.experience_orb.pickup
+    teleportation_cancelled: entity.item.break
+    teleportation_warmup: block.note_block.banjo
   brigadier_tab_completion: true
 cross_server:
   # Enable teleporting across proxied servers. Requires MySQL
@@ -91,8 +92,8 @@ rtp:
   distribution_mean: 0.75
   distribution_deviation: 2.0
   restricted_worlds:
-  - world_nether
-  - world_the_end
+    - world_nether
+    - world_the_end
 economy:
   # Charge for certain actions (requires Vault)
   enabled: false
@@ -100,10 +101,10 @@ economy:
   redis_economy_name: vault
   free_home_slots: 5
   costs:
-    back_command: 0.0
     additional_home_slot: 100.0
     random_teleport: 25.0
     make_home_public: 50.0
+    back_command: 0.0
 map_hook:
   # Display public homes/warps on your web map (supports Dynmap and BlueMap)
   enabled: true

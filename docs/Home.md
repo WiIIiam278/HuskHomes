@@ -3,14 +3,15 @@ Welcome to the plugin documentation for HuskHomes v3.x+, the home and teleportat
 
 ## Guides
 * 📚 [[Setup]]
-* 📦 [[Legacy Migration]] (*v2 → v3*)
+* 📊 [[Importing Data]]
 * 📄 [[Config Files]]
-* 📝 [[Translations]]
 * ⛔ [[Managing Access]]
 * 🖥️ [[Commands]]
+* 📜 [[Command Conflicts]]
 
 ## Documentation
 * ⛅ [[Redis Support]]
+* 📝 [[Translations]]
 * 🟩 [[Plan Hook]]
 * 🗺️ [[Map Hooks]]
 * 💵 [[Economy Hook]]
@@ -20,14 +21,17 @@ Welcome to the plugin documentation for HuskHomes v3.x+, the home and teleportat
 * 🌎 [[Global Spawn]]
 * ✍️ [[Placeholders]]
 * ⭐ [[GUI Add-on]]
+* 🕸️ [[Legacy Migration]] (*v2 → v3*)
 * 📦 [[API]]
   * 💡 [[API Examples]]
   * ❗ [[API Events]]
 
 ## Links
 * 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes2)
-* 📂 [Downloads](https://www.spigotmc.org/resources/huskhomes.83767/)
+* 📂 [Downloads](https://william278.net/project/huskhomes/)
+  * 🔧 [Modrinth](https://modrinth.com/plugin/huskhomes)
   * 🚰 [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/)
   * 🛒 [Polymart](https://polymart.org/resource/huskhomes.284/)
-  * 🔧 [Modrinth](https://modrinth.com/plugin/huskhomes)
+  * 🛫 [Hangar](https://hangar.papermc.io/William278/HuskHomes)
+  * 🔥 [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/)
 * 💬 [Discord Support](https://discord.gg/tVYhJfyDWG)

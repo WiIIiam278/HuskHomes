@@ -37,6 +37,7 @@ import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
 import net.william278.huskhomes.hook.RedisEconomyHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
+import net.william278.huskhomes.importer.EssentialsXImporter;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.manager.Manager;
@@ -212,6 +213,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void registerHooks() {
         HuskHomes.super.registerHooks();
 
+        // Hooks
         if (getSettings().doEconomy()) {
             if (isDependencyLoaded("RedisEconomy")) {
                 getHooks().add(new RedisEconomyHook(this));
@@ -221,6 +223,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         }
         if (isDependencyLoaded("PlaceholderAPI")) {
             getHooks().add(new PlaceholderAPIHook(this));
+        }
+
+        // Importers
+        if (isDependencyLoaded("Essentials")) {
+            getHooks().add(new EssentialsXImporter(this));
         }
     }
 

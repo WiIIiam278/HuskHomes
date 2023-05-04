@@ -26,13 +26,17 @@ import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HuskHomesCommand extends Command implements TabProvider {
 
@@ -40,6 +44,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             "about", false,
             "help", false,
             "reload", true,
+            "import", true,
             "update", true
     );
 
@@ -108,7 +113,40 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
                         plugin.getVersion().toString()).ifPresent(executor::sendMessage);
             });
+            case "import" -> {
+                if (plugin.getImporters().isEmpty()) {
+                    plugin.getLocales().getLocale("error_no_importers_available")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                this.importData(executor, removeFirstArg(args));
+            }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private void importData(@NotNull CommandUser executor, String[] args) {
+        switch (parseStringArg(args, 0).orElse("list")) {
+            case "start" -> parseStringArg(args, 1).ifPresentOrElse(
+                    name -> {
+                        final Optional<Importer> importer = plugin.getImporters().stream()
+                                .filter(available -> available.getImporterName().equalsIgnoreCase(name)).findFirst();
+                        if (importer.isEmpty()) {
+                            plugin.getLocales().getLocale("error_invalid_importer")
+                                    .ifPresent(executor::sendMessage);
+                            return;
+                        }
+                        importer.get().start(executor);
+                    },
+                    () -> plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/" + getName() + " import start <importer>")
+                            .ifPresent(executor::sendMessage)
+            );
+            case "list" -> executor.sendMessage(getImporterList()
+                    .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
+            default -> plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/" + getName() + " import <start|list>")
                     .ifPresent(executor::sendMessage);
         }
     }
@@ -131,10 +169,41 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         .build());
     }
 
-    @Override
     @NotNull
+    private PaginatedList getImporterList() {
+        return PaginatedList.of(plugin.getImporters().stream()
+                        .map(importer -> plugin.getLocales().getRawLocale("importer_list_item",
+                                        Locales.escapeText(importer.getImporterName()),
+                                        Locales.escapeText(importer.getSupportedImportData().stream()
+                                                .map(Importer.ImportData::getName)
+                                                .collect(Collectors.joining(", "))))
+                                .orElse(importer.getName()))
+                        .collect(Collectors.toList()),
+                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getListItemsPerPage(), 6))
+                        .setHeaderFormat(plugin.getLocales().getRawLocale("importer_list_title").orElse(""))
+                        .setItemSeparator("\n").setCommand("/huskhomes:huskhomes import list")
+                        .build());
+    }
+
+    @Override
+    @Nullable
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? SUB_COMMANDS.keySet().stream().sorted().toList() : List.of();
+        return switch (args.length) {
+            case 0, 1 -> SUB_COMMANDS.keySet().stream().sorted().toList();
+            case 2 -> switch (args[0].toLowerCase()) {
+                case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
+                        .mapToObj(Integer::toString).toList();
+                case "import" -> List.of("start", "list");
+                default -> null;
+            };
+            case 3 -> {
+                if (!args[0].equalsIgnoreCase("import") && !args[1].equalsIgnoreCase("start")) {
+                    yield null;
+                }
+                yield plugin.getImporters().stream().map(Importer::getImporterName).toList();
+            }
+            default -> null;
+        };
     }
 
 }

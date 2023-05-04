@@ -22,8 +22,8 @@ dependencies:
     required: false
   - name: Pl3xMap
     required: false
-load-before:
   - name: Essentials
+    required: false
 load-after:
   - name: Vault
   - name: RedisEconomy
@@ -32,3 +32,4 @@ load-after:
   - name: BlueMap
   - name: Plan
   - name: Pl3xMap
+  - name: Essentials

@@ -15,6 +15,7 @@ dependencies {
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.Emibergo02:RedisEconomy:master-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.3'
+    compileOnly 'net.essentialsx:EssentialsX:2.19.7'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
     testImplementation 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'

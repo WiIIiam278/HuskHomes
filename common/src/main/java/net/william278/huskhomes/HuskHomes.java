@@ -33,6 +33,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
+import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
@@ -55,6 +56,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -258,6 +260,14 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
 
     default Optional<MapHook> getMapHook() {
         return getHook(MapHook.class);
+    }
+
+    @NotNull
+    default List<Importer> getImporters() {
+        return getHooks().stream()
+                .filter(hook -> Importer.class.isAssignableFrom(hook.getClass()))
+                .map(Importer.class::cast)
+                .collect(Collectors.toList());
     }
 
     /**

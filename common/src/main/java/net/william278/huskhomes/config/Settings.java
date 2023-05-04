@@ -26,6 +26,7 @@ import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -364,7 +365,9 @@ public class Settings {
         return strictTpaHereRequests;
     }
 
-    public boolean caseInsensitiveNames() { return caseInsensitiveNames; }
+    public boolean caseInsensitiveNames() {
+        return caseInsensitiveNames;
+    }
 
     public boolean doAllowUnicodeNames() {
         return allowUnicodeNames;
@@ -461,8 +464,12 @@ public class Settings {
         return rtpDistributionStandardDeviation;
     }
 
-    public List<String> getRtpRestrictedWorlds() {
-        return rtpRestrictedWorlds;
+    public boolean isWorldRtpRestricted(@NotNull World world) {
+        final String worldName = world.getName();
+        final String filteredName = worldName.startsWith("minecraft:") ? worldName.substring(10) : worldName;
+        return rtpRestrictedWorlds.stream()
+                .map(name -> name.startsWith("minecraft:") ? name.substring(10) : name)
+                .anyMatch(name -> name.equalsIgnoreCase(filteredName));
     }
 
     public boolean doEconomy() {
@@ -504,7 +511,7 @@ public class Settings {
         return disabledCommands.stream().anyMatch(disabled -> {
             final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
             return command.equalsIgnoreCase(type.getName())
-                    || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
         });
     }
 

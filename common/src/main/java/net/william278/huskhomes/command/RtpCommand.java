@@ -76,13 +76,21 @@ public class RtpCommand extends Command implements UserListTabProvider {
         return switch (args.length) {
             case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(args)
                     : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
-            case 2 -> user.hasPermission("world") ? plugin.getWorlds().stream().map(World::getName).toList()
-                    : List.of();
+            case 2 -> user.hasPermission("world") ? plugin.getWorlds().stream()
+                    .filter(w -> !plugin.getSettings().isWorldRtpRestricted(w))
+                    .map(World::getName).toList() : List.of();
             default -> null;
         };
     }
 
-    // Validates the RTP command, returning the world to randomly teleport in if successful
+    /**
+     * Validates the RTP command, returning the world to randomly teleport in if successful
+     *
+     * @param teleporter The user to teleport
+     * @param executor   The user executing the command
+     * @param args       The command arguments
+     * @return The world to randomly teleport in, if successful
+     */
     private Optional<World> validateRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull String[] args) {
         // Check permissions if the user is being teleported by another player
         if (!executor.equals(teleporter) && !executor.hasPermission(getPermission("other"))) {
@@ -113,8 +121,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
-        if (plugin.getSettings().getRtpRestrictedWorlds().stream()
-                .anyMatch(worldName -> worldName.equals(world.getName()))) {
+        if (plugin.getSettings().isWorldRtpRestricted(world)) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -125,7 +132,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                 .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
         final Instant currentTime = Instant.now();
         if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
-                !executor.hasPermission(getPermission("bypass_cooldown"))) {
+            !executor.hasPermission(getPermission("bypass_cooldown"))) {
             plugin.getLocales().getLocale("error_rtp_cooldown", Long.toString(
                     currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1)
             ).ifPresent(executor::sendMessage);
@@ -135,7 +142,14 @@ public class RtpCommand extends Command implements UserListTabProvider {
         return Optional.of(world);
     }
 
-    // Executes the random teleport
+    /**
+     * Executes the random teleport
+     *
+     * @param teleporter The player to teleport
+     * @param executor   The player executing the command
+     * @param world      The world to teleport in
+     * @param args       Arguments to pass to the RTP engine
+     */
     private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
                             @NotNull String[] args) {
         // Generate a random position

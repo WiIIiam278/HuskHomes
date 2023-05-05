@@ -49,7 +49,7 @@ public class TeleportBuilder {
     }
 
     @NotNull
-    public TimedTeleport toTimedTeleport() throws TeleportationException, IllegalStateException {
+    public TimedTeleport toTimedTeleport() throws IllegalStateException {
         validateTeleport();
         if (!(teleporter instanceof OnlineUser onlineTeleporter)) {
             throw new IllegalStateException("Teleporter must be an OnlineUser for timed teleportation");

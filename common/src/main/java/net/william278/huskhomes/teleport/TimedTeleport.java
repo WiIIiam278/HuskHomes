@@ -30,6 +30,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Represents a {@link Teleport} that has an associated warmup time; the teleport will not be performed until the
+ * warmup time has elapsed, during which the user must not move or take damage.
+ * @see Teleport#builder(HuskHomes)
+ */
 public class TimedTeleport extends Teleport {
 
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";

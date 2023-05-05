@@ -35,6 +35,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Represents the process of a {@link Teleportable} being teleported to a {@link Target}.
+ *
+ * @see Teleport#builder(HuskHomes)
+ */
 public class Teleport {
 
     protected final HuskHomes plugin;

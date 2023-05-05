@@ -20,9 +20,22 @@
 package net.william278.huskhomes.teleport;
 
 import org.jetbrains.annotations.NotNull;
+import net.william278.huskhomes.user.OnlineUser;
 
+/**
+ * Represents a teleporter; the person performing the teleport.
+ * <p>
+ * Can be represented as an {@link OnlineUser} locally or as a {@link Username username} reference
+ * that needs to be resolved first.
+ */
 public interface Teleportable {
 
+    /**
+     * Create a {@link Teleportable} from a player name
+     *
+     * @param teleporter the player name
+     * @return the teleportable
+     */
     @NotNull
     static Teleportable username(@NotNull String teleporter) {
         return new Username(teleporter);

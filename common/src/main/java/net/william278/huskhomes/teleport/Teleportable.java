@@ -19,8 +19,8 @@
 
 package net.william278.huskhomes.teleport;
 
-import org.jetbrains.annotations.NotNull;
 import net.william278.huskhomes.user.OnlineUser;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a teleporter; the person performing the teleport.

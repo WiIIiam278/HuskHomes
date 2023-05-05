@@ -202,7 +202,6 @@ public class BukkitPluginTests {
             Assertions.assertFalse(plugin.getValidator().isValidName(name));
         }
 
-        // test descriptions
         @DisplayName("Test Validator Accepts Valid Descriptions")
         @ParameterizedTest(name = "Valid Description: \"{0}\"")
         @ValueSource(strings = {
@@ -366,7 +365,6 @@ public class BukkitPluginTests {
 
     }
 
-    // home tests, like warps but with a user parameter (owner) as well as name and position and a test for changing home privacy
     @Nested
     @DisplayName("Home Tests")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

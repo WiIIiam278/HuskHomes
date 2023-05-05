@@ -21,8 +21,17 @@ package net.william278.huskhomes.teleport;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a target; a player name or a location that will be teleported <i>to</i>.
+ */
 public interface Target {
 
+    /**
+     * Create a {@link Target} from a player name
+     *
+     * @param target the player name
+     * @return the target
+     */
     @NotNull
     static Target username(@NotNull String target) {
         return new Username(target);

@@ -50,7 +50,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final Optional<OnlineUser> optionalTeleporter = args.length >= 1 ? plugin.findOnlinePlayer(args[0])
+        final Optional<OnlineUser> optionalTeleporter = args.length >= 1 ? plugin.getOnlineUser(args[0])
                 : executor instanceof OnlineUser ? Optional.of((OnlineUser) executor) : Optional.empty();
         if (optionalTeleporter.isEmpty()) {
             if (args.length == 0) {

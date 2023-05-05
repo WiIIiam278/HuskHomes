@@ -78,6 +78,31 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     @NotNull
     List<OnlineUser> getOnlineUsers();
 
+    /**
+     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {
+        return getOnlineUserExact(playerName)
+                .or(() -> getOnlineUsers().stream()
+                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
+                        .findFirst());
+    }
+
+    /**
+     * Finds a local {@link OnlineUser} by their name.
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUserExact(@NotNull String playerName) {
+        return getOnlineUsers().stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
+                .findFirst();
+    }
+
     @NotNull
     Set<SavedUser> getSavedUsers();
 
@@ -109,22 +134,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
             throw new IllegalStateException("Failed to initialize " + name, e);
         }
         log(Level.INFO, "Successfully initialized " + name);
-    }
-
-    /**
-     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    @NotNull
-    default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
-        return getOnlineUsers().stream()
-                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
-                .findFirst()
-                .or(() -> getOnlineUsers().stream()
-                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst());
     }
 
     /**

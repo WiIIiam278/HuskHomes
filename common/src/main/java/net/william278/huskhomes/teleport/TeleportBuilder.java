@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * A builder for {@link Teleport} and {@link TimedTeleport} objects.
+ */
 public class TeleportBuilder {
     private final HuskHomes plugin;
     private OnlineUser executor;

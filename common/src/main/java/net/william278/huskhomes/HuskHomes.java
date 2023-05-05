@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
+import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
@@ -400,6 +401,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     }
 
     @NotNull
+    @SuppressWarnings("unused")
     default List<String> getPlayerList() {
         return getPlayerList(true);
     }

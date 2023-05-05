@@ -23,7 +23,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
-public class TeleportationException extends IllegalArgumentException {
+public class TeleportationException extends IllegalStateException {
 
     public TeleportationException(@NotNull Type error) {
         super("Error during teleport operation: " + error.name());
@@ -40,7 +40,7 @@ public class TeleportationException extends IllegalArgumentException {
         CANNOT_TELEPORT_TO_SELF
     }
 
-    public void displayMessage(@NotNull CommandUser user, @NotNull HuskHomes plugin, @NotNull String[] args) {
+    public void displayMessage(@NotNull CommandUser user, @NotNull HuskHomes plugin, @NotNull String... args) {
         switch (Type.valueOf(getMessage().split(": ")[1])) {
             case TELEPORTER_NOT_FOUND, TARGET_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_player_not_found", args)

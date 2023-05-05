@@ -43,8 +43,8 @@ public class TeleportBuilder {
     }
 
     @NotNull
-    public Teleport toTeleport() throws IllegalStateException {
-        validateTeleport();
+    public Teleport toTeleport() throws TeleportationException {
+        this.validateTeleport();
         return new Teleport(executor, teleporter, target, type, updateLastPosition, economyActions, plugin);
     }
 

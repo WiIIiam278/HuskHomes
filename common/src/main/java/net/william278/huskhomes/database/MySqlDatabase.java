@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -592,6 +593,8 @@ public class MySqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
+        } catch (TeleportationException e) {
+            e.displayMessage(onlineUser, plugin);
         }
         return Optional.empty();
     }

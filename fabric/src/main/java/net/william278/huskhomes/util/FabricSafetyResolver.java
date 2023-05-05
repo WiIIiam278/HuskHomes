@@ -41,17 +41,34 @@ public interface FabricSafetyResolver extends SafetyResolver {
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
         final MinecraftServer server = ((FabricHuskHomes) getPlugin()).getMinecraftServer();
         final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
+
+        // Ensure the location is on a valid world
         final Optional<ServerWorld> locationWorld = server.getWorldRegistryKeys().stream()
                 .filter(key -> key.getValue().equals(worldId)).findFirst()
                 .map(server::getWorld);
         if (locationWorld.isEmpty()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        final ServerWorld world = locationWorld.get();
 
+        // Ensure the location is within the world border
+        final ServerWorld world = locationWorld.get();
+        if (!world.getWorldBorder().contains(location.getX(), location.getZ())) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+
+        return CompletableFuture.completedFuture(findSafeLocationNear(location, world));
+    }
+
+    /**
+     * Search for a safe ground location near the given location
+     *
+     * @param location The location to search around
+     * @return An optional safe location, within 4 blocks of the given location
+     */
+    private Optional<Location> findSafeLocationNear(Location location, ServerWorld world) {
         final BlockPos.Mutable blockPos = new BlockPos.Mutable(location.getX(), location.getY(), location.getZ());
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
+        for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
+            for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
                 blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
                 final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
                 final BlockState blockState = world.getBlockState(blockPos.withY(highestY));
@@ -59,19 +76,27 @@ public interface FabricSafetyResolver extends SafetyResolver {
                 final Material material = blockState.getMaterial();
                 final Identifier blockId = Registries.BLOCK.getId(blockState.getBlock());
                 if (!material.isLiquid() && material != Material.FIRE && isBlockSafe(blockId.toString())) {
-                    return CompletableFuture.completedFuture(Optional.of(Location.at(
+                    return Optional.of(Location.at(
                             blockPos.getX() + 0.5,
                             highestY + 1,
                             blockPos.getZ() + 0.5,
                             location.getWorld()
-                    )));
+                    ));
                 }
             }
         }
-
-        return CompletableFuture.completedFuture(Optional.empty());
+        return Optional.empty();
     }
 
+    /**
+     * Get the highest Y value at the given X and Z coordinates
+     *
+     * @param blockView The block view to search
+     * @param x         The X coordinate
+     * @param y         The Y coordinate
+     * @param z         The Z coordinate
+     * @return The highest Y value at the given X and Z coordinates
+     */
     private int getHighestYAt(@NotNull BlockView blockView, int x, int y, int z) {
         final BlockPos.Mutable cursor = new BlockPos.Mutable(x, y, z);
         while (blockView.getBlockState(cursor).isAir() && cursor.getY() > blockView.getBottomY()) {

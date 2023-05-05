@@ -167,6 +167,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             });
         }
 
+        // Set the random teleport engine
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
         // Register plugin hooks (Economy, Maps, Plan)

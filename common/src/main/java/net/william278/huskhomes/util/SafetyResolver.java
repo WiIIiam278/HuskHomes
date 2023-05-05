@@ -28,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 
 public interface SafetyResolver {
 
+    int SEARCH_RADIUS = 2;
+
     /**
      * Returns a safe ground location for the specified {@link Location} if possible
      *

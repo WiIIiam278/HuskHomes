@@ -29,7 +29,7 @@ public record Username(@NotNull String name) implements Teleportable, Target {
 
     @NotNull
     public Optional<OnlineUser> findLocally(@NotNull HuskHomes plugin) throws TeleportationException {
-        return plugin.findOnlinePlayer(name);
+        return plugin.getSettings().doCrossServer() ? plugin.getOnlineUserExact(name) : plugin.getOnlineUser(name);
     }
 
 }

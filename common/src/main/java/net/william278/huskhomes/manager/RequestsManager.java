@@ -145,7 +145,7 @@ public class RequestsManager {
                                     @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
-        final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
+        final Optional<OnlineUser> localTarget = plugin.getOnlineUser(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
@@ -282,7 +282,7 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
 
             // Find the requester and inform them of the response
-            final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.getRequesterName());
+            final Optional<OnlineUser> localRequester = plugin.getOnlineUser(request.getRequesterName());
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().doCrossServer()) {

@@ -42,7 +42,6 @@ disabled-commands:
   - spawn
   - setspawn
   - back
-  - huskhomes
 ```
 </details>
 

@@ -2,7 +2,49 @@ _Command conflicts_ can arise when you have multiple plugins providing similar c
 
 For instance, if you have both [EssentialsX](https://essentialsx.net/) and HuskHomes installed, you will have two `/home` commands. This can cause issues when players try to use the command, as the server will prioritise whichever plugin loaded first. In the case of Essentials, this means that players will be teleported to their Essentials home(s) instead of their HuskHomes home.
 
-This page discusses how to circumnavigate this issue.
+This page discusses a number of strategies to circumnavigate this issue.
+
+## Disabling EssentialsX Commands
+> **Applies to:** EssentialsX (Spigot, Paper)
+
+[EssentialsX](https://essentialsx.net/) is a popular plugin which provides a number of commands, including `/home`, `/warp`, `/spawn`, and `/tpa`. If you have EssentialsX installed, you will need to disable these commands to prevent conflicts with HuskHomes.
+
+To do this, you must add the Essentials commands you wish to disable to the `disabled-commands` section of your Essentials config file (located in `Essentials/config.yml`). Below is an example of a config file with all the Essentials commands disabled.
+
+<details>
+<summary>EssentialsX config.yml file</summary>
+
+```yaml
+# Disabling commands here will prevent Essentials handling the command, this will not affect command conflicts.
+# You should not have to disable commands used in other plugins, they will automatically get priority.
+# See https://bukkit.fandom.com/wiki/Commands.yml#aliases to map commands to other plugins.
+disabled-commands:
+  - home
+  - sethome
+  - homelist
+  - delhome
+  - warp
+  - setwarp
+  - warplist
+  - delwarp
+  - tp
+  - tphere
+  - tpa
+  - tpahere
+  - tpaccept
+  - tpdeny
+  - tpno
+  - rtp
+  - tpignore
+  - tpoffline
+  - tpall
+  - tpaall
+  - spawn
+  - setspawn
+  - back
+  - huskhomes
+```
+</details>
 
 ## Fallback namespace
 > **Applies to:** Spigot, Paper, Fabric, Sponge

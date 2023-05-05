@@ -1,6 +1,7 @@
-> ⚠️ Migration from v2.11.x to v4.x is not supported; you must first download HuskHomes v3.2.2 and carry out the migration in that version, before upgrading to v4.x. No migration is needed between v3.x and v4.x as the two versions have the same database schema.
+> **Warning:** Migration from v2.11.x to v4.x is not supported; you must first download HuskHomes v3.2.2 and carry out the migration in that version, before upgrading to v4.x. No migration is needed between v3.x and v4.x as the two versions have the same database schema.
 
 To upgrade from HuskHomes v2.11.2 to v3.x, please carry out the following steps:
+
 * Delete the old `HuskHomes-2.x.jar` from your server(s) `plugins` folder(s).
 * Drag in the new HuskHomes v3.x jar file to the folder.
 * In your `plugins/HuskHomes/` folder, delete the `messages.yml` file to let it regenerate.

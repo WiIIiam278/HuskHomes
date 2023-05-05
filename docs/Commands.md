@@ -1,7 +1,7 @@
 HuskHomes provides a range of commands for you to use. This page will detail the permissions for each command to [let you manage access](managing-access) to the plugin's different features.
 
 ## Commands & Permissions Table
-> **[[Command Conflicts]]:** If you have multiple plugins providing similar commands, you may need to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
+> **Command Conflicts:** If you have multiple plugins providing similar commands, you may need to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
 
 This is a table of HuskHomes' commands and their required permission nodes. Additional permissions provided by the plugin to control other variables are detailed further below!
 

@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.teleport;
 
+import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
@@ -28,7 +29,6 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.desertwell.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;

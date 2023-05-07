@@ -56,11 +56,11 @@ public abstract class Importer extends Hook {
 
         for (ImportData data : supportedImportData) {
             try {
-                log(user, Level.INFO, "│ ⌚ Importing " + data.getName() + "...");
+                log(user, Level.INFO, "⌚ Importing " + data.getName() + "...");
                 final int entries = importData(data);
-                log(user, Level.INFO, "│ └ ✔ Imported " + data.getName() + " (" + entries + " entries)");
+                log(user, Level.INFO, "✔ Imported " + data.getName() + " (" + entries + " entries)");
             } catch (Throwable e) {
-                log(user, Level.WARNING, "│ └ ❌ Failed to import " + data.getName() + ": " + e.getMessage(), e);
+                log(user, Level.WARNING, "❌ Failed to import " + data.getName() + ": " + e.getMessage(), e);
                 return;
             }
         }
@@ -76,7 +76,7 @@ public abstract class Importer extends Hook {
         if (user instanceof OnlineUser online) {
             final TextColor color = level == Level.SEVERE || level == Level.WARNING
                     ? TextColor.color(0xff3300)
-                    : TextColor.color(0xfff021);
+                    : TextColor.color(0xC3C3C3);
             online.sendMessage(Component.text(message, color));
         }
         plugin.log(level, message, e);

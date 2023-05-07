@@ -23,8 +23,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.UpdateChecker;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.ThrowingConsumer;
+import net.william278.desertwell.util.UpdateChecker;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
@@ -33,6 +34,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
+import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
@@ -43,8 +45,8 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.SafetyResolver;
 import net.william278.huskhomes.util.TaskRunner;
-import net.william278.huskhomes.util.ThrowingConsumer;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.intellij.lang.annotations.Subst;
@@ -56,15 +58,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher {
+public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -78,6 +80,31 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      */
     @NotNull
     List<OnlineUser> getOnlineUsers();
+
+    /**
+     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {
+        return getOnlineUserExact(playerName)
+                .or(() -> getOnlineUsers().stream()
+                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
+                        .findFirst());
+    }
+
+    /**
+     * Finds a local {@link OnlineUser} by their name.
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUserExact(@NotNull String playerName) {
+        return getOnlineUsers().stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
+                .findFirst();
+    }
 
     @NotNull
     Set<SavedUser> getSavedUsers();
@@ -110,22 +137,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             throw new IllegalStateException("Failed to initialize " + name, e);
         }
         log(Level.INFO, "Successfully initialized " + name);
-    }
-
-    /**
-     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    @NotNull
-    default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
-        return getOnlineUsers().stream()
-                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
-                .findFirst()
-                .or(() -> getOnlineUsers().stream()
-                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst());
     }
 
     /**
@@ -181,8 +192,11 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
 
     void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks);
 
+    @NotNull
+    UnsafeBlocks getUnsafeBlocks();
+
     /**
-     * The {@link Database} that stores persistent plugin data
+     * The {@link Database} that store persistent plugin data
      *
      * @return the {@link Database} implementation for accessing data
      */
@@ -190,7 +204,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     Database getDatabase();
 
     /**
-     * The {@link Validator} for validating thome names and descriptions
+     * The {@link Validator} for validating home names and descriptions
      *
      * @return the {@link Validator} instance
      */
@@ -261,6 +275,14 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
         return getHook(MapHook.class);
     }
 
+    @NotNull
+    default List<Importer> getImporters() {
+        return getHooks().stream()
+                .filter(hook -> Importer.class.isAssignableFrom(hook.getClass()))
+                .map(Importer.class::cast)
+                .collect(Collectors.toList());
+    }
+
     /**
      * Perform an economy check on the {@link OnlineUser}; returning {@code true} if it passes the check
      *
@@ -303,15 +325,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
             }
         }
     }
-
-    /**
-     * Returns a safe ground location for the specified {@link Location} if possible
-     *
-     * @param location the {@link Location} to find a safe ground location for
-     * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
-     * possible to find one
-     */
-    CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location);
 
     /**
      * Returns a resource read from the plugin resources folder
@@ -361,9 +374,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
                 .map(type::cast);
     }
 
-    @NotNull
-    List<Command> registerCommands();
-
     default void registerHooks() {
         setHooks(new ArrayList<>());
 
@@ -372,6 +382,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
                 getHooks().add(new DynmapHook(this));
             } else if (isDependencyLoaded("BlueMap")) {
                 getHooks().add(new BlueMapHook(this));
+            } else if (isDependencyLoaded("Pl3xMap")) {
+                getHooks().add(new Pl3xMapHook(this));
             }
         }
         if (isDependencyLoaded("Plan")) {
@@ -384,12 +396,17 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     @NotNull
     Map<String, List<String>> getGlobalPlayerList();
 
-    @NotNull
-    default List<String> getPlayerList() {
+    default List<String> getPlayerList(boolean includeVanished) {
         return Stream.concat(
                 getGlobalPlayerList().values().stream().flatMap(Collection::stream),
-                getLocalPlayerList().stream()
+                getLocalPlayerList(includeVanished).stream()
         ).distinct().sorted().toList();
+    }
+
+    @NotNull
+    @SuppressWarnings("unused")
+    default List<String> getPlayerList() {
+        return getPlayerList(true);
     }
 
     default void setPlayerList(@NotNull String server, @NotNull List<String> players) {
@@ -401,10 +418,15 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
     }
 
     @NotNull
-    default List<String> getLocalPlayerList() {
+    default List<String> getLocalPlayerList(boolean includeVanished) {
         return getOnlineUsers().stream()
+                .filter(user -> includeVanished || !user.isVanished())
                 .map(OnlineUser::getUsername)
                 .toList();
+    }
+
+    default List<String> getLocalPlayerList() {
+        return getLocalPlayerList(true);
     }
 
     @NotNull
@@ -461,27 +483,23 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
 
     @NotNull
     default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
+        return UpdateChecker.builder()
+                .currentVersion(getVersion())
+                .endpoint(UpdateChecker.Endpoint.SPIGOT)
+                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
+                .build();
     }
 
     default void checkForUpdates() {
         if (getSettings().doCheckForUpdates()) {
-            getUpdateChecker().isUpToDate().thenAccept(updated -> {
-                if (!updated) {
-                    getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,
-                            "A new version of HuskTowns is available: v" + latest + " (running v" + getVersion() + ")"));
+            getUpdateChecker().check().thenAccept(checked -> {
+                if (!checked.isUpToDate()) {
+                    log(Level.WARNING, "A new version of HuskTowns is available: v"
+                                       + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });
         }
     }
-
-    /**
-     * Returns if the block, by provided identifier, is unsafe
-     *
-     * @param blockId The block identifier (e.g. {@code minecraft:stone})
-     * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
-     */
-    boolean isBlockUnsafe(@NotNull String blockId);
 
     /**
      * Registers the plugin with bStats metrics
@@ -502,7 +520,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher {
      * @param message    the message to log
      * @param exceptions any exceptions to log
      */
-    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions);
+    void log(@NotNull Level level, @NotNull String message, Throwable... exceptions);
 
     /**
      * Create a resource key namespaced with the plugin id

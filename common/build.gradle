@@ -13,7 +13,7 @@ dependencies {
     api 'com.google.code.gson:gson:2.10.1'
     api 'net.william278:Annotaml:2.0.1'
     api 'net.william278:PagineDown:1.1'
-    api 'net.william278:DesertWell:1.1.1'
+    api 'net.william278:DesertWell:2.0.4'
     api 'dev.dejvokep:boosted-yaml:1.3.1'
     api 'net.kyori:adventure-api:4.13.1'
     api('com.zaxxer:HikariCP:5.0.1') {
@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.1923'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.5.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
+    compileOnly 'maven.modrinth:pl3xmap:1.19.4-382'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.1923'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'

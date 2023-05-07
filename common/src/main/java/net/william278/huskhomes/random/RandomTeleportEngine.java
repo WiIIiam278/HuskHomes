@@ -53,16 +53,24 @@ public abstract class RandomTeleportEngine {
     }
 
     /**
-     * Get the origin position (spawn) of this server
+     * Get the origin (center) position for the world
      *
+     * @param world The world to get the origin position for
      * @return The origin position
+     * @implNote This will return the {@link HuskHomes#getServerSpawn() server spawn position} if it is in the same
+     * world as the world passed to this method, otherwise it will return a position at 0, 128, 0 on the provided world.
      */
     @NotNull
     protected Position getCenterPoint(@NotNull World world) {
         return plugin.getServerSpawn()
-                .map(s -> s.getPosition(plugin.getServerName()))
-                .orElse(Position.at(0d, 128d, 0d, 0f, 0f,
-                        world, plugin.getServerName()));
+                .map(spawn -> spawn.getPosition(plugin.getServerName()))
+                .flatMap(position -> {
+                    if (position.getWorld().equals(world)) {
+                        return Optional.of(position);
+                    }
+                    return Optional.empty();
+                })
+                .orElse(Position.at(0d, 128d, 0d, world, plugin.getServerName()));
     }
 
     /**

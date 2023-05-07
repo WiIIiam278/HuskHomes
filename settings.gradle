@@ -11,5 +11,6 @@ include(
         'bukkit',
         'paper',
         'plugin',
-        'fabric'
+        'fabric',
+        'sponge'
 )

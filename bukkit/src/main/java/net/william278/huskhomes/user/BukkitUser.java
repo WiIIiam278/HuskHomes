@@ -26,7 +26,6 @@ import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.util.BukkitAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -35,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +65,7 @@ public class BukkitUser extends OnlineUser {
     @Override
     public Position getPosition() {
         return Position.at(BukkitAdapter.adaptLocation(player.getLocation())
-                .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
+                        .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
                 plugin.getServerName());
 
     }
@@ -105,23 +105,29 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
+        // Ensure the world exists
         final Optional<org.bukkit.Location> resolvedLocation = BukkitAdapter.adaptLocation(location);
         if (resolvedLocation.isEmpty() || resolvedLocation.get().getWorld() == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND);
         }
 
+        // Ensure the coordinates are within the world limits
         final org.bukkit.Location bukkitLocation = resolvedLocation.get();
         if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES);
         }
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (asynchronous) {
-                PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-            } else {
-                player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-            }
-        });
+        // Run on the appropriate thread scheduler for this platform
+        plugin.getScheduler().entitySpecificScheduler(player).run(
+                () -> {
+                    if (asynchronous || plugin.getScheduler().isUsingFolia()) {
+                        PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        return;
+                    }
+                    player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                },
+                () -> plugin.getLogger().log(Level.WARNING, "User offline when teleporting: " + player.getName())
+        );
     }
 
     /**

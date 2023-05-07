@@ -90,7 +90,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().computeIfPresent(node, (key, isOp) -> isOp));
+        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().getOrDefault(node, true));
         return Permissions.check(player, node, !requiresOp || player.hasPermissionLevel(3));
     }
 
@@ -138,7 +138,7 @@ public class FabricUser extends OnlineUser {
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
         final PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBytes(message);
-        final CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(Identifier.tryParse(channel), buf);
+        final CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(parseIdentifier(channel), buf);
         player.networkHandler.sendPacket(packet);
     }
 
@@ -150,6 +150,15 @@ public class FabricUser extends OnlineUser {
     @Override
     public boolean isVanished() {
         return false;
+    }
+
+    @NotNull
+    private static Identifier parseIdentifier(@NotNull String channel) {
+        if (channel.equals("BungeeCord")) {
+            return new Identifier("bungeecord", "main");
+        }
+        return Optional.ofNullable(Identifier.tryParse(channel))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid channel name: " + channel));
     }
 
 }

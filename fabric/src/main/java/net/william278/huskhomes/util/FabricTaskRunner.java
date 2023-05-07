@@ -22,8 +22,7 @@ package net.william278.huskhomes.util;
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 public interface FabricTaskRunner extends TaskRunner {
@@ -32,8 +31,9 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @Override
     default int runAsync(@NotNull Runnable runnable) {
-        tasks.put(tasks.size(), CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer()));
-        return tasks.size();
+        int taskId = tasks.size();
+        tasks.put(taskId, CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer()));
+        return taskId;
     }
 
     @Override
@@ -48,18 +48,20 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
-        tasks.put(tasks.size(), CompletableFuture.runAsync(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(delay * 50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                runnable.run();
+        int taskId = tasks.size();
+        final CompletableFuture<?> future = new CompletableFuture<>();
+
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(() -> {
+            if (future.isCancelled()) {
+                executor.shutdown();
+                return;
             }
-        }, getPlugin().getMinecraftServer()));
-        return tasks.size();
+            runnable.run();
+        }, 0, delay * 50, TimeUnit.MILLISECONDS);
+
+        tasks.put(taskId, future);
+        return taskId;
     }
 
     @Override

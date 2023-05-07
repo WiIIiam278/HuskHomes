@@ -4,5 +4,13 @@ huskhomes {
         page brigadier:integer;
     }
     reload;
+    import {
+        list {
+            page brigadier:integer;
+        }
+        start {
+            name brigadier:string single_word;
+        }
+    }
     update;
 }

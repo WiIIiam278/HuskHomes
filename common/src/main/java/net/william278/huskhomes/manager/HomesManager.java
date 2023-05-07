@@ -65,8 +65,7 @@ public class HomesManager {
     @NotNull
     public List<String> getUserHomeNames() {
         return userHomes.entrySet().stream()
-                .flatMap(e -> e.getValue().stream()
-                        .map(home -> home.getOwner().getUsername() + "." + home.getName()))
+                .flatMap(e -> e.getValue().stream().map(Home::getIdentifier))
                 .toList();
     }
 
@@ -83,7 +82,7 @@ public class HomesManager {
     @NotNull
     public List<String> getPublicHomeNames() {
         return publicHomes.stream()
-                .map(home -> home.getOwner().getUsername() + "." + home.getName())
+                .map(Home::getIdentifier)
                 .toList();
     }
 
@@ -187,6 +186,7 @@ public class HomesManager {
 
         final Home home = existingHome
                 .map(existing -> {
+                    existing.getMeta().setName(name);
                     existing.update(position);
                     return existing;
                 })
@@ -288,11 +288,11 @@ public class HomesManager {
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic) {
+        if (isPublic && home.getOwner() instanceof OnlineUser online) {
             final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
                     .filter(Home::isPublic)
                     .toList().size();
-            if (publicHomes >= getMaxPublicHomes(home.getOwner())) {
+            if (publicHomes >= getMaxPublicHomes(online)) {
                 throw new ValidationException(ValidationException.Type.REACHED_MAX_PUBLIC_HOMES);
             }
         }

@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 public class PublicHomeListCommand extends ListCommand {
 
-
     protected PublicHomeListCommand(@NotNull HuskHomes plugin) {
         super("phomelist", List.of("phomes", "publichomelist"), "[page]", plugin);
     }
@@ -70,8 +69,7 @@ public class PublicHomeListCommand extends ListCommand {
         final PaginatedList homeList = PaginatedList.of(publicHomes.stream().map(home ->
                         plugin.getLocales()
                                 .getRawLocale("public_home_list_item",
-                                        Locales.escapeText(home.getMeta().getName()),
-                                        home.getOwner().getUsername() + "." + Locales.escapeText(home.getMeta().getName()),
+                                        Locales.escapeText(home.getName()), home.getSafeIdentifier(),
                                         Locales.escapeText(home.getOwner().getUsername()),
                                         Locales.escapeText(plugin.getLocales().wrapText(home.getMeta().getDescription(), 40)))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),

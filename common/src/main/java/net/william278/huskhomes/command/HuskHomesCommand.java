@@ -20,17 +20,23 @@
 package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.desertwell.AboutMenu;
-import net.william278.desertwell.UpdateChecker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.william278.desertwell.about.AboutMenu;
+import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HuskHomesCommand extends Command implements TabProvider {
 
@@ -38,6 +44,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             "about", false,
             "help", false,
             "reload", true,
+            "import", true,
             "update", true
     );
 
@@ -49,30 +56,32 @@ public class HuskHomesCommand extends Command implements TabProvider {
         addAdditionalPermissions(SUB_COMMANDS);
 
         this.updateChecker = plugin.getUpdateChecker();
-        this.aboutMenu = AboutMenu.create("HuskHomes")
-                .withDescription("A powerful, intuitive and flexible teleportation suite")
-                .withVersion(plugin.getVersion())
-                .addAttribution("Author",
-                        AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
-                .addAttribution("Contributors",
-                        AboutMenu.Credit.of("imDaniX").withDescription("Code, refactoring"),
-                        AboutMenu.Credit.of("Log1x").withDescription("Code"))
-                .addAttribution("Translators",
-                        AboutMenu.Credit.of("SnivyJ").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("ApliNi").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("Wtq_").withDescription("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
-                        AboutMenu.Credit.of("davgo0103").withDescription("Traditional Chinese (zh-tw)"),
-                        AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
-                        AboutMenu.Credit.of("ReferTV").withDescription("Polish (pl)"),
-                        AboutMenu.Credit.of("anchelthe").withDescription("Spanish (es-es)"),
-                        AboutMenu.Credit.of("Chiquis2005").withDescription("Spanish (es-es)"),
-                        AboutMenu.Credit.of("Ceddix").withDescription("German, (de-de)"),
-                        AboutMenu.Credit.of("Pukejoy_1").withDescription("Bulgarian (bg-bg)"))
-                .addButtons(
-                        AboutMenu.Link.of("https://william278.net/docs/huskhomes").withText("Documentation").withIcon("⛏"),
-                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
-                        AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").withText("Discord").withIcon("⭐").withColor("#6773f5"));
+        this.aboutMenu = AboutMenu.builder()
+                .title(Component.text("HuskHomes"))
+                .description(Component.text("A powerful, intuitive and flexible teleportation suite"))
+                .version(plugin.getVersion())
+                .credits("Author",
+                        AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
+                .credits("Contributors",
+                        AboutMenu.Credit.of("imDaniX").description("Code, refactoring"),
+                        AboutMenu.Credit.of("Log1x").description("Code"))
+                .credits("Translators",
+                        AboutMenu.Credit.of("SnivyJ").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("ApliNi").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("TonyPak").description("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("davgo0103").description("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("Villag3r_").description("Italian (it-it)"),
+                        AboutMenu.Credit.of("ReferTV").description("Polish (pl)"),
+                        AboutMenu.Credit.of("anchelthe").description("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Chiquis2005").description("Spanish (es-es)"),
+                        AboutMenu.Credit.of("Ceddix").description("German, (de-de)"),
+                        AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"))
+                .buttons(
+                        AboutMenu.Link.of("https://william278.net/docs/huskhomes").text("Documentation").icon("⛏"),
+                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
+                        AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5)))
+                .build();
     }
 
     @Override
@@ -85,7 +94,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
         }
 
         switch (action.toLowerCase()) {
-            case "about" -> executor.sendMessage(aboutMenu.toMineDown());
+            case "about" -> executor.sendMessage(aboutMenu.toComponent());
             case "help" -> executor.sendMessage(getCommandList(executor)
                     .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
             case "reload" -> {
@@ -95,17 +104,49 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 }
                 executor.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
             }
-            case "update" -> updateChecker.isUpToDate().thenAccept(upToDate -> {
-                if (upToDate) {
+            case "update" -> updateChecker.check().thenAccept(checked -> {
+                if (checked.isUpToDate()) {
                     plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-                updateChecker.getLatestVersion().thenAccept(latest -> plugin.getLocales()
-                        .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
-                        .ifPresent(executor::sendMessage));
+                plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
+                        plugin.getVersion().toString()).ifPresent(executor::sendMessage);
             });
+            case "import" -> {
+                if (plugin.getImporters().isEmpty()) {
+                    plugin.getLocales().getLocale("error_no_importers_available")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                this.importData(executor, removeFirstArg(args));
+            }
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private void importData(@NotNull CommandUser executor, String[] args) {
+        switch (parseStringArg(args, 0).orElse("list")) {
+            case "start" -> parseStringArg(args, 1).ifPresentOrElse(
+                    name -> {
+                        final Optional<Importer> importer = plugin.getImporters().stream()
+                                .filter(available -> available.getImporterName().equalsIgnoreCase(name)).findFirst();
+                        if (importer.isEmpty()) {
+                            plugin.getLocales().getLocale("error_invalid_importer")
+                                    .ifPresent(executor::sendMessage);
+                            return;
+                        }
+                        importer.get().start(executor);
+                    },
+                    () -> plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/" + getName() + " import start <importer>")
+                            .ifPresent(executor::sendMessage)
+            );
+            case "list" -> executor.sendMessage(getImporterList()
+                    .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
+            default -> plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/" + getName() + " import <start|list>")
                     .ifPresent(executor::sendMessage);
         }
     }
@@ -128,10 +169,41 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         .build());
     }
 
-    @Override
     @NotNull
+    private PaginatedList getImporterList() {
+        return PaginatedList.of(plugin.getImporters().stream()
+                        .map(importer -> plugin.getLocales().getRawLocale("importer_list_item",
+                                        Locales.escapeText(importer.getImporterName()),
+                                        Locales.escapeText(importer.getSupportedImportData().stream()
+                                                .map(Importer.ImportData::getName)
+                                                .collect(Collectors.joining(", "))))
+                                .orElse(importer.getName()))
+                        .collect(Collectors.toList()),
+                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getListItemsPerPage(), 6))
+                        .setHeaderFormat(plugin.getLocales().getRawLocale("importer_list_title").orElse(""))
+                        .setItemSeparator("\n").setCommand("/huskhomes:huskhomes import list")
+                        .build());
+    }
+
+    @Override
+    @Nullable
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? SUB_COMMANDS.keySet().stream().sorted().toList() : List.of();
+        return switch (args.length) {
+            case 0, 1 -> SUB_COMMANDS.keySet().stream().sorted().toList();
+            case 2 -> switch (args[0].toLowerCase()) {
+                case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
+                        .mapToObj(Integer::toString).toList();
+                case "import" -> List.of("start", "list");
+                default -> null;
+            };
+            case 3 -> {
+                if (!args[0].equalsIgnoreCase("import") && !args[1].equalsIgnoreCase("start")) {
+                    yield null;
+                }
+                yield plugin.getImporters().stream().map(Importer::getImporterName).toList();
+            }
+            default -> null;
+        };
     }
 
 }

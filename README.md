@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskHomes" />
     <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
@@ -11,7 +12,7 @@
     </a> 
     <br/>
     <b>
-        <a href="https://www.spigotmc.org/resources/huskhomes.83767/">Spigot</a>
+        <a href="https://modrinth.com/plugin/huskhomes">Modrinth</a>
     </b> —
     <b>
         <a href="https://william278.net/docs/huskhomes/setup">Setup</a>
@@ -25,9 +26,9 @@
 </p>
 <br/>
 
-**HuskHomes** is a powerful, intuitive and flexible teleportation plugin for Spigot and Fabric-based Minecraft servers. The plugin supports a wide array of features; from teleporting between players, teleport requests, public and private homes, warps, random teleporting and more. 
+**HuskHomes** is a powerful, intuitive and flexible teleportation plugin for _Minecraft: Java Edition_ servers. HuskHomes contains a meaty&mdash;but not bloated&mdash;set of player teleportation features, including set homes, warps, public homes, teleport requests, previous and offline position teleporting&mdash;and more. 
 
-All of this is supported on standalone and cross-server setups; players can set home and teleport on and between multiple servers on a proxy network.
+HuskHomes can be used on your Spigot, Sponge or Fabric server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!  
 
 ## Features
 **⭐ Works cross-server** &mdash; Let players seamlessly teleport and set homes across your proxies network of servers using MySQL.
@@ -62,7 +63,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 
 ## Links
 - [Docs](https://william278.net/docs/huskhomes/) &mdash; Read the plugin documentation!
-- [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/huskhomes.284/), [Modrinth](https://modrinth.com/plugin/huskhomes), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
+- [Modrinth](https://modrinth.com/plugin/huskhomes) &mdash; View the plugin Modrinth page (Also: [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/), [Polymart](https://polymart.org/resource/huskhomes.284/), [Hangar](https://hangar.papermc.io/William278/HuskHomes), & [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
 - [Issues](https://github.com/WiIIiam278/HuskHomes2/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions
 - [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics

@@ -3,13 +3,14 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'org.ajoberstar.grgit' version '5.0.0'
+    id 'org.ajoberstar.grgit' version '5.2.0'
     id 'maven-publish'
     id 'java'
 }
 
 group 'net.william278'
-version "$ext.plugin_version-${versionMetadata()}"
+version "$ext.plugin_version${versionMetadata()}"
+description "$ext.plugin_description"
 defaultTasks 'licenseFormat', 'build'
 
 ext {
@@ -17,6 +18,7 @@ ext {
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
+    set 'description', description.toString()
 }
 
 allprojects {
@@ -36,18 +38,21 @@ allprojects {
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url 'https://mvn-repo.arim.space/lesser-gpl3/' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
         maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
+        maven { url 'https://repo.essentialsx.net/releases/' }
         maven { url 'https://repo.mikeprimm.com/' }
         maven { url 'https://jitpack.io' }
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
     }
 
     test {
@@ -82,7 +87,7 @@ subprojects {
         compileJava.options.release.set 17
     }
 
-    if (['bukkit', 'paper', 'plugin', 'fabric'].contains(project.name)) {
+    if (['bukkit', 'paper', 'plugin', 'fabric', 'sponge'].contains(project.name)) {
         shadowJar {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
@@ -132,8 +137,8 @@ def versionMetadata() {
 
     // Otherwise, get the last commit hash and if it's a clean head
     if (grgit == null) {
-        return System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
     }
-    return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }
 

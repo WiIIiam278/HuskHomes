@@ -108,10 +108,9 @@ public class PrivateHomeListCommand extends ListCommand {
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
-                                        Locales.escapeText(home.getMeta().getName()),
-                                        home.getOwner().getUsername() + "." + Locales.escapeText(home.getMeta().getName()),
+                                        Locales.escapeText(home.getName()), home.getSafeIdentifier(),
                                         Locales.escapeText(plugin.getLocales().wrapText(home.getMeta().getDescription(), 40)))
-                                .orElse(home.getMeta().getName())).sorted().collect(Collectors.toList()),
+                                .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getListItemsPerPage())
                         .setHeaderFormat(plugin.getLocales().getRawLocale("home_list_page_title",

@@ -34,6 +34,7 @@ import net.william278.huskhomes.user.FabricUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -51,9 +52,10 @@ public class FabricCommand {
 
     public void register(@NotNull CommandDispatcher<ServerCommandSource> dispatcher) {
         // Register brigadier command
+        final Predicate<ServerCommandSource> predicate = Permissions
+                .require(command.getPermission(), command.isOperatorCommand() ? 3 : 0);
         final LiteralArgumentBuilder<ServerCommandSource> builder = literal(command.getName())
-                .requires(Permissions.require(command.getPermission(), command.isOperatorCommand() ? 3 : 0))
-                .executes(getBrigadierExecutor());
+                .requires(predicate).executes(getBrigadierExecutor());
         plugin.getPermissions().put(command.getPermission(), command.isOperatorCommand());
         if (!command.getRawUsage().isBlank()) {
             builder.then(argument(command.getRawUsage().replaceAll("[<>\\[\\]]", ""), greedyString())
@@ -73,8 +75,10 @@ public class FabricCommand {
 
         // Register aliases
         final LiteralCommandNode<ServerCommandSource> node = dispatcher.register(builder);
-        dispatcher.register(literal("huskhomes:" + command.getName()).executes(getBrigadierExecutor()).redirect(node));
-        command.getAliases().forEach(alias -> dispatcher.register(literal(alias).executes(getBrigadierExecutor()).redirect(node)));
+        dispatcher.register(literal("huskhomes:" + command.getName())
+                .requires(predicate).executes(getBrigadierExecutor()).redirect(node));
+        command.getAliases().forEach(alias -> dispatcher.register(literal(alias)
+                .requires(predicate).executes(getBrigadierExecutor()).redirect(node)));
     }
 
     private com.mojang.brigadier.Command<ServerCommandSource> getBrigadierExecutor() {

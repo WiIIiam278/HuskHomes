@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes;
 
+import io.netty.buffer.ByteBufUtil;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -34,7 +35,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
 import net.william278.huskhomes.config.Locales;
@@ -60,6 +61,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.util.FabricSafetyResolver;
 import net.william278.huskhomes.util.FabricTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
@@ -74,12 +76,11 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, ServerPlayNetworking.PlayChannelHandler {
+        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -274,6 +275,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.unsafeBlocks = unsafeBlocks;
     }
 
+    @NotNull
+    @Override
+    public UnsafeBlocks getUnsafeBlocks() {
+        return unsafeBlocks;
+    }
+
     @Override
     @NotNull
     public Database getDatabase() {
@@ -340,11 +347,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    public CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
-        return CompletableFuture.completedFuture(Optional.of(location)); //todo
-    }
-
-    @Override
     @Nullable
     public InputStream getResource(@NotNull String name) {
         return this.modContainer.findPath(name)
@@ -388,7 +390,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return commands;
     }
 
-    @Override
     @NotNull
     public List<Command> registerCommands() {
         final List<Command> commands = Arrays.stream(FabricCommand.Type.values())
@@ -420,11 +421,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    public boolean isBlockUnsafe(@NotNull String blockId) {
-        return unsafeBlocks.isUnsafe(blockId);
-    }
-
-    @Override
     public void registerMetrics(int metricsId) {
         // No metrics for Fabric
     }
@@ -434,13 +430,17 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         ServerPlayNetworking.registerGlobalReceiver(new Identifier("bungeecord", "main"), this);
     }
 
-    // When a plugin message is received by the server
+    // When the server receives a plugin message
     @Override
     public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
-                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf, @NotNull PacketSender responseSender) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(PluginMessageBroker.BUNGEE_CHANNEL_ID, FabricUser.adapt(this, player), buf.readByteArray());
+                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
+                        @NotNull PacketSender responseSender) {
+        if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            messenger.onReceive(
+                    PluginMessageBroker.BUNGEE_CHANNEL_ID,
+                    FabricUser.adapt(this, player),
+                    ByteBufUtil.getBytes(buf)
+            );
         }
     }
 

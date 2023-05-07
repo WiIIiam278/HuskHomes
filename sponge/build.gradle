@@ -1,0 +1,74 @@
+import org.spongepowered.gradle.plugin.config.PluginLoaders
+import org.spongepowered.plugin.metadata.model.PluginDependency
+
+plugins {
+    id 'org.spongepowered.gradle.plugin' version '2.1.1'
+}
+
+dependencies {
+    implementation 'redis.clients:jedis:' + jedis_version
+    implementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
+    implementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
+
+    implementation project(path: ':common')
+}
+
+sponge {
+    apiVersion("8.1.0")
+    loader {
+        name(PluginLoaders.JAVA_PLAIN)
+        version("1.0")
+    }
+    license("Apache-2.0")
+    plugin("huskhomes") {
+        displayName("HuskHomes")
+        version(project.version.toString())
+        entrypoint("net.william278.huskhomes.SpongeHuskHomes")
+        description(project.description.toString())
+        links {
+            homepage("https://william278.net/project/huskhomes")
+            source("https://github.com/WiIIiam278/HuskHomes2")
+            issues("https://github.com/WiIIiam278/HuskHomes2/issues")
+        }
+        contributor("William278") {
+            description("Author")
+        }
+        dependency("spongeapi") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(false)
+        }
+        dependency("bluemap") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(true)
+            version("3.4")
+        }
+        dependency("plan") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(true)
+            version("5.4")
+        }
+    }
+}
+
+shadowJar {
+    destinationDirectory.set(file("$rootDir/target/"))
+    archiveClassifier.set('')
+
+    exclude('org.spongepowered:.*')
+    exclude('net.kyori:.*')
+
+    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
+    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
+    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
+    relocate 'de.themoep', 'net.william278.huskhomes.libraries'
+    relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
+    relocate 'org.intellij', 'net.william278.huskhomes.libraries'
+    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
+    relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
+    relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
+    relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
+    relocate 'org.json', 'net.william278.huskhomes.libraries.json'
+    relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
+    relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
+    relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
+}

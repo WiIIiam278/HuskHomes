@@ -1,5 +1,5 @@
 name: 'HuskHomes'
-description: 'A powerful, intuitive and flexible teleportation suite'
+description: '${description}'
 author: 'William278'
 website: 'https://william278.net/'
 main: 'net.william278.huskhomes.BukkitHuskHomes'
@@ -12,7 +12,6 @@ softdepend:
   - dynmap
   - BlueMap
   - Plan
-loadbefore:
   - Essentials
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
@@ -65,7 +64,7 @@ commands:
     usage: /<command> [player]
     aliases: [tpdeny, tpno]
   rtp:
-    usage: /<command> [player]
+    usage: /<command> [player] [world]
   tpignore:
     usage: /<command>
   tpoffline:
@@ -81,4 +80,4 @@ commands:
   back:
     usage: /<command>
   huskhomes:
-    usage: /<command> [about|help|reload|update]
+    usage: /<command> [about|help|reload|import|update]

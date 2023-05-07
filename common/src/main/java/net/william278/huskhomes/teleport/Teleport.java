@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.teleport;
 
+import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
@@ -28,13 +29,17 @@ import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Represents the process of a {@link Teleportable} being teleported to a {@link Target}.
+ *
+ * @see Teleport#builder(HuskHomes)
+ */
 public class Teleport {
 
     protected final HuskHomes plugin;

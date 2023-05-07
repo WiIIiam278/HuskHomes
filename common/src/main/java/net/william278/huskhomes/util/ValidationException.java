@@ -26,15 +26,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class ValidationException extends IllegalArgumentException {
 
-    private final Type error;
+    private final Type type;
 
-    public ValidationException(@NotNull ValidationException.Type error) {
-        super("Error validating position: " + error.name());
-        this.error = error;
+    public ValidationException(@NotNull ValidationException.Type type) {
+        super("Error validating SavedPosition: " + type.name());
+        this.type = type;
     }
 
     public void dispatchHomeError(@NotNull CommandUser viewer, boolean other, @NotNull HuskHomes plugin, @NotNull String... args) {
-        switch (error) {
+        switch (type) {
             case NOT_FOUND -> plugin.getLocales()
                     .getLocale(other ? "error_home_invalid_other" : "error_home_invalid", args)
                     .ifPresent(viewer::sendMessage);
@@ -44,6 +44,9 @@ public class ValidationException extends IllegalArgumentException {
             case NAME_INVALID -> plugin.getLocales()
                     .getLocale("error_home_name_characters", args)
                     .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID -> plugin.getLocales()
+                    .getLocale("error_home_description_characters", args)
+                    .ifPresent(viewer::sendMessage);
             case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> plugin.getLocales()
                     .getLocale("error_set_home_maximum_homes", Integer.toString(plugin.getManager().homes()
                             .getMaxHomes(viewer instanceof OnlineUser user ? user : null)))
@@ -52,14 +55,11 @@ public class ValidationException extends IllegalArgumentException {
                     .getLocale("error_edit_home_maximum_public_homes", Integer.toString(plugin.getManager().homes()
                             .getMaxPublicHomes(viewer instanceof OnlineUser user ? user : null)))
                     .ifPresent(viewer::sendMessage);
-            case DESCRIPTION_INVALID -> plugin.getLocales()
-                    .getLocale("error_home_description_characters", args)
-                    .ifPresent(viewer::sendMessage);
         }
     }
 
     public void dispatchWarpError(@NotNull CommandUser viewer, @NotNull HuskHomes plugin, @NotNull String... args) {
-        switch (error) {
+        switch (type) {
             case NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_warp_invalid", args)
                     .ifPresent(viewer::sendMessage);
@@ -75,6 +75,15 @@ public class ValidationException extends IllegalArgumentException {
         }
     }
 
+    @NotNull
+    @SuppressWarnings("unused")
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * The type of validation error
+     */
     public enum Type {
         NOT_FOUND,
         NAME_TAKEN,

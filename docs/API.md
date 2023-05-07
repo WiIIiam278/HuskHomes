@@ -1,9 +1,19 @@
-![HuskHomes CI](https://jitpack.io/v/WiIIiam278/HuskHomes2.svg)
-
 The HuskHomes API provides methods for getting, editing and updating user homes and warps, as well as functionality for building and executing (cross-server) teleports.
 
-The API is distributed via [JitPack](https://jitpack.io/#net.william278/HuskHomes2). Please note that HuskHomes API v1, v2 and v3 are not compatible.
-(Some) javadocs are also available to view on Jitpack [here](https://javadoc.jitpack.io/net/william278/HuskHomes2/latest/javadoc/).
+The API is distributed via [JitPack](https://jitpack.io/#net.william278/HuskHomes2), where you can also [view the JavaDocs](https://javadoc.jitpack.io/net/william278/HuskHomes2/latest/javadoc/).
+
+## Compatibility
+![HuskHomes CI](https://jitpack.io/v/WiIIiam278/HuskHomes2.svg)
+
+The HuskHomes API shares version numbering with the plugin itself for consistency and convenience. Please note minor and patch plugin releases may make API additions and deprecations, but will not introduce breaking changes without notice.
+
+| API Version |  HuskHomes Versions  | Supported |
+|:-----------:|:--------------------:|:---------:|
+|    v4.x     | _v4.0&mdash;Current_ |     ✅     |
+|    v3.x     | _v3.0&mdash;v3.2.1_  |     ❌     |
+|    v2.x     | _v2.0&mdash;v2.11.2_ |     ❌     |
+|    v1.x     | _v1.5&mdash;v1.5.11_ |     ❌     |
+
 
 ## Table of contents
 1. Adding the API to your project

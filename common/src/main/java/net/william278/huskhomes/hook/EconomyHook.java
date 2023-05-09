@@ -59,13 +59,30 @@ public abstract class EconomyHook extends Hook {
     public abstract String formatCurrency(final double amount);
 
     /**
-     * Identifies actions that incur an economic cost if economy is enabled
+     * Identifies actions that have a price associated with performing them
      */
     public enum Action {
+        /*
+         * Home and public home slots
+         */
         ADDITIONAL_HOME_SLOT(100.00, "economy_action_additional_home_slot"),
         MAKE_HOME_PUBLIC(50.00, "economy_action_make_home_public"),
+        BACK_COMMAND(0.00, "economy_action_back_command"),
+
+        /*
+         * Teleportation actions
+         */
         RANDOM_TELEPORT(25.00, "economy_action_random_teleport"),
-        BACK_COMMAND(0.00, "economy_action_back_command");
+        HOME_TELEPORT(0.00, "economy_action_generic"), //todo locales
+        PUBLIC_HOME_TELEPORT(0.00, "economy_action_generic"),
+        WARP_TELEPORT(0.00, "economy_action_generic"),
+        SPAWN_TELEPORT(0.00, "economy_action_generic"),
+
+        /*
+         * Teleport request actions
+         */
+        SEND_TELEPORT_REQUEST(0.00, "economy_action_generic"),
+        ACCEPT_TELEPORT_REQUEST(0.00, "economy_action_generic");
 
         private final double defaultCost;
         @NotNull

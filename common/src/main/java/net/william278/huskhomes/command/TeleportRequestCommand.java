@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.manager.RequestsManager;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
@@ -53,10 +54,16 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
             return;
         }
 
+        // Ensure the user does not send a request to themselves
         final String target = optionalTarget.get();
         if (target.equalsIgnoreCase(onlineUser.getUsername())) {
             plugin.getLocales().getLocale("error_teleport_request_self")
                     .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+
+        // Validate economy check
+        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST)) {
             return;
         }
 
@@ -68,6 +75,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
             return;
         }
 
+        plugin.performEconomyTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST);
         plugin.getLocales()
                 .getLocale((requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
                            + "_request_sent", target)

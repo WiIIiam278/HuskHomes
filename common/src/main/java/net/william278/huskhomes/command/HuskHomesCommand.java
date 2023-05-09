@@ -104,8 +104,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 }
                 executor.sendMessage(new MineDown("""
                         [HuskHomes](#00fb9a bold) [| Reloaded config & message files.](#00fb9a)
-                        [ℹ If you have modified the database or cross-server message broker settings,
-                        you need to restart your server for these changes to take effect.](gray)"""
+                        [ℹ If you have modified the database or cross-server message broker settings, you need to restart your server for these changes to take effect.](gray)"""
                 ));
             }
             case "update" -> updateChecker.check().thenAccept(checked -> {

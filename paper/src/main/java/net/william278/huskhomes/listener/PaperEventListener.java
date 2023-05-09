@@ -1,0 +1,56 @@
+/*
+ * This file is part of HuskHomes, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package net.william278.huskhomes.listener;
+
+import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
+import net.william278.huskhomes.PaperHuskHomes;
+import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.user.BukkitUser;
+import net.william278.huskhomes.util.BukkitAdapter;
+import org.bukkit.Location;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
+
+public class PaperEventListener extends BukkitEventListener implements Listener {
+
+    public PaperEventListener(@NotNull PaperHuskHomes huskHomes) {
+        super(huskHomes);
+        this.checkForBed = false;
+        huskHomes.getServer().getPluginManager().registerEvents(this, huskHomes);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPlayerUpdateRespawnLocation(PlayerSetSpawnEvent event) {
+        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
+
+        // Ensure the updated location is correct
+        final Location location = event.getLocation();
+        if (location == null) return;
+
+        // Update the player's respawn location
+        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
+                BukkitUser.adapt(event.getPlayer()),
+                Position.at(adaptedLocation, plugin.getServerName()))
+        );
+    }
+
+}

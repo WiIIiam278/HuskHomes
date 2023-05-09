@@ -494,7 +494,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
         if (getSettings().doCheckForUpdates()) {
             getUpdateChecker().check().thenAccept(checked -> {
                 if (!checked.isUpToDate()) {
-                    log(Level.WARNING, "A new version of HuskTowns is available: v"
+                    log(Level.WARNING, "A new version of HuskHomes is available: v"
                                        + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });

@@ -14,6 +14,11 @@ The HuskHomes API shares version numbering with the plugin itself for consistenc
 |    v2.x     | _v2.0&mdash;v2.11.2_ |     ❌     |
 |    v1.x     | _v1.5&mdash;v1.5.11_ |     ❌     |
 
+<details>
+<summary>Targeting older versions</summary>
+
+HuskHomes versions prior to `v4.3.1` are distributed on [JitPack](https://jitpack.io/#/net/william278/HuskHomes2), and you will need to use the `https://jitpack.io` repository instead.
+</details>
 
 ## Table of contents
 1. Adding the API to your project

@@ -63,7 +63,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
         }
 
         // Validate economy check
-        if (!plugin.validateEconomyCheck(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST)) {
+        if (!plugin.canPerformTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST)) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
             return;
         }
 
-        plugin.performEconomyTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST);
+        plugin.performTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST);
         plugin.getLocales()
                 .getLocale((requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
                            + "_request_sent", target)

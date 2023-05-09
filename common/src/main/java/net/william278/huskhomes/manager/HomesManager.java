@@ -176,11 +176,11 @@ public class HomesManager {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
             }
 
-            if (!plugin.validateEconomyCheck(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT)) {
+            if (!plugin.canPerformTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_MONEY);
             }
 
-            plugin.performEconomyTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
+            plugin.performTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
             plugin.editUserData(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
         }
 

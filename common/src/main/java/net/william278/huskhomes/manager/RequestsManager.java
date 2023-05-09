@@ -257,7 +257,7 @@ public class RequestsManager {
         }
 
         // Validate the economy check
-        if (accepted && !plugin.validateEconomyCheck(recipient, EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)) {
+        if (accepted && !plugin.canPerformTransaction(recipient, EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)) {
             return;
         }
 

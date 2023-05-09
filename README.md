@@ -4,8 +4,8 @@
     <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskHomes2/ci.yml?branch=master&logo=github"/>
     </a> 
-    <a href="https://jitpack.io/#net.william278/HuskHomes2">
-        <img src="https://img.shields.io/jitpack/version/net.william278/HuskHomes2?color=%2300fb9a&label=api&logo=gradle" />
+    <a href="https://repo.william278.net/#/releases/net/william278/huskhomes/">
+        <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/huskhomes?color=00fb9a&name=Maven&prefix=v" />
     </a> 
     <a href="https://discord.gg/tVYhJfyDWG">
         <img src="https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2" />

@@ -100,11 +100,11 @@ economy:
   # Use this currency for payments (works only with RedisEconomy), defaults to Vault currency
   redis_economy_name: vault
   free_home_slots: 5
+  # Require money to perform certain actions. Check https://william278.net/docs/huskhomes/economy-hook for available actions
   costs:
     additional_home_slot: 100.0
-    random_teleport: 25.0
     make_home_public: 50.0
-    back_command: 0.0
+    random_teleport: 25.0
 map_hook:
   # Display public homes/warps on your web map (supports Dynmap and BlueMap)
   enabled: true

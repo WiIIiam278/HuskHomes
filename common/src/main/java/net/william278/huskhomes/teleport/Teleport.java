@@ -177,7 +177,7 @@ public class Teleport {
     // Check economy actions
     protected void validateEconomyActions() throws TeleportationException {
         if (economyActions.stream()
-                .map(action -> plugin.validateEconomyCheck(executor, action))
+                .map(action -> plugin.canPerformTransaction(executor, action))
                 .anyMatch(result -> !result)) {
             throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
         }
@@ -185,7 +185,7 @@ public class Teleport {
 
     // Perform transactions on economy actions
     private void executeEconomyActions() {
-        economyActions.forEach(action -> plugin.performEconomyTransaction(executor, action));
+        economyActions.forEach(action -> plugin.performTransaction(executor, action));
     }
 
     @NotNull

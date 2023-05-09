@@ -51,6 +51,8 @@ import net.william278.huskhomes.util.SpongeSafetyResolver;
 import net.william278.huskhomes.util.SpongeTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
+import org.bstats.charts.SimplePie;
+import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
@@ -83,6 +85,10 @@ import java.util.stream.Collectors;
 @Plugin("huskhomes")
 public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafetyResolver, SpongeEventDispatcher, RawPlayDataHandler<EngineConnection> {
 
+    /**
+     * Metrics ID for <a href="https://bstats.org/plugin/sponge/HuskHomes/18423">HuskHomes on Sponge</a>.
+     */
+    private static final int METRICS_ID = 18423;
     private static final ResourceKey PLUGIN_MESSAGE_CHANNEL_KEY = ResourceKey.of("bungeecord", "main");
 
     // Instance of the plugin
@@ -99,6 +105,8 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     private PluginContainer pluginContainer;
     @Inject
     private Game game;
+    @Inject
+    private Metrics.Factory metricsFactory;
 
     private Set<SavedUser> savedUsers;
     private Settings settings;
@@ -156,6 +164,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
             });
         }
 
+        // Check for updates
         this.checkForUpdates();
     }
 
@@ -184,6 +193,9 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
                         .collect(Collectors.joining(", ")));
             }
         });
+
+        // Hook into bStats
+        initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
     }
 
     @Listener
@@ -410,7 +422,24 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
 
     @Override
     public void registerMetrics(int metricsId) {
-        // No metrics for Sponge
+        if (!getVersion().getMetadata().isBlank()) {
+            return;
+        }
+
+        try {
+            final Metrics metrics = metricsFactory.make(METRICS_ID);
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
+            if (getSettings().doCrossServer()) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getBrokerType().getDisplayName()));
+            }
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().getDisplayName()));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
+            getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
+        } catch (Throwable e) {
+            log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
+        }
     }
 
     @Override

@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
@@ -61,6 +62,6 @@ public class WarpCommand extends SavedPositionCommand<Warp> {
             return;
         }
 
-        this.teleport(executor, optionalTeleporter.get(), warp);
+        this.teleport(executor, optionalTeleporter.get(), warp, EconomyHook.Action.WARP_TELEPORT);
     }
 }

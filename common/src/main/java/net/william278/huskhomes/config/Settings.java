@@ -238,11 +238,12 @@ public class Settings {
     @YamlKey("economy.free_home_slots")
     private int freeHomeSlots = 5;
 
+    @YamlComment("Require money to perform certain actions. Check https://william278.net/docs/huskhomes/economy-hook for available actions")
     @YamlKey("economy.costs")
     private Map<String, Double> economyCosts = Arrays.stream(EconomyHook.Action.values())
-            .filter(e -> e.getDefaultCost() > 0)
+            .filter(action -> action.getDefaultCost() > 0)
             .collect(Collectors.toMap(
-                    e -> e.name().toLowerCase(Locale.ENGLISH),
+                    action -> action.name().toLowerCase(Locale.ENGLISH),
                     EconomyHook.Action::getDefaultCost)
             );
 
@@ -509,7 +510,7 @@ public class Settings {
         return disabledCommands.stream().anyMatch(disabled -> {
             final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
             return command.equalsIgnoreCase(type.getName())
-                    || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
         });
     }
 

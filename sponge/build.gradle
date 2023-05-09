@@ -6,11 +6,12 @@ plugins {
 }
 
 dependencies {
+    implementation project(path: ':common')
+
+    implementation 'org.bstats:bstats-sponge:3.0.2'
     implementation 'redis.clients:jedis:' + jedis_version
     implementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
     implementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
-
-    implementation project(path: ':common')
 }
 
 sponge {
@@ -71,4 +72,5 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
+    relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
 }

@@ -92,7 +92,7 @@ delete_all_warps_success: '[Успішно видалено усі варпи с
 economy_transaction_complete: '[ℹ %1% has been deducted from your account. (%2%)](gray)'
 economy_action_additional_home_slot: 'Bought an additional home slot'
 economy_action_make_home_public: 'Made a home public'
-economy_action_back_command: 'Returned to their last position with /back'
+economy_action_back_command: 'Used the /back command'
 economy_action_random_teleport: 'Used the /rtp command'
 economy_action_home_teleport: 'Teleported to a home'
 economy_action_public_home_teleport: 'Teleported to a public home'

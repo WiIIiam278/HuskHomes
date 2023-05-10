@@ -66,7 +66,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [Modrinth](https://modrinth.com/plugin/huskhomes) &mdash; View the plugin Modrinth page (Also: [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/), [Polymart](https://polymart.org/resource/huskhomes.284/), [Hangar](https://hangar.papermc.io/William278/HuskHomes), & [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
 - [Issues](https://github.com/WiIIiam278/HuskHomes2/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions
-- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics
+- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics (Also: [Sponge](https://bstats.org/plugin/sponge/HuskHomes/18423))
 
 ---
 &copy; [William278](https://william278.net/), 2023. Licensed under the Apache-2.0 License.

@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -95,7 +96,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
-                && !user.hasPermission(getOtherPermission())) {
+                    && !user.hasPermission(getOtherPermission())) {
                 plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHomeName)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
@@ -137,7 +138,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
         if (executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
-            && !user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName))) {
+                && !user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -156,7 +157,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 });
     }
 
-    protected void teleport(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull T position) {
+    protected void teleport(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull T position,
+                            @NotNull EconomyHook.Action... economyActions) {
         if (!teleporter.equals(executor) && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
@@ -165,6 +167,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleporter)
+                .economyActions(economyActions)
                 .target(position);
         try {
             if (executor.equals(teleporter)) {
@@ -173,7 +176,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 builder.toTeleport().execute();
             }
         } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, new String[0]);
+            e.displayMessage(executor, plugin, teleporter.getUsername());
         }
     }
 

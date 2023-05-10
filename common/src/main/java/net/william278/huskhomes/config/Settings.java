@@ -29,10 +29,8 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Plugin settings, read from config.yml
@@ -240,13 +238,14 @@ public class Settings {
     @YamlKey("economy.free_home_slots")
     private int freeHomeSlots = 5;
 
+    @YamlComment("Require money to perform certain actions. Check https://william278.net/docs/huskhomes/economy-hook for available actions")
     @YamlKey("economy.costs")
-    private Map<String, Double> economyCosts = Map.of(
-            EconomyHook.Action.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyHook.Action.ADDITIONAL_HOME_SLOT.getDefaultCost(),
-            EconomyHook.Action.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyHook.Action.MAKE_HOME_PUBLIC.getDefaultCost(),
-            EconomyHook.Action.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.Action.RANDOM_TELEPORT.getDefaultCost(),
-            EconomyHook.Action.BACK_COMMAND.name().toLowerCase(), EconomyHook.Action.BACK_COMMAND.getDefaultCost()
-    );
+    private Map<String, Double> economyCosts = Arrays.stream(EconomyHook.Action.values())
+            .filter(action -> action.getDefaultCost() > 0)
+            .collect(Collectors.toMap(
+                    action -> action.name().toLowerCase(Locale.ENGLISH),
+                    EconomyHook.Action::getDefaultCost)
+            );
 
     // Mapping plugins
     @YamlComment("Display public homes/warps on your web map (supports Dynmap and BlueMap)")
@@ -488,7 +487,7 @@ public class Settings {
         if (!doEconomy()) {
             return Optional.empty();
         }
-        final Double cost = economyCosts.get(action.name().toLowerCase());
+        final Double cost = economyCosts.get(action.name().toLowerCase(Locale.ENGLISH));
         if (cost != null && cost > 0d) {
             return Optional.of(cost);
         }

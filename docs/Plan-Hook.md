@@ -3,7 +3,7 @@ HuskHomes supports displaying statistics about user sethomes on your [Player Ana
 ![Plan hook screenshots](https://raw.githubusercontent.com/WiIIiam278/HuskHomes2/master/images/plan-hook.png)
 
 ## Requirements
-- HuskSync v2.0+
+- HuskHomes v2.0+
 - Plan v5.4.1690+
 
 ## Setup

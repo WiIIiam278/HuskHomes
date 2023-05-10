@@ -51,4 +51,15 @@ public record Username(@NotNull String name) implements Teleportable, Target {
                 ? plugin.getOnlineUserExact(name) : plugin.getOnlineUser(name);
     }
 
+    /**
+     * Get the username {@link String} being represented by this object
+     *
+     * @return the username
+     */
+    @NotNull
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
 }

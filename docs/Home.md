@@ -1,5 +1,5 @@
 # [![HuskHomes banner](https://raw.githubusercontent.com/WiIIiam278/HuskHomes2/master/images/banner.png)](https://github.com/WiIIiam278/HuskHomes2)
-Welcome to the plugin documentation for HuskHomes v4.x+, the home and teleportation suite developed by William278. Please click through to the topic you'd like to read about.
+Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuitive set homes, warps, and teleports plugin/mod developed by William278. Please click through to the topic you'd like to read about.
 
 ## Guides
 * 📚 [[Setup]]

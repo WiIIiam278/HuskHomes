@@ -437,6 +437,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void registerMetrics(int metricsId) {
+        if (!getVersion().getMetadata().isBlank()) {
+            return;
+        }
+
         try {
             final Metrics metrics = new Metrics(this, metricsId);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
@@ -448,8 +452,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
-        } catch (Exception e) {
-            log(Level.WARNING, "Failed to register metrics", e);
+        } catch (Throwable e) {
+            log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
         }
     }
 
@@ -471,7 +475,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }

@@ -100,7 +100,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
         }
 
         // Check they have sufficient funds
-        if (!plugin.validateEconomyCheck(teleporter, EconomyHook.Action.RANDOM_TELEPORT)) {
+        if (!plugin.canPerformTransaction(teleporter, EconomyHook.Action.RANDOM_TELEPORT)) {
             return Optional.empty();
         }
 

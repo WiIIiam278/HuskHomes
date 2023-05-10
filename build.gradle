@@ -107,6 +107,35 @@ subprojects {
             shadowJar.dependsOn(sourcesJar, javadocJar)
 
             publishing {
+                repositories {
+                    if (System.getenv("RELEASES_MAVEN_USERNAME") != null) {
+                        maven {
+                            name = "william278-releases"
+                            url = "https://repo.william278.net/releases"
+                            credentials {
+                                username = System.getenv("RELEASES_MAVEN_USERNAME")
+                                password = System.getenv("RELEASES_MAVEN_PASSWORD")
+                            }
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
+                        }
+                    }
+                    if (System.getenv("SNAPSHOTS_MAVEN_USERNAME") != null) {
+                        maven {
+                            name = "william278-snapshots"
+                            url = "https://repo.william278.net/snapshots"
+                            credentials {
+                                username = System.getenv("SNAPSHOTS_MAVEN_USERNAME")
+                                password = System.getenv("SNAPSHOTS_MAVEN_PASSWORD")
+                            }
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
+                        }
+                    }
+                }
+
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = 'net.william278'

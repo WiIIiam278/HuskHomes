@@ -102,7 +102,10 @@ public class HuskHomesCommand extends Command implements TabProvider {
                     executor.sendMessage(new MineDown("[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"));
                     return;
                 }
-                executor.sendMessage(new MineDown("[HuskHomes](#00fb9a bold) &#00fb9a&| Reloaded config & message files."));
+                executor.sendMessage(new MineDown("""
+                        [HuskHomes](#00fb9a bold) [| Reloaded config & message files.](#00fb9a)
+                        [ℹ If you have modified the database or cross-server message broker settings, you need to restart your server for these changes to take effect.](gray)"""
+                ));
             }
             case "update" -> updateChecker.check().thenAccept(checked -> {
                 if (checked.isUpToDate()) {

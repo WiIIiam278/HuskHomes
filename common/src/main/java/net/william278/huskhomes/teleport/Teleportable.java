@@ -41,4 +41,12 @@ public interface Teleportable {
         return new Username(teleporter);
     }
 
+    /**
+     * Get the username of the teleporter
+     *
+     * @return the username string
+     */
+    @NotNull
+    String getUsername();
+
 }

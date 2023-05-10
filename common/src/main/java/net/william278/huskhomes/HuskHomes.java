@@ -45,10 +45,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.util.SafetyResolver;
-import net.william278.huskhomes.util.TaskRunner;
-import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.Validator;
+import net.william278.huskhomes.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +63,7 @@ import java.util.stream.Stream;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
+public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, TransactionResolver {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -267,10 +264,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 .findFirst();
     }
 
-    default Optional<EconomyHook> getEconomyHook() {
-        return getHook(EconomyHook.class);
-    }
-
     default Optional<MapHook> getMapHook() {
         return getHook(MapHook.class);
     }
@@ -281,49 +274,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 .filter(hook -> Importer.class.isAssignableFrom(hook.getClass()))
                 .map(Importer.class::cast)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Perform an economy check on the {@link OnlineUser}; returning {@code true} if it passes the check
-     *
-     * @param player the player to perform the check on
-     * @param action the action to perform
-     * @return {@code true} if the action passes the check, {@code false} if the user has insufficient funds
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
-        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
-        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
-            final Optional<EconomyHook> hook = getEconomyHook();
-            if (hook.isPresent()) {
-                if (cost.get() > hook.get().getPlayerBalance(player)) {
-                    getLocales().getLocale("error_insufficient_funds", hook.get().formatCurrency(cost.get()))
-                            .ifPresent(player::sendMessage);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Execute an economy transaction if needed, updating the player's balance
-     *
-     * @param player the player to deduct the cost from if needed
-     * @param action the action to deduct the cost from if needed
-     */
-    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
-        if (!getSettings().doEconomy()) return;
-        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
-
-        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
-            final Optional<EconomyHook> hook = getEconomyHook();
-            if (hook.isPresent()) {
-                hook.get().changePlayerBalance(player, -cost.get());
-                getLocales().getLocale(action.confirmationLocaleId, hook.get().formatCurrency(cost.get()))
-                        .ifPresent(player::sendMessage);
-            }
-        }
     }
 
     /**
@@ -494,7 +444,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
         if (getSettings().doCheckForUpdates()) {
             getUpdateChecker().check().thenAccept(checked -> {
                 if (!checked.isUpToDate()) {
-                    log(Level.WARNING, "A new version of HuskTowns is available: v"
+                    log(Level.WARNING, "A new version of HuskHomes is available: v"
                                        + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });

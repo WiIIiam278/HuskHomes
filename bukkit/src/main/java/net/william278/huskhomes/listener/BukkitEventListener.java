@@ -22,9 +22,7 @@ package net.william278.huskhomes.listener;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
-import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.BukkitAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
@@ -38,9 +36,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitEventListener extends EventListener implements Listener {
 
+    protected boolean checkForBed = true;
+
     public BukkitEventListener(@NotNull BukkitHuskHomes huskHomes) {
         super(huskHomes);
-        Bukkit.getServer().getPluginManager().registerEvents(this, huskHomes);
+        huskHomes.getServer().getPluginManager().registerEvents(this, huskHomes);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -53,7 +53,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         super.handlePlayerLeave(BukkitUser.adapt(event.getPlayer()));
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
         super.handlePlayerDeath(BukkitUser.adapt(event.getEntity()));
     }
@@ -63,7 +63,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer()));
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         final Player player = event.getPlayer();
 
@@ -77,10 +77,9 @@ public class BukkitEventListener extends EventListener implements Listener {
                 handlePlayerTeleport(bukkitUser, Position.at(sourceLocation, plugin.getServerName())));
     }
 
-    //todo When defining paper-plugin.yml files gets merged, use the PlayerSetSpawnEvent in the paper module
-    // (https://jd.papermc.io/paper/1.19/com/destroystokyo/paper/event/player/PlayerSetSpawnEvent.html)
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
+        if (!checkForBed) return;
         if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
         if (event.getClickedBlock() == null) return;
         if (!(event.getClickedBlock().getBlockData() instanceof Bed
@@ -90,13 +89,11 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (location == null) return;
 
         // Update the player's respawn location
-        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> {
-            final OnlineUser onlineUser = BukkitUser.adapt(event.getPlayer());
-            super.handlePlayerUpdateSpawnPoint(onlineUser, Position.at(
-                    adaptedLocation.getX(), adaptedLocation.getY(), adaptedLocation.getZ(),
-                    adaptedLocation.getYaw(), adaptedLocation.getPitch(),
-                    adaptedLocation.getWorld(), plugin.getServerName()));
-        });
+        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
+                BukkitUser.adapt(event.getPlayer()),
+                Position.at(adaptedLocation, plugin.getServerName()))
+        );
     }
+
 
 }

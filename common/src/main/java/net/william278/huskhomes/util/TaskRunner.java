@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 public interface TaskRunner {
 
-    int runAsync(@NotNull Runnable runnable);
+    void runAsync(@NotNull Runnable runnable);
 
     <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
 

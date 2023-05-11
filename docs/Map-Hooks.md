@@ -3,7 +3,7 @@ HuskHomes supports having homes and warps be displayed as markers on server web 
 * [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap)
 * [Pl3xMap](https://github.com/BillyGalbreath/Pl3xMap) (Paper 1.19.4+ servers only)
 
-To enable support for map hooks, edit your [`config.yml`](config-files) file under the `map_hook` section so that `enabled` is `true`. You can customise whether to show public homes, warps or both on the map.
+To enable support for map hooks, edit your [`config.yml`](config-files) file under the `map_hook` section so that `enabled` is `true`. You can customize whether to show public homes, warps or both on the map.
 
 ## Dynmap
 ![Dynmap markers screenshot](https://raw.githubusercontent.com/WiIIiam278/HuskHomes2/master/images/dynmap-hook.png)

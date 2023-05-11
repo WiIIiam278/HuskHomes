@@ -56,11 +56,11 @@ public interface EventDispatcher {
     }
 
     /**
-     * Fire an event on this thread, and return whether the event was cancelled
+     * Fire an event on this thread, and return whether the event was canceled
      *
      * @param event The event to fire
      * @param <T>   The type of event to fire
-     * @return Whether the event was cancelled
+     * @return Whether the event was canceled
      */
     <T extends Event> boolean fireIsCancelled(@NotNull T event);
 

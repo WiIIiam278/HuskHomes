@@ -163,7 +163,7 @@ public class TeleportRequest {
          */
         ACCEPTED,
         /**
-         * The teleport request has been declined by the recipient
+         * The recipient has declined the teleport request
          */
         DECLINED,
         /**

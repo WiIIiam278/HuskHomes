@@ -1,4 +1,4 @@
-HuskHomes provides an option to enforce strict `/tpahere` requests. This alters the behaviour of the `/tpahere` command.
+HuskHomes provides an option to enforce strict `/tpahere` requests. This alters the behavior of the `/tpahere` command.
 
 * Strict `/tpahere` requests **disabled**: When a player accepts a `/tpahere` request, they will be teleported to the current position of the player at the end of their warmup period.
 * Strict `/tpahere` requests **enabled**: When a player accepts a `/tpahere` request, they will be teleported to the position of the player when they executed the `/tpahere` command.

@@ -74,7 +74,7 @@ public class RequestsManager {
     /**
      * Remove {@link TeleportRequest}(s) sent by a requester, by name, from a recipient's queue
      *
-     * @param requesterName username of the sender of the request(s) to delete
+     * @param requesterName the sender's username, whose requests should be removed
      * @param recipient     the {@link User} recipient of the request
      */
     public void removeTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
@@ -289,7 +289,7 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
 
             // Find the requester and inform them of the response
-            final Optional<OnlineUser> localRequester = plugin.getOnlineUser(request.getRequesterName());
+            final Optional<OnlineUser> localRequester = plugin.getOnlineUserExact(request.getRequesterName());
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().doCrossServer()) {

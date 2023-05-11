@@ -34,7 +34,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     Map<Integer, CancellableRunnable> tasks = new HashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
+    default void runAsync(@NotNull Runnable runnable) {
         final CancellableRunnable task = wrap(runnable);
         final int taskId = tasks.size();
         tasks.put(taskId, task);
@@ -45,7 +45,6 @@ public interface SpongeTaskRunner extends TaskRunner {
                         .execute(task)
                         .build());
 
-        return taskId;
     }
 
     @Override
@@ -119,7 +118,7 @@ public interface SpongeTaskRunner extends TaskRunner {
     SpongeHuskHomes getPlugin();
 
     /**
-     * A wrapper for a {@link Runnable} that can be cancelled
+     * A wrapper for a {@link Runnable} that can be canceled
      */
     class CancellableRunnable implements Runnable {
 

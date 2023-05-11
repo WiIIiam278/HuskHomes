@@ -289,7 +289,7 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
 
             // Find the requester and inform them of the response
-            final Optional<OnlineUser> localRequester = plugin.getOnlineUser(request.getRequesterName());
+            final Optional<OnlineUser> localRequester = plugin.getOnlineUserExact(request.getRequesterName());
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().doCrossServer()) {

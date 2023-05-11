@@ -21,6 +21,8 @@ package net.william278.huskhomes.position;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,10 +35,15 @@ import java.util.Map;
  */
 public class PositionMeta {
 
+    @Expose
     private String name;
+    @Expose
     private String description;
+    @Expose
     private Map<String, String> tags;
-    private Instant creationTime;
+    @Expose
+    @SerializedName("creation_time")
+    private long creationTime;
 
     private PositionMeta(@NotNull String name, @NotNull String description,
                          @NotNull Instant creationTime, @Nullable String serializedTags) {
@@ -44,6 +51,10 @@ public class PositionMeta {
         this.setDescription(description);
         this.setCreationTime(creationTime);
         this.setTags(deserializeTags(serializedTags));
+    }
+
+    @SuppressWarnings("unused")
+    private PositionMeta() {
     }
 
     @NotNull
@@ -121,11 +132,12 @@ public class PositionMeta {
     /**
      * Map of metadata tags for a position
      */
+    @NotNull
     public Map<String, String> getTags() {
         return tags;
     }
 
-    public void setTags(Map<String, String> tags) {
+    public void setTags(@NotNull Map<String, String> tags) {
         this.tags = tags;
     }
 
@@ -134,10 +146,10 @@ public class PositionMeta {
      */
     @NotNull
     public Instant getCreationTime() {
-        return creationTime;
+        return Instant.ofEpochMilli(creationTime);
     }
 
-    public void setCreationTime(Instant creationTime) {
-        this.creationTime = creationTime;
+    public void setCreationTime(@NotNull Instant creationTime) {
+        this.creationTime = creationTime.toEpochMilli();
     }
 }

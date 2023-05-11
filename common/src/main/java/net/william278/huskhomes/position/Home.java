@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.position;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +32,10 @@ import java.util.UUID;
 public class Home extends SavedPosition {
 
     public static final String IDENTIFIER_DELIMITER = ".";
-    private final User owner;
+    @Expose
+    private User owner;
+    @Expose
+    @SerializedName("public")
     private boolean isPublic;
 
     private Home(double x, double y, double z, float yaw, float pitch, @NotNull World world, @NotNull String server,

@@ -26,6 +26,7 @@ import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.client.ClientQueryHandler;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
@@ -63,7 +64,7 @@ import java.util.stream.Stream;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, TransactionResolver {
+public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, TransactionResolver, ClientQueryHandler {
 
     int SPIGOT_RESOURCE_ID = 83767;
 

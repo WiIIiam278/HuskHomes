@@ -21,7 +21,9 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +39,16 @@ public class Payload {
     @Nullable
     @Expose
     private Position position;
+
+    @Nullable
+    @Expose
+    @SerializedName("home_list")
+    private List<Home> homeList;
+
+    @Nullable
+    @Expose
+    @SerializedName("warp_list")
+    private List<Warp> warpList;
 
     @Nullable
     @Expose
@@ -72,6 +84,32 @@ public class Payload {
     public static Payload withPosition(@NotNull Position position) {
         final Payload payload = new Payload();
         payload.position = position;
+        return payload;
+    }
+
+    /**
+     * Returns a payload containing a list of {@link Home}s
+     *
+     * @param homeList the list of {@link Home}s to send
+     * @return a payload containing the home list
+     */
+    @NotNull
+    public static Payload withHomeList(@NotNull List<Home> homeList) {
+        final Payload payload = new Payload();
+        payload.homeList = homeList;
+        return payload;
+    }
+
+    /**
+     * Returns a payload containing a list of {@link Warp}s
+     *
+     * @param warpList the list of {@link Warp}s to send
+     * @return a payload containing the warp list
+     */
+    @NotNull
+    public static Payload withWarpList(@NotNull List<Warp> warpList) {
+        final Payload payload = new Payload();
+        payload.warpList = warpList;
         return payload;
     }
 
@@ -118,6 +156,19 @@ public class Payload {
         return Optional.ofNullable(position);
     }
 
+    /**
+     * A home list field
+     */
+    public Optional<List<Home>> getHomeList() {
+        return Optional.ofNullable(homeList);
+    }
+
+    /**
+     * A warp list field
+     */
+    public Optional<List<Warp>> getWarpList() {
+        return Optional.ofNullable(warpList);
+    }
 
     /**
      * A teleport request field

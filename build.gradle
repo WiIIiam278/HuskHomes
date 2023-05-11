@@ -42,6 +42,7 @@ allprojects {
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
         maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url 'https://server.bbkr.space/artifactory/libs-release' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://repo.essentialsx.net/releases/' }

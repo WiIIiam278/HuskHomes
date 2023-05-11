@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.position;
 
+import com.google.gson.annotations.Expose;
 import net.william278.huskhomes.config.Locales;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,8 +30,10 @@ import java.util.UUID;
  */
 public abstract class SavedPosition extends Position implements Comparable<SavedPosition> {
 
+    @Expose
     private PositionMeta meta;
-    private final UUID uuid;
+    @Expose
+    private UUID uuid;
 
     protected SavedPosition(double x, double y, double z, float yaw, float pitch, @NotNull World world,
                             @NotNull String server, @NotNull PositionMeta meta, @NotNull UUID uuid) {

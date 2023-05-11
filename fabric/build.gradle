@@ -3,7 +3,6 @@ plugins {
 }
 
 apply plugin: 'fabric-loom'
-loom.serverOnlyMinecraftJar()
 
 dependencies {
     minecraft 'com.mojang:minecraft:1.19.4'
@@ -12,17 +11,22 @@ dependencies {
 
     // Fabric API modules
     Set<String> fabricApiModules = [
+            // Server-side modules
             'fabric-api-base',
             'fabric-lifecycle-events-v1',
             'fabric-entity-events-v1',
             'fabric-command-api-v2',
-            'fabric-networking-api-v1'
+            'fabric-networking-api-v1',
+
+            // Client-side modules
+            'fabric-key-binding-api-v1'
     ]
     fabricApiModules.forEach {
         modImplementation(fabricApi.module(it, '0.77.0+1.19.4'))
     }
     modImplementation include('net.kyori:adventure-platform-fabric:5.8.0')
     modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
+    modImplementation include("io.github.cottonmc:LibGui:7.0.0-rc.1+1.19.4")
 
     implementation include('redis.clients:jedis:' + jedis_version)
     implementation include('com.mysql:mysql-connector-j:' + mysql_driver_version)
@@ -30,7 +34,8 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
 
-    shadow project(path: ":common")
+    //todo return to shadow
+    implementation project(path: ":common")
 }
 
 shadowJar {

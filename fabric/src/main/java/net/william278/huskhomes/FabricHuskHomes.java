@@ -36,6 +36,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.client.ClientQueryHandler;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
 import net.william278.huskhomes.config.Locales;
@@ -80,8 +81,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
+public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTaskRunner,
+        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -170,6 +171,15 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
                 broker.initialize();
             });
         }
+
+        // Initialize client query handler
+        initialize("client query handler", (plugin) -> ServerPlayNetworking.registerGlobalReceiver(
+                Objects.requireNonNull(Identifier.tryParse(ClientQueryHandler.CLIENT_MESSAGE_CHANNEL)),
+                (server, player, handler, buf, responseSender) -> plugin.handleClientQuery(
+                        FabricUser.adapt(this, player),
+                        ByteBufUtil.getBytes(buf)
+                )
+        ));
 
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 

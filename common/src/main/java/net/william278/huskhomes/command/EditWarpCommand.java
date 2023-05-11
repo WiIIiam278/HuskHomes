@@ -21,6 +21,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
@@ -152,8 +153,9 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                     .ifPresent(this::add);
 
             if (warp.getMeta().getDescription().length() > 0) {
+                plugin.getLocales();
                 plugin.getLocales().getLocale("edit_warp_menu_description",
-                                plugin.getLocales().truncateText(warp.getMeta().getDescription(), 50),
+                                Locales.truncateText(warp.getMeta().getDescription(), 50),
                                 plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
                         .ifPresent(this::add);
             }

@@ -20,10 +20,13 @@
     "repo": "https://github.com/WiIIiam278/HuskHomes2",
     "issues": "https://github.com/WiIIiam278/HuskHomes2/issues"
   },
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
     "server": [
       "net.william278.huskhomes.FabricHuskHomes"
+    ],
+    "client": [
+      "net.william278.huskhomes.client.HuskHomesClient"
     ]
   },
   "depends": {

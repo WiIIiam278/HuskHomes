@@ -21,6 +21,7 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
@@ -237,7 +238,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
             if (home.getMeta().getDescription().length() > 0) {
                 plugin.getLocales().getLocale("edit_home_menu_description",
-                                plugin.getLocales().truncateText(home.getMeta().getDescription(), 50),
+                                Locales.truncateText(home.getMeta().getDescription(), 50),
                                 plugin.getLocales().wrapText(home.getMeta().getDescription(), 40))
                         .ifPresent(this::add);
             }

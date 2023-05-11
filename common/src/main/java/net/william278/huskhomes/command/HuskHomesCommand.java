@@ -160,8 +160,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         .filter(command -> user.hasPermission(command.getPermission()))
                         .map(command -> plugin.getLocales().getRawLocale("command_list_item",
                                         Locales.escapeText(command.getName()),
-                                        Locales.escapeText(plugin.getLocales()
-                                                .truncateText(command.getDescription(), 50)),
+                                        Locales.escapeText(Locales.truncateText(command.getDescription(), 50)),
                                         Locales.escapeText(plugin.getLocales()
                                                 .wrapText(command.getUsage() + "\n" + command.getDescription(), 40)))
                                 .orElse(command.getName()))

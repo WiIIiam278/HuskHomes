@@ -142,7 +142,7 @@ public class Locales {
     }
 
     @NotNull
-    public String truncateText(@NotNull String string, int truncateAfter) {
+    public static String truncateText(@NotNull String string, int truncateAfter) {
         if (string.isBlank()) {
             return string;
         }

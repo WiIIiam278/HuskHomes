@@ -1,4 +1,12 @@
 {
   "key.huskhomes.category": "HuskHomes",
-  "key.huskhomes.open_menu": "Open Home/Warp Menu"
+  "key.huskhomes.open_menu": "Open Home/Warp Menu",
+  "gui.huskhomes.loading": "Loading...",
+  "gui.huskhomes.disabled": "Homes/warps are not available here",
+  "gui.huskhomes.homes.timeout": "Failed to fetch homes. :-(",
+  "gui.huskhomes.homes.title": "Your Homes",
+  "gui.huskhomes.public_homes.title": "Public Homes",
+  "gui.huskhomes.public_homes.timeout": "Failed to fetch public homes. :-(",
+  "gui.huskhomes.warps.timeout": "Failed to fetch warps. :-(",
+  "gui.huskhomes.warps.title": "Server Warps"
 }

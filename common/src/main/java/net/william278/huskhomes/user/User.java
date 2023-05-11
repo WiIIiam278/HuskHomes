@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.user;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -28,11 +29,10 @@ import java.util.UUID;
  */
 public class User {
 
-    @NotNull
-    private final UUID uuid;
-
-    @NotNull
-    private final String username;
+    @Expose
+    private UUID uuid;
+    @Expose
+    private String username;
 
     /**
      * Get a user from a {@link UUID} and username
@@ -43,6 +43,10 @@ public class User {
     protected User(@NotNull UUID uuid, @NotNull String username) {
         this.uuid = uuid;
         this.username = username;
+    }
+
+    @SuppressWarnings("unused")
+    private User() {
     }
 
     @NotNull
@@ -67,4 +71,6 @@ public class User {
     public String getUsername() {
         return username;
     }
+
 }
+

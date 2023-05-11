@@ -21,8 +21,8 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.position.World;
+import net.william278.huskhomes.position.*;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +74,7 @@ public class MessageSerializationTests {
     @ParameterizedTest(name = "{1} Message")
     @MethodSource("provideMessages")
     public void testMessageSerialization(@NotNull Message message, @SuppressWarnings("unused") String ignored) {
-        final Gson gson = createGson();
+        final Gson gson = new Gson();
         final String serializedMessage = gson.toJson(message);
         Assertions.assertNotNull(serializedMessage);
         final Message deserializedMessage = gson.fromJson(serializedMessage, Message.class);
@@ -84,13 +84,10 @@ public class MessageSerializationTests {
         Assertions.assertEquals(message.getTarget(), deserializedMessage.getTarget());
         Assertions.assertEquals(message.getPayload().getPosition().isPresent(), deserializedMessage.getPayload().getPosition().isPresent());
         Assertions.assertEquals(message.getPayload().getString().isPresent(), deserializedMessage.getPayload().getString().isPresent());
-        Assertions.assertEquals(message.getPayload().getStringList().isPresent(), deserializedMessage.getPayload().getStringList().isPresent());
-        Assertions.assertEquals(message.getPayload().getStringList().isPresent(), deserializedMessage.getPayload().getStringList().isPresent());
-    }
 
-    @NotNull
-    private static Gson createGson() {
-        return new GsonBuilder().create();
+        Assertions.assertEquals(message.getPayload().getStringList().isPresent(), deserializedMessage.getPayload().getStringList().isPresent());
+        Assertions.assertTrue(message.getPayload().getStringList()
+                .map(homes -> homes.size() == deserializedMessage.getPayload().getStringList().get().size()).orElse(true));
     }
 
     private static Stream<Arguments> provideMessages() {

@@ -9,14 +9,14 @@ import java.util.UUID;
 public class ClientQuery {
 
     @Expose
-    private String uuid;
+    private UUID uuid;
     @Expose
     private Type type;
     @Expose
     private Payload payload;
 
     private ClientQuery(@NotNull Type type, @NotNull Payload payload) {
-        this.uuid = UUID.randomUUID().toString();
+        this.uuid = UUID.randomUUID();
         this.type = type;
         this.payload = payload;
     }
@@ -32,7 +32,7 @@ public class ClientQuery {
 
     @NotNull
     public UUID getUuid() {
-        return UUID.fromString(uuid);
+        return uuid;
     }
 
     @NotNull
@@ -56,12 +56,12 @@ public class ClientQuery {
         private Builder() {
         }
 
-        public Builder setType(@NotNull Type type) {
+        public Builder type(@NotNull Type type) {
             this.type = type;
             return this;
         }
 
-        public Builder setPayload(@NotNull Payload payload) {
+        public Builder payload(@NotNull Payload payload) {
             this.payload = payload;
             return this;
         }

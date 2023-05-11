@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.position;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -28,6 +29,7 @@ import java.util.UUID;
  */
 public class Warp extends SavedPosition {
 
+    @Expose(serialize = false, deserialize = false)
     private static final String PERMISSION_PREFIX = "huskhomes.command.warp.";
 
     private Warp(double x, double y, double z, float yaw, float pitch, @NotNull World world, @NotNull String server,
@@ -43,6 +45,10 @@ public class Warp extends SavedPosition {
      */
     private Warp(@NotNull Position position, @NotNull PositionMeta meta) {
         super(position, meta);
+    }
+
+    @SuppressWarnings("unused")
+    private Warp() {
     }
 
     public static Warp from(double x, double y, double z, float yaw, float pitch, @NotNull World world,

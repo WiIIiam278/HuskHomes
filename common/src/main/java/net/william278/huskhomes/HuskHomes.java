@@ -490,7 +490,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, 
 
     @NotNull
     default Gson getGson() {
-        return new GsonBuilder().create();
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     }
 
 }

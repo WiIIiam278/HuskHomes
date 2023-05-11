@@ -1,12 +1,14 @@
 package net.william278.huskhomes.client;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.netty.buffer.ByteBufUtil;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -28,7 +30,7 @@ public class HuskHomesClient implements ClientModInitializer {
             Identifier.tryParse(ClientQueryHandler.CLIENT_MESSAGE_CHANNEL)
     );
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private final ConcurrentHashMap<UUID, CompletableFuture<ClientQuery>> queries = new ConcurrentHashMap<>();
     private final KeyBinding menuKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.huskhomes.open_menu",
@@ -37,26 +39,35 @@ public class HuskHomesClient implements ClientModInitializer {
             "key.huskhomes.category"
     ));
 
+    private boolean currentlyEnabled = false;
+
     @Override
     public void onInitializeClient() {
+        // Open the menu when the key binding is pressed
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menuKeyBinding.wasPressed()) {
                 MinecraftClient.getInstance().setScreen(new PositionScreen(this));
             }
         });
 
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> initializeChannelReceiver());
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            ClientPlayNetworking.unregisterReceiver(CHANNEL_IDENTIFIER);
+        // Perform handshake on join
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             queries.clear();
+            sendQuery(
+                    ClientQuery.builder().type(ClientQuery.Type.HANDSHAKE).build(),
+                    clientQuery -> currentlyEnabled = true,
+                    () -> currentlyEnabled = false
+            );
         });
-    }
 
-    private void initializeChannelReceiver() {
-        ClientPlayNetworking.registerReceiver(CHANNEL_IDENTIFIER, (client, handler, buf, responseSender) -> {
+        // Handle incoming plugin messages
+        ClientPlayNetworking.registerGlobalReceiver(CHANNEL_IDENTIFIER, (client, handler, buf, responseSender) -> {
             try {
-                final String json = buf.readString();
-                final ClientQuery query = gson.fromJson(json, ClientQuery.class);
+                final ClientQuery query = gson.fromJson(
+                        new String(ByteBufUtil.getBytes(buf), StandardCharsets.UTF_8),
+                        ClientQuery.class
+                );
+
                 queries.computeIfPresent(query.getUuid(), (uuid, future) -> {
                     future.complete(query);
                     return null;
@@ -86,6 +97,10 @@ public class HuskHomesClient implements ClientModInitializer {
                         callback.accept(result);
                     }
                 });
+    }
+
+    protected boolean isCurrentlyEnabled() {
+        return currentlyEnabled;
     }
 
 }

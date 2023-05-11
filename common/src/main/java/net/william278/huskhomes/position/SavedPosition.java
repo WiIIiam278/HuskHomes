@@ -55,6 +55,9 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
         this.uuid = UUID.randomUUID();
     }
 
+    protected SavedPosition() {
+    }
+
     /**
      * Metadata about this position (name, description)
      */

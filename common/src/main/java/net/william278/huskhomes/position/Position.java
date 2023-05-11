@@ -41,8 +41,7 @@ public class Position extends Location implements Target {
         this.setServer(server);
     }
 
-    @SuppressWarnings("unused")
-    private Position() {
+    protected Position() {
     }
 
     @NotNull

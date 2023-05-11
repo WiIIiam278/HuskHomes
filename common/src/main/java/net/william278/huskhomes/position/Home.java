@@ -32,6 +32,7 @@ import java.util.UUID;
 public class Home extends SavedPosition {
 
     public static final String IDENTIFIER_DELIMITER = ".";
+
     @Expose
     private User owner;
     @Expose
@@ -49,6 +50,10 @@ public class Home extends SavedPosition {
         super(position, meta);
         this.owner = owner;
         this.setPublic(false);
+    }
+
+    @SuppressWarnings("unused")
+    private Home() {
     }
 
     @NotNull

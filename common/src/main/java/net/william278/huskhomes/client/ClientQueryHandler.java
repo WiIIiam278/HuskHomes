@@ -7,7 +7,6 @@ import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -29,13 +28,13 @@ public interface ClientQueryHandler {
             switch (query.getType()) {
                 case HANDSHAKE -> reply(user, query, Payload.empty());
                 case GET_WARPS -> reply(user, query, Payload.withWarpList(
-                        new ArrayList<>(getWarpsForUser(user))
+                        getWarpsForUser(user)
                 ));
                 case GET_PRIVATE_HOMES -> reply(user, query, Payload.withHomeList(
-                        new ArrayList<>(getPlugin().getDatabase().getHomes(user))
+                        getPlugin().getDatabase().getHomes(user)
                 ));
                 case GET_PUBLIC_HOMES -> reply(user, query, Payload.withHomeList(
-                        new ArrayList<>(getPlugin().getDatabase().getPublicHomes())
+                        getPlugin().getDatabase().getPublicHomes()
                 ));
             }
         });
@@ -54,11 +53,16 @@ public interface ClientQueryHandler {
     }
 
     private void reply(@NotNull OnlineUser user, @NotNull ClientQuery query, @NotNull Payload newPayload) {
-        query.setPayload(newPayload);
-        user.sendPluginMessage(
-                CLIENT_MESSAGE_CHANNEL,
-                getPlugin().getGson().toJson(query).getBytes(StandardCharsets.UTF_8)
-        );
+        try {
+            query.setPayload(newPayload);
+            final String queryMessage = getPlugin().getGson().toJson(query);
+            user.sendPluginMessage(
+                    CLIENT_MESSAGE_CHANNEL,
+                    queryMessage.getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (Throwable e) {
+            getPlugin().log(Level.WARNING, "Failed to send client query response", e);
+        }
     }
 
     @NotNull

@@ -30,10 +30,9 @@ public interface FabricTaskRunner extends TaskRunner {
     ConcurrentHashMap<Integer, CompletableFuture<?>> tasks = new ConcurrentHashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
+    default void runAsync(@NotNull Runnable runnable) {
         int taskId = tasks.size();
         tasks.put(taskId, CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer()));
-        return taskId;
     }
 
     @Override

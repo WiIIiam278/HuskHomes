@@ -32,10 +32,9 @@ import java.util.function.Supplier;
 public interface BukkitTaskRunner extends TaskRunner {
 
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
+    default void runAsync(@NotNull Runnable runnable) {
         final int taskId = getTasks().size();
         getTasks().put(taskId, getScheduler().asyncScheduler().run(runnable));
-        return taskId;
     }
 
     @Override

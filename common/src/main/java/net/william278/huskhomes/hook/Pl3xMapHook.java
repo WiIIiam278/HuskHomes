@@ -22,7 +22,7 @@ package net.william278.huskhomes.hook;
 import net.pl3x.map.core.Pl3xMap;
 import net.pl3x.map.core.event.EventHandler;
 import net.pl3x.map.core.event.EventListener;
-import net.pl3x.map.core.event.server.ServerLoadedEvent;
+import net.pl3x.map.core.event.server.Pl3xMapEnabledEvent;
 import net.pl3x.map.core.event.world.WorldLoadedEvent;
 import net.pl3x.map.core.event.world.WorldUnloadedEvent;
 import net.pl3x.map.core.image.IconImage;
@@ -65,18 +65,6 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     @Override
     public void initialize() {
         Pl3xMap.api().getEventRegistry().register(this);
-
-        if (plugin.getSettings().doWarpsOnMap()) {
-            this.registerIcon(WARPS_LAYER, "markers/16x/warp.png");
-        }
-        if (plugin.getSettings().doPublicHomesOnMap()) {
-            this.registerIcon(PUBLIC_HOMES_LAYER, "markers/16x/public-home.png");
-        }
-
-        plugin.runAsync(() -> {
-            plugin.getDatabase().getLocalPublicHomes(plugin).forEach(this::updateHome);
-            plugin.getDatabase().getLocalWarps(plugin).forEach(this::updateWarp);
-        });
     }
 
     @Override
@@ -138,19 +126,31 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         }
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
-    public void onServerLoaded(@NotNull ServerLoadedEvent event) {
+    public void onPl3xMapEnabled(@NotNull Pl3xMapEnabledEvent event) {
+        // Register icons
+        if (plugin.getSettings().doWarpsOnMap()) {
+            this.registerIcon(WARPS_LAYER, "markers/16x/warp.png");
+        }
+        if (plugin.getSettings().doPublicHomesOnMap()) {
+            this.registerIcon(PUBLIC_HOMES_LAYER, "markers/16x/public-home.png");
+        }
+
+        // Register layers for each world
         Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
+
+        // Update home positions
+        plugin.runAsync(() -> {
+            plugin.getDatabase().getLocalPublicHomes(plugin).forEach(this::updateHome);
+            plugin.getDatabase().getLocalWarps(plugin).forEach(this::updateWarp);
+        });
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onWorldLoaded(@NotNull WorldLoadedEvent event) {
         registerLayers(event.getWorld());
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onWorldUnloaded(@NotNull WorldUnloadedEvent event) {
         event.getWorld().getLayerRegistry().unregister(WARPS_LAYER);

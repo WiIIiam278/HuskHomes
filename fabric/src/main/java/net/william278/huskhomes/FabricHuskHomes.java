@@ -77,6 +77,8 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -94,6 +96,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private final ModContainer modContainer = FabricLoader.getInstance()
             .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
+    private ConcurrentHashMap<Integer, CompletableFuture<?>> tasks;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
     private Settings settings;
@@ -120,6 +123,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         instance = this;
 
         // Get plugin version from mod container
+        this.tasks = new ConcurrentHashMap<>();
         this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
@@ -468,6 +472,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public MinecraftServer getMinecraftServer() {
         return minecraftServer;
+    }
+
+    @Override
+    @NotNull
+    public ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks() {
+        return tasks;
     }
 
     @Override

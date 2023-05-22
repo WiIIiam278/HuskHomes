@@ -24,33 +24,24 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public interface SpongeTaskRunner extends TaskRunner {
 
-    Map<Integer, CancellableRunnable> tasks = new HashMap<>();
-
     @Override
     default void runAsync(@NotNull Runnable runnable) {
-        final CancellableRunnable task = wrap(runnable);
-        final int taskId = tasks.size();
-        tasks.put(taskId, task);
-
         getPlugin().getGame().asyncScheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())
-                        .execute(task)
+                        .execute(wrap(runnable))
                         .build());
-
     }
 
     @Override
     default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         final CompletableFuture<T> future = new CompletableFuture<>();
-
         getPlugin().getGame().asyncScheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())
@@ -71,10 +62,9 @@ public interface SpongeTaskRunner extends TaskRunner {
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
+        final int taskId = getNextTaskId();
         final CancellableRunnable task = wrap(runnable);
-        final int taskId = tasks.size();
-        tasks.put(taskId, task);
-
+        getTasks().put(taskId, task);
         getPlugin().getGame().asyncScheduler()
                 .submit(Task.builder()
                         .plugin(getPlugin().getPluginContainer())
@@ -97,20 +87,28 @@ public interface SpongeTaskRunner extends TaskRunner {
 
     @Override
     default void cancelTask(int taskId) {
-        if (tasks.containsKey(taskId)) {
-            tasks.get(taskId).cancel();
+        if (getTasks().containsKey(taskId)) {
+            getTasks().get(taskId).cancel();
+            getTasks().remove(taskId);
         }
     }
 
     @Override
     default void cancelAllTasks() {
-        tasks.values().forEach(CancellableRunnable::cancel);
-        tasks.clear();
+        getTasks().values().forEach(CancellableRunnable::cancel);
+        getTasks().clear();
     }
 
     @NotNull
     private CancellableRunnable wrap(@NotNull Runnable runnable) {
         return new CancellableRunnable(runnable);
+    }
+
+    @NotNull
+    ConcurrentHashMap<Integer, CancellableRunnable> getTasks();
+
+    private int getNextTaskId() {
+        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
     }
 
     @NotNull
@@ -125,7 +123,7 @@ public interface SpongeTaskRunner extends TaskRunner {
         private final Runnable runnable;
         private boolean cancelled = false;
 
-        private CancellableRunnable(Runnable runnable) {
+        CancellableRunnable(@NotNull Runnable runnable) {
             this.runnable = runnable;
         }
 
@@ -142,5 +140,4 @@ public interface SpongeTaskRunner extends TaskRunner {
         }
 
     }
-
 }

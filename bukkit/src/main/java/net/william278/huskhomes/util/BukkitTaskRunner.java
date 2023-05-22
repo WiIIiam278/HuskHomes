@@ -33,8 +33,7 @@ public interface BukkitTaskRunner extends TaskRunner {
 
     @Override
     default void runAsync(@NotNull Runnable runnable) {
-        final int taskId = getTasks().size();
-        getTasks().put(taskId, getScheduler().asyncScheduler().run(runnable));
+        getScheduler().asyncScheduler().run(runnable);
     }
 
     @Override
@@ -51,12 +50,10 @@ public interface BukkitTaskRunner extends TaskRunner {
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long period) {
-        final int taskId = getTasks().size();
+        final int taskId = getNextTaskId();
         getTasks().put(taskId, getScheduler().asyncScheduler().runAtFixedRate(
-                runnable,
-                Duration.ZERO,
-                getDurationTicks(period)
-        ));
+                runnable, Duration.ZERO, getDurationTicks(period))
+        );
         return taskId;
     }
 
@@ -69,14 +66,15 @@ public interface BukkitTaskRunner extends TaskRunner {
     default void cancelTask(int taskId) {
         if (getTasks().containsKey(taskId)) {
             getTasks().get(taskId).cancel();
+            getTasks().remove(taskId);
         }
     }
 
     @Override
     default void cancelAllTasks() {
+        getScheduler().cancelGlobalTasks();
         getTasks().values().forEach(ScheduledTask::cancel);
         getTasks().clear();
-        getScheduler().cancelGlobalTasks();
     }
 
     @NotNull
@@ -84,6 +82,10 @@ public interface BukkitTaskRunner extends TaskRunner {
 
     @NotNull
     ConcurrentHashMap<Integer, ScheduledTask> getTasks();
+
+    private int getNextTaskId() {
+        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+    }
 
     @NotNull
     default Duration getDurationTicks(long ticks) {

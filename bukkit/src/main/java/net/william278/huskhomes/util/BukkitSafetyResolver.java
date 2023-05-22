@@ -46,7 +46,11 @@ public interface BukkitSafetyResolver extends SafetyResolver {
         // Search nearby blocks for a safe location
         return PaperLib.getChunkAtAsync(bukkitLocation)
                 .thenApply(Chunk::getChunkSnapshot)
-                .thenApply(snapshot -> findSafeLocationNear(location, snapshot));
+                .thenApply(snapshot -> findSafeLocationNear(
+                        location,
+                        snapshot,
+                        bukkitLocation.getWorld().getMinHeight()
+                ));
     }
 
     /**
@@ -54,9 +58,10 @@ public interface BukkitSafetyResolver extends SafetyResolver {
      *
      * @param location The location to search around
      * @param snapshot The chunk snapshot to search
+     * @param minY     The minimum Y value of the world
      * @return An optional safe location, within 4 blocks of the given location
      */
-    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ChunkSnapshot snapshot) {
+    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ChunkSnapshot snapshot, int minY) {
         final int chunkX = ((int) location.getX()) & 0xF;
         final int chunkZ = ((int) location.getZ()) & 0xF;
 
@@ -67,12 +72,12 @@ public interface BukkitSafetyResolver extends SafetyResolver {
                 if (x < 0 || x >= 16 || z < 0 || z >= 16) {
                     continue;
                 }
-                final int y = snapshot.getHighestBlockYAt(x, z);
+                final int y = Math.max((minY + 1), snapshot.getHighestBlockYAt(x, z));
                 final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
                 if (isBlockSafe(blockType.getKey().toString())) {
                     return Optional.of(Location.at(
                             (location.getX() + dX) + 0.5d,
-                            y + 1.25d,
+                            y + 1,
                             (location.getZ() + dZ) + 0.5d,
                             location.getWorld()
                     ));

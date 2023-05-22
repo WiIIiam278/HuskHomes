@@ -65,7 +65,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
      * @param location The location to search around
      * @return An optional safe location, within 4 blocks of the given location
      */
-    private Optional<Location> findSafeLocationNear(Location location, ServerWorld world) {
+    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ServerWorld world) {
         final BlockPos.Mutable blockPos = new BlockPos.Mutable(location.getX(), location.getY(), location.getZ());
         for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {

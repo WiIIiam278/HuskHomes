@@ -318,7 +318,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @Override
     public void setServerSpawn(@NotNull Location location) {
         try {
-            this.serverSpawn = Annotaml.create(new File(getDataFolder(), "spawn.yml"), new Spawn(location)).get();
+            // Create or update the spawn.yml file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists() && !spawnFile.delete()) {
+                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
+            }
+            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
 
             // Update the world spawn location, too
             game.server().worldManager().worlds().forEach(world -> {

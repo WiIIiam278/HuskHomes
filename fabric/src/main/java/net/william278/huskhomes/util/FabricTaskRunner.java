@@ -45,7 +45,7 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
-        final int taskId = getTaskId();
+        final int taskId = getNextTaskId();
         final CompletableFuture<?> future = new CompletableFuture<>();
 
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -91,12 +91,8 @@ public interface FabricTaskRunner extends TaskRunner {
     @NotNull
     ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks();
 
-    private int getTaskId() {
-        int taskId = 0;
-        while (getTasks().containsKey(taskId)) {
-            taskId++;
-        }
-        return taskId;
+    private int getNextTaskId() {
+        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
     }
 
     @Override

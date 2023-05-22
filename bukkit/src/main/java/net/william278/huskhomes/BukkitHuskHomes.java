@@ -357,7 +357,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void setServerSpawn(@NotNull Location location) {
         try {
-            this.serverSpawn = Annotaml.create(new File(getDataFolder(), "spawn.yml"), new Spawn(location)).get();
+            // Create or update the spawn.yml file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists() && !spawnFile.delete()) {
+                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
+            }
+            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
 
             // Update the world spawn location, too
             BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
@@ -475,7 +480,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }

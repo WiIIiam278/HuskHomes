@@ -7,7 +7,7 @@ test {
 }
 
 dependencies {
-    api 'commons-io:commons-io:2.11.0'
+    api 'commons-io:commons-io:2.12.0'
     api 'org.apache.commons:commons-text:1.10.0'
     api 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     api 'com.google.code.gson:gson:2.10.1'
@@ -29,7 +29,7 @@ dependencies {
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.1923'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.5.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
-    compileOnly 'maven.modrinth:pl3xmap:1.19.4-382'
+    compileOnly 'maven.modrinth:pl3xmap:1.19.4-433'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.1923'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'

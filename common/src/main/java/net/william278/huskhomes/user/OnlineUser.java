@@ -180,6 +180,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      *
      * @param location     the {@link Location} to teleport the player to
      * @param asynchronous if the teleport should be asynchronous
+     * @throws TeleportationException if the teleport fails
      */
     public abstract void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException;
 

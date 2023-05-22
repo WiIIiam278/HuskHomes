@@ -63,6 +63,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.network.EngineConnection;
 import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
@@ -79,6 +80,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -108,6 +110,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @Inject
     private Metrics.Factory metricsFactory;
 
+    private ConcurrentHashMap<Integer, CancellableRunnable> tasks;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -131,6 +134,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
         instance = this;
 
         // Get plugin version from mod container
+        this.tasks = new ConcurrentHashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -196,6 +200,17 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
 
         // Hook into bStats
         initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
+    }
+
+    @Listener
+    public void onShutdown(final StoppingEngineEvent<org.spongepowered.api.Server> event) {
+        if (database != null) {
+            database.terminate();
+        }
+        if (broker != null) {
+            broker.close();
+        }
+        cancelAllTasks();
     }
 
     @Listener
@@ -318,7 +333,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @Override
     public void setServerSpawn(@NotNull Location location) {
         try {
-            this.serverSpawn = Annotaml.create(new File(getDataFolder(), "spawn.yml"), new Spawn(location)).get();
+            // Create or update the spawn.yml file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists() && !spawnFile.delete()) {
+                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
+            }
+            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
 
             // Update the world spawn location, too
             game.server().worldManager().worlds().forEach(world -> {
@@ -494,6 +514,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @NotNull
     public RawPlayDataChannel getPluginMessageChannel() {
         return channel;
+    }
+
+    @NotNull
+    @Override
+    public ConcurrentHashMap<Integer, CancellableRunnable> getTasks() {
+        return tasks;
     }
 
     @NotNull

@@ -116,7 +116,12 @@ public class Teleport {
                         plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
                     }
 
-                    teleporter.teleportLocally(localTarget.get().getPosition(), async);
+                    try {
+                        teleporter.teleportLocally(localTarget.get().getPosition(), async);
+                    } catch (TeleportationException e) {
+                        e.displayMessage(teleporter, plugin);
+                        return;
+                    }
                     this.displayTeleportingComplete(teleporter);
                 });
                 return;
@@ -144,7 +149,12 @@ public class Teleport {
 
             final Position target = (Position) this.target;
             if (!plugin.getSettings().doCrossServer() || target.getServer().equals(plugin.getServerName())) {
-                teleporter.teleportLocally(target, async);
+                try {
+                    teleporter.teleportLocally(target, async);
+                } catch (TeleportationException e) {
+                    e.displayMessage(teleporter, plugin);
+                    return;
+                }
                 this.displayTeleportingComplete(teleporter);
                 return;
             }

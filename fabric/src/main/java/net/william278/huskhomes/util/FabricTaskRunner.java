@@ -27,13 +27,10 @@ import java.util.function.Supplier;
 
 public interface FabricTaskRunner extends TaskRunner {
 
-    ConcurrentHashMap<Integer, CompletableFuture<?>> tasks = new ConcurrentHashMap<>();
 
     @Override
-    default int runAsync(@NotNull Runnable runnable) {
-        int taskId = tasks.size();
-        tasks.put(taskId, CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer()));
-        return taskId;
+    default void runAsync(@NotNull Runnable runnable) {
+        CompletableFuture.runAsync(runnable, getPlugin().getMinecraftServer());
     }
 
     @Override
@@ -48,7 +45,7 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
-        int taskId = tasks.size();
+        final int taskId = getTaskId();
         final CompletableFuture<?> future = new CompletableFuture<>();
 
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -60,7 +57,7 @@ public interface FabricTaskRunner extends TaskRunner {
             runnable.run();
         }, 0, delay * 50, TimeUnit.MILLISECONDS);
 
-        tasks.put(taskId, future);
+        getTasks().put(taskId, future);
         return taskId;
     }
 
@@ -79,13 +76,27 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @Override
     default void cancelTask(int taskId) {
-        tasks.get(taskId).cancel(true);
+        if (getTasks().containsKey(taskId)) {
+            getTasks().get(taskId).cancel(true);
+            getTasks().remove(taskId);
+        }
     }
 
     @Override
     default void cancelAllTasks() {
-        tasks.forEach((taskId, future) -> future.cancel(true));
-        tasks.clear();
+        getTasks().values().forEach(task -> task.cancel(true));
+        getTasks().clear();
+    }
+
+    @NotNull
+    ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks();
+
+    private int getTaskId() {
+        int taskId = 0;
+        while (getTasks().containsKey(taskId)) {
+            taskId++;
+        }
+        return taskId;
     }
 
     @Override

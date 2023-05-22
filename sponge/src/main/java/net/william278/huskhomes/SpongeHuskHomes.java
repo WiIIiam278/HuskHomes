@@ -63,6 +63,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.network.EngineConnection;
 import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
@@ -199,6 +200,17 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
 
         // Hook into bStats
         initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
+    }
+
+    @Listener
+    public void onShutdown(final StoppingEngineEvent<org.spongepowered.api.Server> event) {
+        if (database != null) {
+            database.terminate();
+        }
+        if (broker != null) {
+            broker.close();
+        }
+        cancelAllTasks();
     }
 
     @Listener

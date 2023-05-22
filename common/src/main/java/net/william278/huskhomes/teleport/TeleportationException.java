@@ -23,25 +23,17 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
-public class TeleportationException extends IllegalArgumentException {
+public class TeleportationException extends IllegalStateException {
 
-    public TeleportationException(@NotNull Type error) {
-        super("Error during teleport operation: " + error.name());
+    private final Type type;
+
+    public TeleportationException(@NotNull Type type) {
+        super("Error executing teleport: " + type.name());
+        this.type = type;
     }
 
-    public enum Type {
-        TELEPORTER_NOT_FOUND,
-        TARGET_NOT_FOUND,
-        ALREADY_WARMING_UP,
-        ECONOMY_ACTION_FAILED,
-        WARMUP_ALREADY_MOVING,
-        WORLD_NOT_FOUND,
-        ILLEGAL_TARGET_COORDINATES,
-        CANNOT_TELEPORT_TO_SELF
-    }
-
-    public void displayMessage(@NotNull CommandUser user, @NotNull HuskHomes plugin, @NotNull String[] args) {
-        switch (Type.valueOf(getMessage().split(": ")[1])) {
+    public void displayMessage(@NotNull CommandUser user, @NotNull HuskHomes plugin, @NotNull String... args) {
+        switch (type) {
             case TELEPORTER_NOT_FOUND, TARGET_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_player_not_found", args)
                     .ifPresent(user::sendMessage);
@@ -62,4 +54,25 @@ public class TeleportationException extends IllegalArgumentException {
                     .ifPresent(user::sendMessage);
         }
     }
+
+    @NotNull
+    @SuppressWarnings("unused")
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * The types of teleportation errors
+     */
+    public enum Type {
+        TELEPORTER_NOT_FOUND,
+        TARGET_NOT_FOUND,
+        ALREADY_WARMING_UP,
+        ECONOMY_ACTION_FAILED,
+        WARMUP_ALREADY_MOVING,
+        WORLD_NOT_FOUND,
+        ILLEGAL_TARGET_COORDINATES,
+        CANNOT_TELEPORT_TO_SELF
+    }
+
 }

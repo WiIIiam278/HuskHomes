@@ -171,7 +171,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         // Check against economy
-        if (executor instanceof OnlineUser user && !plugin.validateEconomyCheck(user, EconomyHook.Action.MAKE_HOME_PUBLIC)) {
+        if (executor instanceof OnlineUser user && !plugin.canPerformTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC)) {
             return;
         }
 
@@ -191,7 +191,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
             // Perform transaction
             if (executor instanceof OnlineUser user) {
-                plugin.performEconomyTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC);
+                plugin.performTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC);
             }
 
             final String privacy = home.isPublic() ? "public" : "private";

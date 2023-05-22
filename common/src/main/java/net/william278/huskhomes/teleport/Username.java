@@ -25,11 +25,41 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
+/**
+ * Represents the username of a player who may or may not be online, either locally as an {@link OnlineUser},
+ * or on a different server.
+ *
+ * @param name The name of the player
+ */
 public record Username(@NotNull String name) implements Teleportable, Target {
 
+    /**
+     * Search for a local {@link OnlineUser} by their name.
+     *
+     * @param plugin The instance of {@link HuskHomes}
+     * @return An {@link Optional} containing the {@link OnlineUser} if found
+     * @throws TeleportationException If the user is not found
+     * @implNote If a user by the name provided is on the {@link HuskHomes#getPlayerList() player list}, then this
+     * method will search for the user by exact name.
+     * <p>
+     * Otherwise, the lookup will first attempt to find the user by exact name, and if that fails, it will search for
+     * the closest name match.
+     */
     @NotNull
-    public Optional<OnlineUser> findLocally(@NotNull HuskHomes plugin) throws TeleportationException {
-        return plugin.findOnlinePlayer(name);
+    public Optional<OnlineUser> findLocally(@NotNull HuskHomes plugin) {
+        return plugin.getPlayerList(true).stream().anyMatch(listedName -> listedName.equalsIgnoreCase(name))
+                ? plugin.getOnlineUserExact(name) : plugin.getOnlineUser(name);
+    }
+
+    /**
+     * Get the username {@link String} being represented by this object
+     *
+     * @return the username
+     */
+    @NotNull
+    @Override
+    public String getUsername() {
+        return name;
     }
 
 }

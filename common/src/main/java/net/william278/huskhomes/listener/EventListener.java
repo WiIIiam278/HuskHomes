@@ -59,7 +59,7 @@ public class EventListener {
             // Ensure the user is in the database
             plugin.getDatabase().ensureUser(onlineUser);
 
-            // Handle cross server checks
+            // Handle cross-server checks
             if (plugin.getSettings().doCrossServer()) {
                 this.handleInboundTeleport(onlineUser);
 
@@ -105,7 +105,7 @@ public class EventListener {
             try {
                 teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().doAsynchronousTeleports());
             } catch (TeleportationException e) {
-                e.displayMessage(teleporter, plugin, new String[0]);
+                e.displayMessage(teleporter, plugin);
             }
             plugin.getDatabase().setCurrentTeleport(teleporter, null);
             teleport.displayTeleportingComplete(teleporter);
@@ -130,14 +130,14 @@ public class EventListener {
                                     .updateLastPosition(false)
                                     .toTeleport().execute();
                         } catch (TeleportationException e) {
-                            e.displayMessage(teleporter, plugin, new String[0]);
+                            e.displayMessage(teleporter, plugin);
                         }
                     }, 40L);
                 } else {
                     try {
                         teleporter.teleportLocally(spawn, plugin.getSettings().doAsynchronousTeleports());
                     } catch (TeleportationException e) {
-                        e.displayMessage(teleporter, plugin, new String[0]);
+                        e.displayMessage(teleporter, plugin);
                     }
                 }
                 teleporter.sendTranslatableMessage("block.minecraft.spawn.not_valid");
@@ -146,7 +146,7 @@ public class EventListener {
             try {
                 teleporter.teleportLocally(bedPosition.get(), plugin.getSettings().doAsynchronousTeleports());
             } catch (TeleportationException e) {
-                e.displayMessage(teleporter, plugin, new String[0]);
+                e.displayMessage(teleporter, plugin);
             }
         }
         plugin.getDatabase().setCurrentTeleport(teleporter, null);
@@ -258,7 +258,7 @@ public class EventListener {
                     try {
                         builder.toTeleport().execute();
                     } catch (TeleportationException e) {
-                        e.displayMessage(onlineUser, plugin, new String[0]);
+                        e.displayMessage(onlineUser, plugin);
                     }
                 });
     }

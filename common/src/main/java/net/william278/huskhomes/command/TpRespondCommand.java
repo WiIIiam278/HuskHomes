@@ -35,7 +35,7 @@ public class TpRespondCommand extends InGameCommand implements UserListTabProvid
     private final boolean accept;
 
     protected TpRespondCommand(@NotNull HuskHomes plugin, boolean accept) {
-        super(accept ? "tpaccept" : "tpdecline", List.of(), "[player]", plugin);
+        super(accept ? "tpaccept" : "tpdecline", accept ? List.of("tpyes") : List.of("tpno", "tpdeny"), "[player]", plugin);
         this.accept = accept;
     }
 

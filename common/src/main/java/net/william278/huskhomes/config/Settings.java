@@ -26,12 +26,11 @@ import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Plugin settings, read from config.yml
@@ -137,6 +136,9 @@ public class Settings {
     @YamlKey("general.strict_tpa_here_requests")
     private boolean strictTpaHereRequests = true;
 
+    @YamlKey("general.case_insensitive_names")
+    private boolean caseInsensitiveNames = false;
+
     @YamlKey("general.allow_unicode_names")
     private boolean allowUnicodeNames = false;
 
@@ -236,13 +238,14 @@ public class Settings {
     @YamlKey("economy.free_home_slots")
     private int freeHomeSlots = 5;
 
+    @YamlComment("Require money to perform certain actions. Check https://william278.net/docs/huskhomes/economy-hook for available actions")
     @YamlKey("economy.costs")
-    private Map<String, Double> economyCosts = Map.of(
-            EconomyHook.Action.ADDITIONAL_HOME_SLOT.name().toLowerCase(), EconomyHook.Action.ADDITIONAL_HOME_SLOT.getDefaultCost(),
-            EconomyHook.Action.MAKE_HOME_PUBLIC.name().toLowerCase(), EconomyHook.Action.MAKE_HOME_PUBLIC.getDefaultCost(),
-            EconomyHook.Action.RANDOM_TELEPORT.name().toLowerCase(), EconomyHook.Action.RANDOM_TELEPORT.getDefaultCost(),
-            EconomyHook.Action.BACK_COMMAND.name().toLowerCase(), EconomyHook.Action.BACK_COMMAND.getDefaultCost()
-    );
+    private Map<String, Double> economyCosts = Arrays.stream(EconomyHook.Action.values())
+            .filter(action -> action.getDefaultCost() > 0)
+            .collect(Collectors.toMap(
+                    action -> action.name().toLowerCase(Locale.ENGLISH),
+                    EconomyHook.Action::getDefaultCost)
+            );
 
     // Mapping plugins
     @YamlComment("Display public homes/warps on your web map (supports Dynmap and BlueMap)")
@@ -361,6 +364,10 @@ public class Settings {
         return strictTpaHereRequests;
     }
 
+    public boolean caseInsensitiveNames() {
+        return caseInsensitiveNames;
+    }
+
     public boolean doAllowUnicodeNames() {
         return allowUnicodeNames;
     }
@@ -456,8 +463,12 @@ public class Settings {
         return rtpDistributionStandardDeviation;
     }
 
-    public List<String> getRtpRestrictedWorlds() {
-        return rtpRestrictedWorlds;
+    public boolean isWorldRtpRestricted(@NotNull World world) {
+        final String worldName = world.getName();
+        final String filteredName = worldName.startsWith("minecraft:") ? worldName.substring(10) : worldName;
+        return rtpRestrictedWorlds.stream()
+                .map(name -> name.startsWith("minecraft:") ? name.substring(10) : name)
+                .anyMatch(name -> name.equalsIgnoreCase(filteredName));
     }
 
     public boolean doEconomy() {
@@ -476,7 +487,7 @@ public class Settings {
         if (!doEconomy()) {
             return Optional.empty();
         }
-        final Double cost = economyCosts.get(action.name().toLowerCase());
+        final Double cost = economyCosts.get(action.name().toLowerCase(Locale.ENGLISH));
         if (cost != null && cost > 0d) {
             return Optional.of(cost);
         }
@@ -499,7 +510,7 @@ public class Settings {
         return disabledCommands.stream().anyMatch(disabled -> {
             final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
             return command.equalsIgnoreCase(type.getName())
-                    || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
         });
     }
 

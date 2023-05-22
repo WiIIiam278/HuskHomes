@@ -24,12 +24,12 @@ import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.POIMarker;
+import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

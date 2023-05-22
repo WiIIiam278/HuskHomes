@@ -22,6 +22,7 @@ package net.william278.huskhomes.util;
 import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.position.Location;
 import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,31 +38,48 @@ public interface BukkitSafetyResolver extends SafetyResolver {
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
-        return PaperLib.getChunkAtAsync(bukkitLocation).thenApply(Chunk::getChunkSnapshot).thenApply(snapshot -> {
-            final int chunkX = bukkitLocation.getBlockX() & 0xF;
-            final int chunkZ = bukkitLocation.getBlockZ() & 0xF;
+        // Ensure the location is within the world border
+        if (!bukkitLocation.getWorld().getWorldBorder().isInside(bukkitLocation)) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
 
-            for (int dX = -1; dX <= 2; dX++) {
-                for (int dZ = -1; dZ <= 2; dZ++) {
-                    final int x = chunkX + dX;
-                    final int z = chunkZ + dZ;
-                    if (x < 0 || x >= 16 || z < 0 || z >= 16) {
-                        continue;
-                    }
-                    final int y = snapshot.getHighestBlockYAt(x, z);
-                    final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
-                    if (isBlockSafe(blockType.getKey().toString())) {
-                        return Optional.of(Location.at(
-                                (location.getX() + dX) + 0.5d,
-                                y + 1.25d,
-                                (location.getZ() + dZ) + 0.5d,
-                                location.getWorld()
-                        ));
-                    }
+        // Search nearby blocks for a safe location
+        return PaperLib.getChunkAtAsync(bukkitLocation)
+                .thenApply(Chunk::getChunkSnapshot)
+                .thenApply(snapshot -> findSafeLocationNear(location, snapshot));
+    }
+
+    /**
+     * Search for a safe ground location near the given location
+     *
+     * @param location The location to search around
+     * @param snapshot The chunk snapshot to search
+     * @return An optional safe location, within 4 blocks of the given location
+     */
+    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ChunkSnapshot snapshot) {
+        final int chunkX = ((int) location.getX()) & 0xF;
+        final int chunkZ = ((int) location.getZ()) & 0xF;
+
+        for (int dX = -SEARCH_RADIUS; dX <= SEARCH_RADIUS; dX++) {
+            for (int dZ = -SEARCH_RADIUS; dZ <= SEARCH_RADIUS; dZ++) {
+                final int x = chunkX + dX;
+                final int z = chunkZ + dZ;
+                if (x < 0 || x >= 16 || z < 0 || z >= 16) {
+                    continue;
+                }
+                final int y = snapshot.getHighestBlockYAt(x, z);
+                final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
+                if (isBlockSafe(blockType.getKey().toString())) {
+                    return Optional.of(Location.at(
+                            (location.getX() + dX) + 0.5d,
+                            y + 1.25d,
+                            (location.getZ() + dZ) + 0.5d,
+                            location.getWorld()
+                    ));
                 }
             }
-            return Optional.empty();
-        });
+        }
+        return Optional.empty();
     }
 
 }

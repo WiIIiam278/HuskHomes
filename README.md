@@ -4,8 +4,8 @@
     <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskHomes2/ci.yml?branch=master&logo=github"/>
     </a> 
-    <a href="https://jitpack.io/#net.william278/HuskHomes2">
-        <img src="https://img.shields.io/jitpack/version/net.william278/HuskHomes2?color=%2300fb9a&label=api&logo=gradle" />
+    <a href="https://repo.william278.net/#/releases/net/william278/huskhomes/">
+        <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/huskhomes?color=00fb9a&name=Maven&prefix=v" />
     </a> 
     <a href="https://discord.gg/tVYhJfyDWG">
         <img src="https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2" />
@@ -66,7 +66,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [Modrinth](https://modrinth.com/plugin/huskhomes) &mdash; View the plugin Modrinth page (Also: [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/), [Polymart](https://polymart.org/resource/huskhomes.284/), [Hangar](https://hangar.papermc.io/William278/HuskHomes), & [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
 - [Issues](https://github.com/WiIIiam278/HuskHomes2/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions
-- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics
+- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics (Also: [Sponge](https://bstats.org/plugin/sponge/HuskHomes/18423))
 
 ---
 &copy; [William278](https://william278.net/), 2023. Licensed under the Apache-2.0 License.

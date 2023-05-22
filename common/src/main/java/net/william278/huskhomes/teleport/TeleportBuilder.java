@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * A builder for {@link Teleport} and {@link TimedTeleport} objects.
+ */
 public class TeleportBuilder {
     private final HuskHomes plugin;
     private OnlineUser executor;
@@ -40,13 +43,13 @@ public class TeleportBuilder {
     }
 
     @NotNull
-    public Teleport toTeleport() throws IllegalStateException {
-        validateTeleport();
+    public Teleport toTeleport() throws TeleportationException {
+        this.validateTeleport();
         return new Teleport(executor, teleporter, target, type, updateLastPosition, economyActions, plugin);
     }
 
     @NotNull
-    public TimedTeleport toTimedTeleport() throws TeleportationException, IllegalStateException {
+    public TimedTeleport toTimedTeleport() throws IllegalStateException {
         validateTeleport();
         if (!(teleporter instanceof OnlineUser onlineTeleporter)) {
             throw new IllegalStateException("Teleporter must be an OnlineUser for timed teleportation");

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
+import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
@@ -33,6 +34,7 @@ import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
+import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
@@ -55,12 +57,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
+public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, TransactionResolver {
 
     int SPIGOT_RESOURCE_ID = 83767;
 
@@ -74,6 +77,31 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
      */
     @NotNull
     List<OnlineUser> getOnlineUsers();
+
+    /**
+     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {
+        return getOnlineUserExact(playerName)
+                .or(() -> getOnlineUsers().stream()
+                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
+                        .findFirst());
+    }
+
+    /**
+     * Finds a local {@link OnlineUser} by their name.
+     *
+     * @param playerName the name of the player to find
+     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
+     */
+    default Optional<OnlineUser> getOnlineUserExact(@NotNull String playerName) {
+        return getOnlineUsers().stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
+                .findFirst();
+    }
 
     @NotNull
     Set<SavedUser> getSavedUsers();
@@ -106,22 +134,6 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
             throw new IllegalStateException("Failed to initialize " + name, e);
         }
         log(Level.INFO, "Successfully initialized " + name);
-    }
-
-    /**
-     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    @NotNull
-    default Optional<OnlineUser> findOnlinePlayer(@NotNull String playerName) {
-        return getOnlineUsers().stream()
-                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
-                .findFirst()
-                .or(() -> getOnlineUsers().stream()
-                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst());
     }
 
     /**
@@ -252,55 +264,16 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 .findFirst();
     }
 
-    default Optional<EconomyHook> getEconomyHook() {
-        return getHook(EconomyHook.class);
-    }
-
     default Optional<MapHook> getMapHook() {
         return getHook(MapHook.class);
     }
 
-    /**
-     * Perform an economy check on the {@link OnlineUser}; returning {@code true} if it passes the check
-     *
-     * @param player the player to perform the check on
-     * @param action the action to perform
-     * @return {@code true} if the action passes the check, {@code false} if the user has insufficient funds
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    default boolean validateEconomyCheck(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
-        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
-        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
-            final Optional<EconomyHook> hook = getEconomyHook();
-            if (hook.isPresent()) {
-                if (cost.get() > hook.get().getPlayerBalance(player)) {
-                    getLocales().getLocale("error_insufficient_funds", hook.get().formatCurrency(cost.get()))
-                            .ifPresent(player::sendMessage);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Execute an economy transaction if needed, updating the player's balance
-     *
-     * @param player the player to deduct the cost from if needed
-     * @param action the action to deduct the cost from if needed
-     */
-    default void performEconomyTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
-        if (!getSettings().doEconomy()) return;
-        final Optional<Double> cost = getSettings().getEconomyCost(action).map(Math::abs);
-
-        if (cost.isPresent() && !player.hasPermission(EconomyHook.BYPASS_PERMISSION)) {
-            final Optional<EconomyHook> hook = getEconomyHook();
-            if (hook.isPresent()) {
-                hook.get().changePlayerBalance(player, -cost.get());
-                getLocales().getLocale(action.confirmationLocaleId, hook.get().formatCurrency(cost.get()))
-                        .ifPresent(player::sendMessage);
-            }
-        }
+    @NotNull
+    default List<Importer> getImporters() {
+        return getHooks().stream()
+                .filter(hook -> Importer.class.isAssignableFrom(hook.getClass()))
+                .map(Importer.class::cast)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -359,6 +332,8 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
                 getHooks().add(new DynmapHook(this));
             } else if (isDependencyLoaded("BlueMap")) {
                 getHooks().add(new BlueMapHook(this));
+            } else if (isDependencyLoaded("Pl3xMap")) {
+                getHooks().add(new Pl3xMapHook(this));
             }
         }
         if (isDependencyLoaded("Plan")) {
@@ -379,6 +354,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
     }
 
     @NotNull
+    @SuppressWarnings("unused")
     default List<String> getPlayerList() {
         return getPlayerList(true);
     }
@@ -468,7 +444,7 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver {
         if (getSettings().doCheckForUpdates()) {
             getUpdateChecker().check().thenAccept(checked -> {
                 if (!checked.isUpToDate()) {
-                    log(Level.WARNING, "A new version of HuskTowns is available: v"
+                    log(Level.WARNING, "A new version of HuskHomes is available: v"
                                        + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });

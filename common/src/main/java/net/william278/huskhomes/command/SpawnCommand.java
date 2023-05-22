@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
@@ -68,6 +69,7 @@ public class SpawnCommand extends Command {
 
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleporter)
+                .economyActions(EconomyHook.Action.SPAWN_TELEPORT)
                 .target(spawn);
         try {
             if (teleporter.equals(executor)) {

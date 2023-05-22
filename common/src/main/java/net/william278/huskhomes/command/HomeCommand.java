@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
@@ -52,7 +53,11 @@ public abstract class HomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
-        this.teleport(executor, optionalTeleporter.get(), home);
+        this.teleport(
+                executor, optionalTeleporter.get(), home,
+                (executor instanceof OnlineUser user && home.getOwner().equals(user)
+                        ? EconomyHook.Action.HOME_TELEPORT : EconomyHook.Action.PUBLIC_HOME_TELEPORT)
+        );
     }
 
 }

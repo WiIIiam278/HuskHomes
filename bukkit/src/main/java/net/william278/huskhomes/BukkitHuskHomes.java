@@ -37,6 +37,7 @@ import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
 import net.william278.huskhomes.hook.RedisEconomyHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
+import net.william278.huskhomes.importer.EssentialsXImporter;
 import net.william278.huskhomes.listener.BukkitEventListener;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.manager.Manager;
@@ -62,11 +63,15 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -76,6 +81,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
      */
     private static final int METRICS_ID = 8430;
+    private ConcurrentHashMap<Integer, ScheduledTask> tasks;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -94,6 +100,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Nullable
     private Broker broker;
     private BukkitAudiences audiences;
+    private MorePaperLib paperLib;
 
     private static BukkitHuskHomes instance;
 
@@ -122,6 +129,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void onEnable() {
         // Create adventure audience
         this.audiences = BukkitAudiences.create(this);
+        this.paperLib = new MorePaperLib(this);
+        this.tasks = new ConcurrentHashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -158,6 +167,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             });
         }
 
+        // Set the random teleport engine
         setRandomTeleportEngine(new NormalDistributionEngine(this));
 
         // Register plugin hooks (Economy, Maps, Plan)
@@ -204,6 +214,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public void registerHooks() {
         HuskHomes.super.registerHooks();
 
+        // Hooks
         if (getSettings().doEconomy()) {
             if (isDependencyLoaded("RedisEconomy")) {
                 getHooks().add(new RedisEconomyHook(this));
@@ -213,6 +224,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         }
         if (isDependencyLoaded("PlaceholderAPI")) {
             getHooks().add(new PlaceholderAPIHook(this));
+        }
+
+        // Importers
+        if (isDependencyLoaded("Essentials")) {
+            getHooks().add(new EssentialsXImporter(this));
         }
     }
 
@@ -421,6 +437,10 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void registerMetrics(int metricsId) {
+        if (!getVersion().getMetadata().isBlank()) {
+            return;
+        }
+
         try {
             final Metrics metrics = new Metrics(this, metricsId);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
@@ -432,8 +452,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
-        } catch (Exception e) {
-            log(Level.WARNING, "Failed to register metrics", e);
+        } catch (Throwable e) {
+            log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
         }
     }
 
@@ -455,9 +475,21 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
+    }
+
+    @Override
+    @NotNull
+    public GracefulScheduling getScheduler() {
+        return paperLib.scheduling();
+    }
+
+    @Override
+    @NotNull
+    public ConcurrentHashMap<Integer, ScheduledTask> getTasks() {
+        return tasks;
     }
 
     @Override
@@ -465,5 +497,4 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public HuskHomes getPlugin() {
         return this;
     }
-
 }

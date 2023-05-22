@@ -30,6 +30,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Represents a {@link Teleport} that has an associated warmup time; the teleport will not be performed until the
+ * warmup time has elapsed, during which the user must not move or take damage.
+ *
+ * @see Teleport#builder(HuskHomes)
+ */
 public class TimedTeleport extends Teleport {
 
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
@@ -83,7 +89,7 @@ public class TimedTeleport extends Teleport {
             // Run the warmup
             final AtomicInteger warmupTaskId = new AtomicInteger();
             final Runnable countdownRunnable = (() -> {
-                // Display countdown action bar message
+                // Display a countdown action bar message
                 if (timeLeft > 0) {
                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
                             .ifPresent(teleporter::playSound);
@@ -92,7 +98,11 @@ public class TimedTeleport extends Teleport {
                 } else {
                     plugin.getLocales().getLocale("teleporting_action_bar_processing")
                             .ifPresent(this::sendStatusMessage);
-                    super.execute();
+                    try {
+                        super.execute();
+                    } catch (TeleportationException e) {
+                        e.displayMessage(teleporter, plugin);
+                    }
                 }
 
                 // Tick (decrement) the timed teleport timer and end it if done
@@ -108,7 +118,7 @@ public class TimedTeleport extends Teleport {
     /**
      * Ticks a timed teleport, decrementing the time left until the teleport is complete
      * <p>
-     * A timed teleport will be cancelled if certain criteria are met:
+     * A timed teleport will be canceled if certain criteria are met:
      * <ul>
      *     <li>The player has left the server</li>
      *     <li>The plugin is disabling</li>

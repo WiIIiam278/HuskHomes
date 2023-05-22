@@ -20,8 +20,11 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 /**
  * A hook that provides economy features
@@ -59,25 +62,61 @@ public abstract class EconomyHook extends Hook {
     public abstract String formatCurrency(final double amount);
 
     /**
-     * Identifies actions that incur an economic cost if economy is enabled
+     * Send the player a message notifying them that they have been charged
+     * for performing an action
+     *
+     * @param user   the user to notify
+     * @param plugin the plugin instance
+     * @param action the action that was performed
+     */
+    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin, @NotNull Action action) {
+        plugin.getSettings().getEconomyCost(action)
+                .flatMap(cost -> plugin.getLocales().getLocale(
+                        "economy_transaction_complete",
+                        formatCurrency(cost),
+                        Locales.escapeText(plugin.getLocales()
+                                .getRawLocale("economy_action_" + action.name().toLowerCase(Locale.ENGLISH))
+                                .orElse(action.name()))
+                ))
+                .ifPresent(user::sendMessage);
+    }
+
+    /**
+     * Identifies actions that have a price associated with performing them
      */
     public enum Action {
-        ADDITIONAL_HOME_SLOT(100.00, "economy_action_additional_home_slot"),
-        MAKE_HOME_PUBLIC(50.00, "economy_action_make_home_public"),
-        RANDOM_TELEPORT(25.00, "economy_action_random_teleport"),
-        BACK_COMMAND(0.00, "economy_action_back_command");
+
+        /*
+         * Home and public home slots
+         */
+        ADDITIONAL_HOME_SLOT(100.00),
+        MAKE_HOME_PUBLIC(50.00),
+        BACK_COMMAND(0.00),
+
+        /*
+         * Teleportation actions
+         */
+        RANDOM_TELEPORT(25.00),
+        HOME_TELEPORT(0.00),
+        PUBLIC_HOME_TELEPORT(0.00),
+        WARP_TELEPORT(0.00),
+        SPAWN_TELEPORT(0.00),
+
+        /*
+         * Teleport request actions
+         */
+        SEND_TELEPORT_REQUEST(0.00),
+        ACCEPT_TELEPORT_REQUEST(0.00);
 
         private final double defaultCost;
-        @NotNull
-        public final String confirmationLocaleId;
 
-        Action(final double defaultCost, @NotNull String confirmationLocaleId) {
+        Action(double defaultCost) {
             this.defaultCost = defaultCost;
-            this.confirmationLocaleId = confirmationLocaleId;
         }
 
         public double getDefaultCost() {
             return defaultCost;
         }
+
     }
 }

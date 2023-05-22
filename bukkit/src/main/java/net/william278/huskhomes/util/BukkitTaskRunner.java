@@ -19,54 +19,76 @@
 
 package net.william278.huskhomes.util;
 
-import net.william278.huskhomes.BukkitHuskHomes;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public interface BukkitTaskRunner extends TaskRunner {
+
     @Override
     default int runAsync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTaskAsynchronously((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().asyncScheduler().run(runnable));
+        return taskId;
     }
 
     @Override
     default <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier) {
         final CompletableFuture<T> future = new CompletableFuture<>();
-        Bukkit.getScheduler().runTaskAsynchronously((BukkitHuskHomes) getPlugin(),
-                () -> future.complete(supplier.get()));
+        getScheduler().asyncScheduler().run(() -> future.complete(supplier.get()));
         return future;
     }
 
     @Override
     default void runSync(@NotNull Runnable runnable) {
-        Bukkit.getScheduler().runTask((BukkitHuskHomes) getPlugin(), runnable).getTaskId();
+        getScheduler().globalRegionalScheduler().run(runnable);
     }
 
     @Override
     default int runAsyncRepeating(@NotNull Runnable runnable, long period) {
-        AtomicInteger taskId = new AtomicInteger();
-        taskId.set(Bukkit.getScheduler().runTaskTimerAsynchronously((BukkitHuskHomes) getPlugin(),
-                runnable, 0, period).getTaskId());
-        return taskId.get();
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().asyncScheduler().runAtFixedRate(
+                runnable,
+                Duration.ZERO,
+                getDurationTicks(period)
+        ));
+        return taskId;
     }
 
     @Override
     default void runLater(@NotNull Runnable runnable, long delay) {
-        Bukkit.getScheduler().runTaskLater((BukkitHuskHomes) getPlugin(), runnable, delay).getTaskId();
+        getScheduler().asyncScheduler().runDelayed(runnable, getDurationTicks(delay));
     }
 
     @Override
     default void cancelTask(int taskId) {
-        Bukkit.getScheduler().cancelTask(taskId);
+        if (getTasks().containsKey(taskId)) {
+            getTasks().get(taskId).cancel();
+        }
     }
 
     @Override
     default void cancelAllTasks() {
-        Bukkit.getScheduler().cancelTasks((BukkitHuskHomes) getPlugin());
+        getTasks().values().forEach(ScheduledTask::cancel);
+        getTasks().clear();
+        getScheduler().cancelGlobalTasks();
+    }
+
+    @NotNull
+    GracefulScheduling getScheduler();
+
+    @NotNull
+    ConcurrentHashMap<Integer, ScheduledTask> getTasks();
+
+    @NotNull
+    default Duration getDurationTicks(long ticks) {
+        return Duration.of(ticks * 50, ChronoUnit.MILLIS);
     }
 
 }

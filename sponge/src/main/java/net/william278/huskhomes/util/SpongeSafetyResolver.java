@@ -20,10 +20,13 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.border.WorldBorder;
 import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.math.vector.Vector2d;
 import org.spongepowered.math.vector.Vector3i;
 
 import java.util.Optional;
@@ -38,23 +41,46 @@ public interface SpongeSafetyResolver extends SafetyResolver {
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
+        // Ensure the location is within the world border
         final ServerLocation serverLocation = adaptedLocation.get();
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                final Vector3i cursor = serverLocation.asHighestLocation().blockPosition().add(x, 0, z);
-                final BlockState blockState = serverLocation.world().block(cursor);
+        if (isInBorder(serverLocation.world().border(), serverLocation.blockPosition())) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+
+        return CompletableFuture.completedFuture(findSafeLocationNear(serverLocation, location.getWorld()));
+    }
+
+    /**
+     * Search for a safe ground location near the given location
+     *
+     * @param location The location to search around
+     * @param world    The world to search in
+     * @return An optional safe location, within 4 blocks of the given location
+     */
+    private Optional<Location> findSafeLocationNear(@NotNull ServerLocation location, @NotNull World world) {
+        for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
+            for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
+                final Vector3i cursor = location.asHighestLocation().blockPosition().add(x, 0, z);
+                final BlockState blockState = location.world().block(cursor);
                 if (isBlockSafe(blockState.type().key(RegistryTypes.BLOCK_TYPE).asString())) {
-                    return CompletableFuture.completedFuture(Optional.of(Location.at(
+                    return Optional.of(Location.at(
                             cursor.x() + 0.5,
                             cursor.y() + 1,
                             cursor.z() + 0.5,
-                            location.getWorld()
-                    )));
+                            world
+                    ));
                 }
             }
         }
+        return Optional.empty();
+    }
 
-        return CompletableFuture.completedFuture(Optional.empty());
+    private boolean isInBorder(WorldBorder border, Vector3i position) {
+        final Vector2d center = border.center();
+        final double radius = border.diameter() / 2;
+        final double x = position.x() - center.x();
+        final double z = position.z() - center.y();
+        return x * x + z * z < radius * radius;
     }
 
 }

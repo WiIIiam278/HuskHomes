@@ -21,6 +21,7 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
@@ -145,7 +146,7 @@ public class RequestsManager {
                                     @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
-        final Optional<OnlineUser> localTarget = plugin.findOnlinePlayer(targetUser);
+        final Optional<OnlineUser> localTarget = plugin.getOnlineUser(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
@@ -254,6 +255,12 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
             return;
         }
+
+        // Validate the economy check
+        if (accepted && !plugin.canPerformTransaction(recipient, EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)) {
+            return;
+        }
+
         handleRequestResponse(lastRequest.get(), recipient, accepted);
     }
 
@@ -282,7 +289,7 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
 
             // Find the requester and inform them of the response
-            final Optional<OnlineUser> localRequester = plugin.findOnlinePlayer(request.getRequesterName());
+            final Optional<OnlineUser> localRequester = plugin.getOnlineUser(request.getRequesterName());
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().doCrossServer()) {
@@ -301,6 +308,7 @@ public class RequestsManager {
             // If the request is a tpa here request, teleport the recipient to the sender
             if (accepted && request.getType() == TeleportRequest.Type.TPA_HERE) {
                 final TeleportBuilder builder = Teleport.builder(plugin)
+                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
                         .teleporter(recipient);
 
                 // Strict /tpahere requests will teleport to where the sender was when typing the command
@@ -313,7 +321,7 @@ public class RequestsManager {
                 try {
                     builder.toTimedTeleport().execute();
                 } catch (TeleportationException e) {
-                    e.displayMessage(recipient, plugin, new String[0]);
+                    e.displayMessage(recipient, plugin);
                 }
             }
         }));
@@ -344,10 +352,11 @@ public class RequestsManager {
                 Teleport.builder(plugin)
                         .teleporter(requester)
                         .target(request.getRecipientName())
+                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
                         .toTimedTeleport()
                         .execute();
             } catch (TeleportationException e) {
-                e.displayMessage(requester, plugin, new String[0]);
+                e.displayMessage(requester, plugin);
             }
         }
     }

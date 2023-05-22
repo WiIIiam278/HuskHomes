@@ -34,6 +34,11 @@ public interface UserListTabProvider extends TabProvider {
         return args.length < 2 ? getPlugin().getPlayerList(false) : null;
     }
 
+    @Nullable
+    default List<String> suggestLocal(@NotNull String[] args) {
+        return args.length < 2 ? getPlugin().getLocalPlayerList(false) : null;
+    }
+
     @NotNull
     HuskHomes getPlugin();
 

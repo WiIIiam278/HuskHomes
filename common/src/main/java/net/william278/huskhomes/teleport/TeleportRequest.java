@@ -90,6 +90,7 @@ public class TeleportRequest {
     /**
      * The user making the request
      */
+    @NotNull
     public String getRequesterName() {
         return requesterName;
     }

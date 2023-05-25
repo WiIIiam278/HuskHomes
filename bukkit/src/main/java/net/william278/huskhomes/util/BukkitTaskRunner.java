@@ -81,11 +81,8 @@ public interface BukkitTaskRunner extends TaskRunner {
     GracefulScheduling getScheduler();
 
     @NotNull
+    @Override
     ConcurrentHashMap<Integer, ScheduledTask> getTasks();
-
-    private int getNextTaskId() {
-        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
-    }
 
     @NotNull
     default Duration getDurationTicks(long ticks) {

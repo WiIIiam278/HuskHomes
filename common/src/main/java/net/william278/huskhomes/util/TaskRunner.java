@@ -23,6 +23,7 @@ import net.william278.huskhomes.HuskHomes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public interface TaskRunner {
@@ -40,6 +41,17 @@ public interface TaskRunner {
     void cancelTask(int taskId);
 
     void cancelAllTasks();
+
+    @NotNull
+    ConcurrentHashMap<Integer, ?> getTasks();
+
+    default int getNextTaskId() {
+        int taskId = 0;
+        while (getTasks().containsKey(taskId)) {
+            taskId++;
+        }
+        return taskId;
+    }
 
     @NotNull
     HuskHomes getPlugin();

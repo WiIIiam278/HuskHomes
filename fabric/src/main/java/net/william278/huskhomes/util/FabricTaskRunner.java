@@ -89,11 +89,8 @@ public interface FabricTaskRunner extends TaskRunner {
     }
 
     @NotNull
+    @Override
     ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks();
-
-    private int getNextTaskId() {
-        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
-    }
 
     @Override
     @NotNull

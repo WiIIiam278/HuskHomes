@@ -105,11 +105,8 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @NotNull
+    @Override
     ConcurrentHashMap<Integer, CancellableRunnable> getTasks();
-
-    private int getNextTaskId() {
-        return getTasks().keySet().stream().max(Integer::compareTo).orElse(0) + 1;
-    }
 
     @NotNull
     @Override
@@ -119,7 +116,6 @@ public interface SpongeTaskRunner extends TaskRunner {
      * A wrapper for a {@link Runnable} that can be canceled
      */
     class CancellableRunnable implements Runnable {
-
         private final Runnable runnable;
         private boolean cancelled = false;
 

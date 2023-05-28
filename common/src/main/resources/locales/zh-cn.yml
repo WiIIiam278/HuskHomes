@@ -121,7 +121,7 @@ error_warp_description_length: '[错误:](#ff3300) [地标描述只能输入255�
 error_warp_description_characters: '[错误:](#ff3300) [地标描述只能使用这些字符: (A-Z, 0-9, -_, 文字, 空格](#ff7e5e)'
 error_no_permission: '[错误:](#ff3300) [没有权限](#ff7e5e)'
 error_invalid_syntax: '[错误:](#ff3300) [语法错误, 使用: %1%](#ff7e5e)'
-error_already_teleporting: '错误:](#ff3300) [请等待当前传送完成!](#ff7e5e)'
+error_already_teleporting: '[错误:](#ff3300) [请等待当前传送完成!](#ff7e5e)'
 error_no_last_position: '[错误:](#ff3300) [没有上一个位置](#ff7e5e)'
 error_in_game_only: '错误: 该命令只能在游戏中使用.'
 error_invalid_server: '[错误:](#ff3300) [无法传送, 目标服务器不存在或离线.](#ff7e5e)'

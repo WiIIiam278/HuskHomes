@@ -290,6 +290,15 @@ public abstract class Database {
     public abstract void setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport);
 
     /**
+     * Clears the current {@link Teleport} being executed by a {@link User}
+     *
+     * @param user The {@link User} to clear the current teleport of
+     */
+    public final void clearCurrentTeleport(@NotNull User user) {
+        this.setCurrentTeleport(user, null);
+    }
+
+    /**
      * Get the last teleport {@link Position} of a specified {@link User}
      *
      * @param user The {@link User} to check

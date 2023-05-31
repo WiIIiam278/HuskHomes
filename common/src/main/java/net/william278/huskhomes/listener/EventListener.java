@@ -107,7 +107,7 @@ public class EventListener {
             } catch (TeleportationException e) {
                 e.displayMessage(teleporter, plugin);
             }
-            plugin.getDatabase().setCurrentTeleport(teleporter, null);
+            plugin.getDatabase().clearCurrentTeleport(teleporter);
             teleport.displayTeleportingComplete(teleporter);
         });
     }
@@ -149,7 +149,7 @@ public class EventListener {
                 e.displayMessage(teleporter, plugin);
             }
         }
-        plugin.getDatabase().setCurrentTeleport(teleporter, null);
+        plugin.getDatabase().clearCurrentTeleport(teleporter);
         plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
     }
 

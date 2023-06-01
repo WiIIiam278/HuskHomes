@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'net.william278:Annotaml:2.0.1'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'com.github.Emibergo02:RedisEconomy:3.2-SNAPSHOT'
+    compileOnly 'com.github.Emibergo02:RedisEconomy:3.4-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.3'
     compileOnly 'net.essentialsx:EssentialsX:2.19.7'
 

@@ -81,13 +81,16 @@ Note that these permission-set values override the values set in the plugin conf
 ## Other Permissions
 
 <details>
-<summary>Return to where you died with /back</summary>
+<summary>Return to last position or death with /back</summary>
 
-This permission controls whether users can return to where they died. Note that return by death must be enabled in the plugin [[config files]] for this to work.
+These permissions control what the user can do with the back command, including the ability to return to their last position or to where they died.
 
-| Command                    | Description                           | Permission                     | Default |
-|----------------------------|---------------------------------------|--------------------------------|:-------:|
-| `/back` (after respawning) | Use /back to return to where you died | `huskhomes.command.back.death` |    ✅    |
+| Command                    | Description                                            | Permission                        | Default |
+|----------------------------|--------------------------------------------------------|-----------------------------------|:-------:|
+| `/back` (after respawning) | Use /back to return to where you died&dagger;          | `huskhomes.command.back.death`    |    ✅    |
+| `/back`                    | Use /back to return to your previous teleport position | `huskhomes.command.back.previous` |    ✅    |
+
+&dagger;Note that return by death must be enabled in the plugin [[config files]] for this to work.
 </details>
 
 <details>

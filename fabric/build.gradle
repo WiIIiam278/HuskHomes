@@ -1,14 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.1-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
 }
 
 apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 dependencies {
-    minecraft 'com.mojang:minecraft:1.19.4'
-    mappings 'net.fabricmc:yarn:1.19.4+build.2'
-    modImplementation 'net.fabricmc:fabric-loader:0.14.17'
+    minecraft 'com.mojang:minecraft:1.20-rc1'
+    mappings 'net.fabricmc:yarn:1.20-rc1+build.2'
+    modImplementation 'net.fabricmc:fabric-loader:0.14.21'
 
     // Fabric API modules
     Set<String> fabricApiModules = [
@@ -19,7 +19,7 @@ dependencies {
             'fabric-networking-api-v1'
     ]
     fabricApiModules.forEach {
-        modImplementation(fabricApi.module(it, '0.77.0+1.19.4'))
+        modImplementation(fabricApi.module(it, '0.83.0+1.20'))
     }
     modImplementation include('net.kyori:adventure-platform-fabric:5.8.0')
     modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')

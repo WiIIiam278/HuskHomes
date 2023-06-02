@@ -19,8 +19,9 @@
 
 package net.william278.huskhomes.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.FireBlock;
+import net.minecraft.block.FluidBlock;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -71,11 +72,10 @@ public interface FabricSafetyResolver extends SafetyResolver {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
                 blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
                 final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                final BlockState blockState = world.getBlockState(blockPos.withY(highestY));
 
-                final Material material = blockState.getMaterial();
-                final Identifier blockId = Registries.BLOCK.getId(blockState.getBlock());
-                if (!material.isLiquid() && material != Material.FIRE && isBlockSafe(blockId.toString())) {
+                final Block block = world.getBlockState(blockPos.withY(highestY)).getBlock();
+                final Identifier id = Registries.BLOCK.getId(block);
+                if (!(block instanceof FluidBlock) && !(block instanceof FireBlock) && isBlockSafe(id.toString())) {
                     return Optional.of(Location.at(
                             blockPos.getX() + 0.5,
                             highestY + 1,

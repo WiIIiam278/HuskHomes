@@ -25,6 +25,7 @@ import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -48,9 +49,10 @@ public interface BukkitTaskRunner extends TaskRunner {
         getScheduler().globalRegionalScheduler().run(runnable);
     }
 
+    @NotNull
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long period) {
-        final int taskId = getNextTaskId();
+    default UUID runAsyncRepeating(@NotNull Runnable runnable, long period) {
+        final UUID taskId = UUID.randomUUID();
         getTasks().put(taskId, getScheduler().asyncScheduler().runAtFixedRate(
                 runnable, Duration.ZERO, getDurationTicks(period))
         );
@@ -63,11 +65,12 @@ public interface BukkitTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void cancelTask(int taskId) {
-        if (getTasks().containsKey(taskId)) {
-            getTasks().get(taskId).cancel();
-            getTasks().remove(taskId);
-        }
+    default void cancelTask(@NotNull UUID taskId) {
+        getTasks().computeIfPresent(taskId, (id, task) -> {
+            task.cancel();
+            return null;
+        });
+        getTasks().remove(taskId);
     }
 
     @Override
@@ -82,7 +85,7 @@ public interface BukkitTaskRunner extends TaskRunner {
 
     @NotNull
     @Override
-    ConcurrentHashMap<Integer, ScheduledTask> getTasks();
+    ConcurrentHashMap<UUID, ScheduledTask> getTasks();
 
     @NotNull
     default Duration getDurationTicks(long ticks) {

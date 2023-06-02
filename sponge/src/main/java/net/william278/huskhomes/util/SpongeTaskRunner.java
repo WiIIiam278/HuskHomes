@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -60,9 +61,10 @@ public interface SpongeTaskRunner extends TaskRunner {
                         .build());
     }
 
+    @NotNull
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
-        final int taskId = getNextTaskId();
+    default UUID runAsyncRepeating(@NotNull Runnable runnable, long delay) {
+        final UUID taskId = UUID.randomUUID();
         final CancellableRunnable task = wrap(runnable);
         getTasks().put(taskId, task);
         getPlugin().getGame().asyncScheduler()
@@ -86,11 +88,12 @@ public interface SpongeTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void cancelTask(int taskId) {
-        if (getTasks().containsKey(taskId)) {
-            getTasks().get(taskId).cancel();
-            getTasks().remove(taskId);
-        }
+    default void cancelTask(@NotNull UUID taskId) {
+        getTasks().computeIfPresent(taskId, (id, task) -> {
+            task.cancel();
+            return null;
+        });
+        getTasks().remove(taskId);
     }
 
     @Override
@@ -106,7 +109,7 @@ public interface SpongeTaskRunner extends TaskRunner {
 
     @NotNull
     @Override
-    ConcurrentHashMap<Integer, CancellableRunnable> getTasks();
+    ConcurrentHashMap<UUID, CancellableRunnable> getTasks();
 
     @NotNull
     @Override

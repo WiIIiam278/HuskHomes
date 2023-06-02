@@ -28,7 +28,8 @@ import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a {@link Teleport} that has an associated warmup time; the teleport will not be performed until the
@@ -87,7 +88,7 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(teleporter::sendMessage);
 
             // Run the warmup
-            final AtomicInteger warmupTaskId = new AtomicInteger();
+            final AtomicReference<UUID> warmupTaskId = new AtomicReference<>();
             final Runnable countdownRunnable = (() -> {
                 // Display a countdown action bar message
                 if (timeLeft > 0) {

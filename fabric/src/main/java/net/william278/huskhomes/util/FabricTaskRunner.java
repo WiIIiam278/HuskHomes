@@ -22,11 +22,11 @@ package net.william278.huskhomes.util;
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 public interface FabricTaskRunner extends TaskRunner {
-
 
     @Override
     default void runAsync(@NotNull Runnable runnable) {
@@ -43,9 +43,10 @@ public interface FabricTaskRunner extends TaskRunner {
         getPlugin().getMinecraftServer().executeSync(runnable);
     }
 
+    @NotNull
     @Override
-    default int runAsyncRepeating(@NotNull Runnable runnable, long delay) {
-        final int taskId = getNextTaskId();
+    default UUID runAsyncRepeating(@NotNull Runnable runnable, long delay) {
+        final UUID taskId = UUID.randomUUID();
         final CompletableFuture<?> future = new CompletableFuture<>();
 
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -75,11 +76,12 @@ public interface FabricTaskRunner extends TaskRunner {
     }
 
     @Override
-    default void cancelTask(int taskId) {
-        if (getTasks().containsKey(taskId)) {
-            getTasks().get(taskId).cancel(true);
-            getTasks().remove(taskId);
-        }
+    default void cancelTask(@NotNull UUID taskId) {
+        getTasks().computeIfPresent(taskId, (uuid, completableFuture) -> {
+            completableFuture.cancel(true);
+            return null;
+        });
+        getTasks().remove(taskId);
     }
 
     @Override
@@ -90,7 +92,7 @@ public interface FabricTaskRunner extends TaskRunner {
 
     @NotNull
     @Override
-    ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks();
+    ConcurrentHashMap<UUID, CompletableFuture<?>> getTasks();
 
     @Override
     @NotNull

@@ -22,6 +22,7 @@ package net.william278.huskhomes.util;
 import net.william278.huskhomes.HuskHomes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -34,25 +35,17 @@ public interface TaskRunner {
 
     void runSync(@NotNull Runnable runnable);
 
-    int runAsyncRepeating(@NotNull Runnable runnable, long delay);
+    @NotNull
+    UUID runAsyncRepeating(@NotNull Runnable runnable, long delay);
 
     void runLater(@NotNull Runnable runnable, long delay);
 
-    void cancelTask(int taskId);
+    void cancelTask(@NotNull UUID taskId);
 
     void cancelAllTasks();
 
     @NotNull
-    ConcurrentHashMap<Integer, ?> getTasks();
-
-    default int getNextTaskId() {
-        int taskId = 0;
-        while (getTasks().containsKey(taskId)) {
-            taskId++;
-        }
-        return taskId;
-    }
-
+    ConcurrentHashMap<UUID, ?> getTasks();
     @NotNull
     HuskHomes getPlugin();
 

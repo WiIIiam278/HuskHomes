@@ -110,7 +110,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @Inject
     private Metrics.Factory metricsFactory;
 
-    private ConcurrentHashMap<Integer, CancellableRunnable> tasks;
+    private ConcurrentHashMap<UUID, CancellableRunnable> tasks;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -518,7 +518,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
 
     @NotNull
     @Override
-    public ConcurrentHashMap<Integer, CancellableRunnable> getTasks() {
+    public ConcurrentHashMap<UUID, CancellableRunnable> getTasks() {
         return tasks;
     }
 

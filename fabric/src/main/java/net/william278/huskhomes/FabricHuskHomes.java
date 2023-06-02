@@ -96,7 +96,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private final ModContainer modContainer = FabricLoader.getInstance()
             .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
-    private ConcurrentHashMap<Integer, CompletableFuture<?>> tasks;
+    private ConcurrentHashMap<UUID, CompletableFuture<?>> tasks;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
     private Settings settings;
@@ -481,7 +481,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     @NotNull
-    public ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks() {
+    public ConcurrentHashMap<UUID, CompletableFuture<?>> getTasks() {
         return tasks;
     }
 

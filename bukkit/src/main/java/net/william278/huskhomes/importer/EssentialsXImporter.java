@@ -54,6 +54,9 @@ public class EssentialsXImporter extends Importer {
 
             // Create the home
             for (String homeName : essentialsUser.getHomes()) {
+                if (essentialsUser.getHome(homeName) == null || essentialsUser.getHome(homeName).getWorld() == null) {
+                    continue;
+                }
                 BukkitAdapter.adaptLocation(essentialsUser.getHome(homeName))
                         .map(location -> Position.at(location, plugin.getServerName()))
                         .ifPresent(position -> {
@@ -75,6 +78,9 @@ public class EssentialsXImporter extends Importer {
         final AtomicInteger warpsImported = new AtomicInteger();
         final Warps warps = essentials.getWarps();
         for (String warpName : warps.getList()) {
+            if (warps.getWarp(warpName) == null || warps.getWarp(warpName).getWorld() == null) {
+                continue;
+            }
             BukkitAdapter.adaptLocation(warps.getWarp(warpName))
                     .map(location -> Position.at(location, plugin.getServerName()))
                     .ifPresent(position -> {

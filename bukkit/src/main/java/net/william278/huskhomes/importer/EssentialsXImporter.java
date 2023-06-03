@@ -37,40 +37,32 @@ public class EssentialsXImporter extends Importer {
     private final Essentials essentials;
 
     public EssentialsXImporter(@NotNull HuskHomes plugin) {
-        super("EssentialsX", List.of(ImportData.USERS, ImportData.HOMES, ImportData.WARPS), plugin);
+        super("EssentialsX", List.of(ImportData.HOMES, ImportData.WARPS), plugin);
         this.essentials = (Essentials) ((BukkitHuskHomes) plugin).getServer().getPluginManager().getPlugin("Essentials");
-    }
-
-    private int importUsers() {
-        final AtomicInteger usersImported = new AtomicInteger();
-        for (UUID uuid : essentials.getUserMap().getAllUniqueUsers()) {
-            final User user = User.of(
-                    uuid,
-                    essentials.getUser(uuid).getLastAccountName()
-            );
-            plugin.getDatabase().ensureUser(user);
-            plugin.editUserData(user, (editor -> editor.setHomeSlots(Math.max(
-                    plugin.getSettings().getFreeHomeSlots(),
-                    essentials.getUser(uuid).getHomes().size()
-            ))));
-            usersImported.getAndIncrement();
-        }
-        return usersImported.get();
     }
 
     private int importHomes() {
         final AtomicInteger homesImported = new AtomicInteger();
         for (UUID uuid : essentials.getUserMap().getAllUniqueUsers()) {
+            // Ensure the user is present and valid
             final com.earth2me.essentials.User essentialsUser = essentials.getUser(uuid);
+            if (essentialsUser == null || essentialsUser.getName() == null) {
+                continue;
+            }
+            final User user = User.of(uuid, essentialsUser.getName());
+            plugin.getDatabase().ensureUser(user);
+
+            // Create the home
             for (String homeName : essentialsUser.getHomes()) {
                 BukkitAdapter.adaptLocation(essentialsUser.getHome(homeName))
                         .map(location -> Position.at(location, plugin.getServerName()))
                         .ifPresent(position -> {
                             plugin.getManager().homes().createHome(
-                                    User.of(uuid, essentialsUser.getLastAccountName()),
+                                    user,
                                     this.normalizeName(homeName),
                                     position,
-                                    true, true
+                                    true,
+                                    true
                             );
                             homesImported.getAndIncrement();
                         });
@@ -126,7 +118,7 @@ public class EssentialsXImporter extends Importer {
     @Override
     protected int importData(@NotNull Importer.ImportData importData) throws Throwable {
         return switch (importData) {
-            case USERS -> importUsers();
+            case USERS -> 0;
             case HOMES -> importHomes();
             case WARPS -> importWarps();
         };

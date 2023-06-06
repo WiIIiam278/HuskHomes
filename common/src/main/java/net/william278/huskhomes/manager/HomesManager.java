@@ -170,6 +170,7 @@ public class HomesManager {
 
         // Validate against user home slots
         final SavedUser savedOwner = plugin.getSavedUser(owner)
+                .or(() -> plugin.getDatabase().getUserData(owner.getUuid()))
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
         if (plugin.getSettings().doEconomy() && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {

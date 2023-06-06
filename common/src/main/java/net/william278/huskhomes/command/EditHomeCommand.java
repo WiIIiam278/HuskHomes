@@ -55,7 +55,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         final Optional<String> operation = parseStringArg(args, 0);
         if (operation.isEmpty()) {
             getHomeEditorWindow(home, !ownerEditing,
-                    !ownerEditing || executor.hasPermission(getOtherPermission()),
+                    ownerEditing || executor.hasPermission(getOtherPermission()),
                     executor.hasPermission(getPermission("privacy")))
                     .forEach(executor::sendMessage);
             return;

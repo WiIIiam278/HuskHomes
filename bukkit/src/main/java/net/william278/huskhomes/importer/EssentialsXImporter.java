@@ -37,40 +37,35 @@ public class EssentialsXImporter extends Importer {
     private final Essentials essentials;
 
     public EssentialsXImporter(@NotNull HuskHomes plugin) {
-        super("EssentialsX", List.of(ImportData.USERS, ImportData.HOMES, ImportData.WARPS), plugin);
+        super("EssentialsX", List.of(ImportData.HOMES, ImportData.WARPS), plugin);
         this.essentials = (Essentials) ((BukkitHuskHomes) plugin).getServer().getPluginManager().getPlugin("Essentials");
-    }
-
-    private int importUsers() {
-        final AtomicInteger usersImported = new AtomicInteger();
-        for (UUID uuid : essentials.getUserMap().getAllUniqueUsers()) {
-            final User user = User.of(
-                    uuid,
-                    essentials.getUser(uuid).getLastAccountName()
-            );
-            plugin.getDatabase().ensureUser(user);
-            plugin.editUserData(user, (editor -> editor.setHomeSlots(Math.max(
-                    plugin.getSettings().getFreeHomeSlots(),
-                    essentials.getUser(uuid).getHomes().size()
-            ))));
-            usersImported.getAndIncrement();
-        }
-        return usersImported.get();
     }
 
     private int importHomes() {
         final AtomicInteger homesImported = new AtomicInteger();
         for (UUID uuid : essentials.getUserMap().getAllUniqueUsers()) {
+            // Ensure the user is present and valid
             final com.earth2me.essentials.User essentialsUser = essentials.getUser(uuid);
+            if (essentialsUser == null || essentialsUser.getName() == null) {
+                continue;
+            }
+            final User user = User.of(uuid, essentialsUser.getName());
+            plugin.getDatabase().ensureUser(user);
+
+            // Create the home
             for (String homeName : essentialsUser.getHomes()) {
+                if (essentialsUser.getHome(homeName) == null || essentialsUser.getHome(homeName).getWorld() == null) {
+                    continue;
+                }
                 BukkitAdapter.adaptLocation(essentialsUser.getHome(homeName))
                         .map(location -> Position.at(location, plugin.getServerName()))
                         .ifPresent(position -> {
                             plugin.getManager().homes().createHome(
-                                    User.of(uuid, essentialsUser.getLastAccountName()),
+                                    user,
                                     this.normalizeName(homeName),
                                     position,
-                                    true, true
+                                    true,
+                                    true
                             );
                             homesImported.getAndIncrement();
                         });
@@ -83,6 +78,9 @@ public class EssentialsXImporter extends Importer {
         final AtomicInteger warpsImported = new AtomicInteger();
         final Warps warps = essentials.getWarps();
         for (String warpName : warps.getList()) {
+            if (warps.getWarp(warpName) == null || warps.getWarp(warpName).getWorld() == null) {
+                continue;
+            }
             BukkitAdapter.adaptLocation(warps.getWarp(warpName))
                     .map(location -> Position.at(location, plugin.getServerName()))
                     .ifPresent(position -> {
@@ -126,7 +124,7 @@ public class EssentialsXImporter extends Importer {
     @Override
     protected int importData(@NotNull Importer.ImportData importData) throws Throwable {
         return switch (importData) {
-            case USERS -> importUsers();
+            case USERS -> 0;
             case HOMES -> importHomes();
             case WARPS -> importWarps();
         };

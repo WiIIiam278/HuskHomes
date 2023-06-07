@@ -122,7 +122,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
-        final MinecraftServer server = player.getWorld().getServer();
+        final MinecraftServer server = player.getServer();
         final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
         player.teleport(
                 server.getWorld(server.getWorldRegistryKeys().stream()

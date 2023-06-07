@@ -225,6 +225,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         if (isDependencyLoaded("PlaceholderAPI")) {
             getHooks().add(new PlaceholderAPIHook(this));
         }
+    }
+
+    @Override
+    public void registerImporters() {
+        HuskHomes.super.registerImporters();
 
         // Importers
         if (isDependencyLoaded("Essentials")) {

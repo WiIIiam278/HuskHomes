@@ -341,6 +341,9 @@ public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, 
         }
     }
 
+    default void registerImporters() {
+    }
+
     boolean isDependencyLoaded(@NotNull String name);
 
     @NotNull

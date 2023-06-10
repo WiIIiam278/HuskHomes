@@ -29,7 +29,6 @@ import net.william278.huskhomes.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a {@link Teleport} that has an associated warmup time; the teleport will not be performed until the
@@ -37,12 +36,13 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @see Teleport#builder(HuskHomes)
  */
-public class TimedTeleport extends Teleport {
+public class TimedTeleport extends Teleport implements Runnable {
 
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
     private final OnlineUser teleporter;
     private final Position startLocation;
     private final double startHealth;
+    private Task.Repeating task;
     private int timeLeft;
 
     protected TimedTeleport(@NotNull OnlineUser executor, @NotNull OnlineUser teleporter, @NotNull Target target,
@@ -88,31 +88,8 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(teleporter::sendMessage);
 
             // Run the warmup
-            final AtomicReference<Task.Repeating> task = new AtomicReference<>(null);
-            task.set(plugin.getRepeatingTask(() -> {
-                // Display a countdown action bar message
-                if (timeLeft > 0) {
-                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
-                            .ifPresent(teleporter::playSound);
-                    plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
-                            .ifPresent(this::sendStatusMessage);
-                } else {
-                    plugin.getLocales().getLocale("teleporting_action_bar_processing")
-                            .ifPresent(this::sendStatusMessage);
-                    try {
-                        super.execute();
-                    } catch (TeleportationException e) {
-                        e.displayMessage(teleporter, plugin);
-                    }
-                }
-
-                // Tick (decrement) the timed teleport timer and end it if done
-                if (tickAndGetIfDone()) {
-                    task.get().cancel();
-                    plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-                }
-            }, 20L));
-            task.get().run();
+            this.task = plugin.getRepeatingTask(this, 20L);
+            this.task.run();
         });
     }
 
@@ -177,4 +154,28 @@ public class TimedTeleport extends Teleport {
         return teleporter.getHealth() < startHealth;
     }
 
+    @Override
+    public void run() {
+        // Display a countdown action bar message
+        if (timeLeft > 0) {
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
+                    .ifPresent(teleporter::playSound);
+            plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
+                    .ifPresent(this::sendStatusMessage);
+        } else {
+            plugin.getLocales().getLocale("teleporting_action_bar_processing")
+                    .ifPresent(this::sendStatusMessage);
+            try {
+                super.execute();
+            } catch (TeleportationException e) {
+                e.displayMessage(teleporter, plugin);
+            }
+        }
+
+        // Tick (decrement) the timed teleport timer and end it if done
+        if (tickAndGetIfDone()) {
+            task.cancel();
+            plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
+        }
+    }
 }

@@ -25,10 +25,10 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -88,8 +88,8 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(teleporter::sendMessage);
 
             // Run the warmup
-            final AtomicReference<UUID> warmupTaskId = new AtomicReference<>();
-            final Runnable countdownRunnable = (() -> {
+            final AtomicReference<Task.Repeating> task = new AtomicReference<>(null);
+            task.set(plugin.getRepeatingTask(() -> {
                 // Display a countdown action bar message
                 if (timeLeft > 0) {
                     plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
@@ -108,11 +108,11 @@ public class TimedTeleport extends Teleport {
 
                 // Tick (decrement) the timed teleport timer and end it if done
                 if (tickAndGetIfDone()) {
+                    task.get().cancel();
                     plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-                    plugin.cancelTask(warmupTaskId.get());
                 }
-            });
-            warmupTaskId.set(plugin.runAsyncRepeating(countdownRunnable, 20L));
+            }, 20L));
+            task.get().run();
         });
     }
 

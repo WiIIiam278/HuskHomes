@@ -35,7 +35,6 @@ import java.util.List;
 
 public interface BukkitEventDispatcher extends EventDispatcher {
 
-
     @Override
     default <T extends Event> boolean fireIsCancelled(@NotNull T event) {
         Bukkit.getPluginManager().callEvent((org.bukkit.event.Event) event);

@@ -433,15 +433,17 @@ public class SqLiteDatabase extends Database {
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
         try {
             try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                                                                                              SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                                                                                                              FROM `%homes_table%`
-                                                                                                              INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                                                                                                              INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                                                                                                              INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                                                                                                              WHERE `owner_uuid`=?
-                                                                                                              """ + (caseInsensitive ? "AND UPPER(`name`) LIKE UPPER(?);" : "AND `name`=?;")))) {
+                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                    FROM `%homes_table%`
+                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                    WHERE `owner_uuid`=?
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
                 statement.setString(1, user.getUuid().toString());
-                statement.setString(2, homeName);
+                statement.setBoolean(2, caseInsensitive);
+                statement.setString(3, homeName);
+                statement.setString(4, homeName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -510,12 +512,14 @@ public class SqLiteDatabase extends Database {
     public Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive) {
         try {
             try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                                                                                              SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                                                                                                              FROM `%warps_table%`
-                                                                                                              INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                                                                                                              INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                                                                                                              """ + (caseInsensitive ? "WHERE UPPER(`name`) LIKE UPPER(?);" : "WHERE `name`=?;")))) {
-                statement.setString(1, warpName);
+                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                    FROM `%warps_table%`
+                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+                statement.setBoolean(1, caseInsensitive);
+                statement.setString(2, warpName);
+                statement.setString(3, warpName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {

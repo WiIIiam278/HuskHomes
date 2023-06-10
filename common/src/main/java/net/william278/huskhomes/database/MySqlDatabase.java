@@ -428,9 +428,11 @@ public class MySqlDatabase extends Database {
                     INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                     INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `owner_uuid`=?
-                    """ + (caseInsensitive ? "AND UPPER(`name`) LIKE UPPER(?);" : "AND `name`=?;")))) {
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
                 statement.setString(1, user.getUuid().toString());
-                statement.setString(2, homeName);
+                statement.setBoolean(2, caseInsensitive);
+                statement.setString(3, homeName);
+                statement.setString(4, homeName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -503,8 +505,10 @@ public class MySqlDatabase extends Database {
                     FROM `%warps_table%`
                     INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
                     INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    """ + (caseInsensitive ? "WHERE UPPER(`name`) LIKE UPPER(?);" : "WHERE `name`=?;")))) {
-                statement.setString(1, warpName);
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+                statement.setBoolean(1, caseInsensitive);
+                statement.setString(2, warpName);
+                statement.setString(3, warpName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {

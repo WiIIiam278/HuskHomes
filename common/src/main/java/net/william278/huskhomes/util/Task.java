@@ -84,13 +84,15 @@ public interface Task extends Runnable {
 
         @NotNull
         Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks);
+
         @NotNull
         Task.Async getAsyncTask(@NotNull Runnable runnable);
+
         @NotNull
         Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks);
 
         @NotNull
-        default Task.Sync runSync(@NotNull Runnable runnable, long delayTicks) {
+        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, long delayTicks) {
             final Task.Sync task = getSyncTask(runnable, delayTicks);
             task.run();
             return task;
@@ -98,7 +100,7 @@ public interface Task extends Runnable {
 
         @NotNull
         default Task.Sync runSync(@NotNull Runnable runnable) {
-            return runSync(runnable, 0);
+            return runSyncDelayed(runnable, 0);
         }
 
         @NotNull
@@ -118,13 +120,6 @@ public interface Task extends Runnable {
                 }
             });
             return future;
-        }
-
-        @NotNull
-        default Task.Repeating runRepeating(@NotNull Runnable runnable, long repeatingTicks) {
-            final Task.Repeating task = getRepeatingTask(runnable, repeatingTicks);
-            task.run();
-            return task;
         }
 
         void cancelTasks();

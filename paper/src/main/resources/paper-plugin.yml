@@ -8,28 +8,28 @@ version: '${version}'
 api-version: 1.19
 folia-supported: true
 dependencies:
-  - name: Vault
-    required: false
-  - name: RedisEconomy
-    required: false
-  - name: PlaceholderAPI
-    required: false
-  - name: dynmap
-    required: false
-  - name: BlueMap
-    required: false
-  - name: Plan
-    required: false
-  - name: Pl3xMap
-    required: false
-  - name: Essentials
-    required: false
-load-after:
-  - name: Vault
-  - name: RedisEconomy
-  - name: PlaceholderAPI
-  - name: dynmap
-  - name: BlueMap
-  - name: Plan
-  - name: Pl3xMap
-  - name: Essentials
+  server:
+    Vault:
+      load: BEFORE
+      required: false
+    RedisEconomy:
+      load: BEFORE
+      required: false
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    dynmap:
+      load: BEFORE
+      required: false
+    BlueMap:
+      load: BEFORE
+      required: false
+    Plan:
+      load: BEFORE
+      required: false
+    Pl3xMap:
+      load: BEFORE
+      required: false
+    Essentials:
+      load: AFTER
+      required: false

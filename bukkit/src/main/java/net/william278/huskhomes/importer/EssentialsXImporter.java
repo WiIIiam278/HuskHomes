@@ -43,7 +43,7 @@ public class EssentialsXImporter extends Importer {
 
     private int importHomes() {
         final AtomicInteger homesImported = new AtomicInteger();
-        for (UUID uuid : essentials.getUserMap().getAllUniqueUsers()) {
+        for (UUID uuid : essentials.getUsers().getAllUserUUIDs()) {
             // Ensure the user is present and valid
             final com.earth2me.essentials.User essentialsUser = essentials.getUser(uuid);
             if (essentialsUser == null || essentialsUser.getName() == null) {

@@ -48,6 +48,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             "update", true
     );
 
+    private boolean importersLoaded = false;
     private final UpdateChecker updateChecker;
     private final AboutMenu aboutMenu;
 
@@ -117,6 +118,10 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         plugin.getVersion().toString()).ifPresent(executor::sendMessage);
             });
             case "import" -> {
+                if (!importersLoaded) {
+                    importersLoaded = true;
+                    plugin.registerImporters();
+                }
                 if (plugin.getImporters().isEmpty()) {
                     plugin.getLocales().getLocale("error_no_importers_available")
                             .ifPresent(executor::sendMessage);

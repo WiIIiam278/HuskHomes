@@ -91,8 +91,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return instance;
     }
 
-    private final ModContainer modContainer = FabricLoader.getInstance()
-            .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
+    private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
+            .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;

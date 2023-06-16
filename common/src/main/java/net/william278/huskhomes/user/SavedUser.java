@@ -21,7 +21,9 @@ package net.william278.huskhomes.user;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
@@ -30,16 +32,31 @@ import java.util.UUID;
 public class SavedUser {
 
     private final User user;
-
     private int homeSlots;
     private boolean ignoringTeleports;
-    private Instant rtpCooldown;
 
-    public SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports, @NotNull Instant rtpCooldown) {
+    /**
+     * Create a new SavedUser object
+     *
+     * @param user              The user to create the object for
+     * @param homeSlots         The number of home slots the user has
+     * @param ignoringTeleports Whether the user is ignoring teleports or not
+     */
+    public SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports) {
         this.user = user;
         this.homeSlots = homeSlots;
         this.ignoringTeleports = ignoringTeleports;
-        this.rtpCooldown = rtpCooldown;
+    }
+
+    /**
+     * @deprecated See {@link #SavedUser(User, int, boolean)} to create a SavedUser object
+     * <p>
+     * User RTP cooldowns are no longer stored in {@link SavedUser} objects,
+     * please use the new API methods for getting/setting cooldowns
+     */
+    @Deprecated(since = "4.4", forRemoval = true)
+    public SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports, @NotNull Instant rtpCooldown) {
+        this(user, homeSlots, ignoringTeleports);
     }
 
     @NotNull
@@ -73,13 +90,21 @@ public class SavedUser {
         this.ignoringTeleports = ignoringTeleports;
     }
 
+    /**
+     * @deprecated Use the new API methods for setting and getting cooldowns
+     */
     @NotNull
+    @Deprecated(since = "4.4", forRemoval = true)
     public Instant getRtpCooldown() {
-        return rtpCooldown;
+        return Instant.now().minus(Duration.of(5, ChronoUnit.SECONDS));
     }
 
+    /**
+     * @deprecated Use the new API methods for setting and getting cooldowns
+     */
+    @Deprecated(since = "4.4", forRemoval = true)
     public void setRtpCooldown(@NotNull Instant rtpCooldown) {
-        this.rtpCooldown = rtpCooldown;
+        // Do nothing
     }
 
 }

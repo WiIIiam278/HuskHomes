@@ -94,11 +94,11 @@ public class TpCommand extends Command implements TabProvider {
             }
             builder.toTeleport().execute();
         } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, args);
+            e.displayMessage(executor, args);
             return;
         }
 
-        // Display teleport completion message
+        // Display a teleport completion message
         final String teleporterName = teleportable instanceof OnlineUser user
                 ? user.getUsername() : ((Username) teleportable).name();
         if (target instanceof Position position) {

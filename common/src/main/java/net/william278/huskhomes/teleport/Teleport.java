@@ -24,11 +24,11 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportEvent;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -47,19 +47,19 @@ public class Teleport {
     protected final Teleportable teleporter;
     protected final Target target;
     protected final Type type;
-    protected final List<EconomyHook.Action> economyActions;
+    protected final List<TransactionResolver.Action> actions;
     private final boolean async;
     protected final boolean updateLastPosition;
 
     protected Teleport(@NotNull OnlineUser executor, @NotNull Teleportable teleporter, @NotNull Target target,
-                       @NotNull Type type, boolean updateLastPosition, @NotNull List<EconomyHook.Action> actions,
+                       @NotNull Type type, boolean updateLastPosition, @NotNull List<TransactionResolver.Action> actions,
                        @NotNull HuskHomes plugin) {
         this.plugin = plugin;
         this.executor = executor;
         this.teleporter = teleporter;
         this.target = target;
         this.type = type;
-        this.economyActions = actions;
+        this.actions = actions;
         this.async = plugin.getSettings().doAsynchronousTeleports();
         this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
                 .map(command ->
@@ -78,17 +78,17 @@ public class Teleport {
         final Optional<OnlineUser> localTeleporter = resolveLocalTeleporter();
 
         // Validate economy actions
-        validateEconomyActions();
+        validateTransactions();
 
         // Teleport a user on another server
         if (localTeleporter.isEmpty()) {
             final Username teleporter = (Username) this.teleporter;
             if (!plugin.getSettings().doCrossServer()) {
-                throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND);
+                throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND, plugin);
             }
 
             fireEvent((event) -> {
-                executeEconomyActions();
+                performTransactions();
                 if (target instanceof Username username) {
                     Message.builder()
                             .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
@@ -114,7 +114,7 @@ public class Teleport {
                     ? Optional.of(executor) : username.findLocally(plugin);
             if (localTarget.isPresent()) {
                 fireEvent((event) -> {
-                    executeEconomyActions();
+                    performTransactions();
                     if (updateLastPosition) {
                         plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
                     }
@@ -122,7 +122,7 @@ public class Teleport {
                     try {
                         teleporter.teleportLocally(localTarget.get().getPosition(), async);
                     } catch (TeleportationException e) {
-                        e.displayMessage(teleporter, plugin);
+                        e.displayMessage(teleporter);
                         return;
                     }
                     this.displayTeleportingComplete(teleporter);
@@ -132,7 +132,7 @@ public class Teleport {
 
             if (plugin.getSettings().doCrossServer()) {
                 fireEvent((event) -> {
-                    executeEconomyActions();
+                    performTransactions();
                     Message.builder()
                             .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
                             .target(username.name())
@@ -141,11 +141,11 @@ public class Teleport {
                 return;
             }
 
-            throw new TeleportationException(TeleportationException.Type.TARGET_NOT_FOUND);
+            throw new TeleportationException(TeleportationException.Type.TARGET_NOT_FOUND, plugin);
         }
 
         fireEvent((event) -> {
-            executeEconomyActions();
+            performTransactions();
             if (updateLastPosition) {
                 plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
             }
@@ -155,7 +155,7 @@ public class Teleport {
                 try {
                     teleporter.teleportLocally(target, async);
                 } catch (TeleportationException e) {
-                    e.displayMessage(teleporter, plugin);
+                    e.displayMessage(teleporter);
                     return;
                 }
                 this.displayTeleportingComplete(teleporter);
@@ -188,17 +188,17 @@ public class Teleport {
     }
 
     // Check economy actions
-    protected void validateEconomyActions() throws TeleportationException {
-        if (economyActions.stream()
-                .map(action -> plugin.canPerformTransaction(executor, action))
+    protected void validateTransactions() throws TeleportationException {
+        if (actions.stream()
+                .map(action -> plugin.validateTransaction(executor, action))
                 .anyMatch(result -> !result)) {
-            throw new TeleportationException(TeleportationException.Type.ECONOMY_ACTION_FAILED);
+            throw new TeleportationException(TeleportationException.Type.TRANSACTION_FAILED, plugin);
         }
     }
 
-    // Perform transactions on economy actions
-    private void executeEconomyActions() {
-        economyActions.forEach(action -> plugin.performTransaction(executor, action));
+    // Perform economy and cooldown transactions
+    private void performTransactions() {
+        actions.forEach(action -> plugin.performTransaction(executor, action));
     }
 
     @NotNull

@@ -20,7 +20,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -31,6 +30,7 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -158,7 +158,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     protected void teleport(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull T position,
-                            @NotNull EconomyHook.Action... economyActions) {
+                            @NotNull TransactionResolver.Action... actions) {
         if (!teleporter.equals(executor) && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
@@ -167,7 +167,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleporter)
-                .economyActions(economyActions)
+                .actions(actions)
                 .target(position);
         try {
             if (executor.equals(teleporter)) {
@@ -176,7 +176,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 builder.toTeleport().execute();
             }
         } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, teleporter.getUsername());
+            e.displayMessage(executor, teleporter.getUsername());
         }
     }
 

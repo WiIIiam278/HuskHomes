@@ -32,8 +32,11 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +88,58 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get the timestamp of when a user's cooldown for performing an {@link TransactionResolver.Action action} expires
+     *
+     * @param user   The {@link User} to get data for.
+     * @param action The {@link TransactionResolver.Action} to get the cooldown for
+     * @return An {@link Optional} containing the {@link Instant} the cooldown expires, if there is one
+     * @since 4.4
+     */
+    public final CompletableFuture<Optional<Instant>> getCooldown(@NotNull User user, @NotNull TransactionResolver.Action action) {
+        return plugin.supplyAsync(() -> plugin.getDatabase().getCooldown(action, user));
+    }
+
+    /**
+     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}
+     *
+     * @param user   The {@link User} to set data for.
+     * @param action The {@link TransactionResolver.Action} to set the cooldown for
+     * @param expiry The {@link Instant} the cooldown expires
+     * @throws IllegalArgumentException if the expiry is in the past
+     * @since 4.4
+     */
+    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action, @NotNull Instant expiry) throws IllegalArgumentException {
+        if (Instant.now().isAfter(expiry)) {
+            throw new IllegalArgumentException("Cooldown expiry time must be in the future");
+        }
+        plugin.runAsync(() -> plugin.getDatabase().setCooldown(action, user, expiry));
+    }
+
+    /**
+     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}
+     *
+     * @param user     The {@link User} to set data for.
+     * @param action   The {@link TransactionResolver.Action} to set the cooldown for
+     * @param duration The {@link Duration} the cooldown lasts for
+     * @throws IllegalArgumentException if the duration is negative
+     * @since 4.4
+     */
+    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action, @NotNull Duration duration) throws IllegalArgumentException {
+        this.setCooldown(user, action, Instant.now().plus(duration));
+    }
+
+    /**
+     * Remove a cooldown for a user performing an {@link TransactionResolver.Action action}
+     *
+     * @param user   The {@link User} to remove the cooldown for
+     * @param action The {@link TransactionResolver.Action} to remove the cooldown for
+     * @since 4.4
+     */
+    public final void removeCooldown(@NotNull User user, @NotNull TransactionResolver.Action action) {
+        plugin.runAsync(() -> plugin.getDatabase().removeCooldown(action, user));
+    }
+
+    /**
      * Returns the last position, as used in the {@code /back} command, for this user
      *
      * @param user The {@link User} to get the last position for
@@ -94,11 +149,11 @@ public abstract class BaseHuskHomesAPI {
     public CompletableFuture<Optional<Position>> getUserLastPosition(@NotNull User user) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getLastPosition(user));
     }
-    
+
     /**
      * Set the last {@link Position}, as used in the {@code /back} command, for this user
      *
-     * @param user The {@link User} to set the last position for
+     * @param user     The {@link User} to set the last position for
      * @param position The {@link Position} to set as the user's last position
      * @since 4.2.1
      */
@@ -687,7 +742,7 @@ public abstract class BaseHuskHomesAPI {
                             builder.toTeleport().execute();
                         }
                     } catch (TeleportationException e) {
-                        e.displayMessage(user, plugin, rtpArgs);
+                        e.displayMessage(user, rtpArgs);
                     }
                 }).exceptionally(e -> {
                     throw new IllegalStateException("Random teleport engine threw an exception", e);

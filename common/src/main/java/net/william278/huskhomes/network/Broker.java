@@ -63,7 +63,7 @@ public abstract class Broker {
                                     .toTeleport()
                                     .execute();
                         } catch (TeleportationException e) {
-                            e.displayMessage(plugin.getConsole(), plugin);
+                            e.displayMessage(plugin.getConsole());
                         }
                     });
             case TELEPORT_TO_NETWORKED_POSITION -> Message.builder()

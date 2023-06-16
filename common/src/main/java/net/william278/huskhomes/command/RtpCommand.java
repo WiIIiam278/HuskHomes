@@ -20,19 +20,16 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,8 +40,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
         super("rtp", List.of(), "[player] [world]", plugin);
         addAdditionalPermissions(Map.of(
                 "other", true,
-                "world", true,
-                "bypass_cooldown", true
+                "world", true
         ));
     }
 
@@ -100,7 +96,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
         }
 
         // Check they have sufficient funds
-        if (!plugin.canPerformTransaction(teleporter, EconomyHook.Action.RANDOM_TELEPORT)) {
+        if (!plugin.validateTransaction(teleporter, TransactionResolver.Action.RANDOM_TELEPORT)) {
             return Optional.empty();
         }
 
@@ -124,18 +120,6 @@ public class RtpCommand extends Command implements UserListTabProvider {
         if (plugin.getSettings().isWorldRtpRestricted(world)) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
                     .ifPresent(executor::sendMessage);
-            return Optional.empty();
-        }
-
-        // Check they are not on random teleport cooldown
-        final SavedUser user = plugin.getSavedUser(teleporter)
-                .orElseThrow(() -> new IllegalStateException("No user data found for " + teleporter.getUsername()));
-        final Instant currentTime = Instant.now();
-        if (executor.equals(teleporter) && !currentTime.isAfter(user.getRtpCooldown()) &&
-            !executor.hasPermission(getPermission("bypass_cooldown"))) {
-            plugin.getLocales().getLocale("error_rtp_cooldown", Long.toString(
-                    currentTime.until(user.getRtpCooldown(), ChronoUnit.MINUTES) + 1)
-            ).ifPresent(executor::sendMessage);
             return Optional.empty();
         }
 
@@ -167,6 +151,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                     // Build and execute the teleport
                     final TeleportBuilder builder = Teleport.builder(plugin)
                             .teleporter(teleporter)
+                            .actions(TransactionResolver.Action.RANDOM_TELEPORT)
                             .target(position.get());
                     try {
                         if (executor.equals(teleporter)) {
@@ -175,13 +160,8 @@ public class RtpCommand extends Command implements UserListTabProvider {
                             builder.toTeleport().execute();
                         }
                     } catch (TeleportationException e) {
-                        e.displayMessage(executor, plugin, args);
-                        return;
+                        e.displayMessage(executor, args);
                     }
-
-                    // Update their RTP cooldown
-                    plugin.editUserData(teleporter, (SavedUser saved) -> saved.setRtpCooldown(Instant.now()
-                            .plus(plugin.getSettings().getRtpCooldownLength(), ChronoUnit.MINUTES)));
                 });
     }
 

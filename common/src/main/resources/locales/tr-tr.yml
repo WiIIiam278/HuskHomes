@@ -145,7 +145,7 @@ error_invalid_teleport_request: '[Hata:](#ff3300) [%1% tarafından bekleyen bir 
 error_teleport_request_self: '[Hata:](#ff3300) [Kendinize ışınlanma isteği gönderemezsiniz.](#ff7e5e)'
 error_player_not_found: '[Hata:](#ff3300) [%1% adlı oyuncu bulunamadı.](#ff7e5e)'
 error_rtp_restricted_world: '[Hata:](#ff3300) [Bu dünyada rastgele ışınlanamazsınız.](#ff7e5e)'
-error_rtp_cooldown: '[Hata:](#ff3300) [Yeniden rastgele ışınlanmadan önce %1% dakika beklemelisiniz.](#ff7e5e)'
+error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
 error_command_disabled: '[Hata:](#ff3300) [Bu komut devre dışı!](#ff7e5e)'
 error_console_command_only: '[Hata:](#ff3300) [Bu komut yalnızca sunucu konsolundan çalıştırılabilir.](#ff7e5e)'
 error_rtp_randomization_timeout: '[Hata:](#ff3300) [Sizi ışınlamak için güvenli bir rasgele konum bulunamadı.](#ff7e5e)'

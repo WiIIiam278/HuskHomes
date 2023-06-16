@@ -11,6 +11,7 @@
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]
 * 🗺️ [[Map Hooks]]
+* ⏰ [[Cooldowns]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
 * 🚫 [[Restricted Warps]]

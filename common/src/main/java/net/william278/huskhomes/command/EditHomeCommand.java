@@ -21,10 +21,10 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -171,7 +171,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         // Check against economy
-        if (executor instanceof OnlineUser user && !plugin.canPerformTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC)) {
+        if (executor instanceof OnlineUser user && !plugin.validateTransaction(user, TransactionResolver.Action.MAKE_HOME_PUBLIC)) {
             return;
         }
 
@@ -191,7 +191,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
             // Perform transaction
             if (executor instanceof OnlineUser user) {
-                plugin.performTransaction(user, EconomyHook.Action.MAKE_HOME_PUBLIC);
+                plugin.performTransaction(user, TransactionResolver.Action.MAKE_HOME_PUBLIC);
             }
 
             final String privacy = home.isPublic() ? "public" : "private";

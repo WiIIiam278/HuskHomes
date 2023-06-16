@@ -91,7 +91,7 @@ public class ValidationException extends IllegalArgumentException {
         REACHED_MAX_HOMES,
         NOT_ENOUGH_HOME_SLOTS,
         REACHED_MAX_PUBLIC_HOMES,
-        NOT_ENOUGH_MONEY,
+        TRANSACTION_FAILED,
         DESCRIPTION_INVALID
     }
 

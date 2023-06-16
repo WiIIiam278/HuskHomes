@@ -31,12 +31,25 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
     `respawn_position`  integer              DEFAULT NULL,
     `home_slots`        integer     NOT NULL DEFAULT 0,
     `ignoring_requests` boolean     NOT NULL DEFAULT FALSE,
-    `rtp_cooldown`      datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`uuid`),
     FOREIGN KEY (`last_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
     FOREIGN KEY (`offline_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
     FOREIGN KEY (`respawn_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
+
+# Create the cooldowns table if it does not exist
+CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
+(
+    `id`              integer  NOT NULL AUTO_INCREMENT,
+    `player_uuid`     char(36) NOT NULL UNIQUE,
+    `type`            integer  NOT NULL,
+    `start_timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `end_timestamp`   datetime NOT NULL,
+
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`player_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
 

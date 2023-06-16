@@ -54,7 +54,7 @@ public class TpAllCommand extends InGameCommand {
                         .toTeleport().execute();
             }
         } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, args);
+            e.displayMessage(executor, args);
             return;
         }
 

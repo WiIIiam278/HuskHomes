@@ -109,19 +109,17 @@ These permissions allow you to make a home public/private (toggling its privacy)
 
 
 <details>
-<summary>Cooldown, warmup and economy bypasses</summary>
+<summary>Bypass teleport warmup, cooldowns & economy checks</summary>
 
-These permissions let you bypass teleportation warmup checks, rtp cooldown checks and economy checks
+These permissions let you bypass teleportation warmup checks, cooldown, and economy checks
 
-| Description                                | Permission                              | Default |
-|--------------------------------------------|-----------------------------------------|:-------:|
-| Bypass timed teleportation warmups&dagger; | `huskhomes.bypass_teleport_warmup`      | Not set |
-| Bypass economy checks                      | `huskhomes.bypass_economy_checks`       | Not set |
-| Bypass the cooldown on `/rtp`&ddagger;     | `huskhomes.command.rtp.bypass_cooldown` |    ❌    |
+| Description                                | Permission                         | Default |
+|--------------------------------------------|------------------------------------|:-------:|
+| Bypass timed teleportation warmups&dagger; | `huskhomes.bypass_teleport_warmup` | Not set |
+| Bypass [cooldown checks](cooldowns)        | `huskhomes.bypass_cooldowns`       | Not set |
+| Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
-&dagger;This is not effective when the teleport warmup time is set `<= 0` in the config file.
-
-&ddagger;This is not effective when the /rtp cooldown time is set `<= 0` in the config file.
+&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file.
 </details>
 
 <details>

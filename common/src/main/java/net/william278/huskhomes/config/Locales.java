@@ -195,7 +195,8 @@ public class Locales {
         CHAT,
         ACTION_BAR,
         SUBTITLE,
-        TITLE
+        TITLE,
+        NONE
     }
 
 }

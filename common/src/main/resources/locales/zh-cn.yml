@@ -145,7 +145,7 @@ error_invalid_teleport_request: '[错误:](#ff3300) [您目前没有来自 %1% �
 error_teleport_request_self: '[错误:](#ff3300) [您不能向自己发送传送请求.](#ff7e5e)'
 error_player_not_found: '[错误:](#ff3300) [没有找到玩家 %1%.](#ff7e5e)'
 error_rtp_restricted_world: '[错误:](#ff3300) [您不能在这个世界随机传送.](#ff7e5e)'
-error_rtp_cooldown: '[错误:](#ff3300) [您必须等待 %1% 分钟才能再次随机传送.](#ff7e5e)'
+error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
 error_command_disabled: '[错误:](#ff3300) [该命令已禁用!](#ff7e5e)'
 error_console_command_only: '[错误:](#ff3300) [该命令只能从服务器控制台运行.](#ff7e5e)'
 error_rtp_randomization_timeout: '[错误:](#ff3300) [找不到安全的随机位置传送您.](#ff7e5e)'

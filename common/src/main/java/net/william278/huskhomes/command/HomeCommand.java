@@ -20,11 +20,11 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public abstract class HomeCommand extends SavedPositionCommand<Home> {
         this.teleport(
                 executor, optionalTeleporter.get(), home,
                 (executor instanceof OnlineUser user && home.getOwner().equals(user)
-                        ? EconomyHook.Action.HOME_TELEPORT : EconomyHook.Action.PUBLIC_HOME_TELEPORT)
+                        ? TransactionResolver.Action.HOME_TELEPORT : TransactionResolver.Action.PUBLIC_HOME_TELEPORT)
         );
     }
 

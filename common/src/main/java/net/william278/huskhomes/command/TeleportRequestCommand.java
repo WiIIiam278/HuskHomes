@@ -20,10 +20,10 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.manager.RequestsManager;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
         }
 
         // Validate economy check
-        if (!plugin.canPerformTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST)) {
+        if (!plugin.validateTransaction(onlineUser, TransactionResolver.Action.SEND_TELEPORT_REQUEST)) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
             return;
         }
 
-        plugin.performTransaction(onlineUser, EconomyHook.Action.SEND_TELEPORT_REQUEST);
+        plugin.performTransaction(onlineUser, TransactionResolver.Action.SEND_TELEPORT_REQUEST);
         plugin.getLocales()
                 .getLocale((requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
                            + "_request_sent", target)

@@ -22,10 +22,10 @@ package net.william278.huskhomes.teleport;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Task;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class TimedTeleport extends Teleport implements Runnable {
 
     protected TimedTeleport(@NotNull OnlineUser executor, @NotNull OnlineUser teleporter, @NotNull Target target,
                             @NotNull Type type, int warmupTime, boolean updateLastPosition,
-                            @NotNull List<EconomyHook.Action> actions, @NotNull HuskHomes plugin) {
+                            @NotNull List<TransactionResolver.Action> actions, @NotNull HuskHomes plugin) {
         super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
@@ -65,15 +65,15 @@ public class TimedTeleport extends Teleport implements Runnable {
 
         // Check if the teleporter is already warming up to teleport
         if (plugin.isWarmingUp(teleporter.getUuid())) {
-            throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP);
+            throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP, plugin);
         }
 
         // Validate economy actions
-        validateEconomyActions();
+        validateTransactions();
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {
-            throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING);
+            throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING, plugin);
         }
 
         // Process the warmup and execute the teleport
@@ -107,7 +107,7 @@ public class TimedTeleport extends Teleport implements Runnable {
             try {
                 super.execute();
             } catch (TeleportationException e) {
-                e.displayMessage(teleporter, plugin);
+                e.displayMessage(teleporter);
             }
         }
 

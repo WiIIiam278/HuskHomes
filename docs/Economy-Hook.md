@@ -18,7 +18,7 @@ To enable the Economy Hook on Sponge server, you require a mod installed for man
 </details>
 
 ### Bypassing economy checks
-Players with the `huskhomes.bypass.economy` [permission node](commands) bypass economy checks and can perform economy actions without paying.
+Players with the `huskhomes.bypass_economy_checks` [permission node](commands) bypass economy checks and can perform economy actions without paying.
 
 ## Home slots
 With the economy hook enabled, players will need to pay for home slots beyond their initial "free" allotment.
@@ -31,7 +31,7 @@ You can configure the number of 'free home slots' a user gets using the `free_ho
 You can set the economy cost for the following actions in the `costs` section of the `config.yml` file. Note that this section by default only has the `additional_home_slot`, `make_home_public` and `random_teleport` actions defined. Add the other actions to this section of the file and associate a price with them to enable them.
 
 ### Table of actions
-| Economy Action            | Description                                                 | Default Cost |
+| Action                    | Description                                                 | Default Cost |
 |---------------------------|-------------------------------------------------------------|-------------:|
 | `additional_home_slot`    | When a user wants to buy another home slot                  |    `$100.00` |
 | `make_home_public`        | When a user wants to make their home public                 |     `$50.00` |
@@ -46,21 +46,28 @@ You can set the economy cost for the following actions in the `costs` section of
 
 
 ### Example config
+> **Warning:** You must specify a decimal monetary value in the config.yml. (i.e. `100.00` is valid, but `100` is not.)
+
+Economy costs are defined under `costs` in the `economy` section of [`config.yml`](config-files).
+
 <details>
 <summary>Defining economy costs (config.yml)</summary>
 
 ```yaml
-# Require money to perform certain actions. Check https://william278.net/docs/huskhomes/economy-hook for available actions
-costs:
-    additional_home_slot: 100.0
-    make_home_public: 50.0
-    random_teleport: 25.0
-    back_command: 0.0
-    home_teleport: 0.0
-    public_home_teleport: 0.0
-    warp_teleport: 0.0
-    spawn_teleport: 0.0
-    send_teleport_request: 0.0
-    accept_teleport_request: 0.0
+economy:
+  # Enable economy plugin integration (requires Vault)
+  enabled: true
+  # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/
+  costs:
+      additional_home_slot: 100.0
+      make_home_public: 50.0
+      random_teleport: 25.0
+      back_command: 0.0
+      home_teleport: 0.0
+      public_home_teleport: 0.0
+      warp_teleport: 0.0
+      spawn_teleport: 0.0
+      send_teleport_request: 0.0
+      accept_teleport_request: 0.0
 ```
 </details>

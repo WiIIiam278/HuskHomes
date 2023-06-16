@@ -27,11 +27,13 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -258,7 +260,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUserDataByName(@NotNull String name) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
+                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`,
                     FROM `%players_table%`
                     WHERE `username`=?"""))) {
                 statement.setString(1, name);
@@ -269,8 +271,8 @@ public class MySqlDatabase extends Database {
                             User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
+                            resultSet.getBoolean("ignoring_requests")
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -283,7 +285,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
+                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
                     FROM `%players_table%`
                     WHERE `uuid`=?"""))) {
 
@@ -295,14 +297,70 @@ public class MySqlDatabase extends Database {
                             User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
+                            resultSet.getBoolean("ignoring_requests")
+                    ));
                 }
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    SELECT `type`, `start_timestamp`, `end_timestamp`
+                    FROM `%cooldowns_table%`
+                    WHERE `player_uuid`=? AND `type`=?
+                    ORDER BY `start_timestamp` DESC
+                    LIMIT 1;"""))) {
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return Optional.of(resultSet.getTimestamp("end_timestamp").toInstant());
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch a player's cooldown from the database", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user, @NotNull Instant cooldownExpiry) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    INSERT INTO `%cooldowns_table%` (`player_uuid`, `type`, `start_timestamp`, `end_timestamp`)
+                    VALUES (?,?,?,?);"""))) {
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+                statement.setTimestamp(3, Timestamp.from(Instant.now()));
+                statement.setTimestamp(4, Timestamp.from(cooldownExpiry));
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to set a player's cooldown in the database", e);
+        }
+    }
+
+    @Override
+    public void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%cooldowns_table%`
+                    WHERE `player_uuid`=? AND `type`=?;"""))) {
+
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to remove a player's cooldown from the database", e);
+        }
     }
 
     @Override
@@ -598,7 +656,7 @@ public class MySqlDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         } catch (TeleportationException e) {
-            e.displayMessage(onlineUser, plugin);
+            e.displayMessage(onlineUser);
         }
         return Optional.empty();
     }
@@ -608,13 +666,12 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                     UPDATE `%players_table%`
-                    SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
+                    SET `home_slots`=?, `ignoring_requests`=?
                     WHERE `uuid`=?"""))) {
 
                 statement.setInt(1, savedUser.getHomeSlots());
                 statement.setBoolean(2, savedUser.isIgnoringTeleports());
-                statement.setTimestamp(3, Timestamp.from(savedUser.getRtpCooldown()));
-                statement.setString(4, savedUser.getUserUuid().toString());
+                statement.setString(3, savedUser.getUserUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

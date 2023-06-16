@@ -14,6 +14,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuit
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]
 * 🗺️ [[Map Hooks]]
+* ⏰ [[Cooldowns]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
 * 🚫 [[Restricted Warps]]

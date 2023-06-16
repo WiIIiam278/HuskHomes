@@ -133,7 +133,7 @@ public class FabricUser extends OnlineUser {
         player.teleport(
                 server.getWorld(server.getWorldRegistryKeys().stream()
                         .filter(key -> key.getValue().equals(worldId)).findFirst()
-                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND))
+                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin))
                 ),
                 location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()

@@ -126,7 +126,6 @@ public interface TransactionResolver {
                 }));
 
         final long configCooldown = getPlugin().getSettings().getCooldown(action);
-        getPlugin().log(Level.INFO, "Setting cooldown for " + player.getUsername() + " to " + configCooldown + " seconds");
         if (configCooldown > 0 && !player.hasPermission(Action.BYPASS_COOLDOWNS_PERMISSION)) {
             getPlugin().getDatabase().setCooldown(action, player, Instant.now().plusSeconds(configCooldown));
         }

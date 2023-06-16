@@ -126,7 +126,7 @@ public class BukkitUser extends OnlineUser {
                     }
                     player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 },
-                () -> plugin.getLogger().log(Level.WARNING, "User offline when teleporting: " + player.getName())
+                () -> plugin.log(Level.WARNING, "User offline when teleporting: " + player.getName())
         );
     }
 

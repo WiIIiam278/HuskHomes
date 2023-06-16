@@ -62,7 +62,7 @@ import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.util.FabricSafetyResolver;
-import net.william278.huskhomes.util.FabricTaskRunner;
+import net.william278.huskhomes.util.FabricTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.jetbrains.annotations.NotNull;
@@ -77,13 +77,11 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
+public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
+        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private static FabricHuskHomes instance;
@@ -93,10 +91,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return instance;
     }
 
-    private final ModContainer modContainer = FabricLoader.getInstance()
-            .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
+    private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
+            .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
-    private ConcurrentHashMap<UUID, CompletableFuture<?>> tasks;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
     private Settings settings;
@@ -123,7 +120,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         instance = this;
 
         // Get plugin version from mod container
-        this.tasks = new ConcurrentHashMap<>();
         this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
@@ -150,6 +146,13 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private void onEnable() {
         // Create adventure audience
         this.audiences = FabricServerAudiences.of(minecraftServer);
+
+        // Temporarily log about sounds being disabled - todo: Remove when adventure-platform-fabric is updated
+        if (getSettings().doPlaySoundEffects()) {
+            log(Level.WARNING, "Sound effects are currently disabled for HuskHomes v" +
+                               getVersion() + " on Fabric servers running Minecraft " +
+                               getMinecraftServer().getVersion());
+        }
 
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
@@ -209,7 +212,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             audiences.close();
             audiences = null;
         }
-        cancelAllTasks();
+        cancelTasks();
     }
 
     @Override
@@ -477,12 +480,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public MinecraftServer getMinecraftServer() {
         return minecraftServer;
-    }
-
-    @Override
-    @NotNull
-    public ConcurrentHashMap<UUID, CompletableFuture<?>> getTasks() {
-        return tasks;
     }
 
     @Override

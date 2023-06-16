@@ -64,7 +64,7 @@ public class EventListener {
                 this.handleInboundTeleport(onlineUser);
 
                 // Synchronize the global player list
-                plugin.runLater(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L);
+                plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L);
 
                 // Request updated player lists from other servers
                 if (plugin.getOnlineUsers().size() == 1) {
@@ -122,7 +122,7 @@ public class EventListener {
         if (bedPosition.isEmpty()) {
             plugin.getSpawn().ifPresent(spawn -> {
                 if (plugin.getSettings().doCrossServer() && !spawn.getServer().equals(plugin.getServerName())) {
-                    plugin.runLater(() -> {
+                    plugin.runSyncDelayed(() -> {
                         try {
                             Teleport.builder(plugin)
                                     .teleporter(teleporter)

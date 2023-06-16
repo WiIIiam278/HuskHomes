@@ -90,7 +90,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param mineDown the parsed {@link MineDown} to send
      * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
      */
-    public final void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
+    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
         getAudience().sendTitlePart(subTitle ? TitlePart.SUBTITLE : TitlePart.TITLE, mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
                 .replace().toComponent());
@@ -101,7 +101,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
-    public final void sendActionBar(@NotNull MineDown mineDown) {
+    public void sendActionBar(@NotNull MineDown mineDown) {
         getAudience().sendActionBar(mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
                 .replace().toComponent());
@@ -113,7 +113,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
-    public final void sendMessage(@NotNull MineDown mineDown) {
+    public void sendMessage(@NotNull MineDown mineDown) {
         getAudience().sendMessage(mineDown
                 .disable(MineDownParser.Option.SIMPLE_FORMATTING)
                 .replace().toComponent());
@@ -125,7 +125,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param mineDown the parsed {@link MineDown} to send
      * @param slot     the {@link Locales.DisplaySlot} to send the message to
      */
-    public final void sendMessage(@NotNull MineDown mineDown, @NotNull Locales.DisplaySlot slot) {
+    public void sendMessage(@NotNull MineDown mineDown, @NotNull Locales.DisplaySlot slot) {
         if (slot == Locales.DisplaySlot.CHAT) {
             sendMessage(mineDown);
         } else if (slot == Locales.DisplaySlot.ACTION_BAR) {
@@ -144,7 +144,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @implNote This method is intended for use with Minecraft's built-in translation keys. If the key is invalid,
      * it will be substituted with {@code minecraft:block.minecraft.spawn.not_valid}
      */
-    public final void sendTranslatableMessage(@Subst(Key.MINECRAFT_NAMESPACE + "block.minecraft.spawn.not_valid")
+    public void sendTranslatableMessage(@Subst(Key.MINECRAFT_NAMESPACE + "block.minecraft.spawn.not_valid")
                                               @NotNull String translationKey) {
         getAudience().sendMessage(Component.translatable(translationKey));
     }
@@ -155,7 +155,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param soundEffect the sound effect to play. If the sound name is invalid, the sound will not play
      * @implNote If the key is invalid, it will be substituted with {@code minecraft:block.note_block.banjo}
      */
-    public final void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
+    public void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
                                 @NotNull String soundEffect) throws IllegalArgumentException {
         try {
             getAudience().playSound(

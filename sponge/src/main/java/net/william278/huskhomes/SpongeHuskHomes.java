@@ -48,7 +48,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.SpongeUser;
 import net.william278.huskhomes.util.SpongeSafetyResolver;
-import net.william278.huskhomes.util.SpongeTaskRunner;
+import net.william278.huskhomes.util.SpongeTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.bstats.charts.SimplePie;
@@ -80,12 +80,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Plugin("huskhomes")
-public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafetyResolver, SpongeEventDispatcher, RawPlayDataHandler<EngineConnection> {
+public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSafetyResolver, SpongeEventDispatcher,
+        RawPlayDataHandler<EngineConnection> {
 
     /**
      * Metrics ID for <a href="https://bstats.org/plugin/sponge/HuskHomes/18423">HuskHomes on Sponge</a>.
@@ -110,7 +110,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @Inject
     private Metrics.Factory metricsFactory;
 
-    private ConcurrentHashMap<UUID, CancellableRunnable> tasks;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -134,7 +133,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
         instance = this;
 
         // Get plugin version from mod container
-        this.tasks = new ConcurrentHashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -210,7 +208,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
         if (broker != null) {
             broker.close();
         }
-        cancelAllTasks();
+        cancelTasks();
     }
 
     @Listener
@@ -514,12 +512,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTaskRunner, SpongeSafet
     @NotNull
     public RawPlayDataChannel getPluginMessageChannel() {
         return channel;
-    }
-
-    @NotNull
-    @Override
-    public ConcurrentHashMap<UUID, CancellableRunnable> getTasks() {
-        return tasks;
     }
 
     @NotNull

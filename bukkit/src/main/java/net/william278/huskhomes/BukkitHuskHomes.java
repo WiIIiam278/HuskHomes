@@ -65,23 +65,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
-import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTaskRunner, BukkitEventDispatcher, PluginMessageListener, BukkitSafetyResolver {
+public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask.Supplier, BukkitEventDispatcher,
+        PluginMessageListener, BukkitSafetyResolver {
 
     /**
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
      */
     private static final int METRICS_ID = 8430;
-    private ConcurrentHashMap<UUID, ScheduledTask> tasks;
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -130,7 +128,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         // Create adventure audience
         this.audiences = BukkitAudiences.create(this);
         this.paperLib = new MorePaperLib(this);
-        this.tasks = new ConcurrentHashMap<>();
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
@@ -257,7 +254,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             audiences.close();
             audiences = null;
         }
-        cancelAllTasks();
+        cancelTasks();
     }
 
     /**
@@ -485,21 +482,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }
 
-    @Override
     @NotNull
     public GracefulScheduling getScheduler() {
         return paperLib.scheduling();
-    }
-
-    @Override
-    @NotNull
-    public ConcurrentHashMap<UUID, ScheduledTask> getTasks() {
-        return tasks;
     }
 
     @Override

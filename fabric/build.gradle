@@ -21,7 +21,7 @@ dependencies {
     fabricApiModules.forEach {
         modImplementation(fabricApi.module(it, fabric_api_version))
     }
-    modImplementation include('net.kyori:adventure-platform-fabric:5.9.0-SNAPSHOT')
+    modImplementation include('net.kyori:adventure-platform-fabric:5.10.0-SNAPSHOT')
     modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
 
     implementation include('redis.clients:jedis:' + jedis_version)

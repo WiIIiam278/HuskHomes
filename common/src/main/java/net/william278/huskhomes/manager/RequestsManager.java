@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages {@link TeleportRequest}s between players
@@ -48,7 +49,7 @@ public class RequestsManager {
 
     public RequestsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
-        this.requests = new HashMap<>();
+        this.requests = new ConcurrentHashMap<>();
     }
 
     /**

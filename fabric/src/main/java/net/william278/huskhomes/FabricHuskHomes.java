@@ -147,6 +147,13 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         // Create adventure audience
         this.audiences = FabricServerAudiences.of(minecraftServer);
 
+        // Temporarily log about sounds being disabled - todo: Remove when adventure-platform-fabric is updated
+        if (getSettings().doPlaySoundEffects()) {
+            log(Level.WARNING, "Sound effects are currently disabled for HuskHomes v" +
+                               getVersion() + " on Fabric servers running Minecraft " +
+                               getMinecraftServer().getVersion());
+        }
+
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {

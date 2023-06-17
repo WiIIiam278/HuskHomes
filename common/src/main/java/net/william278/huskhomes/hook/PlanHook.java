@@ -65,7 +65,7 @@ public class PlanHook extends Hook {
 
     private void registerDataExtension() {
         try {
-            ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase(), plugin.getSettings().doCrossServer()));
+            ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase()));
         } catch (IllegalStateException planIsNotEnabled) {
             plugin.log(Level.SEVERE, "Plan extension hook failed to register. Plan is not enabled.", planIsNotEnabled);
             // Plan is not enabled, handle exception
@@ -93,13 +93,10 @@ public class PlanHook extends Hook {
     @SuppressWarnings("unused")
     protected static class PlanDataExtension implements DataExtension {
 
+        private static final String UNKNOWN_STRING = "N/A";
         private Database database;
 
-        private boolean crossServer;
-
-        private static final String UNKNOWN_STRING = "N/A";
-
-        protected PlanDataExtension(@NotNull Database database, boolean crossServer) {
+        protected PlanDataExtension(@NotNull Database database) {
             this.database = database;
         }
 

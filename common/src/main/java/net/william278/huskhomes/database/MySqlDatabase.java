@@ -260,7 +260,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUserDataByName(@NotNull String name) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`,
+                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
                     FROM `%players_table%`
                     WHERE `username`=?"""))) {
                 statement.setString(1, name);

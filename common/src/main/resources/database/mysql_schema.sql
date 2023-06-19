@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
 # Create the cooldowns table if it does not exist
 CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
 (
-    `id`              integer       NOT NULL AUTO_INCREMENT,
-    `player_uuid`     char(36)      NOT NULL UNIQUE,
-    `type`            varchar(255)  NOT NULL,
-    `start_timestamp` datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `end_timestamp`   datetime      NOT NULL,
+    `id`              integer      NOT NULL AUTO_INCREMENT,
+    `player_uuid`     char(36)     NOT NULL UNIQUE,
+    `type`            varchar(255) NOT NULL,
+    `start_timestamp` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `end_timestamp`   datetime     NOT NULL,
 
     PRIMARY KEY (`id`),
     FOREIGN KEY (`player_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE

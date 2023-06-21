@@ -1,8 +1,8 @@
 <!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskHomes" />
-    <a href="https://github.com/WiIIiam278/HuskHomes2/actions/workflows/ci.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskHomes2/ci.yml?branch=master&logo=github"/>
+    <a href="https://github.com/WiIIiam278/HuskHomes/actions/workflows/ci.yml">
+        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskHomes/ci.yml?branch=master&logo=github"/>
     </a> 
     <a href="https://repo.william278.net/#/releases/net/william278/huskhomes/">
         <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/huskhomes?color=00fb9a&name=Maven&prefix=v" />
@@ -21,7 +21,7 @@
         <a href="https://william278.net/docs/huskhomes/">Docs</a>
     </b> — 
     <b>
-        <a href="https://github.com/WiIIiam278/HuskHomes2/issues">Issues</a>
+        <a href="https://github.com/WiIIiam278/HuskHomes/issues">Issues</a>
     </b>
 </p>
 <br/>
@@ -53,18 +53,18 @@ HuskHomes requires Java 17 to build. To build, simply run the following in the r
 ## License
 HuskHomes is licensed under the Apache 2.0 license.
 
-- [License](https://github.com/WiIIiam278/HuskHomes2/blob/master/LICENSE)
+- [License](https://github.com/WiIIiam278/HuskHomes/blob/master/LICENSE)
 
 ## Translations
 Translations of the plugin locales are welcome to help make the plugin more accessible. Please submit a pull request with your translations as a `.yml` file.
 
-- [Locales Directory](https://github.com/WiIIiam278/HuskHomes2/tree/master/common/src/main/resources/locales)
-- [English Locales](https://github.com/WiIIiam278/HuskHomes2/tree/master/common/src/main/resources/locales/en-gb.yml)
+- [Locales Directory](https://github.com/WiIIiam278/HuskHomes/tree/master/common/src/main/resources/locales)
+- [English Locales](https://github.com/WiIIiam278/HuskHomes/tree/master/common/src/main/resources/locales/en-gb.yml)
 
 ## Links
 - [Docs](https://william278.net/docs/huskhomes/) &mdash; Read the plugin documentation!
 - [Modrinth](https://modrinth.com/plugin/huskhomes) &mdash; View the plugin Modrinth page (Also: [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/), [Polymart](https://polymart.org/resource/huskhomes.284/), [Hangar](https://hangar.papermc.io/William278/HuskHomes), & [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
-- [Issues](https://github.com/WiIIiam278/HuskHomes2/issues) &mdash; File a bug report or feature request
+- [Issues](https://github.com/WiIIiam278/HuskHomes/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions
 - [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics (Also: [Sponge](https://bstats.org/plugin/sponge/HuskHomes/18423))
 

@@ -17,7 +17,7 @@ The HuskHomes API shares version numbering with the plugin itself for consistenc
 <details>
 <summary>Targeting older versions</summary>
 
-HuskHomes versions prior to `v4.3.1` are distributed on [JitPack](https://jitpack.io/#/net/william278/HuskHomes2), and you will need to use the `https://jitpack.io` repository instead.
+HuskHomes versions prior to `v4.3.1` are distributed on [JitPack](https://jitpack.io/#/net/william278/HuskHomes), and you will need to use the `https://jitpack.io` repository instead.
 </details>
 
 ## Table of contents
@@ -39,7 +39,7 @@ Add the repository to your `pom.xml` as per below. You can alternatively specify
     </repository>
 </repositories>
 ```
-Add the dependency to your `pom.xml` as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes2?color=%23282828&label=%20&style=flat-square)
+Add the dependency to your `pom.xml` as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square)
 ```xml
 <dependency>
     <groupId>net.william278</groupId>
@@ -62,7 +62,7 @@ allprojects {
 	}
 }
 ```
-Add the dependency as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes2?color=%23282828&label=%20&style=flat-square)
+Add the dependency as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square)
 
 ```groovy
 dependencies {

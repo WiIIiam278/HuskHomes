@@ -25,7 +25,7 @@
   * ❗ [[API Events]]
 
 ## Links
-* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes2)
+* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes)
 * 📂 [Downloads](https://william278.net/project/huskhomes/)
   * 🔧 [Modrinth](https://modrinth.com/plugin/huskhomes)
   * 🚰 [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/)

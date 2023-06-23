@@ -121,13 +121,19 @@ public class FabricUser extends OnlineUser {
     }
 
     @Override
+    public void playSound(@NotNull String soundEffect) throws IllegalArgumentException {
+        // Do nothing - todo: Fix sounds when adventure-platform-fabric is updated.
+    }
+
+    @Override
     public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
         final MinecraftServer server = player.getServer();
+        assert server != null : "Server is null";
         final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
         player.teleport(
                 server.getWorld(server.getWorldRegistryKeys().stream()
                         .filter(key -> key.getValue().equals(worldId)).findFirst()
-                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND))
+                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin))
                 ),
                 location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch()

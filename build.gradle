@@ -15,10 +15,16 @@ defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
+    set 'description', description.toString()
+
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
-    set 'description', description.toString()
+
+    set 'fabric_minecraft_version', fabric_minecraft_version.toString()
+    set 'fabric_yarn_mappings', fabric_yarn_mappings.toString()
+    set 'fabric_loader_version', fabric_loader_version.toString()
+    set 'fabric_api_version', fabric_api_version.toString()
 }
 
 allprojects {
@@ -34,6 +40,10 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven {
+            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            mavenContent { snapshotsOnly() }
+        }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }

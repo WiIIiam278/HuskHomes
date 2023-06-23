@@ -6,7 +6,7 @@ This will walk you through installing HuskHomes on your Spigot, Fabric or Sponge
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 
 ## Download HuskHomes for your server
-Download the correct jar file for your server from the [latest release page](https://github.com/WiIIiam278/HuskHomes2/releases/latest):
+Download the correct jar file for your server from the [latest release page](https://github.com/WiIIiam278/HuskHomes/releases/latest):
 * the `HuskHomes-Plugin` jar for Spigot or Paper servers
 * the `HuskHomes-Fabric` jar for Fabric servers
 * or the `HuskHomes-Sponge` jar for Sponge servers

@@ -26,6 +26,7 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteConfig;
@@ -33,10 +34,8 @@ import org.sqlite.SQLiteConfig;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -232,16 +231,14 @@ public class SqLiteDatabase extends Database {
         getUserData(onlineUser.getUuid()).ifPresentOrElse(existingUser -> {
                     if (!existingUser.getUsername().equals(onlineUser.getUsername())) {
                         // Update a player's name if it has changed in the database
-                        try {
-                            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                    UPDATE `%players_table%`
-                                    SET `username`=?
-                                    WHERE `uuid`=?"""))) {
+                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                                UPDATE `%players_table%`
+                                SET `username`=?
+                                WHERE `uuid`=?"""))) {
 
-                                statement.setString(1, onlineUser.getUsername());
-                                statement.setString(2, existingUser.getUserUuid().toString());
-                                statement.executeUpdate();
-                            }
+                            statement.setString(1, onlineUser.getUsername());
+                            statement.setString(2, existingUser.getUserUuid().toString());
+                            statement.executeUpdate();
                             plugin.log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUser.getUsername() + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
@@ -250,15 +247,14 @@ public class SqLiteDatabase extends Database {
                 },
                 () -> {
                     // Insert new player data into the database
-                    try {
-                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                INSERT INTO `%players_table%` (`uuid`,`username`)
-                                VALUES (?,?);"""))) {
+                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                            INSERT INTO `%players_table%` (`uuid`,`username`)
+                            VALUES (?,?);"""))) {
 
-                            statement.setString(1, onlineUser.getUuid().toString());
-                            statement.setString(2, onlineUser.getUsername());
-                            statement.executeUpdate();
-                        }
+                        statement.setString(1, onlineUser.getUuid().toString());
+                        statement.setString(2, onlineUser.getUsername());
+                        statement.executeUpdate();
+
                     } catch (SQLException e) {
                         plugin.log(Level.SEVERE, "Failed to insert a player into the database", e);
                     }
@@ -267,22 +263,20 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<SavedUser> getUserDataByName(@NotNull String name) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
-                    FROM `%players_table%`
-                    WHERE `username`=?"""))) {
-                statement.setString(1, name);
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
+                FROM `%players_table%`
+                WHERE `username`=?"""))) {
+            statement.setString(1, name);
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(new SavedUser(
-                            User.of(UUID.fromString(resultSet.getString("uuid")),
-                                    resultSet.getString("username")),
-                            resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new SavedUser(
+                        User.of(UUID.fromString(resultSet.getString("uuid")),
+                                resultSet.getString("username")),
+                        resultSet.getInt("home_slots"),
+                        resultSet.getBoolean("ignoring_requests")
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch a player by name from the database", e);
@@ -292,23 +286,21 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
-                    FROM `%players_table%`
-                    WHERE `uuid`=?"""))) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
+                FROM `%players_table%`
+                WHERE `uuid`=?"""))) {
 
-                statement.setString(1, uuid.toString());
+            statement.setString(1, uuid.toString());
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(new SavedUser(
-                            User.of(UUID.fromString(resultSet.getString("uuid")),
-                                    resultSet.getString("username")),
-                            resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new SavedUser(
+                        User.of(UUID.fromString(resultSet.getString("uuid")),
+                                resultSet.getString("username")),
+                        resultSet.getInt("home_slots"),
+                        resultSet.getBoolean("ignoring_requests")
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch a player from uuid from the database", e);
@@ -317,39 +309,86 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `type`, `start_timestamp`, `end_timestamp`
+                FROM `%cooldowns_table%`
+                WHERE `player_uuid`=? AND `type`=?
+                ORDER BY `start_timestamp` DESC
+                LIMIT 1;"""))) {
+            statement.setString(1, user.getUuid().toString());
+            statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(resultSet.getTimestamp("end_timestamp").toInstant());
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch a player's cooldown from the database", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%cooldowns_table%`
+                WHERE `player_uuid`=? AND `type`=?;"""))) {
+            statement.setString(1, user.getUuid().toString());
+            statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to remove a player's cooldown from the database", e);
+        }
+    }
+
+    @Override
+    public void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user, @NotNull Instant cooldownExpiry) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                INSERT INTO `%cooldowns_table%` (`player_uuid`, `type`, `start_timestamp`, `end_timestamp`)
+                VALUES (?,?,?,?);"""))) {
+            statement.setString(1, user.getUuid().toString());
+            statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+            statement.setTimestamp(3, Timestamp.from(Instant.now()));
+            statement.setTimestamp(4, Timestamp.from(cooldownExpiry));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to set a player's cooldown in the database", e);
+        }
+    }
+
+    @Override
     public List<Home> getHomes(@NotNull User user) {
         final List<Home> userHomes = new ArrayList<>();
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `owner_uuid`=?
-                    ORDER BY `name`;"""))) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                FROM `%homes_table%`
+                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                WHERE `owner_uuid`=?
+                ORDER BY `name`;"""))) {
+            statement.setString(1, user.getUuid().toString());
 
-                statement.setString(1, user.getUuid().toString());
-
-                final ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    userHomes.add(Home.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("home_uuid")),
-                            user,
-                            resultSet.getBoolean("public")));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userHomes.add(Home.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("home_uuid")),
+                        user,
+                        resultSet.getBoolean("public")));
             }
+
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
         }
@@ -359,30 +398,28 @@ public class SqLiteDatabase extends Database {
     @Override
     public List<Warp> getWarps() {
         final List<Warp> warps = new ArrayList<>();
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    ORDER BY `name`;"""))) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                FROM `%warps_table%`
+                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                ORDER BY `name`;"""))) {
 
-                final ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    warps.add(Warp.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("warp_uuid"))));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                warps.add(Warp.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("warp_uuid"))));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the database for warp data.");
@@ -393,36 +430,35 @@ public class SqLiteDatabase extends Database {
     @Override
     public List<Home> getPublicHomes() {
         final List<Home> userHomes = new ArrayList<>();
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `public`=true
-                    ORDER BY `name`;"""))) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                FROM `%homes_table%`
+                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                WHERE `public`=true
+                ORDER BY `name`;"""))) {
 
-                final ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    userHomes.add(Home.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("home_uuid")),
-                            User.of(UUID.fromString(resultSet.getString("owner_uuid")),
-                                    resultSet.getString("owner_username")),
-                            resultSet.getBoolean("public")));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userHomes.add(Home.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("home_uuid")),
+                        User.of(UUID.fromString(resultSet.getString("owner_uuid")),
+                                resultSet.getString("owner_username")),
+                        resultSet.getBoolean("public")));
             }
+
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the database for public home data");
         }
@@ -431,36 +467,36 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                                                                                              SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                                                                                                              FROM `%homes_table%`
-                                                                                                              INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                                                                                                              INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                                                                                                              INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                                                                                                              WHERE `owner_uuid`=?
-                                                                                                              """ + (caseInsensitive ? "AND UPPER(`name`) LIKE UPPER(?);" : "AND `name`=?;")))) {
-                statement.setString(1, user.getUuid().toString());
-                statement.setString(2, homeName);
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                FROM `%homes_table%`
+                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                WHERE `owner_uuid`=?
+                AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+            statement.setString(1, user.getUuid().toString());
+            statement.setBoolean(2, caseInsensitive);
+            statement.setString(3, homeName);
+            statement.setString(4, homeName);
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(Home.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("home_uuid")),
-                            user,
-                            resultSet.getBoolean("public")));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(Home.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("home_uuid")),
+                        user,
+                        resultSet.getBoolean("public")));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query a player's home", e);
@@ -470,35 +506,33 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Home> getHome(@NotNull UUID uuid) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `%homes_table%`.`uuid`=?;"""))) {
-                statement.setString(1, uuid.toString());
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                FROM `%homes_table%`
+                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                WHERE `%homes_table%`.`uuid`=?;"""))) {
+            statement.setString(1, uuid.toString());
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(Home.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("home_uuid")),
-                            User.of(UUID.fromString(resultSet.getString("owner_uuid")),
-                                    resultSet.getString("owner_username")),
-                            resultSet.getBoolean("public")));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(Home.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("home_uuid")),
+                        User.of(UUID.fromString(resultSet.getString("owner_uuid")),
+                                resultSet.getString("owner_username")),
+                        resultSet.getBoolean("public")));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query a player's home by uuid", e);
@@ -508,31 +542,31 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                                                                                              SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                                                                                                              FROM `%warps_table%`
-                                                                                                              INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                                                                                                              INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                                                                                                              """ + (caseInsensitive ? "WHERE UPPER(`name`) LIKE UPPER(?);" : "WHERE `name`=?;")))) {
-                statement.setString(1, warpName);
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                FROM `%warps_table%`
+                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+            statement.setBoolean(1, caseInsensitive);
+            statement.setString(2, warpName);
+            statement.setString(3, warpName);
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(Warp.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("warp_uuid"))));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(Warp.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("warp_uuid"))));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query a server warp", e);
@@ -542,31 +576,29 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Warp> getWarp(@NotNull UUID uuid) {
-        try {
-            try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    WHERE `%warps_table%`.uuid=?;"""))) {
-                statement.setString(1, uuid.toString());
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                FROM `%warps_table%`
+                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                WHERE `%warps_table%`.uuid=?;"""))) {
+            statement.setString(1, uuid.toString());
 
-                final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return Optional.of(Warp.from(resultSet.getDouble("x"),
-                            resultSet.getDouble("y"),
-                            resultSet.getDouble("z"),
-                            resultSet.getFloat("yaw"),
-                            resultSet.getFloat("pitch"),
-                            World.from(resultSet.getString("world_name"),
-                                    UUID.fromString(resultSet.getString("world_uuid"))),
-                            resultSet.getString("server_name"),
-                            PositionMeta.from(resultSet.getString("name"),
-                                    resultSet.getString("description"),
-                                    resultSet.getTimestamp("timestamp").toInstant(),
-                                    resultSet.getString("tags")),
-                            UUID.fromString(resultSet.getString("warp_uuid"))));
-                }
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(Warp.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("warp_uuid"))));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query a server warp", e);
@@ -576,7 +608,6 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser) {
-
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `type`
                 FROM `%teleports_table%`
@@ -601,11 +632,10 @@ public class SqLiteDatabase extends Database {
                         .updateLastPosition(false)
                         .toTeleport());
             }
-
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         } catch (TeleportationException e) {
-            e.displayMessage(onlineUser, plugin);
+            e.displayMessage(onlineUser);
         }
         return Optional.empty();
     }
@@ -614,13 +644,12 @@ public class SqLiteDatabase extends Database {
     public void updateUserData(@NotNull SavedUser savedUser) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 UPDATE `%players_table%`
-                SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
+                SET `home_slots`=?, `ignoring_requests`=?
                 WHERE `uuid`=?"""))) {
 
             statement.setInt(1, savedUser.getHomeSlots());
             statement.setBoolean(2, savedUser.isIgnoringTeleports());
-            statement.setTimestamp(3, Timestamp.from(savedUser.getRtpCooldown()));
-            statement.setString(4, savedUser.getUserUuid().toString());
+            statement.setString(3, savedUser.getUserUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
@@ -630,17 +659,15 @@ public class SqLiteDatabase extends Database {
     @Override
     public void setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport) {
         // Clear the user's current teleport
-        try {
-            try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `id`=(
-                        SELECT `destination_id`
-                        FROM `%teleports_table%`
-                        WHERE `%teleports_table%`.`player_uuid`=?
-                    );"""))) {
-                deleteStatement.setString(1, user.getUuid().toString());
-                deleteStatement.executeUpdate();
-            }
+        try (PreparedStatement deleteStatement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `id`=(
+                    SELECT `destination_id`
+                    FROM `%teleports_table%`
+                    WHERE `%teleports_table%`.`player_uuid`=?
+                );"""))) {
+            deleteStatement.setString(1, user.getUuid().toString());
+            deleteStatement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
         }
@@ -653,9 +680,7 @@ public class SqLiteDatabase extends Database {
                 statement.setString(1, user.getUuid().toString());
                 statement.setInt(2, setPosition((Position) teleport.getTarget(), connection));
                 statement.setInt(3, teleport.getType().getTypeId());
-
                 statement.executeUpdate();
-
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE, "Failed to set the current teleport of " + user.getUsername(), e);
             }
@@ -690,7 +715,6 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public void setLastPosition(@NotNull User user, @NotNull Position position) {
-
         try (PreparedStatement queryStatement = getConnection().prepareStatement(formatStatementTables("""
                 SELECT `last_position` FROM `%players_table%`
                 INNER JOIN `%positions_table%` ON `%players_table%`.last_position = `%positions_table%`.`id`
@@ -712,7 +736,6 @@ public class SqLiteDatabase extends Database {
                     updateStatement.executeUpdate();
                 }
             }
-
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
         }
@@ -720,7 +743,6 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public Optional<Position> getOfflinePosition(@NotNull User user) {
-
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                 FROM `%players_table%`
@@ -896,16 +918,14 @@ public class SqLiteDatabase extends Database {
     public void saveWarp(@NotNull Warp warp) {
         getWarp(warp.getUuid())
                 .ifPresentOrElse(presentWarp -> {
-                    try {
-                        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                                SELECT `saved_position_id` FROM `%warps_table%`
-                                WHERE `uuid`=?;"""))) {
-                            statement.setString(1, warp.getUuid().toString());
+                    try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                            SELECT `saved_position_id` FROM `%warps_table%`
+                            WHERE `uuid`=?;"""))) {
+                        statement.setString(1, warp.getUuid().toString());
 
-                            final ResultSet resultSet = statement.executeQuery();
-                            if (resultSet.next()) {
-                                updateSavedPosition(resultSet.getInt("saved_position_id"), warp, connection);
-                            }
+                        final ResultSet resultSet = statement.executeQuery();
+                        if (resultSet.next()) {
+                            updateSavedPosition(resultSet.getInt("saved_position_id"), warp, connection);
                         }
                     } catch (SQLException e) {
                         plugin.log(Level.SEVERE, "Failed to update a warp in the database", e);
@@ -938,9 +958,7 @@ public class SqLiteDatabase extends Database {
                     )
                 );"""))) {
             statement.setString(1, uuid.toString());
-
             statement.executeUpdate();
-
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete a home from the database", e);
         }

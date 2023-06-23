@@ -28,8 +28,8 @@ sponge {
         description(project.description.toString())
         links {
             homepage("https://william278.net/project/huskhomes")
-            source("https://github.com/WiIIiam278/HuskHomes2")
-            issues("https://github.com/WiIIiam278/HuskHomes2/issues")
+            source("https://github.com/WiIIiam278/HuskHomes")
+            issues("https://github.com/WiIIiam278/HuskHomes/issues")
         }
         contributor("William278") {
             description("Author")

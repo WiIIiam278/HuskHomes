@@ -29,7 +29,9 @@ import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.BukkitAdapter;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,6 +39,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -226,6 +230,54 @@ public class BukkitPluginTests {
         }
 
     }
+
+    @Nested
+    @DisplayName("Cooldown Tests")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    public class CooldownTests {
+        private static User player;
+        private static final TransactionResolver.Action ACTION = TransactionResolver.Action.HOME_TELEPORT;
+        private static final Duration DURATION = Duration.ofSeconds(100);
+
+        @BeforeAll
+        public static void setup() {
+            player = BukkitUser.adapt(server.addPlayer());
+        }
+
+        @DisplayName("Test Applying Cooldown")
+        @Order(1)
+        @Test
+        public void testApplyingCooldown() {
+            plugin.getDatabase().ensureUser(player);
+            Assertions.assertTrue(plugin.getDatabase().getUserData(player.getUuid()).isPresent());
+
+            plugin.getDatabase().setCooldown(ACTION, player, Instant.now().plus(DURATION));
+            Assertions.assertTrue(plugin.getDatabase().getCooldown(ACTION, player).isPresent());
+        }
+
+        @DisplayName("Test Removing Cooldown")
+        @Order(2)
+        @Test
+        public void testRemovingCooldown() {
+            Assertions.assertTrue(plugin.getDatabase().getCooldown(ACTION, player).isPresent());
+            plugin.getDatabase().removeCooldown(ACTION, player);
+            Assertions.assertFalse(plugin.getDatabase().getCooldown(ACTION, player).isPresent());
+        }
+
+        @DisplayName("Test Cooldown Expiration")
+        @Order(3)
+        @Test
+        public void testCooldownExpiration() {
+            Assertions.assertTrue(plugin.getDatabase().getCooldown(ACTION, player).isEmpty());
+            plugin.getDatabase().setCooldown(ACTION, player, Instant.now().minus(DURATION));
+
+            final Optional<Instant> cooldown = plugin.getDatabase().getCooldown(ACTION, player);
+            Assertions.assertTrue(cooldown.isPresent());
+            Assertions.assertTrue(cooldown.get().isBefore(Instant.now()));
+        }
+
+    }
+
 
     @Nested
     @DisplayName("Warp Tests")

@@ -63,7 +63,7 @@ import java.util.stream.Stream;
 /**
  * Represents a cross-platform instance of the plugin
  */
-public interface HuskHomes extends TaskRunner, EventDispatcher, SafetyResolver, TransactionResolver {
+public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolver, TransactionResolver {
 
     int SPIGOT_RESOURCE_ID = 83767;
 

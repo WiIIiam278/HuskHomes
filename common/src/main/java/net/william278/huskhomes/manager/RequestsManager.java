@@ -21,7 +21,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
@@ -31,10 +30,12 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages {@link TeleportRequest}s between players
@@ -48,7 +49,7 @@ public class RequestsManager {
 
     public RequestsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
-        this.requests = new HashMap<>();
+        this.requests = new ConcurrentHashMap<>();
     }
 
     /**
@@ -257,7 +258,7 @@ public class RequestsManager {
         }
 
         // Validate the economy check
-        if (accepted && !plugin.canPerformTransaction(recipient, EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)) {
+        if (accepted && !plugin.validateTransaction(recipient, TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)) {
             return;
         }
 
@@ -308,7 +309,7 @@ public class RequestsManager {
             // If the request is a tpa here request, teleport the recipient to the sender
             if (accepted && request.getType() == TeleportRequest.Type.TPA_HERE) {
                 final TeleportBuilder builder = Teleport.builder(plugin)
-                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
+                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
                         .teleporter(recipient);
 
                 // Strict /tpahere requests will teleport to where the sender was when typing the command
@@ -321,7 +322,7 @@ public class RequestsManager {
                 try {
                     builder.toTimedTeleport().execute();
                 } catch (TeleportationException e) {
-                    e.displayMessage(recipient, plugin);
+                    e.displayMessage(recipient);
                 }
             }
         }));
@@ -352,11 +353,11 @@ public class RequestsManager {
                 Teleport.builder(plugin)
                         .teleporter(requester)
                         .target(request.getRecipientName())
-                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
+                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
                         .toTimedTeleport()
                         .execute();
             } catch (TeleportationException e) {
-                e.displayMessage(requester, plugin);
+                e.displayMessage(requester);
             }
         }
     }

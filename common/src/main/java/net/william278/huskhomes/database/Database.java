@@ -29,6 +29,7 @@ import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -75,6 +77,7 @@ public abstract class Database {
         return sql
                 .replaceAll("%positions_table%", plugin.getSettings().getTableName(Table.POSITION_DATA))
                 .replaceAll("%players_table%", plugin.getSettings().getTableName(Table.PLAYER_DATA))
+                .replaceAll("%cooldowns_table%", plugin.getSettings().getTableName(Table.PLAYER_COOLDOWNS_DATA))
                 .replaceAll("%teleports_table%", plugin.getSettings().getTableName(Table.TELEPORT_DATA))
                 .replaceAll("%saved_positions_table%", plugin.getSettings().getTableName(Table.SAVED_POSITION_DATA))
                 .replaceAll("%homes_table%", plugin.getSettings().getTableName(Table.HOME_DATA))
@@ -146,7 +149,7 @@ public abstract class Database {
      * Get {@link SavedUser} for a user by their Minecraft username (<i>case-insensitive</i>)
      *
      * @param name Username of the {@link SavedUser} to get (<i>case-insensitive</i>)
-     * @return A future returning an optional with the {@link SavedUser} present if they exist
+     * @return An optional with the {@link SavedUser} present if they exist
      */
     public abstract Optional<SavedUser> getUserDataByName(@NotNull String name);
 
@@ -154,10 +157,33 @@ public abstract class Database {
      * Get {@link SavedUser} for a user by their Minecraft account {@link UUID}
      *
      * @param uuid Minecraft account {@link UUID} of the {@link SavedUser} to get
-     * @return A future returning an optional with the {@link SavedUser} present if they exist
+     * @return An optional with the {@link SavedUser} present if they exist
      */
     public abstract Optional<SavedUser> getUserData(@NotNull UUID uuid);
 
+    /**
+     * Get the currently active cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     *
+     * @return An optional containing the {@link Instant} the cooldown expires at, or empty if the {@link User} has no cooldown
+     */
+    public abstract Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user);
+
+    /**
+     * Set the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     *
+     * @param action         The {@link TransactionResolver.Action} to set the cooldown for
+     * @param user           The {@link User} to set the cooldown for
+     * @param cooldownExpiry The {@link Instant} the cooldown expires at
+     */
+    public abstract void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user, @NotNull Instant cooldownExpiry);
+
+    /**
+     * Remove the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     *
+     * @param action The {@link TransactionResolver.Action} to remove the cooldown for
+     * @param user   The {@link User} to remove the cooldown for
+     */
+    public abstract void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user);
 
     /**
      * Get a list of {@link Home}s set by a {@link User}
@@ -170,7 +196,7 @@ public abstract class Database {
     /**
      * Get a list of all {@link Warp}s that have been set
      *
-     * @return A future returning a list containing all {@link Warp}s
+     * @return A list containing all {@link Warp}s
      */
     public abstract List<Warp> getWarps();
 
@@ -178,7 +204,7 @@ public abstract class Database {
      * Get a list of publicly-set {@link Warp}s on <i>this {@link Server}</i>
      *
      * @param plugin The plugin instance
-     * @return A future returning a list containing all {@link Warp}s set on this server
+     * @return A list containing all {@link Warp}s set on this server
      */
     @NotNull
     public final List<Warp> getLocalWarps(@NotNull HuskHomes plugin) {
@@ -190,7 +216,7 @@ public abstract class Database {
     /**
      * Get a list of all publicly-set {@link Home}s
      *
-     * @return A future returning a list containing all publicly-set {@link Home}s
+     * @return A list containing all publicly-set {@link Home}s
      */
     public abstract List<Home> getPublicHomes();
 
@@ -198,7 +224,7 @@ public abstract class Database {
      * Get a list of publicly-set {@link Home}s on <i>this {@link Server}</i>
      *
      * @param plugin The plugin instance
-     * @return A future returning a list containing all publicly-set {@link Home}s on this server
+     * @return A list containing all publicly-set {@link Home}s on this server
      */
     @NotNull
     public final List<Home> getLocalPublicHomes(@NotNull HuskHomes plugin) {
@@ -212,7 +238,7 @@ public abstract class Database {
      *
      * @param user     The {@link User} who set the home
      * @param homeName The name of the home to get
-     * @return A future returning an optional with the {@link Home} present if it exists
+     * @return An optional with the {@link Home} present if it exists
      * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Home> getHome(@NotNull User user, @NotNull String homeName) {
@@ -225,7 +251,7 @@ public abstract class Database {
      * @param user            The {@link User} who set the home
      * @param homeName        The name of the home to get
      * @param caseInsensitive Whether the name lookup query should be case-insensitive
-     * @return A future returning an optional with the {@link Home} present if it exists
+     * @return An optional with the {@link Home} present if it exists
      */
     public abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive);
 
@@ -233,7 +259,7 @@ public abstract class Database {
      * Get a {@link Home} by its unique id
      *
      * @param uuid the {@link UUID} of the home to get
-     * @return A future returning an optional with the {@link Home} present if it exists
+     * @return An optional with the {@link Home} present if it exists
      */
     public abstract Optional<Home> getHome(@NotNull UUID uuid);
 
@@ -241,7 +267,7 @@ public abstract class Database {
      * Get a {@link Warp} with the given name
      *
      * @param warpName The name of the warp to get
-     * @return A future returning an optional with the {@link Warp} present if it exists
+     * @return An optional with the {@link Warp} present if it exists
      * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Warp> getWarp(@NotNull String warpName) {
@@ -253,7 +279,7 @@ public abstract class Database {
      *
      * @param warpName        The name of the warp to get
      * @param caseInsensitive Whether the search should be case-insensitive
-     * @return A future returning an optional with the {@link Warp} present if it exists
+     * @return An optional with the {@link Warp} present if it exists
      */
     public abstract Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive);
 
@@ -261,7 +287,7 @@ public abstract class Database {
      * Get a {@link Warp} by its unique id
      *
      * @param uuid the {@link UUID} of the warp to get
-     * @return A future returning an optional with the {@link Warp} present if it exists
+     * @return An optional with the {@link Warp} present if it exists
      */
     public abstract Optional<Warp> getWarp(@NotNull UUID uuid);
 
@@ -269,7 +295,7 @@ public abstract class Database {
      * Get the current {@link Teleport} being executed by the specified {@link OnlineUser}
      *
      * @param onlineUser The {@link OnlineUser} to check
-     * @return A future returning an optional with the {@link Teleport} present if they are teleporting cross-server
+     * @return An optional with the {@link Teleport} present if they are teleporting cross-server
      */
     public abstract Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser);
 
@@ -302,7 +328,7 @@ public abstract class Database {
      * Get the last teleport {@link Position} of a specified {@link User}
      *
      * @param user The {@link User} to check
-     * @return A future returning an optional with the {@link Position} present if it has been set
+     * @return An optional with the {@link Position} present if it has been set
      */
     public abstract Optional<Position> getLastPosition(@NotNull User user);
 
@@ -318,7 +344,7 @@ public abstract class Database {
      * Get the offline {@link Position} of a specified {@link User}
      *
      * @param user The {@link User} to check
-     * @return A future returning an optional with the {@link Position} present if it has been set
+     * @return An optional with the {@link Position} present if it has been set
      */
     public abstract Optional<Position> getOfflinePosition(@NotNull User user);
 
@@ -334,7 +360,7 @@ public abstract class Database {
      * Get the respawn {@link Position} of a specified {@link User}
      *
      * @param user The {@link User} to check
-     * @return A future returning an optional with the {@link Position} present if it has been set
+     * @return An optional with the {@link Position} present if it has been set
      */
     public abstract Optional<Position> getRespawnPosition(@NotNull User user);
 
@@ -372,7 +398,7 @@ public abstract class Database {
      * Deletes all {@link Home}s of a {@link User} from the home table on the database.
      *
      * @param user The {@link User} to delete all homes of
-     * @return A future returning an integer; the number of deleted homes
+     * @return An integer; the number of deleted homes
      */
     public abstract int deleteAllHomes(@NotNull User user);
 
@@ -386,7 +412,7 @@ public abstract class Database {
     /**
      * Deletes all {@link Warp}s set on the database table
      *
-     * @return A future returning an integer; the number of deleted warps
+     * @return An integer; the number of deleted warps
      */
     public abstract int deleteAllWarps();
 
@@ -420,6 +446,7 @@ public abstract class Database {
      */
     public enum Table {
         PLAYER_DATA("huskhomes_users"),
+        PLAYER_COOLDOWNS_DATA("huskhomes_user_cooldowns"),
         POSITION_DATA("huskhomes_position_data"),
         SAVED_POSITION_DATA("huskhomes_saved_positions"),
         HOME_DATA("huskhomes_homes"),

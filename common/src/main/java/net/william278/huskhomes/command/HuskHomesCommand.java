@@ -80,7 +80,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"))
                 .buttons(
                         AboutMenu.Link.of("https://william278.net/docs/huskhomes").text("Documentation").icon("⛏"),
-                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes2/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
+                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
                         AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5)))
                 .build();
     }

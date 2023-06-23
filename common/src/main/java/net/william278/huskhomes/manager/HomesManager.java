@@ -21,7 +21,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.ListCommand;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Home;
@@ -30,6 +29,7 @@ import net.william278.huskhomes.position.PositionMeta;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -178,10 +178,10 @@ public class HomesManager {
             }
 
             // Perform transaction and increase user slot size
-            if (!plugin.canPerformTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT)) {
-                throw new ValidationException(ValidationException.Type.NOT_ENOUGH_MONEY);
+            if (!plugin.validateTransaction(online, TransactionResolver.Action.ADDITIONAL_HOME_SLOT)) {
+                throw new ValidationException(ValidationException.Type.TRANSACTION_FAILED);
             }
-            plugin.performTransaction(online, EconomyHook.Action.ADDITIONAL_HOME_SLOT);
+            plugin.performTransaction(online, TransactionResolver.Action.ADDITIONAL_HOME_SLOT);
             plugin.editUserData(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
         }
 

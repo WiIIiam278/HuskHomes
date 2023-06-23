@@ -1,4 +1,4 @@
-# [![HuskHomes banner](https://raw.githubusercontent.com/WiIIiam278/HuskHomes2/master/images/banner.png)](https://github.com/WiIIiam278/HuskHomes2)
+# [![HuskHomes banner](https://raw.githubusercontent.com/WiIIiam278/HuskHomes/master/images/banner.png)](https://github.com/WiIIiam278/HuskHomes)
 Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuitive set homes, warps, and teleports plugin/mod developed by William278. Please click through to the topic you'd like to read about.
 
 ## Guides
@@ -14,6 +14,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuit
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]
 * 🗺️ [[Map Hooks]]
+* ⏰ [[Cooldowns]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
 * 🚫 [[Restricted Warps]]
@@ -27,7 +28,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuit
   * ❗ [[API Events]]
 
 ## Links
-* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes2)
+* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes)
 * 📂 [Downloads](https://william278.net/project/huskhomes/)
   * 🔧 [Modrinth](https://modrinth.com/plugin/huskhomes)
   * 🚰 [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/)

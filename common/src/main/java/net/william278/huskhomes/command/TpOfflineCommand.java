@@ -75,7 +75,7 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
                     .target(position.get())
                     .toTeleport().execute();
         } catch (TeleportationException e) {
-            e.displayMessage(user, plugin, args);
+            e.displayMessage(user, args);
         }
     }
 

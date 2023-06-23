@@ -108,13 +108,13 @@ public class BukkitUser extends OnlineUser {
         // Ensure the world exists
         final Optional<org.bukkit.Location> resolvedLocation = BukkitAdapter.adaptLocation(location);
         if (resolvedLocation.isEmpty() || resolvedLocation.get().getWorld() == null) {
-            throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND);
+            throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
 
         // Ensure the coordinates are within the world limits
         final org.bukkit.Location bukkitLocation = resolvedLocation.get();
         if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
-            throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES);
+            throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
         // Run on the appropriate thread scheduler for this platform
@@ -126,7 +126,7 @@ public class BukkitUser extends OnlineUser {
                     }
                     player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 },
-                () -> plugin.getLogger().log(Level.WARNING, "User offline when teleporting: " + player.getName())
+                () -> plugin.log(Level.WARNING, "User offline when teleporting: " + player.getName())
         );
     }
 

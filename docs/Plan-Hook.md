@@ -1,6 +1,6 @@
 HuskHomes supports displaying statistics about user sethomes on your [Player Analytics](https://github.com/plan-player-analytics/Plan) (Plan) web panel.
 
-![Plan hook screenshots](https://raw.githubusercontent.com/WiIIiam278/HuskHomes2/master/images/plan-hook.png)
+![Plan hook screenshots](https://raw.githubusercontent.com/WiIIiam278/HuskHomes/master/images/plan-hook.png)
 
 ## Requirements
 - HuskHomes v2.0+

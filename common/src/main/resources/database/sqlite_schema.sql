@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
 CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
 (
     `id`              integer      NOT NULL,
-    `player_uuid`     char(36)     NOT NULL UNIQUE,
+    `player_uuid`     char(36)     NOT NULL,
     `type`            varchar(255) NOT NULL,
     `start_timestamp` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `end_timestamp`   datetime     NOT NULL,

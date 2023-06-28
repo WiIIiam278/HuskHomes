@@ -70,9 +70,9 @@ public interface SpongeSafetyResolver extends SafetyResolver {
                     && isBlockSafeForOccupation(bodyBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())
                     && isBlockSafeForOccupation(headBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())) {
                     return Optional.of(Location.at(
-                            cursor.x() + 0.5,
+                            Math.floor(cursor.x()) + 0.5,
                             cursor.y(),
-                            cursor.z() + 0.5,
+                            Math.floor(cursor.z()) + 0.5,
                             world
                     ));
                 }

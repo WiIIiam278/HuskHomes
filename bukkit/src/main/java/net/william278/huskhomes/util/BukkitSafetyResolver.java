@@ -80,9 +80,9 @@ public interface BukkitSafetyResolver extends SafetyResolver {
                     && isBlockSafeForOccupation(bodyBlockType.getKey().toString())
                     && isBlockSafeForOccupation(headBlockType.getKey().toString())) {
                     return Optional.of(Location.at(
-                            (location.getX() + dX) + 0.5d,
+                            Math.floor(location.getX()) + dX + 0.5d,
                             y,
-                            (location.getZ() + dZ) + 0.5d,
+                            Math.floor(location.getZ()) + dZ + 0.5d,
                             location.getWorld()
                     ));
                 }

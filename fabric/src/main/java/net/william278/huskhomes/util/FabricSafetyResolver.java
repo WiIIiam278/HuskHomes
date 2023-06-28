@@ -86,9 +86,9 @@ public interface FabricSafetyResolver extends SafetyResolver {
                     && isBlockSafeForOccupation(bodyBlockId.toString())
                     && isBlockSafeForOccupation(headBlockId.toString())) {
                     return Optional.of(Location.at(
-                            blockPos.getX() + 0.5,
+                            Math.floor(blockPos.getX()) + 0.5,
                             highestY,
-                            blockPos.getZ() + 0.5,
+                            Math.floor(blockPos.getZ()) + 0.5,
                             location.getWorld()
                     ));
                 }

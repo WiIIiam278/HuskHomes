@@ -36,6 +36,8 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+import org.spongepowered.api.world.portal.Portal;
+import org.spongepowered.api.world.portal.PortalTypes;
 import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.Optional;
@@ -66,6 +68,10 @@ public class SpongeEventListener extends EventListener {
 
     @Listener
     public void onPlayerRespawn(final RespawnPlayerEvent event) {
+        final Optional<Portal> type = event.context().get(EventContextKeys.PORTAL);
+        if (type.isPresent() && type.get().type().equals(PortalTypes.END.get())) {
+            return;
+        }
         super.handlePlayerJoin(SpongeUser.adapt(event.entity()));
     }
 

@@ -60,6 +60,9 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
+            return;
+        }
         super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer()));
     }
 

@@ -40,13 +40,23 @@ public interface SafetyResolver {
     CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location);
 
     /**
-     * Returns if the block, by provided identifier, is unsafe
+     * Returns if the block, by provided identifier, is unsafe to stand on
      *
      * @param blockId The block identifier (e.g. {@code minecraft:stone})
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
      */
-    default boolean isBlockSafe(@NotNull String blockId) {
+    default boolean isBlockSafeForStanding(@NotNull String blockId) {
         return !getPlugin().getUnsafeBlocks().isUnsafe(blockId);
+    }
+
+    /**
+     * Returns if the block, by provided identifier, is unsafe to stand in
+     *
+     * @param blockId The block identifier (e.g. {@code minecraft:stone})
+     * @return {@code true} if the block is able to be occupied, {@code false} otherwise
+     */
+    default boolean isBlockSafeForOccupation(@NotNull String blockId) {
+        return !getPlugin().getUnsafeBlocks().isUnsafeToOccupy(blockId);
     }
 
     @NotNull

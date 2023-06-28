@@ -72,12 +72,16 @@ public interface BukkitSafetyResolver extends SafetyResolver {
                 if (x < 0 || x >= 16 || z < 0 || z >= 16) {
                     continue;
                 }
-                final int y = Math.max((minY + 1), snapshot.getHighestBlockYAt(x, z));
-                final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
-                if (isBlockSafe(blockType.getKey().toString())) {
+                final int y = Math.max((minY + 1), snapshot.getHighestBlockYAt(x, z)) + 1;
+                final Material blockType = snapshot.getBlockType(x, y - 1, z);
+                final Material bodyBlockType = snapshot.getBlockType(x, y, z);
+                final Material headBlockType = snapshot.getBlockType(x, y + 1, z);
+                if (isBlockSafeForStanding(blockType.getKey().toString())
+                    && isBlockSafeForOccupation(bodyBlockType.getKey().toString())
+                    && isBlockSafeForOccupation(headBlockType.getKey().toString())) {
                     return Optional.of(Location.at(
                             (location.getX() + dX) + 0.5d,
-                            y + 1,
+                            y,
                             (location.getZ() + dZ) + 0.5d,
                             location.getWorld()
                     ));

@@ -23,3 +23,8 @@ unsafe_blocks:
   - 'minecraft:void_air'
   - 'minecraft:pointed_dripstone'
   - 'minecraft:cactus'
+
+# Blocks that are safe to teleport into
+safe_occupation_blocks:
+  - 'minecraft:air'
+  - 'minecraft:cave_air'

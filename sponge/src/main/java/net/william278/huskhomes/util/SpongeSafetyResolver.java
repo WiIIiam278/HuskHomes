@@ -69,10 +69,22 @@ public interface SpongeSafetyResolver extends SafetyResolver {
                 if (isBlockSafeForStanding(blockState.type().key(RegistryTypes.BLOCK_TYPE).asString())
                     && isBlockSafeForOccupation(bodyBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())
                     && isBlockSafeForOccupation(headBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())) {
+                    double locx = Math.floor(cursor.x());
+                    if (locx < 0) {
+                        locx += 1.5d;
+                    } else {
+                        locx = locx + 0.5d;
+                    }
+                    double locz = Math.floor(cursor.z());
+                    if (locz < 0) {
+                        locz += 1.5d;
+                    } else {
+                        locz = locz + 0.5d;
+                    }
                     return Optional.of(Location.at(
-                            Math.floor(cursor.x()) + 0.5,
+                            locx,
                             cursor.y(),
-                            Math.floor(cursor.z()) + 0.5,
+                            locz,
                             world
                     ));
                 }

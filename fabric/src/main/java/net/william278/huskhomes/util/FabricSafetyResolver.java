@@ -85,10 +85,22 @@ public interface FabricSafetyResolver extends SafetyResolver {
                 if (!(block instanceof FluidBlock) && !(block instanceof FireBlock) && isBlockSafeForStanding(id.toString())
                     && isBlockSafeForOccupation(bodyBlockId.toString())
                     && isBlockSafeForOccupation(headBlockId.toString())) {
+                    double locx = Math.floor(blockPos.getX());
+                    if (locx < 0) {
+                        locx += 1.5d;
+                    } else {
+                        locx = locx + 0.5d;
+                    }
+                    double locz = Math.floor(blockPos.getZ());
+                    if (locz < 0) {
+                        locz += 1.5d;
+                    } else {
+                        locz = locz + 0.5d;
+                    }
                     return Optional.of(Location.at(
-                            Math.floor(blockPos.getX()) + 0.5,
+                            locx,
                             highestY,
-                            Math.floor(blockPos.getZ()) + 0.5,
+                            locz,
                             location.getWorld()
                     ));
                 }

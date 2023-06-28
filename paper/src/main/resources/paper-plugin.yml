@@ -13,10 +13,6 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
-    RedisEconomy:
-      load: BEFORE
-      required: false
-      join-classpath: true
     PlaceholderAPI:
       load: BEFORE
       required: false

@@ -271,10 +271,6 @@ public class Settings {
     @YamlKey("economy.enabled")
     private boolean economy = false;
 
-    @YamlComment("Use this currency for payments (works only with RedisEconomy), defaults to Vault currency")
-    @YamlKey("economy.redis_economy_name")
-    private String redisEconomyName = "vault";
-
     @YamlComment("Specify how many homes players can set for free, before they need to pay for more slots")
     @YamlKey("economy.free_home_slots")
     private int freeHomeSlots = 5;
@@ -534,10 +530,6 @@ public class Settings {
 
     public boolean doEconomy() {
         return economy;
-    }
-
-    public String getRedisEconomyName() {
-        return redisEconomyName;
     }
 
     public int getFreeHomeSlots() {

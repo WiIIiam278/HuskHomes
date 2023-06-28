@@ -7,7 +7,6 @@ version: '${version}'
 api-version: '1.16'
 softdepend:
   - Vault
-  - RedisEconomy
   - PlaceholderAPI
   - dynmap
   - BlueMap
@@ -25,44 +24,44 @@ commands:
     usage: /<command> <name>
   homelist:
     usage: /<command> [player] [page]
-    aliases: [homes]
+    aliases: [ homes ]
   delhome:
     usage: /<command> <name>
   edithome:
     usage: /<command> <name> [rename|description|relocate|privacy] [args]
   phome:
     usage: /<command> [<owner_name>.<home_name>]
-    aliases:  [publichome]
+    aliases: [ publichome ]
   phomelist:
     usage: /<command> [page]
-    aliases:  [publichomelist, phomes]
+    aliases: [ publichomelist, phomes ]
   warp:
     usage: /<command> <name>
   setwarp:
     usage: /<command> <name>
   warplist:
     usage: /<command> [page]
-    aliases: [warps]
+    aliases: [ warps ]
   delwarp:
     usage: /<command> <name>
   editwarp:
     usage: /<command> <name> [rename|description|relocate] [args]
   tp:
     usage: /<command> <target> [destination]
-    aliases: [tpo]
+    aliases: [ tpo ]
   tphere:
     usage: /<command> <player>
-    aliases: [tpohere]
+    aliases: [ tpohere ]
   tpa:
     usage: /<command> <player>
   tpahere:
     usage: /<command> <player>
   tpaccept:
     usage: /<command> [player]
-    aliases: [tpyes]
+    aliases: [ tpyes ]
   tpdecline:
     usage: /<command> [player]
-    aliases: [tpdeny, tpno]
+    aliases: [ tpdeny, tpno ]
   rtp:
     usage: /<command> [player] [world]
   tpignore:

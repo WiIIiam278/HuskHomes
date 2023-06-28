@@ -136,8 +136,6 @@ cooldowns:
 economy:
   # Enable economy plugin integration (requires Vault)
   enabled: false
-  # Use this currency for payments (works only with RedisEconomy), defaults to Vault currency
-  redis_economy_name: vault
   # Specify how many homes players can set for free, before they need to pay for more slots
   free_home_slots: 5
   # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/

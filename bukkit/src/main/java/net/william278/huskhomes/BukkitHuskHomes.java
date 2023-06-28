@@ -35,7 +35,6 @@ import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.BukkitEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
-import net.william278.huskhomes.hook.RedisEconomyHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
 import net.william278.huskhomes.importer.EssentialsXImporter;
 import net.william278.huskhomes.listener.BukkitEventListener;
@@ -218,12 +217,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         HuskHomes.super.registerHooks();
 
         // Hooks
-        if (getSettings().doEconomy()) {
-            if (isDependencyLoaded("RedisEconomy")) {
-                getHooks().add(new RedisEconomyHook(this));
-            } else if (isDependencyLoaded("Vault")) {
-                getHooks().add(new VaultEconomyHook(this));
-            }
+        if (getSettings().doEconomy() && isDependencyLoaded("Vault")) {
+            getHooks().add(new VaultEconomyHook(this));
         }
         if (isDependencyLoaded("PlaceholderAPI")) {
             getHooks().add(new PlaceholderAPIHook(this));

@@ -31,7 +31,7 @@ cooldowns:
   # Whether to apply a cooldown between performing certain actions
   enabled: true
   # Set a cooldown between performing actions (in seconds). Docs: https://william278.net/docs/huskhomes/cooldowns/
-  costs:
+  cooldown_times:
       additional_home_slot: 0
       make_home_public: 0
       random_teleport: 600

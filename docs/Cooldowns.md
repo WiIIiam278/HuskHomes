@@ -32,15 +32,15 @@ cooldowns:
   enabled: true
   # Set a cooldown between performing actions (in seconds). Docs: https://william278.net/docs/huskhomes/cooldowns/
   cooldown_times:
-      additional_home_slot: 0
-      make_home_public: 0
-      random_teleport: 600
-      back_command: 0
-      home_teleport: 0
-      public_home_teleport: 0
-      warp_teleport: 0
-      spawn_teleport: 0
-      send_teleport_request: 0
-      accept_teleport_request: 0
+    additional_home_slot: 0
+    make_home_public: 0
+    random_teleport: 600
+    back_command: 0
+    home_teleport: 0
+    public_home_teleport: 0
+    warp_teleport: 0
+    spawn_teleport: 0
+    send_teleport_request: 0
+    accept_teleport_request: 0
 ```
 </details>

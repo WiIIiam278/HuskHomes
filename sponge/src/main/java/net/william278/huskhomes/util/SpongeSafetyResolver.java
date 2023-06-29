@@ -60,13 +60,31 @@ public interface SpongeSafetyResolver extends SafetyResolver {
     private Optional<Location> findSafeLocationNear(@NotNull ServerLocation location, @NotNull World world) {
         for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
-                final Vector3i cursor = location.asHighestLocation().blockPosition().add(x, 0, z);
+                final Vector3i cursor = location.asHighestLocation().blockPosition().add(x, -1, z);
+                final Vector3i cursorBody = location.asHighestLocation().blockPosition().add(x, 0, z);
+                final Vector3i cursorHead = location.asHighestLocation().blockPosition().add(x, 1, z);
                 final BlockState blockState = location.world().block(cursor);
-                if (isBlockSafe(blockState.type().key(RegistryTypes.BLOCK_TYPE).asString())) {
+                final BlockState bodyBlockState = location.world().block(cursorBody);
+                final BlockState headBlockState = location.world().block(cursorHead);
+                if (isBlockSafeForStanding(blockState.type().key(RegistryTypes.BLOCK_TYPE).asString())
+                    && isBlockSafeForOccupation(bodyBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())
+                    && isBlockSafeForOccupation(headBlockState.type().key(RegistryTypes.BLOCK_TYPE).asString())) {
+                    double locx = Math.floor(cursor.x());
+                    if (locx < 0) {
+                        locx += 1.5d;
+                    } else {
+                        locx = locx + 0.5d;
+                    }
+                    double locz = Math.floor(cursor.z());
+                    if (locz < 0) {
+                        locz += 1.5d;
+                    } else {
+                        locz = locz + 0.5d;
+                    }
                     return Optional.of(Location.at(
-                            cursor.x() + 0.5,
-                            cursor.y() + 1,
-                            cursor.z() + 0.5,
+                            locx,
+                            cursor.y(),
+                            locz,
                             world
                     ));
                 }

@@ -36,6 +36,16 @@ public class UnsafeBlocks {
     @YamlKey("unsafe_blocks")
     public List<String> unsafeBlocks;
 
+    @YamlKey("safe_occupation_blocks")
+    public List<String> safeOccupationBlocks;
+
+    private String formatBlockId(@NotNull String blockId) {
+        if (!blockId.startsWith(Key.MINECRAFT_NAMESPACE + ":")) {
+            blockId = Key.MINECRAFT_NAMESPACE + ":" + blockId;
+        }
+        return blockId;
+    }
+
     /**
      * Returns if the block, by provided identifier, is unsafe
      *
@@ -43,10 +53,19 @@ public class UnsafeBlocks {
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
      */
     public boolean isUnsafe(@NotNull String blockId) {
-        if (!blockId.startsWith(Key.MINECRAFT_NAMESPACE + ":")) {
-            blockId = Key.MINECRAFT_NAMESPACE + ":" + blockId;
-        }
+        blockId = this.formatBlockId(blockId);
         return unsafeBlocks.contains(blockId);
+    }
+
+    /**
+     * Returns if the block, by provided identifier, is unsafe to stand in
+     *
+     * @param blockId The block identifier (e.g. {@code minecraft:stone})
+     * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
+     */
+    public boolean isUnsafeToOccupy(@NotNull String blockId) {
+        blockId = this.formatBlockId(blockId);
+        return !safeOccupationBlocks.contains(blockId);
     }
 
     @SuppressWarnings("unused")

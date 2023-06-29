@@ -72,15 +72,31 @@ public interface BukkitSafetyResolver extends SafetyResolver {
                 if (x < 0 || x >= 16 || z < 0 || z >= 16) {
                     continue;
                 }
-                final int y = Math.max((minY + 1), snapshot.getHighestBlockYAt(x, z));
-                final Material blockType = snapshot.getBlockType(chunkX, y, chunkZ);
-                if (isBlockSafe(blockType.getKey().toString())) {
-                    return Optional.of(Location.at(
-                            (location.getX() + dX) + 0.5d,
-                            y + 1,
-                            (location.getZ() + dZ) + 0.5d,
-                            location.getWorld()
-                    ));
+                final int y = Math.max((minY + 1), snapshot.getHighestBlockYAt(x, z)) + 1;
+                final Material blockType = snapshot.getBlockType(x, y - 1, z);
+                final Material bodyBlockType = snapshot.getBlockType(x, y, z);
+                final Material headBlockType = snapshot.getBlockType(x, y + 1, z);
+                if (isBlockSafeForStanding(blockType.getKey().toString())
+                    && isBlockSafeForOccupation(bodyBlockType.getKey().toString())
+                    && isBlockSafeForOccupation(headBlockType.getKey().toString())) {
+                        double locx = Math.floor(location.getX()) + dX;
+                        if (locx < 0) {
+                            locx += 1.5d;
+                        } else {
+                            locx = locx + 0.5d;
+                        }
+                        double locz = Math.floor(location.getZ()) + dZ;
+                        if (locz < 0) {
+                            locz += 1.5d;
+                        } else {
+                            locz = locz + 0.5d;
+                        }
+                        return Optional.of(Location.at(
+                                locx,
+                                y,
+                                locz,
+                                location.getWorld()
+                        ));
                 }
             }
         }

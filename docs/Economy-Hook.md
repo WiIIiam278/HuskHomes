@@ -59,15 +59,15 @@ economy:
   enabled: true
   # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/
   costs:
-      additional_home_slot: 100.0
-      make_home_public: 50.0
-      random_teleport: 25.0
-      back_command: 0.0
-      home_teleport: 0.0
-      public_home_teleport: 0.0
-      warp_teleport: 0.0
-      spawn_teleport: 0.0
-      send_teleport_request: 0.0
-      accept_teleport_request: 0.0
+    additional_home_slot: 100.0
+    make_home_public: 50.0
+    random_teleport: 25.0
+    back_command: 0.0
+    home_teleport: 0.0
+    public_home_teleport: 0.0
+    warp_teleport: 0.0
+    spawn_teleport: 0.0
+    send_teleport_request: 0.0
+    accept_teleport_request: 0.0
 ```
 </details>

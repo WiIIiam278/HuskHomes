@@ -30,7 +30,7 @@ import redis.clients.jedis.JedisPubSub;
 import java.util.logging.Level;
 
 /**
- * Redis PubSub broker implementation
+ * Redis PubSub broker implementation.
  */
 public class RedisBroker extends PluginMessageBroker {
     private JedisPool jedisPool;
@@ -78,13 +78,13 @@ public class RedisBroker extends PluginMessageBroker {
                         if (message.getScope() == Message.Scope.PLAYER) {
                             plugin.getOnlineUsers().stream()
                                     .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                                      || online.getUsername().equals(message.getTarget()))
+                                            || online.getUsername().equals(message.getTarget()))
                                     .forEach(receiver -> handle(receiver, message));
                             return;
                         }
 
                         if (message.getTarget().equals(plugin.getServerName())
-                            || message.getTarget().equals(Message.TARGET_ALL)) {
+                                || message.getTarget().equals(Message.TARGET_ALL)) {
                             plugin.getOnlineUsers().stream()
                                     .findAny()
                                     .ifPresent(receiver -> handle(receiver, message));

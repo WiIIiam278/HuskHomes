@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Target {
 
     /**
-     * Create a {@link Target} from a player name
+     * Create a {@link Target} from a player name.
      *
      * @param target the player name
      * @return the target

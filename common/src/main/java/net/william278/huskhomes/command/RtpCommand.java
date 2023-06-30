@@ -80,14 +80,15 @@ public class RtpCommand extends Command implements UserListTabProvider {
     }
 
     /**
-     * Validates the RTP command, returning the world to randomly teleport in if successful
+     * Validates the RTP command, returning the world to randomly teleport in if successful.
      *
      * @param teleporter The user to teleport
      * @param executor   The user executing the command
      * @param args       The command arguments
      * @return The world to randomly teleport in, if successful
      */
-    private Optional<World> validateRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull String[] args) {
+    private Optional<World> validateRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor,
+                                        @NotNull String[] args) {
         // Check permissions if the user is being teleported by another player
         if (!executor.equals(teleporter) && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
@@ -127,7 +128,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
     }
 
     /**
-     * Executes the random teleport
+     * Executes the random teleport.
      *
      * @param teleporter The player to teleport
      * @param executor   The player executing the command

@@ -71,7 +71,8 @@ public abstract class Importer extends Hook {
 
     protected abstract int importData(@NotNull ImportData importData) throws Throwable;
 
-    protected final void log(@NotNull CommandUser user, @NotNull Level level, @NotNull String message, @NotNull Throwable... e) {
+    protected final void log(@NotNull CommandUser user, @NotNull Level level, @NotNull String message,
+                             @NotNull Throwable... e) {
         message = "[Importer] " + message;
         if (user instanceof OnlineUser online) {
             final TextColor color = level == Level.SEVERE || level == Level.WARNING
@@ -93,7 +94,7 @@ public abstract class Importer extends Hook {
     }
 
     /**
-     * Represents types of data that can be imported
+     * Represents types of data that can be imported.
      */
     public enum ImportData {
         USERS("User Data"),

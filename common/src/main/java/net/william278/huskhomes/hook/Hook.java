@@ -23,22 +23,22 @@ import net.william278.huskhomes.HuskHomes;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A plugin hook, where HuskHomes hooks into another plugin
+ * A plugin hook, where HuskHomes hooks into another plugin.
  */
 public abstract class Hook {
 
     /**
-     * The plugin that this hook is for
+     * The plugin that this hook is for.
      */
     protected final HuskHomes plugin;
 
     /**
-     * The name of the hook
+     * The name of the hook.
      */
     protected final String name;
 
     /**
-     * Construct a new {@link Hook}
+     * Construct a new {@link Hook}.
      *
      * @param plugin the {@link HuskHomes} instance
      */
@@ -48,14 +48,18 @@ public abstract class Hook {
     }
 
     /**
-     * Initialize the hook and return {@code true} if it could be enabled
+     * Initialize the hook and return {@code true} if it could be enabled.
      */
-    public abstract void initialize() ;
+    public abstract void initialize();
 
+    /**
+     * Get the name of the hook.
+     *
+     * @return the name of the hook
+     */
     @NotNull
     public String getName() {
         return name;
     }
-
 
 }

@@ -37,8 +37,8 @@ import java.util.Objects;
 /**
  * The HuskHomes API implementation for the Bukkit platform, providing methods to access player data, homes, warps
  * and process teleports
- * <p>
- * Retrieve an instance of the API class via {@link #getInstance()}.
+ *
+ * <p>Retrieve an instance of the API class via {@link #getInstance()}.
  */
 @SuppressWarnings("unused")
 public class HuskHomesAPI extends BaseHuskHomesAPI {
@@ -47,7 +47,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     private static HuskHomesAPI instance;
 
     /**
-     * <b>(Internal use only)</b> - Constructor, instantiating the API
+     * <b>(Internal use only)</b> - Constructor, instantiating the API.
      */
     @ApiStatus.Internal
     private HuskHomesAPI(@NotNull BukkitHuskHomes plugin) {
@@ -55,7 +55,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Get an instance of the HuskHomes API
+     * Get an instance of the HuskHomes API.
      *
      * @return instance of the HuskHomes API
      * @throws NotRegisteredException if the API has not yet been registered.
@@ -69,7 +69,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * <b>(Internal use only)</b> - Register the API for this platform
+     * <b>(Internal use only)</b> - Register the API for this platform.
      *
      * @param plugin the plugin instance
      */
@@ -79,7 +79,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * <b>(Internal use only)</b> - Unregister the API for this platform
+     * <b>(Internal use only)</b> - Unregister the API for this platform.
      */
     @ApiStatus.Internal
     public static void unregister() {
@@ -123,7 +123,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Location} instance for the given bukkit {@link Location}.
+     * Returns a {@link Location} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Location} instance for
      * @return the {@link Location} instance for the given bukkit {@link Location}
@@ -135,7 +135,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the given {@link Server}.
+     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Position} instance for
      * @param server   the {@link Server} the position is on
@@ -149,10 +149,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on.
+     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Position} instance for
-     * @return the {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on
+     * @return the {@link Position} instance for the given {@link Location} on the server
      * @since 4.0
      */
     @NotNull
@@ -161,9 +161,9 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Get the {@link Server}, containing the ID of the server the plugin is running on
+     * Get the name of this server.
      *
-     * @return the {@link Server}
+     * @return the server name
      * @since 4.0
      */
     @NotNull

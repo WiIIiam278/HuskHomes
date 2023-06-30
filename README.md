@@ -44,7 +44,7 @@ HuskHomes can be used on your Spigot, Sponge or Fabric server, and with a MySQL 
 **⭐ Extensible API & open-source** &mdash; Still not enough? Extend the plugin with the HuskHomes API. Or, submit a pull request—we're open-source!
 
 ## Building
-HuskHomes requires Java 17 to build. To build, simply run the following in the root of the repository:
+HuskHomes requires Java 17 to build. To build for all platforms, simply run the following in the root of the repository:
 
 ```bash
 ./gradlew clean build

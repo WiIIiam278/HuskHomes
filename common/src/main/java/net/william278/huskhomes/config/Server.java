@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 
 /**
- * Represents a server on a proxied network
+ * Represents a server on a proxied network.
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -39,7 +39,7 @@ import java.nio.file.Path;
 public class Server {
 
     /**
-     * Default server identifier
+     * Default server identifier.
      */
     @NotNull
     public static String getDefaultServerName() {
@@ -72,7 +72,7 @@ public class Server {
     }
 
     /**
-     * Proxy-defined name of this server
+     * Proxy-defined name of this server.
      */
     @NotNull
     public String getName() {

@@ -24,18 +24,23 @@ import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when all homes are deleted
+ * Representation of an event that fires when all homes are deleted.
  */
 public interface IDeleteAllHomesEvent extends Cancellable {
 
     /**
-     * Get the player whose homes are being deleted
+     * Get the player whose homes are being deleted.
      *
      * @return the {@link User} whose homes are being deleted
      */
     @NotNull
     User getHomeOwner();
 
+    /**
+     * Get the user who is deleting the homes.
+     *
+     * @return the {@link CommandUser} who is deleting the homes
+     */
     @NotNull
     CommandUser getDeleter();
 

@@ -20,21 +20,21 @@
 package net.william278.huskhomes.event;
 
 /**
- * Base interface for a cancellable event
+ * Base interface for a cancellable event.
  */
 public interface Cancellable extends Event {
 
     /**
-     * Set whether the event should be canceled
+     * Set whether the event should be canceled.
      *
      * @param cancelled {@code true} if the event should be canceled
      */
     void setCancelled(boolean cancelled);
 
     /**
-     * Check whether the event is cancelled
+     * Check whether the event is canceled.
      *
-     * @return {@code true} if the event is cancelled
+     * @return {@code true} if the event is canceled
      */
     boolean isCancelled();
 

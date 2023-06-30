@@ -71,9 +71,13 @@ public class BukkitEventListener extends EventListener implements Listener {
         final Player player = event.getPlayer();
 
         // Return if the disconnecting entity is a Citizens NPC, or if the teleport was naturally caused
-        if (player.hasMetadata("NPC")) return;
+        if (player.hasMetadata("NPC")) {
+            return;
+        }
         if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND
-                || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
+                || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) {
+            return;
+        }
 
         final BukkitUser bukkitUser = BukkitUser.adapt(player, (BukkitHuskHomes) plugin);
         BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
@@ -82,14 +86,18 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
-        if (!checkForBed) return;
-        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
-        if (event.getClickedBlock() == null) return;
-        if (!(event.getClickedBlock().getBlockData() instanceof Bed
-                || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) return;
+        if (!checkForBed || !(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+            return;
+        }
+        if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed
+                || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) {
+            return;
+        }
 
         final Location location = event.getPlayer().getBedSpawnLocation();
-        if (location == null) return;
+        if (location == null) {
+            return;
+        }
 
         // Update the player's respawn location
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(

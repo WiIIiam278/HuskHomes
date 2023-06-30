@@ -75,7 +75,12 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         }
 
         // Register permissions
-        addPermission(plugin, command.getPermission(), command.getUsage(), getPermissionDefault(command.isOperatorCommand()));
+        addPermission(
+                plugin,
+                command.getPermission(),
+                command.getUsage(),
+                getPermissionDefault(command.isOperatorCommand())
+        );
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
                 .map((entry) -> addPermission(plugin, entry.getKey(), "", getPermissionDefault(entry.getValue())))
@@ -99,8 +104,9 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     }
 
     @Nullable
-    protected static Permission addPermission(@NotNull BukkitHuskHomes plugin, @NotNull String node, @NotNull String description,
-                                              @NotNull PermissionDefault permissionDefault, @NotNull Permission... children) {
+    protected static Permission addPermission(@NotNull BukkitHuskHomes plugin, @NotNull String node,
+                                              @NotNull String description, @NotNull PermissionDefault permissionDefault,
+                                              @NotNull Permission... children) {
         final Map<String, Boolean> childNodes = Arrays.stream(children)
                 .map(Permission::getName)
                 .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
@@ -127,7 +133,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Commands available on the Bukkit HuskHomes implementation
+     * Commands available on the Bukkit HuskHomes implementation.
      */
     public enum Type {
         HOME_COMMAND(PrivateHomeCommand::new),

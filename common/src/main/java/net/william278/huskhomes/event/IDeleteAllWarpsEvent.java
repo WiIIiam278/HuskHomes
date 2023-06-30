@@ -23,10 +23,15 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when all warps are deleted
+ * Representation of an event that fires when all warps are deleted.
  */
 public interface IDeleteAllWarpsEvent extends Cancellable {
 
+    /**
+     * Get the user who is deleting the warps.
+     *
+     * @return the {@link CommandUser} who is deleting the warps
+     */
     @NotNull
     CommandUser getDeleter();
 

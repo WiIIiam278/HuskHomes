@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * Represents a server warp
+ * Represents a server warp.
  */
 public class Warp extends SavedPosition {
 
@@ -36,7 +36,7 @@ public class Warp extends SavedPosition {
     }
 
     /**
-     * Create a new {@link Warp} from a {@link Position} and {@link PositionMeta}
+     * Create a new {@link Warp} from a {@link Position} and {@link PositionMeta}.
      *
      * @param position The {@link Position} to save as a warp
      * @param meta     {@link PositionMeta} information about this position

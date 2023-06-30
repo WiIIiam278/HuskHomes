@@ -4,6 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'org.ajoberstar.grgit' version '5.2.0'
+    id 'checkstyle'
     id 'maven-publish'
     id 'java'
 }
@@ -11,7 +12,7 @@ plugins {
 group 'net.william278'
 version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
-defaultTasks 'licenseFormat', 'build'
+defaultTasks 'licenseFormat', 'check', 'build'
 
 ext {
     set 'version', version.toString()
@@ -20,16 +21,12 @@ ext {
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
-
-    set 'fabric_minecraft_version', fabric_minecraft_version.toString()
-    set 'fabric_yarn_mappings', fabric_yarn_mappings.toString()
-    set 'fabric_loader_version', fabric_loader_version.toString()
-    set 'fabric_api_version', fabric_api_version.toString()
 }
 
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'org.cadixdev.licenser'
+    apply plugin: 'checkstyle'
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
@@ -65,14 +62,14 @@ allprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
     }
 
-    test {
-        useJUnitPlatform()
-    }
-
     license {
         header = rootProject.file('HEADER')
         include '**/*.java'
         newLine = true
+    }
+
+    checkstyle {
+        toolVersion = '10.12.0'
     }
 
     processResources {

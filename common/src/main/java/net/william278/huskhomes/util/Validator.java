@@ -37,7 +37,7 @@ public class Validator {
     }
 
     /**
-     * Check if a name is valid
+     * Check if a name is valid.
      *
      * @param name The name to check
      * @return True if the name is valid as per the plugin settings, false otherwise
@@ -49,7 +49,7 @@ public class Validator {
     }
 
     /**
-     * Validate home and warp descriptions
+     * Validate home and warp descriptions.
      *
      * @param description The meta to validate
      * @return Whether the meta is valid against the plugin settings

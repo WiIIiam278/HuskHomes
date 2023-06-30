@@ -33,7 +33,7 @@ import java.util.UUID;
 public class Message {
 
     /**
-     * Message target indicating all players
+     * Message target indicating all players.
      */
     public static final String TARGET_ALL = "ALL";
 
@@ -111,7 +111,7 @@ public class Message {
     }
 
     /**
-     * Builder for {@link Message}s
+     * Builder for {@link Message}s.
      */
     public static class Builder {
         private Type type;
@@ -160,7 +160,7 @@ public class Message {
     }
 
     /**
-     * Different types of cross-server messages
+     * Different types of cross-server messages.
      */
     public enum Type {
         TELEPORT_TO_POSITION,

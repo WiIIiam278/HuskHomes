@@ -40,11 +40,15 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerSetSpawnEvent event) {
-        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
+        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+            return;
+        }
 
         // Ensure the updated location is correct
         final Location location = event.getLocation();
-        if (location == null) return;
+        if (location == null) {
+            return;
+        }
 
         // Update the player's respawn location
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(

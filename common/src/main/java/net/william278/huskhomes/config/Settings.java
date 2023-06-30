@@ -55,7 +55,7 @@ public class Settings {
     private boolean checkForUpdates = true;
 
     // Database settings
-    @YamlComment("Type of database to use (MYSQL, SQLITE)")
+    @YamlComment("Type of database to use (SQLITE, MYSQL or MARIADB)")
     @YamlKey("database.type")
     private Database.Type databaseType = Database.Type.SQLITE;
 
@@ -76,9 +76,13 @@ public class Settings {
     private String mySqlPassword = "pa55w0rd";
 
     @YamlKey("database.mysql.credentials.parameters")
-    private String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
+    private String mySqlConnectionParameters = "?autoReconnect=true"
+            + "&useSSL=false"
+            + "&useUnicode=true"
+            + "&characterEncoding=UTF-8";
 
-    @YamlComment("MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!")
+    @YamlComment("MYSQL database Hikari connection pool properties. "
+            + "Don't modify this unless you know what you're doing!")
     @YamlKey("database.mysql.connection_pool.size")
     private int mySqlConnectionPoolSize = 12;
 
@@ -96,15 +100,7 @@ public class Settings {
 
     @YamlComment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
     @YamlKey("database.table_names")
-    private Map<String, String> tableNames = Map.of(
-            Database.Table.PLAYER_DATA.name().toLowerCase(), Database.Table.PLAYER_DATA.getDefaultName(),
-            Database.Table.PLAYER_COOLDOWNS_DATA.name().toLowerCase(), Database.Table.PLAYER_COOLDOWNS_DATA.getDefaultName(),
-            Database.Table.POSITION_DATA.name().toLowerCase(), Database.Table.POSITION_DATA.getDefaultName(),
-            Database.Table.SAVED_POSITION_DATA.name().toLowerCase(), Database.Table.SAVED_POSITION_DATA.getDefaultName(),
-            Database.Table.HOME_DATA.name().toLowerCase(), Database.Table.HOME_DATA.getDefaultName(),
-            Database.Table.WARP_DATA.name().toLowerCase(), Database.Table.WARP_DATA.getDefaultName(),
-            Database.Table.TELEPORT_DATA.name().toLowerCase(), Database.Table.TELEPORT_DATA.getDefaultName()
-    );
+    private Map<String, String> tableNames = Database.Table.getConfigMap();
 
 
     // General settings
@@ -112,11 +108,13 @@ public class Settings {
     @YamlKey("general.max_homes")
     private int maxHomes = 10;
 
-    @YamlComment("The maximum public homes a user can create. Override with the huskhomes.max_public_homes.<number> permission.")
+    @YamlComment("The maximum public homes a user can create. "
+            + "Override with the huskhomes.max_public_homes.<number> permission.")
     @YamlKey("general.max_public_homes")
     private int maxPublicHomes = 10;
 
-    @YamlComment("Whether permission limits (i.e. huskhomes.max_homes.<number>) should stack if the user inherits multiple nodes.")
+    @YamlComment("Whether permission limits (i.e. huskhomes.max_homes.<number>)"
+            + "should stack if the user inherits multiple nodes.")
     @YamlKey("general.stack_permission_limits")
     private boolean stackPermissionLimits = false;
 
@@ -124,7 +122,7 @@ public class Settings {
     @YamlKey("general.permission_restrict_warps")
     private boolean permissionRestrictWarps = false;
 
-    @YamlComment("Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite it.")
+    @YamlComment("Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite.")
     @YamlKey("general.overwrite_existing_homes_warps")
     private boolean overwriteExistingHomesWarps = true;
 
@@ -160,7 +158,7 @@ public class Settings {
     @YamlKey("general.back_command_return_by_death")
     private boolean backCommandReturnByDeath = true;
 
-    @YamlComment("Whether /back should work with other plugins that use the PlayerTeleportEvent (this can cause conflicts)")
+    @YamlComment("Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)")
     @YamlKey("general.back_command_save_teleport_event")
     private boolean backCommandSaveOnTeleportEvent = false;
 
@@ -178,12 +176,7 @@ public class Settings {
 
     @YamlComment("Which sound effects to play for various actions")
     @YamlKey("general.sound_effects")
-    private Map<String, String> soundEffects = Map.of(
-            SoundEffectAction.TELEPORTATION_COMPLETE.name().toLowerCase(), SoundEffectAction.TELEPORTATION_COMPLETE.defaultSoundEffect,
-            SoundEffectAction.TELEPORTATION_WARMUP.name().toLowerCase(), SoundEffectAction.TELEPORTATION_WARMUP.defaultSoundEffect,
-            SoundEffectAction.TELEPORTATION_CANCELLED.name().toLowerCase(), SoundEffectAction.TELEPORTATION_CANCELLED.defaultSoundEffect,
-            SoundEffectAction.TELEPORT_REQUEST_RECEIVED.name().toLowerCase(), SoundEffectAction.TELEPORT_REQUEST_RECEIVED.defaultSoundEffect
-    );
+    private Map<String, String> soundEffects = SoundEffectAction.getConfigMap();
 
     @YamlComment("Whether to provide modern, rich TAB suggestions for commands (if available)")
     @YamlKey("general.brigadier_tab_completion")
@@ -199,7 +192,8 @@ public class Settings {
     @YamlKey("cross_server.messenger_type")
     private Broker.Type messageBrokerType = Broker.Type.PLUGIN_MESSAGE;
 
-    @YamlComment("Specify a common ID for grouping servers running HuskHomes on your proxy. Don't modify this unless you know what you're doing!")
+    @YamlComment("Specify a common ID for grouping servers running HuskHomes on your proxy. "
+            + "Don't modify this unless you know what you're doing!")
     @YamlKey("cross_server.cluster_id")
     private String clusterId = "";
 
@@ -242,7 +236,7 @@ public class Settings {
     @YamlKey("rtp.distribution_mean")
     private float rtpDistributionMean = 0.75f;
 
-    @YamlComment("Standard deviation of the normal distribution used to calculate the distance from the center of the world")
+    @YamlComment("Standard deviation of the normal distribution for distributing players randomly")
     @YamlKey("rtp.distribution_deviation")
     private float rtpDistributionStandardDeviation = 2f;
 
@@ -370,7 +364,7 @@ public class Settings {
 
     @NotNull
     public String getTableName(@NotNull Database.Table table) {
-        return Optional.ofNullable(getTableNames().get(table.name().toLowerCase())).orElse(table.getDefaultName());
+        return Optional.ofNullable(getTableNames().get(table.name().toLowerCase())).orElse(table.getName());
     }
 
     public int getMaxHomes() {
@@ -563,7 +557,7 @@ public class Settings {
         return disabledCommands.stream().anyMatch(disabled -> {
             final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
             return command.equalsIgnoreCase(type.getName())
-                   || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                    || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
         });
     }
 
@@ -572,18 +566,28 @@ public class Settings {
     }
 
     /**
-     * Represents actions that have a sound effect associated with performing them
+     * Represents actions that have a sound effect associated with performing them.
      */
     public enum SoundEffectAction {
         TELEPORTATION_COMPLETE("entity.enderman.teleport"),
         TELEPORTATION_WARMUP("block.note_block.banjo"),
         TELEPORTATION_CANCELLED("entity.item.break"),
         TELEPORT_REQUEST_RECEIVED("entity.experience_orb.pickup");
-        private final String defaultSoundEffect;
+        private final String defaultEffect;
 
-        SoundEffectAction(@NotNull String defaultSoundEffect) {
-            this.defaultSoundEffect = defaultSoundEffect;
+        SoundEffectAction(@NotNull String defaultEffect) {
+            this.defaultEffect = defaultEffect;
         }
+
+        @NotNull
+        public static Map<String, String> getConfigMap() {
+            return Arrays.stream(values())
+                    .collect(Collectors.toMap(
+                            SoundEffectAction::name,
+                            action -> action.defaultEffect)
+                    );
+        }
+
     }
 
 }

@@ -54,6 +54,9 @@ public class TeleportationException extends IllegalStateException {
             case WORLD_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_invalid_world")
                     .ifPresent(user::sendMessage);
+            default -> {
+                // Silent; no message
+            }
         }
     }
 
@@ -64,7 +67,7 @@ public class TeleportationException extends IllegalStateException {
     }
 
     /**
-     * Represents different causes of {@link TeleportationException}s
+     * Represents different causes of {@link TeleportationException}s.
      */
     public enum Type {
         TELEPORTER_NOT_FOUND,

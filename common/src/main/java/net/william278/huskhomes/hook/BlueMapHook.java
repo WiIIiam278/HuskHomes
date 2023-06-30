@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps
+ * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps.
  */
 public class BlueMapHook extends MapHook {
 
@@ -63,15 +63,15 @@ public class BlueMapHook extends MapHook {
 
             for (World world : plugin.getWorlds()) {
                 this.editMapWorld(world, (mapWorld -> {
-                    final MarkerSet publicHomeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
+                    final MarkerSet homeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
                     final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
 
                     for (BlueMapMap map : mapWorld.getMaps()) {
-                        map.getMarkerSets().put(getPublicHomesKey(), publicHomeMarkers);
+                        map.getMarkerSets().put(getPublicHomesKey(), homeMarkers);
                         map.getMarkerSets().put(getWarpsKey(), warpsMarkers);
                     }
 
-                    publicHomesMarkerSets.put(world.getName(), publicHomeMarkers);
+                    publicHomesMarkerSets.put(world.getName(), homeMarkers);
                     warpsMarkerSets.put(world.getName(), warpsMarkers);
                 }));
             }

@@ -38,7 +38,8 @@ public class EssentialsXImporter extends Importer {
 
     public EssentialsXImporter(@NotNull HuskHomes plugin) {
         super("EssentialsX", List.of(ImportData.HOMES, ImportData.WARPS), plugin);
-        this.essentials = (Essentials) ((BukkitHuskHomes) plugin).getServer().getPluginManager().getPlugin("Essentials");
+        this.essentials = (Essentials) ((BukkitHuskHomes) plugin).getServer()
+                .getPluginManager().getPlugin("Essentials");
     }
 
     private int importHomes() {

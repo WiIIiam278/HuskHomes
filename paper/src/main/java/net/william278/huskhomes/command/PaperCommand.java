@@ -51,7 +51,8 @@ public class PaperCommand extends org.bukkit.command.Command {
 
     @NotNull
     @Override
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                                    @NotNull String[] args) throws IllegalArgumentException {
         if (!(this.command instanceof TabProvider provider)) {
             return List.of();
         }

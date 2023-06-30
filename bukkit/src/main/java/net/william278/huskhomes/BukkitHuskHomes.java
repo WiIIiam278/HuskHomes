@@ -133,7 +133,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {
-                case MYSQL -> new MySqlDatabase(this);
+                case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
             };
 
@@ -241,7 +241,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     /**
-     * Returns the adventure Bukkit audiences
+     * Returns the adventure Bukkit audiences.
      *
      * @return The adventure Bukkit audiences
      */
@@ -433,14 +433,23 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
         try {
             final Metrics metrics = new Metrics(this, metricsId);
-            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
+            metrics.addCustomChart(new SimplePie("bungee_mode",
+                    () -> Boolean.toString(getSettings().doCrossServer())));
+
             if (getSettings().doCrossServer()) {
-                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getBrokerType().getDisplayName()));
+                metrics.addCustomChart(new SimplePie("messenger_type",
+                        () -> getSettings().getBrokerType().getDisplayName()));
             }
-            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().getDisplayName()));
-            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
+
+            metrics.addCustomChart(new SimplePie("language",
+                    () -> getSettings().getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type",
+                    () -> getSettings().getDatabaseType().getDisplayName()));
+            metrics.addCustomChart(new SimplePie("using_economy",
+                    () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map",
+                    () -> Boolean.toString(getSettings().doMapHook())));
+
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
         } catch (Throwable e) {
             log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");

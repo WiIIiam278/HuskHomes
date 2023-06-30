@@ -119,9 +119,9 @@ public class TimedTeleport extends Teleport implements Runnable {
     }
 
     /**
-     * Ticks a timed teleport, decrementing the time left until the teleport is complete
-     * <p>
-     * A timed teleport will be canceled if certain criteria are met:
+     * Ticks a timed teleport, decrementing the time left until the teleport is complete.
+     *
+     * <p>A timed teleport will be canceled if certain criteria are met:
      * <ul>
      *     <li>The player has left the server</li>
      *     <li>The plugin is disabling</li>
@@ -169,9 +169,9 @@ public class TimedTeleport extends Teleport implements Runnable {
 
     private boolean hasTeleporterMoved() {
         final double maxMovementDistance = 0.1d;
-        double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX()) +
-                                  Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
-                                  Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
+        double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX())
+                + Math.abs(startLocation.getY() - teleporter.getPosition().getY())
+                + Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
     }
 

@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.kyori.adventure.text.Component;
+import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.CommandUser;
@@ -35,10 +36,8 @@ import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.util.Tristate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 
 public class SpongeCommand implements Raw {
 
@@ -109,7 +108,7 @@ public class SpongeCommand implements Raw {
     @NotNull
     private CommandUser resolveExecutor(@NotNull CommandCause cause) {
         if (cause.root() instanceof ServerPlayer player) {
-            return SpongeUser.adapt(player);
+            return SpongeUser.adapt(player, plugin);
         }
         return plugin.getConsole();
     }
@@ -156,43 +155,52 @@ public class SpongeCommand implements Raw {
      * Commands available on the Sponge HuskHomes implementation
      */
     public enum Type {
-        HOME_COMMAND(new PrivateHomeCommand(SpongeHuskHomes.getInstance())),
-        SET_HOME_COMMAND(new SetHomeCommand(SpongeHuskHomes.getInstance())),
-        HOME_LIST_COMMAND(new PrivateHomeListCommand(SpongeHuskHomes.getInstance())),
-        DEL_HOME_COMMAND(new DelHomeCommand(SpongeHuskHomes.getInstance())),
-        EDIT_HOME_COMMAND(new EditHomeCommand(SpongeHuskHomes.getInstance())),
-        PUBLIC_HOME_COMMAND(new PublicHomeCommand(SpongeHuskHomes.getInstance())),
-        PUBLIC_HOME_LIST_COMMAND(new PublicHomeListCommand(SpongeHuskHomes.getInstance())),
-        WARP_COMMAND(new WarpCommand(SpongeHuskHomes.getInstance())),
-        SET_WARP_COMMAND(new SetWarpCommand(SpongeHuskHomes.getInstance())),
-        WARP_LIST_COMMAND(new WarpListCommand(SpongeHuskHomes.getInstance())),
-        DEL_WARP_COMMAND(new DelWarpCommand(SpongeHuskHomes.getInstance())),
-        EDIT_WARP_COMMAND(new EditWarpCommand(SpongeHuskHomes.getInstance())),
-        TP_COMMAND(new TpCommand(SpongeHuskHomes.getInstance())),
-        TP_HERE_COMMAND(new TpHereCommand(SpongeHuskHomes.getInstance())),
-        TPA_COMMAND(new TeleportRequestCommand(SpongeHuskHomes.getInstance(), TeleportRequest.Type.TPA)),
-        TPA_HERE_COMMAND(new TeleportRequestCommand(SpongeHuskHomes.getInstance(), TeleportRequest.Type.TPA_HERE)),
-        TPACCEPT_COMMAND(new TpRespondCommand(SpongeHuskHomes.getInstance(), true)),
-        TPDECLINE_COMMAND(new TpRespondCommand(SpongeHuskHomes.getInstance(), false)),
-        RTP_COMMAND(new RtpCommand(SpongeHuskHomes.getInstance())),
-        TP_IGNORE_COMMAND(new TpIgnoreCommand(SpongeHuskHomes.getInstance())),
-        TP_OFFLINE_COMMAND(new TpOfflineCommand(SpongeHuskHomes.getInstance())),
-        TP_ALL_COMMAND(new TpAllCommand(SpongeHuskHomes.getInstance())),
-        TPA_ALL_COMMAND(new TpaAllCommand(SpongeHuskHomes.getInstance())),
-        SPAWN_COMMAND(new SpawnCommand(SpongeHuskHomes.getInstance())),
-        SET_SPAWN_COMMAND(new SetSpawnCommand(SpongeHuskHomes.getInstance())),
-        BACK_COMMAND(new BackCommand(SpongeHuskHomes.getInstance())),
-        HUSKHOMES_COMMAND(new HuskHomesCommand(SpongeHuskHomes.getInstance()));
+        HOME_COMMAND(PrivateHomeCommand::new),
+        SET_HOME_COMMAND(SetHomeCommand::new),
+        HOME_LIST_COMMAND(PrivateHomeListCommand::new),
+        DEL_HOME_COMMAND(DelHomeCommand::new),
+        EDIT_HOME_COMMAND(EditHomeCommand::new),
+        PUBLIC_HOME_COMMAND(PublicHomeCommand::new),
+        PUBLIC_HOME_LIST_COMMAND(PublicHomeListCommand::new),
+        WARP_COMMAND(WarpCommand::new),
+        SET_WARP_COMMAND(SetWarpCommand::new),
+        WARP_LIST_COMMAND(WarpListCommand::new),
+        DEL_WARP_COMMAND(DelWarpCommand::new),
+        EDIT_WARP_COMMAND(EditWarpCommand::new),
+        TP_COMMAND(TpCommand::new),
+        TP_HERE_COMMAND(TpHereCommand::new),
+        TPA_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA)),
+        TPA_HERE_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA_HERE)),
+        TPACCEPT_COMMAND((plugin) -> new TpRespondCommand(plugin, true)),
+        TPDECLINE_COMMAND((plugin) -> new TpRespondCommand(plugin, false)),
+        RTP_COMMAND(RtpCommand::new),
+        TP_IGNORE_COMMAND(TpIgnoreCommand::new),
+        TP_OFFLINE_COMMAND(TpOfflineCommand::new),
+        TP_ALL_COMMAND(TpAllCommand::new),
+        TPA_ALL_COMMAND(TpaAllCommand::new),
+        SPAWN_COMMAND(SpawnCommand::new),
+        SET_SPAWN_COMMAND(SetSpawnCommand::new),
+        BACK_COMMAND(BackCommand::new),
+        HUSKHOMES_COMMAND(HuskHomesCommand::new);
 
-        private final Command command;
+        private final Function<HuskHomes, Command> supplier;
 
-        Type(@NotNull Command command) {
-            this.command = command;
+        Type(@NotNull Function<HuskHomes, Command> supplier) {
+            this.supplier = supplier;
         }
 
         @NotNull
-        public Command getCommand() {
-            return command;
+        public Command createCommand(@NotNull HuskHomes plugin) {
+            return supplier.apply(plugin);
+        }
+
+        @NotNull
+        public static List<Command> getCommands(@NotNull SpongeHuskHomes plugin) {
+            return Arrays.stream(values())
+                    .map(type -> type.createCommand(plugin))
+                    .map(command -> plugin.getSettings().isCommandDisabled(command) ? null : command)
+                    .filter(Objects::nonNull)
+                    .toList();
         }
 
     }

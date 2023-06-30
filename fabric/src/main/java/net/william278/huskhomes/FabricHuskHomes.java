@@ -77,6 +77,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -84,15 +85,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
-    private static FabricHuskHomes instance;
-
-    @NotNull
-    public static FabricHuskHomes getInstance() {
-        return instance;
-    }
-
     private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
+
     private MinecraftServer minecraftServer;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
@@ -107,7 +102,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
     private List<Command> commands;
-    private Map<String, List<String>> globalPlayerList;
+    private ConcurrentHashMap<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
@@ -116,13 +111,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void onInitializeServer() {
-        // Set instance
-        instance = this;
-
         // Get plugin version from mod container
         this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
-        this.globalPlayerList = new HashMap<>();
+        this.globalPlayerList = new ConcurrentHashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
         this.validator = new Validator(this);
 
@@ -150,8 +142,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         // Temporarily log about sounds being disabled - todo: Remove when adventure-platform-fabric is updated
         if (getSettings().doPlaySoundEffects()) {
             log(Level.WARNING, "Sound effects are currently disabled for HuskHomes v" +
-                               getVersion() + " on Fabric servers running Minecraft " +
-                               getMinecraftServer().getVersion());
+                    getVersion() + " on Fabric servers running Minecraft " +
+                    getMinecraftServer().getVersion());
         }
 
         // Initialize the database
@@ -231,7 +223,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public List<OnlineUser> getOnlineUsers() {
         return minecraftServer.getPlayerManager().getPlayerList()
-                .stream().map(user -> (OnlineUser) FabricUser.adapt(this, user))
+                .stream().map(user -> (OnlineUser) FabricUser.adapt(user, this))
                 .toList();
     }
 
@@ -411,14 +403,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @NotNull
     public List<Command> registerCommands() {
-        final List<Command> commands = Arrays.stream(FabricCommand.Type.values())
-                .map(FabricCommand.Type::getCommand)
-                .filter(command -> !settings.isCommandDisabled(command))
-                .toList();
-
+        final List<Command> commands = FabricCommand.Type.getCommands(getPlugin());
         CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
                 commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
-
         return commands;
     }
 
@@ -457,7 +444,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
-                    FabricUser.adapt(this, player),
+                    FabricUser.adapt(player, this),
                     ByteBufUtil.getBytes(buf)
             );
         }

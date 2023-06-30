@@ -38,17 +38,17 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
- * Bukkit implementation of an {@link OnlineUser}
+ * Bukkit's implementation of an {@link OnlineUser}
  */
 public class BukkitUser extends OnlineUser {
 
     private final BukkitHuskHomes plugin;
     private final Player player;
 
-    private BukkitUser(@NotNull Player player) {
+    private BukkitUser(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
         super(player.getUniqueId(), player.getName());
-        this.plugin = BukkitHuskHomes.getInstance();
         this.player = player;
+        this.plugin = plugin;
     }
 
     /**
@@ -58,8 +58,18 @@ public class BukkitUser extends OnlineUser {
      * @return the adapted {@link OnlineUser}
      */
     @NotNull
-    public static BukkitUser adapt(@NotNull Player player) {
-        return new BukkitUser(player);
+    public static BukkitUser adapt(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
+        return new BukkitUser(player, plugin);
+    }
+
+    /**
+     * Return the {@link Player} wrapped by this {@link BukkitUser}
+     *
+     * @return the {@link Player} wrapped by this {@link BukkitUser}
+     */
+    @NotNull
+    public Player getPlayer() {
+        return player;
     }
 
     @Override
@@ -161,12 +171,4 @@ public class BukkitUser extends OnlineUser {
         player.sendPluginMessage(plugin, channel, message);
     }
 
-    /**
-     * Return the {@link Player} wrapped by this {@link BukkitUser}
-     *
-     * @return the {@link Player} wrapped by this {@link BukkitUser}
-     */
-    public Player getPlayer() {
-        return player;
-    }
 }

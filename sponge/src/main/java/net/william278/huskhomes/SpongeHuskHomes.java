@@ -93,13 +93,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private static final int METRICS_ID = 18423;
     private static final ResourceKey PLUGIN_MESSAGE_CHANNEL_KEY = ResourceKey.of("bungeecord", "main");
 
-    // Instance of the plugin
-    private static SpongeHuskHomes instance;
-
-    public static SpongeHuskHomes getInstance() {
-        return instance;
-    }
-
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path pluginDirectory;
@@ -130,8 +123,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @Listener
     public void onConstructPlugin(final ConstructPluginEvent event) {
-        instance = this;
-
         // Get plugin version from mod container
         this.savedUsers = new HashSet<>();
         this.globalPlayerList = new HashMap<>();
@@ -232,7 +223,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @Override
     public List<OnlineUser> getOnlineUsers() {
         return game.server().onlinePlayers().stream()
-                .map(SpongeUser::adapt)
+                .map(user -> SpongeUser.adapt(user, this))
                 .collect(Collectors.toList());
     }
 
@@ -414,13 +405,10 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @NotNull
     public List<SpongeCommand> registerCommands(@NotNull RegisterCommandEvent<Raw> event) {
-        final List<SpongeCommand> commands = new ArrayList<>();
-        for (SpongeCommand.Type type : SpongeCommand.Type.values()) {
-            final SpongeCommand command = new SpongeCommand(type.getCommand(), this);
-            commands.add(command);
-            command.registerCommand(event);
-        }
-        return commands;
+        return SpongeCommand.Type.getCommands(getPlugin()).stream()
+                .map(command -> new SpongeCommand(command, this))
+                .peek(command -> command.registerCommand(event))
+                .toList();
     }
 
     public void registerPermissions() {

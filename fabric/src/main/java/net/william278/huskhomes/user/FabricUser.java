@@ -38,18 +38,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class FabricUser extends OnlineUser {
+
     private final FabricHuskHomes plugin;
     private final ServerPlayerEntity player;
 
-    private FabricUser(@NotNull FabricHuskHomes plugin, @NotNull ServerPlayerEntity player) {
+    private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
         super(player.getUuid(), player.getEntityName());
-        this.plugin = plugin;
         this.player = player;
+        this.plugin = plugin;
     }
 
     @NotNull
-    public static FabricUser adapt(@NotNull FabricHuskHomes plugin, @NotNull ServerPlayerEntity player) {
-        return new FabricUser(plugin, player);
+    public static FabricUser adapt(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
+        return new FabricUser(player, plugin);
     }
 
     @Override

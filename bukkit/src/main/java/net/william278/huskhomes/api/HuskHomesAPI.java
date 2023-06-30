@@ -28,6 +28,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,26 +43,47 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 public class HuskHomesAPI extends BaseHuskHomesAPI {
 
-    /**
-     * <b>(Internal use only)</b> - Instance of the API class
-     */
+    // Instance of the plugin
     private static HuskHomesAPI instance;
 
     /**
      * <b>(Internal use only)</b> - Constructor, instantiating the API
      */
-    private HuskHomesAPI() {
-        super(BukkitHuskHomes.getInstance());
+    @ApiStatus.Internal
+    private HuskHomesAPI(@NotNull BukkitHuskHomes plugin) {
+        super(plugin);
     }
 
     /**
-     * Entrypoint to the HuskHomes API - returns an instance of the API
+     * Get an instance of the HuskHomes API
      *
      * @return instance of the HuskHomes API
+     * @throws NotRegisteredException if the API has not yet been registered.
      */
     @NotNull
-    public static HuskHomesAPI getInstance() {
-        return instance == null ? instance = new HuskHomesAPI() : instance;
+    public static HuskHomesAPI getInstance() throws NotRegisteredException {
+        if (instance == null) {
+            throw new NotRegisteredException();
+        }
+        return instance;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Register the API for this platform
+     *
+     * @param plugin the plugin instance
+     */
+    @ApiStatus.Internal
+    public static void register(@NotNull BukkitHuskHomes plugin) {
+        instance = new HuskHomesAPI(plugin);
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API for this platform
+     */
+    @ApiStatus.Internal
+    public static void unregister() {
+        instance = null;
     }
 
     /**
@@ -73,7 +95,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(@NotNull Player player) {
-        return BukkitUser.adapt(player);
+        return BukkitUser.adapt(player, (BukkitHuskHomes) plugin);
     }
 
     /**

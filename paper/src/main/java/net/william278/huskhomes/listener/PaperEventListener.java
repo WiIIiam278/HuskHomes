@@ -32,10 +32,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class PaperEventListener extends BukkitEventListener implements Listener {
 
-    public PaperEventListener(@NotNull PaperHuskHomes huskHomes) {
-        super(huskHomes);
+    public PaperEventListener(@NotNull PaperHuskHomes plugin) {
+        super(plugin);
         this.checkForBed = false;
-        huskHomes.getServer().getPluginManager().registerEvents(this, huskHomes);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -48,7 +48,7 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
 
         // Update the player's respawn location
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
-                BukkitUser.adapt(event.getPlayer()),
+                BukkitUser.adapt(event.getPlayer(), (PaperHuskHomes) plugin),
                 Position.at(adaptedLocation, plugin.getServerName()))
         );
     }

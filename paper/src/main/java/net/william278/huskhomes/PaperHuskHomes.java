@@ -21,14 +21,13 @@ package net.william278.huskhomes;
 
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
+import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.command.PaperCommand;
 import net.william278.huskhomes.hook.Pl3xMapHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class PaperHuskHomes extends BukkitHuskHomes {
 
@@ -45,16 +44,16 @@ public class PaperHuskHomes extends BukkitHuskHomes {
     @Override
     public List<Command> registerCommands() {
         return Arrays.stream(BukkitCommand.Type.values())
-                .map(type -> {
-                    final Command command = type.getCommand();
-                    if (!getSettings().isCommandDisabled(command)) {
-                        new PaperCommand(command, this).register();
-                        return command;
+                .map((type) -> {
+                    Command command = type.createCommand(this);
+                    if (this.getSettings().isCommandDisabled(command)) {
+                        command = new DisabledCommand(command.getName(), this);
                     }
-                    return null;
+                    new PaperCommand(command, this).register();
+                    return command;
                 })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .filter((command) -> !(command instanceof DisabledCommand))
+                .toList();
     }
 
 }

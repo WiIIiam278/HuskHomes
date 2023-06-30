@@ -51,18 +51,18 @@ public class SpongeEventListener extends EventListener {
 
     @Listener
     public void onPlayerJoin(final ServerSideConnectionEvent.Join event) {
-        super.handlePlayerJoin(SpongeUser.adapt(event.player()));
+        super.handlePlayerJoin(SpongeUser.adapt(event.player(), (SpongeHuskHomes) plugin));
     }
 
     @Listener
     public void onPlayerLeave(final ServerSideConnectionEvent.Disconnect event) {
-        super.handlePlayerJoin(SpongeUser.adapt(event.player()));
+        super.handlePlayerJoin(SpongeUser.adapt(event.player(), (SpongeHuskHomes) plugin));
     }
 
     @Listener
     public void onPlayerDeath(final DestructEntityEvent.Death event) {
         if (event.entity() instanceof ServerPlayer player) {
-            super.handlePlayerJoin(SpongeUser.adapt(player));
+            super.handlePlayerJoin(SpongeUser.adapt(player, (SpongeHuskHomes) plugin));
         }
     }
 
@@ -72,7 +72,7 @@ public class SpongeEventListener extends EventListener {
         if (type.isPresent() && type.get().type().equals(PortalTypes.END.get())) {
             return;
         }
-        super.handlePlayerJoin(SpongeUser.adapt(event.entity()));
+        super.handlePlayerJoin(SpongeUser.adapt(event.entity(), (SpongeHuskHomes) plugin));
     }
 
     @Listener
@@ -81,8 +81,10 @@ public class SpongeEventListener extends EventListener {
             final Optional<MovementType> type = event.context().get(EventContextKeys.MOVEMENT_TYPE);
             if (type.isPresent() && type.get().equals(MovementTypes.ENTITY_TELEPORT.get())) {
                 SpongeAdapter.adaptLocation(ServerLocation.of(player.world(), event.originalPosition()))
-                        .ifPresent(location -> super.handlePlayerTeleport(SpongeUser.adapt(player),
-                                Position.at(location, plugin.getServerName())));
+                        .ifPresent(location -> super.handlePlayerTeleport(
+                                SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
+                                Position.at(location, plugin.getServerName())
+                        ));
             }
         }
     }
@@ -100,10 +102,11 @@ public class SpongeEventListener extends EventListener {
                     BlockTypes.PURPLE_BED, BlockTypes.RED_BED, BlockTypes.WHITE_BED, BlockTypes.YELLOW_BED,
                     BlockTypes.RESPAWN_ANCHOR)) {
 
-                super.handlePlayerUpdateSpawnPoint(SpongeUser.adapt(player), Position.at(
-                        SpongeAdapter.adaptLocation(player.serverLocation()).orElseThrow(),
-                        plugin.getServerName()
-                ));
+                super.handlePlayerUpdateSpawnPoint(SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
+                        Position.at(
+                                SpongeAdapter.adaptLocation(player.serverLocation()).orElseThrow(),
+                                plugin.getServerName()
+                        ));
             }
         }
     }

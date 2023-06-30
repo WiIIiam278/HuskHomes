@@ -77,7 +77,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Command Registration")
         public void testCommandRegistration() {
             for (BukkitCommand.Type command : BukkitCommand.Type.values()) {
-                Assertions.assertNotNull(plugin.getCommand(command.getCommand().getName()));
+                Assertions.assertNotNull(plugin.getCommand(command.createCommand(plugin).getName()));
             }
             Assertions.assertEquals(BukkitCommand.Type.values().length, plugin.getCommands().size());
         }
@@ -86,7 +86,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Player Adapter")
         public void testPlayerAdaption() {
             PlayerMock player = server.addPlayer();
-            Assertions.assertNotNull(BukkitUser.adapt(player));
+            Assertions.assertNotNull(BukkitUser.adapt(player, plugin));
         }
 
     }
@@ -105,22 +105,22 @@ public class BukkitPluginTests {
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
             final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
                     .orElseThrow(() -> new IllegalStateException("Failed to load raw locale"));
-            BukkitUser.adapt(player).sendMessage(simpleLocale);
+            BukkitUser.adapt(player, plugin).sendMessage(simpleLocale);
             player.assertSaid(simpleLocaleText);
         }
 
         @Test
         @DisplayName("Test Message Dispatching")
         public void testMessageDispatching() {
-            PlayerMock player = server.addPlayer();
+            final BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
 
             final MineDown locale = plugin.getLocales()
                     .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
-            BukkitUser.adapt(player).sendActionBar(locale);
-            BukkitUser.adapt(player).sendMessage(locale);
-            BukkitUser.adapt(player).sendTitle(locale, false);
-            BukkitUser.adapt(player).sendTitle(locale, true);
+            user.sendActionBar(locale);
+            user.sendMessage(locale);
+            user.sendTitle(locale, false);
+            user.sendTitle(locale, true);
         }
 
         @Test
@@ -135,11 +135,11 @@ public class BukkitPluginTests {
         @DisplayName("Test Locale Parsing")
         public void testLocaleParsing() {
             final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
-            BukkitUser bukkitUser = BukkitUser.adapt(server.addPlayer());
+            BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
             rawLocales.forEach((key, value) -> {
                 Optional<MineDown> locale = plugin.getLocales().getLocale(key);
                 Assertions.assertTrue(locale.isPresent());
-                bukkitUser.sendMessage(locale.get());
+                user.sendMessage(locale.get());
             });
         }
 
@@ -174,7 +174,7 @@ public class BukkitPluginTests {
             final PlayerMock player = server.addPlayer();
             player.setOp(true);
 
-            final BukkitUser playerUser = BukkitUser.adapt(player);
+            final BukkitUser playerUser = BukkitUser.adapt(player, plugin);
             return commands.stream()
                     .flatMap(command -> Stream.of(Arguments.of(command, playerUser, command.getName())));
         }
@@ -213,7 +213,7 @@ public class BukkitPluginTests {
                 "Lorem ipsum text with special characters •♣♠ and numbers 1234567890",
                 "Lorem ipsum text with special characters •♣♠ and numbers 1234567890 and whitespace",
                 "Lorem ipsum text with special characters •♣♠ and numbers 1234567890 and whitespace and a very long" +
-                " description that is 255 characters long and should be accepted by the validator"
+                        " description that is 255 characters long and should be accepted by the validator"
         })
         public void testValidDescriptionIsValid(@NotNull String description) {
             Assertions.assertTrue(plugin.getValidator().isValidDescription(description));
@@ -222,9 +222,9 @@ public class BukkitPluginTests {
         @DisplayName("Test Validator Rejects Invalid Descriptions")
         @ParameterizedTest(name = "Invalid Description: \"{0}\"")
         @ValueSource(strings = {"Lorem ipsum text with special characters •♣♠ and numbers 1234567890 and whitespace and" +
-                                "a very long description that is more than 256 characters long and should be rejected " +
-                                "by the validator because it is far, far too long and thus exceeds the maximum length " +
-                                "of 255 characters that are allowed for a description of a home or a warp."})
+                "a very long description that is more than 256 characters long and should be rejected " +
+                "by the validator because it is far, far too long and thus exceeds the maximum length " +
+                "of 255 characters that are allowed for a description of a home or a warp."})
         public void testInvalidDescriptionIsInvalid(@NotNull String description) {
             Assertions.assertFalse(plugin.getValidator().isValidDescription(description));
         }
@@ -241,7 +241,7 @@ public class BukkitPluginTests {
 
         @BeforeAll
         public static void setup() {
-            player = BukkitUser.adapt(server.addPlayer());
+            player = BukkitUser.adapt(server.addPlayer(), plugin);
         }
 
         @DisplayName("Test Applying Cooldown")
@@ -427,7 +427,7 @@ public class BukkitPluginTests {
         @DisplayName("Ensure User Data")
         @BeforeAll
         public static void createHomeUser() {
-            homeOwner = BukkitUser.adapt(server.addPlayer("TestUser278"));
+            homeOwner = BukkitUser.adapt(server.addPlayer("TestUser278"), plugin);
             plugin.getDatabase().ensureUser(homeOwner);
             Assertions.assertTrue(plugin.getDatabase().getUserData(homeOwner.getUuid()).isPresent());
         }

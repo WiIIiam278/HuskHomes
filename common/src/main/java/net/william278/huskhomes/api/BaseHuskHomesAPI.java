@@ -33,6 +33,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -61,6 +62,7 @@ public abstract class BaseHuskHomesAPI {
     /**
      * <b>(Internal use only)</b> - Constructor, instantiating the base API class
      */
+    @ApiStatus.Internal
     protected BaseHuskHomesAPI(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
     }
@@ -761,9 +763,10 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the {@link RandomTeleportEngine} to use for processing random teleports. The engine will be used to process all
-     * random teleports, including both {@code /rtp} command executions and API ({@link #randomlyTeleportPlayer(OnlineUser)})
-     * calls.
+     * Set the {@link RandomTeleportEngine} to use for processing random teleports.
+     * <p>
+     * The engine will be used to process all random teleports, including both {@code /rtp} command executions
+     * and {@link #randomlyTeleportPlayer(OnlineUser) API calls}.
      *
      * @param randomTeleportEngine the {@link RandomTeleportEngine} to use to process random teleports
      * @see RandomTeleportEngine
@@ -779,7 +782,7 @@ public abstract class BaseHuskHomesAPI {
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
      * @return The {@link MineDown}-formatted locale
-     * @apiNote Since v3.0.4, this method returns a `adventure.MineDown` object, targeting
+     * @apiNote Since v3.0.4, this method returns an `adventure.MineDown` object, targeting
      * <a href="https://docs.adventure.kyori.net/">Adventure</a> platforms, rather than a bungee components object.
      * @since 3.0.4
      */
@@ -798,5 +801,24 @@ public abstract class BaseHuskHomesAPI {
     public final Optional<String> getRawLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getRawLocale(localeKey, replacements);
     }
+
+    /**
+     * An exception indicating the plugin has been accessed before it has been registered.
+     */
+    static final class NotRegisteredException extends IllegalStateException {
+
+        private static final String MESSAGE = """
+                Could not access the HuskHomes API as it has not yet been registered. Please check that:
+                1) HuskHomes has enabled successfully
+                2) Your plugin is set to load after HuskHomes has
+                   (is it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
+                3) You aren't attempting to access HuskHomes on plugin construction/before your plugin has enabled""";
+
+        NotRegisteredException() {
+            super(MESSAGE);
+        }
+
+    }
+
 
 }

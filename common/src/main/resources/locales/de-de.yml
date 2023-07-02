@@ -145,7 +145,7 @@ error_invalid_teleport_request: '[Fehler:](#ff3300) [Du hast keine ausstehende T
 error_teleport_request_self: '[Fehler:](#ff3300) [Du kannst dir selbst keine Teleportanfrage stellen.](#ff7e5e)'
 error_player_not_found: '[Fehler:](#ff3300) [Der Spieler %1% konnte nicht gefunden werden.](#ff7e5e)'
 error_rtp_restricted_world: '[Fehler:](#ff3300) [Du kannst dich in dieser Welt nicht zufällig teleportieren.](#ff7e5e)'
-error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
+error_on_cooldown: '[Fehler:](#ff3300) [Du musst %1% warten, bevor du dies wieder tun kannst.](#ff7e5e)'
 error_command_disabled: '[Fehler:](#ff3300) [Dieser Befehl ist deaktiviert!](#ff7e5e)'
 error_console_command_only: '[Fehler:](#ff3300) [Dieser Befehl kann nur von der Serverkonsole aus ausgeführt werden.](#ff7e5e)'
 error_rtp_randomization_timeout: '[Fehler:](#ff3300) [Es ist nicht gelungen, einen sicheren zufälligen Ort zu finden um dich zu teleportieren.](#ff7e5e)'

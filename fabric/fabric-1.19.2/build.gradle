@@ -29,11 +29,12 @@ dependencies {
         modImplementation(fabricApi.module(it, fabric_api_version))
     }
     modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
-    modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
+    modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
 
-    implementation include('redis.clients:jedis:' + jedis_version)
-    implementation include('com.mysql:mysql-connector-j:' + mysql_driver_version)
-    implementation include('org.xerial:sqlite-jdbc:' + sqlite_driver_version)
+    implementation include("redis.clients:jedis:$jedis_version")
+    implementation include("org.apache.commons:commons-pool2:$commons_pool_version")
+    implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
+    implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
 

@@ -17,32 +17,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: 'Checkout for CI 🛎️'
+        uses: actions/checkout@v3
+      - name: 'Set up JDK 17 📦'
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build with Gradle
+      - name: 'Build with Gradle 🏗️'
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build test publish
         env:
           SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-      - name: Publish Test Report
+      - name: 'Publish Test Report 📊'
         uses: mikepenz/action-junit-report@v3
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
-      - name: Query Version
+      - name: 'Fetch Version Name 📝'
         run: |
           echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew properties --no-daemon --console=plain -q | grep "^version:" | awk '{printf $2}')"
         id: fetch-version
       - name: Get Version
         run: |
           echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
-      - name: Upload to Modrinth & Hangar (Spigot)
+      - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
@@ -72,7 +73,7 @@ jobs:
             1.19.4
             1.20.1
           java: 16
-      - name: Upload to Modrinth (Sponge)
+      - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
@@ -80,7 +81,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-dependencies: |
             bluemap | suggests | *
-            plan | suggests | *
+            plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Sponge-*.jar
           name: HuskHomes (Sponge) v${{ env.version_name }}
           version: ${{ env.version_name }}
@@ -91,7 +92,7 @@ jobs:
           game-versions: |
             1.16.5
           java: 16
-      - name: Upload to Modrinth & CurseForge (Fabric)
+      - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
@@ -107,13 +108,14 @@ jobs:
             luckperms | suggests | *
             plan-player-analytics | suggests | *
           files-primary: target/HuskHomes-Fabric-1.20.1-*.jar
-          files-secondary: |
-            target/HuskHomes-Fabric-1.19.4-*.jar
-            target/HuskHomes-Fabric-1.19.2-*.jar
+          files-secondary: target/HuskHomes-Fabric-!(1.20.1)-*.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
-          changelog: ${{ github.event.head_commit.message }}
+          changelog: |
+            > ⚠ Remember to download the correct JAR file for your version of Minecraft!
+            
+            ${{ github.event.release.body }}
           loaders: |
             fabric
           game-versions: |
@@ -121,18 +123,11 @@ jobs:
             1.19.4
             1.20.1
           java: 17
-      - name: Upload GitHub Artifact (Spigot)
+      - name: 'Upload GitHub Artifacts 📦'
         uses: actions/upload-artifact@v2
         with:
-          name: HuskHomes (Spigot)
-          path: target/HuskHomes-Plugin-*.jar
-      - name: Upload GitHub Artifact (Sponge)
-        uses: actions/upload-artifact@v2
-        with:
-          name: HuskHomes (Sponge)
-          path: target/HuskHomes-Sponge-*.jar
-      - name: Upload GitHub Artifact (Fabric)
-        uses: actions/upload-artifact@v2
-        with:
-          name: HuskHomes (Fabric)
-          path: target/HuskHomes-Fabric-*.jar
+          name: HuskHomes
+          path: |
+            target/HuskHomes-Plugin-*.jar
+            target/HuskHomes-Sponge-*.jar
+            target/HuskHomes-Fabric-*.jar

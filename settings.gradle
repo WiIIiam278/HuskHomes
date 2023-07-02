@@ -20,5 +20,5 @@ include(
         'fabric:fabric-1.20.1',
 
         // Sponge
-        'sponge:sponge-api8'
+        'sponge'
 )

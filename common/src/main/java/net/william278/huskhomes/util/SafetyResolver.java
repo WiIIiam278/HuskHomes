@@ -31,16 +31,15 @@ public interface SafetyResolver {
     int SEARCH_RADIUS = 2;
 
     /**
-     * Returns a safe ground location for the specified {@link Location} if possible
+     * Returns a safe ground location for the specified {@link Location} if possible.
      *
      * @param location the {@link Location} to find a safe ground location for
-     * @return a {@link CompletableFuture} that will complete with an optional of the safe ground position, if it is
-     * possible to find one
+     * @return a {@link CompletableFuture} with an optional safe ground position, if one could be found
      */
     CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location);
 
     /**
-     * Returns if the block, by provided identifier, is unsafe to stand on
+     * Returns if the block, by provided identifier, is unsafe to stand on.
      *
      * @param blockId The block identifier (e.g. {@code minecraft:stone})
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
@@ -50,10 +49,10 @@ public interface SafetyResolver {
     }
 
     /**
-     * Returns if the block, by provided identifier, is unsafe to stand in
+     * Returns if the block, by provided identifier, is unsafe to stand in.
      *
      * @param blockId The block identifier (e.g. {@code minecraft:stone})
-     * @return {@code true} if the block is able to be occupied, {@code false} otherwise
+     * @return {@code true} if the block can be occupied, {@code false} otherwise
      */
     default boolean isBlockSafeForOccupation(@NotNull String blockId) {
         return !getPlugin().getUnsafeBlocks().isUnsafeToOccupy(blockId);

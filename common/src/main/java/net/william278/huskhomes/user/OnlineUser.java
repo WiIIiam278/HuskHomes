@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 /**
- * A cross-platform representation of a logged-in {@link User}
+ * A cross-platform representation of a logged-in {@link User}.
  */
 public abstract class OnlineUser extends User implements Teleportable, CommandUser {
 
@@ -47,29 +47,28 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Returns the current {@link Position} of this player
+     * Returns the current {@link Position} of this player.
      *
      * @return the player's current {@link Position}
      */
     public abstract Position getPosition();
 
     /**
-     * Returns the player's current bed or respawn anchor {@link Position}
+     * Returns the player's current bed or respawn anchor {@link Position}.
      *
-     * @return an optional with the player's current bed or respawn anchor {@link Position} if it has been set,
-     * otherwise an {@link Optional#empty()}
+     * @return the player's current respawn {@link Position} if it has been set, or {@link Optional#empty()}
      */
     public abstract Optional<Position> getBedSpawnPosition();
 
     /**
-     * Returns the health of this player
+     * Returns the health of this player.
      *
      * @return the player's health points
      */
     public abstract double getHealth();
 
     /**
-     * Returns if the player has the permission node
+     * Returns if the player has the permission node.
      *
      * @param node The permission node string
      * @return {@code true} if the player has the node; {@code false} otherwise
@@ -77,7 +76,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract boolean hasPermission(@NotNull String node);
 
     /**
-     * Returns a {@link Map} of a player's permission nodes
+     * Returns a {@link Map} of a player's permission nodes.
      *
      * @return a {@link Map} of all permissions this player has to their set values
      */
@@ -85,7 +84,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract Map<String, Boolean> getPermissions();
 
     /**
-     * Dispatch a MineDown-formatted title or subtitle to the player
+     * Dispatch a MineDown-formatted title or subtitle to the player.
      *
      * @param mineDown the parsed {@link MineDown} to send
      * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
@@ -97,7 +96,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Dispatch a MineDown-formatted action bar message to this player
+     * Dispatch a MineDown-formatted action bar message to this player.
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
@@ -109,7 +108,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
 
 
     /**
-     * Dispatch a MineDown-formatted chat message to this player
+     * Dispatch a MineDown-formatted chat message to this player.
      *
      * @param mineDown the parsed {@link MineDown} to send
      */
@@ -120,7 +119,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Dispatch a MineDown-formatted message to this player
+     * Dispatch a MineDown-formatted message to this player.
      *
      * @param mineDown the parsed {@link MineDown} to send
      * @param slot     the {@link Locales.DisplaySlot} to send the message to
@@ -138,25 +137,26 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Dispatch a Minecraft translatable keyed-message to this player
+     * Dispatch a Minecraft translatable keyed-message to this player.
+     *
+     * <p>This method is intended for use with Minecraft's built-in translation keys.
+     * If the key is invalid, it will be substituted with {@code minecraft:block.minecraft.spawn.not_valid}
      *
      * @param translationKey the translation key of the message to send
-     * @implNote This method is intended for use with Minecraft's built-in translation keys. If the key is invalid,
-     * it will be substituted with {@code minecraft:block.minecraft.spawn.not_valid}
      */
     public void sendTranslatableMessage(@Subst(Key.MINECRAFT_NAMESPACE + "block.minecraft.spawn.not_valid")
-                                              @NotNull String translationKey) {
+                                        @NotNull String translationKey) {
         getAudience().sendMessage(Component.translatable(translationKey));
     }
 
     /**
-     * Play the specified sound to this player
+     * Play the specified sound to this player.
      *
      * @param soundEffect the sound effect to play. If the sound name is invalid, the sound will not play
      * @implNote If the key is invalid, it will be substituted with {@code minecraft:block.note_block.banjo}
      */
     public void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
-                                @NotNull String soundEffect) throws IllegalArgumentException {
+                          @NotNull String soundEffect) throws IllegalArgumentException {
         try {
             getAudience().playSound(
                     Sound.sound(Key.key(soundEffect), Sound.Source.PLAYER, 1.0f, 1.0f),
@@ -168,7 +168,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Get the adventure {@link Audience} for this player
+     * Get the adventure {@link Audience} for this player.
      *
      * @return the adventure {@link Audience} for this player
      */
@@ -176,16 +176,16 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract Audience getAudience();
 
     /**
-     * Teleport a player to the specified local {@link Location}
+     * Teleport a player to the specified local {@link Location}.
      *
-     * @param location     the {@link Location} to teleport the player to
-     * @param asynchronous if the teleport should be asynchronous
+     * @param location the {@link Location} to teleport the player to
+     * @param async    if the teleport should be asynchronous
      * @throws TeleportationException if the teleport fails
      */
-    public abstract void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException;
+    public abstract void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException;
 
     /**
-     * Send a plugin message to the user
+     * Send a plugin message to the user.
      *
      * @param channel channel to send it on
      * @param message byte array of message data
@@ -193,21 +193,21 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
     /**
-     * Returns if a player is moving (i.e. they have momentum)
+     * Returns if a player is moving (i.e., they have momentum).
      *
      * @return {@code true} if the player is moving; {@code false} otherwise
      */
     public abstract boolean isMoving();
 
     /**
-     * Returns if the player is tagged as being "vanished" by a /vanish plugin
+     * Returns if the player is tagged as being "vanished" by a /vanish plugin.
      *
      * @return {@code true} if the player is tagged as being "vanished" by a /vanish plugin; {@code false} otherwise
      */
     public abstract boolean isVanished();
 
     /**
-     * Get the maximum number of homes this user may set
+     * Get the maximum number of homes this user may set.
      *
      * @param defaultMaxHomes the default maximum number of homes if the user has not set a custom value
      * @param stack           whether to stack numerical permissions that grant the user extra max homes
@@ -226,7 +226,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Get the number of homes this user may make public
+     * Get the number of homes this user may make public.
      *
      * @param defaultPublicHomes the default number of homes this user may make public
      * @param stack              whether to stack numerical permissions that grant the user extra public homes
@@ -245,7 +245,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Get the number of free home slots this user may set
+     * Get the number of free home slots this user may set.
      *
      * @param defaultFreeHomes the default number of free home slots to give this user
      * @param stack            whether to stack numerical permissions that grant the user extra free homes
@@ -264,7 +264,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Gets a list of numbers from the prefixed permission nodes
+     * Gets a list of numbers from the prefixed permission nodes.
      *
      * @param nodePrefix the prefix of the permission nodes to get
      * @return a list of numbers from the prefixed permission nodes, sorted by size

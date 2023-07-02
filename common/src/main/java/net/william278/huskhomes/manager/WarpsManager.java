@@ -94,7 +94,7 @@ public class WarpsManager {
     }
 
     /**
-     * Cached warp names
+     * Cached warp names.
      */
     @NotNull
     public List<String> getWarps() {
@@ -112,7 +112,8 @@ public class WarpsManager {
                 .toList();
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position, boolean overwrite) throws ValidationException {
+    public void createWarp(@NotNull String name, @NotNull Position position,
+                           boolean overwrite) throws ValidationException {
         final Optional<Warp> existingWarp = plugin.getDatabase().getWarp(name);
         if (existingWarp.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);

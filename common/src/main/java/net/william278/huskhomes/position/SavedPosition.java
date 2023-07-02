@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * Represents a persistently-saved {@link Position}
+ * Represents a persistently-saved {@link Position}.
  */
 public abstract class SavedPosition extends Position implements Comparable<SavedPosition> {
 
@@ -40,7 +40,7 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     }
 
     /**
-     * Create a new {@link SavedPosition} from a {@link Position} and {@link PositionMeta}
+     * Create a new {@link SavedPosition} from a {@link Position} and {@link PositionMeta}.
      *
      * @param position The {@link Position} to save
      * @param meta     {@link PositionMeta} information about this position
@@ -53,7 +53,7 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     }
 
     /**
-     * Metadata about this position (name, description)
+     * Metadata about this position (name, description).
      */
     @NotNull
     public PositionMeta getMeta() {
@@ -65,7 +65,7 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     }
 
     /**
-     * The name of this position. Shortcut for {@link #getMeta()}.{@link PositionMeta#getName()}
+     * The name of this position. Shortcut for {@link #getMeta()}.{@link PositionMeta#getName()}.
      */
     @NotNull
     public String getName() {
@@ -73,7 +73,7 @@ public abstract class SavedPosition extends Position implements Comparable<Saved
     }
 
     /**
-     * A unique ID representing this position
+     * A unique ID representing this position.
      */
     @NotNull
     public UUID getUuid() {

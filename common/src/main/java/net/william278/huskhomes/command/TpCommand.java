@@ -115,16 +115,16 @@ public class TpCommand extends Command implements TabProvider {
     @Override
     @NotNull
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        final Position basePosition = getBasePosition(user);
+        final Position relative = getBasePosition(user);
         final boolean serveCoordinateCompletions = user.hasPermission(getPermission("coordinates"));
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = new ArrayList<>();
                 completions.addAll(serveCoordinateCompletions
                         ? List.of("~", "~ ~", "~ ~ ~",
-                        Integer.toString((int) basePosition.getX()),
-                        ((int) basePosition.getX() + " " + (int) basePosition.getY()),
-                        ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
+                        Integer.toString((int) relative.getX()),
+                        ((int) relative.getX() + " " + (int) relative.getY()),
+                        ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                         : List.of());
                 completions.addAll(plugin.getPlayerList(false));
                 return completions.stream()
@@ -134,15 +134,17 @@ public class TpCommand extends Command implements TabProvider {
             case 2 -> {
                 final ArrayList<String> completions = new ArrayList<>();
                 if (isCoordinate(args, 0)) {
-                    completions.addAll(List.of("~", Integer.toString((int) basePosition.getY())));
-                    completions.addAll(List.of("~ ~", (int) basePosition.getY() + " " + (int) basePosition.getZ()));
+                    completions.addAll(List.of("~", Integer.toString((int) relative.getY())));
+                    completions.addAll(List.of("~ ~", (int) relative.getY() + " " + (int) relative.getZ()));
                 } else {
-                    completions.addAll(serveCoordinateCompletions
-                            ? List.of("~", "~ ~", "~ ~ ~",
-                            Integer.toString((int) basePosition.getX()),
-                            ((int) basePosition.getX() + " " + (int) basePosition.getY()),
-                            ((int) basePosition.getX() + " " + (int) basePosition.getY() + " " + (int) basePosition.getZ()))
-                            : List.of());
+                    completions.addAll(
+                            serveCoordinateCompletions
+                                    ? List.of("~", "~ ~", "~ ~ ~",
+                                    Integer.toString((int) relative.getX()),
+                                    ((int) relative.getX() + " " + (int) relative.getY()),
+                                    ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
+                                    : List.of()
+                    );
                     completions.addAll(plugin.getPlayerList(false));
                 }
                 return completions.stream()
@@ -155,13 +157,13 @@ public class TpCommand extends Command implements TabProvider {
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) basePosition.getZ())));
+                    completions.addAll(List.of("~", Integer.toString((int) relative.getZ())));
                 } else if (isCoordinate(args, 1)) {
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) basePosition.getY())));
-                    completions.addAll(List.of("~ ~", (int) basePosition.getY() + " " + (int) basePosition.getZ()));
+                    completions.addAll(List.of("~", Integer.toString((int) relative.getY())));
+                    completions.addAll(List.of("~ ~", (int) relative.getY() + " " + (int) relative.getZ()));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[2].toLowerCase()))
@@ -173,7 +175,7 @@ public class TpCommand extends Command implements TabProvider {
                     if (!serveCoordinateCompletions) {
                         return completions;
                     }
-                    completions.addAll(List.of("~", Integer.toString((int) basePosition.getZ())));
+                    completions.addAll(List.of("~", Integer.toString((int) relative.getZ())));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[3].toLowerCase()))

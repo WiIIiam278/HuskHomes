@@ -21,7 +21,7 @@ package net.william278.huskhomes.hook;
 
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
@@ -33,21 +33,21 @@ import java.util.List;
 
 public class PlaceholderAPIHook extends Hook {
 
-    public PlaceholderAPIHook(@NotNull HuskHomes plugin) {
+    public PlaceholderAPIHook(@NotNull BukkitHuskHomes plugin) {
         super(plugin, "PlaceholderAPI");
     }
 
     @Override
     public void initialize() {
-        new HuskHomesExpansion(plugin).register();
+        new HuskHomesExpansion((BukkitHuskHomes) plugin).register();
     }
 
     public static class HuskHomesExpansion extends PlaceholderExpansion {
 
         @NotNull
-        private final HuskHomes plugin;
+        private final BukkitHuskHomes plugin;
 
-        private HuskHomesExpansion(@NotNull HuskHomes plugin) {
+        private HuskHomesExpansion(@NotNull BukkitHuskHomes plugin) {
             this.plugin = plugin;
         }
 
@@ -59,7 +59,7 @@ public class PlaceholderAPIHook extends Hook {
             }
 
             // Return the requested data
-            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer());
+            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer(), plugin);
             return switch (params) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()

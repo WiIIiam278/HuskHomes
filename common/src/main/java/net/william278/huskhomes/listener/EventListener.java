@@ -38,7 +38,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 /**
- * A handler for when events take place
+ * A handler for when events take place.
  */
 public class EventListener {
 
@@ -50,7 +50,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when a {@link OnlineUser} joins the server
+     * Handle when a {@link OnlineUser} joins the server.
      *
      * @param onlineUser the joining {@link OnlineUser}
      */
@@ -64,7 +64,9 @@ public class EventListener {
                 this.handleInboundTeleport(onlineUser);
 
                 // Synchronize the global player list
-                plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(onlineUser, plugin.getLocalPlayerList()), 40L);
+                plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(
+                        onlineUser, plugin.getLocalPlayerList()), 40L
+                );
 
                 // Request updated player lists from other servers
                 if (plugin.getOnlineUsers().size() == 1) {
@@ -91,7 +93,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when a {@link OnlineUser} leaves the server
+     * Handle when a {@link OnlineUser} leaves the server.
      *
      * @param onlineUser the leaving {@link OnlineUser}
      */
@@ -123,7 +125,7 @@ public class EventListener {
     }
 
     /**
-     * Handle inbound cross-server teleports
+     * Handle inbound cross-server teleports.
      *
      * @param teleporter user to handle the checks for
      */
@@ -135,7 +137,10 @@ public class EventListener {
             }
 
             try {
-                teleporter.teleportLocally((Position) teleport.getTarget(), plugin.getSettings().doAsynchronousTeleports());
+                teleporter.teleportLocally(
+                        (Position) teleport.getTarget(),
+                        plugin.getSettings().doAsynchronousTeleports()
+                );
             } catch (TeleportationException e) {
                 e.displayMessage(teleporter);
             }
@@ -145,7 +150,7 @@ public class EventListener {
     }
 
     /**
-     * Handle an inbound global respawn
+     * Handle an inbound global respawn.
      *
      * @param teleporter the user to handle the checks for
      */
@@ -207,7 +212,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when a {@link OnlineUser} dies
+     * Handle when a {@link OnlineUser} dies.
      *
      * @param onlineUser the {@link OnlineUser} who died
      */
@@ -219,7 +224,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when a {@link OnlineUser} respawns after dying
+     * Handle when a {@link OnlineUser} respawns after dying.
      *
      * @param onlineUser the respawning {@link OnlineUser}
      */
@@ -228,7 +233,7 @@ public class EventListener {
             // Display the return by death via /back notification
             final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
                     .map(command -> onlineUser.hasPermission(command.getPermission())
-                                    && onlineUser.hasPermission(command.getPermission("death")))
+                            && onlineUser.hasPermission(command.getPermission("death")))
                     .orElse(false);
             if (plugin.getSettings().doBackCommandReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")
@@ -266,7 +271,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when a player teleports
+     * Handle when a player teleports.
      *
      * @param onlineUser     the {@link OnlineUser} who teleported
      * @param sourcePosition the source {@link Position} they came from
@@ -281,7 +286,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when an {@link OnlineUser}'s spawn point is updated
+     * Handle when an {@link OnlineUser}'s spawn point is updated.
      *
      * @param onlineUser the {@link OnlineUser} whose spawn point was updated
      * @param position   the new spawn point
@@ -293,7 +298,7 @@ public class EventListener {
     }
 
     /**
-     * Handle when the plugin is disabling (server is shutting down)
+     * Handle when the plugin is disabling (server is shutting down).
      */
     public final void handlePluginDisable() {
         plugin.log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getVersion());

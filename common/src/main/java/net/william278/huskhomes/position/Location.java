@@ -23,9 +23,10 @@ import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a local position on this server
+ * Represents a local position on this server.
  */
 public class Location {
+
     @Expose
     private double x;
     @Expose
@@ -62,7 +63,7 @@ public class Location {
     }
 
     /**
-     * Update the position to match that of another position
+     * Update the position to match that of another position.
      *
      * @param position The position to update to
      */
@@ -76,7 +77,7 @@ public class Location {
     }
 
     /**
-     * The double-precision defined x coordinate of the location
+     * The double-precision defined x coordinate of the location.
      */
     public double getX() {
         return x;
@@ -87,7 +88,7 @@ public class Location {
     }
 
     /**
-     * The double-precision defined y coordinate of the location
+     * The double-precision defined y coordinate of the location.
      */
     public double getY() {
         return y;
@@ -98,7 +99,7 @@ public class Location {
     }
 
     /**
-     * The double-precision defined z coordinate of the location
+     * The double-precision defined z coordinate of the location.
      */
     public double getZ() {
         return z;
@@ -109,7 +110,7 @@ public class Location {
     }
 
     /**
-     * The float-precision defined yaw facing of the location
+     * The float-precision defined yaw facing of the location.
      */
     public float getYaw() {
         return yaw;
@@ -120,7 +121,7 @@ public class Location {
     }
 
     /**
-     * The float-precision defined pitch facing of the location
+     * The float-precision defined pitch facing of the location.
      */
     public float getPitch() {
         return pitch;
@@ -131,7 +132,7 @@ public class Location {
     }
 
     /**
-     * The {@link World} the location is on
+     * The {@link World} the location is on.
      */
     public World getWorld() {
         return world;
@@ -140,4 +141,5 @@ public class Location {
     public void setWorld(World world) {
         this.world = world;
     }
+
 }

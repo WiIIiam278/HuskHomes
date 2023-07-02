@@ -32,7 +32,8 @@ public abstract class Command extends Node {
     private final String usage;
     private final Map<String, Boolean> additionalPermissions;
 
-    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
+    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
+                      @NotNull HuskHomes plugin) {
         super(name, aliases, plugin);
         this.usage = usage;
         this.additionalPermissions = new HashMap<>();
@@ -70,8 +71,8 @@ public abstract class Command extends Node {
         return "/" + getName() + " " + getRawUsage();
     }
 
-    public final void addAdditionalPermissions(@NotNull Map<String, Boolean> additionalPermissions) {
-        additionalPermissions.forEach((permission, value) -> this.additionalPermissions.put(getPermission(permission), value));
+    public final void addAdditionalPermissions(@NotNull Map<String, Boolean> permissions) {
+        permissions.forEach((permission, value) -> this.additionalPermissions.put(getPermission(permission), value));
     }
 
     @NotNull

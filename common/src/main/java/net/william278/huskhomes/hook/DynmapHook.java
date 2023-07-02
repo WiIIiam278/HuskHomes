@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Hook to display warps and public homes on Dynmap
+ * Hook to display warps and public homes on Dynmap.
  */
 public class DynmapHook extends MapHook {
 
@@ -171,8 +171,12 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             publicHomesMarkers = api.getMarkerAPI().getMarkerSet(getPublicHomesKey());
             if (publicHomesMarkers == null) {
-                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(getPublicHomesKey(), getPublicHomesMarkerSetName(),
-                        api.getMarkerAPI().getMarkerIcons(), false);
+                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(
+                        getPublicHomesKey(),
+                        getPublicHomesMarkerSetName(),
+                        api.getMarkerAPI().getMarkerIcons(),
+                        false
+                );
             } else {
                 publicHomesMarkers.setMarkerSetLabel(getPublicHomesMarkerSetName());
             }

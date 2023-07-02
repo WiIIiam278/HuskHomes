@@ -36,12 +36,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * An abstract dispatcher of events
+ * An abstract dispatcher of events.
  */
 public interface EventDispatcher {
 
     /**
-     * Fire an event synchronously, then run a callback asynchronously
+     * Fire an event synchronously, then run a callback asynchronously.
      *
      * @param event    The event to fire
      * @param callback The callback to run after the event has been fired
@@ -56,42 +56,62 @@ public interface EventDispatcher {
     }
 
     /**
-     * Fire an event on this thread, and return whether the event was canceled
+     * Fire an event on this thread, and return whether the event was canceled.
      *
      * @param event The event to fire
      * @param <T>   The type of event to fire
      * @return Whether the event was canceled
      */
+
     <T extends Event> boolean fireIsCancelled(@NotNull T event);
 
+    @NotNull
     ITeleportEvent getTeleportEvent(@NotNull Teleport teleport);
 
+    @NotNull
     ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration);
 
+    @NotNull
     ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, @NotNull TeleportRequest request);
 
-    IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request);
+    @NotNull
+    IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                                @NotNull TeleportRequest request);
 
-    IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request);
+    @NotNull
+    IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                            @NotNull TeleportRequest request);
 
-    IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator);
+    @NotNull
+    IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                                        @NotNull CommandUser creator);
 
+    @NotNull
     IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor);
 
+    @NotNull
     IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter);
 
+    @NotNull
     IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator);
 
+    @NotNull
     IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor);
 
+    @NotNull
     IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter);
 
-    IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList);
+    @NotNull
+    IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer,
+                                        boolean publicHomeList);
 
+    @NotNull
     IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull CommandUser listViewer);
 
+    @NotNull
     IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter);
 
+    @NotNull
     IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter);
 
     @NotNull

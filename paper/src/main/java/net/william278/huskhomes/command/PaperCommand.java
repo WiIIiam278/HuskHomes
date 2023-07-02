@@ -45,17 +45,18 @@ public class PaperCommand extends org.bukkit.command.Command {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        this.command.onExecuted(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
+        this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
         return true;
     }
 
     @NotNull
     @Override
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                                    @NotNull String[] args) throws IllegalArgumentException {
         if (!(this.command instanceof TabProvider provider)) {
             return List.of();
         }
-        final CommandUser user = sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole();
+        final CommandUser user = sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole();
         return provider.getSuggestions(user, args);
     }
 
@@ -64,15 +65,30 @@ public class PaperCommand extends org.bukkit.command.Command {
         plugin.getServer().getCommandMap().register("huskhomes", this);
 
         // Register permissions
-        BukkitCommand.addPermission(plugin, command.getPermission(), command.getUsage(), BukkitCommand.getPermissionDefault(command.isOperatorCommand()));
+        BukkitCommand.addPermission(
+                plugin,
+                command.getPermission(),
+                command.getUsage(),
+                BukkitCommand.getPermissionDefault(command.isOperatorCommand())
+        );
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
-                .map((entry) -> BukkitCommand.addPermission(plugin, entry.getKey(), "", BukkitCommand.getPermissionDefault(entry.getValue())))
+                .map((entry) -> BukkitCommand.addPermission(
+                        plugin,
+                        entry.getKey(),
+                        "",
+                        BukkitCommand.getPermissionDefault(entry.getValue()))
+                )
                 .filter(Objects::nonNull)
                 .toList();
         if (!childNodes.isEmpty()) {
-            BukkitCommand.addPermission(plugin, command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
-                    childNodes.toArray(new Permission[0]));
+            BukkitCommand.addPermission(
+                    plugin,
+                    command.getPermission("*"),
+                    command.getUsage(),
+                    PermissionDefault.FALSE,
+                    childNodes.toArray(new Permission[0])
+            );
         }
 
         // Register commodore TAB completion

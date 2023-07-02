@@ -74,7 +74,7 @@ public class PrivateHomeListCommand extends ListCommand {
         }
 
         if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())
-            && !executor.hasPermission(getPermission("other"))) {
+                && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -93,7 +93,8 @@ public class PrivateHomeListCommand extends ListCommand {
                 }));
     }
 
-    private Optional<PaginatedList> generateList(@NotNull CommandUser executor, @NotNull User user, @NotNull List<Home> homes) {
+    private Optional<PaginatedList> generateList(@NotNull CommandUser executor, @NotNull User user,
+                                                 @NotNull List<Home> homes) {
         if (homes.isEmpty()) {
             if (!executor.equals(user)) {
                 plugin.getLocales().getLocale("error_no_homes_set_other", user.getUsername())
@@ -109,7 +110,10 @@ public class PrivateHomeListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
                                         Locales.escapeText(home.getName()), home.getSafeIdentifier(),
-                                        Locales.escapeText(plugin.getLocales().wrapText(home.getMeta().getDescription(), 40)))
+                                        Locales.escapeText(plugin.getLocales().wrapText(
+                                                home.getMeta().getDescription(),
+                                                40
+                                        )))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getListItemsPerPage())

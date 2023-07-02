@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A hook for a mapping plugin, such as Dynmap
+ * A hook for a mapping plugin, such as Dynmap.
  */
 public abstract class MapHook extends Hook {
 
@@ -44,7 +44,7 @@ public abstract class MapHook extends Hook {
     }
 
     /**
-     * Populate the map with public homes and warps
+     * Populate the map with public homes and warps.
      */
     protected void populateMap() {
         if (plugin.getSettings().doPublicHomesOnMap()) {
@@ -60,47 +60,47 @@ public abstract class MapHook extends Hook {
     }
 
     /**
-     * Update a home, adding it to the map if it exists, or updating it on the map if it doesn't
+     * Update a home, adding it to the map if it exists, or updating it on the map if it doesn't.
      *
      * @param home the home to update
      */
     public abstract void updateHome(@NotNull Home home);
 
     /**
-     * Removes a home from the map
+     * Removes a home from the map.
      *
      * @param home the home to remove
      */
     public abstract void removeHome(@NotNull Home home);
 
     /**
-     * Clears homes owned by a player from the map
+     * Clears homes owned by a player from the map.
      *
      * @param user the player whose homes to clear
      */
     public abstract void clearHomes(@NotNull User user);
 
     /**
-     * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't
+     * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't.
      *
      * @param warp the warp to update
      */
     public abstract void updateWarp(@NotNull Warp warp);
 
     /**
-     * Removes a warp from the map
+     * Removes a warp from the map.
      *
      * @param warp the warp to remove
      */
     public abstract void removeWarp(@NotNull Warp warp);
 
     /**
-     * Clears all warps from the map
+     * Clears all warps from the map.
      */
     public abstract void clearWarps();
 
     /**
-     * Returns if the position is valid to be set on this server
+     * Returns if the position is valid to be set on this server.
      *
      * @param position the position to check
      * @return if the position is valid
@@ -140,7 +140,7 @@ public abstract class MapHook extends Hook {
     }
 
     /**
-     * Creates an HTML Dynmap marker information popup widget
+     * Creates an HTML Dynmap marker information popup widget.
      */
     protected static class MarkerInformationPopup {
         @NotNull
@@ -158,7 +158,8 @@ public abstract class MapHook extends Hook {
         }
 
         @NotNull
-        protected static DynmapHook.MarkerInformationPopup warp(@NotNull Warp warp, @NotNull String thumbnail, @NotNull HuskHomes plugin) {
+        protected static DynmapHook.MarkerInformationPopup warp(@NotNull Warp warp, @NotNull String thumbnail,
+                                                                @NotNull HuskHomes plugin) {
             return MarkerInformationPopup.create(warp.getName())
                     .thumbnail(thumbnail)
                     .field("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription(), 60))
@@ -167,7 +168,8 @@ public abstract class MapHook extends Hook {
         }
 
         @NotNull
-        protected static DynmapHook.MarkerInformationPopup publicHome(@NotNull Home home, @NotNull String thumbnail, @NotNull HuskHomes plugin) {
+        protected static DynmapHook.MarkerInformationPopup publicHome(@NotNull Home home, @NotNull String thumbnail,
+                                                                      @NotNull HuskHomes plugin) {
             return MarkerInformationPopup.create(home.getName())
                     .thumbnail(thumbnail)
                     .field("Owner", home.getOwner().getUsername())

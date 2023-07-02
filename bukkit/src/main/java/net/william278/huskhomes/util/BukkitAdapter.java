@@ -28,12 +28,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Static class providing utility methods for adapting Bukkit objects to HuskHomes and vice versa
+ * Static class providing utility methods for adapting Bukkit objects to HuskHomes and vice versa.
  */
 public final class BukkitAdapter {
 
     /**
-     * Adapt a Bukkit {@link org.bukkit.Location} to a HuskHomes {@link Location}
+     * Adapt a Bukkit {@link org.bukkit.Location} to a HuskHomes {@link Location}.
      *
      * @param location the Bukkit {@link org.bukkit.Location} to adapt
      * @return the adapted {@link Location}
@@ -45,8 +45,9 @@ public final class BukkitAdapter {
         }
         if (world == null) {
             world = Bukkit.getWorlds().stream()
-                    .filter(w -> w.getEnvironment().name().equalsIgnoreCase(location.getWorld().getEnvironment().name()))
-                    .findFirst().orElse(null);
+                    .filter(w -> w.getEnvironment().name().equalsIgnoreCase(
+                            location.getWorld().getEnvironment().name())).findFirst()
+                    .orElse(null);
         }
         if (world == null) {
             return Optional.empty();
@@ -62,13 +63,15 @@ public final class BukkitAdapter {
     }
 
     /**
-     * Adapt a HuskHomes {@link org.bukkit.Location} to a Bukkit {@link org.bukkit.Location}
+     * Adapt a HuskHomes {@link org.bukkit.Location} to a Bukkit {@link org.bukkit.Location}.
      *
      * @param location the HuskHomes {@link org.bukkit.Location} to adapt
      * @return the adapted {@link org.bukkit.Location}
      */
     public static Optional<Location> adaptLocation(@NotNull org.bukkit.Location location) {
-        if (location.getWorld() == null) return Optional.empty();
+        if (location.getWorld() == null) {
+            return Optional.empty();
+        }
         return Optional.of(Location.at(location.getX(), location.getY(), location.getZ(),
                 location.getYaw(), location.getPitch(),
                 adaptWorld(location.getWorld()).orElse(new net.william278.huskhomes.position.World())));
@@ -78,12 +81,13 @@ public final class BukkitAdapter {
         if (world == null) {
             return Optional.empty();
         }
-        return Optional.of(World.from(world.getName(), world.getUID(),
+        return Optional.of(World.from(
+                world.getName(), world.getUID(),
                 switch (world.getEnvironment()) {
                     case NORMAL -> World.Environment.OVERWORLD;
                     case NETHER -> World.Environment.NETHER;
                     case THE_END -> World.Environment.THE_END;
-                    case CUSTOM -> World.Environment.CUSTOM;
+                    default -> World.Environment.CUSTOM;
                 })
         );
     }

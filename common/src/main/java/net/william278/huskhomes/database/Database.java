@@ -30,6 +30,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,23 +39,20 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * An abstract representation of the plugin database, storing home, warp and player data.
- * <p>
- * Implemented by different database platforms - MySQL, SQLite, etc. - as configured by the administrator.
+ *
+ * <p>Implemented by different database platforms - MySQL, SQLite, etc. - as configured by the administrator.
  */
 public abstract class Database {
 
     protected final HuskHomes plugin;
 
     /**
-     * Loads SQL table creation schema statements from a resource file as a string array
+     * Loads SQL table creation schema statements from a resource file as a string array.
      *
      * @param schemaFileName database script resource file to load from
      * @return Array of string-formatted table creation schema statements
@@ -68,24 +66,31 @@ public abstract class Database {
     }
 
     /**
-     * Format all table name placeholder strings in a SQL statement
+     * Format all table name placeholder strings in an SQL statement.
      *
      * @param sql the SQL statement with unformatted table name placeholders
      * @return the formatted statement, with table placeholders replaced with the correct names
      */
     protected final String formatStatementTables(@NotNull String sql) {
         return sql
-                .replaceAll("%positions_table%", plugin.getSettings().getTableName(Table.POSITION_DATA))
-                .replaceAll("%players_table%", plugin.getSettings().getTableName(Table.PLAYER_DATA))
-                .replaceAll("%cooldowns_table%", plugin.getSettings().getTableName(Table.PLAYER_COOLDOWNS_DATA))
-                .replaceAll("%teleports_table%", plugin.getSettings().getTableName(Table.TELEPORT_DATA))
-                .replaceAll("%saved_positions_table%", plugin.getSettings().getTableName(Table.SAVED_POSITION_DATA))
-                .replaceAll("%homes_table%", plugin.getSettings().getTableName(Table.HOME_DATA))
-                .replaceAll("%warps_table%", plugin.getSettings().getTableName(Table.WARP_DATA));
+                .replaceAll("%positions_table%", plugin.getSettings()
+                        .getTableName(Table.POSITION_DATA))
+                .replaceAll("%players_table%", plugin.getSettings()
+                        .getTableName(Table.PLAYER_DATA))
+                .replaceAll("%cooldowns_table%", plugin.getSettings()
+                        .getTableName(Table.PLAYER_COOLDOWNS_DATA))
+                .replaceAll("%teleports_table%", plugin.getSettings()
+                        .getTableName(Table.TELEPORT_DATA))
+                .replaceAll("%saved_positions_table%", plugin.getSettings()
+                        .getTableName(Table.SAVED_POSITION_DATA))
+                .replaceAll("%homes_table%", plugin.getSettings()
+                        .getTableName(Table.HOME_DATA))
+                .replaceAll("%warps_table%", plugin.getSettings()
+                        .getTableName(Table.WARP_DATA));
     }
 
     /**
-     * Create a database instance, pulling table names from the plugin config
+     * Create a database instance, pulling table names from the plugin config.
      *
      * @param plugin the implementing plugin instance
      */
@@ -99,7 +104,7 @@ public abstract class Database {
     public abstract void initialize() throws IllegalStateException;
 
     /**
-     * <b>(Internal use only)</b> - Sets a position to the position table in the database
+     * <b>(Internal use only)</b> - Sets a position to the position table in the database.
      *
      * @param position   The {@link Position} to set
      * @param connection SQL connection
@@ -109,44 +114,50 @@ public abstract class Database {
     protected abstract int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException;
 
     /**
-     * <b>(Internal use only)</b> - Updates position data
+     * <b>(Internal use only)</b> - Updates position data.
      *
      * @param positionId ID of the position to update
      * @param position   the Position.at
      * @param connection SQL connection
      * @throws SQLException if an SQL exception occurs doing this
      */
-    protected abstract void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException;
+    @ApiStatus.Internal
+    protected abstract void updatePosition(int positionId, @NotNull Position position,
+                                           @NotNull Connection connection) throws SQLException;
 
     /**
-     * <b>(Internal use only)</b> - Sets a {@link SavedPosition} to the database
+     * <b>(Internal use only)</b> - Sets a {@link SavedPosition} to the database.
      *
      * @param position   The {@link SavedPosition} to set
      * @param connection SQL connection
      * @return The newly inserted row ID
      * @throws SQLException if an SQL exception occurs doing this
      */
-    protected abstract int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException;
+    @ApiStatus.Internal
+    protected abstract int setSavedPosition(@NotNull SavedPosition position,
+                                            @NotNull Connection connection) throws SQLException;
 
     /**
-     * <b>(Internal use only)</b> - Updates a saved position metadata
+     * <b>(Internal use only)</b> - Updates a saved position metadata.
      *
      * @param savedPositionId ID of the metadata to update
      * @param savedPosition   the new saved position
      * @param connection      SQL connection
      * @throws SQLException if an SQL exception occurs doing this
      */
-    protected abstract void updateSavedPosition(int savedPositionId, @NotNull SavedPosition savedPosition, @NotNull Connection connection) throws SQLException;
+    @ApiStatus.Internal
+    protected abstract void updateSavedPosition(int savedPositionId, @NotNull SavedPosition savedPosition,
+                                                @NotNull Connection connection) throws SQLException;
 
     /**
-     * Ensure a {@link User} has a {@link SavedUser} entry in the database and that their username is up-to-date
+     * Ensure a {@link User} has a {@link SavedUser} entry in the database and that their username is up-to-date.
      *
      * @param user The {@link User} to ensure
      */
     public abstract void ensureUser(@NotNull User user);
 
     /**
-     * Get {@link SavedUser} for a user by their Minecraft username (<i>case-insensitive</i>)
+     * Get {@link SavedUser} for a user by their Minecraft username (<i>case-insensitive</i>).
      *
      * @param name Username of the {@link SavedUser} to get (<i>case-insensitive</i>)
      * @return An optional with the {@link SavedUser} present if they exist
@@ -154,7 +165,7 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUserDataByName(@NotNull String name);
 
     /**
-     * Get {@link SavedUser} for a user by their Minecraft account {@link UUID}
+     * Get {@link SavedUser} for a user by their Minecraft account {@link UUID}.
      *
      * @param uuid Minecraft account {@link UUID} of the {@link SavedUser} to get
      * @return An optional with the {@link SavedUser} present if they exist
@@ -162,23 +173,24 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUserData(@NotNull UUID uuid);
 
     /**
-     * Get the currently active cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     * Get the currently active cooldown of a {@link User} for a specific {@link TransactionResolver.Action}.
      *
-     * @return An optional containing the {@link Instant} the cooldown expires at, or empty if the {@link User} has no cooldown
+     * @return An optional with the {@link Instant} the cooldown expires, or empty if the {@link User} has no cooldown
      */
     public abstract Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user);
 
     /**
-     * Set the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     * Set the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}.
      *
      * @param action         The {@link TransactionResolver.Action} to set the cooldown for
      * @param user           The {@link User} to set the cooldown for
      * @param cooldownExpiry The {@link Instant} the cooldown expires at
      */
-    public abstract void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user, @NotNull Instant cooldownExpiry);
+    public abstract void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user,
+                                     @NotNull Instant cooldownExpiry);
 
     /**
-     * Remove the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}
+     * Remove the cooldown of a {@link User} for a specific {@link TransactionResolver.Action}.
      *
      * @param action The {@link TransactionResolver.Action} to remove the cooldown for
      * @param user   The {@link User} to remove the cooldown for
@@ -186,7 +198,7 @@ public abstract class Database {
     public abstract void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user);
 
     /**
-     * Get a list of {@link Home}s set by a {@link User}
+     * Get a list of {@link Home}s set by a {@link User}.
      *
      * @param user {@link User} to get the homes of
      * @return A future returning void when complete
@@ -194,14 +206,14 @@ public abstract class Database {
     public abstract List<Home> getHomes(@NotNull User user);
 
     /**
-     * Get a list of all {@link Warp}s that have been set
+     * Get a list of all {@link Warp}s that have been set.
      *
      * @return A list containing all {@link Warp}s
      */
     public abstract List<Warp> getWarps();
 
     /**
-     * Get a list of publicly-set {@link Warp}s on <i>this {@link Server}</i>
+     * Get a list of publicly-set {@link Warp}s on <i>this {@link Server server}</i>.
      *
      * @param plugin The plugin instance
      * @return A list containing all {@link Warp}s set on this server
@@ -214,14 +226,14 @@ public abstract class Database {
     }
 
     /**
-     * Get a list of all publicly-set {@link Home}s
+     * Get a list of all publicly-set {@link Home}s.
      *
      * @return A list containing all publicly-set {@link Home}s
      */
     public abstract List<Home> getPublicHomes();
 
     /**
-     * Get a list of publicly-set {@link Home}s on <i>this {@link Server}</i>
+     * Get a list of publicly-set {@link Home}s on <i>this {@link Server server}</i>.
      *
      * @param plugin The plugin instance
      * @return A list containing all publicly-set {@link Home}s on this server
@@ -234,19 +246,19 @@ public abstract class Database {
     }
 
     /**
-     * Get a {@link Home} with the given name, set by the given {@link User}
+     * Get a {@link Home} with the given name, set by the given {@link User}.
      *
      * @param user     The {@link User} who set the home
      * @param homeName The name of the home to get
      * @return An optional with the {@link Home} present if it exists
-     * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
+     * @apiNote Whether lookup is case-sensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Home> getHome(@NotNull User user, @NotNull String homeName) {
         return this.getHome(user, homeName, plugin.getSettings().caseInsensitiveNames());
     }
 
     /**
-     * Get a {@link Home} with the given name, set by the given {@link User}
+     * Get a {@link Home} with the given name, set by the given {@link User}.
      *
      * @param user            The {@link User} who set the home
      * @param homeName        The name of the home to get
@@ -256,7 +268,7 @@ public abstract class Database {
     public abstract Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive);
 
     /**
-     * Get a {@link Home} by its unique id
+     * Get a {@link Home} by its {@link UUID unique ID}.
      *
      * @param uuid the {@link UUID} of the home to get
      * @return An optional with the {@link Home} present if it exists
@@ -264,18 +276,18 @@ public abstract class Database {
     public abstract Optional<Home> getHome(@NotNull UUID uuid);
 
     /**
-     * Get a {@link Warp} with the given name
+     * Get a {@link Warp} with the given name.
      *
      * @param warpName The name of the warp to get
      * @return An optional with the {@link Warp} present if it exists
-     * @apiNote Whether the name lookup query is case-insensitive is determined by the {@code general.case_insensitive_names} setting
+     * @apiNote Whether lookup is case-insensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Warp> getWarp(@NotNull String warpName) {
         return getWarp(warpName, plugin.getSettings().caseInsensitiveNames());
     }
 
     /**
-     * Get a {@link Warp} with the given name
+     * Get a {@link Warp} with the given name.
      *
      * @param warpName        The name of the warp to get
      * @param caseInsensitive Whether the search should be case-insensitive
@@ -284,7 +296,7 @@ public abstract class Database {
     public abstract Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive);
 
     /**
-     * Get a {@link Warp} by its unique id
+     * Get a {@link Warp} by its {@link UUID unique ID}.
      *
      * @param uuid the {@link UUID} of the warp to get
      * @return An optional with the {@link Warp} present if it exists
@@ -292,7 +304,7 @@ public abstract class Database {
     public abstract Optional<Warp> getWarp(@NotNull UUID uuid);
 
     /**
-     * Get the current {@link Teleport} being executed by the specified {@link OnlineUser}
+     * Get the current {@link Teleport} being executed by the specified {@link OnlineUser}.
      *
      * @param onlineUser The {@link OnlineUser} to check
      * @return An optional with the {@link Teleport} present if they are teleporting cross-server
@@ -300,23 +312,23 @@ public abstract class Database {
     public abstract Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser);
 
     /**
-     * Updates a user in the database with new {@link SavedUser}
+     * Updates a user in the database with new {@link SavedUser}.
      *
      * @param savedUser The {@link SavedUser} to update
      */
     public abstract void updateUserData(@NotNull SavedUser savedUser);
 
     /**
-     * Sets or clears the current {@link Teleport} being executed by a {@link User}
+     * Sets or clears the current {@link Teleport} being executed by a {@link User}.
      *
      * @param user     The {@link User} to set the current teleport of.
-     *                 Pass as {@code null} to clear the player's current teleport.<p>
+     *                 Pass as {@code null} to clear the player's current teleport
      * @param teleport The {@link Teleport} to set as their current cross-server teleport
      */
     public abstract void setCurrentTeleport(@NotNull User user, @Nullable Teleport teleport);
 
     /**
-     * Clears the current {@link Teleport} being executed by a {@link User}
+     * Clears the current {@link Teleport} being executed by a {@link User}.
      *
      * @param user The {@link User} to clear the current teleport of
      */
@@ -325,7 +337,7 @@ public abstract class Database {
     }
 
     /**
-     * Get the last teleport {@link Position} of a specified {@link User}
+     * Get the last teleport {@link Position} of a specified {@link User}.
      *
      * @param user The {@link User} to check
      * @return An optional with the {@link Position} present if it has been set
@@ -333,7 +345,7 @@ public abstract class Database {
     public abstract Optional<Position> getLastPosition(@NotNull User user);
 
     /**
-     * Sets the last teleport {@link Position} of a {@link User}
+     * Sets the last teleport {@link Position} of a {@link User}.
      *
      * @param user     The {@link User} to set the last position of
      * @param position The {@link Position} to set as their last position
@@ -341,7 +353,7 @@ public abstract class Database {
     public abstract void setLastPosition(@NotNull User user, @NotNull Position position);
 
     /**
-     * Get the offline {@link Position} of a specified {@link User}
+     * Get the offline {@link Position} of a specified {@link User}.
      *
      * @param user The {@link User} to check
      * @return An optional with the {@link Position} present if it has been set
@@ -349,7 +361,7 @@ public abstract class Database {
     public abstract Optional<Position> getOfflinePosition(@NotNull User user);
 
     /**
-     * Sets the offline {@link Position} of a {@link User}
+     * Sets the offline {@link Position} of a {@link User}.
      *
      * @param user     The {@link User} to set the offline position of
      * @param position The {@link Position} to set as their offline position
@@ -357,7 +369,7 @@ public abstract class Database {
     public abstract void setOfflinePosition(@NotNull User user, @NotNull Position position);
 
     /**
-     * Get the respawn {@link Position} of a specified {@link User}
+     * Get the respawn {@link Position} of a specified {@link User}.
      *
      * @param user The {@link User} to check
      * @return An optional with the {@link Position} present if it has been set
@@ -365,11 +377,11 @@ public abstract class Database {
     public abstract Optional<Position> getRespawnPosition(@NotNull User user);
 
     /**
-     * Sets or clears the respawn {@link Position} of a {@link User}
+     * Sets or clears the respawn {@link Position} of a {@link User}.
      *
      * @param user     The {@link User} to set the respawn position of
      * @param position The {@link Position} to set as their respawn position
-     *                 Pass as {@code null} to clear the player's current respawn position.<p>
+     *                 Pass as {@code null} to clear the player's current respawn position.
      */
     public abstract void setRespawnPosition(@NotNull User user, @Nullable Position position);
 
@@ -410,23 +422,24 @@ public abstract class Database {
     public abstract void deleteWarp(@NotNull UUID uuid);
 
     /**
-     * Deletes all {@link Warp}s set on the database table
+     * Deletes all {@link Warp}s set on the database table.
      *
      * @return An integer; the number of deleted warps
      */
     public abstract int deleteAllWarps();
 
     /**
-     * Close any remaining connection to the database source
+     * Close any remaining connection to the database source.
      */
     public abstract void terminate();
 
 
     /**
-     * Identifies types of databases
+     * Identifies types of databases.
      */
     public enum Type {
         MYSQL("MySQL"),
+        MARIADB("MariaDB"),
         SQLITE("SQLite");
 
         private final String displayName;
@@ -442,7 +455,7 @@ public abstract class Database {
     }
 
     /**
-     * Represents the names of tables in the database
+     * Represents the names of tables in the database.
      */
     public enum Table {
         PLAYER_DATA("huskhomes_users"),
@@ -460,8 +473,18 @@ public abstract class Database {
         }
 
         @NotNull
-        public String getDefaultName() {
+        public String getName() {
             return defaultName;
         }
+
+        @NotNull
+        public static Map<String, String> getConfigMap() {
+            return Arrays.stream(values())
+                    .collect(Collectors.toMap(
+                            Table::name,
+                            action -> action.defaultName
+                    ));
+        }
+
     }
 }

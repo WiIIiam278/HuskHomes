@@ -36,10 +36,10 @@ import java.util.UUID;
 @DisplayName("Normal Distribution Tests")
 public class NormalDistributionTests {
 
-    private final static float MEAN = 0.75f;
-    private final static float STANDARD_DEVIATION = 2f;
-    private final static float SPAWN_RADIUS = 500f;
-    private final static float MAX_RADIUS = 3000f;
+    private static final float MEAN = 0.75f;
+    private static final float STANDARD_DEVIATION = 2f;
+    private static final float SPAWN_RADIUS = 500f;
+    private static final float MAX_RADIUS = 3000f;
 
     @Test
     @DisplayName("Test Point Generation")
@@ -59,14 +59,14 @@ public class NormalDistributionTests {
     }
 
     /**
-     * Plots location distribution to an image for testing
+     * Plots location distribution to an image for testing.
      */
     public static class DistributionModeller {
 
         /**
-         * Plot a demo of the normal distribution algorithm
+         * Plot a demo of the normal distribution algorithm.
          *
-         * @param args file path to save image to
+         * @param args path to save image to
          */
         @SuppressWarnings("unused")
         public static void main(String[] args) {
@@ -95,7 +95,7 @@ public class NormalDistributionTests {
 
                 plot.save(output.getAbsolutePath(), "png");
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 

@@ -70,7 +70,10 @@ public class WarpListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("warp_list_item",
                                         Locales.escapeText(warp.getName()), warp.getSafeIdentifier(),
-                                        Locales.escapeText(plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40)))
+                                        Locales.escapeText(plugin.getLocales().wrapText(
+                                                warp.getMeta().getDescription(),
+                                                40
+                                        )))
                                 .orElse(warp.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getListItemsPerPage())

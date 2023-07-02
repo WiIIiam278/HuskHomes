@@ -26,22 +26,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Represents an event that fires when a player requests to view a list of warps
+ * Represents an event that fires when a player requests to view a list of warps.
  */
 public interface IWarpListEvent extends Cancellable {
 
     /**
-     * Get the list of warps to be displayed
+     * Get the list of warps to be displayed.
      *
      * @return the list of warps
      */
     @NotNull
     List<Warp> getWarps();
 
+    /**
+     * Set the list of warps to be displayed.
+     *
+     * @param warps the list of warps
+     */
     void setWarps(@NotNull List<Warp> warps);
 
     /**
-     * Get the user viewing the warp list
+     * Get the user viewing the warp list.
      *
      * @return the user viewing the warp list
      */

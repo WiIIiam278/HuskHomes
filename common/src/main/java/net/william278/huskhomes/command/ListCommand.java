@@ -32,7 +32,8 @@ public abstract class ListCommand extends Command {
 
     protected final Map<UUID, PaginatedList> cachedLists;
 
-    protected ListCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
+    protected ListCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
+                          @NotNull HuskHomes plugin) {
         super(name, aliases, usage, plugin);
         this.cachedLists = new HashMap<>();
     }

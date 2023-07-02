@@ -115,7 +115,7 @@ jobs:
           changelog: |
             > ⚠ Remember to download the correct JAR file for your version of Minecraft!
             
-            ${{ github.event.release.body }}
+            ${{ github.event.head_commit.message }}
           loaders: |
             fabric
           game-versions: |

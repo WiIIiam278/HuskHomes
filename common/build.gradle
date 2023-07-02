@@ -25,7 +25,7 @@ dependencies {
     compileOnly 'com.mysql:mysql-connector-j:' + mysql_driver_version
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'com.google.guava:guava:32.1.0-jre'
+    compileOnly 'com.google.guava:guava:32.1.1-jre'
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2391'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.5.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'

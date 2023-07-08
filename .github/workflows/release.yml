@@ -95,20 +95,14 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan-player-analytics | suggests | *
-          files-primary: target/HuskHomes-Fabric-1.20.1-*.jar
-          files-secondary: target/HuskHomes-Fabric-(1.19.4|1.19.2)-*.jar
+          files-primary: target/HuskHomes-Fabric-*.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
-          changelog: |
-            > ⚠ Remember to download the correct JAR file for your version of Minecraft!
-            
-            ${{ github.event.release.body }}
+          changelog: ${{ github.event.release.body }}
           loaders: |
             fabric
           game-versions: |
-            1.19.2
-            1.19.4
             1.20.1
           java: 17
       - name: 'Upload GitHub Artifacts 📦'

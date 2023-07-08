@@ -15,9 +15,7 @@ include(
         'plugin',
 
         // Fabric
-        'fabric:fabric-1.19.2',
-        'fabric:fabric-1.19.4',
-        'fabric:fabric-1.20.1',
+        'fabric',
 
         // Sponge
         'sponge'

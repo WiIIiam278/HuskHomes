@@ -1,15 +1,9 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
     id 'fabric-loom' version "$fabric_loom_version"
 }
 
 apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
-
-// Get properties from local gradle.properties file
-def properties = new Properties()
-file("gradle.properties").withInputStream { properties.load(it) }
 
 dependencies {
     minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
@@ -61,13 +55,6 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
-}
-
-processResources {
-    filesMatching(['**/*.json', '**/*.yml']) {
-        filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
-                tokens: properties
-    }
 }
 
 remapJar {

@@ -410,7 +410,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public boolean isDependencyLoaded(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name);
+        return FabricLoader.getInstance().isModLoaded(name)
+                || FabricLoader.getInstance().isModLoaded(name.toLowerCase(Locale.ENGLISH));
     }
 
     @Override

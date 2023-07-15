@@ -39,8 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -58,8 +58,8 @@ public class BlueMapHook extends MapHook {
     @Override
     public void initialize() {
         BlueMapAPI.onEnable(api -> {
-            this.publicHomesMarkerSets = new HashMap<>();
-            this.warpsMarkerSets = new HashMap<>();
+            this.publicHomesMarkerSets = new ConcurrentHashMap<>();
+            this.warpsMarkerSets = new ConcurrentHashMap<>();
 
             for (World world : plugin.getWorlds()) {
                 this.editMapWorld(world, (mapWorld -> {

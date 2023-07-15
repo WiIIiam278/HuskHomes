@@ -53,7 +53,7 @@ jobs:
             dynmap | suggests | *
             bluemap | suggests | *
             pl3xmap | suggests | *
-            plan-player-analytics | suggests | *
+            plan | suggests | *
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
           hangar-version-type: Alpha
@@ -81,7 +81,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-dependencies: |
             bluemap | suggests | *
-            plan-player-analytics | suggests | *
+            plan | suggests | *
           files-primary: target/HuskHomes-Sponge-*.jar
           name: HuskHomes (Sponge) v${{ env.version_name }}
           version: ${{ env.version_name }}
@@ -106,7 +106,7 @@ jobs:
             bluemap | suggests | *
             pl3xmap | suggests | *
             luckperms | suggests | *
-            plan-player-analytics | suggests | *
+            plan | suggests | *
           files-primary: target/HuskHomes-Fabric-*.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}

@@ -20,6 +20,7 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.network.PacketByteBuf;
@@ -28,6 +29,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
@@ -129,15 +132,23 @@ public class FabricUser extends OnlineUser {
     @Override
     public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
         final MinecraftServer server = player.getServer();
-        assert server != null : "Server is null";
-        final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
-        player.teleport(
+        if (server == null) {
+            throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
+        }
+
+        FabricDimensions.teleport(
+                player,
                 server.getWorld(server.getWorldRegistryKeys().stream()
-                        .filter(key -> key.getValue().equals(worldId)).findFirst().orElseThrow(
-                                () -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin))
-                ),
-                location.getX(), location.getY(), location.getZ(),
-                location.getYaw(), location.getPitch()
+                        .filter(key -> key.getValue().equals(Identifier.tryParse(location.getWorld().getName())))
+                        .findFirst().orElseThrow(
+                                () -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin)
+                        )),
+                new TeleportTarget(
+                        new Vec3d(location.getX(), location.getY(), location.getZ()),
+                        Vec3d.ZERO,
+                        location.getYaw(),
+                        location.getPitch()
+                )
         );
     }
 

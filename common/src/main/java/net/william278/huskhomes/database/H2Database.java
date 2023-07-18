@@ -31,13 +31,23 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * An H2 implementation of the plugin {@link Database}.
+ */
+@SuppressWarnings("DuplicatedCode")
 public class H2Database extends Database {
+
+    /**
+     * Path to the H2 HuskHomesData.h2 file.
+     */
+    private final File databaseFile;
 
     /**
      * The name of the database file.
@@ -48,6 +58,7 @@ public class H2Database extends Database {
 
     public H2Database(@NotNull HuskHomes plugin) {
         super(plugin);
+        this.databaseFile = new File(plugin.getDataFolder(), DATABASE_FILE_NAME);
     }
 
     /**
@@ -62,7 +73,8 @@ public class H2Database extends Database {
 
     @Override
     public void initialize() throws IllegalStateException {
-        final String url = String.format("jdbc:h2:%s/%s", plugin.getDataFolder(), DATABASE_FILE_NAME);
+        // Prepare the database flat file
+        final String url = String.format("jdbc:h2:%s", databaseFile.getAbsolutePath());
         this.connectionPool = JdbcConnectionPool.create(url, "sa", "sa");
 
         // Prepare database schema; make tables if they don't exist
@@ -72,11 +84,9 @@ public class H2Database extends Database {
                 for (String tableCreationStatement : databaseSchema) {
                     statement.execute(tableCreationStatement);
                 }
-            } catch (SQLException e) {
-                throw new IllegalStateException("Failed to create database tables.", e);
             }
         } catch (SQLException | IOException e) {
-            throw new IllegalStateException("Failed to establish a connection to the H2 database", e);
+            throw new IllegalStateException("Failed to initialize the H2 database", e);
         }
     }
 

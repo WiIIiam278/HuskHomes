@@ -38,16 +38,18 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * A MySQL implementation of the plugin {@link Database}.
+ * A MySQL / MariaDB implementation of the plugin {@link Database}.
  */
 @SuppressWarnings("DuplicatedCode")
 public class MySqlDatabase extends Database {
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
+    private final String flavor;
     private HikariDataSource dataSource;
 
     public MySqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
+        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB ? "mariadb" : "mysql";
     }
 
     /**
@@ -64,15 +66,13 @@ public class MySqlDatabase extends Database {
     public void initialize() throws IllegalStateException {
         // Initialize the Hikari pooled connection
         dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:" + (plugin.getSettings().getDatabaseType() == Type.MARIADB ? "mariadb" : "mysql")
-                + "://"
-                + plugin.getSettings().getMySqlHost()
-                + ":"
-                + plugin.getSettings().getMySqlPort()
-                + "/"
-                + plugin.getSettings().getMySqlDatabase()
-                + plugin.getSettings().getMySqlConnectionParameters()
-        );
+        dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
+                flavor,
+                plugin.getSettings().getMySqlHost(),
+                plugin.getSettings().getMySqlPort(),
+                plugin.getSettings().getMySqlDatabase(),
+                plugin.getSettings().getMySqlConnectionParameters()
+        ));
 
         // Authenticate with the database
         dataSource.setUsername(plugin.getSettings().getMySqlUsername());
@@ -108,7 +108,7 @@ public class MySqlDatabase extends Database {
 
         // Prepare database schema; make tables if they don't exist
         try (Connection connection = dataSource.getConnection()) {
-            final String[] databaseSchema = getSchemaStatements("database/mysql_schema.sql");
+            final String[] databaseSchema = getSchemaStatements(String.format("database/%s_schema.sql", flavor));
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : databaseSchema) {
                     statement.execute(tableCreationStatement);

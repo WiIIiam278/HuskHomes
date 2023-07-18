@@ -81,7 +81,7 @@ public class SqLiteDatabase extends Database {
                 plugin.log(Level.INFO, "Created the SQLite database file");
             }
 
-            // Specify use of the JDBC SQLite driver
+            // Specify use of the JDBC SQLite driver for legacy compatibility
             Class.forName("org.sqlite.JDBC");
 
             // Set SQLite database properties
@@ -92,10 +92,11 @@ public class SqLiteDatabase extends Database {
 
             // Establish the connection
             connection = DriverManager.getConnection(
-                    "jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties()
+                    String.format("jdbc:sqlite:%s", databaseFile.getAbsolutePath()),
+                    config.toProperties()
             );
         } catch (IOException e) {
-            plugin.log(Level.SEVERE, "An exception occurred creating the database file", e);
+            plugin.log(Level.SEVERE, "An exception occurred creating the SQLite database file", e);
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
         } catch (ClassNotFoundException e) {

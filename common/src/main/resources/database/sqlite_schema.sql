@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
     FOREIGN KEY (`offline_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
     FOREIGN KEY (`respawn_position`) REFERENCES `%positions_table%` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 );
+CREATE INDEX IF NOT EXISTS `%players_table%_username` ON `%players_table%` (`username`);
 
 /* Create the cooldowns table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
@@ -43,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
     PRIMARY KEY (`id`),
     FOREIGN KEY (`player_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE INDEX IF NOT EXISTS `%cooldowns_table%_player_uuid` ON `%cooldowns_table%` (`player_uuid`);
 
 /* Create the current cross-server teleports table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%teleports_table%`
@@ -69,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
     PRIMARY KEY (`id`),
     FOREIGN KEY (`position_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
+CREATE INDEX IF NOT EXISTS `%saved_positions_table%_name` ON `%saved_positions_table%` (`name`);
 
 /* Create the homes table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%homes_table%`
@@ -82,6 +85,7 @@ CREATE TABLE IF NOT EXISTS `%homes_table%`
     FOREIGN KEY (`owner_uuid`) REFERENCES `%players_table%` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`saved_position_id`) REFERENCES `%saved_positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
+CREATE INDEX IF NOT EXISTS `%homes_table%_owner_uuid` ON `%homes_table%` (`owner_uuid`);
 
 /* Create the warps table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%warps_table%`

@@ -2,10 +2,6 @@ plugins {
     id 'java-library'
 }
 
-test {
-    useJUnitPlatform()
-}
-
 dependencies {
     api 'commons-io:commons-io:2.13.0'
     api 'org.apache.commons:commons-text:1.10.0'

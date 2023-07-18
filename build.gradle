@@ -92,6 +92,10 @@ subprojects {
         from '../LICENSE'
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     if (['paper', 'fabric'].contains(project.name)) {
         compileJava.options.release.set 17
     }

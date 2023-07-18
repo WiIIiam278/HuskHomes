@@ -7,6 +7,7 @@
 * 📜 [[Command Conflicts]]
 
 ## Documentation
+* 📁 [[Database]]
 * ⛅ [[Redis Support]]
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]

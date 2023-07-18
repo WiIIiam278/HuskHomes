@@ -55,11 +55,11 @@ public class Settings {
     private boolean checkForUpdates = true;
 
     // Database settings
-    @YamlComment("Type of database to use (SQLITE, MYSQL or MARIADB)")
+    @YamlComment("Type of database to use (SQLITE, H2, MYSQL or MARIADB)")
     @YamlKey("database.type")
     private Database.Type databaseType = Database.Type.SQLITE;
 
-    @YamlComment("Specify credentials here if you are using MYSQL as your database type")
+    @YamlComment("Specify credentials here if you are using MYSQL or MARIADB as your database type")
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
 
@@ -81,7 +81,7 @@ public class Settings {
             + "&useUnicode=true"
             + "&characterEncoding=UTF-8";
 
-    @YamlComment("MYSQL database Hikari connection pool properties. "
+    @YamlComment("MYSQL / MARIADB database Hikari connection pool properties. "
             + "Don't modify this unless you know what you're doing!")
     @YamlKey("database.mysql.connection_pool.size")
     private int mySqlConnectionPoolSize = 12;

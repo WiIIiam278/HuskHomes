@@ -24,11 +24,11 @@ language: en-gb
 # Whether to automatically check for plugin updates on startup
 check_for_updates: true
 database:
-  # Type of database to use (MYSQL, SQLITE)
+  # Type of database to use (SQLITE, H2, MYSQL or MARIADB)
   type: SQLITE
   mysql:
     credentials:
-      # Specify credentials here if you are using MYSQL as your database type
+      # Specify credentials here if you are using MYSQL or MARIADB as your database type
       host: localhost
       port: 3306
       database: HuskHomes
@@ -36,7 +36,7 @@ database:
       password: pa55w0rd
       parameters: ?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8
     connection_pool:
-      # MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!
+      # MYSQL / MARIADB database Hikari connection pool properties. Don't modify this unless you know what you're doing!
       size: 12
       idle: 12
       lifetime: 1800000

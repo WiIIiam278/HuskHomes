@@ -21,6 +21,7 @@ ext {
     set 'jedis_version', jedis_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
+    set 'mariadb_driver_version', mariadb_driver_version.toString()
 }
 
 allprojects {
@@ -41,6 +42,7 @@ allprojects {
             url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
             mavenContent { snapshotsOnly() }
         }
+        maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://api.modrinth.com/maven' }

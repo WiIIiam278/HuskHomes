@@ -48,6 +48,11 @@ public interface BukkitTask extends Task {
 
         @Override
         public void run() {
+            if (isPluginDisabled()) {
+                runnable.run();
+                return;
+            }
+
             if (delayTicks > 0) {
                 this.task = getScheduler().globalRegionalScheduler().runDelayed(runnable, delayTicks);
             } else {
@@ -74,6 +79,11 @@ public interface BukkitTask extends Task {
 
         @Override
         public void run() {
+            if (isPluginDisabled()) {
+                runnable.run();
+                return;
+            }
+
             if (!cancelled) {
                 this.task = getScheduler().asyncScheduler().run(runnable);
             }
@@ -98,12 +108,21 @@ public interface BukkitTask extends Task {
 
         @Override
         public void run() {
+            if (isPluginDisabled()) {
+                return;
+            }
+
             if (!cancelled) {
                 this.task = getScheduler().asyncScheduler().runAtFixedRate(runnable, Duration.ZERO, Duration
                         .of(repeatingTicks * 50L, ChronoUnit.MILLIS)
                 );
             }
         }
+    }
+
+    // Returns if the Bukkit HuskHomes plugin is disabled
+    default boolean isPluginDisabled() {
+        return !((BukkitHuskHomes) getPlugin()).isEnabled();
     }
 
     interface Supplier extends Task.Supplier {

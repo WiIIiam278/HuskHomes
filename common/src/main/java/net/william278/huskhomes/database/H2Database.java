@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.database;
 
-import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
@@ -28,9 +27,11 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
@@ -38,88 +39,54 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * A MySQL / MariaDB implementation of the plugin {@link Database}.
+ * An H2 implementation of the plugin {@link Database}.
  */
 @SuppressWarnings("DuplicatedCode")
-public class MySqlDatabase extends Database {
+public class H2Database extends Database {
 
-    private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
-    private final String flavor;
-    private HikariDataSource dataSource;
+    /**
+     * Path to the H2 HuskHomesData.h2 file.
+     */
+    private final File databaseFile;
 
-    public MySqlDatabase(@NotNull HuskHomes plugin) {
+    /**
+     * The name of the database file.
+     */
+    private static final String DATABASE_FILE_NAME = "HuskHomesData.h2";
+
+    private JdbcConnectionPool connectionPool;
+
+    public H2Database(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB ? "mariadb" : "mysql";
+        this.databaseFile = new File(plugin.getDataFolder(), DATABASE_FILE_NAME);
     }
 
     /**
-     * Fetch the auto-closeable connection from the hikariDataSource.
+     * Fetch the auto-closeable connection from the H2 Connection Pool.
      *
-     * @return The {@link Connection} to the MySQL database
+     * @return The {@link Connection} to the H2 database
      * @throws SQLException if the connection fails for some reason
      */
     private Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return connectionPool.getConnection();
     }
 
     @Override
     public void initialize() throws IllegalStateException {
-        // Initialize the Hikari pooled connection
-        dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
-                flavor,
-                plugin.getSettings().getMySqlHost(),
-                plugin.getSettings().getMySqlPort(),
-                plugin.getSettings().getMySqlDatabase(),
-                plugin.getSettings().getMySqlConnectionParameters()
-        ));
-
-        // Authenticate with the database
-        dataSource.setUsername(plugin.getSettings().getMySqlUsername());
-        dataSource.setPassword(plugin.getSettings().getMySqlPassword());
-
-        // Set connection pool options
-        dataSource.setMaximumPoolSize(plugin.getSettings().getMySqlConnectionPoolSize());
-        dataSource.setMinimumIdle(plugin.getSettings().getMySqlConnectionPoolIdle());
-        dataSource.setMaxLifetime(plugin.getSettings().getMySqlConnectionPoolLifetime());
-        dataSource.setKeepaliveTime(plugin.getSettings().getMySqlConnectionPoolKeepAlive());
-        dataSource.setConnectionTimeout(plugin.getSettings().getMySqlConnectionPoolTimeout());
-        dataSource.setPoolName(DATA_POOL_NAME);
-
-        // Set additional connection pool properties
-        final Properties properties = new Properties();
-        properties.putAll(
-                Map.of("cachePrepStmts", "true",
-                        "prepStmtCacheSize", "250",
-                        "prepStmtCacheSqlLimit", "2048",
-                        "useServerPrepStmts", "true",
-                        "useLocalSessionState", "true",
-                        "useLocalTransactionState", "true"
-                ));
-        properties.putAll(
-                Map.of(
-                        "rewriteBatchedStatements", "true",
-                        "cacheResultSetMetadata", "true",
-                        "cacheServerConfiguration", "true",
-                        "elideSetAutoCommits", "true",
-                        "maintainTimeStats", "false")
-        );
-        dataSource.setDataSourceProperties(properties);
+        // Prepare the database flat file
+        final String url = String.format("jdbc:h2:%s", databaseFile.getAbsolutePath());
+        this.connectionPool = JdbcConnectionPool.create(url, "sa", "sa");
 
         // Prepare database schema; make tables if they don't exist
-        try (Connection connection = dataSource.getConnection()) {
-            final String[] databaseSchema = getSchemaStatements(String.format("database/%s_schema.sql", flavor));
+        try (Connection connection = getConnection()) {
+            final String[] databaseSchema = getSchemaStatements("database/h2_schema.sql");
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : databaseSchema) {
                     statement.execute(tableCreationStatement);
                 }
-            } catch (SQLException e) {
-                throw new IllegalStateException("Failed to create database tables. Make sure you're running MySQL v8.0+"
-                        + "and that your connecting user account has privileges to create tables.", e);
             }
         } catch (SQLException | IOException e) {
-            throw new IllegalStateException("Failed to establish a connection to the MySQL database. "
-                    + "Please check the supplied database credentials in the config file", e);
+            throw new IllegalStateException("Failed to initialize the H2 database", e);
         }
     }
 
@@ -1121,10 +1088,8 @@ public class MySqlDatabase extends Database {
 
     @Override
     public void terminate() {
-        if (dataSource != null) {
-            if (!dataSource.isClosed()) {
-                dataSource.close();
-            }
+        if (connectionPool != null) {
+            connectionPool.dispose();
         }
     }
 

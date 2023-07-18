@@ -440,7 +440,8 @@ public abstract class Database {
     public enum Type {
         MYSQL("MySQL"),
         MARIADB("MariaDB"),
-        SQLITE("SQLite");
+        SQLITE("SQLite"),
+        H2("H2");
 
         private final String displayName;
 

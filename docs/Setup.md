@@ -2,7 +2,7 @@ This will walk you through installing HuskHomes on your Spigot, Fabric or Sponge
 
 ## Requirements
 * A Spigot (1.16.5+), Fabric (latest Minecraft version), or Sponge (Implementing API v8) _Minecraft: Java Edition_ server running on Java 16+
-* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+) database
+* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB database
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 
 ## Download HuskHomes for your server
@@ -50,5 +50,6 @@ These instructions are for installing HuskHomes on multiple Spigot, Fabric or Sp
 ## Next steps
 * [Commands & Permissions](Commands)
 * [[Config Files]]
+* [[Database]]
 * [[Redis Support]]
 * [[Translations]]

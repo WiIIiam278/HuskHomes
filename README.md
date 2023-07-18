@@ -31,7 +31,7 @@
 HuskHomes can be used on your Spigot, Sponge or Fabric server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!  
 
 ## Features
-**⭐ Works cross-server** &mdash; Let players seamlessly teleport and set homes across your proxies network of servers using MySQL.
+**⭐ Works cross-server** &mdash; Let players seamlessly teleport and set homes across your proxies network of servers using MySQL/MariaDB.
 
 **⭐ Zero learning curve** &mdash; Your players already know how to use it! /sethome, /home, /tpa, /rtp—among others—are all built-in and easy-to-use.
 

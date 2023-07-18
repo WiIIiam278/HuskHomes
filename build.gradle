@@ -10,7 +10,7 @@ plugins {
 }
 
 group 'net.william278'
-version "$ext.plugin_version"
+version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
 defaultTasks 'licenseFormat', 'check', 'build'
 

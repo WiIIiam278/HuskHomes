@@ -13,6 +13,7 @@ dependencies {
     implementation "com.mysql:mysql-connector-j:$mysql_driver_version"
     implementation "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
     implementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
+    implementation "com.h2database:h2:$h2_driver_version"
 }
 
 sponge {

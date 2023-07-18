@@ -20,9 +20,11 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'redis.clients:jedis:' + jedis_version
-    compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
-    compileOnly 'com.mysql:mysql-connector-j:' + mysql_driver_version
+    compileOnly "redis.clients:jedis:$jedis_version"
+    compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
+    compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"
+    compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
+    compileOnly "com.h2database:h2:$h2_driver_version"
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
     compileOnly 'com.google.guava:guava:32.1.1-jre'

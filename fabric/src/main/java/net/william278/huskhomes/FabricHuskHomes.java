@@ -43,6 +43,7 @@ import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.FabricEventDispatcher;
@@ -139,17 +140,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         // Create adventure audience
         this.audiences = FabricServerAudiences.of(minecraftServer);
 
-        // Temporarily log about sounds being disabled - todo: Remove when adventure-platform-fabric is updated
-        if (getSettings().doPlaySoundEffects()) {
-            log(Level.WARNING, "Sound effects are currently disabled for HuskHomes v" + getVersion()
-                    + " on Fabric servers running Minecraft " + getMinecraftServer().getVersion());
-        }
-
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
+                case H2 -> new H2Database(this);
             };
 
             database.initialize();

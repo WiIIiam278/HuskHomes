@@ -125,11 +125,6 @@ public class FabricUser extends OnlineUser {
     }
 
     @Override
-    public void playSound(@NotNull String soundEffect) throws IllegalArgumentException {
-        // Do nothing - todo: Fix sounds when adventure-platform-fabric is updated.
-    }
-
-    @Override
     public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
         final MinecraftServer server = player.getServer();
         if (server == null) {

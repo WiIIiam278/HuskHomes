@@ -9,9 +9,10 @@ dependencies {
     implementation project(path: ':common')
 
     implementation 'org.bstats:bstats-sponge:3.0.2'
-    implementation 'redis.clients:jedis:' + jedis_version
-    implementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
-    implementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
+    implementation "redis.clients:jedis:$jedis_version"
+    implementation "com.mysql:mysql-connector-j:$mysql_driver_version"
+    implementation "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
+    implementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
 }
 
 sponge {

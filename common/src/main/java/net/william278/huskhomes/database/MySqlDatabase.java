@@ -45,11 +45,15 @@ public class MySqlDatabase extends Database {
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
     private final String flavor;
+    private final String driverClass;
     private HikariDataSource dataSource;
 
     public MySqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB ? "mariadb" : "mysql";
+        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "mariadb" : "mysql";
+        this.driverClass = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
     }
 
     /**
@@ -66,6 +70,7 @@ public class MySqlDatabase extends Database {
     public void initialize() throws IllegalStateException {
         // Initialize the Hikari pooled connection
         dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(driverClass);
         dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
                 flavor,
                 plugin.getSettings().getMySqlHost(),

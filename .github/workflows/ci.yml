@@ -75,6 +75,7 @@ jobs:
           java: 16
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
+        if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -94,6 +95,7 @@ jobs:
           java: 16
       - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
+        if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -119,6 +121,7 @@ jobs:
           java: 17
       - name: 'Upload GitHub Artifacts 📦'
         uses: actions/upload-artifact@v2
+        if: success() || failure()
         with:
           name: HuskHomes
           path: |

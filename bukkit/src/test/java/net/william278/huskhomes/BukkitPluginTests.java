@@ -89,6 +89,13 @@ public class BukkitPluginTests {
             Assertions.assertNotNull(BukkitUser.adapt(player, plugin));
         }
 
+        @Test
+        @DisplayName("Config Reload & Read Test")
+        public void testConfigReload() {
+            plugin.reloadConfig();
+            Assertions.assertNotNull(plugin.getConfig());
+        }
+
     }
 
     @Nested

@@ -44,13 +44,13 @@ database:
       timeout: 20000
   # Names of tables to use on your database. Don't modify this unless you know what you're doing!
   table_names:
-    position_data: huskhomes_position_data
-    warp_data: huskhomes_warps
-    saved_position_data: huskhomes_saved_positions
-    player_cooldowns_data: huskhomes_user_cooldowns
     home_data: huskhomes_homes
-    teleport_data: huskhomes_teleports
+    player_cooldowns_data: huskhomes_user_cooldowns
     player_data: huskhomes_users
+    position_data: huskhomes_position_data
+    saved_position_data: huskhomes_saved_positions
+    teleport_data: huskhomes_teleports
+    warp_data: huskhomes_warps
 general:
   # The maximum homes a user can create. Override with the huskhomes.max_homes.<number> permission.
   max_homes: 10
@@ -60,7 +60,7 @@ general:
   stack_permission_limits: false
   # Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps
   permission_restrict_warps: false
-  # Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite it.
+  # Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite.
   overwrite_existing_homes_warps: true
   # How long a player has to stand still and not take damage for when teleporting (in seconds)
   teleport_warmup_time: 5
@@ -78,7 +78,7 @@ general:
   allow_unicode_descriptions: true
   # Whether /back should work to teleport the user to where they died
   back_command_return_by_death: true
-  # Whether /back should work with other plugins that use the PlayerTeleportEvent (this can cause conflicts)
+  # Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)
   back_command_save_teleport_event: false
   # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 12
@@ -88,10 +88,10 @@ general:
   play_sound_effects: true
   # Which sound effects to play for various actions
   sound_effects:
-    teleportation_cancelled: entity.item.break
-    teleportation_warmup: block.note_block.banjo
-    teleportation_complete: entity.enderman.teleport
     teleport_request_received: entity.experience_orb.pickup
+    teleportation_cancelled: entity.item.break
+    teleportation_complete: entity.enderman.teleport
+    teleportation_warmup: block.note_block.banjo
   # Whether to provide modern, rich TAB suggestions for commands (if available)
   brigadier_tab_completion: true
 cross_server:
@@ -121,12 +121,12 @@ rtp:
   spawn_radius: 500
   # Mean of the normal distribution used to calculate the distance from the center of the world
   distribution_mean: 0.75
-  # Standard deviation of the normal distribution used to calculate the distance from the center of the world
+  # Standard deviation of the normal distribution for distributing players randomly
   distribution_deviation: 2.0
   # List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.
   restricted_worlds:
-    - world_nether
-    - world_the_end
+  - world_nether
+  - world_the_end
 cooldowns:
   # Whether to apply a cooldown between performing certain actions
   enabled: true
@@ -140,8 +140,8 @@ economy:
   free_home_slots: 5
   # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/
   costs:
-    make_home_public: 50.0
     additional_home_slot: 100.0
+    make_home_public: 50.0
     random_teleport: 25.0
 map_hook:
   # Display public homes/warps on your Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/huskhomes/map-hooks

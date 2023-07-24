@@ -474,17 +474,16 @@ public abstract class Database {
         }
 
         @NotNull
-        public String getName() {
+        public String getDefaultName() {
             return defaultName;
         }
 
         @NotNull
         public static Map<String, String> getConfigMap() {
-            return Arrays.stream(values())
-                    .collect(Collectors.toMap(
-                            Table::name,
-                            action -> action.defaultName
-                    ));
+            return Arrays.stream(values()).collect(Collectors.toMap(
+                    table -> table.name().toLowerCase(Locale.ENGLISH),
+                    Table::getDefaultName
+            ));
         }
 
     }

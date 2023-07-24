@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class for validating and performing economy and cooldown transactions involving {@link Action}s.
@@ -227,6 +227,28 @@ public interface TransactionResolver {
          */
         public int getDefaultCooldown() {
             return defaultCooldown;
+        }
+
+        // Get the default economy action cost map for the config
+        @NotNull
+        public static Map<String, Double> getEconomyCostsConfigMap() {
+            return Arrays.stream(values())
+                    .filter(action -> action.getDefaultCost() > 0)
+                    .collect(Collectors.toMap(
+                            action -> action.name().toLowerCase(Locale.ENGLISH),
+                            Action::getDefaultCost
+                    ));
+        }
+
+        // Get the default cooldown action time map for the config
+        @NotNull
+        public static Map<String, Integer> getCooldownsConfigMap() {
+            return Arrays.stream(values())
+                    .filter(action -> action.getDefaultCooldown() > 0)
+                    .collect(Collectors.toMap(
+                            action -> action.name().toLowerCase(Locale.ENGLISH),
+                            Action::getDefaultCooldown
+                    ));
         }
 
     }

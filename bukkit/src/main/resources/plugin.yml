@@ -10,6 +10,7 @@ softdepend:
   - PlaceholderAPI
   - dynmap
   - BlueMap
+  - Pl3xMap
   - Plan
   - Essentials
 libraries:

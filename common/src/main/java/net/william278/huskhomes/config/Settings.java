@@ -148,7 +148,8 @@ public class Settings {
     @YamlKey("general.case_insensitive_names")
     private boolean caseInsensitiveNames = false;
 
-    @YamlComment("Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.")
+    @YamlComment("Whether home and warp names should be restricted by a regex."
+            + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
     @YamlKey("towns.restrict_names")
     private boolean restrictNames = true;
 

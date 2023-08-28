@@ -72,10 +72,14 @@ general:
   strict_tpa_here_requests: true
   # Whether home or warp names should be case insensitive (i.e. allow /home HomeOne and /home homeone)
   case_insensitive_names: false
-  # Whether home or warp names should allow UTF-8 characters (i.e. allow /home 你好)
-  allow_unicode_names: false
-  # Whether home or warp descriptions should allow UTF-8 characters
-  allow_unicode_descriptions: true
+  # Whether home and warp names should be restricted by a regex. Set this to false to allow full UTF-8 names (i.e. allow /home 你好).
+  restrict_names: true
+  # Regex which home and warp names must match. Names have a max length of 16 characters
+  name_regex: '[a-zA-Z0-9-_]*'
+  # Whether home/warp descriptions should be restricted. Set this to true to restrict UTF-8 usage.
+  restrict_descriptions: false
+  # Regex which home and warp descriptions must match. A hard max length of 256 characters is enforced
+  description_regex: '\A\p{ASCII}*\z'
   # Whether /back should work to teleport the user to where they died
   back_command_return_by_death: true
   # Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)

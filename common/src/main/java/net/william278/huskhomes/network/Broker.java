@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.network;
 
+import net.kyori.adventure.key.InvalidKeyException;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
@@ -27,8 +28,10 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public abstract class Broker {
 
@@ -149,12 +152,19 @@ public abstract class Broker {
      */
     public abstract void close();
 
+    // Get the formatted channel ID for the broker
     @NotNull
     protected String getSubChannelId() {
-        final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
-        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
+        final String version = String.format("%s.%s", plugin.getVersion().getMajor(), plugin.getVersion().getMinor());
+        try {
+            return plugin.getKey(plugin.getSettings().getClusterId().toLowerCase(Locale.ENGLISH), version).asString();
+        } catch (InvalidKeyException e) {
+            plugin.log(Level.SEVERE, "Cluster ID specified in config contains invalid characters");
+        }
+        return plugin.getKey("main", version).asString();
     }
 
+    // Get the name of this server
     @NotNull
     protected String getServer() {
         return plugin.getServerName();

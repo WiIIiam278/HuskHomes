@@ -26,6 +26,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.BukkitAdapter;
+import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -98,28 +99,29 @@ public class EssentialsXImporter extends Importer {
 
     @NotNull
     private String normalizeName(@NotNull String name) {
-        if (plugin.getValidator().isValidName(name)) {
+        try {
+            plugin.getValidator().validateName(name);
+            return name;
+        } catch (ValidationException e) {
+            // Remove spaces
+            name = name.replaceAll(" ", "_");
+
+            // Remove unicode characters
+            if (plugin.getSettings().doRestrictNames()) {
+                name = name.replaceAll("[^A-Za-z0-9_-]", "");
+            }
+
+            // Ensure the name is not blank
+            if (name.isBlank()) {
+                name = "imported-" + UUID.randomUUID().toString().substring(0, 5);
+            }
+
+            // Ensure name is not too long
+            if (name.length() > 16) {
+                name = name.substring(0, 16);
+            }
             return name;
         }
-
-        // Remove spaces
-        name = name.replaceAll(" ", "_");
-
-        // Remove unicode characters
-        if (!plugin.getSettings().doAllowUnicodeNames()) {
-            name = name.replaceAll("[^A-Za-z0-9_-]", "");
-        }
-
-        // Ensure the name is not blank
-        if (name.isBlank()) {
-            name = "imported-" + UUID.randomUUID().toString().substring(0, 5);
-        }
-
-        // Ensure name is not too long
-        if (name.length() > 16) {
-            name = name.substring(0, 16);
-        }
-        return name;
     }
 
     @Override

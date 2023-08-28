@@ -321,10 +321,11 @@ public abstract class BaseHuskHomesAPI {
      * @param owner    The {@link User} to create the home for
      * @param name     The name of the home
      * @param position The {@link Position} of the home
-     * @since 4.0
+     * @return a {@link CompletableFuture} that will complete with the created {@link Home}
+     * @since 4.5
      */
-    public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false));
+    public CompletableFuture<Home> createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
+        return plugin.supplyAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false));
     }
 
     /**
@@ -527,10 +528,11 @@ public abstract class BaseHuskHomesAPI {
      *
      * @param name     The name of the warp
      * @param position The {@link Position} of the warp
-     * @since 4.0
+     * @return A {@link CompletableFuture} that will complete with the created {@link Warp}
+     * @since 4.5
      */
-    public final void createWarp(@NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().warps().createWarp(name, position));
+    public final CompletableFuture<Warp> createWarp(@NotNull String name, @NotNull Position position) {
+        return plugin.supplyAsync(() -> plugin.getManager().warps().createWarp(name, position));
     }
 
     /**

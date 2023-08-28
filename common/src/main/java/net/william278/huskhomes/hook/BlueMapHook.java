@@ -114,6 +114,13 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
+    public void clearHomes(@NotNull String worldName) {
+        if (publicHomesMarkerSets != null) {
+            publicHomesMarkerSets.get(worldName).getMarkers().clear();
+        }
+    }
+
+    @Override
     public void updateWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
@@ -140,6 +147,13 @@ public class BlueMapHook extends MapHook {
     public void clearWarps() {
         if (warpsMarkerSets != null) {
             warpsMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().clear());
+        }
+    }
+
+    @Override
+    public void clearWarps(@NotNull String worldName) {
+        if (warpsMarkerSets != null) {
+            warpsMarkerSets.get(worldName).getMarkers().clear();
         }
     }
 

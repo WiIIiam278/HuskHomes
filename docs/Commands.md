@@ -33,7 +33,7 @@ This is a table of HuskHomes' commands and their required permission nodes. Addi
 | `/spawn`                                                        | Teleport to spawn                                   | `huskhomes.command.spawn`     |        ✅         |
 | `/setspawn`                                                     | Set the spawn position                              | `huskhomes.command.setspawn`  |        ❌         |
 | `/back`                                                         | Return to your previous position, or where you died | `huskhomes.command.back`      |        ✅         |
-| `/huskhomes [about/help/reload/import/update]`                  | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
+| `/huskhomes [about/help/reload/import/delete/update]`           | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
 
 * &dagger; **Base Permission** &mdash; Required permission for basic command execution; some commands require additional permissions for certain functions ([See below&hellip;](#other-permissions))
 * &ddagger; **Default** &mdash; ✅ = Accessible by all players by default &mdash; ❌ = Accessible only by server operators by default.
@@ -142,11 +142,12 @@ These permissions allow you to use /tp and /rtp to teleport other players remote
 
 These permissions control what arguments of the /huskhomes command a user may use.
 
-| Command                          | Description                                | Permission                           | Default |
-|----------------------------------|--------------------------------------------|--------------------------------------|:-------:|
-| `/huskhomes help [page]`         | View a list of HuskHomes commands          | `huskhomes.command.huskhomes.help`   |    ✅    |
-| `/huskhomes [about]`             | View the plugin about menu                 | `huskhomes.command.huskhomes.about`  |    ✅    |
-| `/huskhomes reload`              | Reload the plugin config and message files | `huskhomes.command.huskhomes.reload` |    ❌    |
-| `/huskhomes import [list/start]` | Import data from other plugins/mods        | `huskhomes.command.huskhomes.import` |    ❌    |
-| `/huskhomes update`              | Check for updates                          | `huskhomes.command.huskhomes.update` |    ❌    |
+| Command                                         | Description                                              | Permission                           | Default |
+|-------------------------------------------------|----------------------------------------------------------|--------------------------------------|:-------:|
+| `/huskhomes help [page]`                        | View a list of HuskHomes commands                        | `huskhomes.command.huskhomes.help`   |    ✅    |
+| `/huskhomes [about]`                            | View the plugin about menu                               | `huskhomes.command.huskhomes.about`  |    ✅    |
+| `/huskhomes reload`                             | Reload the plugin config and message files               | `huskhomes.command.huskhomes.reload` |    ❌    |
+| `/huskhomes import [list/start]`                | Import data from other plugins/mods                      | `huskhomes.command.huskhomes.import` |    ❌    |
+| `/huskhomes delete [player/homes/warps] [args]` | Perform bulk actions on homes/warps & delete player data | `huskhomes.command.huskhomes.delete` |    ❌    |
+| `/huskhomes update`                             | Check for updates                                        | `huskhomes.command.huskhomes.update` |    ❌    |
 </details>

@@ -173,6 +173,13 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUserData(@NotNull UUID uuid);
 
     /**
+     * Delete a {@link SavedUser} from the database.
+     *
+     * @param uuid The {@link UUID} of the {@link SavedUser} to delete
+     */
+    public abstract void deleteUserData(@NotNull UUID uuid);
+
+    /**
      * Get the currently active cooldown of a {@link User} for a specific {@link TransactionResolver.Action}.
      *
      * @return An optional with the {@link Instant} the cooldown expires, or empty if the {@link User} has no cooldown
@@ -415,6 +422,15 @@ public abstract class Database {
     public abstract int deleteAllHomes(@NotNull User user);
 
     /**
+     * Deletes all {@link Home}s on a specific world and server (given by name) from the home table on the database.
+     *
+     * @param worldName  The name of the world to delete homes from
+     * @param serverName The name of the server to delete homes from
+     * @return An integer; the number of deleted homes
+     */
+    public abstract int deleteAllHomes(@NotNull String worldName, @NotNull String serverName);
+
+    /**
      * Deletes a {@link Warp} by the given unique id from the warp table on the database.
      *
      * @param uuid {@link UUID} of the warp to delete
@@ -427,6 +443,15 @@ public abstract class Database {
      * @return An integer; the number of deleted warps
      */
     public abstract int deleteAllWarps();
+
+    /**
+     * Deletes all {@link Warp}s on a specific world and server (given by name) from the warp table on the database.
+     *
+     * @param worldName  The name of the world to delete warps from
+     * @param serverName The name of the server to delete warps from
+     * @return An integer; the number of deleted warps
+     */
+    public abstract int deleteAllWarps(@NotNull String worldName, @NotNull String serverName);
 
     /**
      * Close any remaining connection to the database source.

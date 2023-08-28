@@ -42,11 +42,17 @@ public class ValidationException extends IllegalArgumentException {
             case NAME_TAKEN -> plugin.getLocales()
                     .getLocale("error_home_name_taken")
                     .ifPresent(viewer::sendMessage);
-            case NAME_INVALID -> plugin.getLocales()
+            case NAME_INVALID_CHARACTERS -> plugin.getLocales()
                     .getLocale("error_home_name_characters", args)
                     .ifPresent(viewer::sendMessage);
-            case DESCRIPTION_INVALID -> plugin.getLocales()
+            case NAME_INVALID_LENGTH -> plugin.getLocales()
+                    .getLocale("error_home_name_length", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID_CHARACTERS -> plugin.getLocales()
                     .getLocale("error_home_description_characters", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID_LENGTH -> plugin.getLocales()
+                    .getLocale("error_home_description_length", args)
                     .ifPresent(viewer::sendMessage);
             case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> plugin.getLocales()
                     .getLocale("error_set_home_maximum_homes",
@@ -72,11 +78,17 @@ public class ValidationException extends IllegalArgumentException {
             case NAME_TAKEN -> plugin.getLocales()
                     .getLocale("error_warp_name_taken", args)
                     .ifPresent(viewer::sendMessage);
-            case NAME_INVALID -> plugin.getLocales()
+            case NAME_INVALID_CHARACTERS -> plugin.getLocales()
                     .getLocale("error_warp_name_characters", args)
                     .ifPresent(viewer::sendMessage);
-            case DESCRIPTION_INVALID -> plugin.getLocales()
+            case NAME_INVALID_LENGTH -> plugin.getLocales()
+                    .getLocale("error_warp_name_length", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID_CHARACTERS -> plugin.getLocales()
                     .getLocale("error_warp_description_characters", args)
+                    .ifPresent(viewer::sendMessage);
+            case DESCRIPTION_INVALID_LENGTH -> plugin.getLocales()
+                    .getLocale("error_warp_description_length", args)
                     .ifPresent(viewer::sendMessage);
             default -> {
                 // Do nothing (silently handle validation errors)
@@ -96,12 +108,14 @@ public class ValidationException extends IllegalArgumentException {
     public enum Type {
         NOT_FOUND,
         NAME_TAKEN,
-        NAME_INVALID,
+        NAME_INVALID_CHARACTERS,
+        NAME_INVALID_LENGTH,
         REACHED_MAX_HOMES,
         NOT_ENOUGH_HOME_SLOTS,
         REACHED_MAX_PUBLIC_HOMES,
         TRANSACTION_FAILED,
-        DESCRIPTION_INVALID
+        DESCRIPTION_INVALID_CHARACTERS,
+        DESCRIPTION_INVALID_LENGTH,
     }
 
 }

@@ -112,16 +112,16 @@ public class WarpsManager {
                 .toList();
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position,
+    @NotNull
+    public Warp createWarp(@NotNull String name, @NotNull Position position,
                            boolean overwrite) throws ValidationException {
         final Optional<Warp> existingWarp = plugin.getDatabase().getWarp(name);
         if (existingWarp.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
 
-        if (!plugin.getValidator().isValidName(name)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
+        // Validate the home name; throw an exception if invalid
+        plugin.getValidator().validateName(name);
 
         final Warp warp = existingWarp
                 .map(existing -> {
@@ -132,10 +132,12 @@ public class WarpsManager {
                 .orElse(Warp.from(position, PositionMeta.create(name, "")));
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
+        return warp;
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
-        this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
+    @NotNull
+    public Warp createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
+        return this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
     }
 
     public void deleteWarp(@NotNull String name) throws ValidationException {
@@ -156,6 +158,16 @@ public class WarpsManager {
         final int deleted = plugin.getDatabase().deleteAllWarps();
         warps.clear();
         plugin.getMapHook().ifPresent(MapHook::clearWarps);
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
+    }
+
+    public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
+        final int deleted = plugin.getDatabase().deleteAllWarps(worldName, serverName);
+        warps.removeIf(warp -> warp.getServer().equals(serverName) && warp.getWorld().getName().equals(worldName));
+        if (plugin.getSettings().doCrossServer() && plugin.getServerName().equals(serverName)) {
+            plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
+        }
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }
@@ -185,10 +197,7 @@ public class WarpsManager {
     }
 
     public void setWarpName(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
-        if (!plugin.getValidator().isValidName(newName)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
-
+        plugin.getValidator().validateName(newName);
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
@@ -204,10 +213,7 @@ public class WarpsManager {
     }
 
     public void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
-        if (!plugin.getValidator().isValidDescription(description)) {
-            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
-        }
-
+        plugin.getValidator().validateDescription(description);
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);

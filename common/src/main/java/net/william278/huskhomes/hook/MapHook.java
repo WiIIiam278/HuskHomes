@@ -81,6 +81,13 @@ public abstract class MapHook extends Hook {
     public abstract void clearHomes(@NotNull User user);
 
     /**
+     * Clears homes on a world from the map.
+     *
+     * @param worldName the world to clear homes from
+     */
+    public abstract void clearHomes(@NotNull String worldName);
+
+    /**
      * Update a warp, adding it to the map if it exists, or updating it on the map if it doesn't.
      *
      * @param warp the warp to update
@@ -98,6 +105,13 @@ public abstract class MapHook extends Hook {
      * Clears all warps from the map.
      */
     public abstract void clearWarps();
+
+    /**
+     * Clears all warps from a world from the map.
+     *
+     * @param worldName the world to clear warps from
+     */
+    public abstract void clearWarps(@NotNull String worldName);
 
     /**
      * Returns if the position is valid to be set on this server.

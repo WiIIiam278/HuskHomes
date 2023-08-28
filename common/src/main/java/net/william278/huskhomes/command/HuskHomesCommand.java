@@ -199,7 +199,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             }
 
             if (savedUser.isEmpty()) {
-                plugin.getLocales().getLocale("error_player_not_found")
+                plugin.getLocales().getLocale("error_player_not_found", nameOrUuid.get())
                         .ifPresent(executor::sendMessage);
                 return;
             }
@@ -209,6 +209,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                     .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
                 plugin.getLocales().getLocale("delete_player_confirm",
                         savedUser.get().getUser().getUsername()).ifPresent(executor::sendMessage);
+                return;
             }
 
             final int homesDeleted = plugin.getManager().homes().deleteAllHomes(user);
@@ -231,7 +232,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             return;
         }
 
-        if (parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
+        if (!parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
                 .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
             plugin.getLocales().getLocale("bulk_delete_homes_confirm",
                     filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);
@@ -259,7 +260,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             return;
         }
 
-        if (parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
+        if (!parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
                 .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
             plugin.getLocales().getLocale("bulk_delete_warps_confirm",
                     filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);

@@ -109,6 +109,11 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public void playSound(@NotNull String soundEffect) throws IllegalArgumentException {
+        player.playSound(player.getLocation(), soundEffect, 1.0f, 1.0f);
+    }
+
+    @Override
     @NotNull
     public Audience getAudience() {
         return plugin.getAudiences().player(player);

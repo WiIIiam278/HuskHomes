@@ -155,7 +155,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param soundEffect the sound effect to play. If the sound name is invalid, the sound will not play
      * @implNote If the key is invalid, it will be substituted with {@code minecraft:block.note_block.banjo}
      */
-    public void playSound(@Subst(Key.MINECRAFT_NAMESPACE + "block.note_block.banjo")
+    public void playSound(@Subst(Key.MINECRAFT_NAMESPACE + ":block.note_block.banjo")
                           @NotNull String soundEffect) throws IllegalArgumentException {
         try {
             getAudience().playSound(

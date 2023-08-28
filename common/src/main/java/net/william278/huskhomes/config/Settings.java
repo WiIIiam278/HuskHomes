@@ -142,18 +142,30 @@ public class Settings {
     @YamlKey("general.strict_tpa_here_requests")
     private boolean strictTpaHereRequests = true;
 
+
+    // Name & description settings
     @YamlComment("Whether home or warp names should be case insensitive (i.e. allow /home HomeOne and /home homeone)")
     @YamlKey("general.case_insensitive_names")
     private boolean caseInsensitiveNames = false;
 
-    @YamlComment("Whether home or warp names should allow UTF-8 characters (i.e. allow /home 你好)")
-    @YamlKey("general.allow_unicode_names")
-    private boolean allowUnicodeNames = false;
+    @YamlComment("Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.")
+    @YamlKey("towns.restrict_names")
+    private boolean restrictNames = true;
 
-    @YamlComment("Whether home or warp descriptions should allow UTF-8 characters")
-    @YamlKey("general.allow_unicode_descriptions")
-    private boolean allowUnicodeDescriptions = true;
+    @YamlComment("Regex which home and warp names must match. Names have a max length of 16 characters")
+    @YamlKey("towns.name_regex")
+    private String nameRegex = "[a-zA-Z0-9-_]*";
 
+    @YamlComment("Whether home/warp descriptions should be restricted. Set this to true to restrict UTF-8 usage.")
+    @YamlKey("towns.restrict_descriptions")
+    private boolean restrictDescriptions = false;
+
+    @YamlComment("Regex which home and warp descriptions must match. A hard max length of 256 characters is enforced")
+    @YamlKey("towns.description_regex")
+    private String descriptionRegex = "\\A\\p{ASCII}*\\z";
+
+
+    // Back command settings
     @YamlComment("Whether /back should work to teleport the user to where they died")
     @YamlKey("general.back_command_return_by_death")
     private boolean backCommandReturnByDeath = true;
@@ -408,12 +420,22 @@ public class Settings {
         return caseInsensitiveNames;
     }
 
-    public boolean doAllowUnicodeNames() {
-        return allowUnicodeNames;
+    public boolean doRestrictNames() {
+        return restrictNames;
     }
 
-    public boolean doAllowUnicodeDescriptions() {
-        return allowUnicodeDescriptions;
+    @NotNull
+    public String getNameRegex() {
+        return nameRegex;
+    }
+
+    public boolean doRestrictDescriptions() {
+        return restrictDescriptions;
+    }
+
+    @NotNull
+    public String getDescriptionRegex() {
+        return descriptionRegex;
     }
 
     public boolean doBackCommandReturnByDeath() {

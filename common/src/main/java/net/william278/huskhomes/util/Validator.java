@@ -67,8 +67,10 @@ public class Validator {
 
     // Check a home/warp name contains only valid characters
     private boolean isValidNameCharacters(@NotNull String name) {
-        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
-                && !containsWhitespace(name) && !name.contains(Home.IDENTIFIER_DELIMITER);
+        return (name.matches(plugin.getSettings().getNameRegex()) || !plugin.getSettings().doRestrictNames())
+                && !name.contains("\u0000")
+                && !containsWhitespace(name)
+                && !name.contains(Home.IDENTIFIER_DELIMITER);
     }
 
     // Check a home/warp name is of a valid length
@@ -78,17 +80,14 @@ public class Validator {
 
     // Check a home/warp description contains only valid characters
     private boolean isValidDescriptionCharacters(@NotNull String description) {
-        return (isAsciiOnly(description) || plugin.getSettings().doAllowUnicodeDescriptions());
+        return (description.matches(plugin.getSettings().getDescriptionRegex())
+                || !plugin.getSettings().doRestrictDescriptions())
+                && !description.contains("\u0000");
     }
 
     // Check a home/warp description is of a valid length
     private boolean isValidDescriptionLength(@NotNull String description) {
         return description.length() <= MAX_DESCRIPTION_LENGTH;
-    }
-
-    // Check if a string contains only ASCII characters
-    private boolean isAsciiOnly(@NotNull String string) {
-        return string.matches("\\A\\p{ASCII}*\\z") && !string.contains("\u0000");
     }
 
     // Check if a string contains whitespace

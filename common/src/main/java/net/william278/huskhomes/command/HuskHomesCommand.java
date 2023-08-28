@@ -227,13 +227,12 @@ public class HuskHomesCommand extends Command implements TabProvider {
             filters = getBulkDeleteFilters(args);
         } catch (IllegalArgumentException e) {
             plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/" + getName() + " delete homes <world> [server] [confirm]")
+                            "/" + getName() + " delete homes <world> <server> [confirm]")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        if (!parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
-                .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
+        if (!parseStringArg(args, 2).map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
             plugin.getLocales().getLocale("bulk_delete_homes_confirm",
                     filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);
             return;
@@ -255,13 +254,12 @@ public class HuskHomesCommand extends Command implements TabProvider {
             filters = getBulkDeleteFilters(args);
         } catch (IllegalArgumentException e) {
             plugin.getLocales().getLocale("error_invalid_syntax",
-                            "/" + getName() + " delete warps <world> [server] [confirm]")
+                            "/" + getName() + " delete warps <world> <server> [confirm]")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        if (!parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
-                .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
+        if (!parseStringArg(args, 2).map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
             plugin.getLocales().getLocale("bulk_delete_warps_confirm",
                     filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);
             return;

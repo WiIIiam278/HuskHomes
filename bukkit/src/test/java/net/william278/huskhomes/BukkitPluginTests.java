@@ -522,7 +522,8 @@ public class BukkitPluginTests {
             @MethodSource("provideHomeData")
             @Order(3)
             @SuppressWarnings("unused")
-            public void testHomeDescription(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) {
+            public void testHomeDescription(@NotNull OnlineUser owner, @NotNull String name,
+                                            @NotNull Position position) {
                 final String description = "This is a test description for the home " + name + "!";
                 plugin.getManager().homes().setHomeDescription(owner, name, description);
                 Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
@@ -538,7 +539,8 @@ public class BukkitPluginTests {
             @ParameterizedTest(name = "Relocate: \"{1}\"")
             @MethodSource("provideHomeData")
             @Order(4)
-            public void testHomeRelocation(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) {
+            public void testHomeRelocation(@NotNull OnlineUser owner, @NotNull String name,
+                                           @NotNull Position position) {
                 final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
                 final Position newPosition = Position.at(
                         position.getX() + 10, position.getY() + 10, position.getZ() + 10,
@@ -588,7 +590,8 @@ public class BukkitPluginTests {
                 final Optional<Boolean> homePrivacy = plugin.getDatabase().getHome(owner, name).map(Home::isPublic);
                 Assertions.assertTrue(homePrivacy.isPresent());
                 Assertions.assertTrue(homePrivacy.get());
-                Assertions.assertTrue(plugin.getManager().homes().getPublicHomes().get(owner.getUsername()).contains(name));
+                Assertions.assertTrue(plugin.getManager().homes().getPublicHomes()
+                        .get(owner.getUsername()).contains(name));
             }
 
             @DisplayName("Test Making Home Private")
@@ -613,7 +616,8 @@ public class BukkitPluginTests {
             @MethodSource("provideHomeData")
             @Order(8)
             @SuppressWarnings("unused")
-            public void testWarpCaseInsensitiveQuery(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position p) {
+            public void testWarpCaseInsensitiveQuery(@NotNull OnlineUser owner, @NotNull String name,
+                                                     @NotNull Position p) {
                 final String nameUpper = name.toUpperCase();
                 final Optional<Home> nameUpperWarp = plugin.getDatabase().getHome(owner, nameUpper, true);
                 Assertions.assertTrue(nameUpperWarp.isPresent());
@@ -645,7 +649,8 @@ public class BukkitPluginTests {
             public void testDeleteAllHomes() {
                 final int deleted = plugin.getManager().homes().deleteAllHomes(homeOwner);
                 Assertions.assertTrue(plugin.getDatabase().getHomes(homeOwner).isEmpty());
-                Assertions.assertTrue(plugin.getManager().homes().getUserHomes().get(homeOwner.getUsername()).isEmpty());
+                Assertions.assertTrue(plugin.getManager().homes().getUserHomes()
+                        .get(homeOwner.getUsername()).isEmpty());
                 Assertions.assertEquals(HOME_NAMES.size(), deleted);
             }
 

@@ -108,7 +108,7 @@ update_available: '[HuskHomes](#ff7e5e bold) [| 一个新版本的HuskHomes已�
 importer_list_title: '[HuskHomes](#00fb9a bold) [| 可用的数据导入器:](#00fb9a)\n'
 importer_list_item: '[%1%](#00fb9a show_text=&#00fb9a&点击以通过此导入器导入数据. suggest_command=/huskhomes:huskhomes import start %1%)    [⏩ %2%](white show_text=&#00fb9a&此导入器支持导入:\n&f%2% suggest_command=/huskhomes:huskhomes import start %1%)'
 delete_player_confirm: '[警告:](#ff3300) [你确定要删除 %1% 的所有数据吗?](#ff7e5e)\n[所有关联的家也将被删除. 此操作不可撤销.](gray)\n[→](gray) [[确定]](#ff3300 show_text=&#ff3300&点击确认删除. 此操作不可撤销. run_command=/huskhomes:huskhomes delete player %1% confirm)'
-delete_player_success: '[已删除玩家的所有数据: ](#00fb9a) [%1%](#00fb9a bold)[%2%.](#00fb9a)'
+delete_player_success: '[已删除玩家](#00fb9a) [%1%](#00fb9a bold)[ 的所有数据, 包括 %2% 个家.](#00fb9a)'
 bulk_delete_warps_confirm: '[警告:](#ff3300) [你确定要删除世界 \"%1%\" 中的所有地标吗?](#ff7e5e)\n[此操作不可撤销.](gray)\n[→](gray) [[确定]](#ff3300 show_text=&#ff3300&点击确认删除. 此操作不可撤销. run_command=/huskhomes:huskhomes delete warps %1% %2% confirm)'
 bulk_delete_warps_success: '[已删除](#00fb9a) [%1%](#00fb9a bold) [个地标.](#00fb9a)'
 bulk_delete_homes_confirm: '[警告:](#ff3300) [你确定要删除世界 \"%1%\" 的所有家吗?](#ff7e5e)\n[此操作不可撤销.](gray)\n[→](gray) [[Confirm]](#ff3300 show_text=&#ff3300&点击确认删除. 此操作不可撤销. run_command=/huskhomes:huskhomes delete homes %1% %2% confirm)'

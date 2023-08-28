@@ -292,6 +292,21 @@ public class H2Database extends Database {
     }
 
     @Override
+    public void deleteUserData(@NotNull UUID uuid) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%players_table%`
+                    WHERE `uuid`=?;"""))) {
+
+                statement.setString(1, uuid.toString());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+        }
+    }
+
+    @Override
     public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -1043,6 +1058,33 @@ public class H2Database extends Database {
     }
 
     @Override
+    public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%positions_table%`
+                    WHERE `%positions_table%`.`id` IN (
+                        SELECT `position_id`
+                        FROM `%saved_positions_table%`
+                        WHERE `%saved_positions_table%`.`id` IN (
+                            SELECT `saved_position_id`
+                            FROM `%homes_table%`
+                            WHERE `world_name`=?
+                            AND `server_name`=?
+                        )
+                    );"""))) {
+                statement.setString(1, worldName);
+                statement.setString(2, serverName);
+
+                return statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete homes in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
     public void deleteWarp(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -1082,6 +1124,33 @@ public class H2Database extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete all warps from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
+    public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%positions_table%`
+                    WHERE `%positions_table%`.`id` IN (
+                        SELECT `position_id`
+                        FROM `%saved_positions_table%`
+                        WHERE `%saved_positions_table%`.`id` IN (
+                            SELECT `saved_position_id`
+                            FROM `%warps_table%`
+                            WHERE `world_name`=?
+                            AND `server_name`=?
+                        )
+                    );"""))) {
+                statement.setString(1, worldName);
+                statement.setString(2, serverName);
+
+                return statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete warps in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
         }
         return 0;
     }

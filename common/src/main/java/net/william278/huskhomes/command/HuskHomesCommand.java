@@ -28,13 +28,13 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,6 +45,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
             "help", false,
             "reload", true,
             "import", true,
+            "delete", true,
             "update", true
     );
 
@@ -111,15 +112,6 @@ public class HuskHomesCommand extends Command implements TabProvider {
                                 + " you need to restart your server for these changes to take effect.](gray)"
                 ));
             }
-            case "update" -> updateChecker.check().thenAccept(checked -> {
-                if (checked.isUpToDate()) {
-                    plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
-                            .ifPresent(executor::sendMessage);
-                    return;
-                }
-                plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
-                        plugin.getVersion().toString()).ifPresent(executor::sendMessage);
-            });
             case "import" -> {
                 if (!importersLoaded) {
                     importersLoaded = true;
@@ -132,12 +124,38 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 }
                 this.importData(executor, removeFirstArg(args));
             }
+            case "delete" -> {
+                if (args.length < 2) {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                final String[] deletionArgs = removeFirstArg(args);
+                switch (deletionArgs[0].toLowerCase(Locale.ENGLISH)) {
+                    case "player" -> this.deletePlayerData(executor, removeFirstArg(deletionArgs));
+                    case "homes" -> this.deleteHomes(executor, removeFirstArg(deletionArgs));
+                    case "warps" -> this.deleteWarps(executor, removeFirstArg(deletionArgs));
+                    default -> plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/" + getName() + " delete <player|homes|warps> [args]")
+                            .ifPresent(executor::sendMessage);
+                }
+            }
+            case "update" -> updateChecker.check().thenAccept(checked -> {
+                if (checked.isUpToDate()) {
+                    plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
+                        plugin.getVersion().toString()).ifPresent(executor::sendMessage);
+            });
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
     }
 
-    private void importData(@NotNull CommandUser executor, String[] args) {
+    // Import data from another plugin
+    private void importData(@NotNull CommandUser executor, @NotNull String[] args) {
         switch (parseStringArg(args, 0).orElse("list")) {
             case "start" -> parseStringArg(args, 1).ifPresentOrElse(
                     name -> {
@@ -160,6 +178,110 @@ public class HuskHomesCommand extends Command implements TabProvider {
                             "/" + getName() + " import <start|list>")
                     .ifPresent(executor::sendMessage);
         }
+    }
+
+    // Delete the data of a player
+    private void deletePlayerData(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<String> nameOrUuid = parseStringArg(args, 0);
+        if (nameOrUuid.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/" + getName() + " delete player <player> [confirm]")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        plugin.runAsync(() -> {
+            Optional<SavedUser> savedUser;
+            try {
+                savedUser = plugin.getDatabase().getUserData(UUID.fromString(nameOrUuid.get()));
+            } catch (IllegalArgumentException e) {
+                savedUser = plugin.getDatabase().getUserDataByName(nameOrUuid.get());
+            }
+
+            if (savedUser.isEmpty()) {
+                plugin.getLocales().getLocale("error_player_not_found")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final User user = savedUser.get().getUser();
+            if (!parseStringArg(args, 1)
+                    .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
+                plugin.getLocales().getLocale("delete_player_confirm",
+                        savedUser.get().getUser().getUsername()).ifPresent(executor::sendMessage);
+            }
+
+            final int homesDeleted = plugin.getManager().homes().deleteAllHomes(user);
+            plugin.getDatabase().deleteUserData(user.getUuid());
+            plugin.getLocales().getLocale("delete_player_success",
+                            savedUser.get().getUser().getUsername(), Integer.toString(homesDeleted))
+                    .ifPresent(executor::sendMessage);
+        });
+    }
+
+    // Delete homes in a certain world and/or server
+    private void deleteHomes(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Map<String, String> filters;
+        try {
+            filters = getBulkDeleteFilters(args);
+        } catch (IllegalArgumentException e) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/" + getName() + " delete homes <world> [server] [confirm]")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        if (parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
+                .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
+            plugin.getLocales().getLocale("bulk_delete_homes_confirm",
+                    filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);
+            return;
+        }
+        plugin.runAsync(() -> {
+            final int homesDeleted = plugin.getManager().homes().deleteAllHomes(
+                    filters.get("world"), filters.get("server")
+            );
+            plugin.getLocales().getLocale("bulk_delete_homes_success",
+                            Integer.toString(homesDeleted), filters.get("world"), filters.get("server"))
+                    .ifPresent(executor::sendMessage);
+        });
+    }
+
+    // Delete warps in a certain world and/or server
+    private void deleteWarps(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Map<String, String> filters;
+        try {
+            filters = getBulkDeleteFilters(args);
+        } catch (IllegalArgumentException e) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/" + getName() + " delete warps <world> [server] [confirm]")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        if (parseStringArg(args, plugin.getSettings().doCrossServer() ? 2 : 1)
+                .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
+            plugin.getLocales().getLocale("bulk_delete_warps_confirm",
+                    filters.get("world"), filters.get("server")).ifPresent(executor::sendMessage);
+            return;
+        }
+        plugin.runAsync(() -> {
+            final int homesDeleted = plugin.getManager().warps().deleteAllWarps(
+                    filters.get("world"), filters.get("server")
+            );
+            plugin.getLocales().getLocale("bulk_delete_warps_success",
+                            Integer.toString(homesDeleted), filters.get("world"), filters.get("server"))
+                    .ifPresent(executor::sendMessage);
+        });
+    }
+
+    @NotNull
+    private Map<String, String> getBulkDeleteFilters(@NotNull String[] args) throws IllegalArgumentException {
+        final Map<String, String> filters = new LinkedHashMap<>();
+        filters.put("world", parseStringArg(args, 0)
+                .orElseThrow(() -> new IllegalArgumentException("World not specified")));
+        filters.put("server", parseStringArg(args, 1).orElse(plugin.getServerName()));
+        return filters;
     }
 
     @NotNull
@@ -205,6 +327,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                 case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
                         .mapToObj(Integer::toString).toList();
                 case "import" -> List.of("start", "list");
+                case "delete" -> List.of("player", "homes", "warps");
                 default -> null;
             };
             case 3 -> {

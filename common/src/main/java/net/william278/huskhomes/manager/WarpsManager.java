@@ -159,6 +159,16 @@ public class WarpsManager {
         return deleted;
     }
 
+    public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
+        final int deleted = plugin.getDatabase().deleteAllWarps(worldName, serverName);
+        warps.removeIf(warp -> warp.getServer().equals(serverName) && warp.getWorld().getName().equals(worldName));
+        if (plugin.getSettings().doCrossServer() && plugin.getServerName().equals(serverName)) {
+            plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
+        }
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
+    }
+
     public void setWarpPosition(@NotNull String name, @NotNull Position position) throws ValidationException {
         final Optional<Warp> optionalWarp = plugin.getDatabase().getWarp(name);
         if (optionalWarp.isEmpty()) {

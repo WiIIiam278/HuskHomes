@@ -30,14 +30,7 @@ import java.util.List;
 
 public class PaperHuskHomes extends BukkitHuskHomes {
 
-    @Override
-    public void registerHooks() {
-        super.registerHooks();
 
-        if (getMapHook().isEmpty() && isDependencyLoaded("Pl3xMap")) {
-            getHooks().add(new Pl3xMapHook(this));
-        }
-    }
 
     @NotNull
     @Override

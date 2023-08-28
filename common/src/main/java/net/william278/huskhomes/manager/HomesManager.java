@@ -257,6 +257,19 @@ public class HomesManager {
         return deleted;
     }
 
+    public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
+        final int deleted = plugin.getDatabase().deleteAllHomes(worldName, serverName);
+        userHomes.values().forEach(homes -> homes.removeIf(
+                h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName)
+        ));
+        publicHomes.removeIf(h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName));
+        if (plugin.getSettings().doCrossServer() && serverName.equals(plugin.getServerName())) {
+            plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
+        }
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
+    }
+
     public void setHomePosition(@NotNull User owner, @NotNull String name,
                                 @NotNull Position position) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);

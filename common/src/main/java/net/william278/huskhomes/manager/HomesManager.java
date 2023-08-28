@@ -188,9 +188,9 @@ public class HomesManager {
         if (existingHome.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
-        if (!plugin.getValidator().isValidName(name)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
+
+        // Validate the home name; throw an exception if invalid
+        plugin.getValidator().validateName(name);
 
         // Determine what the new home count would be & validate against user max homes
         int homes = plugin.getDatabase().getHomes(owner).size() + (existingHome.isPresent() ? 0 : 1);
@@ -284,10 +284,7 @@ public class HomesManager {
     }
 
     public void setHomeName(@NotNull Home home, @NotNull String newName) throws ValidationException {
-        if (!plugin.getValidator().isValidName(newName)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
-
+        plugin.getValidator().validateName(newName);
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
@@ -304,10 +301,7 @@ public class HomesManager {
     }
 
     public void setHomeDescription(@NotNull Home home, @NotNull String description) {
-        if (!plugin.getValidator().isValidDescription(description)) {
-            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
-        }
-
+        plugin.getValidator().validateDescription(description);
         home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);

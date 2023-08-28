@@ -119,9 +119,8 @@ public class WarpsManager {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
 
-        if (!plugin.getValidator().isValidName(name)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
+        // Validate the home name; throw an exception if invalid
+        plugin.getValidator().validateName(name);
 
         final Warp warp = existingWarp
                 .map(existing -> {
@@ -185,10 +184,7 @@ public class WarpsManager {
     }
 
     public void setWarpName(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
-        if (!plugin.getValidator().isValidName(newName)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
-
+        plugin.getValidator().validateName(newName);
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
@@ -204,10 +200,7 @@ public class WarpsManager {
     }
 
     public void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
-        if (!plugin.getValidator().isValidDescription(description)) {
-            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
-        }
-
+        plugin.getValidator().validateDescription(description);
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);

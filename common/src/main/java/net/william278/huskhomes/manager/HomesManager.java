@@ -181,8 +181,8 @@ public class HomesManager {
         userHomes.remove(user.getUuid().toString());
     }
 
-
-    public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
+    @NotNull
+    public Home createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
                            boolean overwrite, boolean buyAdditionalSlots) throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
@@ -224,11 +224,12 @@ public class HomesManager {
                 .orElse(Home.from(position, PositionMeta.create(name, ""), owner));
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
+        return home;
     }
 
     public void createHome(@NotNull OnlineUser owner, @NotNull String name,
                            @NotNull Position position) throws ValidationException {
-        createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true);
+        this.createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true);
     }
 
     public void deleteHome(@NotNull User owner, @NotNull String name) throws ValidationException {

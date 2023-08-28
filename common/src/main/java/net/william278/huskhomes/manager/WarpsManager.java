@@ -112,7 +112,8 @@ public class WarpsManager {
                 .toList();
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position,
+    @NotNull
+    public Warp createWarp(@NotNull String name, @NotNull Position position,
                            boolean overwrite) throws ValidationException {
         final Optional<Warp> existingWarp = plugin.getDatabase().getWarp(name);
         if (existingWarp.isPresent() && !overwrite) {
@@ -131,10 +132,12 @@ public class WarpsManager {
                 .orElse(Warp.from(position, PositionMeta.create(name, "")));
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
+        return warp;
     }
 
-    public void createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
-        this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
+    @NotNull
+    public Warp createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
+        return this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
     }
 
     public void deleteWarp(@NotNull String name) throws ValidationException {

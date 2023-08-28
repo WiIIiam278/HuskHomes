@@ -19,27 +19,15 @@
 
 package net.william278.huskhomes;
 
-import net.william278.huskhomes.command.BukkitCommand;
-import net.william278.huskhomes.command.Command;
-import net.william278.huskhomes.command.PaperCommand;
-import net.william278.huskhomes.hook.Pl3xMapHook;
+import net.william278.huskhomes.listener.EventListener;
+import net.william278.huskhomes.listener.PaperEventListener;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class PaperHuskHomes extends BukkitHuskHomes {
 
-
-
-    @NotNull
     @Override
-    public List<Command> registerCommands() {
-        return Arrays.stream(BukkitCommand.Type.values())
-                .map((type) -> type.createCommand(this))
-                .filter((command) -> !this.getSettings().isCommandDisabled(command))
-                .peek((command) -> new PaperCommand(command, this).register())
-                .toList();
+    protected @NotNull EventListener registerListener() {
+        return new PaperEventListener(this);
     }
 
 }

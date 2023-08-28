@@ -25,10 +25,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.CommandUser;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -39,27 +36,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class BukkitCommand implements CommandExecutor, TabCompleter {
+public class BukkitCommand extends org.bukkit.command.Command {
 
     private final BukkitHuskHomes plugin;
     private final Command command;
 
     public BukkitCommand(@NotNull Command command, @NotNull BukkitHuskHomes plugin) {
+        super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
         this.command = command;
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
-                             @NotNull String label, @NotNull String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
         return true;
     }
 
-    @Nullable
+    @NotNull
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
-                                      @NotNull String alias, @NotNull String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                                    @NotNull String[] args) throws IllegalArgumentException {
         if (!(this.command instanceof TabProvider provider)) {
             return List.of();
         }
@@ -69,37 +66,38 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
 
     public void register() {
         // Register with bukkit
-        final PluginCommand pluginCommand = plugin.getCommand(command.getName());
-        if (pluginCommand == null) {
-            throw new IllegalStateException("Command " + command.getName() + " not found in plugin.yml");
-        }
+        plugin.getCommandRegistrar().getServerCommandMap().register("huskhomes", this);
 
         // Register permissions
-        addPermission(
+        BukkitCommand.addPermission(
                 plugin,
                 command.getPermission(),
                 command.getUsage(),
-                getPermissionDefault(command.isOperatorCommand())
+                BukkitCommand.getPermissionDefault(command.isOperatorCommand())
         );
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
-                .map((entry) -> addPermission(plugin, entry.getKey(), "", getPermissionDefault(entry.getValue())))
+                .map((entry) -> BukkitCommand.addPermission(
+                        plugin,
+                        entry.getKey(),
+                        "",
+                        BukkitCommand.getPermissionDefault(entry.getValue()))
+                )
                 .filter(Objects::nonNull)
                 .toList();
         if (!childNodes.isEmpty()) {
-            addPermission(plugin, command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
-                    childNodes.toArray((plugin) -> new Permission[0]));
+            BukkitCommand.addPermission(
+                    plugin,
+                    command.getPermission("*"),
+                    command.getUsage(),
+                    PermissionDefault.FALSE,
+                    childNodes.toArray(new Permission[0])
+            );
         }
-
-        // Set command parameters
-        pluginCommand.setExecutor(this);
-        pluginCommand.setTabCompleter(this);
-        pluginCommand.setDescription(command.getDescription());
-        pluginCommand.setPermission(command.getPermission());
 
         // Register commodore TAB completion
         if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
-            BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
+            BrigadierUtil.registerCommodore(plugin, this, command);
         }
     }
 
@@ -178,17 +176,12 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         @NotNull
         public static List<Command> getCommands(@NotNull BukkitHuskHomes plugin) {
             return Arrays.stream(values())
-                    .map((type) -> {
-                        Command command = type.createCommand(plugin);
-                        if (plugin.getSettings().isCommandDisabled(command)) {
-                            command = new DisabledCommand(command.getName(), plugin);
-                        }
-                        new BukkitCommand(command, plugin).register();
-                        return command;
-                    })
-                    .filter((command) -> !(command instanceof DisabledCommand))
+                    .map((type) -> type.createCommand(plugin))
+                    .filter((command) -> !plugin.getSettings().isCommandDisabled(command))
+                    .peek((command) -> new BukkitCommand(command, plugin).register())
                     .toList();
         }
 
     }
+
 }

@@ -25,6 +25,7 @@ disabled-commands:
   - delhome
   - warp
   - setwarp
+  - creatwarp 
   - warplist
   - delwarp
   - tp

@@ -326,9 +326,9 @@ public class SqLiteDatabase extends Database {
         try {
             // Delete Position
             PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                DELETE FROM `%position_table%`
-                WHERE id = (SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?)
-                OR id = (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?);"""));
+                DELETE FROM `%positions_table%`
+                WHERE `id` = (SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?)
+                OR `id` = (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?);"""));
             statement.setString(1, uuid.toString());
             statement.setString(2, uuid.toString());
             statement.executeUpdate();

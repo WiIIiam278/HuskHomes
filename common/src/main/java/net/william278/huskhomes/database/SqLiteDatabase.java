@@ -323,11 +323,22 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public void deleteUserData(@NotNull UUID uuid) {
-        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+        try {
+            // Delete Position
+            PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%position_table%`
+                WHERE id = (SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?)
+                OR id = (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?);"""));
+            statement.setString(1, uuid.toString());
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+
+            statement = getConnection().prepareStatement(formatStatementTables("""
                 DELETE FROM `%players_table%`
-                WHERE `uuid`=?;"""))) {
+                WHERE `uuid`=?;"""));
             statement.setString(1, uuid.toString());
             statement.executeUpdate();
+
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
         }

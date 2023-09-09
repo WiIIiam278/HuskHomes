@@ -296,11 +296,14 @@ public class H2Database extends Database {
         try (Connection connection = getConnection()) {
             // Delete Position
             PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-            DELETE FROM `%positions_table%`
-            WHERE `id` = (SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?)
-            OR `id` = (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?);"""));
+                DELETE FROM `%positions_table%`
+                WHERE `id`
+                    IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
             statement.setString(1, uuid.toString());
             statement.setString(2, uuid.toString());
+            statement.setString(3, uuid.toString());
             statement.executeUpdate();
 
             statement = connection.prepareStatement(formatStatementTables("""

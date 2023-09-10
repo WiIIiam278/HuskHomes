@@ -68,7 +68,7 @@ public abstract class Command extends Node {
 
     @NotNull
     public final String getUsage() {
-        return "/" + getName() + " " + getRawUsage();
+        return String.format("/%s %s", getName(), getRawUsage());
     }
 
     public final void addAdditionalPermissions(@NotNull Map<String, Boolean> permissions) {

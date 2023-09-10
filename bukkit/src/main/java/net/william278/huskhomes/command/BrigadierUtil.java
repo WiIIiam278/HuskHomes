@@ -41,7 +41,7 @@ public class BrigadierUtil {
                                             @NotNull org.bukkit.command.Command bukkitCommand,
                                             @NotNull Command command) {
         final InputStream commodoreFile = plugin.getResource(
-                "commodore/" + bukkitCommand.getName() + ".commodore"
+                String.format("commodore/%s.commodore", bukkitCommand.getName())
         );
         if (commodoreFile == null) {
             return;

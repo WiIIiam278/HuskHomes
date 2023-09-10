@@ -57,7 +57,7 @@ public class PaperHuskHomesLoader implements PluginLoader {
         try (InputStream input = getLibraryListFile()) {
             return Annotaml.create(PaperLibraries.class, Objects.requireNonNull(input)).get().libraries;
         } catch (Exception e) {
-            e.printStackTrace();
+            classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", e);
         }
         return List.of();
     }

@@ -164,7 +164,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         initialize("hooks", (plugin) -> {
             this.registerHooks();
 
-            if (hooks.size() > 0) {
+            if (!hooks.isEmpty()) {
                 hooks.forEach(hook -> {
                     try {
                         hook.initialize();

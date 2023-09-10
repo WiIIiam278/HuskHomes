@@ -26,7 +26,8 @@ import org.jetbrains.annotations.NotNull;
 public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
-    protected @NotNull EventListener registerListener() {
+    @NotNull
+    protected EventListener registerListener() {
         return new PaperEventListener(this);
     }
 

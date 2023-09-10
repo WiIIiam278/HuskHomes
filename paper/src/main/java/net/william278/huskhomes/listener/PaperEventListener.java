@@ -20,6 +20,7 @@
 package net.william278.huskhomes.listener;
 
 import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
@@ -35,7 +36,13 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
     public PaperEventListener(@NotNull PaperHuskHomes plugin) {
         super(plugin);
         this.checkForBed = false;
+    }
+
+    @Override
+    @NotNull
+    public PaperEventListener register(@NotNull BukkitHuskHomes plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        return this;
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

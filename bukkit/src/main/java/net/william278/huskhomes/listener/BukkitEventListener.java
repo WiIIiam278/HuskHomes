@@ -40,7 +40,12 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     public BukkitEventListener(@NotNull BukkitHuskHomes plugin) {
         super(plugin);
+    }
+
+    @NotNull
+    public BukkitEventListener register(@NotNull BukkitHuskHomes plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        return this;
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

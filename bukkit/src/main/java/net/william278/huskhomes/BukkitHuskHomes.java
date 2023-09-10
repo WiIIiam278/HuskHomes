@@ -179,7 +179,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         });
 
         // Register event listener
-        initialize("events", (plugin) -> this.eventListener = registerListener());
+        initialize("events", (plugin) -> this.eventListener = getListener().register(this));
 
         // Register commands
         initialize("commands", (plugin) -> this.commands = BukkitCommand.Type.getCommands(this));
@@ -194,7 +194,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     // Register the event listener
     @NotNull
-    protected EventListener registerListener() {
+    protected BukkitEventListener getListener() {
         return new BukkitEventListener(this);
     }
 

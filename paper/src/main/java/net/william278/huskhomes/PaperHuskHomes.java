@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes;
 
-import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.PaperEventListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +26,7 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     @NotNull
-    protected EventListener registerListener() {
+    protected PaperEventListener getListener() {
         return new PaperEventListener(this);
     }
 

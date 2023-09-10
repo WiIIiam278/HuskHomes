@@ -294,13 +294,24 @@ public class H2Database extends Database {
     @Override
     public void deleteUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%players_table%`
-                    WHERE `uuid`=?;"""))) {
+            // Delete Position
+            PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `id`
+                    IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
+            statement.setString(1, uuid.toString());
+            statement.setString(2, uuid.toString());
+            statement.setString(3, uuid.toString());
+            statement.executeUpdate();
 
-                statement.setString(1, uuid.toString());
-                statement.executeUpdate();
-            }
+            statement = connection.prepareStatement(formatStatementTables("""
+            DELETE FROM `%players_table%`
+            WHERE `uuid`=?;"""));
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
+
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
         }

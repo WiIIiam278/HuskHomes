@@ -101,7 +101,7 @@ public class FabricCommand {
             return (context, builder) -> com.mojang.brigadier.suggestion.Suggestions.empty();
         }
         return (context, builder) -> {
-            final String[] args = command.removeFirstArg(context.getInput().split(" "));
+            final String[] args = command.removeFirstArg(context.getInput().split(" ", -1));
             provider.getSuggestions(resolveExecutor(context.getSource()), args).stream()
                     .map(suggestion -> {
                         final String completedArgs = String.join(" ", args);

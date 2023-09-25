@@ -71,7 +71,7 @@ jobs:
             1.17.1
             1.18.2
             1.19.4
-            1.20.1
+            1.20.2
           java: 16
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
@@ -117,7 +117,7 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.20.1
+            1.20.2
           java: 17
       - name: 'Upload GitHub Artifacts 📦'
         uses: actions/upload-artifact@v2

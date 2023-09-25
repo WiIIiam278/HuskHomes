@@ -15,7 +15,7 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'me.lucko:commodore:2.2'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'me.clip:placeholderapi:2.11.3'
+    compileOnly 'me.clip:placeholderapi:2.11.4'
 }
 
 shadowJar {

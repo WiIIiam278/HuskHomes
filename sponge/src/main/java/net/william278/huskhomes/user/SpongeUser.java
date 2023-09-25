@@ -113,6 +113,7 @@ public class SpongeUser extends OnlineUser {
             if (serverLocation.isEmpty()) {
                 return;
             }
+            player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.setLocation(serverLocation.get());
         });
     }

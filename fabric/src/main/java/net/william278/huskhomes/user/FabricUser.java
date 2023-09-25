@@ -131,6 +131,7 @@ public class FabricUser extends OnlineUser {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
+        player.dismountVehicle();
         FabricDimensions.teleport(
                 player,
                 server.getWorld(server.getWorldRegistryKeys().stream()

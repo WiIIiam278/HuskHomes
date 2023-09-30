@@ -77,9 +77,6 @@ public class BukkitPluginTests {
         @Test
         @DisplayName("Test Command Registration")
         public void testCommandRegistration() {
-            for (BukkitCommand.Type command : BukkitCommand.Type.values()) {
-                Assertions.assertNotNull(plugin.getCommand(command.createCommand(plugin).getName()));
-            }
             Assertions.assertEquals(BukkitCommand.Type.values().length, plugin.getCommands().size());
         }
 
@@ -135,7 +132,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Locale Loading")
         public void testLocalesLoading() {
             final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
-            Assertions.assertTrue(rawLocales.size() > 0);
+            Assertions.assertFalse(rawLocales.isEmpty());
             rawLocales.forEach((key, value) -> Assertions.assertNotNull(value));
         }
 

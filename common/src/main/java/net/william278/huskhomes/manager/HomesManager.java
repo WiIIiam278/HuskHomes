@@ -183,7 +183,8 @@ public class HomesManager {
 
     @NotNull
     public Home createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
-                           boolean overwrite, boolean buyAdditionalSlots) throws ValidationException {
+                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes)
+            throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
@@ -194,7 +195,7 @@ public class HomesManager {
 
         // Determine what the new home count would be & validate against user max homes
         int homes = plugin.getDatabase().getHomes(owner).size() + (existingHome.isPresent() ? 0 : 1);
-        if (homes > getMaxHomes(owner)) {
+        if (!ignoreMaxHomes && homes > getMaxHomes(owner)) {
             throw new ValidationException(ValidationException.Type.REACHED_MAX_HOMES);
         }
 
@@ -227,9 +228,9 @@ public class HomesManager {
         return home;
     }
 
-    public void createHome(@NotNull OnlineUser owner, @NotNull String name,
-                           @NotNull Position position) throws ValidationException {
-        this.createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true);
+    public void createHome(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position)
+            throws ValidationException {
+        this.createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true, false);
     }
 
     public void deleteHome(@NotNull User owner, @NotNull String name) throws ValidationException {

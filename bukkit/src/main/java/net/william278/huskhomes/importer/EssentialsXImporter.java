@@ -21,6 +21,7 @@ package net.william278.huskhomes.importer;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Warps;
+import com.earth2me.essentials.commands.WarpNotFoundException;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 public class EssentialsXImporter extends Importer {
 
@@ -67,6 +69,7 @@ public class EssentialsXImporter extends Importer {
                                     this.normalizeName(homeName),
                                     position,
                                     true,
+                                    true,
                                     true
                             );
                             homesImported.getAndIncrement();
@@ -80,19 +83,23 @@ public class EssentialsXImporter extends Importer {
         final AtomicInteger warpsImported = new AtomicInteger();
         final Warps warps = essentials.getWarps();
         for (String warpName : warps.getList()) {
-            if (warps.getWarp(warpName) == null || warps.getWarp(warpName).getWorld() == null) {
-                continue;
+            try {
+                if (warps.getWarp(warpName) == null || warps.getWarp(warpName).getWorld() == null) {
+                    continue;
+                }
+                BukkitAdapter.adaptLocation(warps.getWarp(warpName))
+                        .map(location -> Position.at(location, plugin.getServerName()))
+                        .ifPresent(position -> {
+                            plugin.getManager().warps().createWarp(
+                                    this.normalizeName(warpName),
+                                    position,
+                                    true
+                            );
+                            warpsImported.getAndIncrement();
+                        });
+            } catch (WarpNotFoundException e) {
+                plugin.log(Level.WARNING, String.format("Skipped importing warp %s (could not be found)", warpName));
             }
-            BukkitAdapter.adaptLocation(warps.getWarp(warpName))
-                    .map(location -> Position.at(location, plugin.getServerName()))
-                    .ifPresent(position -> {
-                        plugin.getManager().warps().createWarp(
-                                this.normalizeName(warpName),
-                                position,
-                                true
-                        );
-                        warpsImported.getAndIncrement();
-                    });
         }
         return warpsImported.get();
     }

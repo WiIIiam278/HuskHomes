@@ -126,7 +126,7 @@ error_home_description_characters: '[Errore:](#ff3300) [Le descrizioni delle hom
 error_warp_description_length: '[Errore:](#ff3300) [Le descrizioni dei warp hanno un massimo di 255 caratteri.](#ff7e5e)'
 error_warp_description_characters: '[Errore:](#ff3300) [Le descrizioni dei warp possono contenere solo caratteri alfanumerici (A-Z, 0-9) spazi, trattini (-) e tratti bassi (_)](#ff7e5e)'
 error_no_permission: '[Errore:](#ff3300) [Non hai il permesso di eseguire questo comando.](#ff7e5e)'
-error_invalid_syntax: '[Errore:](#ff3300) [Comando non riconosciuto. Utilizza: %1%](#ff7e5e)'
+error_invalid_syntax: '[Errore:](#ff3300) [Comando non riconosciuto. Utilizza:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[Errore:](#ff3300) [Attendi che il teletrasporto finisca!](#ff7e5e)'
 error_no_last_position: '[Errore:](#ff3300) [Non hai nessuna posizione precedente salvata!](#ff7e5e)'
 error_in_game_only: 'Errore: Questo comando può essere utilizzato solo in game.'

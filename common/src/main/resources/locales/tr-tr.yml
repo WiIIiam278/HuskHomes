@@ -126,7 +126,7 @@ error_home_description_characters: '[Hata:](#ff3300) [Ev açıklamaları yalnız
 error_warp_description_length: '[Hata:](#ff3300) [Warp açıklamalarının uzunluğu 255 karakterden az olmalıdır.](#ff7e5e)'
 error_warp_description_characters: '[Hata:](#ff3300) [Warp açıklamaları yalnızca alfanümerik (A-Z, 0-9) karakterler, boşluklar, kısa çizgiler (-) ve alt çizgiler (_) içerebilir.](#ff7e5e)'
 error_no_permission: '[Hata:](#ff3300) [Bu komutu yürütme izniniz yok.](#ff7e5e)'
-error_invalid_syntax: '[Hata:](#ff3300) [Yanlış sözdizimi. Kullanım: %1%](#ff7e5e)'
+error_invalid_syntax: '[Hata:](#ff3300) [Yanlış sözdizimi. Kullanım:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[Hata:](#ff3300) [Lütfen mevcut ışınlanmanın bitmesini bekleyin!](#ff7e5e)'
 error_no_last_position: '[Hata:](#ff3300) [Dönmek için son bir konumunuz yok!](#ff7e5e)'
 error_in_game_only: 'Hata: Bu komut sadece oyun içinde çalıştırılabilir..'

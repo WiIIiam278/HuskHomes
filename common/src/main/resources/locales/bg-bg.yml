@@ -126,7 +126,7 @@ error_home_description_characters: '[Error:](#ff3300) [Home descriptions may onl
 error_warp_description_length: '[Error:](#ff3300) [Warp descriptions must be less than 255 characters in length.](#ff7e5e)'
 error_warp_description_characters: '[Error:](#ff3300) [Warp descriptions may only contain alphanumeric (A-Z, 0-9) characters, spaces, hyphens (-) and underscores (_)](#ff7e5e)'
 error_no_permission: '[Грешка:](#ff3300) [Нямате право да използвате тази команда.](#ff7e5e)'
-error_invalid_syntax: '[Грешка:](#ff3300) [Неправилен синтаксис. Използвайте: %1%](#ff7e5e)'
+error_invalid_syntax: '[Грешка:](#ff3300) [Неправилен синтаксис. Използвайте:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[Error:](#ff3300) [Please wait for the current teleport to finish!](#ff7e5e)'
 error_no_last_position: '[Грешка:](#ff3300) [Нямате последна локация, на която да се върнете!](#ff7e5e)'
 error_in_game_only: 'Error: That command can only be run in-game.'

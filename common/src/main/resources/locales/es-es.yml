@@ -126,7 +126,7 @@ error_home_description_characters: '[Error:](#ff3300) [Las descripciones de las 
 error_warp_description_length: '[Error:](#ff3300) [Las descripciones de las warps deben tener menos de de 255 caracteres.](#ff7e5e)'
 error_warp_description_characters: '[Error:](#ff3300) [Las descripciones de los warps sólo pueden contener caracteres alfanuméricos (A-Z, 0-9), espacios, guiones (-) y guiones bajos (_)](#ff7e5e)'
 error_no_permission: '[Error:](#ff3300) [No tiene permiso para ejecutar ese comando.](#ff7e5e)'
-error_invalid_syntax: '[Error:](#ff3300) [Sintaxis incorrecta. Usa: %1%](#ff7e5e)'
+error_invalid_syntax: '[Error:](#ff3300) [Sintaxis incorrecta. Usa:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[Error:](#ff3300) [Por favor, espere a que el teletransporte actual termine!](#ff7e5e)'
 error_no_last_position: '[Error:](#ff3300) [¡No tienes una última posición a la que volver!](#ff7e5e)'
 error_in_game_only: 'Error: Ese comando sólo se puede ejecutar en el juego.'

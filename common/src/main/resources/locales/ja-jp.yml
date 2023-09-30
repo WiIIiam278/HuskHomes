@@ -125,7 +125,7 @@ error_home_description_characters: '[エラー:](#ff3300) [ホームの説明文
 error_warp_description_length: '[エラー:](#ff3300) [ワープの説明文は、255文字以内でなければなりません。](#ff7e5e)'
 error_warp_description_characters: '[エラー:](#ff3300) [ワープの説明文には、英数字(A-Z、0-9)、スペース、ハイフン(-)およびアンダースコア(_)のみを使用できます。](#ff7e5e)'
 error_no_permission: '[エラー:](#ff3300) [そのコマンドを実行する権限がありません。](#ff7e5e)'
-error_invalid_syntax: '[エラー:](#ff3300) [構文が正しくありません。使い方: %1%](#ff7e5e)'
+error_invalid_syntax: '[エラー:](#ff3300) [構文が正しくありません。使い方:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[エラー:](#ff3300) [現在のテレポートが終了するまでしばらくお待ちください！](#ff7e5e)'
 error_no_last_position: '[エラー:](#ff3300) [戻れる最後の座標がない！](#ff7e5e)'
 error_in_game_only: 'エラー: そのコマンドはゲーム内でしか実行できません。'

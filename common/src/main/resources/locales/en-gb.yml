@@ -125,7 +125,7 @@ error_home_description_characters: '[Error:](#ff3300) [Home descriptions may onl
 error_warp_description_length: '[Error:](#ff3300) [Warp descriptions must be less than 255 characters in length.](#ff7e5e)'
 error_warp_description_characters: '[Error:](#ff3300) [Warp descriptions may only contain alphanumeric (A-Z, 0-9) characters, spaces, hyphens (-) and underscores (_)](#ff7e5e)'
 error_no_permission: '[Error:](#ff3300) [You do not have permission to execute that command.](#ff7e5e)'
-error_invalid_syntax: '[Error:](#ff3300) [Incorrect syntax. Usage: %1%](#ff7e5e)'
+error_invalid_syntax: '[Error:](#ff3300) [Incorrect syntax. Usage:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
 error_already_teleporting: '[Error:](#ff3300) [Please wait for the current teleport to finish!](#ff7e5e)'
 error_no_last_position: '[Error:](#ff3300) [You have no last position to return to!](#ff7e5e)'
 error_in_game_only: 'Error: That command can only be run in-game.'

@@ -60,7 +60,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
         this.updateChecker = plugin.getUpdateChecker();
         this.aboutMenu = AboutMenu.builder()
                 .title(Component.text("HuskHomes"))
-                .description(Component.text("A powerful, intuitive and flexible teleportation suite"))
+                .description(Component.text("The powerful and intuitive homes, warps, and teleports plugin/mod"))
                 .version(plugin.getVersion())
                 .credits("Author",
                         AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))

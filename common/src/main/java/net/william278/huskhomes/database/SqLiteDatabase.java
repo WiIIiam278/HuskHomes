@@ -129,8 +129,8 @@ public class SqLiteDatabase extends Database {
                         INSERT INTO `%positions_table%`
                             (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
                         VALUES
-                            (?,?,?,?,?,?,?,?);"""),
-                Statement.RETURN_GENERATED_KEYS)) {
+                            (?,?,?,?,?,?,?,?)
+                        RETURNING `id`;"""))) {
 
             statement.setDouble(1, position.getX());
             statement.setDouble(2, position.getY());
@@ -140,15 +140,14 @@ public class SqLiteDatabase extends Database {
             statement.setString(6, position.getWorld().getName());
             statement.setString(7, position.getWorld().getUuid().toString());
             statement.setString(8, position.getServer());
-            statement.executeUpdate();
 
             // Return the ID of the newly inserted row
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(1);
+                    return resultSet.getInt("id");
                 }
             }
-            throw new SQLException("No generated key found");
+            throw new SQLException("No generated ID found");
         }
     }
 
@@ -186,23 +185,22 @@ public class SqLiteDatabase extends Database {
                         INSERT INTO `%saved_positions_table%`
                             (`position_id`, `name`, `description`, `tags`, `timestamp`)
                         VALUES
-                            (?,?,?,?,?);"""),
-                Statement.RETURN_GENERATED_KEYS)) {
+                            (?,?,?,?,?)
+                        RETURNING `id`;"""))) {
 
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.getName());
             statement.setString(3, position.getMeta().getDescription());
             statement.setString(4, position.getMeta().getSerializedTags());
             statement.setTimestamp(5, Timestamp.from(position.getMeta().getCreationTime()));
-            statement.executeUpdate();
 
             // Return the ID of the newly inserted row
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(1);
+                    return resultSet.getInt("id");
                 }
             }
-            throw new SQLException("No generated key found");
+            throw new SQLException("No generated ID found");
         }
     }
 

@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitEventListener extends EventListener implements Listener {
 
-    protected boolean checkForBed = true;
+    protected boolean usePaperEvents = false;
 
     public BukkitEventListener(@NotNull BukkitHuskHomes plugin) {
         super(plugin);
@@ -65,9 +65,6 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
-            return;
-        }
         super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
     }
 
@@ -91,7 +88,7 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
-        if (!checkForBed || !(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+        if (usePaperEvents || !(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
             return;
         }
         if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed

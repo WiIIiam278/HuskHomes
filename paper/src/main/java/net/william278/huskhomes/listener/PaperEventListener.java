@@ -29,13 +29,14 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class PaperEventListener extends BukkitEventListener implements Listener {
 
     public PaperEventListener(@NotNull PaperHuskHomes plugin) {
         super(plugin);
-        this.checkForBed = false;
+        this.usePaperEvents = true;
     }
 
     @Override
@@ -62,6 +63,15 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
                 BukkitUser.adapt(event.getPlayer(), (PaperHuskHomes) plugin),
                 Position.at(adaptedLocation, plugin.getServerName()))
         );
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @Override
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
+            return;
+        }
+        super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
     }
 
 }

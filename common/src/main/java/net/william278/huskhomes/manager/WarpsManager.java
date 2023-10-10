@@ -158,6 +158,10 @@ public class WarpsManager {
         final int deleted = plugin.getDatabase().deleteAllWarps();
         warps.clear();
         plugin.getMapHook().ifPresent(MapHook::clearWarps);
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }
@@ -168,6 +172,10 @@ public class WarpsManager {
         if (plugin.getSettings().doCrossServer() && plugin.getServerName().equals(serverName)) {
             plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
         }
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }

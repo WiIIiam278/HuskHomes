@@ -255,6 +255,10 @@ public class HomesManager {
         });
         publicHomes.removeIf(h -> h.getOwner().getUuid().equals(owner.getUuid()));
         plugin.getMapHook().ifPresent(hook -> hook.clearHomes(owner));
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }
@@ -268,6 +272,10 @@ public class HomesManager {
         if (plugin.getSettings().doCrossServer() && serverName.equals(plugin.getServerName())) {
             plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
         }
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }

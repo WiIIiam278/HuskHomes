@@ -5,31 +5,35 @@ website: 'https://william278.net/'
 main: 'net.william278.huskhomes.PaperHuskHomes'
 loader: 'net.william278.huskhomes.PaperHuskHomesLoader'
 version: '${version}'
-api-version: 1.19
+api-version: '1.19'
 folia-supported: true
 dependencies:
-  - name: Vault
-    required: false
-  - name: RedisEconomy
-    required: false
-  - name: PlaceholderAPI
-    required: false
-  - name: dynmap
-    required: false
-  - name: BlueMap
-    required: false
-  - name: Plan
-    required: false
-  - name: Pl3xMap
-    required: false
-  - name: Essentials
-    required: false
-load-after:
-  - name: Vault
-  - name: RedisEconomy
-  - name: PlaceholderAPI
-  - name: dynmap
-  - name: BlueMap
-  - name: Plan
-  - name: Pl3xMap
-  - name: Essentials
+  server:
+    Vault:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    dynmap:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    BlueMap:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Plan:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Pl3xMap:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Essentials:
+      load: OMIT
+      required: false
+      join-classpath: true

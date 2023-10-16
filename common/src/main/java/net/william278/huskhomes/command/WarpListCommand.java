@@ -70,7 +70,10 @@ public class WarpListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("warp_list_item",
                                         Locales.escapeText(warp.getName()), warp.getSafeIdentifier(),
-                                        Locales.escapeText(plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40)))
+                                        Locales.escapeText(plugin.getLocales().wrapText(
+                                                warp.getMeta().getDescription(),
+                                                40
+                                        )))
                                 .orElse(warp.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getListItemsPerPage())
@@ -85,9 +88,7 @@ public class WarpListCommand extends ListCommand {
     private List<Warp> getItems(@NotNull CommandUser executor) {
         List<Warp> warps = plugin.getDatabase().getWarps();
         if (plugin.getSettings().doPermissionRestrictWarps() && !executor.hasPermission(Warp.getWildcardPermission())) {
-            warps = warps.stream()
-                    .filter(warp -> executor.hasPermission(getPermission(warp.getPermission())))
-                    .collect(Collectors.toList());
+            warps = warps.stream().filter(warp -> executor.hasPermission(warp.getPermission())).toList();
         }
         return warps;
     }

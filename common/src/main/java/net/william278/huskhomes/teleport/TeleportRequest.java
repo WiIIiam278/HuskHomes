@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 
 /**
- * Represents a request between players for one user to teleport to another, or vice versa
+ * Represents a request between players for one user to teleport to another, or vice versa.
  */
 public class TeleportRequest {
 
@@ -50,7 +50,7 @@ public class TeleportRequest {
     private String recipientName;
 
     /**
-     * Create a teleport request
+     * Create a teleport request.
      *
      * @param requester The user making the request
      */
@@ -67,7 +67,7 @@ public class TeleportRequest {
     }
 
     /**
-     * Returns if the request has now expired
+     * Returns if the request has now expired.
      *
      * @return {@code true} the request has passed its expiry time
      */
@@ -76,7 +76,7 @@ public class TeleportRequest {
     }
 
     /**
-     * The name of the request recipient
+     * The name of the request recipient.
      */
     @NotNull
     public String getRecipientName() {
@@ -88,7 +88,7 @@ public class TeleportRequest {
     }
 
     /**
-     * The user making the request
+     * The user making the request.
      */
     @NotNull
     public String getRequesterName() {
@@ -100,7 +100,7 @@ public class TeleportRequest {
     }
 
     /**
-     * The position of the requester, relevant in the case of a {@link Type#TPA_HERE} request
+     * The position of the requester, relevant in the case of a {@link Type#TPA_HERE} request.
      */
     @NotNull
     public Position getRequesterPosition() {
@@ -112,7 +112,7 @@ public class TeleportRequest {
     }
 
     /**
-     * The type of request; a {@link Type#TPA} or {@link Type#TPA_HERE}
+     * The type of request; a {@link Type#TPA} or {@link Type#TPA_HERE}.
      */
     @NotNull
     public TeleportRequest.Type getType() {
@@ -124,8 +124,7 @@ public class TeleportRequest {
     }
 
     /**
-     * The status of the request; a {@link Status#PENDING}, {@link Status#ACCEPTED}
-     * or {@link Status#DECLINED}
+     * The status of the request; a {@link Status#PENDING}, {@link Status#ACCEPTED} or {@link Status#DECLINED}.
      */
     @NotNull
     public TeleportRequest.Status getStatus() {
@@ -137,38 +136,39 @@ public class TeleportRequest {
     }
 
     /**
-     * Types of teleport requests ({@code /tpa} or {@code /tpahere})
+     * Types of teleport requests ({@code /tpa} or {@code /tpahere}).
      */
     public enum Type {
         /**
-         * The request is a {@code /tpa} request, where the requester is requesting to teleport <i>to</i> the recipient
+         * The request is a {@code /tpa} request, where the requester is requesting to teleport <i>to</i> the recipient.
          */
         TPA,
         /**
-         * The request is a {@code /tpahere} request, where the requester is requesting that the recipient teleport <i>to them</i>
+         * The request is a {@code /tpahere} request, where the requester is requesting that the recipient teleport
+         * <i>to them</i>.
          */
         TPA_HERE
     }
 
     /**
-     * The current status of a teleport request
+     * The current status of a teleport request.
      */
     public enum Status {
         /**
-         * The request is currently pending and can be accepted or declined
+         * The request is currently pending and can be accepted or declined.
          */
         PENDING,
         /**
-         * The teleport request has been accepted by the recipient and teleportation will commence
+         * The teleport request has been accepted by the recipient and teleportation will commence.
          */
         ACCEPTED,
         /**
-         * The recipient has declined the teleport request
+         * The recipient has declined the teleport request.
          */
         DECLINED,
         /**
          * The recipient was ignoring teleport requests at the time it was sent;
-         * the request has been automatically declined
+         * the request has been automatically declined.
          */
         IGNORED
     }

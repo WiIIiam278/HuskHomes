@@ -71,7 +71,10 @@ public class PublicHomeListCommand extends ListCommand {
                                 .getRawLocale("public_home_list_item",
                                         Locales.escapeText(home.getName()), home.getSafeIdentifier(),
                                         Locales.escapeText(home.getOwner().getUsername()),
-                                        Locales.escapeText(plugin.getLocales().wrapText(home.getMeta().getDescription(), 40)))
+                                        Locales.escapeText(plugin.getLocales().wrapText(
+                                                home.getMeta().getDescription(),
+                                                40
+                                        )))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getListItemsPerPage())

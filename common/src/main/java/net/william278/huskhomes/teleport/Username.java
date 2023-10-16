@@ -36,14 +36,15 @@ public record Username(@NotNull String name) implements Teleportable, Target {
     /**
      * Search for a local {@link OnlineUser} by their name.
      *
+     * <p>If a user by the name provided is on the {@link HuskHomes#getPlayerList() player list}, then this
+     * method will search for the user by exact name.
+     *
+     * <p>Otherwise, the lookup will first attempt to find the user by exact name, and if that fails, it will search for
+     * the closest name match.
+     *
      * @param plugin The instance of {@link HuskHomes}
      * @return An {@link Optional} containing the {@link OnlineUser} if found
      * @throws TeleportationException If the user is not found
-     * @implNote If a user by the name provided is on the {@link HuskHomes#getPlayerList() player list}, then this
-     * method will search for the user by exact name.
-     * <p>
-     * Otherwise, the lookup will first attempt to find the user by exact name, and if that fails, it will search for
-     * the closest name match.
      */
     @NotNull
     public Optional<OnlineUser> findLocally(@NotNull HuskHomes plugin) {
@@ -52,7 +53,7 @@ public record Username(@NotNull String name) implements Teleportable, Target {
     }
 
     /**
-     * Get the username {@link String} being represented by this object
+     * Get the username {@link String} being represented by this object.
      *
      * @return the username
      */

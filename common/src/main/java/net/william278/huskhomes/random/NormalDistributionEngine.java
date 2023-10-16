@@ -74,7 +74,7 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     /**
-     * Generate a safe ground-level {@link Location} through a randomized normally-distributed radius and random angle
+     * Generate a safe ground-level {@link Location} through a randomized normally-distributed radius and random angle.
      *
      * @param world The world to generate the location in
      * @return A generated location
@@ -101,9 +101,9 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     /**
-     * Generates a random angle in the range [0, 360]
+     * Generates a random angle in the range {@code [0, 360]}.
      *
-     * @return a random angle in the range [0, 360]
+     * @return a random angle in the range {@code [0, 360]}
      */
     private static float getRandomAngle() {
         return (float) (Math.random() * 360);

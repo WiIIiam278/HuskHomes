@@ -24,18 +24,23 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a single home is deleted
+ * Representation of an event that fires when a single home is deleted.
  */
 public interface IHomeDeleteEvent extends Cancellable {
 
     /**
-     * Get the home being deleted
+     * Get the home being deleted.
      *
      * @return the {@link Home} being deleted
      */
     @NotNull
     Home getHome();
 
+    /**
+     * Get the user who is deleting the home.
+     *
+     * @return the {@link CommandUser} who is deleting the home
+     */
     @NotNull
     CommandUser getDeleter();
 

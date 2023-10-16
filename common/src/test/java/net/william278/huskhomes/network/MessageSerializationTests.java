@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 @DisplayName("Message Serialization Tests")
 public class MessageSerializationTests {
 
-    private final static List<Message> TEST_MESSAGES = List.of(
+    private static final List<Message> TEST_MESSAGES = List.of(
             Message.builder()
                     .type(Message.Type.REQUEST_PLAYER_LIST)
                     .target("TestTarget")
@@ -77,15 +77,27 @@ public class MessageSerializationTests {
         final Gson gson = createGson();
         final String serializedMessage = gson.toJson(message);
         Assertions.assertNotNull(serializedMessage);
-        final Message deserializedMessage = gson.fromJson(serializedMessage, Message.class);
-        Assertions.assertNotNull(deserializedMessage);
-        Assertions.assertEquals(message.getType(), deserializedMessage.getType());
-        Assertions.assertEquals(message.getScope(), deserializedMessage.getScope());
-        Assertions.assertEquals(message.getTarget(), deserializedMessage.getTarget());
-        Assertions.assertEquals(message.getPayload().getPosition().isPresent(), deserializedMessage.getPayload().getPosition().isPresent());
-        Assertions.assertEquals(message.getPayload().getString().isPresent(), deserializedMessage.getPayload().getString().isPresent());
-        Assertions.assertEquals(message.getPayload().getStringList().isPresent(), deserializedMessage.getPayload().getStringList().isPresent());
-        Assertions.assertEquals(message.getPayload().getStringList().isPresent(), deserializedMessage.getPayload().getStringList().isPresent());
+        final Message deserialized = gson.fromJson(serializedMessage, Message.class);
+        Assertions.assertNotNull(deserialized);
+        Assertions.assertEquals(message.getType(), deserialized.getType());
+        Assertions.assertEquals(message.getScope(), deserialized.getScope());
+        Assertions.assertEquals(message.getTarget(), deserialized.getTarget());
+        Assertions.assertEquals(
+                message.getPayload().getPosition().isPresent(),
+                deserialized.getPayload().getPosition().isPresent()
+        );
+        Assertions.assertEquals(
+                message.getPayload().getString().isPresent(),
+                deserialized.getPayload().getString().isPresent()
+        );
+        Assertions.assertEquals(
+                message.getPayload().getStringList().isPresent(),
+                deserialized.getPayload().getStringList().isPresent())
+        ;
+        Assertions.assertEquals(
+                message.getPayload().getStringList().isPresent(),
+                deserialized.getPayload().getStringList().isPresent()
+        );
     }
 
     @NotNull

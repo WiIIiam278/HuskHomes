@@ -25,14 +25,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class TeleportationException extends IllegalStateException {
 
+    private final HuskHomes plugin;
     private final Type type;
 
-    public TeleportationException(@NotNull Type type) {
-        super("Error executing teleport: " + type.name());
-        this.type = type;
+    public TeleportationException(@NotNull Type cause, @NotNull HuskHomes plugin) {
+        super("Error executing teleport: " + cause.name());
+        this.type = cause;
+        this.plugin = plugin;
     }
 
-    public void displayMessage(@NotNull CommandUser user, @NotNull HuskHomes plugin, @NotNull String... args) {
+    public void displayMessage(@NotNull CommandUser user, @NotNull String... args) {
         switch (type) {
             case TELEPORTER_NOT_FOUND, TARGET_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_player_not_found", args)
@@ -52,6 +54,9 @@ public class TeleportationException extends IllegalStateException {
             case WORLD_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_invalid_world")
                     .ifPresent(user::sendMessage);
+            default -> {
+                // Silent; no message
+            }
         }
     }
 
@@ -62,13 +67,13 @@ public class TeleportationException extends IllegalStateException {
     }
 
     /**
-     * The types of teleportation errors
+     * Represents different causes of {@link TeleportationException}s.
      */
     public enum Type {
         TELEPORTER_NOT_FOUND,
         TARGET_NOT_FOUND,
         ALREADY_WARMING_UP,
-        ECONOMY_ACTION_FAILED,
+        TRANSACTION_FAILED,
         WARMUP_ALREADY_MOVING,
         WORLD_NOT_FOUND,
         ILLEGAL_TARGET_COORDINATES,

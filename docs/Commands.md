@@ -33,7 +33,7 @@ This is a table of HuskHomes' commands and their required permission nodes. Addi
 | `/spawn`                                                        | Teleport to spawn                                   | `huskhomes.command.spawn`     |        ✅         |
 | `/setspawn`                                                     | Set the spawn position                              | `huskhomes.command.setspawn`  |        ❌         |
 | `/back`                                                         | Return to your previous position, or where you died | `huskhomes.command.back`      |        ✅         |
-| `/huskhomes [about/help/reload/import/update]`                  | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
+| `/huskhomes [about/help/reload/import/delete/update]`           | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
 
 * &dagger; **Base Permission** &mdash; Required permission for basic command execution; some commands require additional permissions for certain functions ([See below&hellip;](#other-permissions))
 * &ddagger; **Default** &mdash; ✅ = Accessible by all players by default &mdash; ❌ = Accessible only by server operators by default.
@@ -81,13 +81,16 @@ Note that these permission-set values override the values set in the plugin conf
 ## Other Permissions
 
 <details>
-<summary>Return to where you died with /back</summary>
+<summary>Return to last position or death with /back</summary>
 
-This permission controls whether users can return to where they died. Note that return by death must be enabled in the plugin [[config files]] for this to work.
+These permissions control what the user can do with the back command, including the ability to return to their last position or to where they died.
 
-| Command                    | Description                           | Permission                     | Default |
-|----------------------------|---------------------------------------|--------------------------------|:-------:|
-| `/back` (after respawning) | Use /back to return to where you died | `huskhomes.command.back.death` |    ✅    |
+| Command                    | Description                                            | Permission                        | Default |
+|----------------------------|--------------------------------------------------------|-----------------------------------|:-------:|
+| `/back` (after respawning) | Use /back to return to where you died&dagger;          | `huskhomes.command.back.death`    |    ✅    |
+| `/back`                    | Use /back to return to your previous teleport position | `huskhomes.command.back.previous` |    ✅    |
+
+&dagger;Note that return by death must be enabled in the plugin [[config files]] for this to work.
 </details>
 
 <details>
@@ -106,19 +109,17 @@ These permissions allow you to make a home public/private (toggling its privacy)
 
 
 <details>
-<summary>Cooldown, warmup and economy bypasses</summary>
+<summary>Bypass teleport warmup, cooldowns & economy checks</summary>
 
-These permissions let you bypass teleportation warmup checks, rtp cooldown checks and economy checks
+These permissions let you bypass teleportation warmup checks, cooldown, and economy checks
 
-| Description                                | Permission                              | Default |
-|--------------------------------------------|-----------------------------------------|:-------:|
-| Bypass timed teleportation warmups&dagger; | `huskhomes.bypass_teleport_warmup`      | Not set |
-| Bypass economy checks                      | `huskhomes.bypass_economy_checks`       | Not set |
-| Bypass the cooldown on `/rtp`&ddagger;     | `huskhomes.command.rtp.bypass_cooldown` |    ❌    |
+| Description                                | Permission                         | Default |
+|--------------------------------------------|------------------------------------|:-------:|
+| Bypass timed teleportation warmups&dagger; | `huskhomes.bypass_teleport_warmup` | Not set |
+| Bypass [cooldown checks](cooldowns)        | `huskhomes.bypass_cooldowns`       | Not set |
+| Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
-&dagger;This is not effective when the teleport warmup time is set `<= 0` in the config file.
-
-&ddagger;This is not effective when the /rtp cooldown time is set `<= 0` in the config file.
+&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file.
 </details>
 
 <details>
@@ -141,11 +142,12 @@ These permissions allow you to use /tp and /rtp to teleport other players remote
 
 These permissions control what arguments of the /huskhomes command a user may use.
 
-| Command                          | Description                                | Permission                           | Default |
-|----------------------------------|--------------------------------------------|--------------------------------------|:-------:|
-| `/huskhomes help [page]`         | View a list of HuskHomes commands          | `huskhomes.command.huskhomes.help`   |    ✅    |
-| `/huskhomes [about]`             | View the plugin about menu                 | `huskhomes.command.huskhomes.about`  |    ✅    |
-| `/huskhomes reload`              | Reload the plugin config and message files | `huskhomes.command.huskhomes.reload` |    ❌    |
-| `/huskhomes import [list/start]` | Import data from other plugins/mods        | `huskhomes.command.huskhomes.import` |    ❌    |
-| `/huskhomes update`              | Check for updates                          | `huskhomes.command.huskhomes.update` |    ❌    |
+| Command                                         | Description                                              | Permission                           | Default |
+|-------------------------------------------------|----------------------------------------------------------|--------------------------------------|:-------:|
+| `/huskhomes help [page]`                        | View a list of HuskHomes commands                        | `huskhomes.command.huskhomes.help`   |    ✅    |
+| `/huskhomes [about]`                            | View the plugin about menu                               | `huskhomes.command.huskhomes.about`  |    ✅    |
+| `/huskhomes reload`                             | Reload the plugin config and message files               | `huskhomes.command.huskhomes.reload` |    ❌    |
+| `/huskhomes import [list/start]`                | Import data from other plugins/mods                      | `huskhomes.command.huskhomes.import` |    ❌    |
+| `/huskhomes delete [player/homes/warps] [args]` | Perform bulk actions on homes/warps & delete player data | `huskhomes.command.huskhomes.delete` |    ❌    |
+| `/huskhomes update`                             | Check for updates                                        | `huskhomes.command.huskhomes.update` |    ❌    |
 </details>

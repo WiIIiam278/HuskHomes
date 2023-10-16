@@ -27,29 +27,37 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
 /**
- * A MySQL implementation of the plugin {@link Database}
+ * A MySQL / MariaDB implementation of the plugin {@link Database}.
  */
 @SuppressWarnings("DuplicatedCode")
 public class MySqlDatabase extends Database {
 
     private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
+    private final String flavor;
+    private final String driverClass;
     private HikariDataSource dataSource;
 
     public MySqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
+        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "mariadb" : "mysql";
+        this.driverClass = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
     }
 
     /**
-     * Fetch the auto-closeable connection from the hikariDataSource
+     * Fetch the auto-closeable connection from the hikariDataSource.
      *
      * @return The {@link Connection} to the MySQL database
      * @throws SQLException if the connection fails for some reason
@@ -62,13 +70,14 @@ public class MySqlDatabase extends Database {
     public void initialize() throws IllegalStateException {
         // Initialize the Hikari pooled connection
         dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:mysql://" +
-                              plugin.getSettings().getMySqlHost() +
-                              ":" +
-                              plugin.getSettings().getMySqlPort() +
-                              "/" +
-                              plugin.getSettings().getMySqlDatabase() +
-                              plugin.getSettings().getMySqlConnectionParameters());
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
+                flavor,
+                plugin.getSettings().getMySqlHost(),
+                plugin.getSettings().getMySqlPort(),
+                plugin.getSettings().getMySqlDatabase(),
+                plugin.getSettings().getMySqlConnectionParameters()
+        ));
 
         // Authenticate with the database
         dataSource.setUsername(plugin.getSettings().getMySqlUsername());
@@ -83,42 +92,49 @@ public class MySqlDatabase extends Database {
         dataSource.setPoolName(DATA_POOL_NAME);
 
         // Set additional connection pool properties
-        dataSource.setDataSourceProperties(new Properties() {{
-            put("cachePrepStmts", "true");
-            put("prepStmtCacheSize", "250");
-            put("prepStmtCacheSqlLimit", "2048");
-            put("useServerPrepStmts", "true");
-            put("useLocalSessionState", "true");
-            put("useLocalTransactionState", "true");
-            put("rewriteBatchedStatements", "true");
-            put("cacheResultSetMetadata", "true");
-            put("cacheServerConfiguration", "true");
-            put("elideSetAutoCommits", "true");
-            put("maintainTimeStats", "false");
-        }});
+        final Properties properties = new Properties();
+        properties.putAll(
+                Map.of("cachePrepStmts", "true",
+                        "prepStmtCacheSize", "250",
+                        "prepStmtCacheSqlLimit", "2048",
+                        "useServerPrepStmts", "true",
+                        "useLocalSessionState", "true",
+                        "useLocalTransactionState", "true"
+                ));
+        properties.putAll(
+                Map.of(
+                        "rewriteBatchedStatements", "true",
+                        "cacheResultSetMetadata", "true",
+                        "cacheServerConfiguration", "true",
+                        "elideSetAutoCommits", "true",
+                        "maintainTimeStats", "false")
+        );
+        dataSource.setDataSourceProperties(properties);
 
         // Prepare database schema; make tables if they don't exist
         try (Connection connection = dataSource.getConnection()) {
-            final String[] databaseSchema = getSchemaStatements("database/mysql_schema.sql");
+            final String[] databaseSchema = getSchemaStatements(String.format("database/%s_schema.sql", flavor));
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : databaseSchema) {
                     statement.execute(tableCreationStatement);
                 }
             } catch (SQLException e) {
-                throw new IllegalStateException("Failed to create database tables. Please ensure you are running MySQL v8.0+ " +
-                                                "and that your connecting user account has privileges to create tables.", e);
+                throw new IllegalStateException("Failed to create database tables. Make sure you're running MySQL v8.0+"
+                        + "and that your connecting user account has privileges to create tables.", e);
             }
         } catch (SQLException | IOException e) {
-            throw new IllegalStateException("Failed to establish a connection to the MySQL database. " +
-                                            "Please check the supplied database credentials in the config file", e);
+            throw new IllegalStateException("Failed to establish a connection to the MySQL database. "
+                    + "Please check the supplied database credentials in the config file", e);
         }
     }
 
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%positions_table%` (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
-                        VALUES (?,?,?,?,?,?,?,?);"""),
+                        INSERT INTO `%positions_table%`
+                            (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
+                        VALUES
+                            (?,?,?,?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setDouble(1, position.getX());
@@ -140,7 +156,8 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    protected void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException {
+    protected void updatePosition(int positionId, @NotNull Position position,
+                                  @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                 UPDATE `%positions_table%`
                 SET `x`=?,
@@ -166,10 +183,13 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    protected int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
+    protected int setSavedPosition(@NotNull SavedPosition position,
+                                   @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%saved_positions_table%` (`position_id`, `name`, `description`, `tags`, `timestamp`)
-                        VALUES (?,?,?,?,?);"""),
+                        INSERT INTO `%saved_positions_table%`
+                            (`position_id`, `name`, `description`, `tags`, `timestamp`)
+                        VALUES
+                            (?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, setPosition(position, connection));
@@ -188,7 +208,8 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
+    protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position,
+                                       @NotNull Connection connection) throws SQLException {
         try (PreparedStatement selectStatement = connection.prepareStatement(formatStatementTables("""
                 SELECT `position_id`
                 FROM `%saved_positions_table%`
@@ -218,7 +239,8 @@ public class MySqlDatabase extends Database {
 
     @Override
     public void ensureUser(@NotNull User onlineUser) {
-        getUserData(onlineUser.getUuid()).ifPresentOrElse(existingUserData -> {
+        getUserData(onlineUser.getUuid()).ifPresentOrElse(
+                existingUserData -> {
                     if (!existingUserData.getUsername().equals(onlineUser.getUsername())) {
                         // Update a player's name if it has changed in the database
                         try (Connection connection = getConnection()) {
@@ -231,7 +253,9 @@ public class MySqlDatabase extends Database {
                                 statement.setString(2, existingUserData.getUserUuid().toString());
                                 statement.executeUpdate();
                             }
-                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUserData.getUsername() + " -> " + onlineUser.getUsername() + ")");
+                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername()
+                                    + "'s name in the database (" + existingUserData.getUsername()
+                                    + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -258,7 +282,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUserDataByName(@NotNull String name) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
+                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
                     FROM `%players_table%`
                     WHERE `username`=?"""))) {
                 statement.setString(1, name);
@@ -269,8 +293,8 @@ public class MySqlDatabase extends Database {
                             User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
+                            resultSet.getBoolean("ignoring_requests")
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -283,7 +307,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`, `rtp_cooldown`
+                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
                     FROM `%players_table%`
                     WHERE `uuid`=?"""))) {
 
@@ -295,8 +319,8 @@ public class MySqlDatabase extends Database {
                             User.of(UUID.fromString(resultSet.getString("uuid")),
                                     resultSet.getString("username")),
                             resultSet.getInt("home_slots"),
-                            resultSet.getBoolean("ignoring_requests"),
-                            resultSet.getTimestamp("rtp_cooldown").toInstant()));
+                            resultSet.getBoolean("ignoring_requests")
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -306,15 +330,102 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
+    public void deleteUserData(@NotNull UUID uuid) {
+        try (Connection connection = getConnection()) {
+            // Delete Position
+            PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `id`
+                    IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
+            statement.setString(1, uuid.toString());
+            statement.setString(2, uuid.toString());
+            statement.setString(3, uuid.toString());
+            statement.executeUpdate();
+
+            statement = connection.prepareStatement(formatStatementTables("""
+            DELETE FROM `%players_table%`
+            WHERE `uuid`=?;"""));
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+        }
+    }
+
+    @Override
+    public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    SELECT `type`, `start_timestamp`, `end_timestamp`
+                    FROM `%cooldowns_table%`
+                    WHERE `player_uuid`=? AND `type`=?
+                    ORDER BY `start_timestamp` DESC
+                    LIMIT 1;"""))) {
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return Optional.of(resultSet.getTimestamp("end_timestamp").toInstant());
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch a player's cooldown from the database", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user,
+                            @NotNull Instant cooldownExpiry) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    INSERT INTO `%cooldowns_table%` (`player_uuid`, `type`, `start_timestamp`, `end_timestamp`)
+                    VALUES (?,?,?,?);"""))) {
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+                statement.setTimestamp(3, Timestamp.from(Instant.now()));
+                statement.setTimestamp(4, Timestamp.from(cooldownExpiry));
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to set a player's cooldown in the database", e);
+        }
+    }
+
+    @Override
+    public void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%cooldowns_table%`
+                    WHERE `player_uuid`=? AND `type`=?;"""))) {
+
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to remove a player's cooldown from the database", e);
+        }
+    }
+
+    @Override
     public List<Home> getHomes(@NotNull User user) {
         final List<Home> userHomes = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`,
+                        `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                     FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%players_table%`
+                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `owner_uuid`=?
                     ORDER BY `name`;"""))) {
 
@@ -350,10 +461,13 @@ public class MySqlDatabase extends Database {
         final List<Warp> warps = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                     FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                     ORDER BY `name`;"""))) {
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -384,14 +498,18 @@ public class MySqlDatabase extends Database {
         final List<Home> userHomes = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`,
+                        `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`,
+                        `server_name`, `public`
                     FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%players_table%`
+                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `public`=true
                     ORDER BY `name`;"""))) {
-
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     userHomes.add(Home.from(resultSet.getDouble("x"),
@@ -422,15 +540,22 @@ public class MySqlDatabase extends Database {
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                        `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                        `world_uuid`, `server_name`, `public`
                     FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%players_table%`
+                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `owner_uuid`=?
-                    """ + (caseInsensitive ? "AND UPPER(`name`) LIKE UPPER(?);" : "AND `name`=?;")))) {
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
                 statement.setString(1, user.getUuid().toString());
-                statement.setString(2, homeName);
+                statement.setBoolean(2, caseInsensitive);
+                statement.setString(3, homeName);
+                statement.setString(4, homeName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -461,11 +586,16 @@ public class MySqlDatabase extends Database {
     public Optional<Home> getHome(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                        `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                        `world_uuid`, `server_name`, `public`
                     FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%players_table%`
+                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                     WHERE `%homes_table%`.`uuid`=?;"""))) {
                 statement.setString(1, uuid.toString());
 
@@ -499,12 +629,17 @@ public class MySqlDatabase extends Database {
     public Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                     FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    """ + (caseInsensitive ? "WHERE UPPER(`name`) LIKE UPPER(?);" : "WHERE `name`=?;")))) {
-                statement.setString(1, warpName);
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+                statement.setBoolean(1, caseInsensitive);
+                statement.setString(2, warpName);
+                statement.setString(3, warpName);
 
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
@@ -533,10 +668,13 @@ public class MySqlDatabase extends Database {
     public Optional<Warp> getWarp(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                     FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                    INNER JOIN `%saved_positions_table%`
+                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                    INNER JOIN `%positions_table%`
+                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                     WHERE `%warps_table%`.uuid=?;"""))) {
                 statement.setString(1, uuid.toString());
 
@@ -594,7 +732,7 @@ public class MySqlDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
         } catch (TeleportationException e) {
-            e.displayMessage(onlineUser, plugin);
+            e.displayMessage(onlineUser);
         }
         return Optional.empty();
     }
@@ -604,17 +742,16 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                     UPDATE `%players_table%`
-                    SET `home_slots`=?, `ignoring_requests`=?, `rtp_cooldown`=?
+                    SET `home_slots`=?, `ignoring_requests`=?
                     WHERE `uuid`=?"""))) {
 
                 statement.setInt(1, savedUser.getHomeSlots());
                 statement.setBoolean(2, savedUser.isIgnoringTeleports());
-                statement.setTimestamp(3, Timestamp.from(savedUser.getRtpCooldown()));
-                statement.setString(4, savedUser.getUserUuid().toString());
+                statement.setString(3, savedUser.getUserUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
+            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername(), e);
         }
     }
 
@@ -970,6 +1107,33 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
+    public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%positions_table%`
+                    WHERE `%positions_table%`.`id` IN (
+                        SELECT `position_id`
+                        FROM `%saved_positions_table%`
+                        WHERE `%saved_positions_table%`.`id` IN (
+                            SELECT `saved_position_id`
+                            FROM `%homes_table%`
+                            WHERE `world_name`=?
+                            AND `server_name`=?
+                        )
+                    );"""))) {
+                statement.setString(1, worldName);
+                statement.setString(2, serverName);
+
+                return statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete homes in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
     public void deleteWarp(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
@@ -1009,6 +1173,33 @@ public class MySqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete all warps from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
+    public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%positions_table%`
+                    WHERE `%positions_table%`.`id` IN (
+                        SELECT `position_id`
+                        FROM `%saved_positions_table%`
+                        WHERE `%saved_positions_table%`.`id` IN (
+                            SELECT `saved_position_id`
+                            FROM `%warps_table%`
+                            WHERE `world_name`=?
+                            AND `server_name`=?
+                        )
+                    );"""))) {
+                statement.setString(1, worldName);
+                statement.setString(2, serverName);
+
+                return statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete warps in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
         }
         return 0;
     }

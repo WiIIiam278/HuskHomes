@@ -60,7 +60,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
     }
 
     /**
-     * Search for a safe ground location near the given location
+     * Search for a safe ground location near the given location.
      *
      * @param location The location to search around
      * @return An optional safe location, within 4 blocks of the given location
@@ -89,7 +89,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
     }
 
     /**
-     * Get the highest Y value at the given X and Z coordinates
+     * Get the highest Y value at the given X and Z coordinates.
      *
      * @param blockView The block view to search
      * @param x         The X coordinate

@@ -12,5 +12,20 @@ huskhomes {
             name brigadier:string single_word;
         }
     }
+    delete {
+        player {
+            name brigadier:string single_word;
+        }
+        homes {
+            world brigadier:string single_word {
+                server brigadier:string single_word;
+            }
+        }
+        warps {
+            world brigadier:string single_word {
+                server brigadier:string single_word;
+            }
+        }
+    }
     update;
 }

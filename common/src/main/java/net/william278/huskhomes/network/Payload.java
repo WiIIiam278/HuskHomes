@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Represents a payload sent in a cross-server {@link Message}
+ * Represents a payload sent in a cross-server {@link Message}.
  */
 public class Payload {
 
@@ -53,7 +53,7 @@ public class Payload {
     private List<String> stringList;
 
     /**
-     * Returns an empty cross-server message payload
+     * Returns an empty cross-server message payload.
      *
      * @return an empty payload
      */
@@ -63,7 +63,7 @@ public class Payload {
     }
 
     /**
-     * Returns a payload containing a {@link Position}
+     * Returns a payload containing a {@link Position}.
      *
      * @param position the position to send
      * @return a payload containing the position
@@ -76,7 +76,7 @@ public class Payload {
     }
 
     /**
-     * Returns a payload containing a {@link TeleportRequest}
+     * Returns a payload containing a {@link TeleportRequest}.
      *
      * @param teleportRequest the teleport to send
      * @return a payload containing the teleport request
@@ -89,7 +89,7 @@ public class Payload {
     }
 
     /**
-     * A string field
+     * A string field.
      */
     @NotNull
     public static Payload withString(@NotNull String target) {
@@ -99,7 +99,7 @@ public class Payload {
     }
 
     /**
-     * A string list field
+     * A string list field.
      */
     @NotNull
     public static Payload withStringList(@NotNull List<String> target) {
@@ -112,7 +112,7 @@ public class Payload {
     }
 
     /**
-     * A position field
+     * A position field.
      */
     public Optional<Position> getPosition() {
         return Optional.ofNullable(position);
@@ -120,21 +120,21 @@ public class Payload {
 
 
     /**
-     * A teleport request field
+     * A teleport request field.
      */
     public Optional<TeleportRequest> getTeleportRequest() {
         return Optional.ofNullable(teleportRequest);
     }
 
     /**
-     * A string field
+     * A string field.
      */
     public Optional<String> getString() {
         return Optional.ofNullable(string);
     }
 
     /**
-     * A string list field
+     * A string list field.
      */
     public Optional<List<String>> getStringList() {
         return Optional.ofNullable(stringList);

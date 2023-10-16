@@ -2,16 +2,18 @@ import org.spongepowered.gradle.plugin.config.PluginLoaders
 import org.spongepowered.plugin.metadata.model.PluginDependency
 
 plugins {
-    id 'org.spongepowered.gradle.plugin' version '2.1.1'
+    id 'org.spongepowered.gradle.plugin' version '2.2.0'
 }
 
 dependencies {
     implementation project(path: ':common')
 
     implementation 'org.bstats:bstats-sponge:3.0.2'
-    implementation 'redis.clients:jedis:' + jedis_version
-    implementation 'com.mysql:mysql-connector-j:' + mysql_driver_version
-    implementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
+    implementation "redis.clients:jedis:$jedis_version"
+    implementation "com.mysql:mysql-connector-j:$mysql_driver_version"
+    implementation "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
+    implementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
+    implementation "com.h2database:h2:$h2_driver_version"
 }
 
 sponge {
@@ -28,8 +30,8 @@ sponge {
         description(project.description.toString())
         links {
             homepage("https://william278.net/project/huskhomes")
-            source("https://github.com/WiIIiam278/HuskHomes2")
-            issues("https://github.com/WiIIiam278/HuskHomes2/issues")
+            source("https://github.com/WiIIiam278/HuskHomes")
+            issues("https://github.com/WiIIiam278/HuskHomes/issues")
         }
         contributor("William278") {
             description("Author")

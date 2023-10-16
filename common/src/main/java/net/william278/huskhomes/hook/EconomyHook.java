@@ -22,23 +22,22 @@ package net.william278.huskhomes.hook;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 /**
- * A hook that provides economy features
+ * A hook that provides economy features.
  */
 public abstract class EconomyHook extends Hook {
-
-    public static final String BYPASS_PERMISSION = "huskhomes.bypass_economy_checks";
 
     protected EconomyHook(@NotNull HuskHomes plugin, @NotNull String hookName) {
         super(plugin, hookName);
     }
 
     /**
-     * Get the balance of a player
+     * Get the balance of a player.
      *
      * @param player the player to get the balance of
      * @return the balance of the player
@@ -46,7 +45,7 @@ public abstract class EconomyHook extends Hook {
     public abstract double getPlayerBalance(@NotNull OnlineUser player);
 
     /**
-     * Set the balance of a player
+     * Set the balance of a player.
      *
      * @param player the player to set the balance of
      * @param amount the amount to set the balance to
@@ -54,7 +53,7 @@ public abstract class EconomyHook extends Hook {
     public abstract void changePlayerBalance(@NotNull OnlineUser player, final double amount);
 
     /**
-     * Format a balance to a string
+     * Format a balance to a string.
      *
      * @param amount the amount to format
      * @return the formatted string
@@ -62,14 +61,14 @@ public abstract class EconomyHook extends Hook {
     public abstract String formatCurrency(final double amount);
 
     /**
-     * Send the player a message notifying them that they have been charged
-     * for performing an action
+     * Send the player a message notifying them that they have been charged for performing an action.
      *
      * @param user   the user to notify
      * @param plugin the plugin instance
      * @param action the action that was performed
      */
-    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin, @NotNull Action action) {
+    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin,
+                                     @NotNull TransactionResolver.Action action) {
         plugin.getSettings().getEconomyCost(action)
                 .flatMap(cost -> plugin.getLocales().getLocale(
                         "economy_transaction_complete",
@@ -82,31 +81,35 @@ public abstract class EconomyHook extends Hook {
     }
 
     /**
-     * Identifies actions that have a price associated with performing them
+     * Send the player a message notifying them that they have been charged for performing an action.
+     *
+     * @param user   the user to notify
+     * @param plugin the plugin instance
+     * @param action the action that was performed
+     * @deprecated See {@link #notifyDeducted(OnlineUser, HuskHomes, TransactionResolver.Action)} instead
      */
+    @Deprecated(since = "4.4", forRemoval = true)
+    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin, @NotNull Action action) {
+        this.notifyDeducted(user, plugin, action.getTransactionAction());
+    }
+
+    /**
+     * Economy actions for which a player can be charged.
+     *
+     * @deprecated Use the new {@link TransactionResolver.Action} enum instead
+     */
+    @Deprecated(since = "4.4", forRemoval = true)
     public enum Action {
-
-        /*
-         * Home and public home slots
-         */
-        ADDITIONAL_HOME_SLOT(100.00),
-        MAKE_HOME_PUBLIC(50.00),
-        BACK_COMMAND(0.00),
-
-        /*
-         * Teleportation actions
-         */
-        RANDOM_TELEPORT(25.00),
-        HOME_TELEPORT(0.00),
-        PUBLIC_HOME_TELEPORT(0.00),
-        WARP_TELEPORT(0.00),
-        SPAWN_TELEPORT(0.00),
-
-        /*
-         * Teleport request actions
-         */
-        SEND_TELEPORT_REQUEST(0.00),
-        ACCEPT_TELEPORT_REQUEST(0.00);
+        ADDITIONAL_HOME_SLOT(100d),
+        MAKE_HOME_PUBLIC(50d),
+        BACK_COMMAND,
+        RANDOM_TELEPORT(25d),
+        HOME_TELEPORT,
+        PUBLIC_HOME_TELEPORT,
+        WARP_TELEPORT,
+        SPAWN_TELEPORT,
+        SEND_TELEPORT_REQUEST,
+        ACCEPT_TELEPORT_REQUEST;
 
         private final double defaultCost;
 
@@ -114,9 +117,31 @@ public abstract class EconomyHook extends Hook {
             this.defaultCost = defaultCost;
         }
 
+        Action() {
+            this(0d);
+        }
+
+        /**
+         * Create an action with a default cost.
+         *
+         * @return the default cost
+         * @deprecated Use the new {@link TransactionResolver.Action#getDefaultCost()} instead
+         */
+        @Deprecated(since = "4.4", forRemoval = true)
         public double getDefaultCost() {
             return defaultCost;
         }
 
+        /**
+         * Translate this legacy Action to the new {@link TransactionResolver.Action}.
+         *
+         * @return the equivalent {@link TransactionResolver.Action}
+         */
+        @NotNull
+        public TransactionResolver.Action getTransactionAction() {
+            return TransactionResolver.Action.valueOf(this.name());
+        }
+
     }
+
 }

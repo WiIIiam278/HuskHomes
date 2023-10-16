@@ -35,7 +35,8 @@ public class SpongeHomeCreateEvent implements IHomeCreateEvent, Event, Cancellab
     private Position position;
     private final CommandUser creator;
 
-    public SpongeHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    public SpongeHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                                 @NotNull CommandUser creator) {
         this.owner = owner;
         this.name = name;
         this.position = position;

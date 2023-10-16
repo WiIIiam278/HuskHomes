@@ -24,18 +24,23 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a home is edited
+ * Representation of an event that fires when a home is edited.
  */
 public interface IHomeEditEvent extends Cancellable {
 
     /**
-     * Get the home about to be saved
+     * Get the home about to be saved.
      *
      * @return the {@link Home} being saved
      */
     @NotNull
     Home getHome();
 
+    /**
+     * Get the user who is editing the home.
+     *
+     * @return the {@link CommandUser} who is editing the home
+     */
     @NotNull
     CommandUser getEditor();
 

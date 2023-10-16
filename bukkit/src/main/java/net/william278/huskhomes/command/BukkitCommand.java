@@ -21,13 +21,11 @@ package net.william278.huskhomes.command;
 
 import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.CommandUser;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -36,69 +34,77 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
-public class BukkitCommand implements CommandExecutor, TabCompleter {
+public class BukkitCommand extends org.bukkit.command.Command {
 
     private final BukkitHuskHomes plugin;
     private final Command command;
 
     public BukkitCommand(@NotNull Command command, @NotNull BukkitHuskHomes plugin) {
+        super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
         this.command = command;
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
-                             @NotNull String label, @NotNull String[] args) {
-        this.command.onExecuted(sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args);
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+        this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
         return true;
     }
 
-    @Nullable
+    @NotNull
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command,
-                                      @NotNull String alias, @NotNull String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                                    @NotNull String[] args) throws IllegalArgumentException {
         if (!(this.command instanceof TabProvider provider)) {
             return List.of();
         }
-        final CommandUser user = sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole();
+        final CommandUser user = sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole();
         return provider.getSuggestions(user, args);
     }
 
     public void register() {
         // Register with bukkit
-        final PluginCommand pluginCommand = plugin.getCommand(command.getName());
-        if (pluginCommand == null) {
-            throw new IllegalStateException("Command " + command.getName() + " not found in plugin.yml");
-        }
+        plugin.getCommandRegistrar().getServerCommandMap().register("huskhomes", this);
 
         // Register permissions
-        addPermission(plugin, command.getPermission(), command.getUsage(), getPermissionDefault(command.isOperatorCommand()));
+        BukkitCommand.addPermission(
+                plugin,
+                command.getPermission(),
+                command.getUsage(),
+                BukkitCommand.getPermissionDefault(command.isOperatorCommand())
+        );
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
-                .map((entry) -> addPermission(plugin, entry.getKey(), "", getPermissionDefault(entry.getValue())))
+                .map((entry) -> BukkitCommand.addPermission(
+                        plugin,
+                        entry.getKey(),
+                        "",
+                        BukkitCommand.getPermissionDefault(entry.getValue()))
+                )
                 .filter(Objects::nonNull)
                 .toList();
         if (!childNodes.isEmpty()) {
-            addPermission(plugin, command.getPermission("*"), command.getUsage(), PermissionDefault.FALSE,
-                    childNodes.toArray(new Permission[0]));
+            BukkitCommand.addPermission(
+                    plugin,
+                    command.getPermission("*"),
+                    command.getUsage(),
+                    PermissionDefault.FALSE,
+                    childNodes.toArray(new Permission[0])
+            );
         }
-
-        // Set command parameters
-        pluginCommand.setExecutor(this);
-        pluginCommand.setTabCompleter(this);
-        pluginCommand.setDescription(command.getDescription());
-        pluginCommand.setPermission(command.getPermission());
 
         // Register commodore TAB completion
         if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
-            BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
+            BrigadierUtil.registerCommodore(plugin, this, command);
         }
     }
 
     @Nullable
-    protected static Permission addPermission(@NotNull BukkitHuskHomes plugin, @NotNull String node, @NotNull String description,
-                                              @NotNull PermissionDefault permissionDefault, @NotNull Permission... children) {
+    protected static Permission addPermission(@NotNull BukkitHuskHomes plugin, @NotNull String node,
+                                              @NotNull String description, @NotNull PermissionDefault permissionDefault,
+                                              @NotNull Permission... children) {
         final Map<String, Boolean> childNodes = Arrays.stream(children)
                 .map(Permission::getName)
                 .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
@@ -125,46 +131,57 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Commands available on the Bukkit HuskHomes implementation
+     * Commands available on the Bukkit HuskHomes implementation.
      */
     public enum Type {
-        HOME_COMMAND(new PrivateHomeCommand(BukkitHuskHomes.getInstance())),
-        SET_HOME_COMMAND(new SetHomeCommand(BukkitHuskHomes.getInstance())),
-        HOME_LIST_COMMAND(new PrivateHomeListCommand(BukkitHuskHomes.getInstance())),
-        DEL_HOME_COMMAND(new DelHomeCommand(BukkitHuskHomes.getInstance())),
-        EDIT_HOME_COMMAND(new EditHomeCommand(BukkitHuskHomes.getInstance())),
-        PUBLIC_HOME_COMMAND(new PublicHomeCommand(BukkitHuskHomes.getInstance())),
-        PUBLIC_HOME_LIST_COMMAND(new PublicHomeListCommand(BukkitHuskHomes.getInstance())),
-        WARP_COMMAND(new WarpCommand(BukkitHuskHomes.getInstance())),
-        SET_WARP_COMMAND(new SetWarpCommand(BukkitHuskHomes.getInstance())),
-        WARP_LIST_COMMAND(new WarpListCommand(BukkitHuskHomes.getInstance())),
-        DEL_WARP_COMMAND(new DelWarpCommand(BukkitHuskHomes.getInstance())),
-        EDIT_WARP_COMMAND(new EditWarpCommand(BukkitHuskHomes.getInstance())),
-        TP_COMMAND(new TpCommand(BukkitHuskHomes.getInstance())),
-        TP_HERE_COMMAND(new TpHereCommand(BukkitHuskHomes.getInstance())),
-        TPA_COMMAND(new TeleportRequestCommand(BukkitHuskHomes.getInstance(), TeleportRequest.Type.TPA)),
-        TPA_HERE_COMMAND(new TeleportRequestCommand(BukkitHuskHomes.getInstance(), TeleportRequest.Type.TPA_HERE)),
-        TPACCEPT_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), true)),
-        TPDECLINE_COMMAND(new TpRespondCommand(BukkitHuskHomes.getInstance(), false)),
-        RTP_COMMAND(new RtpCommand(BukkitHuskHomes.getInstance())),
-        TP_IGNORE_COMMAND(new TpIgnoreCommand(BukkitHuskHomes.getInstance())),
-        TP_OFFLINE_COMMAND(new TpOfflineCommand(BukkitHuskHomes.getInstance())),
-        TP_ALL_COMMAND(new TpAllCommand(BukkitHuskHomes.getInstance())),
-        TPA_ALL_COMMAND(new TpaAllCommand(BukkitHuskHomes.getInstance())),
-        SPAWN_COMMAND(new SpawnCommand(BukkitHuskHomes.getInstance())),
-        SET_SPAWN_COMMAND(new SetSpawnCommand(BukkitHuskHomes.getInstance())),
-        BACK_COMMAND(new BackCommand(BukkitHuskHomes.getInstance())),
-        HUSKHOMES_COMMAND(new HuskHomesCommand(BukkitHuskHomes.getInstance()));
+        HOME_COMMAND(PrivateHomeCommand::new),
+        SET_HOME_COMMAND(SetHomeCommand::new),
+        HOME_LIST_COMMAND(PrivateHomeListCommand::new),
+        DEL_HOME_COMMAND(DelHomeCommand::new),
+        EDIT_HOME_COMMAND(EditHomeCommand::new),
+        PUBLIC_HOME_COMMAND(PublicHomeCommand::new),
+        PUBLIC_HOME_LIST_COMMAND(PublicHomeListCommand::new),
+        WARP_COMMAND(WarpCommand::new),
+        SET_WARP_COMMAND(SetWarpCommand::new),
+        WARP_LIST_COMMAND(WarpListCommand::new),
+        DEL_WARP_COMMAND(DelWarpCommand::new),
+        EDIT_WARP_COMMAND(EditWarpCommand::new),
+        TP_COMMAND(TpCommand::new),
+        TP_HERE_COMMAND(TpHereCommand::new),
+        TPA_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA)),
+        TPA_HERE_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA_HERE)),
+        TPACCEPT_COMMAND((plugin) -> new TpRespondCommand(plugin, true)),
+        TPDECLINE_COMMAND((plugin) -> new TpRespondCommand(plugin, false)),
+        RTP_COMMAND(RtpCommand::new),
+        TP_IGNORE_COMMAND(TpIgnoreCommand::new),
+        TP_OFFLINE_COMMAND(TpOfflineCommand::new),
+        TP_ALL_COMMAND(TpAllCommand::new),
+        TPA_ALL_COMMAND(TpaAllCommand::new),
+        SPAWN_COMMAND(SpawnCommand::new),
+        SET_SPAWN_COMMAND(SetSpawnCommand::new),
+        BACK_COMMAND(BackCommand::new),
+        HUSKHOMES_COMMAND(HuskHomesCommand::new);
 
-        private final Command command;
+        private final Function<HuskHomes, Command> supplier;
 
-        Type(@NotNull Command command) {
-            this.command = command;
+        Type(@NotNull Function<HuskHomes, Command> supplier) {
+            this.supplier = supplier;
         }
 
         @NotNull
-        public Command getCommand() {
-            return command;
+        public Command createCommand(@NotNull HuskHomes plugin) {
+            return supplier.apply(plugin);
         }
+
+        @NotNull
+        public static List<Command> getCommands(@NotNull BukkitHuskHomes plugin) {
+            return Arrays.stream(values())
+                    .map((type) -> type.createCommand(plugin))
+                    .filter((command) -> !plugin.getSettings().isCommandDisabled(command))
+                    .peek((command) -> new BukkitCommand(command, plugin).register())
+                    .toList();
+        }
+
     }
+
 }

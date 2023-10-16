@@ -39,12 +39,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
- * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps
+ * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps.
  */
 public class BlueMapHook extends MapHook {
 
@@ -58,20 +58,20 @@ public class BlueMapHook extends MapHook {
     @Override
     public void initialize() {
         BlueMapAPI.onEnable(api -> {
-            this.publicHomesMarkerSets = new HashMap<>();
-            this.warpsMarkerSets = new HashMap<>();
+            this.publicHomesMarkerSets = new ConcurrentHashMap<>();
+            this.warpsMarkerSets = new ConcurrentHashMap<>();
 
             for (World world : plugin.getWorlds()) {
                 this.editMapWorld(world, (mapWorld -> {
-                    final MarkerSet publicHomeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
+                    final MarkerSet homeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
                     final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
 
                     for (BlueMapMap map : mapWorld.getMaps()) {
-                        map.getMarkerSets().put(getPublicHomesKey(), publicHomeMarkers);
+                        map.getMarkerSets().put(getPublicHomesKey(), homeMarkers);
                         map.getMarkerSets().put(getWarpsKey(), warpsMarkers);
                     }
 
-                    publicHomesMarkerSets.put(world.getName(), publicHomeMarkers);
+                    publicHomesMarkerSets.put(world.getName(), homeMarkers);
                     warpsMarkerSets.put(world.getName(), warpsMarkers);
                 }));
             }
@@ -114,6 +114,13 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
+    public void clearHomes(@NotNull String worldName) {
+        if (publicHomesMarkerSets != null) {
+            publicHomesMarkerSets.get(worldName).getMarkers().clear();
+        }
+    }
+
+    @Override
     public void updateWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
@@ -140,6 +147,13 @@ public class BlueMapHook extends MapHook {
     public void clearWarps() {
         if (warpsMarkerSets != null) {
             warpsMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().clear());
+        }
+    }
+
+    @Override
+    public void clearWarps(@NotNull String worldName) {
+        if (warpsMarkerSets != null) {
+            warpsMarkerSets.get(worldName).getMarkers().clear();
         }
     }
 

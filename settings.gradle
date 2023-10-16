@@ -8,9 +8,15 @@ pluginManagement {
 rootProject.name = 'HuskHomes'
 include(
         'common',
+
+        // Paper/Spigot
         'bukkit',
         'paper',
         'plugin',
+
+        // Fabric
         'fabric',
+
+        // Sponge
         'sponge'
 )

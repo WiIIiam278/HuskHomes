@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.network;
 
+import net.kyori.adventure.key.InvalidKeyException;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
@@ -27,15 +28,17 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public abstract class Broker {
 
     protected final HuskHomes plugin;
 
     /**
-     * Create a new broker
+     * Create a new broker.
      *
      * @param plugin the HuskHomes plugin instance
      */
@@ -44,9 +47,9 @@ public abstract class Broker {
     }
 
     /**
-     * Handle an inbound {@link Message}
+     * Handle an inbound {@link Message}.
      *
-     * @param receiver The user who received the message, if a receiver exists
+     * @param receiver The user who received the message if a receiver exists
      * @param message  The message
      */
     protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
@@ -63,7 +66,7 @@ public abstract class Broker {
                                     .toTeleport()
                                     .execute();
                         } catch (TeleportationException e) {
-                            e.displayMessage(plugin.getConsole(), plugin);
+                            e.displayMessage(plugin.getConsole());
                         }
                     });
             case TELEPORT_TO_NETWORKED_POSITION -> Message.builder()
@@ -117,18 +120,19 @@ public abstract class Broker {
                 plugin.getManager().homes().updatePublicHomeCache();
                 plugin.getManager().warps().updateWarpCache();
             }
+            default -> throw new IllegalStateException("Unexpected value: " + message.getType());
         }
     }
 
     /**
-     * Initialize the message broker
+     * Initialize the message broker.
      *
      * @throws RuntimeException if the broker fails to initialize
      */
     public abstract void initialize() throws IllegalStateException;
 
     /**
-     * Send a message to the broker
+     * Send a message to the broker.
      *
      * @param message the message to send
      * @param sender  the sender of the message
@@ -136,7 +140,7 @@ public abstract class Broker {
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
 
     /**
-     * Move an {@link OnlineUser} to a new server on the proxy network
+     * Move an {@link OnlineUser} to a new server on the proxy network.
      *
      * @param user   the user to move
      * @param server the server to move the user to
@@ -144,23 +148,30 @@ public abstract class Broker {
     public abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
     /**
-     * Terminate the broker
+     * Terminate the broker.
      */
     public abstract void close();
 
+    // Get the formatted channel ID for the broker
     @NotNull
     protected String getSubChannelId() {
-        final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
-        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
+        final String version = String.format("%s.%s", plugin.getVersion().getMajor(), plugin.getVersion().getMinor());
+        try {
+            return plugin.getKey(plugin.getSettings().getClusterId().toLowerCase(Locale.ENGLISH), version).asString();
+        } catch (InvalidKeyException e) {
+            plugin.log(Level.SEVERE, "Cluster ID specified in config contains invalid characters");
+        }
+        return plugin.getKey("main", version).asString();
     }
 
+    // Get the name of this server
     @NotNull
     protected String getServer() {
         return plugin.getServerName();
     }
 
     /**
-     * Identifies types of message brokers
+     * Identifies types of message brokers.
      */
     public enum Type {
         PLUGIN_MESSAGE("Plugin Messages"),

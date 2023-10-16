@@ -31,18 +31,15 @@ import java.util.logging.Level;
 
 /**
  * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> message
- * broker implementation
+ * broker implementation.
  */
 public class PluginMessageBroker extends Broker {
 
     /**
      * The name of BungeeCord's provided plugin channel.
      *
-     * @implNote Technically, the effective identifier of this channel is {@code bungeecord:main},  but Spigot remaps
-     * {@code BungeeCord} automatically to the new one (<a href="https://wiki.vg/Plugin_channels#bungeecord:main">source</a>).
-     * Spigot's <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">official documentation</a>
-     * still instructs usage of {@code BungeeCord} as the name to use, however. It's all a bit inconsistent, so just in case
-     * it's best to leave it how it is for to maintain backwards compatibility.
+     * <p>Internally, this is <a href="https://wiki.vg/Plugin_channels#bungeecord:main">{@code bungeecord:main}</a>,
+     * but Spigot remaps {@code BungeeCord} automatically to the new one (hence BungeeCord is kept for back-compat).
      */
     public static final String BUNGEE_CHANNEL_ID = "BungeeCord";
 
@@ -55,7 +52,6 @@ public class PluginMessageBroker extends Broker {
         plugin.initializePluginChannels();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public final void onReceive(@NotNull String channel, @NotNull OnlineUser user, byte[] message) {
         if (!channel.equals(BUNGEE_CHANNEL_ID)) {
             return;
@@ -79,7 +75,6 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
         messageWriter.writeUTF(message.getScope().getPluginMessageChannel());
@@ -102,7 +97,6 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
 
@@ -115,4 +109,5 @@ public class PluginMessageBroker extends Broker {
     @Override
     public void close() {
     }
+
 }

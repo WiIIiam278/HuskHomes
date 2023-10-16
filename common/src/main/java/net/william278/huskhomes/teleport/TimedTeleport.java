@@ -22,13 +22,13 @@ package net.william278.huskhomes.teleport;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.Task;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents a {@link Teleport} that has an associated warmup time; the teleport will not be performed until the
@@ -36,17 +36,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see Teleport#builder(HuskHomes)
  */
-public class TimedTeleport extends Teleport {
+public class TimedTeleport extends Teleport implements Runnable {
 
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
     private final OnlineUser teleporter;
     private final Position startLocation;
     private final double startHealth;
+    private Task.Repeating task;
     private int timeLeft;
 
     protected TimedTeleport(@NotNull OnlineUser executor, @NotNull OnlineUser teleporter, @NotNull Target target,
                             @NotNull Type type, int warmupTime, boolean updateLastPosition,
-                            @NotNull List<EconomyHook.Action> actions, @NotNull HuskHomes plugin) {
+                            @NotNull List<TransactionResolver.Action> actions, @NotNull HuskHomes plugin) {
         super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
@@ -64,15 +65,15 @@ public class TimedTeleport extends Teleport {
 
         // Check if the teleporter is already warming up to teleport
         if (plugin.isWarmingUp(teleporter.getUuid())) {
-            throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP);
+            throw new TeleportationException(TeleportationException.Type.ALREADY_WARMING_UP, plugin);
         }
 
         // Validate economy actions
-        validateEconomyActions();
+        validateTransactions();
 
         // Check if they are moving at the start of the teleport
         if (teleporter.isMoving()) {
-            throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING);
+            throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING, plugin);
         }
 
         // Process the warmup and execute the teleport
@@ -87,38 +88,40 @@ public class TimedTeleport extends Teleport {
                     .ifPresent(teleporter::sendMessage);
 
             // Run the warmup
-            final AtomicInteger warmupTaskId = new AtomicInteger();
-            final Runnable countdownRunnable = (() -> {
-                // Display a countdown action bar message
-                if (timeLeft > 0) {
-                    plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
-                            .ifPresent(teleporter::playSound);
-                    plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
-                            .ifPresent(this::sendStatusMessage);
-                } else {
-                    plugin.getLocales().getLocale("teleporting_action_bar_processing")
-                            .ifPresent(this::sendStatusMessage);
-                    try {
-                        super.execute();
-                    } catch (TeleportationException e) {
-                        e.displayMessage(teleporter, plugin);
-                    }
-                }
-
-                // Tick (decrement) the timed teleport timer and end it if done
-                if (tickAndGetIfDone()) {
-                    plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-                    plugin.cancelTask(warmupTaskId.get());
-                }
-            });
-            warmupTaskId.set(plugin.runAsyncRepeating(countdownRunnable, 20L));
+            this.task = plugin.getRepeatingTask(this, 20L);
+            this.task.run();
         });
     }
 
+    @Override
+    public void run() {
+        // Display a countdown action bar message
+        if (timeLeft > 0) {
+            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
+                    .ifPresent(teleporter::playSound);
+            plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
+                    .ifPresent(this::sendStatusMessage);
+        } else {
+            plugin.getLocales().getLocale("teleporting_action_bar_processing")
+                    .ifPresent(this::sendStatusMessage);
+            try {
+                super.execute();
+            } catch (TeleportationException e) {
+                e.displayMessage(teleporter);
+            }
+        }
+
+        // Tick (decrement) the timed teleport timer and end it if done
+        if (tickAndGetIfDone()) {
+            task.cancel();
+            plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
+        }
+    }
+
     /**
-     * Ticks a timed teleport, decrementing the time left until the teleport is complete
-     * <p>
-     * A timed teleport will be canceled if certain criteria are met:
+     * Ticks a timed teleport, decrementing the time left until the teleport is complete.
+     *
+     * <p>A timed teleport will be canceled if certain criteria are met:
      * <ul>
      *     <li>The player has left the server</li>
      *     <li>The plugin is disabling</li>
@@ -166,9 +169,9 @@ public class TimedTeleport extends Teleport {
 
     private boolean hasTeleporterMoved() {
         final double maxMovementDistance = 0.1d;
-        double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX()) +
-                                  Math.abs(startLocation.getY() - teleporter.getPosition().getY()) +
-                                  Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
+        double movementDistance = Math.abs(startLocation.getX() - teleporter.getPosition().getX())
+                + Math.abs(startLocation.getY() - teleporter.getPosition().getY())
+                + Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
     }
 

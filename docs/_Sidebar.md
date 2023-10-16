@@ -7,10 +7,12 @@
 * 📜 [[Command Conflicts]]
 
 ## Documentation
+* 📁 [[Database]]
 * ⛅ [[Redis Support]]
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]
 * 🗺️ [[Map Hooks]]
+* ⏰ [[Cooldowns]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
 * 🚫 [[Restricted Warps]]
@@ -24,7 +26,7 @@
   * ❗ [[API Events]]
 
 ## Links
-* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes2)
+* 💻 [GitHub](https://github.com/WiIIiam278/HuskHomes)
 * 📂 [Downloads](https://william278.net/project/huskhomes/)
   * 🔧 [Modrinth](https://modrinth.com/plugin/huskhomes)
   * 🚰 [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/)

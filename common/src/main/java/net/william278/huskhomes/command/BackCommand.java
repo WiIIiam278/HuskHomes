@@ -20,11 +20,11 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -35,7 +35,10 @@ public class BackCommand extends InGameCommand {
 
     protected BackCommand(@NotNull HuskHomes plugin) {
         super("back", List.of(), "", plugin);
-        addAdditionalPermissions(Map.of("death", false));
+        addAdditionalPermissions(Map.of(
+                "death", false,
+                "previous", false
+        ));
     }
 
     @Override
@@ -51,12 +54,12 @@ public class BackCommand extends InGameCommand {
             Teleport.builder(plugin)
                     .teleporter(executor)
                     .target(lastPosition.get())
-                    .economyActions(EconomyHook.Action.BACK_COMMAND)
+                    .actions(TransactionResolver.Action.BACK_COMMAND)
                     .type(Teleport.Type.BACK)
                     .toTimedTeleport()
                     .execute();
         } catch (TeleportationException e) {
-            e.displayMessage(executor, plugin, args);
+            e.displayMessage(executor, args);
         }
     }
 

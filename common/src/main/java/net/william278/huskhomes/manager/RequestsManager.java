@@ -21,7 +21,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
@@ -31,13 +30,15 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Manages {@link TeleportRequest}s between players
+ * Manages {@link TeleportRequest}s between players.
  */
 public class RequestsManager {
 
@@ -48,11 +49,11 @@ public class RequestsManager {
 
     public RequestsManager(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
-        this.requests = new HashMap<>();
+        this.requests = new ConcurrentHashMap<>();
     }
 
     /**
-     * Return if a user is ignoring tpa requests
+     * Return if a user is ignoring tpa requests.
      *
      * @param user the user to check
      * @return {@code true} if the user is ignoring tpa requests
@@ -62,7 +63,7 @@ public class RequestsManager {
     }
 
     /**
-     * Add a teleport request to a user's request queue
+     * Add a teleport request to a user's request queue.
      *
      * @param request   the {@link TeleportRequest} to add
      * @param recipient the {@link User} recipient of the request
@@ -72,7 +73,7 @@ public class RequestsManager {
     }
 
     /**
-     * Remove {@link TeleportRequest}(s) sent by a requester, by name, from a recipient's queue
+     * Remove {@link TeleportRequest}(s) sent by a requester, by name, from a recipient's queue.
      *
      * @param requesterName the sender's username, whose requests should be removed
      * @param recipient     the {@link User} recipient of the request
@@ -85,7 +86,7 @@ public class RequestsManager {
     }
 
     /**
-     * Get the last received teleport request for a user
+     * Get the last received teleport request for a user.
      *
      * @param recipient the user to get the request for
      * @return the last received request, if present
@@ -199,7 +200,7 @@ public class RequestsManager {
         plugin.fireEvent(plugin.getReceiveTeleportRequestEvent(recipient, request), (event -> {
             addTeleportRequest(request, recipient);
             plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                                          + "_request_received", request.getRequesterName())
+                            + "_request_received", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
             plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
@@ -209,7 +210,7 @@ public class RequestsManager {
     }
 
     /**
-     * Respond to a teleport request with the given status by name of the sender
+     * Respond to a teleport request with the given status by name of the sender.
      *
      * @param recipient  The user receiving the request
      * @param senderName The name of the user sending the request
@@ -235,7 +236,7 @@ public class RequestsManager {
     }
 
     /**
-     * Respond to the last received teleport request for a user, if there is one
+     * Respond to the last received teleport request for a user if there is one.
      *
      * @param recipient The user receiving the request
      * @param accepted  Whether the request should be accepted or not
@@ -257,7 +258,7 @@ public class RequestsManager {
         }
 
         // Validate the economy check
-        if (accepted && !plugin.canPerformTransaction(recipient, EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)) {
+        if (accepted && !plugin.validateTransaction(recipient, TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)) {
             return;
         }
 
@@ -265,13 +266,14 @@ public class RequestsManager {
     }
 
     /**
-     * Handle; respond to; a teleport request
+     * Handle the response to a teleport request.
      *
      * @param request   The request to handle
      * @param recipient The recipient of the request
      * @param accepted  Whether the request should be accepted or not
      */
-    private void handleRequestResponse(@NotNull TeleportRequest request, @NotNull OnlineUser recipient, boolean accepted) {
+    private void handleRequestResponse(@NotNull TeleportRequest request, @NotNull OnlineUser recipient,
+                                       boolean accepted) {
         // Remove the request(s) from the sender from the recipient's queue
         removeTeleportRequest(request.getRequesterName(), recipient);
 
@@ -308,7 +310,7 @@ public class RequestsManager {
             // If the request is a tpa here request, teleport the recipient to the sender
             if (accepted && request.getType() == TeleportRequest.Type.TPA_HERE) {
                 final TeleportBuilder builder = Teleport.builder(plugin)
-                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
+                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
                         .teleporter(recipient);
 
                 // Strict /tpahere requests will teleport to where the sender was when typing the command
@@ -321,14 +323,14 @@ public class RequestsManager {
                 try {
                     builder.toTimedTeleport().execute();
                 } catch (TeleportationException e) {
-                    e.displayMessage(recipient, plugin);
+                    e.displayMessage(recipient);
                 }
             }
         }));
     }
 
     /**
-     * Handle a teleport request response for a local user
+     * Handle a teleport request response for a local user.
      *
      * @param requester The user who sent the request
      * @param request   The {@link TeleportRequest} to handle
@@ -352,11 +354,11 @@ public class RequestsManager {
                 Teleport.builder(plugin)
                         .teleporter(requester)
                         .target(request.getRecipientName())
-                        .economyActions(EconomyHook.Action.ACCEPT_TELEPORT_REQUEST)
+                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
                         .toTimedTeleport()
                         .execute();
             } catch (TeleportationException e) {
-                e.displayMessage(requester, plugin);
+                e.displayMessage(requester);
             }
         }
     }

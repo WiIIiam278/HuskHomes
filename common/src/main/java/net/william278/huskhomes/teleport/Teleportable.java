@@ -24,14 +24,14 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a teleporter; the person performing the teleport.
- * <p>
- * Can be represented as an {@link OnlineUser} locally or as a {@link Username username} reference
+ *
+ * <p>Can be represented as an {@link OnlineUser} locally or as a {@link Username username} reference
  * that needs to be resolved first.
  */
 public interface Teleportable {
 
     /**
-     * Create a {@link Teleportable} from a player name
+     * Create a {@link Teleportable} from a player name.
      *
      * @param teleporter the player name
      * @return the teleportable
@@ -42,7 +42,7 @@ public interface Teleportable {
     }
 
     /**
-     * Get the username of the teleporter
+     * Get the username of the teleporter.
      *
      * @return the username string
      */

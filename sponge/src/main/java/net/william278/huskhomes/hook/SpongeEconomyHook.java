@@ -54,9 +54,17 @@ public class SpongeEconomyHook extends EconomyHook {
             final double currentBalance = getPlayerBalance(player);
             final double amountToChange = Math.abs(currentBalance - Math.max(0d, currentBalance + amount));
             if (amount < 0d) {
-                account.withdraw(currency, BigDecimal.valueOf(amountToChange), getServer().causeStackManager().currentCause());
+                account.withdraw(
+                        currency,
+                        BigDecimal.valueOf(amountToChange),
+                        getServer().causeStackManager().currentCause()
+                );
             } else {
-                account.deposit(currency, BigDecimal.valueOf(amountToChange), getServer().causeStackManager().currentCause());
+                account.deposit(
+                        currency,
+                        BigDecimal.valueOf(amountToChange),
+                        getServer().causeStackManager().currentCause()
+                );
             }
         }
     }

@@ -17,8 +17,8 @@
   "license": "Apache-2.0",
   "contact": {
     "homepage": "https://william278.net/project/huskhomes/",
-    "repo": "https://github.com/WiIIiam278/HuskHomes2",
-    "issues": "https://github.com/WiIIiam278/HuskHomes2/issues"
+    "repo": "https://github.com/WiIIiam278/HuskHomes",
+    "issues": "https://github.com/WiIIiam278/HuskHomes/issues"
   },
   "environment": "server",
   "entrypoints": {
@@ -27,9 +27,16 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.14.17",
-    "minecraft": ">=1.19.2",
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": ">=${fabric_minecraft_version}",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "bluemap": ">=3.13",
+    "dynmap": ">=3.6",
+    "pl3xmap": "*",
+    "luckperms": ">=5.4",
+    "plan": ">=5.5"
   },
   "custom": {
     "modmenu:api": true

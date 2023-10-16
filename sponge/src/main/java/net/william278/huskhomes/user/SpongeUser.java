@@ -39,21 +39,31 @@ public class SpongeUser extends OnlineUser {
     private final ServerPlayer player;
     private final SpongeHuskHomes plugin;
 
-    private SpongeUser(@NotNull ServerPlayer player) {
+    private SpongeUser(@NotNull ServerPlayer player, @NotNull SpongeHuskHomes plugin) {
         super(player.uniqueId(), player.name());
         this.player = player;
-        this.plugin = SpongeHuskHomes.getInstance();
+        this.plugin = plugin;
     }
 
     /**
-     * Adapt a {@link ServerPlayer} to a {@link OnlineUser}
+     * Adapt a {@link ServerPlayer} to a {@link OnlineUser}.
      *
      * @param player the online {@link ServerPlayer} to adapt
      * @return the adapted {@link OnlineUser}
      */
     @NotNull
-    public static SpongeUser adapt(@NotNull ServerPlayer player) {
-        return new SpongeUser(player);
+    public static SpongeUser adapt(@NotNull ServerPlayer player, @NotNull SpongeHuskHomes plugin) {
+        return new SpongeUser(player, plugin);
+    }
+
+    /**
+     * Get the {@link ServerPlayer} associated with this {@link OnlineUser}.
+     *
+     * @return the {@link ServerPlayer}
+     */
+    @NotNull
+    public ServerPlayer getPlayer() {
+        return player;
     }
 
     @Override
@@ -97,12 +107,13 @@ public class SpongeUser extends OnlineUser {
     }
 
     @Override
-    public void teleportLocally(@NotNull Location location, boolean asynchronous) {
+    public void teleportLocally(@NotNull Location location, boolean async) {
         plugin.runSync(() -> {
             final Optional<ServerLocation> serverLocation = SpongeAdapter.adaptLocation(location);
             if (serverLocation.isEmpty()) {
                 return;
             }
+            player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.setLocation(serverLocation.get());
         });
     }
@@ -120,11 +131,6 @@ public class SpongeUser extends OnlineUser {
     @Override
     public boolean isVanished() {
         return false;
-    }
-
-    @NotNull
-    public ServerPlayer getPlayer() {
-        return player;
     }
 
 }

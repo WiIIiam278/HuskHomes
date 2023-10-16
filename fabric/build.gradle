@@ -1,14 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.1-SNAPSHOT'
+    id 'fabric-loom' version "$fabric_loom_version"
 }
 
 apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 dependencies {
-    minecraft 'com.mojang:minecraft:1.19.2'
-    mappings 'net.fabricmc:yarn:1.19.2+build.28'
-    modImplementation 'net.fabricmc:fabric-loader:0.14.17'
+    minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
+    mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
     // Fabric API modules
     Set<String> fabricApiModules = [
@@ -16,17 +16,21 @@ dependencies {
             'fabric-lifecycle-events-v1',
             'fabric-entity-events-v1',
             'fabric-command-api-v2',
-            'fabric-networking-api-v1'
+            'fabric-networking-api-v1',
+            'fabric-dimensions-v1',
     ]
     fabricApiModules.forEach {
-        modImplementation(fabricApi.module(it, '0.76.0+1.19.2'))
+        modImplementation(fabricApi.module(it, fabric_api_version))
     }
-    modImplementation include('net.kyori:adventure-platform-fabric:5.5.1')
-    modImplementation include('me.lucko:fabric-permissions-api:0.2-SNAPSHOT')
+    modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
+    modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
 
-    implementation include('redis.clients:jedis:' + jedis_version)
-    implementation include('com.mysql:mysql-connector-j:' + mysql_driver_version)
-    implementation include('org.xerial:sqlite-jdbc:' + sqlite_driver_version)
+    implementation include("redis.clients:jedis:$jedis_version")
+    implementation include("org.apache.commons:commons-pool2:$commons_pool_version")
+    implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
+    implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
+    implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
+    implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
 

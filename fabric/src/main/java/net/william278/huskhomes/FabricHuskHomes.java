@@ -43,6 +43,7 @@ import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.FabricEventDispatcher;
@@ -58,11 +59,9 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.util.FabricSafetyResolver;
-import net.william278.huskhomes.util.FabricTaskRunner;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.huskhomes.util.Validator;
 import org.jetbrains.annotations.NotNull;
@@ -76,26 +75,18 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes,
-        FabricTaskRunner, FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
+public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
+        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
-    private static FabricHuskHomes instance;
+    private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
+            .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
 
-    @NotNull
-    public static FabricHuskHomes getInstance() {
-        return instance;
-    }
-
-    private final ModContainer modContainer = FabricLoader.getInstance()
-            .getModContainer("huskhomes").orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private MinecraftServer minecraftServer;
-    private ConcurrentHashMap<Integer, CompletableFuture<?>> tasks;
     private Map<String, Boolean> permissions;
     private Set<SavedUser> savedUsers;
     private Settings settings;
@@ -109,7 +100,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
     private List<Command> commands;
-    private Map<String, List<String>> globalPlayerList;
+    private ConcurrentHashMap<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
@@ -118,14 +109,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void onInitializeServer() {
-        // Set instance
-        instance = this;
-
         // Get plugin version from mod container
-        this.tasks = new ConcurrentHashMap<>();
         this.permissions = new HashMap<>();
         this.savedUsers = new HashSet<>();
-        this.globalPlayerList = new HashMap<>();
+        this.globalPlayerList = new ConcurrentHashMap<>();
         this.currentlyOnWarmup = new HashSet<>();
         this.validator = new Validator(this);
 
@@ -153,8 +140,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {
-                case MYSQL -> new MySqlDatabase(this);
+                case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
+                case H2 -> new H2Database(this);
             };
 
             database.initialize();
@@ -181,7 +169,13 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             this.registerHooks();
 
             if (hooks.size() > 0) {
-                hooks.forEach(Hook::initialize);
+                hooks.forEach(hook -> {
+                    try {
+                        hook.initialize();
+                    } catch (Throwable e) {
+                        log(Level.WARNING, "Failed to initialize " + hook.getName() + " hook", e);
+                    }
+                });
                 log(Level.INFO, "Registered " + hooks.size() + " mod hooks: " + hooks.stream()
                         .map(Hook::getName)
                         .collect(Collectors.joining(", ")));
@@ -208,7 +202,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             audiences.close();
             audiences = null;
         }
-        cancelAllTasks();
+        cancelTasks();
     }
 
     @Override
@@ -221,7 +215,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public List<OnlineUser> getOnlineUsers() {
         return minecraftServer.getPlayerManager().getPlayerList()
-                .stream().map(user -> (OnlineUser) FabricUser.adapt(this, user))
+                .stream().map(user -> (OnlineUser) FabricUser.adapt(user, this))
                 .toList();
     }
 
@@ -261,6 +255,27 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public void setServerSpawn(@NotNull Spawn spawn) {
         this.serverSpawn = spawn;
+    }
+
+    @Override
+    public void setServerSpawn(@NotNull Location location) {
+        try {
+            // Create or update the spawn.yml file
+            final File spawnFile = new File(getDataFolder(), "spawn.yml");
+            if (spawnFile.exists() && !spawnFile.delete()) {
+                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
+            }
+            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
+
+            // Update the world spawn location, too
+            minecraftServer.getWorlds().forEach(world -> {
+                if (world.getRegistryKey().getValue().asString().equals(location.getWorld().getName())) {
+                    world.setSpawnPos(BlockPos.ofFloored(location.getX(), location.getY(), location.getZ()), 0);
+                }
+            });
+        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            log(Level.WARNING, "Failed to save the server spawn.yml file", e);
+        }
     }
 
     @Override
@@ -324,27 +339,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    public void setServerSpawn(@NotNull Location location) {
-        try {
-            // Create or update the spawn.yml file
-            final File spawnFile = new File(getDataFolder(), "spawn.yml");
-            if (spawnFile.exists() && !spawnFile.delete()) {
-                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
-            }
-            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
-
-            // Update the world spawn location, too
-            minecraftServer.getWorlds().forEach(world -> {
-                if (world.getRegistryKey().getValue().asString().equals(location.getWorld().getName())) {
-                    world.setSpawnPos(new BlockPos(location.getX(), location.getY(), location.getZ()), 0);
-                }
-            });
-        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log(Level.WARNING, "Failed to save the server spawn.yml file", e);
-        }
-    }
-
-    @Override
     @NotNull
     public List<Hook> getHooks() {
         return hooks;
@@ -401,20 +395,16 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @NotNull
     public List<Command> registerCommands() {
-        final List<Command> commands = Arrays.stream(FabricCommand.Type.values())
-                .map(FabricCommand.Type::getCommand)
-                .filter(command -> !settings.isCommandDisabled(command))
-                .toList();
-
+        final List<Command> commands = FabricCommand.Type.getCommands(getPlugin());
         CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
                 commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
-
         return commands;
     }
 
     @Override
     public boolean isDependencyLoaded(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name);
+        return FabricLoader.getInstance().isModLoaded(name)
+                || FabricLoader.getInstance().isModLoaded(name.toLowerCase(Locale.ENGLISH));
     }
 
     @Override
@@ -444,10 +434,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
                         @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
                         @NotNull PacketSender responseSender) {
-        if (broker instanceof PluginMessageBroker messenger && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+        if (broker instanceof PluginMessageBroker messenger
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
-                    FabricUser.adapt(this, player),
+                    FabricUser.adapt(player, this),
                     ByteBufUtil.getBytes(buf)
             );
         }
@@ -455,29 +446,17 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions) {
-        switch (level.getName()) {
-            case "WARNING" -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.warn(message, exceptions[0]);
-                } else {
-                    LOGGER.warn(message);
+        LoggingEventBuilder logEvent = LOGGER.makeLoggingEventBuilder(
+                switch (level.getName()) {
+                    case "WARNING" -> org.slf4j.event.Level.WARN;
+                    case "SEVERE" -> org.slf4j.event.Level.ERROR;
+                    default -> org.slf4j.event.Level.INFO;
                 }
-            }
-            case "SEVERE" -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.error(message, exceptions[0]);
-                } else {
-                    LOGGER.error(message);
-                }
-            }
-            default -> {
-                if (exceptions.length >= 1) {
-                    LOGGER.info(message, exceptions[0]);
-                } else {
-                    LOGGER.info(message);
-                }
-            }
+        );
+        if (exceptions.length >= 1) {
+            logEvent = logEvent.setCause(exceptions[0]);
         }
+        logEvent.log(message);
     }
 
     @NotNull
@@ -488,12 +467,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public MinecraftServer getMinecraftServer() {
         return minecraftServer;
-    }
-
-    @Override
-    @NotNull
-    public ConcurrentHashMap<Integer, CompletableFuture<?>> getTasks() {
-        return tasks;
     }
 
     @Override

@@ -24,7 +24,7 @@ import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -151,9 +151,8 @@ public class FabricUser extends OnlineUser {
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
         final PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeIdentifier(parseIdentifier(channel));
         buf.writeBytes(message);
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(buf));
+        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(parseIdentifier(channel), buf));
     }
 
     @Override

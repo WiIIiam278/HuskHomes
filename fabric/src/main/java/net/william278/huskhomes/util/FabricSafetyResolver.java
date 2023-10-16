@@ -75,7 +75,8 @@ public interface FabricSafetyResolver extends SafetyResolver {
 
                 final Material material = blockState.getMaterial();
                 final Identifier blockId = Registry.BLOCK.getId(blockState.getBlock());
-                if (!material.isLiquid() && material != Material.FIRE && isBlockSafe(blockId.toString())) {
+                if (!material.isLiquid() && material != Material.FIRE
+                        && getPlugin().isBlockSafeForStanding(blockId.toString())) {
                     return Optional.of(Location.at(
                             blockPos.getX() + 0.5,
                             highestY + 1,

@@ -131,15 +131,22 @@ public class BukkitUser extends OnlineUser {
         // Run on the appropriate thread scheduler for this platform
         plugin.getScheduler().entitySpecificScheduler(player).run(
                 () -> {
+                    // Remove the player from their vehicle and remove any passengers because this can create problems
                     player.leaveVehicle();
-                    if (async || plugin.getScheduler().isUsingFolia()) {
-                        PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        return;
-                    }
-                    player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    player.getPassengers().forEach(player::removePassenger);
                 },
                 () -> plugin.log(Level.WARNING, "User offline when teleporting: " + player.getName())
         );
+
+        // Teleport the player 1 tick later to avoid any issues
+        plugin.getScheduler().entitySpecificScheduler(player).runDelayed(() -> {
+            if (async || plugin.getScheduler().isUsingFolia()) {
+                PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                return;
+            }
+
+            player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }, () -> plugin.log(Level.WARNING, "User offline when teleporting: " + player.getName()), 1);
     }
 
     /**

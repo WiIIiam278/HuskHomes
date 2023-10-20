@@ -132,6 +132,7 @@ public class BukkitUser extends OnlineUser {
         plugin.getScheduler().entitySpecificScheduler(player).run(
                 () -> {
                     player.leaveVehicle();
+                    player.eject();
                     if (async || plugin.getScheduler().isUsingFolia()) {
                         PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                         return;

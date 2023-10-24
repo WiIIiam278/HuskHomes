@@ -150,19 +150,19 @@ public class Settings {
 
     @YamlComment("Whether home and warp names should be restricted by a regex."
             + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
-    @YamlKey("towns.restrict_names")
+    @YamlKey("general.restrict_names")
     private boolean restrictNames = true;
 
     @YamlComment("Regex which home and warp names must match. Names have a max length of 16 characters")
-    @YamlKey("towns.name_regex")
+    @YamlKey("general.name_regex")
     private String nameRegex = "[a-zA-Z0-9-_]*";
 
     @YamlComment("Whether home/warp descriptions should be restricted. Set this to true to restrict UTF-8 usage.")
-    @YamlKey("towns.restrict_descriptions")
+    @YamlKey("general.restrict_descriptions")
     private boolean restrictDescriptions = false;
 
     @YamlComment("Regex which home and warp descriptions must match. A hard max length of 256 characters is enforced")
-    @YamlKey("towns.description_regex")
+    @YamlKey("general.description_regex")
     private String descriptionRegex = "\\A\\p{ASCII}*\\z";
 
 

@@ -154,7 +154,7 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td><code>/warplist</code></td>
             <td><code>/warplist [page]</code></td>
             <td>View the list of warps</td>
-            <td><code>huskhomes.command.warplist</code></td>
+            <td><code>huskhomes.command.warplist</code>&dagger;</td>
             <td align="center">✅</td>
         </tr>
         <!-- /setwarp command -->
@@ -422,7 +422,7 @@ This is a table of HuskHomes commands, how to use them, and their required permi
 </table>
 
 ### Notes
-&dagger; &mdash; If [[Permission Restricted Warps]] are in use, `/warp` also requires the applicable `huskhomes.command.warp.(warp_name)` permission node. 
+&dagger; &mdash; If [[Permission Restricted Warps]] are in use, the  `huskhomes.command.warp.(warp_name)` permission node will also be required to be able to view and use warps.
 
 &ddagger; &mdash; Requires `return_by_death` to be enabled in [`config.yml`](config-files).
 

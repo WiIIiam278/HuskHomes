@@ -3,40 +3,428 @@ HuskHomes provides a range of commands for you to use. This page will detail the
 ## Commands & Permissions Table
 > **Command Conflicts:** If you have multiple plugins providing similar commands, you may need to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
 
-This is a table of HuskHomes' commands and their required permission nodes. Additional permissions provided by the plugin to control other variables are detailed further below!
+<table align="right">
+    <thead>
+        <tr><th colspan="2">Key</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>✅</td><td>Accessible by all players by default</td></tr>
+        <tr><td>❌</td><td>Accessible only by server operators by default</td></tr>
+    </tbody>
+</table>
 
-| Command                                                         | Description                                         | Base Permission&dagger;       | Default&ddagger; |
-|-----------------------------------------------------------------|-----------------------------------------------------|-------------------------------|:----------------:|
-| `/home <name>`                                                  | Teleport to a home                                  | `huskhomes.command.home`      |        ✅         |
-| `/homelist [page]`                                              | Get a list of your homes                            | `huskhomes.command.homelist`  |        ✅         |
-| `/sethome <name>`                                               | Set a new home with given name                      | `huskhomes.command.sethome`   |        ✅         |
-| `/delhome <name>`                                               | Delete a home you previously set                    | `huskhomes.command.delhome`   |        ✅         |
-| `/edithome <name> [rename/description/relocate/privacy] [args]` | Edit one of your homes                              | `huskhomes.command.edithome`  |        ✅         |
-| `/phome [<owner_name.home_name>]`                               | Teleport to a public home                           | `huskhomes.command.phome`     |        ✅         |
-| `/phomelist [page]`                                             | View the list of public homes                       | `huskhomes.command.phomelist` |        ✅         |
-| `/warp <name>`                                                  | Teleport to a warp                                  | `huskhomes.command.warp`      |        ✅         |
-| `/warplist [page]`                                              | View the list of warps                              | `huskhomes.command.warplist`  |        ✅         |
-| `/setwarp <name>`                                               | Set a new warp with given name                      | `huskhomes.command.setwarp`   |        ❌         |
-| `/delwarp <name>`                                               | Delete a warp                                       | `huskhomes.command.delwarp`   |        ❌         |
-| `/editwarp <name> [rename/description/relocate] [args]`         | Edit a warp                                         | `huskhomes.command.editwarp`  |        ❌         |
-| `/tp <target> [destination]`                                    | Teleport to another player or location              | `huskhomes.command.tp`        |        ❌         |
-| `/tphere <player>`                                              | Teleport another player to you                      | `huskhomes.command.tphere`    |        ❌         |
-| `/tpa <player>`                                                 | Request to teleport to another player               | `huskhomes.command.tpa`       |        ✅         |
-| `/tpahere <player>`                                             | Request another player to teleport to you           | `huskhomes.command.tpahere`   |        ✅         |
-| `/tpaccept [player]`                                            | Accept a teleport request                           | `huskhomes.command.tpaccept`  |        ✅         |
-| `/tpdecline [player]`                                           | Decline a teleport request                          | `huskhomes.command.tpdecline` |        ✅         |
-| `/rtp [player] [world]`                                         | Teleport randomly into the wild                     | `huskhomes.command.rtp`       |        ✅         |
-| `/tpignore`                                                     | Ignore incoming teleport requests                   | `huskhomes.command.tpignore`  |        ✅         |
-| `/tpoffline <player>`                                           | Teleport to where a player was last online          | `huskhomes.command.tpoffline` |        ❌         |
-| `/tpall`                                                        | Teleport everyone to your position                  | `huskhomes.command.tpall`     |        ❌         |
-| `/tpaall`                                                       | Request that everyone teleports to you              | `huskhomes.command.tpaall`    |        ❌         |
-| `/spawn`                                                        | Teleport to spawn                                   | `huskhomes.command.spawn`     |        ✅         |
-| `/setspawn`                                                     | Set the spawn position                              | `huskhomes.command.setspawn`  |        ❌         |
-| `/back`                                                         | Return to your previous position, or where you died | `huskhomes.command.back`      |        ✅         |
-| `/huskhomes [about/help/reload/import/delete/update]`           | View plugin information & reload configs            | `huskhomes.command.huskhomes` |        ✅         |
+This is a table of HuskHomes commands, how to use them, and their required permission nodes. Additional permissions for bypassing teleport warmup and economy checks are detailed below.
 
-* &dagger; **Base Permission** &mdash; Required permission for basic command execution; some commands require additional permissions for certain functions ([See below&hellip;](#other-permissions))
-* &ddagger; **Default** &mdash; ✅ = Accessible by all players by default &mdash; ❌ = Accessible only by server operators by default.
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">Command</th>
+            <th>Description</th>
+            <th>Permission</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- /home command -->
+        <tr><th colspan="5">Home commands</th></tr>
+        <tr>
+            <td rowspan="2"><code>/home</code></td>
+            <td><code>/home [name]</code></td>
+            <td>Teleport to one of your homes</td>
+            <td><code>huskhomes.command.home</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/home [&lt;owner_name.home_name&gt;]</code></td>
+            <td>Teleport to another user's home</td>
+            <td><code>huskhomes.command.home.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /homelist command -->
+        <tr>
+            <td rowspan="2"><code>/homelist</code></td>
+            <td><code>/homelist [page]</code></td>
+            <td>View a list of your homes</td>
+            <td><code>huskhomes.command.homelist</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/homelist &lt;owner_name&gt; [page]</code></td>
+            <td>View a list of another user's homes</td>
+            <td><code>huskhomes.command.homelist.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /sethome command -->
+        <tr>
+            <td><code>/sethome</code></td>
+            <td><code>/sethome [name]</code></td>
+            <td>Set a new home with a name</td>
+            <td><code>huskhomes.command.sethome</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /delhome command -->
+        <tr>
+            <td rowspan="3"><code>/delhome</code></td>
+            <td><code>/delhome [name]</code></td>
+            <td>Delete a home you previously set</td>
+            <td rowspan="2"><code>huskhomes.command.delhome</code></td>
+            <td rowspan="2" align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/delhome all [confirm]</code></td>
+            <td>Delete all of your homes</td>
+        </tr>
+        <tr>
+            <td><code>/delhome &lt;owner_name.home_name&gt;</code></td>
+            <td>Delete the home of another user</td>
+            <td><code>huskhomes.command.delhome.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /edithome command -->
+        <tr>
+            <td rowspan="6"><code>/edithome</code></td>
+            <td><code>/edithome &lt;name&gt;</code></td>
+            <td>View and edit information about a home</td>
+            <td><code>huskhomes.command.edithome</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/edithome &lt;name&gt; rename &lt;new_name&gt;</code></td>
+            <td>Rename a home</td>
+            <td><code>huskhomes.command.edithome.rename</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/edithome &lt;name&gt; description &lt;text&gt;</code></td>
+            <td>Set a home's description</td>
+            <td><code>huskhomes.command.edithome.description</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/edithome &lt;name&gt; relocate</code></td>
+            <td>Move a home to your current position</td>
+            <td><code>huskhomes.command.edithome.relocate</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/edithome &lt;name&gt; privacy [public|private]</code></td>
+            <td>Set a home's privacy (make it public or private)</td>
+            <td><code>huskhomes.command.edithome.privacy</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/edithome &lt;owner_name.home_name&gt; [args]</code></td>
+            <td>View and edit another user's home</td>
+            <td><code>huskhomes.command.edithome.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /phome command -->
+        <tr>
+            <td><code>/phome</code></td>
+            <td><code>/phome [&lt;owner_name.home_name&gt;]</code></td>
+            <td>Teleport to a public home</td>
+            <td><code>huskhomes.command.phome</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /phomelist command -->
+        <tr>
+            <td><code>/phomelist</code></td>
+            <td><code>/phomelist [page]</code></td>
+            <td>View the list of public homes</td>
+            <td><code>huskhomes.command.phomelist</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /warp command -->
+        <tr><th colspan="5">Warp commands</th></tr>
+        <tr>
+            <td rowspan="2"><code>/warp</code></td>
+            <td><code>/warp [name]</code></td>
+            <td>Teleport to a warp</td>
+            <td><code>huskhomes.command.warp</code>&dagger;</td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/warp &lt;name&gt; &lt;teleporter_name&gt;</code></td>
+            <td>Teleport another online user to a warp</td>
+            <td><code>huskhomes.command.warp.other</code>&dagger;</td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /warplist command -->
+        <tr>
+            <td><code>/warplist</code></td>
+            <td><code>/warplist [page]</code></td>
+            <td>View the list of warps</td>
+            <td><code>huskhomes.command.warplist</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /setwarp command -->
+        <tr>
+            <td><code>/setwarp</code></td>
+            <td><code>/setwarp &lt;name&gt;</code></td>
+            <td>Set a new warp with a name</td>
+            <td><code>huskhomes.command.setwarp</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /delwarp command -->
+        <tr>
+            <td><code>/delwarp</code></td>
+            <td><code>/delwarp &lt;name&gt;</code></td>
+            <td>Delete a warp</td>
+            <td><code>huskhomes.command.delwarp</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /editwarp command -->
+        <tr>
+            <td rowspan="4"><code>/editwarp</code></td>
+            <td><code>/editwarp &lt;name&gt;</code></td>
+            <td>View and edit information about a warp</td>
+            <td><code>huskhomes.command.editwarp</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/editwarp &lt;name&gt; rename &lt;new_name&gt;</code></td>
+            <td>Rename a warp</td>
+            <td><code>huskhomes.command.editwarp.rename</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/editwarp &lt;name&gt; description &lt;text&gt;</code></td>
+            <td>Set a warp's description</td>
+            <td><code>huskhomes.command.editwarp.description</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/editwarp &lt;name&gt; relocate</code></td>
+            <td>Move a warp to your current position</td>
+            <td><code>huskhomes.command.editwarp.relocate</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /spawn command -->
+        <tr><th colspan="5">Spawn commands</th></tr>
+        <tr>
+            <td rowspan="2"><code>/spawn</code></td>
+            <td><code>/spawn</code></td>
+            <td>Teleport to the spawn position</td>
+            <td><code>huskhomes.command.spawn</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/spawn [teleporter_name]</code></td>
+            <td>Teleport another online user to the spawn position</td>
+            <td><code>huskhomes.command.spawn.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /setspawn command -->
+        <tr>
+            <td colspan="2"><code>/setspawn</code></td>
+            <td>Set the spawn position to your current location</td>
+            <td><code>huskhomes.command.setspawn</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tp command -->
+        <tr><th colspan="5">Teleport commands</th></tr>
+        <tr>
+            <td rowspan="4"><code>/tp</code></td>
+            <td><code>/tp &lt;target_name&gt;</code></td>
+            <td>Teleport to an online user</td>
+            <td><code>huskhomes.command.tp</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/tp &lt;teleporter_name&gt; &lt;target_name&gt;</code></td>
+            <td>Teleport an online user to another online user</td>
+            <td><code>huskhomes.command.tp.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/tp &lt;(x) (y) (z) [yaw] [pitch] [world_name] [server_name]&gt;</code></td>
+            <td>Teleport to a set of coordinates</td>
+            <td><code>huskhomes.command.tp.coordinates</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/tp &lt;teleporter_name&gt; &lt;coordinates&gt;</code></td>
+            <td>Teleport an online user to a set of coordinates</td>
+            <td><code>huskhomes.command.tp.other</code><br/><code>huskhomes.command.tp.coordinates</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tphere command -->
+        <tr>
+            <td><code>/tphere</code></td>
+            <td><code>/tphere &lt;username&gt;</code></td>
+            <td>Teleport an online user to your position</td>
+            <td><code>huskhomes.command.tphere</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tpoffline command -->
+        <tr>
+            <td><code>/tpoffline</code></td>
+            <td><code>/tpoffline &lt;username&gt;</code></td>
+            <td>Teleport to where a user last logged out</td>
+            <td><code>huskhomes.command.tpoffline</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tpall command -->
+        <tr>
+            <td colspan="2"><code>/tpall</code></td>
+            <td>Teleport everyone to your position</td>
+            <td><code>huskhomes.command.tpall</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tpa command -->
+        <tr><th colspan="5">Teleport request commands</th></tr>
+        <tr>
+            <td><code>/tpa</code></td>
+            <td><code>/tpa &lt;username&gt;</code></td>
+            <td>Send a request to teleport to another online user</td>
+            <td><code>huskhomes.command.tpa</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /tpahere command -->
+        <tr>
+            <td><code>/tpahere</code></td>
+            <td><code>/tpahere &lt;username&gt;</code></td>
+            <td>Send a request asking another online user to teleport to you</td>
+            <td><code>huskhomes.command.tpahere</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /tpaall command -->
+        <tr>
+            <td colspan="2"><code>/tpaall</code></td>
+            <td>Request that everyone teleports to you</td>
+            <td><code>huskhomes.command.tpaall</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /tpaccept command -->
+        <tr>
+            <td rowspan="2"><code>/tpaccept</code></td>
+            <td><code>/tpaccept</code></td>
+            <td>Accept the last teleport request you received</td>
+            <td rowspan="2"><code>huskhomes.command.tpaccept</code></td>
+            <td rowspan="2" align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/tpaccept [username]</code></td>
+            <td>Accept a teleport request from a specific user</td>
+        </tr>
+        <!-- /tpdecline command -->
+        <tr>
+            <td rowspan="2"><code>/tpdecline</code></td>
+            <td><code>/tpdecline</code></td>
+            <td>Decline the last teleport request you received</td>
+            <td rowspan="2"><code>huskhomes.command.tpdecline</code></td>
+            <td rowspan="2" align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/tpdecline [username]</code></td>
+            <td>Decline a teleport request from a specific user</td>
+        </tr>
+        <!-- /tpignore command -->
+        <tr>
+            <td colspan="2"><code>/tpignore</code></td>
+            <td>Toggle whether to ignore incoming teleport requests</td>
+            <td><code>huskhomes.command.tpignore</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /rtp command -->
+        <tr><th colspan="5">Random teleport command</th></tr>
+        <tr>
+            <td rowspan="3"><code>/rtp</code></td>
+            <td><code>/rtp</code></td>
+            <td>Teleport randomly into the wild</td>
+            <td><code>huskhomes.command.rtp</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/rtp &lt;world&gt;</code></td>
+            <td>Teleport randomly in a specific world</td>
+            <td><code>huskhomes.command.rtp.world</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/rtp &lt;world&gt; &lt;player&gt;</code></td>
+            <td>Teleport another user randomly into the wild</td>
+            <td><code>huskhomes.command.rtp.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <!-- /back command -->
+        <tr><th colspan="5">Back teleport command</th></tr>
+        <tr>
+            <td rowspan="3" colspan="2"><code>/back</code></td>
+            <td>Teleport to your last position (see below)</td>
+            <td><code>huskhomes.command.back</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td>Teleport back to where you last teleported from</td>
+            <td><code>huskhomes.command.back.previous</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td>Teleport back to where you last died</td>
+            <td><code>huskhomes.command.back.death</code>&ddagger;</td>
+            <td align="center">✅</td>
+        </tr>
+        <!-- /huskhomes command -->
+        <tr><th colspan="5">Plugin management command</th></tr>
+        <tr>
+            <td rowspan="9"><code>/huskhomes</code></td>
+            <td><code>/huskhomes</code></td>
+            <td>Use plugin management commands</td>
+            <td><code>huskhomes.command.huskhomes</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes about</code></td>
+            <td>View the plugin about menu</td>
+            <td><code>huskhomes.command.huskhomes.about</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes help [page]</code></td>
+            <td>View the list of enabled plugin commands</td>
+            <td><code>huskhomes.command.huskhomes.help</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes update</code></td>
+            <td>Check for plugin updates</td>
+            <td><code>huskhomes.command.huskhomes.update</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes reload</code></td>
+            <td>Reload the plugin locales and config file</td>
+            <td><code>huskhomes.command.huskhomes.reload</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes import</code></td>
+            <td>Import data from another plugin</td>
+            <td><code>huskhomes.command.huskhomes.import</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes delete player &lt;username&gt; [confirm]</code></td>
+            <td>Delete player data from the system database</td>
+            <td rowspan="3"><code>huskhomes.command.huskhomes.delete</code></td>
+            <td rowspan="3" align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes delete homes &lt;world_name&gt; [server_name] [confirm]</code></td>
+            <td>Delete all homes on a specific world and/or server</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes delete warps &lt;world_name&gt; [server_name] [confirm]</code></td>
+            <td>Delete all warps on a specific world and/or server</td>
+        </tr>
+    </tbody>
+</table>
+
+### Notes
+&dagger; &mdash; If [[Permission Restricted Warps]] are in use, `/warp` also requires the applicable `huskhomes.command.warp.(warp_name)` permission node. 
+
+&ddagger; &mdash; Requires `return_by_death` to be enabled in [`config.yml`](config-files).
 
 ### Command Aliases
 The following commands have aliases that can also be used for convenience:
@@ -51,9 +439,9 @@ The following commands have aliases that can also be used for convenience:
 | `/tpaccept`  | `/tpyes`                     |
 | `/tpdecline` | `/tpno`, `/tpdeny`           |
 
-## Disabling Commands
+## Disabling commands
 
-If you'd like to disable a command, add it to the `disabled_commands` section of your config file as detailed below. Note that on servers running Paper for versions earlier than Minecraft 1.19.4, or servers just running plain Spigot instead of Paper (not recommended&mdash;please upgrade to Paper!), disabled commands will still be _registered_ but a disabled command message will appear. On servers running Paper for Minecraft 1.19.4+, HuskHomes will be registered as a Paper Plugin (and will appear as such in the `/plugins` menu) and disabled commands will not be registered at all.
+If you'd like to disable a command, add it to the `disabled_commands` section of your config file as detailed below and the command will not be registered.
 
 <details>
 <summary>Disabling a command in config.yml</summary>
@@ -65,7 +453,7 @@ disabled_commands: [ '/rtp' ]
 
 </details>
 
-## Home Limits
+## Home limits
 You can modify the maximum number of homes, the allotment of free homes and the number of public homes a user can set through permission nodes.
 
 * `huskhomes.max_homes.<amount>` — Determines the max number of homes a user can set
@@ -78,38 +466,7 @@ If users have multiple permission nodes (i.e. from being in multiple permission 
 
 Note that these permission-set values override the values set in the plugin config (`max_homes`, `max_public_homes` under `general` and `free_homes` under `economy`).
 
-## Other Permissions
-
-<details>
-<summary>Return to last position or death with /back</summary>
-
-These permissions control what the user can do with the back command, including the ability to return to their last position or to where they died.
-
-| Command                    | Description                                            | Permission                        | Default |
-|----------------------------|--------------------------------------------------------|-----------------------------------|:-------:|
-| `/back` (after respawning) | Use /back to return to where you died&dagger;          | `huskhomes.command.back.death`    |    ✅    |
-| `/back`                    | Use /back to return to your previous teleport position | `huskhomes.command.back.previous` |    ✅    |
-
-&dagger;Note that return by death must be enabled in the plugin [[config files]] for this to work.
-</details>
-
-<details>
-<summary>Home privacy</summary>
-
-These permissions allow you to make a home public/private (toggling its privacy). There are also permissions that let you use, edit and delete homes that have not been set publicly.
-
-| Command                                                                             | Description                                  | Permission                           | Default |
-|-------------------------------------------------------------------------------------|----------------------------------------------|--------------------------------------|:-------:|
-| `/edithome <name> privacy [public/private]`                                         | Modify the privacy of a home                 | `huskhomes.command.edithome.privacy` |    ❌    |
-| `/homelist <player> [page]`                                                         | View a list of a user's homes                | `huskhomes.command.home.other`       |    ❌    |
-| `/home [<owner_name>.<home_name>]`                                                  | Teleport to a user's home, public or private | `huskhomes.command.home.other`       |    ❌    |
-| `/edithome [<owner_name>.<home_name>] [rename/description/relocate/privacy] [args]` | Edit a user's home                           | `huskhomes.command.edithome.other`   |    ❌    |
-| `/delhome [<owner_name>.<home_name>]`                                               | Delete a user's home                         | `huskhomes.command.delhome.other`    |    ❌    |
-</details>
-
-
-<details>
-<summary>Bypass teleport warmup, cooldowns & economy checks</summary>
+## Bypass permission nodes
 
 These permissions let you bypass teleportation warmup checks, cooldown, and economy checks
 
@@ -120,34 +477,3 @@ These permissions let you bypass teleportation warmup checks, cooldown, and econ
 | Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
 &dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file.
-</details>
-
-<details>
-<summary>Additional teleportation permissions</summary>
-
-These permissions allow you to use /tp and /rtp to teleport other players remotely, teleport to co-ordinates, and randomly teleport to other worlds.
-
-| Command                                     | Description                            | Permission                         | Default |
-|---------------------------------------------|----------------------------------------|------------------------------------|:-------:|
-| `/tp [player] [target] `                    | Teleport another player                | `huskhomes.command.tp.other`       |    ❌    |
-| `/tp [player] <x> <y> <z> [world] [server]` | Teleport to a set of coordinates.      | `huskhomes.command.tp.coordinates` |    ❌    |
-| `/rtp [player] [world]`                     | Randomly teleport another player.      | `huskhomes.command.rtp.other`      |    ❌    |
-| `/rtp [player] [world]`                     | Randomly teleport in a specific world. | `huskhomes.command.rtp.world`      |    ❌    |
-| `/spawn [player]`                           | Teleport another player to spawn.      | `huskhomes.command.spawn.other`    |    ❌    |
-| `/warp [name] [player]`                     | Teleport another player to a warp.     | `huskhomes.command.warp.other`     |    ❌    |
-</details>
-
-<details>
-<summary>/huskhomes command arguments</summary>
-
-These permissions control what arguments of the /huskhomes command a user may use.
-
-| Command                                         | Description                                              | Permission                           | Default |
-|-------------------------------------------------|----------------------------------------------------------|--------------------------------------|:-------:|
-| `/huskhomes help [page]`                        | View a list of HuskHomes commands                        | `huskhomes.command.huskhomes.help`   |    ✅    |
-| `/huskhomes [about]`                            | View the plugin about menu                               | `huskhomes.command.huskhomes.about`  |    ✅    |
-| `/huskhomes reload`                             | Reload the plugin config and message files               | `huskhomes.command.huskhomes.reload` |    ❌    |
-| `/huskhomes import [list/start]`                | Import data from other plugins/mods                      | `huskhomes.command.huskhomes.import` |    ❌    |
-| `/huskhomes delete [player/homes/warps] [args]` | Perform bulk actions on homes/warps & delete player data | `huskhomes.command.huskhomes.delete` |    ❌    |
-| `/huskhomes update`                             | Check for updates                                        | `huskhomes.command.huskhomes.update` |    ❌    |
-</details>

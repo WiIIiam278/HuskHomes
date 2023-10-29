@@ -336,15 +336,15 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td align="center">✅</td>
         </tr>
         <tr>
-            <td><code>/rtp &lt;world&gt;</code></td>
-            <td>Teleport randomly in a specific world</td>
-            <td><code>huskhomes.command.rtp.world</code></td>
+            <td><code>/rtp &lt;player&gt;</code></td>
+            <td>Teleport another user randomly into the wild</td>
+            <td><code>huskhomes.command.rtp.other</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td><code>/rtp &lt;world&gt; &lt;player&gt;</code></td>
-            <td>Teleport another user randomly into the wild</td>
-            <td><code>huskhomes.command.rtp.other</code></td>
+            <td><code>/rtp &lt;player&gt; &lt;world&gt;</code></td>
+            <td>Teleport randomly in a specific world</td>
+            <td><code>huskhomes.command.rtp.world</code></td>
             <td align="center">❌</td>
         </tr>
         <!-- /back command -->

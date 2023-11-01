@@ -115,6 +115,7 @@ bulk_delete_homes_confirm: '[Warning:](#ff3300) [Are you sure you want to delete
 bulk_delete_homes_success: '[Successfully deleted](#00fb9a) [%1%](#00fb9a bold) [homes.](#00fb9a)'
 error_no_importers_available: '[エラー:](#ff3300) [現在、利用可能なインポーターはありません。詳しくは](#ff7e5e) [プラグインドキュメント](#ff7e5e italic show_text=&#ff7e5e&クリックしてリンクを開く open_url=https://william278.net/docs/huskhomes/importing-data) [を確認してください。](#ff7e5e)'
 error_invalid_importer: '[エラー:](#ff3300) [インポーターが無効です。詳しくは](#ff7e5e) [プラグインドキュメント](#ff7e5e italic show_text=&#ff7e5e&クリックしてリンクを開く open_url=https://william278.net/docs/huskhomes/importing-data) [を確認してください](#ff7e5e)'
+error_home_name_taken: '[Error:](#ff3300) [You already have a home set with that name.](#ff7e5e)'
 error_home_name_length: '[エラー:](#ff3300) [ホーム名は最大16文字までしか使用できません！](#ff7e5e)'
 error_home_name_characters: '[エラー:](#ff3300) [ホーム名は英数字に限ります (A-Z, 0-9, -_)](#ff7e5e)'
 error_warp_name_taken: '[エラー:](#ff3300) [その名前のワープはすでに存在しています。](#ff7e5e)'

@@ -115,6 +115,7 @@ bulk_delete_homes_confirm: '[Warning:](#ff3300) [Are you sure you want to delete
 bulk_delete_homes_success: '[Successfully deleted](#00fb9a) [%1%](#00fb9a bold) [homes.](#00fb9a)'
 error_no_importers_available: '[Error:](#ff3300) [No importers are currently available. Please check the](#ff7e5e) [plugin docs](#ff7e5e italic show_text=&#ff7e5e&Click to open link open_url=https://william278.net/docs/huskhomes/importing-data) [for more details.](#ff7e5e)'
 error_invalid_importer: '[Error:](#ff3300) [Invalid importer. Please check the](#ff7e5e) [plugin docs](#ff7e5e italic show_text=&#ff7e5e&Click to open link open_url=https://william278.net/docs/huskhomes/importing-data) [for more details.](#ff7e5e)'
+error_home_name_taken: '[Error:](#ff3300) [You already have a home set with that name.](#ff7e5e)'
 error_home_name_length: '[Error:](#ff3300) [Home names can only contain up to 16 characters!](#ff7e5e)'
 error_home_name_characters: '[Error:](#ff3300) [Home names must be alphanumeric (A-Z, 0-9, -_)](#ff7e5e)'
 error_warp_name_taken: '[Error:](#ff3300) [There is already a warp set with that name.](#ff7e5e)'

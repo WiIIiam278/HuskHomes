@@ -115,7 +115,7 @@ bulk_delete_homes_confirm: '[Ostrzeżenie:](#ff3300) [Czy na pewno chcesz usuną
 bulk_delete_homes_success: '[Pomyślnie usunięto](#00fb9a) [%1%](#00fb9a bold) [domy.](#00fb9a)'
 error_no_importers_available: '[Błąd:](#ff3300) [Obecnie nie są dostępne żadne importery. Proszę sprawdź](#ff7e5e) [dokumentację pluginu](#ff7e5e italic show_text=&#ff7e5e&Kliknij, aby otworzyć link open_url=https://william278.net/docs/huskhomes/importing-data) [dla więcej informacji.](#ff7e5e)'
 error_invalid_importer: '[Błąd:](#ff3300) [Nieprawidłowy importer. Proszę sprawdź](#ff7e5e) [dokumentację pluginu](#ff7e5e italic show_text=&#ff7e5e&Kliknij, aby otworzyć link open_url=https://william278.net/docs/huskhomes/importing-data) [dla więcej informacji.](#ff7e5e)'
-error_home_name_taken: '[Error:](#ff3300) [You already have a home set with that name.](#ff7e5e)'
+error_home_name_taken: '[Błąd:](#ff3300) [Masz już ustawiony dom o tej samej nazwie.](#ff7e5e)'
 error_home_name_length: '[Błąd:](#ff3300) [Nazwy domów mogą zawierać maksymalnie 16 znaków!](#ff7e5e)'
 error_home_name_characters: '[Błąd:](#ff3300) [Nazwy domów muszą być alfanumeryczne (A-Z, 0-9, -_)](#ff7e5e)'
 error_warp_name_taken: '[Błąd:](#ff3300) [Istnieje już warp o tej nazwie.](#ff7e5e)'

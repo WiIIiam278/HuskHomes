@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'net.william278:annotaml:2.0.5'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'me.clip:placeholderapi:2.11.4'
+    compileOnly 'me.clip:placeholderapi:2.11.5'
     compileOnly('net.essentialsx:EssentialsX:2.20.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
@@ -21,7 +21,7 @@ dependencies {
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
     testImplementation 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     testImplementation 'net.kyori:adventure-platform-bukkit:4.3.1'
-    testImplementation 'org.apache.commons:commons-text:1.10.0'
+    testImplementation 'org.apache.commons:commons-text:1.11.0'
     testImplementation 'redis.clients:jedis:' + jedis_version
     testImplementation 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     testImplementation 'com.mysql:mysql-connector-j:' + mysql_driver_version

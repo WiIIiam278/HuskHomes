@@ -184,15 +184,19 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
         // Set the home privacy
         home.setPublic(parseStringArg(args, 1)
-                .map(String::toLowerCase).map("public"::equals)
+                .map("public"::equalsIgnoreCase)
                 .orElse(!home.isPublic()));
 
+        // Fire the event
         plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
             try {
-                plugin.getManager().homes().setHomePrivacy(event.getHome(), home.isPublic());
+                plugin.getManager().homes().setHomePrivacy(
+                        home.getOwner().equals(executor) ? (OnlineUser) executor : home.getOwner(),
+                        home,
+                        home.isPublic()
+                );
             } catch (ValidationException e) {
-                int maxHomes = plugin.getManager().homes()
-                        .getMaxPublicHomes(executor instanceof OnlineUser user ? user : null);
+                int maxHomes = plugin.getManager().homes().getMaxPublicHomes(executor instanceof OnlineUser user ? user : null);
                 e.dispatchHomeError(executor, false, plugin, Integer.toString(maxHomes));
                 return;
             }

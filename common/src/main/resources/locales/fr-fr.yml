@@ -39,8 +39,8 @@ edit_home_menu_privacy_button_private: '[[∅ Rendre Privé…]](#ff9f0f show_te
 edit_home_menu_meta_edit_buttons: '[Modifiez :](gray) [[✎ Renommer…]](#c160ff-#bb50ff show_text=&7Cliquez pour suggérer la commande pour renommer cet home suggest_command=/huskhomes:edithome %1% rename )   [[ℹ Description…]](#bb50ff-#b43fff show_text=&7Cliquez pour suggérer la commande pour modifier la description de cet home command suggest_command=/huskhomes:edithome %1% description )'
 edit_home_privacy_public_success: '[Votre home](#00fb9a) [%1%](#00fb9a bold)[est maintenant publique !](#00fb9a)'
 
-edit_home_privacy_public_success_other: '[Successfully made %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[, open to the public.](#00fb9a)'
-edit_home_privacy_private_success: '[Successfully made your home,](#00fb9a) [%1%](#00fb9a bold)[, private.](#00fb9a)'
+edit_home_privacy_public_success_other: '[Le home](#00fb9a) [%2%](#00fb9a bold)[ de %1%  est maintenant ouvert au public.](#00fb9a)'
+edit_home_privacy_private_success: '[Votre home](#00fb9a) [%1%](#00fb9a bold)[ est maintenant privée](#00fb9a)'
 edit_home_privacy_private_success_other: '[Successfully made %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[, private.](#00fb9a)'
 edit_home_update_location: '[Re-located your home](#00fb9a) [%1%](#00fb9a bold) [to your current position.](#00fb9a)'
 edit_home_update_location_other: '[Re-located %1%''s home,](#00fb9a) [%2%](#00fb9a bold)[, to your current position.](#00fb9a)'

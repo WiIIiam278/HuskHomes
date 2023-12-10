@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout for CI 🛎️'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 'Set up JDK 17 📦'
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -32,8 +32,8 @@ jobs:
           SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
-        uses: mikepenz/action-junit-report@v3
-        if: success() || failure() # always run even if the previous step fails
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure() # Continue on failure
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: 'Fetch Version Name 📝'
@@ -120,7 +120,7 @@ jobs:
             1.20.2
           java: 17
       - name: 'Upload GitHub Artifacts 📦'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
           name: HuskHomes

@@ -196,7 +196,9 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         home.isPublic()
                 );
             } catch (ValidationException e) {
-                int maxHomes = plugin.getManager().homes().getMaxPublicHomes(executor instanceof OnlineUser user ? user : null);
+                int maxHomes = plugin.getManager().homes().getMaxPublicHomes(
+                        executor instanceof OnlineUser user ? user : null
+                );
                 e.dispatchHomeError(executor, false, plugin, Integer.toString(maxHomes));
                 return;
             }

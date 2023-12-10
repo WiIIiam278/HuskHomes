@@ -51,16 +51,16 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     // Utility for determining a valid spawn radius
     private static int determineSpawnRadius(int radius, int spawnRadius, @NotNull HuskHomes plugin) {
         if (spawnRadius >= radius) {
-            plugin.log(Level.WARNING, "The RTP spawn radius is greater than or equal to the RTP radius. " +
-                    "This will result in the RTP engine being unable to find a suitable location to teleport to. " +
-                    "Please set the RTP spawn radius to a value less than the RTP radius.");
+            plugin.log(Level.WARNING, "The RTP spawn radius is greater than or equal to the RTP radius. "
+                    + "This will result in the RTP engine being unable to find a suitable location to teleport to. "
+                    + "Please set the RTP spawn radius to a value less than the RTP radius.");
             return radius - 1;
         }
         return spawnRadius;
     }
 
     /**
-     * Generate a {@link Location} through a randomized normally-distributed radius and random angle using the mean and
+     * Generate a {@link Location} through a randomized normally distributed radius and random angle using the mean and
      * standard deviation, about the origin position.
      *
      * @param origin The origin position

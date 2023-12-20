@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
@@ -260,6 +262,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @NotNull
     @Override
+    public Audience getAudience(@NotNull UUID user) {
+        return audiences.player(user);
+    }
+
+    @NotNull
+    @Override
     public Set<SavedUser> getSavedUsers() {
         return savedUsers;
     }
@@ -476,7 +484,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @NotNull
-    public BukkitAudiences getAudiences() {
+    public AudienceProvider getAudiences() {
         return audiences;
     }
 

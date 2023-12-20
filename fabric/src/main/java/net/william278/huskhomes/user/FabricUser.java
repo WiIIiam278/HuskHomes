@@ -42,13 +42,11 @@ import java.util.*;
 
 public class FabricUser extends OnlineUser {
 
-    private final FabricHuskHomes plugin;
     private final ServerPlayerEntity player;
 
     private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
-        super(player.getUuid(), player.getEntityName());
+        super(player.getUuid(), player.getEntityName(), plugin);
         this.player = player;
-        this.plugin = plugin;
     }
 
     @NotNull
@@ -94,14 +92,14 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().getOrDefault(node, true));
-        return Permissions.check(player, node, !requiresOp || player.hasPermissionLevel(3));
+        boolean op = Boolean.TRUE.equals(((FabricHuskHomes) plugin).getPermissions().getOrDefault(node, true));
+        return Permissions.check(player, node, !op || player.hasPermissionLevel(3));
     }
 
     @Override
     @NotNull
     public Map<String, Boolean> getPermissions() {
-        return plugin.getPermissions().entrySet().stream()
+        return ((FabricHuskHomes) plugin).getPermissions().entrySet().stream()
                 .filter(entry -> Permissions.check(player, entry.getKey(), entry.getValue()))
                 .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), HashMap::putAll);
     }

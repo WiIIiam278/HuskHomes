@@ -20,6 +20,7 @@
 package net.william278.huskhomes;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.audience.Audience;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
@@ -227,6 +228,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return game.server().onlinePlayers().stream()
                 .map(user -> SpongeUser.adapt(user, this))
                 .collect(Collectors.toList());
+    }
+
+    @NotNull
+    @Override
+    public Audience getAudience(@NotNull UUID user) {
+        return game.server().player(user).map(player -> (Audience) player).orElse(Audience.empty());
     }
 
     @NotNull

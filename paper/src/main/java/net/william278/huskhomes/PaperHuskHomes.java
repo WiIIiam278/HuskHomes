@@ -19,8 +19,12 @@
 
 package net.william278.huskhomes;
 
+import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.listener.PaperEventListener;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public class PaperHuskHomes extends BukkitHuskHomes {
 
@@ -30,4 +34,10 @@ public class PaperHuskHomes extends BukkitHuskHomes {
         return new PaperEventListener(this);
     }
 
+    @NotNull
+    @Override
+    public Audience getAudience(@NotNull UUID user) {
+        final Player player = getServer().getPlayer(user);
+        return player == null || !player.isOnline() ? Audience.empty() : player;
+    }
 }

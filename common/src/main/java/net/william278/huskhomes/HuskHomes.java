@@ -21,6 +21,7 @@ package net.william278.huskhomes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.ThrowingConsumer;
@@ -85,6 +86,16 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
      */
     @NotNull
     List<OnlineUser> getOnlineUsers();
+
+
+    /**
+     * Get the adventure {@link Audience} for a given {@link UUID}.
+     *
+     * @param user The {@link UUID} of the user to get the {@link Audience} for.
+     * @return The {@link Audience} for the given {@link UUID}.
+     */
+    @NotNull
+    Audience getAudience(@NotNull UUID user);
 
     /**
      * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match

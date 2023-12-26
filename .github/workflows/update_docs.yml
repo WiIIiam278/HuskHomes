@@ -21,8 +21,5 @@ jobs:
         uses: actions/checkout@v4
       - name: 'Push Docs to Github Wiki 📄️'
         uses: Andrew-Chen-Wang/github-wiki-action@v4
-        env:
-          WIKI_DIR: 'docs/'
-          GH_TOKEN: ${{ github.token }}
-          GH_MAIL: 'actions@github.com'
-          GH_NAME: 'github-actions[bot]'
+        with:
+          path: 'docs'

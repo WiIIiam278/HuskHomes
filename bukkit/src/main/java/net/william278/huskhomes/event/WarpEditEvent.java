@@ -31,11 +31,13 @@ public class WarpEditEvent extends Event implements IWarpEditEvent, Cancellable 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Warp warp;
+    private final Warp original;
     private final CommandUser editor;
     private boolean cancelled;
 
-    public WarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
+    public WarpEditEvent(@NotNull Warp warp, @NotNull Warp original, @NotNull CommandUser editor) {
         this.warp = warp;
+        this.original = warp;
         this.editor = editor;
     }
 
@@ -64,6 +66,12 @@ public class WarpEditEvent extends Event implements IWarpEditEvent, Cancellable 
     @NotNull
     public Warp getWarp() {
         return warp;
+    }
+
+    @NotNull
+    @Override
+    public Warp getOriginalWarp() {
+        return original;
     }
 
     @Override

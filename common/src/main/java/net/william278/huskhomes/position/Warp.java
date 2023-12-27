@@ -45,13 +45,24 @@ public class Warp extends SavedPosition {
         super(position, meta);
     }
 
+    @NotNull
     public static Warp from(double x, double y, double z, float yaw, float pitch, @NotNull World world,
                             @NotNull String server, @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
         return new Warp(x, y, z, yaw, pitch, world, server, positionMeta, uuid);
     }
 
+    @NotNull
     public static Warp from(@NotNull Position position, @NotNull PositionMeta meta) {
         return new Warp(position, meta);
+    }
+
+    @NotNull
+    public Warp copy() {
+        return new Warp(
+                getX(), getY(), getZ(), getYaw(), getPitch(),
+                getWorld(), getServer(), getMeta().copy(),
+                getUuid()
+        );
     }
 
     @NotNull

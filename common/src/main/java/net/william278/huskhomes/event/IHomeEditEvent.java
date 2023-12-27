@@ -37,6 +37,14 @@ public interface IHomeEditEvent extends Cancellable {
     Home getHome();
 
     /**
+     * Get the original home before it was edited.
+     *
+     * @return the {@link Home} before it was edited
+     */
+    @NotNull
+    Home getOriginalHome();
+
+    /**
      * Get the user who is editing the home.
      *
      * @return the {@link CommandUser} who is editing the home

@@ -77,8 +77,9 @@ public interface SpongeEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        return new SpongeHomeEditEvent(home, editor);
+    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull Home original,
+                                                     @NotNull CommandUser editor) {
+        return new SpongeHomeEditEvent(home, original, editor);
     }
 
     @Override
@@ -93,8 +94,9 @@ public interface SpongeEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
-        return new SpongeWarpEditEvent(warp, editor);
+    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull Warp original,
+                                                     @NotNull CommandUser editor) {
+        return new SpongeWarpEditEvent(warp, original, editor);
     }
 
     @Override

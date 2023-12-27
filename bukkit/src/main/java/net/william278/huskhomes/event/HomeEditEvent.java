@@ -31,11 +31,13 @@ public class HomeEditEvent extends Event implements IHomeEditEvent, Cancellable 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Home home;
+    private final Home original;
     private final CommandUser editor;
     private boolean cancelled;
 
-    public HomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        this.home = home;
+    public HomeEditEvent(@NotNull Home edited, @NotNull Home original, @NotNull CommandUser editor) {
+        this.home = edited;
+        this.original = original;
         this.editor = editor;
     }
 
@@ -64,6 +66,12 @@ public class HomeEditEvent extends Event implements IHomeEditEvent, Cancellable 
     @NotNull
     public Home getHome() {
         return home;
+    }
+
+    @NotNull
+    @Override
+    public Home getOriginalHome() {
+        return original;
     }
 
     @Override

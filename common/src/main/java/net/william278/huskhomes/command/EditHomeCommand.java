@@ -78,7 +78,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     private void setHomeName(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing,
                              @NotNull String[] args) {
-        final String oldName = home.getName();
+        final Home original = home.copy();
         final Optional<String> optionalName = parseStringArg(args, 1);
         if (optionalName.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
@@ -88,7 +88,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         home.getMeta().setName(optionalName.get());
-        plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
+        plugin.fireEvent(plugin.getHomeEditEvent(home, original, executor), (event) -> {
             final String newName = event.getHome().getName();
             try {
                 plugin.getManager().homes().setHomeName(home, newName);
@@ -98,11 +98,11 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             }
 
             if (ownerEditing) {
-                plugin.getLocales().getLocale("edit_home_update_name", oldName, newName)
+                plugin.getLocales().getLocale("edit_home_update_name", original.getName(), newName)
                         .ifPresent(executor::sendMessage);
             } else {
-                plugin.getLocales().getLocale("edit_home_update_name_other", home.getOwner().getUsername(),
-                                oldName, newName)
+                plugin.getLocales().getLocale("edit_home_update_name_other",
+                                home.getOwner().getUsername(), original.getName(), newName)
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -110,7 +110,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     private void setHomeDescription(@NotNull CommandUser executor, @NotNull Home home, boolean ownerEditing,
                                     @NotNull String[] args) {
-        final String oldDescription = home.getMeta().getDescription();
+        final Home original = home.copy();
         final Optional<String> optionalDescription = parseGreedyArguments(args);
         if (optionalDescription.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
@@ -120,7 +120,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         home.getMeta().setDescription(optionalDescription.get());
-        plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
+        plugin.fireEvent(plugin.getHomeEditEvent(home, original, executor), (event) -> {
             final String newDescription = event.getHome().getMeta().getDescription();
             try {
                 plugin.getManager().homes().setHomeDescription(home, newDescription);
@@ -131,11 +131,12 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
             if (ownerEditing) {
                 plugin.getLocales().getLocale("edit_home_update_description",
-                                home.getName(), oldDescription, newDescription)
+                                home.getName(), original.getMeta().getDescription(), newDescription)
                         .ifPresent(executor::sendMessage);
             } else {
-                plugin.getLocales().getLocale("edit_home_update_description_other", home.getOwner().getUsername(),
-                                home.getName(), oldDescription, newDescription)
+                plugin.getLocales().getLocale("edit_home_update_description_other",
+                                home.getOwner().getUsername(), home.getName(),
+                                original.getMeta().getDescription(), newDescription)
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -148,8 +149,9 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
             return;
         }
 
+        final Home original = home.copy();
         home.update(user.getPosition());
-        plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
+        plugin.fireEvent(plugin.getHomeEditEvent(home, original, executor), (event) -> {
             try {
                 plugin.getManager().homes().setHomePosition(home, home);
             } catch (ValidationException e) {
@@ -183,12 +185,13 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         // Set the home privacy
+        final Home original = home.copy();
         home.setPublic(parseStringArg(args, 1)
                 .map("public"::equalsIgnoreCase)
                 .orElse(!home.isPublic()));
 
         // Fire the event
-        plugin.fireEvent(plugin.getHomeEditEvent(home, executor), (event) -> {
+        plugin.fireEvent(plugin.getHomeEditEvent(home, original, executor), (event) -> {
             try {
                 plugin.getManager().homes().setHomePrivacy(
                         home.getOwner().equals(executor) ? (OnlineUser) executor : home.getOwner(),
@@ -250,7 +253,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         home.getUuid().toString())
                 .ifPresent(messages::add);
 
-        if (home.getMeta().getDescription().length() > 0) {
+        if (!home.getMeta().getDescription().isEmpty()) {
             plugin.getLocales().getLocale("edit_home_menu_description",
                             plugin.getLocales().truncateText(home.getMeta().getDescription(), 50),
                             plugin.getLocales().wrapText(home.getMeta().getDescription(), 40))

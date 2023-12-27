@@ -57,8 +57,17 @@ public class PositionMeta {
         return PositionMeta.from(name, description, Instant.now(), "");
     }
 
+    @NotNull
+    public PositionMeta copy() {
+        return PositionMeta.from(
+                getName(), getDescription(),
+                getCreationTime().plusNanos(0),
+                getSerializedTags()
+        );
+    }
+
     /**
-     * Deserialize a JSON string into a {@link Map} of meta tags.
+     * Deserialize a JSON string into a {@link Map} of meta-tags.
      *
      * @param serializedTags The JSON string to deserialize
      * @return The deserialized {@link Map}

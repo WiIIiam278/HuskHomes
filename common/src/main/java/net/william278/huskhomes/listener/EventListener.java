@@ -292,7 +292,7 @@ public class EventListener {
      * @param position   the new spawn point
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
-        if (!plugin.getSettings().doSpawnReturnByDeath()
+        if (!plugin.getSettings().doAlwaysRespawnAtSpawn()
                 && plugin.getSettings().doCrossServer()
                 && plugin.getSettings().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);

@@ -166,8 +166,8 @@ public class Settings {
     private String descriptionRegex = "\\A\\p{ASCII}*\\z";
 
     @YamlComment("Whether the user should back to spawn when they die")
-    @YamlKey("general.spawn_command_return_by_death")
-    private boolean spawnReturnByDeath = false;
+    @YamlKey("general.always_respawn_at_spawn")
+    private boolean alwaysRespawnAtSpawn = false;
 
     // Back command settings
     @YamlComment("Whether /back should work to teleport the user to where they died")
@@ -442,8 +442,8 @@ public class Settings {
         return descriptionRegex;
     }
 
-    public boolean doSpawnReturnByDeath() {
-        return spawnReturnByDeath;
+    public boolean doAlwaysRespawnAtSpawn() {
+        return alwaysRespawnAtSpawn;
     }
 
     public boolean doBackCommandReturnByDeath() {

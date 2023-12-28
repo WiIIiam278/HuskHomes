@@ -84,6 +84,8 @@ general:
   back_command_return_by_death: true
   # Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)
   back_command_save_teleport_event: false
+  # Whether the user should back to spawn when they die (ensure that cross_server.enabled and cross_server.global_respawning are enabled)
+  spawn_command_return_by_death: true
   # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 12
   # Whether teleportation should be carried out asynchronously (ensuring chunks load before teleporting)

@@ -87,7 +87,8 @@ public interface EventDispatcher {
                                         @NotNull CommandUser creator);
 
     @NotNull
-    IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor);
+    IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull Home original,
+                                    @NotNull CommandUser editor);
 
     @NotNull
     IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter);
@@ -96,7 +97,8 @@ public interface EventDispatcher {
     IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator);
 
     @NotNull
-    IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor);
+    IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull Warp original,
+                                    @NotNull CommandUser editor);
 
     @NotNull
     IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter);

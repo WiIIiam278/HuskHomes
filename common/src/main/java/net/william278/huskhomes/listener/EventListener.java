@@ -256,12 +256,18 @@ public class EventListener {
 
         plugin.getDatabase()
                 .getRespawnPosition(onlineUser)
+                .flatMap(pos -> {
+                    if (pos.getServer().equals(plugin.getServerName()) && onlineUser.getBedSpawnPosition().isEmpty()) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(pos);
+                })
                 .or(() -> {
                     builder.type(Teleport.Type.TELEPORT);
                     return plugin.getSpawn();
                 })
-                .ifPresent(position -> {
-                    builder.target(position);
+                .ifPresent(pos -> {
+                    builder.target(pos);
                     try {
                         builder.toTeleport().execute();
                     } catch (TeleportationException e) {

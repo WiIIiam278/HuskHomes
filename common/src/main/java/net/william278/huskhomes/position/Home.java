@@ -86,6 +86,15 @@ public class Home extends SavedPosition {
         return new Home(position, meta, owner);
     }
 
+    @NotNull
+    public Home copy() {
+        return Home.from(
+                getX(), getY(), getZ(), getYaw(), getPitch(),
+                getWorld(), getServer(), getMeta().copy(),
+                getUuid(), getOwner(), isPublic()
+        );
+    }
+
     /**
      * Get the {@link User} who owns this home.
      *

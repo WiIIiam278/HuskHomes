@@ -46,7 +46,7 @@ public interface FabricEventDispatcher extends EventDispatcher {
             final Method field = event.getClass().getDeclaredMethod("getEvent");
             field.setAccessible(true);
 
-            net.fabricmc.fabric.api.event.Event<?> fabricEvent = 
+            net.fabricmc.fabric.api.event.Event<?> fabricEvent =
                     (net.fabricmc.fabric.api.event.Event<?>) field.invoke(event);
 
             final FabricEventCallback<T> invoker = (FabricEventCallback<T>) fabricEvent.invoker();
@@ -69,32 +69,33 @@ public interface FabricEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, 
+    default @NotNull ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender,
                                                                            @NotNull TeleportRequest request) {
         return SendTeleportRequestCallback.SUPPLIER.apply(sender, request);
     }
 
     @Override
-    default @NotNull IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient, 
+    default @NotNull IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient,
                                                                                  @NotNull TeleportRequest request) {
         return ReceiveTeleportRequestCallback.SUPPLIER.apply(recipient, request);
     }
 
     @Override
-    default @NotNull IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient, 
+    default @NotNull IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient,
                                                                              @NotNull TeleportRequest request) {
         return ReplyTeleportRequestCallback.SUPPLIER.apply(recipient, request);
     }
 
     @Override
-    default @NotNull IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, 
+    default @NotNull IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name,
                                                          @NotNull Position position, @NotNull CommandUser creator) {
         return HomeCreateCallback.SUPPLIER.apply(owner, name, position, creator);
     }
 
     @Override
-    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        return HomeEditCallback.SUPPLIER.apply(home, editor);
+    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull Home original,
+                                                     @NotNull CommandUser editor) {
+        return HomeEditCallback.SUPPLIER.apply(home, original, editor);
     }
 
     @Override
@@ -109,8 +110,9 @@ public interface FabricEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
-        return WarpEditCallback.SUPPLIER.apply(warp, editor);
+    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull Warp original,
+                                                     @NotNull CommandUser editor) {
+        return WarpEditCallback.SUPPLIER.apply(warp, original, editor);
     }
 
     @Override
@@ -119,7 +121,7 @@ public interface FabricEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, 
+    default @NotNull IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer,
                                                          boolean publicHomeList) {
         return HomeListCallback.SUPPLIER.apply(homes, listViewer, publicHomeList);
     }

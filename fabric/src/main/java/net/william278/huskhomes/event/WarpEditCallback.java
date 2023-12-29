@@ -24,9 +24,8 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
 
 public interface WarpEditCallback extends FabricEventCallback<IWarpEditEvent> {
 
@@ -47,7 +46,7 @@ public interface WarpEditCallback extends FabricEventCallback<IWarpEditEvent> {
             });
 
     @NotNull
-    BiFunction<Warp, CommandUser, IWarpEditEvent> SUPPLIER = (warp, editor) ->
+    TriFunction<Warp, Warp, CommandUser, IWarpEditEvent> SUPPLIER = (warp, original, editor) ->
             new IWarpEditEvent() {
                 private boolean cancelled = false;
 
@@ -55,6 +54,12 @@ public interface WarpEditCallback extends FabricEventCallback<IWarpEditEvent> {
                 @NotNull
                 public Warp getWarp() {
                     return warp;
+                }
+
+                @NotNull
+                @Override
+                public Warp getOriginalWarp() {
+                    return original;
                 }
 
                 @Override

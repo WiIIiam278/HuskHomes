@@ -24,9 +24,8 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
 
 public interface HomeEditCallback extends FabricEventCallback<IHomeEditEvent> {
 
@@ -47,7 +46,7 @@ public interface HomeEditCallback extends FabricEventCallback<IHomeEditEvent> {
             });
 
     @NotNull
-    BiFunction<Home, CommandUser, IHomeEditEvent> SUPPLIER = (home, editor) ->
+    TriFunction<Home, Home, CommandUser, IHomeEditEvent> SUPPLIER = (home, original, editor) ->
             new IHomeEditEvent() {
                 private boolean cancelled = false;
 
@@ -55,6 +54,12 @@ public interface HomeEditCallback extends FabricEventCallback<IHomeEditEvent> {
                 @NotNull
                 public Home getHome() {
                     return home;
+                }
+
+                @NotNull
+                @Override
+                public Home getOriginalHome() {
+                    return original;
                 }
 
                 @Override

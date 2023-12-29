@@ -30,10 +30,12 @@ public class SpongeHomeEditEvent implements IHomeEditEvent, Event, Cancellable {
 
     private boolean cancelled = false;
     private final Home home;
+    private final Home original;
     private final CommandUser editor;
 
-    public SpongeHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
+    public SpongeHomeEditEvent(@NotNull Home home, @NotNull Home original, @NotNull CommandUser editor) {
         this.home = home;
+        this.original = original;
         this.editor = editor;
     }
 
@@ -51,6 +53,12 @@ public class SpongeHomeEditEvent implements IHomeEditEvent, Event, Cancellable {
     @Override
     public Home getHome() {
         return home;
+    }
+
+    @NotNull
+    @Override
+    public Home getOriginalHome() {
+        return original;
     }
 
     @NotNull

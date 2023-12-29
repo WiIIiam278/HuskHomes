@@ -183,7 +183,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     @NotNull
     private static String formatUsage(List<String> arguments) {
-        return ((arguments.size() > 0) ? " [" + String.join("|", arguments) + "]" : "");
+        return ((!arguments.isEmpty()) ? " [" + String.join("|", arguments) + "]" : "");
     }
 
     @Override

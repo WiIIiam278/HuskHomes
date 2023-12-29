@@ -37,6 +37,14 @@ public interface IWarpEditEvent extends Cancellable {
     Warp getWarp();
 
     /**
+     * Get the original warp before it was edited.
+     *
+     * @return the {@link Warp} before it was edited
+     */
+    @NotNull
+    Warp getOriginalWarp();
+
+    /**
      * Get the user who is editing the warp.
      *
      * @return the {@link CommandUser} who is editing the warp

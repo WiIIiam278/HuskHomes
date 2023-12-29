@@ -36,7 +36,7 @@ import java.util.List;
 public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
-    default <T extends Event> @NotNull boolean fireIsCancelled(@NotNull T event) {
+    default <T extends Event> boolean fireIsCancelled(@NotNull T event) {
         Bukkit.getPluginManager().callEvent((org.bukkit.event.Event) event);
         return event instanceof Cancellable cancellable && cancellable.isCancelled();
     }
@@ -77,8 +77,9 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        return new HomeEditEvent(home, editor);
+    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home edited, @NotNull Home original,
+                                                     @NotNull CommandUser editor) {
+        return new HomeEditEvent(edited, original, editor);
     }
 
     @Override
@@ -93,8 +94,9 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
-        return new WarpEditEvent(warp, editor);
+    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp edited, @NotNull Warp original,
+                                                     @NotNull CommandUser editor) {
+        return new WarpEditEvent(edited, original, editor);
     }
 
     @Override

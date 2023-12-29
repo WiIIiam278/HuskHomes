@@ -172,7 +172,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         initialize("hooks", (plugin) -> {
             this.registerHooks();
 
-            if (hooks.size() > 0) {
+            if (!hooks.isEmpty()) {
                 hooks.forEach(hook -> {
                     try {
                         hook.initialize();

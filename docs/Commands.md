@@ -85,26 +85,20 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td rowspan="6"><code>/edithome</code></td>
             <td><code>/edithome &lt;name&gt;</code></td>
             <td>View and edit information about a home</td>
-            <td><code>huskhomes.command.edithome</code></td>
-            <td align="center">✅</td>
+            <td rowspan="4"><code>huskhomes.command.edithome</code></td>
+            <td rowspan="4" align="center">✅</td>
         </tr>
         <tr>
             <td><code>/edithome &lt;name&gt; rename &lt;new_name&gt;</code></td>
             <td>Rename a home</td>
-            <td><code>huskhomes.command.edithome.rename</code></td>
-            <td align="center">✅</td>
         </tr>
         <tr>
             <td><code>/edithome &lt;name&gt; description &lt;text&gt;</code></td>
             <td>Set a home's description</td>
-            <td><code>huskhomes.command.edithome.description</code></td>
-            <td align="center">✅</td>
         </tr>
         <tr>
             <td><code>/edithome &lt;name&gt; relocate</code></td>
             <td>Move a home to your current position</td>
-            <td><code>huskhomes.command.edithome.relocate</code></td>
-            <td align="center">✅</td>
         </tr>
         <tr>
             <td><code>/edithome &lt;name&gt; privacy [public|private]</code></td>
@@ -178,26 +172,20 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td rowspan="4"><code>/editwarp</code></td>
             <td><code>/editwarp &lt;name&gt;</code></td>
             <td>View and edit information about a warp</td>
-            <td><code>huskhomes.command.editwarp</code></td>
-            <td align="center">❌</td>
+            <td rowspan="4"><code>huskhomes.command.editwarp</code></td>
+            <td rowspan="4" align="center">❌</td>
         </tr>
         <tr>
             <td><code>/editwarp &lt;name&gt; rename &lt;new_name&gt;</code></td>
             <td>Rename a warp</td>
-            <td><code>huskhomes.command.editwarp.rename</code></td>
-            <td align="center">❌</td>
         </tr>
         <tr>
             <td><code>/editwarp &lt;name&gt; description &lt;text&gt;</code></td>
             <td>Set a warp's description</td>
-            <td><code>huskhomes.command.editwarp.description</code></td>
-            <td align="center">❌</td>
         </tr>
         <tr>
             <td><code>/editwarp &lt;name&gt; relocate</code></td>
             <td>Move a warp to your current position</td>
-            <td><code>huskhomes.command.editwarp.relocate</code></td>
-            <td align="center">❌</td>
         </tr>
         <!-- /spawn command -->
         <tr><th colspan="5">Spawn commands</th></tr>

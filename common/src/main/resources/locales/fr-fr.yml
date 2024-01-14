@@ -26,7 +26,7 @@ tpignore_on_notification: '[Vous avez désactiver les requêtes de téléportati
 tpignore_toggle_button: '[[🔔 Basculer…]](#ffc43b show_text=&#ffc43b&Cliqez pour basculer entre\n&7Accepter ou refuser les demande de téléportation run_command=/huskhomes:tpignore)'
 edit_home_menu_title: '[Détails de votre home](#00fb9a) [%1%](#00fb9a bold)[ :](#00fb9a)'
 edit_home_menu_title_other: '[Détails du home,](#00fb9a) [%2%](#00fb9a bold)[de %1% :](#00fb9a)'
-edit_home_menu_metadata_private: '[⌚ %1%](#999999-#ababab show_text=&7Set Timestamp:\n&8Date de création du home)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Identifant:\n&8%3%)   [∅ Home Privé](#ff9f0f show_text=&#ff9f0f&Privacy:\n&Cet home est accesible qu'a son créateur)'
+edit_home_menu_metadata_private: '[⌚ %1%](#999999-#ababab show_text=&7Set Timestamp:\n&8Date de création du home)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Identifant:\n&8%3%)   [∅ Home Privé](#ff9f0f show_text=&#ff9f0f&Privacy:\n&Cet home est accesible qu''a son créateur)'
 edit_home_menu_metadata_public: '[⌚ %1%](#999999-#ababab show_text=&7Set Timestamp:\n&8Date de création du home)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Identifiant:\n&8%3%)   [☀ Home Publique](#6fff00 show_text=&#6fff00&Privacy:\n&8N''importe qui peu se téléporter à cet home)'
 edit_home_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&Description :\n&8%2%)\n'
 edit_home_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#3b76ff&World:\n&8Le monde dans lequel est situé le home)'

@@ -1,11 +1,3 @@
-# 
-# Traduzido por EmanuelFNC e xMattNice_
-# https://github.com/mattnicee7
-# https://github.com/EmanuelFNC
-#
-# #brasil
-#
-
 teleporting_offline_player: '[Teleportando você para  %1% onde fez o último logout…](#00fb9a)'
 teleporting_warmup_start: '[Você será teleportado em](#00fb9a) [%1%](#00fb9a bold) [segundos, por favor, fique parado…](#00fb9a)'
 teleporting_cancelled_movement: '[Teleporte cancelado — você se moveu!](#ff7e5e)'
@@ -76,14 +68,14 @@ public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run
 warp_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:warp %2%)'
 command_list_item: '[/%1%](#00fb9a show_text=&7Clique para sugerir comando suggest_command=/%1%)   [%2%](gray show_text=&#00fb9a&/%1%\n&7%3%)'
 list_item_divider: ' [•](gray) '
-list_footer: \n%1%[Página](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%
+list_footer: '\n%1%[Página](#00fb9a) [%2%](#00fb9a)/[%3%](#00fb9a)%4%   %5%'
 list_previous_page_button: '[◀](white show_text=&7Ver página anterior run_command=%2% %1%) '
 list_next_page_button: ' [▶](white show_text=&7Ver próxima página run_command=%2% %1%)'
-list_page_jumpers: (%1%)
+list_page_jumpers: '(%1%)'
 list_page_jumper_button: '[%1%](show_text=&7Pular para a página %1% run_command=%2% %1%)'
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
-list_page_jumper_group_separator: …
+list_page_jumper_group_separator: '…'
 home_deleted: '[Casa deletada com sucesso,](#00fb9a) [%1%](#00fb9a bold)'
 home_deleted_other: '[Casa de %1% deletada com sucesso,](#00fb9a) [%2%](#00fb9a bold)'
 warp_deleted: '[Warp deletado com sucesso,](#00fb9a) [%1%](#00fb9a bold)'
@@ -91,26 +83,26 @@ set_home_used_free_slots: '[ℹ Você usou todos os %1% de seus espaços livres 
 set_home_success: '[Nova casa definida com sucesso chamada](#00fb9a) [%1%](#00fb9a bold)'
 set_warp_success: '[Novo warp definido com sucesso chamado](#00fb9a) [%1%](#00fb9a bold)'
 set_spawn_success: '[Posição de spawn movida para a sua localização atual.](#00fb9a)'
-spawn_warp_default_description: A posição /spawn do servidor
-item_no_description: (Sem descrição)
+spawn_warp_default_description: 'A posição /spawn do servidor'
+item_no_description: '(Sem descrição)'
 delete_all_homes_confirm: '[Aviso:](#ff3300) [Você tem certeza de que deseja deletar todas as suas casas?](#ff7e5e)\n[Uma vez confirmado, não será possível recuperá-las.](gray)\n[→](gray) [[Confirmar]](#ff3300 show_text=&#ff3300&Clique para confirmar a exclusão. Isso não pode ser desfeito. run_command=/delhome all confirm)'
 delete_all_warps_confirm: '[Aviso:](#ff3300) [Você tem certeza de que deseja deletar todos os warps?](#ff7e5e)\n[Uma vez confirmado, não será possível recuperá-los.](gray)\n[→](gray) [[Confirmar]](#ff3300 show_text=&#ff3300&Clique para confirmar a exclusão. Isso não pode ser desfeito. run_command=/delwarp all confirm)'
 delete_all_homes_success: '[Deletou com sucesso](#00fb9a) [%1%](#00fb9a bold) [casa(s).](#00fb9a)'
 delete_all_warps_success: '[Deletou com sucesso](#00fb9a) [%1%](#00fb9a bold) [warp(s) do servidor.](#00fb9a)'
 economy_transaction_complete: '[ℹ %1% foram deduzidos da sua conta. (%2%)](gray)'
-economy_action_additional_home_slot: Comprou um espaço adicional para casa
-economy_action_make_home_public: Tornou uma casa pública
-economy_action_back_command: Usou o comando /back
-economy_action_random_teleport: Usou o comando /rtp
-economy_action_home_teleport: Se teleportou para uma casa
-economy_action_public_home_teleport: Se teleportou para uma casa pública
-economy_action_warp_teleport: Se teleportou para um warp
-economy_action_spawn_teleport: Se teleportou para o spawn
-economy_action_send_teleport_request: Enviou um pedido de teleporte
-economy_action_accept_teleport_request: Aceitou um pedido de teleporte
+economy_action_additional_home_slot: 'Comprou um espaço adicional para casa'
+economy_action_make_home_public: 'Tornou uma casa pública'
+economy_action_back_command: 'Usou o comando /back'
+economy_action_random_teleport: 'Usou o comando /rtp'
+economy_action_home_teleport: 'Se teleportou para uma casa'
+economy_action_public_home_teleport: 'Se teleportou para uma casa pública'
+economy_action_warp_teleport: 'Se teleportou para um warp'
+economy_action_spawn_teleport: 'Se teleportou para o spawn'
+economy_action_send_teleport_request: 'Enviou um pedido de teleporte'
+economy_action_accept_teleport_request: 'Aceitou um pedido de teleporte'
 return_by_death_notification: '[Retornar para onde você morreu?](gray) [[⏪ Teleportar…]](#00fb9a show_text=&#00fb9a&Clique para se teleportar\n&7Retorne para onde você morreu run_command=/huskhomes:back)'
-map_hook_public_homes_marker_set_name: Casas Públicas
-map_hook_warps_marker_set_name: Warps
+map_hook_public_homes_marker_set_name: 'Casas Públicas'
+map_hook_warps_marker_set_name: 'Warps'
 up_to_date: '[HuskHomes](#00fb9a bold) [| Você está usando a versão mais recente do HuskHomes (v%1%).](#00fb9a)'
 update_available: '[HuskHomes](#ff7e5e bold) [| Uma nova versão do HuskHomes está disponível: v%1% (em uso: v%2%).](#ff7e5e)'
 importer_list_title: '[HuskHomes](#00fb9a bold) [| Importadores de Dados Disponíveis:](#00fb9a)\n'
@@ -170,31 +162,30 @@ error_home_invalid_other: '[Erro:](#ff3300) [%1% não tem uma casa definida com 
 error_edit_home_maximum_public_homes: '[Erro:](#ff3300) [Você só pode tornar no máximo %1% casas públicas.](#ff7e5e)'
 error_illegal_target_coordinates: '[Erro:](#ff3300) [Teleporte cancelado pois excede os limites possíveis do mundo do jogo.](#ff7e5e)'
 error_no_players_online: '[Erro:](#ff3300) [Não há jogadores online que possam se teleportar até você.](#ff7e5e)'
-home_command_description: Teleporte para uma das suas casas
-sethome_command_description: Defina uma nova casa com o nome fornecido
-delhome_command_description: Delete uma casa que você definiu anteriormente
-edithome_command_description: Edite uma das suas casas
-warp_command_description: Teleporte para um warp
-setwarp_command_description: Defina um novo warp com o nome fornecido
-delwarp_command_description: Delete um warp
-editwarp_command_description: Edite um warp
-back_command_description: Retorne para a sua posição anterior ou onde você morreu
-homelist_command_description: Obtenha uma lista das suas casas
-warplist_command_description: Veja a lista de warps
-phomelist_command_description: Veja a lista de casas públicas
-phome_command_description: Teleporte para uma casa pública
-tp_command_description: Teleporte para outro jogador ou localização
-tphere_command_description: Teleporte outro jogador até você
-tpa_command_description: Solicite teleporte para outro jogador
-tpahere_command_description: Solicite que outro jogador se teleporte até você
-tpaccept_command_description: Aceite um pedido de teleporte
-tpdecline_command_description: Recuse um pedido de teleporte
-tpignore_command_description: Ignore pedidos de teleporte recebidos
-tpoffline_command_description: Teleporte para onde um jogador estava pela última vez online
-rtp_command_description: Teleporte aleatoriamente para o ambiente
-spawn_command_description: Teleporte para o ponto de spawn
-setspawn_command_description: Defina a posição de spawn
-tpaall_command_description: Solicite que todos se teleportem até você
-tpall_command_description: Teleporte todos para a sua posição
-huskhomes_command_description: Veja informações do plugin e recarregue as configurações
-
+home_command_description: 'Teleporte para uma das suas casas'
+sethome_command_description: 'Defina uma nova casa com o nome fornecido'
+delhome_command_description: 'Delete uma casa que você definiu anteriormente'
+edithome_command_description: 'Edite uma das suas casas'
+warp_command_description: 'Teleporte para um warp'
+setwarp_command_description: 'Defina um novo warp com o nome fornecido'
+delwarp_command_description: 'Delete um warp'
+editwarp_command_description: 'Edite um warp'
+back_command_description: 'Retorne para a sua posição anterior ou onde você morreu'
+homelist_command_description: 'Obtenha uma lista das suas casas'
+warplist_command_description: 'Veja a lista de warps'
+phomelist_command_description: 'Veja a lista de casas públicas'
+phome_command_description: 'Teleporte para uma casa pública'
+tp_command_description: 'Teleporte para outro jogador ou localização'
+tphere_command_description: 'Teleporte outro jogador até você'
+tpa_command_description: 'Solicite teleporte para outro jogador'
+tpahere_command_description: 'Solicite que outro jogador se teleporte até você'
+tpaccept_command_description: 'Aceite um pedido de teleporte'
+tpdecline_command_description: 'Recuse um pedido de teleporte'
+tpignore_command_description: 'Ignore pedidos de teleporte recebidos'
+tpoffline_command_description: 'Teleporte para onde um jogador estava pela última vez online'
+rtp_command_description: 'Teleporte aleatoriamente para o ambiente'
+spawn_command_description: 'Teleporte para o ponto de spawn'
+setspawn_command_description: 'Defina a posição de spawn'
+tpaall_command_description: 'Solicite que todos se teleportem até você'
+tpall_command_description: 'Teleporte todos para a sua posição'
+huskhomes_command_description: 'Veja informações do plugin e recarregue as configurações'

@@ -25,10 +25,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * Represents a home set by a {@link User}
+ * Represents a home set by a {@link User}.
  */
 public class Home extends SavedPosition {
 
+    /**
+     * The delimiter used to separate the owner's name from the home name in the home identifier.
+     */
     public static final String IDENTIFIER_DELIMITER = ".";
     private final User owner;
     private boolean isPublic;
@@ -46,19 +49,56 @@ public class Home extends SavedPosition {
         this.setPublic(false);
     }
 
+    /**
+     * Creates a new {@link Home} from a series of coordinates, a viewing angle, a {@link World}, a server name, a
+     * {@link PositionMeta}, a {@link UUID}, a {@link User} and a boolean representing whether the home is public.
+     *
+     * @param x            The x coordinate of the home
+     * @param y            The y coordinate of the home
+     * @param z            The z coordinate of the home
+     * @param yaw          The yaw of the home
+     * @param pitch        The pitch of the home
+     * @param world        The {@link World} the home is in
+     * @param server       The name of the server the home is in
+     * @param positionMeta The {@link PositionMeta} of the home
+     * @param uuid         The {@link UUID} of the home
+     * @param owner        The {@link User} who owns the home
+     * @param isPublic     Whether the home is public
+     * @return the new {@link Home}
+     */
     @NotNull
-    public static Home from(double x, double y, double z, float yaw, float pitch, @NotNull World world, @NotNull String server,
-                            @NotNull PositionMeta positionMeta, @NotNull UUID uuid, @NotNull User owner, boolean isPublic) {
+    public static Home from(double x, double y, double z, float yaw, float pitch, @NotNull World world,
+                            @NotNull String server, @NotNull PositionMeta positionMeta, @NotNull UUID uuid,
+                            @NotNull User owner, boolean isPublic) {
         return new Home(x, y, z, yaw, pitch, world, server, positionMeta, uuid, owner, isPublic);
     }
 
+    /**
+     * Creates a new {@link Home} from a {@link Position} and {@link PositionMeta}.
+     *
+     * @param position The {@link Position} to create the home from
+     * @param meta     The {@link PositionMeta} to create the home from
+     * @param owner    The {@link User} who owns the home
+     * @return the new {@link Home}
+     */
     @NotNull
     public static Home from(@NotNull Position position, @NotNull PositionMeta meta, @NotNull User owner) {
         return new Home(position, meta, owner);
     }
 
+    @NotNull
+    public Home copy() {
+        return Home.from(
+                getX(), getY(), getZ(), getYaw(), getPitch(),
+                getWorld(), getServer(), getMeta().copy(),
+                getUuid(), getOwner(), isPublic()
+        );
+    }
+
     /**
-     * The {@link User} who owns this home
+     * Get the {@link User} who owns this home.
+     *
+     * @return the {@link User} who owns this home
      */
     @NotNull
     public User getOwner() {
@@ -66,22 +106,45 @@ public class Home extends SavedPosition {
     }
 
     /**
-     * {@code true} if this home is public
+     * Returns whether this home is public.
+     *
+     * @return {@code true} if this home is public.
      */
     public boolean isPublic() {
         return isPublic;
     }
 
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
+    /**
+     * Sets whether this home is public.
+     *
+     * @param isPublic {@code true} if this home is public
+     */
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
+    /**
+     * Get a version of the canonical home identifier string that is safe for use in formatted locales.
+     * Safe identifiers will only contain alphanumeric ASCII characters (a-z, A-Z, 0-9), underscores and dashes.
+     *
+     * <p>This typically consists of the owner's username, a delimiter, and the home {@link #getUuid() UUID}.
+     *
+     * @return the locale-safe canonical home identifier string
+     */
     @NotNull
     @Override
     public String getSafeIdentifier() {
         return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
     }
 
+    /**
+     * Get the canonical home identifier string.
+     *
+     * <p>This typically consists of the owner's username, a delimiter, and the home {@link #getName() name}.
+     *
+     * @return the canonical home identifier string
+     * @see #getSafeIdentifier() #getSafeIdentifier() to get a locale-safe version of this string
+     */
     @NotNull
     @Override
     public String getIdentifier() {

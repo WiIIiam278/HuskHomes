@@ -29,7 +29,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A hook that hooks into the Vault API to provide economy features
+ * A hook that hooks into the Vault API to provide economy features.
  */
 public class VaultEconomyHook extends EconomyHook {
 

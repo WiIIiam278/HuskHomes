@@ -53,7 +53,9 @@ public class HomesManager {
     }
 
     /**
-     * Cached user homes - maps a username to a list of their homes
+     * Cached user homes - maps a username to a list of their homes.
+     *
+     * @return a map of usernames to a list of their home names.
      */
     @NotNull
     public Map<String, List<String>> getUserHomes() {
@@ -62,15 +64,20 @@ public class HomesManager {
                         HashMap::putAll);
     }
 
+    /**
+     * Get a list of all cached set home identifiers.
+     *
+     * @return a list of all cached set home identifiers
+     */
     @NotNull
-    public List<String> getUserHomeNames() {
+    public List<String> getUserHomeIdentifiers() {
         return userHomes.entrySet().stream()
                 .flatMap(e -> e.getValue().stream().map(Home::getIdentifier))
                 .toList();
     }
 
     /**
-     * Cached public homes - maps a username to a list of their public homes
+     * Cached public homes - maps a username to a list of their public homes.
      */
     @NotNull
     public Map<String, List<String>> getPublicHomes() {
@@ -79,17 +86,33 @@ public class HomesManager {
                         HashMap::putAll);
     }
 
+    /**
+     * Get a list of all cached public home identifiers.
+     *
+     * @return a list of all cached public home identifiers
+     */
     @NotNull
-    public List<String> getPublicHomeNames() {
+    public List<String> getPublicHomeIdentifiers() {
         return publicHomes.stream()
                 .map(Home::getIdentifier)
                 .toList();
     }
 
+    /**
+     * Cache user homes for a given user.
+     *
+     * @param user the user to cache homes for
+     */
     public void cacheUserHomes(@NotNull User user) {
         userHomes.put(user.getUsername(), new ConcurrentLinkedQueue<>(plugin.getDatabase().getHomes(user)));
     }
 
+    /**
+     * Cache a home for a given user.
+     *
+     * @param home      the home to cache
+     * @param propagate whether to propagate the cache update to other servers (if cross-server is enabled)
+     */
     public void cacheHome(@NotNull Home home, boolean propagate) {
         userHomes.computeIfPresent(home.getOwner().getUsername(), (k, v) -> {
             v.remove(home);
@@ -132,6 +155,13 @@ public class HomesManager {
         }
     }
 
+    /**
+     * Propagate the update of a home/warp to other servers (if cross-server is enabled).
+     *
+     * <p>This works by broking a message requesting that other servers fetch the updated home from the database.
+     *
+     * @param homeId the UUID of the home/warp to update
+     */
     private void propagateCacheUpdate(@NotNull UUID homeId) {
         if (plugin.getSettings().doCrossServer()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
@@ -151,20 +181,21 @@ public class HomesManager {
         userHomes.remove(user.getUuid().toString());
     }
 
-
-    public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
-                           boolean overwrite, boolean buyAdditionalSlots) throws ValidationException {
+    @NotNull
+    public Home createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes)
+            throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
-        if (!plugin.getValidator().isValidName(name)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
+
+        // Validate the home name; throw an exception if invalid
+        plugin.getValidator().validateName(name);
 
         // Determine what the new home count would be & validate against user max homes
         int homes = plugin.getDatabase().getHomes(owner).size() + (existingHome.isPresent() ? 0 : 1);
-        if (homes > getMaxHomes(owner)) {
+        if (!ignoreMaxHomes && homes > getMaxHomes(owner)) {
             throw new ValidationException(ValidationException.Type.REACHED_MAX_HOMES);
         }
 
@@ -194,10 +225,12 @@ public class HomesManager {
                 .orElse(Home.from(position, PositionMeta.create(name, ""), owner));
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
+        return home;
     }
 
-    public void createHome(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) throws ValidationException {
-        createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true);
+    public void createHome(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position)
+            throws ValidationException {
+        this.createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true, false);
     }
 
     public void deleteHome(@NotNull User owner, @NotNull String name) throws ValidationException {
@@ -222,11 +255,33 @@ public class HomesManager {
         });
         publicHomes.removeIf(h -> h.getOwner().getUuid().equals(owner.getUuid()));
         plugin.getMapHook().ifPresent(hook -> hook.clearHomes(owner));
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
         plugin.getManager().propagateCacheUpdate();
         return deleted;
     }
 
-    public void setHomePosition(@NotNull User owner, @NotNull String name, @NotNull Position position) throws ValidationException {
+    public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
+        final int deleted = plugin.getDatabase().deleteAllHomes(worldName, serverName);
+        userHomes.values().forEach(homes -> homes.removeIf(
+                h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName)
+        ));
+        publicHomes.removeIf(h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName));
+        if (plugin.getSettings().doCrossServer() && serverName.equals(plugin.getServerName())) {
+            plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
+        }
+        plugin.getCommands().stream()
+                .filter(command -> command instanceof ListCommand)
+                .map(command -> (ListCommand) command)
+                .forEach(ListCommand::invalidateCaches);
+        plugin.getManager().propagateCacheUpdate();
+        return deleted;
+    }
+
+    public void setHomePosition(@NotNull User owner, @NotNull String name,
+                                @NotNull Position position) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
@@ -241,7 +296,8 @@ public class HomesManager {
         this.cacheHome(home, true);
     }
 
-    public void setHomeName(@NotNull User owner, @NotNull String name, @NotNull String newName) throws ValidationException {
+    public void setHomeName(@NotNull User owner, @NotNull String name,
+                            @NotNull String newName) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
@@ -251,16 +307,14 @@ public class HomesManager {
     }
 
     public void setHomeName(@NotNull Home home, @NotNull String newName) throws ValidationException {
-        if (!plugin.getValidator().isValidName(newName)) {
-            throw new ValidationException(ValidationException.Type.NAME_INVALID);
-        }
-
+        plugin.getValidator().validateName(newName);
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
     }
 
-    public void setHomeDescription(@NotNull User owner, @NotNull String name, @NotNull String description) throws ValidationException {
+    public void setHomeDescription(@NotNull User owner, @NotNull String name,
+                                   @NotNull String description) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
@@ -270,10 +324,7 @@ public class HomesManager {
     }
 
     public void setHomeDescription(@NotNull Home home, @NotNull String description) {
-        if (!plugin.getValidator().isValidDescription(description)) {
-            throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID);
-        }
-
+        plugin.getValidator().validateDescription(description);
         home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
@@ -285,14 +336,16 @@ public class HomesManager {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);
         }
 
-        this.setHomePrivacy(optionalHome.get(), isPublic);
+        this.setHomePrivacy(owner, optionalHome.get(), isPublic);
     }
 
     public void setHomePrivacy(@NotNull Home home, boolean isPublic) {
-        if (isPublic && home.getOwner() instanceof OnlineUser online) {
-            final int publicHomes = plugin.getDatabase().getHomes(home.getOwner()).stream()
-                    .filter(Home::isPublic)
-                    .toList().size();
+        this.setHomePrivacy(home.getOwner(), home, isPublic);
+    }
+
+    public void setHomePrivacy(@NotNull User owner, @NotNull Home home, boolean isPublic) {
+        if (isPublic && owner instanceof OnlineUser online) {
+            int publicHomes = plugin.getDatabase().getHomes(owner).stream().filter(Home::isPublic).toList().size();
             if (publicHomes >= getMaxPublicHomes(online)) {
                 throw new ValidationException(ValidationException.Type.REACHED_MAX_PUBLIC_HOMES);
             }
@@ -303,7 +356,8 @@ public class HomesManager {
         this.cacheHome(home, true);
     }
 
-    public void setHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Map<String, String> tags) throws ValidationException {
+    public void setHomeMetaTags(@NotNull User owner, @NotNull String name,
+                                @NotNull Map<String, String> tags) throws ValidationException {
         final Optional<Home> optionalHome = plugin.getDatabase().getHome(owner, name);
         if (optionalHome.isEmpty()) {
             throw new ValidationException(ValidationException.Type.NOT_FOUND);

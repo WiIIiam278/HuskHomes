@@ -24,18 +24,31 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a warp is created or updated
+ * Representation of an event that fires when a warp is created or updated.
  */
 public interface IWarpEditEvent extends Cancellable {
 
     /**
-     * Get the warp being created or updated
+     * Get the warp being created or updated.
      *
      * @return the {@link Warp} being saved
      */
     @NotNull
     Warp getWarp();
 
+    /**
+     * Get the original warp before it was edited.
+     *
+     * @return the {@link Warp} before it was edited
+     */
+    @NotNull
+    Warp getOriginalWarp();
+
+    /**
+     * Get the user who is editing the warp.
+     *
+     * @return the {@link CommandUser} who is editing the warp
+     */
     @NotNull
     CommandUser getEditor();
 

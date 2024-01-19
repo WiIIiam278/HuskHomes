@@ -30,10 +30,12 @@ public class SpongeWarpEditEvent implements IWarpEditEvent, Event, Cancellable {
 
     private boolean cancelled = false;
     private final Warp warp;
+    private final Warp original;
     private final CommandUser editor;
 
-    public SpongeWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
+    public SpongeWarpEditEvent(@NotNull Warp warp, @NotNull Warp original, @NotNull CommandUser editor) {
         this.warp = warp;
+        this.original = original;
         this.editor = editor;
     }
 
@@ -51,6 +53,12 @@ public class SpongeWarpEditEvent implements IWarpEditEvent, Event, Cancellable {
     @Override
     public Warp getWarp() {
         return warp;
+    }
+
+    @NotNull
+    @Override
+    public Warp getOriginalWarp() {
+        return original;
     }
 
     @NotNull

@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents metadata about a {@link Position}, used in {@link SavedPosition} implementations
+ * Represents metadata about a {@link Position}, used in {@link SavedPosition} implementations.
  */
 public class PositionMeta {
 
@@ -57,8 +57,17 @@ public class PositionMeta {
         return PositionMeta.from(name, description, Instant.now(), "");
     }
 
+    @NotNull
+    public PositionMeta copy() {
+        return PositionMeta.from(
+                getName(), getDescription(),
+                getCreationTime().plusNanos(0),
+                getSerializedTags()
+        );
+    }
+
     /**
-     * Deserialize a JSON string into a {@link Map} of meta tags
+     * Deserialize a JSON string into a {@link Map} of meta-tags.
      *
      * @param serializedTags The JSON string to deserialize
      * @return The deserialized {@link Map}
@@ -78,7 +87,7 @@ public class PositionMeta {
     }
 
     /**
-     * Serialize a {@link Map} of meta tags into a JSON string
+     * Serialize a {@link Map} of meta tags into a JSON string.
      *
      * @return The serialized JSON string
      */
@@ -96,7 +105,7 @@ public class PositionMeta {
     }
 
     /**
-     * The name of a position
+     * The name of a position.
      */
     public String getName() {
         return name;
@@ -107,7 +116,7 @@ public class PositionMeta {
     }
 
     /**
-     * A description of a position
+     * A description of a position.
      */
     @NotNull
     public String getDescription() {
@@ -119,7 +128,7 @@ public class PositionMeta {
     }
 
     /**
-     * Map of metadata tags for a position
+     * Map of metadata tags for a position.
      */
     public Map<String, String> getTags() {
         return tags;
@@ -130,7 +139,7 @@ public class PositionMeta {
     }
 
     /**
-     * The time the position was created
+     * The time the position was created.
      */
     @NotNull
     public Instant getCreationTime() {

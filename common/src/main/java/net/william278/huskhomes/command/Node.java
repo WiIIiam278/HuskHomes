@@ -156,23 +156,23 @@ public abstract class Node implements Executable {
                 .orElse(Position.at(0, 0, 0, 0, 0, plugin.getWorlds().get(0), plugin.getServerName()));
     }
 
-    protected Optional<Position> parsePositionArgs(@NotNull Position basePosition, @NotNull String[] args, int startIndex) {
+    protected Optional<Position> parsePositionArgs(@NotNull Position basePosition, @NotNull String[] args, int from) {
         // Parse x, y, and z
-        final Optional<Double> x = parseCoordinateArg(args, startIndex, basePosition.getX());
-        final Optional<Double> y = parseCoordinateArg(args, startIndex + 1, basePosition.getY());
-        final Optional<Double> z = parseCoordinateArg(args, startIndex + 2, basePosition.getZ());
+        final Optional<Double> x = parseCoordinateArg(args, from, basePosition.getX());
+        final Optional<Double> y = parseCoordinateArg(args, from + 1, basePosition.getY());
+        final Optional<Double> z = parseCoordinateArg(args, from + 2, basePosition.getZ());
         if (x.isEmpty() || y.isEmpty() || z.isEmpty()) {
             return Optional.empty();
         }
 
         // Parse world and server name
-        final Optional<World> world = parseWorldArg(args, startIndex + 3);
-        final Optional<String> server = parseStringArg(args, startIndex + 4);
+        final Optional<World> world = parseWorldArg(args, from + 3);
+        final Optional<String> server = parseStringArg(args, from + 4);
 
         // Parse yaw, pitch
         int angleStartIndex = (world.isEmpty() ? 3 : server.isEmpty() ? 4 : 5);
-        final Optional<Float> yaw = parseFloatArg(args, startIndex + angleStartIndex);
-        final Optional<Float> pitch = parseFloatArg(args, startIndex + angleStartIndex + 1);
+        final Optional<Float> yaw = parseFloatArg(args, from + angleStartIndex);
+        final Optional<Float> pitch = parseFloatArg(args, from + angleStartIndex + 1);
 
         return Optional.of(Position.at(x.get(), y.get(), z.get(),
                 yaw.orElse(basePosition.getYaw()), pitch.orElse(basePosition.getPitch()),

@@ -24,18 +24,23 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Representation of an event that fires when a single warp is deleted
+ * Representation of an event that fires when a single warp is deleted.
  */
 public interface IWarpDeleteEvent extends Cancellable {
 
     /**
-     * Get the warp being deleted
+     * Get the warp being deleted.
      *
      * @return the {@link Warp} being deleted
      */
     @NotNull
     Warp getWarp();
 
+    /**
+     * Get the user who is deleting the warp.
+     *
+     * @return the {@link CommandUser} who is deleting the warp
+     */
     @NotNull
     CommandUser getDeleter();
 

@@ -44,21 +44,11 @@ public interface FabricTask extends Task {
         @Override
         public void run() {
             if (!cancelled) {
-                if (delayTicks > 0) {
-                    CompletableFuture.runAsync(() -> {
-
-                        try {
-                            Thread.sleep(delayTicks * 50);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable);
-
-                    }, ((FabricHuskHomes) getPlugin()).getMinecraftServer());
-                } else {
-                    ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable);
-                }
+                Executors.newSingleThreadScheduledExecutor().schedule(
+                        () -> ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable),
+                        delayTicks * 50,
+                        TimeUnit.MILLISECONDS
+                );
             }
         }
     }
@@ -106,7 +96,10 @@ public interface FabricTask extends Task {
         public void run() {
             if (!cancelled) {
                 this.task = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                        runnable, 0, repeatingTicks * 50, TimeUnit.MILLISECONDS
+                        runnable,
+                        0,
+                        repeatingTicks * 50,
+                        TimeUnit.MILLISECONDS
                 );
             }
         }

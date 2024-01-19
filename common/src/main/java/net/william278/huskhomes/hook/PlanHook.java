@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 /**
- * Hooks into Plan to provide the {@link PlanDataExtension} with stats on the web panel
+ * Hooks into Plan to provide the {@link PlanDataExtension} with stats on the web panel.
  */
 public class PlanHook extends Hook {
 
@@ -66,12 +66,8 @@ public class PlanHook extends Hook {
     private void registerDataExtension() {
         try {
             ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase()));
-        } catch (IllegalStateException planIsNotEnabled) {
-            plugin.log(Level.SEVERE, "Plan extension hook failed to register. Plan is not enabled.", planIsNotEnabled);
-            // Plan is not enabled, handle exception
-        } catch (IllegalArgumentException dataExtensionImplementationIsInvalid) {
-            plugin.log(Level.SEVERE, "Plan extension hook failed to register. Data hook implementation is invalid.", dataExtensionImplementationIsInvalid);
-            // The DataExtension implementation has an implementation error, handle exception
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            plugin.log(Level.SEVERE, "Failed to register HuskHomes Plan extension", e);
         }
     }
 

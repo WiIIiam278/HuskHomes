@@ -37,7 +37,8 @@ public class HomeCreateEvent extends Event implements IHomeCreateEvent, Cancella
     private final CommandUser creator;
     private boolean cancelled;
 
-    public HomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    public HomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                           @NotNull CommandUser creator) {
         this.owner = owner;
         this.name = name;
         this.position = position;

@@ -45,6 +45,7 @@ public class SpongeTeleportWarmupEvent implements ITeleportWarmupEvent, Event, C
     public boolean isCancelled() {
         return cancelled;
     }
+
     @Override
     public Cause cause() {
         return Cause.builder()
@@ -62,4 +63,5 @@ public class SpongeTeleportWarmupEvent implements ITeleportWarmupEvent, Event, C
     public TimedTeleport getTimedTeleport() {
         return teleport;
     }
+
 }

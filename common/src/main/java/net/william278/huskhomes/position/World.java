@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Represents a world on a server
+ * Represents a world on a server.
  */
 public class World {
 
@@ -56,7 +56,7 @@ public class World {
     }
 
     /**
-     * The name of this world, as defined by the world directory name
+     * The name of this world, as defined by the world directory name.
      */
     @NotNull
     public String getName() {
@@ -68,7 +68,7 @@ public class World {
     }
 
     /**
-     * UUID of this world, as defined by the {@code uid.dat} file in the world directory
+     * UUID of this world, as defined by the {@code uid.dat} file in the world directory.
      */
     @NotNull
     public UUID getUuid() {
@@ -81,9 +81,9 @@ public class World {
 
     /**
      * Environment of the world ({@link Environment#OVERWORLD}, {@link Environment#NETHER}, {@link Environment#THE_END},
-     * or {@link Environment#CUSTOM})
-     * <p>
-     * Will return {@link Environment#OVERWORLD} if the environment is null
+     * or {@link Environment#CUSTOM}).
+     *
+     * <p>Will return {@link Environment#OVERWORLD} if the environment is null
      */
     @NotNull
     public Environment getEnvironment() {
@@ -95,7 +95,7 @@ public class World {
     }
 
     /**
-     * Identifies the environment of the world
+     * Identifies the environment of the world.
      */
     public enum Environment {
         OVERWORLD,

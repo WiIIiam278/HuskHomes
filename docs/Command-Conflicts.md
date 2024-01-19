@@ -20,11 +20,13 @@ To do this, you must add the Essentials commands you wish to disable to the `dis
 # See https://bukkit.fandom.com/wiki/Commands.yml#aliases to map commands to other plugins.
 disabled-commands:
   - home
+  - homes
   - sethome
   - homelist
   - delhome
   - warp
   - setwarp
+  - createwarp 
   - warplist
   - delwarp
   - tp

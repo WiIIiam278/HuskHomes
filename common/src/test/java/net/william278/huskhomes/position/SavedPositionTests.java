@@ -49,7 +49,8 @@ public class SavedPositionTests {
     @DisplayName("Test Home Identifiers")
     @ParameterizedTest(name = "Home: \"{1}\" (Unsafe: {2})")
     @MethodSource("provideHomeData")
-    public void testHomeIdentifiers(@NotNull Home home, @NotNull @SuppressWarnings("unused") String name, boolean isUnsafeName) {
+    @SuppressWarnings("unused")
+    public void testHomeIdentifiers(@NotNull Home home, @NotNull String name, boolean isUnsafeName) {
         Assertions.assertEquals(
                 home.getIdentifier(),
                 home.getOwner().getUsername() + Home.IDENTIFIER_DELIMITER + home.getName()
@@ -65,7 +66,8 @@ public class SavedPositionTests {
     @DisplayName("Test Warp Identifiers")
     @ParameterizedTest(name = "Warp: \"{1}\" (Unsafe: {2})")
     @MethodSource("provideWarpData")
-    public void testWarpIdentifiers(@NotNull Warp warp, @NotNull @SuppressWarnings("unused") String name, boolean isUnsafeName) {
+    @SuppressWarnings("unused")
+    public void testWarpIdentifiers(@NotNull Warp warp, @NotNull String name, boolean isUnsafeName) {
         Assertions.assertEquals(
                 warp.getIdentifier(),
                 warp.getName()

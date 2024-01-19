@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 /**
- * Used to store the server spawn location
+ * Used to store the server spawn location.
  */
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -49,7 +49,7 @@ public class Spawn {
     public String worldUuid;
 
     /**
-     * Returns the {@link Position} of the spawn
+     * Returns the {@link Position} of the spawn.
      *
      * @param server The server the spawn is on
      * @return The {@link Position} of the spawn
@@ -60,7 +60,7 @@ public class Spawn {
     }
 
     /**
-     * Set the {@link Location} of the spawn
+     * Set the {@link Location} of the spawn.
      *
      * @param location The {@link Location} of the spawn
      */

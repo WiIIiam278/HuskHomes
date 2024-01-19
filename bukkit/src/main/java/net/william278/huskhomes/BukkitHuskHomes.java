@@ -19,23 +19,25 @@
 
 package net.william278.huskhomes;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.api.HuskHomesAPI;
 import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
-import net.william278.huskhomes.command.DisabledCommand;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.BukkitEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
-import net.william278.huskhomes.hook.RedisEconomyHook;
 import net.william278.huskhomes.hook.VaultEconomyHook;
 import net.william278.huskhomes.importer.EssentialsXImporter;
 import net.william278.huskhomes.listener.BukkitEventListener;
@@ -63,7 +65,9 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
@@ -80,6 +84,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
      * Metrics ID for <a href="https://bstats.org/plugin/bukkit/HuskHomes/8430">HuskHomes on Bukkit</a>.
      */
     private static final int METRICS_ID = 8430;
+
     private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
@@ -95,32 +100,21 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private Map<String, List<String>> globalPlayerList;
     private Set<UUID> currentlyOnWarmup;
     private Server server;
-    @Nullable
-    private Broker broker;
     private BukkitAudiences audiences;
     private MorePaperLib paperLib;
-
-    private static BukkitHuskHomes instance;
-
-    public static BukkitHuskHomes getInstance() {
-        return instance;
-    }
+    @Nullable
+    private Broker broker;
 
     // Default public constructor
-    @SuppressWarnings("unused")
     public BukkitHuskHomes() {
         super();
     }
 
     // Super constructor for unit testing
-    @SuppressWarnings("unused")
-    protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file) {
+    @TestOnly
+    protected BukkitHuskHomes(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
+                              @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
-    }
-
-    @Override
-    public void onLoad() {
-        instance = this;
     }
 
     @Override
@@ -143,8 +137,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         // Initialize the database
         initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
             this.database = switch (getSettings().getDatabaseType()) {
-                case MYSQL -> new MySqlDatabase(this);
+                case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
+                case H2 -> new H2Database(this);
             };
 
             database.initialize();
@@ -171,7 +166,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         initialize("hooks", (plugin) -> {
             this.registerHooks();
 
-            if (hooks.size() > 0) {
+            if (!hooks.isEmpty()) {
                 hooks.forEach(hook -> {
                     try {
                         hook.initialize();
@@ -185,32 +180,24 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             }
         });
 
-        // Register events
-        initialize("events", (plugin) -> this.eventListener = new BukkitEventListener(this));
+        // Register event listener
+        initialize("events", (plugin) -> this.eventListener = getListener().register(this));
 
         // Register commands
-        initialize("commands", (plugin) -> this.commands = registerCommands());
+        initialize("commands", (plugin) -> this.commands = BukkitCommand.Type.getCommands(this));
+
+        // Initialize the API
+        initialize("API", (plugin) -> HuskHomesAPI.register(this));
 
         // Hook into bStats and check for updates
         initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
         this.checkForUpdates();
     }
 
+    // Register the event listener
     @NotNull
-    public List<Command> registerCommands() {
-        return Arrays.stream(BukkitCommand.Type.values())
-                .map(type -> {
-                    final Command command = type.getCommand();
-                    if (settings.isCommandDisabled(command)) {
-                        new BukkitCommand(new DisabledCommand(command.getName(), this), this).register();
-                        return null;
-                    } else {
-                        new BukkitCommand(command, this).register();
-                        return command;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    protected BukkitEventListener getListener() {
+        return new BukkitEventListener(this);
     }
 
     @Override
@@ -218,12 +205,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         HuskHomes.super.registerHooks();
 
         // Hooks
-        if (getSettings().doEconomy()) {
-            if (isDependencyLoaded("RedisEconomy")) {
-                getHooks().add(new RedisEconomyHook(this));
-            } else if (isDependencyLoaded("Vault")) {
-                getHooks().add(new VaultEconomyHook(this));
-            }
+        if (getSettings().doEconomy() && isDependencyLoaded("Vault")) {
+            getHooks().add(new VaultEconomyHook(this));
         }
         if (isDependencyLoaded("PlaceholderAPI")) {
             getHooks().add(new PlaceholderAPIHook(this));
@@ -263,15 +246,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         cancelTasks();
     }
 
-    /**
-     * Returns the adventure Bukkit audiences
-     *
-     * @return The adventure Bukkit audiences
-     */
-    public BukkitAudiences getAudiences() {
-        return audiences;
-    }
-
     @Override
     @NotNull
     public ConsoleUser getConsole() {
@@ -282,8 +256,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public List<OnlineUser> getOnlineUsers() {
         return Bukkit.getOnlinePlayers().stream()
-                .map(player -> (OnlineUser) BukkitUser.adapt(player))
+                .map(player -> (OnlineUser) BukkitUser.adapt(player, this))
                 .toList();
+    }
+
+    @NotNull
+    @Override
+    public Audience getAudience(@NotNull UUID user) {
+        return audiences.player(user);
     }
 
     @NotNull
@@ -374,7 +354,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
             // Update the world spawn location, too
             BukkitAdapter.adaptLocation(location).ifPresent(bukkitLocation -> {
-                assert bukkitLocation.getWorld() != null;
+                assert bukkitLocation.getWorld() != null : "World was null when setting server spawn";
                 bukkitLocation.getWorld().setSpawnLocation(bukkitLocation);
             });
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -456,14 +436,23 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
         try {
             final Metrics metrics = new Metrics(this, metricsId);
-            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doCrossServer())));
+            metrics.addCustomChart(new SimplePie("bungee_mode",
+                    () -> Boolean.toString(getSettings().doCrossServer())));
+
             if (getSettings().doCrossServer()) {
-                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getBrokerType().getDisplayName()));
+                metrics.addCustomChart(new SimplePie("messenger_type",
+                        () -> getSettings().getBrokerType().getDisplayName()));
             }
-            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().getDisplayName()));
-            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapHook())));
+
+            metrics.addCustomChart(new SimplePie("language",
+                    () -> getSettings().getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type",
+                    () -> getSettings().getDatabaseType().getDisplayName()));
+            metrics.addCustomChart(new SimplePie("using_economy",
+                    () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_map",
+                    () -> Boolean.toString(getSettings().doMapHook())));
+
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
         } catch (Throwable e) {
             log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
@@ -472,8 +461,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void initializePluginChannels() {
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID);
+        final String channelId = PluginMessageBroker.BUNGEE_CHANNEL_ID;
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, channelId, this);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, channelId);
     }
 
     @Override
@@ -488,9 +478,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
         }
+    }
+
+    @NotNull
+    public AudienceProvider getAudiences() {
+        return audiences;
     }
 
     @NotNull
@@ -498,9 +493,15 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         return paperLib.scheduling();
     }
 
+    @NotNull
+    public CommandRegistration getCommandRegistrar() {
+        return paperLib.commandRegistration();
+    }
+
     @Override
     @NotNull
     public HuskHomes getPlugin() {
         return this;
     }
+
 }

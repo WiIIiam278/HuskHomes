@@ -40,24 +40,24 @@ public class FabricEventListener extends EventListener {
     private void registerEvents(@NotNull FabricHuskHomes plugin) {
         // Join event
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> handlePlayerJoin(
-                FabricUser.adapt(plugin, handler.player)
+                FabricUser.adapt(handler.player, plugin)
         ));
 
         // Quit event
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> handlePlayerLeave(
-                FabricUser.adapt(plugin, handler.player)
+                FabricUser.adapt(handler.player, plugin)
         ));
 
         // Death event
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             if (entity instanceof ServerPlayerEntity player) {
-                handlePlayerDeath(FabricUser.adapt(plugin, player));
+                handlePlayerDeath(FabricUser.adapt(player, plugin));
             }
         });
 
         // Respawn event
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> handlePlayerRespawn(
-                FabricUser.adapt(plugin, newPlayer)
+                FabricUser.adapt(newPlayer, plugin)
         ));
     }
 

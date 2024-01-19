@@ -20,6 +20,7 @@
 package net.william278.huskhomes.listener;
 
 import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
@@ -28,29 +29,49 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class PaperEventListener extends BukkitEventListener implements Listener {
 
-    public PaperEventListener(@NotNull PaperHuskHomes huskHomes) {
-        super(huskHomes);
-        this.checkForBed = false;
-        huskHomes.getServer().getPluginManager().registerEvents(this, huskHomes);
+    public PaperEventListener(@NotNull PaperHuskHomes plugin) {
+        super(plugin);
+        this.usePaperEvents = true;
+    }
+
+    @Override
+    @NotNull
+    public PaperEventListener register(@NotNull BukkitHuskHomes plugin) {
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        return this;
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerSetSpawnEvent event) {
-        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) return;
+        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+            return;
+        }
 
         // Ensure the updated location is correct
         final Location location = event.getLocation();
-        if (location == null) return;
+        if (location == null) {
+            return;
+        }
 
         // Update the player's respawn location
         BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
-                BukkitUser.adapt(event.getPlayer()),
+                BukkitUser.adapt(event.getPlayer(), (PaperHuskHomes) plugin),
                 Position.at(adaptedLocation, plugin.getServerName()))
         );
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @Override
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
+            return;
+        }
+        super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
     }
 
 }

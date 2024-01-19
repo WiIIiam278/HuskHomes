@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Hook to display warps and public homes on Dynmap
+ * Hook to display warps and public homes on Dynmap.
  */
 public class DynmapHook extends MapHook {
 
@@ -113,6 +113,13 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
+    public void clearHomes(@NotNull String worldName) {
+        plugin.runSync(() -> getPublicHomesMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
+                .filter(marker -> marker.getWorld().equals(worldName))
+                .forEach(Marker::deleteMarker)));
+    }
+
+    @Override
     public void updateWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
@@ -150,6 +157,13 @@ public class DynmapHook extends MapHook {
                 .forEach(Marker::deleteMarker)));
     }
 
+    @Override
+    public void clearWarps(@NotNull String worldName) {
+        plugin.runSync(() -> getWarpsMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().stream()
+                .filter(marker -> marker.getWorld().equals(worldName))
+                .forEach(Marker::deleteMarker)));
+    }
+
     private Optional<DynmapCommonAPI> getDynmap() {
         return Optional.ofNullable(dynmapApi);
     }
@@ -171,8 +185,12 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             publicHomesMarkers = api.getMarkerAPI().getMarkerSet(getPublicHomesKey());
             if (publicHomesMarkers == null) {
-                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(getPublicHomesKey(), getPublicHomesMarkerSetName(),
-                        api.getMarkerAPI().getMarkerIcons(), false);
+                publicHomesMarkers = api.getMarkerAPI().createMarkerSet(
+                        getPublicHomesKey(),
+                        getPublicHomesMarkerSetName(),
+                        api.getMarkerAPI().getMarkerIcons(),
+                        false
+                );
             } else {
                 publicHomesMarkers.setMarkerSetLabel(getPublicHomesMarkerSetName());
             }

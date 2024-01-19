@@ -26,20 +26,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.logging.Level;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Class for validating and performing economy and cooldown transactions involving {@link Action}s
+ * Class for validating and performing economy and cooldown transactions involving {@link Action}s.
  */
 public interface TransactionResolver {
 
     /**
      * Validates whether an {@link OnlineUser} can perform an {@link Action}, in terms of whether they have sufficient
      * funds and are not on cooldown. This method will also send the user a message if they cannot perform the action.
-     * <p>
-     * This method will return {@code true} if the user has sufficient funds and is not on cooldown, otherwise
+     *
+     * <p>This method will return {@code true} if the user has sufficient funds and is not on cooldown, otherwise
      * {@code false}.
      *
      * @param player the {@link OnlineUser player} to perform the check on
@@ -53,11 +52,13 @@ public interface TransactionResolver {
     // Validates if the user has funds to perform an action
     private boolean hasFunds(@NotNull OnlineUser player, @NotNull Action action) {
         return getPlugin().getSettings().getEconomyCost(action).map(Math::abs)
-                .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION) ? Optional.empty() : Optional.of(c))
+                .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION)
+                        ? Optional.empty() : Optional.of(c))
                 .map(c -> getEconomyHook()
                         .map(hook -> {
                             if (hook.getPlayerBalance(player) < c) {
-                                getPlugin().getLocales().getLocale("error_insufficient_funds", hook.formatCurrency(c))
+                                getPlugin().getLocales().getLocale("error_insufficient_funds",
+                                                hook.formatCurrency(c))
                                         .ifPresent(player::sendMessage);
                                 return false;
                             }
@@ -111,7 +112,7 @@ public interface TransactionResolver {
     }
 
     /**
-     * Execute an economy transaction if needed, updating the player's balance
+     * Execute an economy transaction if needed, updating the player's balance.
      *
      * @param player the {@link OnlineUser player} to deduct the cost from if needed
      * @param action the {@link Action action} to deduct the cost from if needed
@@ -119,7 +120,8 @@ public interface TransactionResolver {
     default void performTransaction(@NotNull OnlineUser player, @NotNull Action action) {
         getEconomyHook().ifPresent(hook -> getPlugin().getSettings()
                 .getEconomyCost(action).map(Math::abs)
-                .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION) ? Optional.empty() : Optional.of(c))
+                .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION)
+                        ? Optional.empty() : Optional.of(c))
                 .ifPresent(cost -> {
                     hook.changePlayerBalance(player, -cost);
                     hook.notifyDeducted(player, getPlugin(), action);
@@ -132,16 +134,9 @@ public interface TransactionResolver {
     }
 
     /**
-     * @deprecated use {@link #validateTransaction(OnlineUser, Action)} instead
-     */
-    @SuppressWarnings("removal")
-    @Deprecated(since = "4.4", forRemoval = true)
-    default boolean canPerformTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
-        return this.validateTransaction(player, action.getTransactionAction());
-    }
-
-    /**
-     * @deprecated use {@link #performTransaction(OnlineUser, Action)} instead
+     * Execute an economy transaction if needed, updating the player's balance.
+     *
+     * @deprecated use {@link #performTransaction(OnlineUser, Action)} instead.
      */
     @SuppressWarnings("removal")
     @Deprecated(since = "4.4", forRemoval = true)
@@ -150,7 +145,19 @@ public interface TransactionResolver {
     }
 
     /**
-     * Get the {@link EconomyHook} instance, if present
+     * Get whether the {@link OnlineUser} can perform the {@link EconomyHook.Action},
+     * in terms of whether they have sufficient funds and are not on cooldown.
+     *
+     * @deprecated use {@link #validateTransaction(OnlineUser, Action)} instead.
+     */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "4.4", forRemoval = true)
+    default boolean canPerformTransaction(@NotNull OnlineUser player, @NotNull EconomyHook.Action action) {
+        return this.validateTransaction(player, action.getTransactionAction());
+    }
+
+    /**
+     * Get the {@link EconomyHook} instance, if present.
      *
      * @return the {@link EconomyHook} instance
      */
@@ -163,7 +170,7 @@ public interface TransactionResolver {
     HuskHomes getPlugin();
 
     /**
-     * Represents actions that can be the subject of a transaction
+     * Represents actions that can be the subject of a transaction.
      */
     enum Action {
 
@@ -205,7 +212,7 @@ public interface TransactionResolver {
         }
 
         /**
-         * Create an action with a default cost
+         * Create an action with a default cost.
          *
          * @return the default cost
          */
@@ -214,12 +221,34 @@ public interface TransactionResolver {
         }
 
         /**
-         * Get the default cooldown for this action (in seconds)
+         * Get the default cooldown for this action (in seconds).
          *
          * @return the default cooldown in seconds
          */
         public int getDefaultCooldown() {
             return defaultCooldown;
+        }
+
+        // Get the default economy action cost map for the config
+        @NotNull
+        public static Map<String, Double> getEconomyCostsConfigMap() {
+            return Arrays.stream(values())
+                    .filter(action -> action.getDefaultCost() > 0)
+                    .collect(Collectors.toMap(
+                            action -> action.name().toLowerCase(Locale.ENGLISH),
+                            Action::getDefaultCost
+                    ));
+        }
+
+        // Get the default cooldown action time map for the config
+        @NotNull
+        public static Map<String, Integer> getCooldownsConfigMap() {
+            return Arrays.stream(values())
+                    .filter(action -> action.getDefaultCooldown() > 0)
+                    .collect(Collectors.toMap(
+                            action -> action.name().toLowerCase(Locale.ENGLISH),
+                            Action::getDefaultCooldown
+                    ));
         }
 
     }

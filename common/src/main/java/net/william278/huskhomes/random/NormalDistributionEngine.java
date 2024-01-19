@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * A random teleport engine that uses a Gaussian normal distribution to generate random positions.
@@ -42,13 +43,24 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     public NormalDistributionEngine(@NotNull HuskHomes plugin) {
         super(plugin, "Normal Distribution");
         this.radius = plugin.getSettings().getRtpRadius();
-        this.spawnRadius = plugin.getSettings().getRtpSpawnRadius();
+        this.spawnRadius = determineSpawnRadius(radius, plugin.getSettings().getRtpSpawnRadius(), plugin);
         this.mean = plugin.getSettings().getRtpDistributionMean();
         this.standardDeviation = plugin.getSettings().getRtpDistributionStandardDeviation();
     }
 
+    // Utility for determining a valid spawn radius
+    private static int determineSpawnRadius(int radius, int spawnRadius, @NotNull HuskHomes plugin) {
+        if (spawnRadius >= radius) {
+            plugin.log(Level.WARNING, "The RTP spawn radius is greater than or equal to the RTP radius. "
+                    + "This will result in the RTP engine being unable to find a suitable location to teleport to. "
+                    + "Please set the RTP spawn radius to a value less than the RTP radius.");
+            return radius - 1;
+        }
+        return spawnRadius;
+    }
+
     /**
-     * Generate a {@link Location} through a randomized normally-distributed radius and random angle using the mean and
+     * Generate a {@link Location} through a randomized normally distributed radius and random angle using the mean and
      * standard deviation, about the origin position.
      *
      * @param origin The origin position
@@ -74,7 +86,7 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     /**
-     * Generate a safe ground-level {@link Location} through a randomized normally-distributed radius and random angle
+     * Generate a safe ground-level {@link Location} through a randomized normally-distributed radius and random angle.
      *
      * @param world The world to generate the location in
      * @return A generated location
@@ -101,9 +113,9 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     }
 
     /**
-     * Generates a random angle in the range [0, 360]
+     * Generates a random angle in the range {@code [0, 360]}.
      *
-     * @return a random angle in the range [0, 360]
+     * @return a random angle in the range {@code [0, 360]}
      */
     private static float getRandomAngle() {
         return (float) (Math.random() * 360);

@@ -59,8 +59,8 @@ public class SpawnCommand extends Command {
         this.teleportToSpawn(optionalTeleporter.get(), executor, spawn.get(), args);
     }
 
-    public void teleportToSpawn(@NotNull Teleportable teleporter, @NotNull CommandUser executor, @NotNull Position spawn,
-                                @NotNull String[] args) {
+    public void teleportToSpawn(@NotNull Teleportable teleporter, @NotNull CommandUser executor,
+                                @NotNull Position spawn, @NotNull String[] args) {
         if (!executor.equals(teleporter) && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);

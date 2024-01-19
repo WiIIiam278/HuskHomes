@@ -24,11 +24,11 @@ language: en-gb
 # Whether to automatically check for plugin updates on startup
 check_for_updates: true
 database:
-  # Type of database to use (MYSQL, SQLITE)
+  # Type of database to use (SQLITE, H2, MYSQL or MARIADB)
   type: SQLITE
   mysql:
     credentials:
-      # Specify credentials here if you are using MYSQL as your database type
+      # Specify credentials here if you are using MYSQL or MARIADB as your database type
       host: localhost
       port: 3306
       database: HuskHomes
@@ -36,7 +36,7 @@ database:
       password: pa55w0rd
       parameters: ?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8
     connection_pool:
-      # MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!
+      # MYSQL / MARIADB database Hikari connection pool properties. Don't modify this unless you know what you're doing!
       size: 12
       idle: 12
       lifetime: 1800000
@@ -44,13 +44,13 @@ database:
       timeout: 20000
   # Names of tables to use on your database. Don't modify this unless you know what you're doing!
   table_names:
-    position_data: huskhomes_position_data
-    warp_data: huskhomes_warps
-    saved_position_data: huskhomes_saved_positions
-    player_cooldowns_data: huskhomes_user_cooldowns
     home_data: huskhomes_homes
-    teleport_data: huskhomes_teleports
+    player_cooldowns_data: huskhomes_user_cooldowns
     player_data: huskhomes_users
+    position_data: huskhomes_position_data
+    saved_position_data: huskhomes_saved_positions
+    teleport_data: huskhomes_teleports
+    warp_data: huskhomes_warps
 general:
   # The maximum homes a user can create. Override with the huskhomes.max_homes.<number> permission.
   max_homes: 10
@@ -60,7 +60,7 @@ general:
   stack_permission_limits: false
   # Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps
   permission_restrict_warps: false
-  # Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite it.
+  # Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite.
   overwrite_existing_homes_warps: true
   # How long a player has to stand still and not take damage for when teleporting (in seconds)
   teleport_warmup_time: 5
@@ -72,14 +72,20 @@ general:
   strict_tpa_here_requests: true
   # Whether home or warp names should be case insensitive (i.e. allow /home HomeOne and /home homeone)
   case_insensitive_names: false
-  # Whether home or warp names should allow UTF-8 characters (i.e. allow /home 你好)
-  allow_unicode_names: false
-  # Whether home or warp descriptions should allow UTF-8 characters
-  allow_unicode_descriptions: true
+  # Whether home and warp names should be restricted by a regex. Set this to false to allow full UTF-8 names (i.e. allow /home 你好).
+  restrict_names: true
+  # Regex which home and warp names must match. Names have a max length of 16 characters
+  name_regex: '[a-zA-Z0-9-_]*'
+  # Whether home/warp descriptions should be restricted. Set this to true to restrict UTF-8 usage.
+  restrict_descriptions: false
+  # Regex which home and warp descriptions must match. A hard max length of 256 characters is enforced
+  description_regex: '\A\p{ASCII}*\z'
   # Whether /back should work to teleport the user to where they died
   back_command_return_by_death: true
-  # Whether /back should work with other plugins that use the PlayerTeleportEvent (this can cause conflicts)
+  # Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)
   back_command_save_teleport_event: false
+  # Whether the user should back to spawn when they die (ensure that cross_server.enabled and cross_server.global_respawning are enabled)
+  always_respawn_at_spawn: true
   # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 12
   # Whether teleportation should be carried out asynchronously (ensuring chunks load before teleporting)
@@ -88,10 +94,10 @@ general:
   play_sound_effects: true
   # Which sound effects to play for various actions
   sound_effects:
-    teleportation_cancelled: entity.item.break
-    teleportation_warmup: block.note_block.banjo
-    teleportation_complete: entity.enderman.teleport
     teleport_request_received: entity.experience_orb.pickup
+    teleportation_cancelled: entity.item.break
+    teleportation_complete: entity.enderman.teleport
+    teleportation_warmup: block.note_block.banjo
   # Whether to provide modern, rich TAB suggestions for commands (if available)
   brigadier_tab_completion: true
 cross_server:
@@ -121,12 +127,12 @@ rtp:
   spawn_radius: 500
   # Mean of the normal distribution used to calculate the distance from the center of the world
   distribution_mean: 0.75
-  # Standard deviation of the normal distribution used to calculate the distance from the center of the world
+  # Standard deviation of the normal distribution for distributing players randomly
   distribution_deviation: 2.0
   # List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.
   restricted_worlds:
-    - world_nether
-    - world_the_end
+  - world_nether
+  - world_the_end
 cooldowns:
   # Whether to apply a cooldown between performing certain actions
   enabled: true
@@ -136,14 +142,12 @@ cooldowns:
 economy:
   # Enable economy plugin integration (requires Vault)
   enabled: false
-  # Use this currency for payments (works only with RedisEconomy), defaults to Vault currency
-  redis_economy_name: vault
   # Specify how many homes players can set for free, before they need to pay for more slots
   free_home_slots: 5
   # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/
   costs:
-    make_home_public: 50.0
     additional_home_slot: 100.0
+    make_home_public: 50.0
     random_teleport: 25.0
 map_hook:
   # Display public homes/warps on your Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/huskhomes/map-hooks

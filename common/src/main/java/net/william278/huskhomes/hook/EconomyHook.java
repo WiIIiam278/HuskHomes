@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 /**
- * A hook that provides economy features
+ * A hook that provides economy features.
  */
 public abstract class EconomyHook extends Hook {
 
@@ -37,7 +37,7 @@ public abstract class EconomyHook extends Hook {
     }
 
     /**
-     * Get the balance of a player
+     * Get the balance of a player.
      *
      * @param player the player to get the balance of
      * @return the balance of the player
@@ -45,7 +45,7 @@ public abstract class EconomyHook extends Hook {
     public abstract double getPlayerBalance(@NotNull OnlineUser player);
 
     /**
-     * Set the balance of a player
+     * Set the balance of a player.
      *
      * @param player the player to set the balance of
      * @param amount the amount to set the balance to
@@ -53,7 +53,7 @@ public abstract class EconomyHook extends Hook {
     public abstract void changePlayerBalance(@NotNull OnlineUser player, final double amount);
 
     /**
-     * Format a balance to a string
+     * Format a balance to a string.
      *
      * @param amount the amount to format
      * @return the formatted string
@@ -61,14 +61,14 @@ public abstract class EconomyHook extends Hook {
     public abstract String formatCurrency(final double amount);
 
     /**
-     * Send the player a message notifying them that they have been charged
-     * for performing an action
+     * Send the player a message notifying them that they have been charged for performing an action.
      *
      * @param user   the user to notify
      * @param plugin the plugin instance
      * @param action the action that was performed
      */
-    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin, @NotNull TransactionResolver.Action action) {
+    public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin,
+                                     @NotNull TransactionResolver.Action action) {
         plugin.getSettings().getEconomyCost(action)
                 .flatMap(cost -> plugin.getLocales().getLocale(
                         "economy_transaction_complete",
@@ -81,14 +81,12 @@ public abstract class EconomyHook extends Hook {
     }
 
     /**
-     * Send the player a message notifying them that they have been charged
-     * for performing an action
+     * Send the player a message notifying them that they have been charged for performing an action.
      *
      * @param user   the user to notify
      * @param plugin the plugin instance
      * @param action the action that was performed
-     * @deprecated See {@link #notifyDeducted(OnlineUser, HuskHomes, TransactionResolver.Action)} instead,
-     * using the new {@link TransactionResolver.Action} enum
+     * @deprecated See {@link #notifyDeducted(OnlineUser, HuskHomes, TransactionResolver.Action)} instead
      */
     @Deprecated(since = "4.4", forRemoval = true)
     public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin, @NotNull Action action) {
@@ -96,7 +94,7 @@ public abstract class EconomyHook extends Hook {
     }
 
     /**
-     * Economy actions for which a player can be charged
+     * Economy actions for which a player can be charged.
      *
      * @deprecated Use the new {@link TransactionResolver.Action} enum instead
      */
@@ -124,7 +122,7 @@ public abstract class EconomyHook extends Hook {
         }
 
         /**
-         * Create an action with a default cost
+         * Create an action with a default cost.
          *
          * @return the default cost
          * @deprecated Use the new {@link TransactionResolver.Action#getDefaultCost()} instead
@@ -135,7 +133,7 @@ public abstract class EconomyHook extends Hook {
         }
 
         /**
-         * Translate this legacy Action to the new {@link TransactionResolver.Action}
+         * Translate this legacy Action to the new {@link TransactionResolver.Action}.
          *
          * @return the equivalent {@link TransactionResolver.Action}
          */

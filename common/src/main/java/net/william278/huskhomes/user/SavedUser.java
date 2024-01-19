@@ -27,7 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
- * Represents data about a player on the server
+ * Represents data about a player on the server.
  */
 public class SavedUser {
 
@@ -36,7 +36,7 @@ public class SavedUser {
     private boolean ignoringTeleports;
 
     /**
-     * Create a new SavedUser object
+     * Create a new SavedUser object.
      *
      * @param user              The user to create the object for
      * @param homeSlots         The number of home slots the user has
@@ -49,12 +49,15 @@ public class SavedUser {
     }
 
     /**
-     * @deprecated See {@link #SavedUser(User, int, boolean)} to create a SavedUser object
-     * <p>
-     * User RTP cooldowns are no longer stored in {@link SavedUser} objects,
+     * Create a new SavedUser object.
+     *
+     * <p>Please note that User RTP cooldowns are no longer stored in {@link SavedUser} objects;
      * please use the new API methods for getting/setting cooldowns
+     *
+     * @deprecated See {@link #SavedUser(User, int, boolean)} to create a SavedUser object.
      */
     @Deprecated(since = "4.4", forRemoval = true)
+    @SuppressWarnings("unused")
     public SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports, @NotNull Instant rtpCooldown) {
         this(user, homeSlots, ignoringTeleports);
     }
@@ -91,6 +94,8 @@ public class SavedUser {
     }
 
     /**
+     * Get the user's RTP cooldown. This method will always return 5 seconds before the current time since v4.4.
+     *
      * @deprecated Use the new API methods for setting and getting cooldowns
      */
     @NotNull
@@ -100,9 +105,12 @@ public class SavedUser {
     }
 
     /**
+     * Set the user's RTP cooldown. This method has no effect since v4.4.
+     *
      * @deprecated Use the new API methods for setting and getting cooldowns
      */
     @Deprecated(since = "4.4", forRemoval = true)
+    @SuppressWarnings("unused")
     public void setRtpCooldown(@NotNull Instant rtpCooldown) {
         // Do nothing
     }

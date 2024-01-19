@@ -10,6 +10,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful and intuit
 * 📜 [[Command Conflicts]]
 
 ## Documentation
+* 📁 [[Database]]
 * ⛅ [[Redis Support]]
 * 📝 [[Translations]]
 * 🟩 [[Plan Hook]]

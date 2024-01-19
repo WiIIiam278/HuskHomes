@@ -44,7 +44,8 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull Home home, @NotNull String[] args) {
-        if (executor instanceof OnlineUser user && !home.getOwner().equals(user) && !user.hasPermission(getOtherPermission())) {
+        if (executor instanceof OnlineUser user && !home.getOwner().equals(user)
+                && !user.hasPermission(getOtherPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(user::sendMessage);
             return;

@@ -61,11 +61,12 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
             case "rename" -> setWarpName(executor, warp, args);
             case "description" -> setWarpDescription(executor, warp, args);
             case "relocate" -> setWarpPosition(executor, warp);
+            default -> throw new IllegalStateException("Unexpected value: " + operation.get().toLowerCase());
         }
     }
 
     private void setWarpName(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
-        final String oldName = warp.getName();
+        final Warp original = warp.copy();
         final Optional<String> optionalName = parseStringArg(args, 1);
         if (optionalName.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
@@ -73,9 +74,8 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                     .ifPresent(executor::sendMessage);
             return;
         }
-
         warp.getMeta().setName(optionalName.get());
-        plugin.fireEvent(plugin.getWarpEditEvent(warp, executor), (event) -> {
+        plugin.fireEvent(plugin.getWarpEditEvent(warp, original, executor), (event) -> {
             try {
                 plugin.getManager().warps().setWarpName(warp, warp.getName());
             } catch (ValidationException e) {
@@ -83,12 +83,13 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                 return;
             }
 
-            plugin.getLocales().getLocale("edit_warp_update_name", oldName, optionalName.get())
+            plugin.getLocales().getLocale("edit_warp_update_name", original.getName(), optionalName.get())
                     .ifPresent(executor::sendMessage);
         });
     }
 
     private void setWarpDescription(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
+        final Warp original = warp.copy();
         final Optional<String> optionalDescription = parseGreedyArguments(args);
         if (optionalDescription.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax",
@@ -98,7 +99,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
         }
 
         warp.getMeta().setDescription(optionalDescription.get());
-        plugin.fireEvent(plugin.getWarpEditEvent(warp, executor), (event) -> {
+        plugin.fireEvent(plugin.getWarpEditEvent(warp, original, executor), (event) -> {
             try {
                 plugin.getManager().warps().setWarpDescription(warp, warp.getMeta().getDescription());
             } catch (ValidationException e) {
@@ -106,7 +107,8 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                 return;
             }
 
-            plugin.getLocales().getLocale("edit_warp_update_description", warp.getName(), warp.getMeta().getDescription())
+            plugin.getLocales().getLocale("edit_warp_update_description", warp.getName(),
+                            original.getMeta().getDescription(), warp.getMeta().getDescription())
                     .ifPresent(executor::sendMessage);
         });
     }
@@ -118,8 +120,9 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
             return;
         }
 
+        final Warp original = warp.copy();
         warp.update(user.getPosition());
-        plugin.fireEvent(plugin.getWarpEditEvent(warp, executor), (event) -> {
+        plugin.fireEvent(plugin.getWarpEditEvent(warp, original, executor), (event) -> {
             try {
                 plugin.getManager().warps().setWarpPosition(warp, warp);
             } catch (ValidationException e) {
@@ -133,49 +136,54 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
     }
 
     /**
-     * Get a formatted warp editor chat window for a supplied {@link Warp}
+     * Get a formatted warp editor chat window for a supplied {@link Warp}.
      *
      * @param warp The warp to display
      * @return List of {@link MineDown} messages to send to the editor that form the menu
      */
     @NotNull
     private List<MineDown> getWarpEditorWindow(@NotNull Warp warp) {
-        return new ArrayList<>() {{
-            plugin.getLocales().getLocale("edit_warp_menu_title", warp.getName())
-                    .ifPresent(this::add);
+        final List<MineDown> messages = new ArrayList<>();
+        plugin.getLocales().getLocale("edit_warp_menu_title", warp.getName())
+                .ifPresent(messages::add);
 
-            plugin.getLocales().getLocale("edit_warp_menu_metadata",
-                            DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
-                                    .format(warp.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
-                            warp.getUuid().toString().split(Pattern.quote("-"))[0],
-                            warp.getUuid().toString())
-                    .ifPresent(this::add);
+        plugin.getLocales().getLocale("edit_warp_menu_metadata",
+                        DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
+                                .format(warp.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                        warp.getUuid().toString().split(Pattern.quote("-"))[0],
+                        warp.getUuid().toString())
+                .ifPresent(messages::add);
 
-            if (warp.getMeta().getDescription().length() > 0) {
-                plugin.getLocales().getLocale("edit_warp_menu_description",
-                                plugin.getLocales().truncateText(warp.getMeta().getDescription(), 50),
-                                plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
-                        .ifPresent(this::add);
-            }
+        if (!warp.getMeta().getDescription().isEmpty()) {
+            plugin.getLocales().getLocale("edit_warp_menu_description",
+                            plugin.getLocales().truncateText(warp.getMeta().getDescription(), 50),
+                            plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
+                    .ifPresent(messages::add);
+        }
 
-            if (!plugin.getSettings().doCrossServer()) {
-                plugin.getLocales().getLocale("edit_warp_menu_world", warp.getWorld().getName()).ifPresent(this::add);
-            } else {
-                plugin.getLocales().getLocale("edit_warp_menu_world_server", warp.getWorld().getName(), warp.getServer()).ifPresent(this::add);
-            }
+        if (!plugin.getSettings().doCrossServer()) {
+            plugin.getLocales().getLocale("edit_warp_menu_world",
+                    warp.getWorld().getName()).ifPresent(messages::add);
+        } else {
+            plugin.getLocales().getLocale("edit_warp_menu_world_server",
+                    warp.getWorld().getName(), warp.getServer()).ifPresent(messages::add);
+        }
 
-            plugin.getLocales().getLocale("edit_warp_menu_coordinates",
-                            String.format("%.1f", warp.getX()), String.format("%.1f", warp.getY()), String.format("%.1f", warp.getZ()),
-                            String.format("%.2f", warp.getYaw()), String.format("%.2f", warp.getPitch()))
-                    .ifPresent(this::add);
+        plugin.getLocales().getLocale("edit_warp_menu_coordinates",
+                        String.format("%.1f", warp.getX()),
+                        String.format("%.1f", warp.getY()),
+                        String.format("%.1f", warp.getZ()),
+                        String.format("%.2f", warp.getYaw()),
+                        String.format("%.2f", warp.getPitch()))
+                .ifPresent(messages::add);
 
-            plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.getSafeIdentifier())
-                    .ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.getSafeIdentifier())
-                    .ifPresent(this::add);
-            plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.getSafeIdentifier())
-                    .ifPresent(this::add);
-        }};
+        plugin.getLocales().getLocale("edit_warp_menu_use_buttons", warp.getSafeIdentifier())
+                .ifPresent(messages::add);
+        plugin.getLocales().getLocale("edit_warp_menu_manage_buttons", warp.getSafeIdentifier())
+                .ifPresent(messages::add);
+        plugin.getLocales().getLocale("edit_warp_menu_meta_edit_buttons", warp.getSafeIdentifier())
+                .ifPresent(messages::add);
+        return messages;
     }
 
 }

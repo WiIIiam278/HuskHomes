@@ -52,8 +52,8 @@ public class Teleport {
     protected final boolean updateLastPosition;
 
     protected Teleport(@NotNull OnlineUser executor, @NotNull Teleportable teleporter, @NotNull Target target,
-                       @NotNull Type type, boolean updateLastPosition, @NotNull List<TransactionResolver.Action> actions,
-                       @NotNull HuskHomes plugin) {
+                       @NotNull Type type, boolean updateLastPosition,
+                       @NotNull List<TransactionResolver.Action> actions, @NotNull HuskHomes plugin) {
         this.plugin = plugin;
         this.executor = executor;
         this.teleporter = teleporter;
@@ -62,10 +62,8 @@ public class Teleport {
         this.actions = actions;
         this.async = plugin.getSettings().doAsynchronousTeleports();
         this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
-                .map(command ->
-                    executor.hasPermission(command.getPermission()) &&
-                    executor.hasPermission(command.getPermission("previous"))
-                )
+                .map(command -> executor.hasPermission(command.getPermission())
+                        && executor.hasPermission(command.getPermission("previous")))
                 .orElse(false);
     }
 
@@ -217,7 +215,7 @@ public class Teleport {
     }
 
     /**
-     * Represents the type of teleport being used
+     * Represents the type of teleport being used.
      */
     public enum Type {
         TELEPORT(0),

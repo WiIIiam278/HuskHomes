@@ -86,6 +86,11 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     }
 
     @Override
+    public void clearHomes(@NotNull String worldName) {
+        publicHomes.removeIf(home -> home.getWorld().getName().equals(worldName));
+    }
+
+    @Override
     public void updateWarp(@NotNull Warp warp) {
         warps.remove(warp);
         if (isValidPosition(warp)) {
@@ -101,6 +106,11 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     @Override
     public void clearWarps() {
         warps.clear();
+    }
+
+    @Override
+    public void clearWarps(@NotNull String worldName) {
+        warps.removeIf(warp -> warp.getWorld().getName().equals(worldName));
     }
 
     private void registerIcon(@NotNull String key, @NotNull String iconFileName) {

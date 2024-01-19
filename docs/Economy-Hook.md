@@ -6,7 +6,7 @@ HuskHomes supports restricting certain actions behind an economic cost. Players 
 
 > **Applies to:** Spigot, Paper
 
-To enable the Economy Hook on Sponge server, install both [Vault](https://www.spigotmc.org/resources/vault.34315/) and a compatible economy plugin. Extended support for [RedisEconomy](https://github.com/Emibergo02/RedisEconomy) is also provided, and the `redis_economy_name` setting can be used to specify the currency to use for transactions. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
+To enable the Economy Hook on Sponge server, install both [Vault](https://www.spigotmc.org/resources/vault.34315/) and a compatible economy plugin. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
 </details>
 
 <details>
@@ -59,15 +59,15 @@ economy:
   enabled: true
   # Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/
   costs:
-      additional_home_slot: 100.0
-      make_home_public: 50.0
-      random_teleport: 25.0
-      back_command: 0.0
-      home_teleport: 0.0
-      public_home_teleport: 0.0
-      warp_teleport: 0.0
-      spawn_teleport: 0.0
-      send_teleport_request: 0.0
-      accept_teleport_request: 0.0
+    additional_home_slot: 100.0
+    make_home_public: 50.0
+    random_teleport: 25.0
+    back_command: 0.0
+    home_teleport: 0.0
+    public_home_teleport: 0.0
+    warp_teleport: 0.0
+    spawn_teleport: 0.0
+    send_teleport_request: 0.0
+    accept_teleport_request: 0.0
 ```
 </details>

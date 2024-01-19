@@ -20,7 +20,6 @@
 package net.william278.huskhomes.user;
 
 import io.papermc.lib.PaperLib;
-import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
@@ -31,6 +30,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.util.Map;
 import java.util.Optional;
@@ -38,34 +38,43 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
- * Bukkit implementation of an {@link OnlineUser}
+ * Bukkit's implementation of an {@link OnlineUser}.
  */
 public class BukkitUser extends OnlineUser {
 
-    private final BukkitHuskHomes plugin;
     private final Player player;
 
-    private BukkitUser(@NotNull Player player) {
-        super(player.getUniqueId(), player.getName());
-        this.plugin = BukkitHuskHomes.getInstance();
+    private BukkitUser(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
+        super(player.getUniqueId(), player.getName(), plugin);
         this.player = player;
     }
 
     /**
-     * Adapt a {@link Player} to a {@link OnlineUser}
+     * Adapt a {@link Player} to a {@link OnlineUser}.
      *
      * @param player the online {@link Player} to adapt
      * @return the adapted {@link OnlineUser}
      */
     @NotNull
-    public static BukkitUser adapt(@NotNull Player player) {
-        return new BukkitUser(player);
+    public static BukkitUser adapt(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
+        return new BukkitUser(player, plugin);
+    }
+
+    /**
+     * Return the {@link Player} wrapped by this {@link BukkitUser}.
+     *
+     * @return the {@link Player} wrapped by this {@link BukkitUser}
+     */
+    @NotNull
+    public Player getPlayer() {
+        return player;
     }
 
     @Override
     public Position getPosition() {
-        return Position.at(BukkitAdapter.adaptLocation(player.getLocation())
-                        .orElseThrow(() -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")),
+        return Position.at(BukkitAdapter.adaptLocation(player.getLocation()).orElseThrow(
+                        () -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")
+                ),
                 plugin.getServerName());
 
     }
@@ -98,13 +107,7 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    @NotNull
-    public Audience getAudience() {
-        return plugin.getAudiences().player(player);
-    }
-
-    @Override
-    public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
+    public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
         // Ensure the world exists
         final Optional<org.bukkit.Location> resolvedLocation = BukkitAdapter.adaptLocation(location);
         if (resolvedLocation.isEmpty() || resolvedLocation.get().getWorld() == null) {
@@ -118,9 +121,12 @@ public class BukkitUser extends OnlineUser {
         }
 
         // Run on the appropriate thread scheduler for this platform
-        plugin.getScheduler().entitySpecificScheduler(player).run(
+        final GracefulScheduling scheduler = ((BukkitHuskHomes) plugin).getScheduler();
+        scheduler.entitySpecificScheduler(player).run(
                 () -> {
-                    if (asynchronous || plugin.getScheduler().isUsingFolia()) {
+                    player.leaveVehicle();
+                    player.eject();
+                    if (async || scheduler.isUsingFolia()) {
                         PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                         return;
                     }
@@ -131,7 +137,7 @@ public class BukkitUser extends OnlineUser {
     }
 
     /**
-     * Get the player momentum and return if they are moving
+     * Get the player momentum and return if they are moving.
      *
      * @return {@code true} if the player is moving, {@code false} otherwise
      **/
@@ -141,7 +147,7 @@ public class BukkitUser extends OnlineUser {
     }
 
     /**
-     * Return the value of the player's "vanished" metadata tag if they have it
+     * Return the value of the player's "vanished" metadata tag if they have it.
      *
      * @return {@code true} if the player is vanished, {@code false} otherwise
      */
@@ -155,18 +161,10 @@ public class BukkitUser extends OnlineUser {
     }
 
     /**
-     * Send a Bukkit plugin message to the player
+     * Send a Bukkit plugin message to the player.
      */
     public void sendPluginMessage(@NotNull String channel, final byte[] message) {
-        player.sendPluginMessage(plugin, channel, message);
+        player.sendPluginMessage((BukkitHuskHomes) plugin, channel, message);
     }
 
-    /**
-     * Return the {@link Player} wrapped by this {@link BukkitUser}
-     *
-     * @return the {@link Player} wrapped by this {@link BukkitUser}
-     */
-    public Player getPlayer() {
-        return player;
-    }
 }

@@ -61,7 +61,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
     }
 
     /**
-     * Search for a safe ground location near the given location
+     * Search for a safe ground location near the given location.
      *
      * @param location The location to search around
      * @return An optional safe location, within 4 blocks of the given location
@@ -71,15 +71,36 @@ public interface FabricSafetyResolver extends SafetyResolver {
         for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
                 blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
-                final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ()) + 1;
 
-                final Block block = world.getBlockState(blockPos.withY(highestY)).getBlock();
+                final Block block = world.getBlockState(blockPos.withY(highestY - 1)).getBlock();
                 final Identifier id = Registries.BLOCK.getId(block);
-                if (!(block instanceof FluidBlock) && !(block instanceof FireBlock) && isBlockSafe(id.toString())) {
+
+                final Block bodyBlockType = world.getBlockState(blockPos.withY(highestY)).getBlock();
+                final Identifier bodyBlockId = Registries.BLOCK.getId(bodyBlockType);
+
+                final Block headBlockType = world.getBlockState(blockPos.withY(highestY + 1)).getBlock();
+                final Identifier headBlockId = Registries.BLOCK.getId(headBlockType);
+
+                if (!(block instanceof FluidBlock) && !(block instanceof FireBlock)
+                        && isBlockSafeForStanding(id.toString()) && isBlockSafeForOccupation(bodyBlockId.toString())
+                        && isBlockSafeForOccupation(headBlockId.toString())) {
+                    double locx = blockPos.getX();
+                    if (locx < 0) {
+                        locx += 1.5d;
+                    } else {
+                        locx = locx + 0.5d;
+                    }
+                    double locz = blockPos.getZ();
+                    if (locz < 0) {
+                        locz += 1.5d;
+                    } else {
+                        locz = locz + 0.5d;
+                    }
                     return Optional.of(Location.at(
-                            blockPos.getX() + 0.5,
-                            highestY + 1,
-                            blockPos.getZ() + 0.5,
+                            locx,
+                            highestY,
+                            locz,
                             location.getWorld()
                     ));
                 }
@@ -89,7 +110,7 @@ public interface FabricSafetyResolver extends SafetyResolver {
     }
 
     /**
-     * Get the highest Y value at the given X and Z coordinates
+     * Get the highest Y value at the given X and Z coordinates.
      *
      * @param blockView The block view to search
      * @param x         The X coordinate

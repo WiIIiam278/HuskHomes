@@ -29,6 +29,7 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.List;
@@ -53,12 +54,17 @@ public class PaperHuskHomesLoader implements PluginLoader {
 
     @NotNull
     private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {
-        try (InputStream input = PaperHuskHomesLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml")) {
+        try (InputStream input = getLibraryListFile()) {
             return Annotaml.create(PaperLibraries.class, Objects.requireNonNull(input)).get().libraries;
         } catch (Exception e) {
-            e.printStackTrace();
+            classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", e);
         }
         return List.of();
+    }
+
+    @Nullable
+    private static InputStream getLibraryListFile() {
+        return PaperHuskHomesLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml");
     }
 
     @YamlFile(header = "Dependencies for HuskHomes on Paper")

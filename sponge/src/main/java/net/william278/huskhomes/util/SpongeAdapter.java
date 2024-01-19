@@ -35,7 +35,7 @@ import java.util.Optional;
 public final class SpongeAdapter {
 
     /**
-     * Adapt a Sponge {@link ServerLocation} to a HuskHomes {@link Location}
+     * Adapt a Sponge {@link ServerLocation} to a HuskHomes {@link Location}.
      *
      * @param location the Sponge {@link ServerLocation} to adapt
      * @return the adapted {@link Location}
@@ -53,7 +53,7 @@ public final class SpongeAdapter {
     }
 
     /**
-     * Adapt a HuskHomes {@link Location} to a Sponge {@link ServerLocation}
+     * Adapt a HuskHomes {@link Location} to a Sponge {@link ServerLocation}.
      *
      * @param location the HuskHomes {@link Location} to adapt
      * @return the adapted {@link ServerLocation}
@@ -66,7 +66,7 @@ public final class SpongeAdapter {
     }
 
     /**
-     * Adapt a Sponge {@link ServerWorld} to a HuskHomes {@link World}
+     * Adapt a Sponge {@link ServerWorld} to a HuskHomes {@link World}.
      *
      * @param world the Sponge {@link ServerWorld} to adapt
      * @return the adapted {@link World}

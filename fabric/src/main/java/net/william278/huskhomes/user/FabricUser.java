@@ -20,14 +20,17 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
@@ -38,18 +41,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class FabricUser extends OnlineUser {
-    private final FabricHuskHomes plugin;
+
     private final ServerPlayerEntity player;
 
-    private FabricUser(@NotNull FabricHuskHomes plugin, @NotNull ServerPlayerEntity player) {
-        super(player.getUuid(), player.getEntityName());
-        this.plugin = plugin;
+    private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
+        super(player.getUuid(), player.getEntityName(), plugin);
         this.player = player;
     }
 
     @NotNull
-    public static FabricUser adapt(@NotNull FabricHuskHomes plugin, @NotNull ServerPlayerEntity player) {
-        return new FabricUser(plugin, player);
+    public static FabricUser adapt(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
+        return new FabricUser(player, plugin);
     }
 
     @Override
@@ -90,14 +92,14 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        final boolean requiresOp = Boolean.TRUE.equals(plugin.getPermissions().getOrDefault(node, true));
-        return Permissions.check(player, node, !requiresOp || player.hasPermissionLevel(3));
+        boolean op = Boolean.TRUE.equals(((FabricHuskHomes) plugin).getPermissions().getOrDefault(node, true));
+        return Permissions.check(player, node, !op || player.hasPermissionLevel(3));
     }
 
     @Override
     @NotNull
     public Map<String, Boolean> getPermissions() {
-        return plugin.getPermissions().entrySet().stream()
+        return ((FabricHuskHomes) plugin).getPermissions().entrySet().stream()
                 .filter(entry -> Permissions.check(player, entry.getKey(), entry.getValue()))
                 .collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), HashMap::putAll);
     }
@@ -121,31 +123,35 @@ public class FabricUser extends OnlineUser {
     }
 
     @Override
-    public void playSound(@NotNull String soundEffect) throws IllegalArgumentException {
-        // Do nothing - todo: Fix sounds when adventure-platform-fabric is updated.
-    }
-
-    @Override
-    public void teleportLocally(@NotNull Location location, boolean asynchronous) throws TeleportationException {
+    public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
         final MinecraftServer server = player.getServer();
-        assert server != null : "Server is null";
-        final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
-        player.teleport(
+        if (server == null) {
+            throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
+        }
+
+        player.dismountVehicle();
+        FabricDimensions.teleport(
+                player,
                 server.getWorld(server.getWorldRegistryKeys().stream()
-                        .filter(key -> key.getValue().equals(worldId)).findFirst()
-                        .orElseThrow(() -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin))
-                ),
-                location.getX(), location.getY(), location.getZ(),
-                location.getYaw(), location.getPitch()
+                        .filter(key -> key.getValue().equals(Identifier.tryParse(location.getWorld().getName())))
+                        .findFirst().orElseThrow(
+                                () -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin)
+                        )),
+                new TeleportTarget(
+                        new Vec3d(location.getX(), location.getY(), location.getZ()),
+                        Vec3d.ZERO,
+                        location.getYaw(),
+                        location.getPitch()
+                )
         );
     }
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
         final PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeIdentifier(parseIdentifier(channel));
         buf.writeBytes(message);
-        final CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(parseIdentifier(channel), buf);
-        player.networkHandler.sendPacket(packet);
+        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(buf));
     }
 
     @Override

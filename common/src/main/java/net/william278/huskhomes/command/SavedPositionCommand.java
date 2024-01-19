@@ -45,7 +45,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
     protected SavedPositionCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull Class<T> positionType,
                                    @NotNull List<String> arguments, @NotNull HuskHomes plugin) {
-        super(name, aliases, "<name>" + ((arguments.size() > 0) ? " [" + String.join("|", arguments) + "]" : ""), plugin);
+        super(name, aliases, "<name>" + formatUsage(arguments), plugin);
         this.positionType = positionType;
         this.arguments = arguments;
 
@@ -78,18 +78,18 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private Optional<Home> resolveHome(@NotNull CommandUser executor, @NotNull String homeName) {
         if (homeName.contains(Home.IDENTIFIER_DELIMITER)) {
             final String ownerUsername = homeName.substring(0, homeName.indexOf(Home.IDENTIFIER_DELIMITER));
-            final String ownerHomeName = homeName.substring(homeName.indexOf(Home.IDENTIFIER_DELIMITER) + 1);
-            if (ownerUsername.isBlank() || ownerHomeName.isBlank()) {
+            final String ownerHome = homeName.substring(homeName.indexOf(Home.IDENTIFIER_DELIMITER) + 1);
+            if (ownerUsername.isBlank() || ownerHome.isBlank()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
 
             final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(ownerUsername)
-                    .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHomeName));
+                    .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHome));
             if (optionalHome.isEmpty()) {
                 plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())
-                                ? "error_home_invalid_other" : "error_public_home_invalid", ownerUsername, ownerHomeName)
+                                ? "error_home_invalid_other" : "error_public_home_invalid", ownerUsername, ownerHome)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
@@ -97,7 +97,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             final Home home = optionalHome.get();
             if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
                     && !user.hasPermission(getOtherPermission())) {
-                plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHomeName)
+                plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHome)
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
@@ -138,7 +138,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
         if (executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
-                && !user.hasPermission(Warp.getWildcardPermission()) && !user.hasPermission(Warp.getPermission(warpName))) {
+                && !user.hasPermission(Warp.getWildcardPermission())
+                && !user.hasPermission(Warp.getPermission(warpName))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -180,6 +181,11 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         }
     }
 
+    @NotNull
+    private static String formatUsage(List<String> arguments) {
+        return ((!arguments.isEmpty()) ? " [" + String.join("|", arguments) + "]" : "");
+    }
+
     @Override
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
@@ -188,14 +194,14 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 case 0, 1 -> {
                     if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
                         if (executor.hasPermission(getOtherPermission())) {
-                            yield filter(plugin.getManager().homes().getUserHomeNames(), args);
+                            yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
                         }
-                        yield filter(plugin.getManager().homes().getUserHomeNames(), args);
+                        yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
                     }
                     if (executor instanceof OnlineUser user) {
                         yield filter(plugin.getManager().homes().getUserHomes().get(user.getUsername()), args);
                     }
-                    yield filter(plugin.getManager().homes().getUserHomeNames(), args);
+                    yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
                 }
                 case 2 -> filter(arguments.stream().toList(), args);
                 default -> List.of();

@@ -39,23 +39,23 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * An SQLite implementation of the plugin {@link Database}
+ * An SQLite implementation of the plugin {@link Database}.
  */
 @SuppressWarnings("DuplicatedCode")
 public class SqLiteDatabase extends Database {
 
     /**
-     * Path to the SQLite HuskHomesData.db file
+     * Path to the SQLite HuskHomesData.db file.
      */
     private final File databaseFile;
 
     /**
-     * The name of the database file
+     * The name of the database file.
      */
     private static final String DATABASE_FILE_NAME = "HuskHomesData.db";
 
     /**
-     * The persistent SQLite database connection
+     * The persistent SQLite database connection.
      */
     private Connection connection;
 
@@ -81,7 +81,7 @@ public class SqLiteDatabase extends Database {
                 plugin.log(Level.INFO, "Created the SQLite database file");
             }
 
-            // Specify use of the JDBC SQLite driver
+            // Specify use of the JDBC SQLite driver for legacy compatibility
             Class.forName("org.sqlite.JDBC");
 
             // Set SQLite database properties
@@ -91,9 +91,12 @@ public class SqLiteDatabase extends Database {
             config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
 
             // Establish the connection
-            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFile.getAbsolutePath(), config.toProperties());
+            connection = DriverManager.getConnection(
+                    String.format("jdbc:sqlite:%s", databaseFile.getAbsolutePath()),
+                    config.toProperties()
+            );
         } catch (IOException e) {
-            plugin.log(Level.SEVERE, "An exception occurred creating the database file", e);
+            plugin.log(Level.SEVERE, "An exception occurred creating the SQLite database file", e);
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
         } catch (ClassNotFoundException e) {
@@ -123,9 +126,11 @@ public class SqLiteDatabase extends Database {
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        INSERT INTO `%positions_table%` (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
-                        VALUES (?,?,?,?,?,?,?,?);"""),
-                Statement.RETURN_GENERATED_KEYS)) {
+                        INSERT INTO `%positions_table%`
+                            (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
+                        VALUES
+                            (?,?,?,?,?,?,?,?)
+                        RETURNING `id`;"""))) {
 
             statement.setDouble(1, position.getX());
             statement.setDouble(2, position.getY());
@@ -135,20 +140,20 @@ public class SqLiteDatabase extends Database {
             statement.setString(6, position.getWorld().getName());
             statement.setString(7, position.getWorld().getUuid().toString());
             statement.setString(8, position.getServer());
-            statement.executeUpdate();
 
             // Return the ID of the newly inserted row
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(1);
+                    return resultSet.getInt("id");
                 }
             }
-            throw new SQLException("No generated key found");
+            throw new SQLException("No generated ID found");
         }
     }
 
     @Override
-    protected void updatePosition(int positionId, @NotNull Position position, @NotNull Connection connection) throws SQLException {
+    protected void updatePosition(int positionId, @NotNull Position position,
+                                  @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
                 UPDATE `%positions_table%`
                 SET `x`=?,
@@ -174,31 +179,34 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    protected int setSavedPosition(@NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
+    protected int setSavedPosition(@NotNull SavedPosition position,
+                                   @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%saved_positions_table%` (`position_id`, `name`, `description`, `tags`, `timestamp`)
-                        VALUES (?,?,?,?,?);"""),
-                Statement.RETURN_GENERATED_KEYS)) {
+                        INSERT INTO `%saved_positions_table%`
+                            (`position_id`, `name`, `description`, `tags`, `timestamp`)
+                        VALUES
+                            (?,?,?,?,?)
+                        RETURNING `id`;"""))) {
 
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.getName());
             statement.setString(3, position.getMeta().getDescription());
             statement.setString(4, position.getMeta().getSerializedTags());
             statement.setTimestamp(5, Timestamp.from(position.getMeta().getCreationTime()));
-            statement.executeUpdate();
 
             // Return the ID of the newly inserted row
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt(1);
+                    return resultSet.getInt("id");
                 }
             }
-            throw new SQLException("No generated key found");
+            throw new SQLException("No generated ID found");
         }
     }
 
     @Override
-    protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position, @NotNull Connection connection) throws SQLException {
+    protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position,
+                                       @NotNull Connection connection) throws SQLException {
         try (PreparedStatement selectStatement = connection.prepareStatement(formatStatementTables("""
                 SELECT `position_id`
                 FROM `%saved_positions_table%`
@@ -228,7 +236,8 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public void ensureUser(@NotNull User onlineUser) {
-        getUserData(onlineUser.getUuid()).ifPresentOrElse(existingUser -> {
+        getUserData(onlineUser.getUuid()).ifPresentOrElse(
+                existingUser -> {
                     if (!existingUser.getUsername().equals(onlineUser.getUsername())) {
                         // Update a player's name if it has changed in the database
                         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
@@ -239,7 +248,9 @@ public class SqLiteDatabase extends Database {
                             statement.setString(1, onlineUser.getUsername());
                             statement.setString(2, existingUser.getUserUuid().toString());
                             statement.executeUpdate();
-                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername() + "'s name in the database (" + existingUser.getUsername() + " -> " + onlineUser.getUsername() + ")");
+                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername()
+                                    + "'s name in the database (" + existingUser.getUsername()
+                                    + " -> " + onlineUser.getUsername() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -309,6 +320,32 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public void deleteUserData(@NotNull UUID uuid) {
+        try {
+            // Delete Position
+            PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `id`
+                    IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
+                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
+            statement.setString(1, uuid.toString());
+            statement.setString(2, uuid.toString());
+            statement.setString(3, uuid.toString());
+            statement.executeUpdate();
+
+            statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%players_table%`
+                WHERE `uuid`=?;"""));
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+        }
+    }
+
+    @Override
     public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 SELECT `type`, `start_timestamp`, `end_timestamp`
@@ -343,7 +380,8 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user, @NotNull Instant cooldownExpiry) {
+    public void setCooldown(@NotNull TransactionResolver.Action action, @NotNull User user,
+                            @NotNull Instant cooldownExpiry) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 INSERT INTO `%cooldowns_table%` (`player_uuid`, `type`, `start_timestamp`, `end_timestamp`)
                 VALUES (?,?,?,?);"""))) {
@@ -361,11 +399,15 @@ public class SqLiteDatabase extends Database {
     public List<Home> getHomes(@NotNull User user) {
         final List<Home> userHomes = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`, `timestamp`,
+                    `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
                 FROM `%homes_table%`
-                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%`
+                    ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                 WHERE `owner_uuid`=?
                 ORDER BY `name`;"""))) {
             statement.setString(1, user.getUuid().toString());
@@ -399,12 +441,14 @@ public class SqLiteDatabase extends Database {
     public List<Warp> getWarps() {
         final List<Warp> warps = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                    `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                 FROM `%warps_table%`
-                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                 ORDER BY `name`;"""))) {
-
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 warps.add(Warp.from(resultSet.getDouble("x"),
@@ -431,14 +475,18 @@ public class SqLiteDatabase extends Database {
     public List<Home> getPublicHomes() {
         final List<Home> userHomes = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                    `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                    `world_uuid`, `server_name`, `public`
                 FROM `%homes_table%`
-                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%`
+                    ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                 WHERE `public`=true
                 ORDER BY `name`;"""))) {
-
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 userHomes.add(Home.from(resultSet.getDouble("x"),
@@ -468,11 +516,16 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                    `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                    `world_uuid`, `server_name`, `public`
                 FROM `%homes_table%`
-                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%`
+                    ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                 WHERE `owner_uuid`=?
                 AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
             statement.setString(1, user.getUuid().toString());
@@ -507,11 +560,16 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<Home> getHome(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                    `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                    `world_uuid`, `server_name`, `public`
                 FROM `%homes_table%`
-                INNER JOIN `%saved_positions_table%` ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                INNER JOIN `%players_table%` ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%`
+                    ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
                 WHERE `%homes_table%`.`uuid`=?;"""))) {
             statement.setString(1, uuid.toString());
 
@@ -543,10 +601,13 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                    `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                 FROM `%warps_table%`
-                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                 AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
             statement.setBoolean(1, caseInsensitive);
             statement.setString(2, warpName);
@@ -577,10 +638,13 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<Warp> getWarp(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
+                SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
+                    `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
                 FROM `%warps_table%`
-                INNER JOIN `%saved_positions_table%` ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                INNER JOIN `%positions_table%` ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
                 WHERE `%warps_table%`.uuid=?;"""))) {
             statement.setString(1, uuid.toString());
 
@@ -652,7 +716,7 @@ public class SqLiteDatabase extends Database {
             statement.setString(3, savedUser.getUserUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername() + " on the database", e);
+            plugin.log(Level.SEVERE, "Failed to update user data for " + savedUser.getUsername(), e);
         }
     }
 
@@ -987,6 +1051,30 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `%positions_table%`.`id` IN (
+                    SELECT `position_id`
+                    FROM `%saved_positions_table%`
+                    WHERE `%saved_positions_table%`.`id` IN (
+                        SELECT `saved_position_id`
+                        FROM `%homes_table%`
+                        WHERE `world_name`=?
+                        AND `server_name`=?
+                    )
+                );"""))) {
+            statement.setString(1, worldName);
+            statement.setString(2, serverName);
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete homes in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
     public void deleteWarp(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 DELETE FROM `%positions_table%`
@@ -1021,6 +1109,30 @@ public class SqLiteDatabase extends Database {
             return statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete all warps from the database", e);
+        }
+        return 0;
+    }
+
+    @Override
+    public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                DELETE FROM `%positions_table%`
+                WHERE `%positions_table%`.`id` IN (
+                    SELECT `position_id`
+                    FROM `%saved_positions_table%`
+                    WHERE `%saved_positions_table%`.`id` IN (
+                        SELECT `saved_position_id`
+                        FROM `%warps_table%`
+                        WHERE `world_name`=?
+                        AND `server_name`=?
+                    )
+                );"""))) {
+            statement.setString(1, worldName);
+            statement.setString(2, serverName);
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete warps in the world " + worldName + " on the server "
+                    + serverName + " from the database", e);
         }
         return 0;
     }

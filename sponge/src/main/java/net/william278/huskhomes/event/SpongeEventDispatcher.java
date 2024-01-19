@@ -42,75 +42,85 @@ public interface SpongeEventDispatcher extends EventDispatcher {
     }
 
     @Override
+    @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
         return new SpongeTeleportEvent(teleport);
     }
 
     @Override
-    default ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+    default @NotNull ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return new SpongeTeleportWarmupEvent(teleport, duration);
     }
 
     @Override
-    default ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, @NotNull TeleportRequest request) {
+    default @NotNull ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender,
+                                                                           @NotNull TeleportRequest request) {
         return new SpongeSendTeleportRequestEvent(sender, request);
     }
 
     @Override
-    default IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+    default @NotNull IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                                                 @NotNull TeleportRequest request) {
         return new SpongeReceiveTeleportRequestEvent(recipient, request);
     }
 
     @Override
-    default IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+    default @NotNull IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                                             @NotNull TeleportRequest request) {
         return new SpongeReplyTeleportRequestEvent(recipient, request);
     }
 
     @Override
-    default IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    default @NotNull IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name,
+                                                         @NotNull Position position, @NotNull CommandUser creator) {
         return new SpongeHomeCreateEvent(owner, name, position, creator);
     }
 
     @Override
-    default IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        return new SpongeHomeEditEvent(home, editor);
+    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull Home original,
+                                                     @NotNull CommandUser editor) {
+        return new SpongeHomeEditEvent(home, original, editor);
     }
 
     @Override
-    default IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter) {
+    default @NotNull IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter) {
         return new SpongeHomeDeleteEvent(home, deleter);
     }
 
     @Override
-    default IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    default @NotNull IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position,
+                                                         @NotNull CommandUser creator) {
         return new SpongeWarpCreateEvent(name, position, creator);
     }
 
     @Override
-    default IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
-        return new SpongeWarpEditEvent(warp, editor);
+    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull Warp original,
+                                                     @NotNull CommandUser editor) {
+        return new SpongeWarpEditEvent(warp, original, editor);
     }
 
     @Override
-    default IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
+    default @NotNull IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
         return new SpongeWarpDeleteEvent(warp, deleter);
     }
 
     @Override
-    default IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList) {
+    default @NotNull IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer,
+                                                         boolean publicHomeList) {
         return new SpongeHomeListEvent(homes, listViewer, publicHomeList);
     }
 
     @Override
-    default IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull CommandUser listViewer) {
+    default @NotNull IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> homes, @NotNull CommandUser listViewer) {
         return new SpongeWarpListEvent(homes, listViewer);
     }
 
     @Override
-    default IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter) {
+    default @NotNull IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter) {
         return new SpongeDeleteAllHomesEvent(user, deleter);
     }
 
+    @NotNull
     @Override
     default IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter) {
         return new SpongeDeleteAllWarpsEvent(deleter);

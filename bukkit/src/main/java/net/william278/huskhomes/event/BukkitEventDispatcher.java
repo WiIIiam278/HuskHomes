@@ -42,77 +42,86 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
+    @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
         return teleport.getType() == Teleport.Type.BACK ? new TeleportBackEvent(teleport) : new TeleportEvent(teleport);
     }
 
     @Override
-    default ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
+    default @NotNull ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return new TeleportWarmupEvent(teleport, duration);
     }
 
     @Override
-    default ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, @NotNull TeleportRequest request) {
+    default @NotNull ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender,
+                                                                           @NotNull TeleportRequest request) {
         return new SendTeleportRequestEvent(sender, request);
     }
 
     @Override
-    default IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+    default @NotNull IReceiveTeleportRequestEvent getReceiveTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                                                 @NotNull TeleportRequest request) {
         return new ReceiveTeleportRequestEvent(recipient, request);
     }
 
     @Override
-    default IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient, @NotNull TeleportRequest request) {
+    default @NotNull IReplyTeleportRequestEvent getReplyTeleportRequestEvent(@NotNull OnlineUser recipient,
+                                                                             @NotNull TeleportRequest request) {
         return new ReplyTeleportRequestEvent(recipient, request);
     }
 
     @Override
-    default IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    default @NotNull IHomeCreateEvent getHomeCreateEvent(@NotNull User owner, @NotNull String name,
+                                                         @NotNull Position position, @NotNull CommandUser creator) {
         return new HomeCreateEvent(owner, name, position, creator);
     }
 
     @Override
-    default IHomeEditEvent getHomeEditEvent(@NotNull Home home, @NotNull CommandUser editor) {
-        return new HomeEditEvent(home, editor);
+    default @NotNull IHomeEditEvent getHomeEditEvent(@NotNull Home edited, @NotNull Home original,
+                                                     @NotNull CommandUser editor) {
+        return new HomeEditEvent(edited, original, editor);
     }
 
     @Override
-    default IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter) {
+    default @NotNull IHomeDeleteEvent getHomeDeleteEvent(@NotNull Home home, @NotNull CommandUser deleter) {
         return new HomeDeleteEvent(home, deleter);
     }
 
     @Override
-    default IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position, @NotNull CommandUser creator) {
+    default @NotNull IWarpCreateEvent getWarpCreateEvent(@NotNull String name, @NotNull Position position,
+                                                         @NotNull CommandUser creator) {
         return new WarpCreateEvent(name, position, creator);
     }
 
     @Override
-    default IWarpEditEvent getWarpEditEvent(@NotNull Warp warp, @NotNull CommandUser editor) {
-        return new WarpEditEvent(warp, editor);
+    default @NotNull IWarpEditEvent getWarpEditEvent(@NotNull Warp edited, @NotNull Warp original,
+                                                     @NotNull CommandUser editor) {
+        return new WarpEditEvent(edited, original, editor);
     }
 
     @Override
-    default IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
+    default @NotNull IWarpDeleteEvent getWarpDeleteEvent(@NotNull Warp warp, @NotNull CommandUser deleter) {
         return new WarpDeleteEvent(warp, deleter);
     }
 
     @Override
-    default IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer, boolean publicHomeList) {
+    default @NotNull IHomeListEvent getViewHomeListEvent(@NotNull List<Home> homes, @NotNull CommandUser listViewer,
+                                                         boolean publicHomeList) {
         return new HomeListEvent(homes, listViewer, publicHomeList);
     }
 
     @Override
-    default IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> warps, @NotNull CommandUser listViewer) {
+    default @NotNull IWarpListEvent getViewWarpListEvent(@NotNull List<Warp> warps, @NotNull CommandUser listViewer) {
         return new WarpListEvent(warps, listViewer);
     }
 
     @Override
-    default IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter) {
+    default @NotNull IDeleteAllHomesEvent getDeleteAllHomesEvent(@NotNull User user, @NotNull CommandUser deleter) {
         return new DeleteAllHomesEvent(user, deleter);
     }
 
     @Override
-    default IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter) {
+    default @NotNull IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter) {
         return new DeleteAllWarpsEvent(deleter);
     }
 

@@ -33,6 +33,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -59,8 +60,9 @@ public abstract class BaseHuskHomesAPI {
     protected final HuskHomes plugin;
 
     /**
-     * <b>(Internal use only)</b> - Constructor, instantiating the base API class
+     * <b>(Internal use only)</b> - Constructor, instantiating the base API class.
      */
+    @ApiStatus.Internal
     protected BaseHuskHomesAPI(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
     }
@@ -88,19 +90,20 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get the timestamp of when a user's cooldown for performing an {@link TransactionResolver.Action action} expires
+     * Get the timestamp of when a user's cooldown for performing an {@link TransactionResolver.Action action} expires.
      *
      * @param user   The {@link User} to get data for.
      * @param action The {@link TransactionResolver.Action} to get the cooldown for
      * @return An {@link Optional} containing the {@link Instant} the cooldown expires, if there is one
      * @since 4.4
      */
-    public final CompletableFuture<Optional<Instant>> getCooldown(@NotNull User user, @NotNull TransactionResolver.Action action) {
+    public final CompletableFuture<Optional<Instant>> getCooldown(@NotNull User user,
+                                                                  @NotNull TransactionResolver.Action action) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getCooldown(action, user));
     }
 
     /**
-     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}
+     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}.
      *
      * @param user   The {@link User} to set data for.
      * @param action The {@link TransactionResolver.Action} to set the cooldown for
@@ -108,7 +111,8 @@ public abstract class BaseHuskHomesAPI {
      * @throws IllegalArgumentException if the expiry is in the past
      * @since 4.4
      */
-    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action, @NotNull Instant expiry) throws IllegalArgumentException {
+    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action,
+                                  @NotNull Instant expiry) throws IllegalArgumentException {
         if (Instant.now().isAfter(expiry)) {
             throw new IllegalArgumentException("Cooldown expiry time must be in the future");
         }
@@ -116,7 +120,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}
+     * Set a cooldown for a user performing an {@link TransactionResolver.Action action}.
      *
      * @param user     The {@link User} to set data for.
      * @param action   The {@link TransactionResolver.Action} to set the cooldown for
@@ -124,12 +128,13 @@ public abstract class BaseHuskHomesAPI {
      * @throws IllegalArgumentException if the duration is negative
      * @since 4.4
      */
-    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action, @NotNull Duration duration) throws IllegalArgumentException {
+    public final void setCooldown(@NotNull User user, @NotNull TransactionResolver.Action action,
+                                  @NotNull Duration duration) throws IllegalArgumentException {
         this.setCooldown(user, action, Instant.now().plus(duration));
     }
 
     /**
-     * Remove a cooldown for a user performing an {@link TransactionResolver.Action action}
+     * Remove a cooldown for a user performing an {@link TransactionResolver.Action action}.
      *
      * @param user   The {@link User} to remove the cooldown for
      * @param action The {@link TransactionResolver.Action} to remove the cooldown for
@@ -140,7 +145,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Returns the last position, as used in the {@code /back} command, for this user
+     * Returns the last position, as used in the {@code /back} command, for this user.
      *
      * @param user The {@link User} to get the last position for
      * @return The user's last {@link Position}, if there is one
@@ -151,7 +156,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the last {@link Position}, as used in the {@code /back} command, for this user
+     * Set the last {@link Position}, as used in the {@code /back} command, for this user.
      *
      * @param user     The {@link User} to set the last position for
      * @param position The {@link Position} to set as the user's last position
@@ -162,7 +167,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Returns where the user last disconnected from a server
+     * Returns where the user last disconnected from a server.
      *
      * @param user The {@link User} to get the last disconnect position for
      * @return The user's offline {@link Position}, if there is one
@@ -173,9 +178,9 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Returns where the user last set their spawn point by right-clicking a bed or respawn anchor
-     * <p>
-     * The optional returned by this method will be empty unless HuskHomes is running cross-server mode
+     * Returns where the user last set their spawn point by right-clicking a bed or respawn anchor.
+     *
+     * <p>The optional returned by this method will be empty unless HuskHomes is running cross-server mode
      * and global respawning is enabled
      *
      * @param user The {@link User} to get the respawn position of
@@ -191,7 +196,7 @@ public abstract class BaseHuskHomesAPI {
 
     /**
      * Returns if a user is currently warming up for a timed teleport; that is, they are in the state where they
-     * must stand still and not take damage for the set amount of seconds before a teleport can be executed.
+     * must stand still and not take damage for the set number of seconds before a teleport can be executed.
      *
      * @param user The {@link User} to check
      * @return {@code true} if the user is currently warming up, otherwise {@code false}
@@ -202,7 +207,8 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Save {@link SavedUser} to the database, updating it if data for the user already exists, or adding new user data if it doesn't.
+     * Save {@link SavedUser} to the database, updating it if data for the user already exists,
+     * or adding new user data if it doesn't.
      *
      * @param savedUser The {@link SavedUser} to save
      * @since 3.0
@@ -219,12 +225,12 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull String username, @NotNull Consumer<SavedUser> editor) {
-        plugin.getSavedUsers().stream().findAny().ifPresent(savedUser -> {
-            if (savedUser.getUsername().equalsIgnoreCase(username)) {
-                editor.accept(savedUser);
-                saveUserData(savedUser);
-            }
-        });
+        plugin.getSavedUsers().stream()
+                .filter(u -> u.getUsername().equalsIgnoreCase(username)).findFirst()
+                .ifPresent(savedUser -> {
+                    editor.accept(savedUser);
+                    saveUserData(savedUser);
+                });
     }
 
     /**
@@ -235,12 +241,14 @@ public abstract class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull UUID uuid, @NotNull Consumer<SavedUser> editor) {
-        plugin.getSavedUsers().stream().findAny().ifPresent(savedUser -> {
-            if (savedUser.getUser().getUuid().equals(uuid)) {
-                editor.accept(savedUser);
-                saveUserData(savedUser);
-            }
-        });
+        plugin.getSavedUsers().stream()
+                .filter(u -> u.getUserUuid().equals(uuid)).findFirst()
+                .ifPresent(savedUser -> {
+                    if (savedUser.getUser().getUuid().equals(uuid)) {
+                        editor.accept(savedUser);
+                        saveUserData(savedUser);
+                    }
+                });
     }
 
     /**
@@ -254,11 +262,9 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a list of {@link Home}s set by the given user that they have made public
+     * Get a list of {@link Home}s set by the given user that they have made public.
      *
-     * @param user The {@link User} to get the public homes of
-     * @return A {@link CompletableFuture} that will complete with a list of {@link Home}s set by the user that
-     * they have made public (where {@link Home#isPublic()})
+     * @return A {@link CompletableFuture} with the user's public homes (where {@link Home#isPublic()})
      * @since 3.0
      */
     public final CompletableFuture<List<Home>> getUserPublicHomes(@NotNull User user) {
@@ -268,7 +274,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a list of public homes local to this server
+     * Get a list of public homes local to this server.
      *
      * @param user The {@link User} to get the local public homes of
      * @return A {@link CompletableFuture} that will complete with a list of public {@link Home}s local to the server
@@ -279,7 +285,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a list of homes that have been made public ("public homes")
+     * Get a list of homes that have been made public ("public homes").
      *
      * @return A {@link CompletableFuture} that will complete with a list of public {@link Home}s
      * @since 3.0
@@ -289,11 +295,11 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link Home} from the database owned by a given {@link User} with the specified name
+     * Get a {@link Home} from the database owned by a given {@link User} with the specified name.
      *
      * @param user     The {@link User} to get the home of
      * @param homeName The name of the home to get
-     * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
+     * @return A {@link CompletableFuture} with the {@link Home} if it exists, otherwise an empty {@link Optional}
      * @since 3.0
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull User user, @NotNull String homeName) {
@@ -302,29 +308,53 @@ public abstract class BaseHuskHomesAPI {
 
 
     /**
-     * Get a {@link Home} from the database by its' unique id
+     * Get a {@link Home} from the database by its {@link UUID unique ID}.
      *
      * @param homeUuid The {@link UUID} of the home to get
-     * @return A {@link CompletableFuture} that will complete with the {@link Home} if it exists, otherwise an empty {@link Optional}
+     * @return A {@link CompletableFuture} with the {@link Home} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Home>> getHome(@NotNull UUID homeUuid) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getHome(homeUuid));
     }
 
     /**
-     * Create a home for a given user with the specified name and position
+     * Create a home for a given user with the specified name and position.
+     * The returned future may complete exceptionally with a {@link net.william278.huskhomes.util.ValidationException}
+     * if the home could not be created.
      *
      * @param owner    The {@link User} to create the home for
      * @param name     The name of the home
      * @param position The {@link Position} of the home
-     * @since 4.0
+     * @return a {@link CompletableFuture} that will complete with the created {@link Home}.
+     * @since 4.5
      */
-    public void createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().homes().createHome(owner, name, position, false, false));
+    public CompletableFuture<Home> createHome(@NotNull User owner, @NotNull String name, @NotNull Position position) {
+        return createHome(owner, name, position, false, false, false);
     }
 
     /**
-     * Delete a home for a given user with the specified name
+     * Create a home for a given user with the specified name and position.
+     * The returned future may complete exceptionally with a {@link net.william278.huskhomes.util.ValidationException}
+     * if the home could not be created.
+     *
+     * @param owner              The {@link User} to create the home for
+     * @param name               The name of the home
+     * @param position           The {@link Position} of the home
+     * @param overwrite          Whether to overwrite an existing home with the same name
+     * @param buyAdditionalSlots Whether to buy additional home slots if the user has reached their maximum
+     * @param ignoreMaxHomes     Whether to ignore the maximum number of homes a user can have
+     * @return a {@link CompletableFuture} that will complete with the created {@link Home}.
+     * @since 4.5.1
+     */
+    public CompletableFuture<Home> createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                                              boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes) {
+        return plugin.supplyAsync(() -> plugin.getManager().homes().createHome(
+                owner, name, position, overwrite, buyAdditionalSlots, ignoreMaxHomes
+        ));
+    }
+
+    /**
+     * Delete a home for a given user with the specified name.
      *
      * @param owner The {@link User} to delete the home for
      * @param name  The name of the home
@@ -335,7 +365,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Delete a home
+     * Delete a home.
      *
      * @param home The {@link Home} to delete
      * @since 4.0
@@ -345,7 +375,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Rename a home for a given user
+     * Rename a home for a given user.
      *
      * @param owner   The {@link User} to rename the home for
      * @param oldName The name of the home to rename
@@ -357,7 +387,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Rename a home
+     * Rename a home.
      *
      * @param home    The {@link Home} to rename
      * @param newName The new name of the home
@@ -368,7 +398,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the privacy of a home
+     * Set the privacy of a home.
      *
      * @param owner    The {@link User} to set the privacy of the home for
      * @param name     The name of the home
@@ -380,7 +410,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the privacy of a home
+     * Set the privacy of a home.
      *
      * @param home     The {@link Home} to set the privacy of
      * @param isPublic Whether the home should be public or not
@@ -391,7 +421,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the description of a home
+     * Set the description of a home.
      *
      * @param owner       The {@link User} to set the description of the home for
      * @param name        The name of the home
@@ -403,7 +433,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the description of a home
+     * Set the description of a home.
      *
      * @param home        The {@link Home} to set the description of
      * @param description The description of the home
@@ -414,7 +444,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Relocate a home for a given user
+     * Relocate a home for a given user.
      *
      * @param owner    The {@link User} to relocate the home for
      * @param name     The name of the home
@@ -426,7 +456,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Relocate a home
+     * Relocate a home.
      *
      * @param home     The {@link Home} to relocate
      * @param position The new {@link Position} of the home
@@ -438,7 +468,7 @@ public abstract class BaseHuskHomesAPI {
 
 
     /**
-     * Set the meta tags of a home
+     * Set the meta tags of a home.
      *
      * @param owner The {@link User} to set the meta tags of the home for
      * @param name  The name of the home
@@ -450,7 +480,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the meta tags of a home
+     * Set the meta tags of a home.
      *
      * @param home The {@link Home} to set the meta tags of
      * @param tags The meta tags to set
@@ -461,14 +491,15 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Edit the meta tags of a home
+     * Edit the meta tags of a home.
      *
      * @param owner     The {@link User} to edit the meta tags of the home for
      * @param name      The name of the home
      * @param tagEditor The {@link Consumer} to edit the meta tags with
      * @since 4.0
      */
-    public final void editHomeMetaTags(@NotNull User owner, @NotNull String name, @NotNull Consumer<Map<String, String>> tagEditor) {
+    public final void editHomeMetaTags(@NotNull User owner, @NotNull String name,
+                                       @NotNull Consumer<Map<String, String>> tagEditor) {
         plugin.runAsync(() -> plugin.getDatabase().getHome(owner, name).ifPresent(home -> {
             final Map<String, String> tags = home.getMeta().getTags();
             tagEditor.accept(tags);
@@ -477,7 +508,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a list of {@link Warp}s local to this server
+     * Get a list of {@link Warp}s local to this server.
      *
      * @return A {@link CompletableFuture} that will complete with a list of {@link Warp}s local to the server
      * @since 4.0
@@ -487,7 +518,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a list of {@link Warp}s
+     * Get a list of {@link Warp}s.
      *
      * @return A {@link CompletableFuture} that will complete with a list of {@link Warp}s
      * @since 3.0
@@ -497,10 +528,10 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link Warp} from the database with the specified name
+     * Get a {@link Warp} from the database with the specified name.
      *
      * @param warpName The name of the warp to get
-     * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
+     * @return A {@link CompletableFuture} with the {@link Warp} if it exists, otherwise an empty {@link Optional}
      * @since 3.0
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull String warpName) {
@@ -508,28 +539,29 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link Warp} from the database by its' unique id
+     * Get a {@link Warp} from the database by its {@link UUID unique ID}.
      *
      * @param warpUuid The {@link UUID} of the warp to get
-     * @return A {@link CompletableFuture} that will complete with the {@link Warp} if it exists, otherwise an empty {@link Optional}
+     * @return A {@link CompletableFuture} with the {@link Warp} if it exists, otherwise an empty {@link Optional}
      */
     public final CompletableFuture<Optional<Warp>> getWarp(@NotNull UUID warpUuid) {
         return plugin.supplyAsync(() -> plugin.getDatabase().getWarp(warpUuid));
     }
 
     /**
-     * Create a new {@link Warp} with the given name and {@link Position}
+     * Create a new {@link Warp} with the given name and {@link Position}.
      *
      * @param name     The name of the warp
      * @param position The {@link Position} of the warp
-     * @since 4.0
+     * @return A {@link CompletableFuture} that will complete with the created {@link Warp}
+     * @since 4.5
      */
-    public final void createWarp(@NotNull String name, @NotNull Position position) {
-        plugin.runAsync(() -> plugin.getManager().warps().createWarp(name, position));
+    public final CompletableFuture<Warp> createWarp(@NotNull String name, @NotNull Position position) {
+        return plugin.supplyAsync(() -> plugin.getManager().warps().createWarp(name, position));
     }
 
     /**
-     * Delete a {@link Warp} with the given name
+     * Delete a {@link Warp} with the given name.
      *
      * @param name The name of the warp to delete
      */
@@ -538,7 +570,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Delete a {@link Warp}
+     * Delete a {@link Warp}.
      *
      * @param warp The {@link Warp} to delete
      */
@@ -547,7 +579,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Rename a {@link Warp} by name
+     * Rename a {@link Warp} by name.
      *
      * @param oldName The name of the warp to rename
      * @param newName The new name of the warp
@@ -557,7 +589,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Rename a {@link Warp}
+     * Rename a {@link Warp}.
      *
      * @param warp    The {@link Warp} to rename
      * @param newName The new name of the warp
@@ -567,7 +599,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the description of a {@link Warp} by name
+     * Set the description of a {@link Warp} by name.
      *
      * @param name        The name of the warp to set the description of
      * @param description The new description of the warp
@@ -577,7 +609,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the description of a {@link Warp}
+     * Set the description of a {@link Warp}.
      *
      * @param warp        The {@link Warp} to set the description of
      * @param description The new description of the warp
@@ -587,7 +619,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the {@link Position} of a {@link Warp} by name
+     * Set the {@link Position} of a {@link Warp} by name.
      *
      * @param name     The name of the warp to set the {@link Position} of
      * @param position The new {@link Position} of the warp
@@ -597,7 +629,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the {@link Position} of a {@link Warp}
+     * Set the {@link Position} of a {@link Warp}.
      *
      * @param warp     The {@link Warp} to set the {@link Position} of
      * @param position The new {@link Position} of the warp
@@ -607,7 +639,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the meta tags of a {@link Warp} by name
+     * Set the meta tags of a {@link Warp} by name.
      *
      * @param name The name of the warp to set the meta tags of
      * @param tags The new meta tags of the warp
@@ -618,7 +650,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the meta tags of a {@link Warp}
+     * Set the meta tags of a {@link Warp}.
      *
      * @param warp The {@link Warp} to set the meta tags of
      * @param tags The new meta tags of the warp
@@ -629,7 +661,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Edit the meta tags of a {@link Warp} by name
+     * Edit the meta tags of a {@link Warp} by name.
      *
      * @param name      The name of the warp to edit the meta tags of
      * @param tagEditor A {@link Consumer} that will be passed the current meta tags of the warp
@@ -646,8 +678,10 @@ public abstract class BaseHuskHomesAPI {
 
 
     /**
-     * Get the canonical {@link Position} of the spawn point. Note that if cross-server and global spawn
-     * are enabled in the config, this may not return a position on this server.
+     * Get the canonical {@link Position} of the spawn point.
+     *
+     * <p>Note that if cross-server and global spawn are enabled in the config,
+     * this may not return a position on this server.
      *
      * @return A {@link CompletableFuture} that will complete with the {@link Position} of the spawn point
      */
@@ -656,7 +690,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get the maximum number of set homes a given {@link OnlineUser} can make
+     * Get the maximum number of set homes a given {@link OnlineUser} can make.
      *
      * @param user The {@link OnlineUser} to get the maximum number of homes for
      * @return The maximum number of homes the user can set
@@ -667,9 +701,9 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get the number of homes an {@link OnlineUser} can set for free
-     * <p>
-     * This is irrelevant unless the server is using economy features with HuskHomes
+     * Get the number of homes an {@link OnlineUser} can set for free.
+     *
+     * <p>This is irrelevant unless the server is using economy features with HuskHomes.
      *
      * @param user The {@link OnlineUser} to get the number of free home slots for
      * @return The number of homes the user can set for free
@@ -680,7 +714,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get the number of homes an {@link OnlineUser} can make public
+     * Get the number of homes an {@link OnlineUser} can make public.
      *
      * @param user The {@link OnlineUser} to get the number of public home slots for
      * @return The number of homes the user can make public
@@ -691,7 +725,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
      *
      * @param teleporter The {@link OnlineUser} to teleport
      * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
@@ -703,7 +737,7 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
      *
      * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
      * @since 4.0
@@ -716,7 +750,7 @@ public abstract class BaseHuskHomesAPI {
 
     /**
      * Attempt to teleport an {@link OnlineUser} to a randomly generated {@link Position}. The {@link Position} will be
-     * generated by the current {@link RandomTeleportEngine}
+     * generated by the current {@link RandomTeleportEngine}.
      *
      * @param user          The {@link OnlineUser} to teleport
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
@@ -724,7 +758,8 @@ public abstract class BaseHuskHomesAPI {
      * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
      * @since 3.0
      */
-    public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport, @NotNull String... rtpArgs) {
+    public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport,
+                                             @NotNull String... rtpArgs) {
         plugin.getRandomTeleportEngine()
                 .getRandomPosition(user.getPosition().getWorld(), rtpArgs)
                 .thenAccept(position -> {
@@ -751,7 +786,7 @@ public abstract class BaseHuskHomesAPI {
 
     /**
      * Attempt to teleport an {@link OnlineUser} to a randomly generated {@link Position}. The {@link Position} will be
-     * generated by the current {@link RandomTeleportEngine}
+     * generated by the current {@link RandomTeleportEngine}.
      *
      * @param user The {@link OnlineUser} to teleport
      * @since 3.0
@@ -761,9 +796,10 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Set the {@link RandomTeleportEngine} to use for processing random teleports. The engine will be used to process all
-     * random teleports, including both {@code /rtp} command executions and API ({@link #randomlyTeleportPlayer(OnlineUser)})
-     * calls.
+     * Set the {@link RandomTeleportEngine} to use for processing random teleports.
+     *
+     * <p>The engine will be used to process all random {@link Teleport teleports},
+     * including both {@code /rtp} command executions and {@link #randomlyTeleportPlayer(OnlineUser) API calls}.
      *
      * @param randomTeleportEngine the {@link RandomTeleportEngine} to use to process random teleports
      * @see RandomTeleportEngine
@@ -774,21 +810,20 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link MineDown}-formatted locale by key from the plugin {@link Locales} file
+     * Get a {@link MineDown}-formatted locale by key from the plugin {@link Locales} file.
      *
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
      * @return The {@link MineDown}-formatted locale
-     * @apiNote Since v3.0.4, this method returns a `adventure.MineDown` object, targeting
-     * <a href="https://docs.adventure.kyori.net/">Adventure</a> platforms, rather than a bungee components object.
-     * @since 3.0.4
+     * @apiNote Since v3.0.4, this returns MineDown-<a href="https://docs.adventure.kyori.net/">Adventure</a> components
+     * @since 3.0
      */
     public final Optional<MineDown> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getLocale(localeKey, replacements);
     }
 
     /**
-     * Get a raw locale string by key from the plugin {@link Locales} file
+     * Get a raw locale string by key from the plugin {@link Locales} file.
      *
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
@@ -798,5 +833,24 @@ public abstract class BaseHuskHomesAPI {
     public final Optional<String> getRawLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getRawLocale(localeKey, replacements);
     }
+
+    /**
+     * An exception indicating the plugin has been accessed before it has been registered.
+     */
+    static final class NotRegisteredException extends IllegalStateException {
+
+        private static final String MESSAGE = """
+                Could not access the HuskHomes API as it has not yet been registered. This could be because:
+                1) HuskHomes has failed to enable successfully
+                2) Your plugin isn't set to load after HuskHomes has
+                   (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
+                3) You are attempting to access HuskHomes on plugin construction/before your plugin has enabled.""";
+
+        NotRegisteredException() {
+            super(MESSAGE);
+        }
+
+    }
+
 
 }

@@ -28,6 +28,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,32 +37,53 @@ import java.util.Objects;
 /**
  * The HuskHomes API implementation for the Bukkit platform, providing methods to access player data, homes, warps
  * and process teleports
- * <p>
- * Retrieve an instance of the API class via {@link #getInstance()}.
+ *
+ * <p>Retrieve an instance of the API class via {@link #getInstance()}.
  */
 @SuppressWarnings("unused")
 public class HuskHomesAPI extends BaseHuskHomesAPI {
 
-    /**
-     * <b>(Internal use only)</b> - Instance of the API class
-     */
+    // Instance of the plugin
     private static HuskHomesAPI instance;
 
     /**
-     * <b>(Internal use only)</b> - Constructor, instantiating the API
+     * <b>(Internal use only)</b> - Constructor, instantiating the API.
      */
-    private HuskHomesAPI() {
-        super(BukkitHuskHomes.getInstance());
+    @ApiStatus.Internal
+    private HuskHomesAPI(@NotNull BukkitHuskHomes plugin) {
+        super(plugin);
     }
 
     /**
-     * Entrypoint to the HuskHomes API - returns an instance of the API
+     * Get an instance of the HuskHomes API.
      *
      * @return instance of the HuskHomes API
+     * @throws NotRegisteredException if the API has not yet been registered.
      */
     @NotNull
-    public static HuskHomesAPI getInstance() {
-        return instance == null ? instance = new HuskHomesAPI() : instance;
+    public static HuskHomesAPI getInstance() throws NotRegisteredException {
+        if (instance == null) {
+            throw new NotRegisteredException();
+        }
+        return instance;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Register the API for this platform.
+     *
+     * @param plugin the plugin instance
+     */
+    @ApiStatus.Internal
+    public static void register(@NotNull BukkitHuskHomes plugin) {
+        instance = new HuskHomesAPI(plugin);
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API for this platform.
+     */
+    @ApiStatus.Internal
+    public static void unregister() {
+        instance = null;
     }
 
     /**
@@ -73,7 +95,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(@NotNull Player player) {
-        return BukkitUser.adapt(player);
+        return BukkitUser.adapt(player, (BukkitHuskHomes) plugin);
     }
 
     /**
@@ -101,7 +123,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Location} instance for the given bukkit {@link Location}.
+     * Returns a {@link Location} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Location} instance for
      * @return the {@link Location} instance for the given bukkit {@link Location}
@@ -113,7 +135,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the given {@link Server}.
+     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Position} instance for
      * @param server   the {@link Server} the position is on
@@ -127,10 +149,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on.
+     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
      *
      * @param location the bukkit location to get the {@link Position} instance for
-     * @return the {@link Position} instance for the given bukkit {@link Location} on the server the plugin is running on
+     * @return the {@link Position} instance for the given {@link Location} on the server
      * @since 4.0
      */
     @NotNull
@@ -139,9 +161,9 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Get the {@link Server}, containing the ID of the server the plugin is running on
+     * Get the name of this server.
      *
-     * @return the {@link Server}
+     * @return the server name
      * @since 4.0
      */
     @NotNull

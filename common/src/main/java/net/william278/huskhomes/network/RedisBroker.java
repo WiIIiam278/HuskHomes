@@ -75,7 +75,8 @@ public class RedisBroker extends PluginMessageBroker {
                     // Thread was unlocked due error
                     if (enabled) {
                         if (reconnected) {
-                            plugin.log(Level.WARNING, "Redis connection dropped, automatic reconnection in 8 seconds", t);
+                            plugin.log(Level.WARNING,
+                                    "Redis connection dropped, automatic reconnection in 8 seconds", t);
                         }
                         try {
                             pubSub.unsubscribe();

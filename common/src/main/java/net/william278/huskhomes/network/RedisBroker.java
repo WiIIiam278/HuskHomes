@@ -35,6 +35,9 @@ import java.util.logging.Level;
 public class RedisBroker extends PluginMessageBroker {
     private JedisPool jedisPool;
 
+    private boolean enabled;
+    private final PubSub pubSub = new PubSub();
+
     public RedisBroker(@NotNull HuskHomes plugin) {
         super(plugin);
     }
@@ -51,6 +54,7 @@ public class RedisBroker extends PluginMessageBroker {
         this.jedisPool = password.isEmpty() ? new JedisPool(new JedisPoolConfig(), host, port, 0, useSSL)
                 : new JedisPool(new JedisPoolConfig(), host, port, 0, password, useSSL);
 
+        enabled = true;
         new Thread(getSubscriber(), plugin.getKey("redis_subscriber").toString()).start();
 
         plugin.log(Level.INFO, "Initialized Redis connection pool");
@@ -59,38 +63,40 @@ public class RedisBroker extends PluginMessageBroker {
     @NotNull
     private Runnable getSubscriber() {
         return () -> {
-            try (Jedis jedis = jedisPool.getResource()) {
-                jedis.subscribe(new JedisPubSub() {
-                    @Override
-                    public void onMessage(@NotNull String channel, @NotNull String encodedMessage) {
-                        if (!channel.equals(getSubChannelId())) {
-                            return;
-                        }
-
-                        final Message message;
-                        try {
-                            message = plugin.getGson().fromJson(encodedMessage, Message.class);
-                        } catch (Exception e) {
-                            plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
-                            return;
-                        }
-
-                        if (message.getScope() == Message.Scope.PLAYER) {
-                            plugin.getOnlineUsers().stream()
-                                    .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                            || online.getUsername().equals(message.getTarget()))
-                                    .forEach(receiver -> handle(receiver, message));
-                            return;
-                        }
-
-                        if (message.getTarget().equals(plugin.getServerName())
-                                || message.getTarget().equals(Message.TARGET_ALL)) {
-                            plugin.getOnlineUsers().stream()
-                                    .findAny()
-                                    .ifPresent(receiver -> handle(receiver, message));
-                        }
+            boolean reconnected = false;
+            while (enabled && !Thread.interrupted() && jedisPool != null && !jedisPool.isClosed()) {
+                try (Jedis jedis = jedisPool.getResource()) {
+                    if (reconnected) {
+                        plugin.log(Level.INFO, "Redis connection is alive again");
                     }
-                }, getSubChannelId());
+                    // Subscribe channels and lock the thread
+                    jedis.subscribe(pubSub, getSubChannelId());
+                } catch (Throwable t) {
+                    // Thread was unlocked due error
+                    if (enabled) {
+                        if (reconnected) {
+                            plugin.log(Level.WARNING, "Redis connection dropped, automatic reconnection in 8 seconds", t);
+                        }
+                        try {
+                            pubSub.unsubscribe();
+                        } catch (Throwable ignored) {
+                            // empty catch
+                        }
+
+                        // Make an instant subscribe if ocurrs any error on initialization
+                        if (!reconnected) {
+                            reconnected = true;
+                        } else {
+                            try {
+                                Thread.sleep(8000);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    } else {
+                        return;
+                    }
+                }
             }
         };
     }
@@ -106,9 +112,52 @@ public class RedisBroker extends PluginMessageBroker {
 
     @Override
     public void close() {
+        enabled = false;
         super.close();
         if (jedisPool != null) {
             jedisPool.close();
+        }
+    }
+
+    public class PubSub extends JedisPubSub {
+        @Override
+        public void onMessage(@NotNull String channel, @NotNull String encodedMessage) {
+            if (!channel.equals(getSubChannelId())) {
+                return;
+            }
+
+            final Message message;
+            try {
+                message = plugin.getGson().fromJson(encodedMessage, Message.class);
+            } catch (Exception e) {
+                plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
+                return;
+            }
+
+            if (message.getScope() == Message.Scope.PLAYER) {
+                plugin.getOnlineUsers().stream()
+                        .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
+                                || online.getUsername().equals(message.getTarget()))
+                        .forEach(receiver -> handle(receiver, message));
+                return;
+            }
+
+            if (message.getTarget().equals(plugin.getServerName())
+                    || message.getTarget().equals(Message.TARGET_ALL)) {
+                plugin.getOnlineUsers().stream()
+                        .findAny()
+                        .ifPresent(receiver -> handle(receiver, message));
+            }
+        }
+
+        @Override
+        public void onSubscribe(String channel, int subscribedChannels) {
+            plugin.log(Level.INFO, "Redis subscribed to channel '" + channel + "'");
+        }
+
+        @Override
+        public void onUnsubscribe(String channel, int subscribedChannels) {
+            plugin.log(Level.INFO, "Redis unsubscribed from channel '" + channel + "'");
         }
     }
 

@@ -80,6 +80,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         AboutMenu.Credit.of("Funasitien").description("French, (fr-fr)"),
                         AboutMenu.Credit.of("Ceddix").description("German, (de-de)"),
                         AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"),
+                        AboutMenu.Credit.of("WinTone01").description("Turkish, (tr-tr)"),
                         AboutMenu.Credit.of("EmanuelFNC").description("Brazilian Portuguese, (pt-br)"),
                         AboutMenu.Credit.of("xMattNice_").description("Brazilian Portuguese, (pt-br)"))
                 .buttons(

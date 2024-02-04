@@ -240,11 +240,11 @@ public class Settings {
 
 
     // Rtp command settings
-    @YamlComment("Radius around the spawn point in which players cannot be random teleported to")
+    @YamlComment("Radius around the /spawn position where players CAN be randomly teleported")
     @YamlKey("rtp.radius")
     private int rtpRadius = 5000;
 
-    @YamlComment("Radius of the spawn area in which players cannot be random teleported to")
+    @YamlComment("Radius around the /spawn position where players CANNOT be randomly teleported")
     @YamlKey("rtp.spawn_radius")
     private int rtpSpawnRadius = 500;
 

@@ -126,7 +126,7 @@ error_home_description_characters: '[错误:](#ff3300) [家的描述只能使用
 error_warp_description_length: '[错误:](#ff3300) [地标描述最多只能输入255个字符!](#ff7e5e)'
 error_warp_description_characters: '[错误:](#ff3300) [地标描述只能使用这些字符: (A-Z, 0-9, -_, 文字, 空格](#ff7e5e)'
 error_no_permission: '[错误:](#ff3300) [没有权限](#ff7e5e)'
-error_invalid_syntax: '[错误:](#ff3300) [语法错误，使用:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=%1%)'
+error_invalid_syntax: '[错误:](#ff3300) [语法错误，使用:](#ff7e5e) [%1%](#ff7e5e italic show_text=&#ff7e5e&点击建议 suggest_command=%1%)'
 error_already_teleporting: '[错误:](#ff3300) [请等待当前传送完成！](#ff7e5e)'
 error_no_last_position: '[错误:](#ff3300) [没有上一个位置](#ff7e5e)'
 error_in_game_only: '错误: 该命令只能在游戏中使用'

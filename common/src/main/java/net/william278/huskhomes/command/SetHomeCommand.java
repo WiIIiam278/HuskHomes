@@ -59,9 +59,9 @@ public class SetHomeCommand extends SetPositionCommand {
 
     private boolean createDefaultHome(@NotNull OnlineUser user) {
         final List<Home> homes = plugin.getDatabase().getHomes(user);
-        final Optional<String> name = homes.isEmpty() ? Optional.of("home") :
-                (homes.size() == 1 && plugin.getSettings().doOverwriteExistingHomesWarps())
-                        ? Optional.of(homes.get(0).getName()) : Optional.empty();
+        final Optional<String> name = homes.isEmpty() ? Optional.of("home")
+                : (homes.size() == 1 && plugin.getSettings().getGeneral().getNames().isOverwriteExisting())
+                ? Optional.of(homes.get(0).getName()) : Optional.empty();
         if (name.isPresent()) {
             this.execute(user, "home");
             return true;

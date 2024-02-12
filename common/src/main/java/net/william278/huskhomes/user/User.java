@@ -19,6 +19,9 @@
 
 package net.william278.huskhomes.user;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -26,24 +29,15 @@ import java.util.UUID;
 /**
  * Represents a user who has data saved in the database.
  */
-public class User {
+@Getter
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class User implements Comparable<User> {
 
     @NotNull
     private final UUID uuid;
 
     @NotNull
     private final String username;
-
-    /**
-     * Get a user from a {@link UUID} and username.
-     *
-     * @param uuid     Minecraft account {@link UUID} of the player
-     * @param username Username of the player
-     */
-    protected User(@NotNull UUID uuid, @NotNull String username) {
-        this.uuid = uuid;
-        this.username = username;
-    }
 
     @NotNull
     public static User of(@NotNull UUID uuid, @NotNull String username) {
@@ -58,13 +52,9 @@ public class User {
         return super.equals(obj);
     }
 
-    @NotNull
-    public UUID getUuid() {
-        return uuid;
+    @Override
+    public int compareTo(@NotNull User o) {
+        return getUsername().compareTo(o.getUsername());
     }
 
-    @NotNull
-    public String getUsername() {
-        return username;
-    }
 }

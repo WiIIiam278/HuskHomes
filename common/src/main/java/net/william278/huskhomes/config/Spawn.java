@@ -19,8 +19,11 @@
 
 package net.william278.huskhomes.config;
 
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -31,22 +34,25 @@ import java.util.UUID;
 /**
  * Used to store the server spawn location.
  */
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    Server /spawn location    ┃
-        ┃ Edit in-game using /setspawn ┃
-        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
+@Getter
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Spawn {
 
-    public double x;
-    public double y;
-    public double z;
-    public float yaw;
-    public float pitch;
-    @YamlKey("world_name")
-    public String worldName;
-    @YamlKey("world_uuid")
-    public String worldUuid;
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃    Server /spawn location    ┃
+            ┃ Edit in-game using /setspawn ┃
+            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""";
+
+    private double x;
+    private double y;
+    private double z;
+    private float yaw;
+    private float pitch;
+    private String worldName;
+    private String worldUuid;
 
     /**
      * Returns the {@link Position} of the spawn.
@@ -65,16 +71,9 @@ public class Spawn {
      * @param location The {@link Location} of the spawn
      */
     public Spawn(@NotNull Location location) {
-        this.x = location.getX();
-        this.y = location.getY();
-        this.z = location.getZ();
-        this.yaw = location.getYaw();
-        this.pitch = location.getPitch();
-        this.worldName = location.getWorld().getName();
-        this.worldUuid = location.getWorld().getUuid().toString();
-    }
-
-    @SuppressWarnings("unused")
-    public Spawn() {
+        this(
+                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(),
+                location.getWorld().getName(), location.getWorld().getUuid().toString()
+        );
     }
 }

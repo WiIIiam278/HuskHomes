@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.command;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -39,6 +41,9 @@ public abstract class Node implements Executable {
     protected final HuskHomes plugin;
     private final String name;
     private final List<String> aliases;
+
+    @Setter
+    @Getter
     private boolean operatorCommand = false;
 
     protected Node(@NotNull String name, @NotNull List<String> aliases, @NotNull HuskHomes plugin) {
@@ -69,14 +74,6 @@ public abstract class Node implements Executable {
             joiner.add(node);
         }
         return joiner.toString().trim();
-    }
-
-    public boolean isOperatorCommand() {
-        return operatorCommand;
-    }
-
-    public void setOperatorCommand(boolean operatorCommand) {
-        this.operatorCommand = operatorCommand;
     }
 
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
@@ -151,6 +148,7 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
+    @NotNull
     protected Position getBasePosition(@NotNull CommandUser executor) {
         return executor instanceof OnlineUser user ? user.getPosition() : plugin.getSpawn()
                 .orElse(Position.at(0, 0, 0, 0, 0, plugin.getWorlds().get(0), plugin.getServerName()));

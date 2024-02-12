@@ -20,6 +20,7 @@
 package net.william278.huskhomes.random;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -35,17 +36,15 @@ import java.util.logging.Level;
  */
 public final class NormalDistributionEngine extends RandomTeleportEngine {
 
-    private final int radius;
-    private final int spawnRadius;
+    private final Settings.RtpSettings.RtpRadius radius;
     private final float mean;
     private final float standardDeviation;
 
     public NormalDistributionEngine(@NotNull HuskHomes plugin) {
         super(plugin, "Normal Distribution");
-        this.radius = plugin.getSettings().getRtpRadius();
-        this.spawnRadius = determineSpawnRadius(radius, plugin.getSettings().getRtpSpawnRadius(), plugin);
-        this.mean = plugin.getSettings().getRtpDistributionMean();
-        this.standardDeviation = plugin.getSettings().getRtpDistributionStandardDeviation();
+        this.radius = plugin.getSettings().getRtp().getRegion();
+        this.mean = plugin.getSettings().getRtp().getDistributionMean();
+        this.standardDeviation = plugin.getSettings().getRtp().getDistributionStandardDeviation();
     }
 
     // Utility for determining a valid spawn radius
@@ -93,7 +92,8 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
      */
     private CompletableFuture<Optional<Location>> generateSafeLocation(@NotNull World world) {
         return plugin.findSafeGroundLocation(generateLocation(
-                getCenterPoint(world), mean, standardDeviation, spawnRadius, radius
+                getCenterPoint(world), mean, standardDeviation,
+                radius.getMin(), radius.getMax()
         ));
     }
 

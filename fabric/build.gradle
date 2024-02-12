@@ -33,6 +33,9 @@ dependencies {
     implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     shadow project(path: ":common")
 }
@@ -52,10 +55,9 @@ shadowJar {
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
-    relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
     relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
-    relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
+    relocate 'de.exlll', 'net.william278.huskhomes.libraries'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 }

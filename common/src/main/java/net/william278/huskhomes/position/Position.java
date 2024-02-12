@@ -20,12 +20,15 @@
 package net.william278.huskhomes.position;
 
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.huskhomes.teleport.Target;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a position - a {@link Location} somewhere on the proxy network or server.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Position extends Location implements Target {
 
     @Expose
@@ -41,10 +44,6 @@ public class Position extends Location implements Target {
         super(location.getX(), location.getY(), location.getZ(), location.getYaw(),
                 location.getPitch(), location.getWorld());
         this.setServer(server);
-    }
-
-    @SuppressWarnings("unused")
-    private Position() {
     }
 
     @NotNull

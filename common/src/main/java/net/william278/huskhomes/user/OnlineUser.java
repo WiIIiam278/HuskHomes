@@ -131,14 +131,11 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param slot     the {@link Locales.DisplaySlot} to send the message to
      */
     public void sendMessage(@NotNull MineDown mineDown, @NotNull Locales.DisplaySlot slot) {
-        if (slot == Locales.DisplaySlot.CHAT) {
-            sendMessage(mineDown);
-        } else if (slot == Locales.DisplaySlot.ACTION_BAR) {
-            sendActionBar(mineDown);
-        } else if (slot == Locales.DisplaySlot.TITLE) {
-            sendTitle(mineDown, false);
-        } else if (slot == Locales.DisplaySlot.SUBTITLE) {
-            sendTitle(mineDown, true);
+        switch (slot) {
+            case ACTION_BAR -> sendActionBar(mineDown);
+            case TITLE -> sendTitle(mineDown, false);
+            case SUBTITLE -> sendTitle(mineDown, true);
+            default -> sendMessage(mineDown);
         }
     }
 

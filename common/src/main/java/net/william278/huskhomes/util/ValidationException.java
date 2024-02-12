@@ -19,11 +19,13 @@
 
 package net.william278.huskhomes.util;
 
+import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class ValidationException extends IllegalArgumentException {
 
     private final Type type;
@@ -94,12 +96,6 @@ public class ValidationException extends IllegalArgumentException {
                 // Do nothing (silently handle validation errors)
             }
         }
-    }
-
-    @NotNull
-    @SuppressWarnings("unused")
-    public Type getType() {
-        return type;
     }
 
     /**

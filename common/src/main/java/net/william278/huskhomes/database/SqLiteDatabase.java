@@ -62,7 +62,7 @@ public class SqLiteDatabase extends Database {
 
     public SqLiteDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.databaseFile = new File(plugin.getDataFolder(), DATABASE_FILE_NAME);
+        this.databaseFile = plugin.getConfigDirectory().resolve(DATABASE_FILE_NAME).toFile();
     }
 
     private Connection getConnection() throws SQLException {
@@ -126,11 +126,11 @@ public class SqLiteDatabase extends Database {
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
-                        INSERT INTO `%positions_table%`
-                            (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
-                        VALUES
-                            (?,?,?,?,?,?,?,?)
-                        RETURNING `id`;"""))) {
+                INSERT INTO `%positions_table%`
+                    (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
+                VALUES
+                    (?,?,?,?,?,?,?,?)
+                RETURNING `id`;"""))) {
 
             statement.setDouble(1, position.getX());
             statement.setDouble(2, position.getY());
@@ -182,11 +182,11 @@ public class SqLiteDatabase extends Database {
     protected int setSavedPosition(@NotNull SavedPosition position,
                                    @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%saved_positions_table%`
-                            (`position_id`, `name`, `description`, `tags`, `timestamp`)
-                        VALUES
-                            (?,?,?,?,?)
-                        RETURNING `id`;"""))) {
+                INSERT INTO `%saved_positions_table%`
+                    (`position_id`, `name`, `description`, `tags`, `timestamp`)
+                VALUES
+                    (?,?,?,?,?)
+                RETURNING `id`;"""))) {
 
             statement.setInt(1, setPosition(position, connection));
             statement.setString(2, position.getName());
@@ -321,25 +321,26 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public void deleteUserData(@NotNull UUID uuid) {
-        try {
-            // Delete Position
-            PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 DELETE FROM `%positions_table%`
                 WHERE `id`
                     IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
                         (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
-                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
+                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""))) {
             statement.setString(1, uuid.toString());
             statement.setString(2, uuid.toString());
             statement.setString(3, uuid.toString());
             statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete player positions from the database", e);
+            return;
+        }
 
-            statement = getConnection().prepareStatement(formatStatementTables("""
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 DELETE FROM `%players_table%`
-                WHERE `uuid`=?;"""));
+                WHERE `uuid`=?;"""))) {
             statement.setString(1, uuid.toString());
             statement.executeUpdate();
-
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
         }
@@ -971,9 +972,7 @@ public class SqLiteDatabase extends Database {
 
                 statement.executeUpdate();
             } catch (SQLException e) {
-                e.printStackTrace();
-                plugin.log(Level.SEVERE,
-                        "Failed to set a home to the database for " + home.getOwner().getUsername(), e);
+                plugin.log(Level.SEVERE, "Failed to set home for " + home.getOwner().getUsername(), e);
             }
         });
     }

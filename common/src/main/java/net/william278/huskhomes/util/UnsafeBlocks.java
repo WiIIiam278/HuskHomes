@@ -19,24 +19,19 @@
 
 package net.william278.huskhomes.util;
 
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.key.Key;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃      Unsafe /rtp Blocks      ┃
-        ┃    Developed by William278   ┃
-        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛""")
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UnsafeBlocks {
 
-    @YamlKey("unsafe_blocks")
     public List<String> unsafeBlocks;
-
-    @YamlKey("safe_occupation_blocks")
     public List<String> safeOccupationBlocks;
 
     /**
@@ -66,10 +61,6 @@ public class UnsafeBlocks {
             blockId = Key.MINECRAFT_NAMESPACE + ":" + blockId;
         }
         return blockId;
-    }
-
-    @SuppressWarnings("unused")
-    public UnsafeBlocks() {
     }
 
 }

@@ -81,7 +81,7 @@ public final class Settings {
         public static class DatabaseCredentials {
             private String host = "localhost";
             private int port = 3306;
-            private String database = "huskclaims";
+            private String database = "huskhomes";
             private String username = "root";
             private String password = "pa55w0rd";
             private String parameters = String.join("&",

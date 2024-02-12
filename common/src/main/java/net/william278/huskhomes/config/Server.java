@@ -34,7 +34,7 @@ public class Server {
 
     static final String CONFIG_HEADER = """
             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃    HuskClaims - Server ID    ┃
+            ┃    HuskHomes - Server ID    ┃
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ This file should contain the ID of this server as defined in your proxy config.

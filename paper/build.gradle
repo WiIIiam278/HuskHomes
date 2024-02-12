@@ -1,5 +1,5 @@
 plugins {
-    id 'xyz.jpenilla.run-paper' version '2.2.2'
+    id 'xyz.jpenilla.run-paper' version '2.2.3'
 }
 
 dependencies {
@@ -41,6 +41,8 @@ shadowJar {
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'space.arim.morepaperlib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
+
+    minimize()
 }
 
 tasks {

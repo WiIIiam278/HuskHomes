@@ -12,7 +12,6 @@ include(
         // Paper/Spigot
         'bukkit',
         'paper',
-        'plugin',
 
         // Fabric
         'fabric',

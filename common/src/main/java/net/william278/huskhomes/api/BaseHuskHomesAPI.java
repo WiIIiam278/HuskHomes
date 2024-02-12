@@ -52,8 +52,12 @@ import java.util.stream.Collectors;
  * This class should not be used directly, but rather through platform-specific extending API classes.
  */
 @SuppressWarnings("unused")
-public abstract class BaseHuskHomesAPI {
+public class BaseHuskHomesAPI {
 
+    /**
+     * <b>(Internal use only)</b> - API instance.
+     */
+    protected static BaseHuskHomesAPI instance;
     /**
      * <b>(Internal use only)</b> - Instance of the implementing plugin.
      */
@@ -835,9 +839,34 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get an instance of the HuskHomes API.
+     *
+     * @return instance of the HuskHomes API
+     * @throws NotRegisteredException if the API has not yet been registered.
+     * @since 1.0
+     */
+    @NotNull
+    public static BaseHuskHomesAPI getInstance() throws NotRegisteredException {
+        if (instance == null) {
+            throw new NotRegisteredException();
+        }
+        return instance;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API instance.
+     *
+     * @since 1.0
+     */
+    @ApiStatus.Internal
+    public static void unregister() {
+        instance = null;
+    }
+
+    /**
      * An exception indicating the plugin has been accessed before it has been registered.
      */
-    static final class NotRegisteredException extends IllegalStateException {
+    public static final class NotRegisteredException extends IllegalStateException {
 
         private static final String MESSAGE = """
                 Could not access the HuskHomes API as it has not yet been registered. This could be because:

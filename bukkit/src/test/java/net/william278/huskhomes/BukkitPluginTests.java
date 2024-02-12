@@ -48,9 +48,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.16 API.
+ * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.17 API.
  */
-@DisplayName("Bukkit Plugin Tests (1.16.5)")
+@DisplayName("Bukkit Plugin Tests (1.17.1)")
 public class BukkitPluginTests {
 
     private static ServerMock server;

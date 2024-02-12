@@ -4,7 +4,7 @@ author: 'William278'
 website: 'https://william278.net/'
 main: 'net.william278.huskhomes.BukkitHuskHomes'
 version: '${version}'
-api-version: '1.16'
+api-version: '1.17'
 softdepend:
   - Vault
   - PlaceholderAPI

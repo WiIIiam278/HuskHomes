@@ -45,7 +45,7 @@ public class FabricUser extends OnlineUser {
     private final ServerPlayerEntity player;
 
     private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
-        super(player.getUuid(), player.getEntityName(), plugin);
+        super(player.getUuid(), player.getGameProfile().getName(), plugin);
         this.player = player;
     }
 

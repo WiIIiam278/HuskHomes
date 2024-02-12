@@ -230,6 +230,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void onDisable() {
+        HuskHomesAPI.unregister();
         if (this.eventListener != null) {
             this.eventListener.handlePluginDisable();
         }
@@ -481,11 +482,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
         }
-    }
-
-    @NotNull
-    public AudienceProvider getAudiences() {
-        return audiences;
     }
 
     @NotNull

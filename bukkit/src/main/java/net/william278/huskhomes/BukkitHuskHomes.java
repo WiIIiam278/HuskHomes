@@ -294,7 +294,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     @NotNull
     public String getServerName() {
-        return server.getName();
+        return server != null ? server.getName() : "server";
     }
 
     @Override

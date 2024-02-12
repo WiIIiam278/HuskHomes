@@ -242,7 +242,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @NotNull
     @Override
     public String getServerName() {
-        return server.getName();
+        return server == null ? "server" : server.getName();
     }
 
     @Override

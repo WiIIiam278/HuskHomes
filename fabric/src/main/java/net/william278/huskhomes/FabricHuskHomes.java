@@ -236,7 +236,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     @NotNull
     public String getServerName() {
-        return server.getName();
+        return server == null ? "server" : server.getName();
     }
 
     @Override

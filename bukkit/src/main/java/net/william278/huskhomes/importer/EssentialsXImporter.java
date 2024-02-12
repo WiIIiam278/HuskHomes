@@ -114,8 +114,8 @@ public class EssentialsXImporter extends Importer {
             name = name.replaceAll(" ", "_");
 
             // Remove unicode characters
-            if (plugin.getSettings().doRestrictNames()) {
-                name = name.replaceAll("[^A-Za-z0-9_-]", "");
+            if (plugin.getSettings().getGeneral().getNames().isRestrict()) {
+                name = name.replaceAll(plugin.getSettings().getGeneral().getNames().getRegex(), "");
             }
 
             // Ensure the name is not blank

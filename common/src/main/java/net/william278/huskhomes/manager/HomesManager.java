@@ -163,7 +163,7 @@ public class HomesManager {
      * @param homeId the UUID of the home/warp to update
      */
     private void propagateCacheUpdate(@NotNull UUID homeId) {
-        if (plugin.getSettings().doCrossServer()) {
+        if (plugin.getSettings().getCrossServer().isEnabled()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
                     .type(Message.Type.UPDATE_HOME)
                     .scope(Message.Scope.SERVER)
@@ -203,7 +203,8 @@ public class HomesManager {
         final SavedUser savedOwner = plugin.getSavedUser(owner)
                 .or(() -> plugin.getDatabase().getUserData(owner.getUuid()))
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
-        if (plugin.getSettings().doEconomy() && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
+        if (plugin.getSettings().getEconomy().isEnabled()
+                && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
             }
@@ -230,7 +231,10 @@ public class HomesManager {
 
     public void createHome(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position)
             throws ValidationException {
-        this.createHome(owner, name, position, plugin.getSettings().doOverwriteExistingHomesWarps(), true, false);
+        this.createHome(
+                owner, name, position, plugin.getSettings().getGeneral().getNames().isOverwriteExisting(),
+                true, false
+        );
     }
 
     public void deleteHome(@NotNull User owner, @NotNull String name) throws ValidationException {
@@ -269,7 +273,7 @@ public class HomesManager {
                 h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName)
         ));
         publicHomes.removeIf(h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName));
-        if (plugin.getSettings().doCrossServer() && serverName.equals(plugin.getServerName())) {
+        if (plugin.getSettings().getCrossServer().isEnabled() && serverName.equals(plugin.getServerName())) {
             plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
         }
         plugin.getCommands().stream()
@@ -374,23 +378,23 @@ public class HomesManager {
 
     public int getMaxHomes(@Nullable User user) {
         return user instanceof OnlineUser online ? online.getMaxHomes(
-                plugin.getSettings().getMaxHomes(),
-                plugin.getSettings().doStackPermissionLimits()
-        ) : plugin.getSettings().getMaxHomes();
+                plugin.getSettings().getGeneral().getMaxHomes(),
+                plugin.getSettings().getGeneral().isStackPermissionLimits()
+        ) : plugin.getSettings().getGeneral().getMaxHomes();
     }
 
     public int getMaxPublicHomes(@Nullable User user) {
         return user instanceof OnlineUser online ? online.getMaxPublicHomes(
-                plugin.getSettings().getMaxPublicHomes(),
-                plugin.getSettings().doStackPermissionLimits()
-        ) : plugin.getSettings().getMaxPublicHomes();
+                plugin.getSettings().getGeneral().getMaxPublicHomes(),
+                plugin.getSettings().getGeneral().isStackPermissionLimits()
+        ) : plugin.getSettings().getGeneral().getMaxPublicHomes();
     }
 
     public int getFreeHomes(@Nullable User user) {
         return user instanceof OnlineUser online ? online.getFreeHomes(
-                plugin.getSettings().getFreeHomeSlots(),
-                plugin.getSettings().doStackPermissionLimits()
-        ) : plugin.getSettings().getFreeHomeSlots();
+                plugin.getSettings().getEconomy().getFreeHomeSlots(),
+                plugin.getSettings().getGeneral().isStackPermissionLimits()
+        ) : plugin.getSettings().getEconomy().getFreeHomeSlots();
     }
 
 }

@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.teleport;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
@@ -60,7 +62,7 @@ public class Teleport {
         this.target = target;
         this.type = type;
         this.actions = actions;
-        this.async = plugin.getSettings().doAsynchronousTeleports();
+        this.async = plugin.getSettings().getGeneral().isTeleportAsync();
         this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
                 .map(command -> executor.hasPermission(command.getPermission())
                         && executor.hasPermission(command.getPermission("previous")))
@@ -81,7 +83,7 @@ public class Teleport {
         // Teleport a user on another server
         if (localTeleporter.isEmpty()) {
             final Username teleporter = (Username) this.teleporter;
-            if (!plugin.getSettings().doCrossServer()) {
+            if (!plugin.getSettings().getCrossServer().isEnabled()) {
                 throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND, plugin);
             }
 
@@ -128,7 +130,7 @@ public class Teleport {
                 return;
             }
 
-            if (plugin.getSettings().doCrossServer()) {
+            if (plugin.getSettings().getCrossServer().isEnabled()) {
                 fireEvent((event) -> {
                     performTransactions();
                     Message.builder()
@@ -149,7 +151,8 @@ public class Teleport {
             }
 
             final Position target = (Position) this.target;
-            if (!plugin.getSettings().doCrossServer() || target.getServer().equals(plugin.getServerName())) {
+            if (!plugin.getSettings().getCrossServer().isEnabled()
+                    || target.getServer().equals(plugin.getServerName())) {
                 try {
                     teleporter.teleportLocally(target, async);
                 } catch (TeleportationException e) {
@@ -176,7 +179,7 @@ public class Teleport {
     public void displayTeleportingComplete(@NotNull OnlineUser teleporter) {
         plugin.getLocales().getLocale("teleporting_complete")
                 .ifPresent(teleporter::sendMessage);
-        plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
+        plugin.getSettings().getGeneral().getSoundEffects().get(Settings.SoundEffectAction.TELEPORTATION_COMPLETE)
                 .ifPresent(teleporter::playSound);
     }
 
@@ -217,16 +220,14 @@ public class Teleport {
     /**
      * Represents the type of teleport being used.
      */
+    @Getter
+    @AllArgsConstructor
     public enum Type {
         TELEPORT(0),
         RESPAWN(1),
         BACK(2);
 
         private final int typeId;
-
-        Type(final int typeId) {
-            this.typeId = typeId;
-        }
 
         /**
          * Returns a {@link Type} by its type id.
@@ -240,8 +241,5 @@ public class Teleport {
                     .findFirst();
         }
 
-        public int getTypeId() {
-            return typeId;
-        }
     }
 }

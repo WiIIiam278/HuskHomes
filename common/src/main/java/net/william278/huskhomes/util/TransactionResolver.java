@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.util;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.user.OnlineUser;
@@ -51,7 +53,7 @@ public interface TransactionResolver {
 
     // Validates if the user has funds to perform an action
     private boolean hasFunds(@NotNull OnlineUser player, @NotNull Action action) {
-        return getPlugin().getSettings().getEconomyCost(action).map(Math::abs)
+        return getPlugin().getSettings().getEconomy().getCost(action).map(Math::abs)
                 .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION)
                         ? Optional.empty() : Optional.of(c))
                 .map(c -> getEconomyHook()
@@ -70,7 +72,7 @@ public interface TransactionResolver {
 
     // Validates if the user is on cooldown for an action
     private boolean isNotOnCooldown(@NotNull OnlineUser player, @NotNull Action action) {
-        final long configCooldown = getPlugin().getSettings().getCooldown(action);
+        final long configCooldown = getPlugin().getSettings().getCooldowns().getCooldown(action);
         if (configCooldown <= 0 || player.hasPermission(Action.BYPASS_COOLDOWNS_PERMISSION)) {
             return true;
         }
@@ -118,8 +120,8 @@ public interface TransactionResolver {
      * @param action the {@link Action action} to deduct the cost from if needed
      */
     default void performTransaction(@NotNull OnlineUser player, @NotNull Action action) {
-        getEconomyHook().ifPresent(hook -> getPlugin().getSettings()
-                .getEconomyCost(action).map(Math::abs)
+        getEconomyHook().ifPresent(hook -> getPlugin().getSettings().getEconomy()
+                .getCost(action).map(Math::abs)
                 .flatMap(c -> player.hasPermission(Action.BYPASS_ECONOMY_PERMISSION)
                         ? Optional.empty() : Optional.of(c))
                 .ifPresent(cost -> {
@@ -127,7 +129,7 @@ public interface TransactionResolver {
                     hook.notifyDeducted(player, getPlugin(), action);
                 }));
 
-        final long configCooldown = getPlugin().getSettings().getCooldown(action);
+        final long configCooldown = getPlugin().getSettings().getCooldowns().getCooldown(action);
         if (configCooldown > 0 && !player.hasPermission(Action.BYPASS_COOLDOWNS_PERMISSION)) {
             getPlugin().getDatabase().setCooldown(action, player, Instant.now().plusSeconds(configCooldown));
         }
@@ -172,6 +174,8 @@ public interface TransactionResolver {
     /**
      * Represents actions that can be the subject of a transaction.
      */
+    @Getter
+    @AllArgsConstructor
     enum Action {
 
         /*
@@ -200,54 +204,35 @@ public interface TransactionResolver {
         public static final String BYPASS_COOLDOWNS_PERMISSION = "huskhomes.bypass_cooldowns";
 
         private final double defaultCost;
-        private final int defaultCooldown;
-
-        Action(double defaultCost, int defaultCooldown) {
-            this.defaultCost = defaultCost;
-            this.defaultCooldown = defaultCooldown;
-        }
+        private final long defaultCooldown;
 
         Action() {
-            this(0d, 0);
-        }
-
-        /**
-         * Create an action with a default cost.
-         *
-         * @return the default cost
-         */
-        public double getDefaultCost() {
-            return defaultCost;
-        }
-
-        /**
-         * Get the default cooldown for this action (in seconds).
-         *
-         * @return the default cooldown in seconds
-         */
-        public int getDefaultCooldown() {
-            return defaultCooldown;
+            this(0, 0);
         }
 
         // Get the default economy action cost map for the config
         @NotNull
-        public static Map<String, Double> getEconomyCostsConfigMap() {
+        public static Map<Action, Double> getEconomyCosts() {
             return Arrays.stream(values())
                     .filter(action -> action.getDefaultCost() > 0)
                     .collect(Collectors.toMap(
-                            action -> action.name().toLowerCase(Locale.ENGLISH),
-                            Action::getDefaultCost
+                            action -> action,
+                            Action::getDefaultCost,
+                            (a, b) -> a,
+                            TreeMap::new
                     ));
         }
 
         // Get the default cooldown action time map for the config
         @NotNull
-        public static Map<String, Integer> getCooldownsConfigMap() {
+        public static Map<Action, Long> getCooldownTimes() {
             return Arrays.stream(values())
                     .filter(action -> action.getDefaultCooldown() > 0)
                     .collect(Collectors.toMap(
-                            action -> action.name().toLowerCase(Locale.ENGLISH),
-                            Action::getDefaultCooldown
+                            action -> action,
+                            Action::getDefaultCooldown,
+                            (a, b) -> a,
+                            TreeMap::new
                     ));
         }
 

@@ -256,11 +256,11 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         if (!home.getMeta().getDescription().isEmpty()) {
             plugin.getLocales().getLocale("edit_home_menu_description",
                             plugin.getLocales().truncateText(home.getMeta().getDescription(), 50),
-                            plugin.getLocales().wrapText(home.getMeta().getDescription(), 40))
+                            home.getMeta().getDescription())
                     .ifPresent(messages::add);
         }
 
-        if (!plugin.getSettings().doCrossServer()) {
+        if (!plugin.getSettings().getCrossServer().isEnabled()) {
             plugin.getLocales().getLocale("edit_home_menu_world", home.getWorld().getName())
                     .ifPresent(messages::add);
         } else {

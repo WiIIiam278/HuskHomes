@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.teleport;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.EconomyHook;
 import net.william278.huskhomes.user.OnlineUser;
@@ -31,12 +33,17 @@ import java.util.List;
 /**
  * A builder for {@link Teleport} and {@link TimedTeleport} objects.
  */
+@Accessors(fluent = true, chain = true)
 public class TeleportBuilder {
+
     private final HuskHomes plugin;
+    @Setter
     private OnlineUser executor;
     private Teleportable teleporter;
     private Target target;
+    @Setter
     private boolean updateLastPosition = true;
+    @Setter
     private Teleport.Type type = Teleport.Type.TELEPORT;
     private List<TransactionResolver.Action> actions = List.of();
 
@@ -52,12 +59,16 @@ public class TeleportBuilder {
 
     @NotNull
     public TimedTeleport toTimedTeleport() throws IllegalStateException {
-        validateTeleport();
+        this.validateTeleport();
         if (!(teleporter instanceof OnlineUser onlineTeleporter)) {
             throw new IllegalStateException("Teleporter must be an OnlineUser for timed teleportation");
         }
-        return new TimedTeleport(executor, onlineTeleporter, target, type,
-                plugin.getSettings().getTeleportWarmupTime(), updateLastPosition, actions, plugin);
+
+        return new TimedTeleport(
+                executor, onlineTeleporter, target, type,
+                plugin.getSettings().getGeneral().getTeleportWarmupTime(),
+                updateLastPosition, actions, plugin
+        );
     }
 
     private void validateTeleport() throws TeleportationException {
@@ -78,12 +89,6 @@ public class TeleportBuilder {
     }
 
     @NotNull
-    public TeleportBuilder executor(@NotNull OnlineUser executor) {
-        this.executor = executor;
-        return this;
-    }
-
-    @NotNull
     public TeleportBuilder teleporter(@NotNull Teleportable teleporter) {
         this.teleporter = teleporter;
         return this;
@@ -91,8 +96,7 @@ public class TeleportBuilder {
 
     @NotNull
     public TeleportBuilder teleporter(@NotNull String teleporter) {
-        this.teleporter = Teleportable.username(teleporter);
-        return this;
+        return teleporter(Teleportable.username(teleporter));
     }
 
     @NotNull
@@ -103,14 +107,7 @@ public class TeleportBuilder {
 
     @NotNull
     public TeleportBuilder target(@NotNull String target) {
-        this.target = Target.username(target);
-        return this;
-    }
-
-    @NotNull
-    public TeleportBuilder updateLastPosition(boolean updateLastPosition) {
-        this.updateLastPosition = updateLastPosition;
-        return this;
+        return target(Target.username(target));
     }
 
     @SuppressWarnings("removal")
@@ -124,12 +121,6 @@ public class TeleportBuilder {
     @NotNull
     public TeleportBuilder actions(@NotNull TransactionResolver.Action... actions) {
         this.actions = List.of(actions);
-        return this;
-    }
-
-    @NotNull
-    public TeleportBuilder type(@NotNull Teleport.Type type) {
-        this.type = type;
         return this;
     }
 }

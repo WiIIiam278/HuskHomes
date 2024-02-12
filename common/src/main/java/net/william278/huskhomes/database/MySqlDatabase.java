@@ -28,6 +28,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,8 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
+
+import static net.william278.huskhomes.config.Settings.DatabaseSettings;
 
 /**
  * A MySQL / MariaDB implementation of the plugin {@link Database}.
@@ -50,10 +53,10 @@ public class MySqlDatabase extends Database {
 
     public MySqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB
-                ? "mariadb" : "mysql";
-        this.driverClass = plugin.getSettings().getDatabaseType() == Type.MARIADB
-                ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
+
+        final Type type = plugin.getSettings().getDatabase().getType();
+        this.flavor = type.getProtocol();
+        this.driverClass = type == Type.MARIADB ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
     }
 
     /**
@@ -62,33 +65,41 @@ public class MySqlDatabase extends Database {
      * @return The {@link Connection} to the MySQL database
      * @throws SQLException if the connection fails for some reason
      */
+    @Blocking
+    @NotNull
     private Connection getConnection() throws SQLException {
+        if (dataSource == null) {
+            throw new IllegalStateException("The database has not been initialized");
+        }
         return dataSource.getConnection();
     }
 
+    @Blocking
     @Override
     public void initialize() throws IllegalStateException {
         // Initialize the Hikari pooled connection
+        final DatabaseSettings.DatabaseCredentials credentials = plugin.getSettings().getDatabase().getCredentials();
         dataSource = new HikariDataSource();
         dataSource.setDriverClassName(driverClass);
         dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
                 flavor,
-                plugin.getSettings().getMySqlHost(),
-                plugin.getSettings().getMySqlPort(),
-                plugin.getSettings().getMySqlDatabase(),
-                plugin.getSettings().getMySqlConnectionParameters()
+                credentials.getHost(),
+                credentials.getPort(),
+                credentials.getDatabase(),
+                credentials.getParameters()
         ));
 
         // Authenticate with the database
-        dataSource.setUsername(plugin.getSettings().getMySqlUsername());
-        dataSource.setPassword(plugin.getSettings().getMySqlPassword());
+        dataSource.setUsername(credentials.getUsername());
+        dataSource.setPassword(credentials.getPassword());
 
         // Set connection pool options
-        dataSource.setMaximumPoolSize(plugin.getSettings().getMySqlConnectionPoolSize());
-        dataSource.setMinimumIdle(plugin.getSettings().getMySqlConnectionPoolIdle());
-        dataSource.setMaxLifetime(plugin.getSettings().getMySqlConnectionPoolLifetime());
-        dataSource.setKeepaliveTime(plugin.getSettings().getMySqlConnectionPoolKeepAlive());
-        dataSource.setConnectionTimeout(plugin.getSettings().getMySqlConnectionPoolTimeout());
+        final DatabaseSettings.PoolOptions pool = plugin.getSettings().getDatabase().getPoolOptions();
+        dataSource.setMaximumPoolSize(pool.getSize());
+        dataSource.setMinimumIdle(pool.getIdle());
+        dataSource.setMaxLifetime(pool.getLifetime());
+        dataSource.setKeepaliveTime(pool.getKeepAlive());
+        dataSource.setConnectionTimeout(pool.getTimeout());
         dataSource.setPoolName(DATA_POOL_NAME);
 
         // Set additional connection pool properties
@@ -119,8 +130,8 @@ public class MySqlDatabase extends Database {
                     statement.execute(tableCreationStatement);
                 }
             } catch (SQLException e) {
-                throw new IllegalStateException("Failed to create database tables. Make sure you're running MySQL v8.0+"
-                        + "and that your connecting user account has privileges to create tables.", e);
+                throw new IllegalStateException("Failed to create database tables. Please ensure you are running "
+                        + "MySQL v8.0+ and that your connecting user account has privileges to create tables.", e);
             }
         } catch (SQLException | IOException e) {
             throw new IllegalStateException("Failed to establish a connection to the MySQL database. "
@@ -332,26 +343,31 @@ public class MySqlDatabase extends Database {
     @Override
     public void deleteUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
-            // Delete Position
-            PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                DELETE FROM `%positions_table%`
-                WHERE `id`
-                    IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
-                        (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
-                        (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
-            statement.setString(1, uuid.toString());
-            statement.setString(2, uuid.toString());
-            statement.setString(3, uuid.toString());
-            statement.executeUpdate();
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%positions_table%`
+                    WHERE `id`
+                        IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
+                            (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
+                            (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""))) {
+                statement.setString(1, uuid.toString());
+                statement.setString(2, uuid.toString());
+                statement.setString(3, uuid.toString());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to delete player positions from the database", e);
+                return;
+            }
 
-            statement = connection.prepareStatement(formatStatementTables("""
-            DELETE FROM `%players_table%`
-            WHERE `uuid`=?;"""));
-            statement.setString(1, uuid.toString());
-            statement.executeUpdate();
-
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM `%players_table%`
+                    WHERE `uuid`=?;"""))) {
+                statement.setString(1, uuid.toString());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+            }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete user data", e);
         }
     }
 

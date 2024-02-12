@@ -69,7 +69,7 @@ public abstract class EconomyHook extends Hook {
      */
     public final void notifyDeducted(@NotNull OnlineUser user, @NotNull HuskHomes plugin,
                                      @NotNull TransactionResolver.Action action) {
-        plugin.getSettings().getEconomyCost(action)
+        plugin.getSettings().getEconomy().getCost(action)
                 .flatMap(cost -> plugin.getLocales().getLocale(
                         "economy_transaction_complete",
                         formatCurrency(cost),
@@ -125,7 +125,7 @@ public abstract class EconomyHook extends Hook {
          * Create an action with a default cost.
          *
          * @return the default cost
-         * @deprecated Use the new {@link TransactionResolver.Action#getDefaultCost()} instead
+             * @deprecated Use the new {@code TransactionResolver.Action#getDefaultCost()} instead
          */
         @Deprecated(since = "4.4", forRemoval = true)
         public double getDefaultCost() {

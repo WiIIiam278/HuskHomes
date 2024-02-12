@@ -47,7 +47,7 @@ public class WarpCommand extends SavedPositionCommand<Warp> {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
-        if (plugin.getSettings().doPermissionRestrictWarps()) {
+        if (plugin.getSettings().getGeneral().isPermissionRestrictWarps()) {
             if (!executor.hasPermission(warp.getPermission())
                     && !executor.hasPermission(Warp.getWildcardPermission())) {
                 plugin.getLocales().getLocale("error_no_permission")

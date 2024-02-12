@@ -22,6 +22,7 @@ package net.william278.huskhomes.api;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
@@ -192,7 +193,8 @@ public class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserRespawnPosition(@NotNull User user) {
-        if (!plugin.getSettings().doCrossServer() || plugin.getSettings().isGlobalRespawning()) {
+        final Settings.CrossServerSettings settings = plugin.getSettings().getCrossServer();
+        if (!settings.isEnabled() || settings.isGlobalRespawning()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
         return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user));

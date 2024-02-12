@@ -110,13 +110,10 @@ public class PrivateHomeListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
                                         Locales.escapeText(home.getName()), home.getSafeIdentifier(),
-                                        Locales.escapeText(plugin.getLocales().wrapText(
-                                                home.getMeta().getDescription(),
-                                                40
-                                        )))
+                                        Locales.escapeText(home.getMeta().getDescription()))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
-                        .getBaseList(plugin.getSettings().getListItemsPerPage())
+                        .getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                         .setHeaderFormat(plugin.getLocales().getRawLocale("home_list_page_title",
                                         user.getUsername(), "%first_item_on_page_index%",
                                         "%last_item_on_page_index%", "%total_items%")

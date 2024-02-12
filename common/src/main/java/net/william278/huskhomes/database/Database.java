@@ -19,8 +19,11 @@
 
 package net.william278.huskhomes.database;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Server;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.SavedPosition;
@@ -72,20 +75,21 @@ public abstract class Database {
      * @return the formatted statement, with table placeholders replaced with the correct names
      */
     protected final String formatStatementTables(@NotNull String sql) {
+        final Settings.DatabaseSettings settings = plugin.getSettings().getDatabase();
         return sql
-                .replaceAll("%positions_table%", plugin.getSettings()
+                .replaceAll("%positions_table%", settings
                         .getTableName(Table.POSITION_DATA))
-                .replaceAll("%players_table%", plugin.getSettings()
+                .replaceAll("%players_table%", settings
                         .getTableName(Table.PLAYER_DATA))
-                .replaceAll("%cooldowns_table%", plugin.getSettings()
+                .replaceAll("%cooldowns_table%", settings
                         .getTableName(Table.PLAYER_COOLDOWNS_DATA))
-                .replaceAll("%teleports_table%", plugin.getSettings()
+                .replaceAll("%teleports_table%", settings
                         .getTableName(Table.TELEPORT_DATA))
-                .replaceAll("%saved_positions_table%", plugin.getSettings()
+                .replaceAll("%saved_positions_table%", settings
                         .getTableName(Table.SAVED_POSITION_DATA))
-                .replaceAll("%homes_table%", plugin.getSettings()
+                .replaceAll("%homes_table%", settings
                         .getTableName(Table.HOME_DATA))
-                .replaceAll("%warps_table%", plugin.getSettings()
+                .replaceAll("%warps_table%", settings
                         .getTableName(Table.WARP_DATA));
     }
 
@@ -261,7 +265,7 @@ public abstract class Database {
      * @apiNote Whether lookup is case-sensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Home> getHome(@NotNull User user, @NotNull String homeName) {
-        return this.getHome(user, homeName, plugin.getSettings().caseInsensitiveNames());
+        return this.getHome(user, homeName, plugin.getSettings().getGeneral().getNames().isCaseInsensitive());
     }
 
     /**
@@ -290,7 +294,7 @@ public abstract class Database {
      * @apiNote Whether lookup is case-insensitive is determined by the {@code general.case_insensitive_names} setting
      */
     public final Optional<Warp> getWarp(@NotNull String warpName) {
-        return getWarp(warpName, plugin.getSettings().caseInsensitiveNames());
+        return getWarp(warpName, plugin.getSettings().getGeneral().getNames().isCaseInsensitive());
     }
 
     /**
@@ -462,27 +466,23 @@ public abstract class Database {
     /**
      * Identifies types of databases.
      */
+    @Getter
+    @AllArgsConstructor
     public enum Type {
-        MYSQL("MySQL"),
-        MARIADB("MariaDB"),
-        SQLITE("SQLite"),
-        H2("H2");
+        MYSQL("MySQL", "mysql"),
+        MARIADB("MariaDB", "mariadb"),
+        SQLITE("SQLite", "sqlite"),
+        H2("H2", "h2");
 
         private final String displayName;
-
-        Type(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-
-        @NotNull
-        public String getDisplayName() {
-            return displayName;
-        }
+        private final String protocol;
     }
 
     /**
      * Represents the names of tables in the database.
      */
+    @Getter
+    @AllArgsConstructor
     public enum Table {
         PLAYER_DATA("huskhomes_users"),
         PLAYER_COOLDOWNS_DATA("huskhomes_user_cooldowns"),
@@ -494,21 +494,11 @@ public abstract class Database {
 
         private final String defaultName;
 
-        Table(@NotNull String defaultName) {
-            this.defaultName = defaultName;
-        }
-
         @NotNull
-        public String getDefaultName() {
-            return defaultName;
-        }
-
-        @NotNull
-        public static Map<String, String> getConfigMap() {
-            return Arrays.stream(values()).collect(Collectors.toMap(
-                    table -> table.name().toLowerCase(Locale.ENGLISH),
-                    Table::getDefaultName
-            ));
+        public static Map<Table, String> getConfigMap() {
+            return Arrays.stream(values()).collect(
+                    Collectors.toMap(t -> t, Table::getDefaultName, (a, b) -> b, TreeMap::new)
+            );
         }
 
     }

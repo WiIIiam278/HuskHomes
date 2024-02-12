@@ -20,6 +20,7 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.util.BukkitAdapter;
@@ -91,7 +92,8 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
-        if (usePaperEvents || !(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+        final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
+        if (usePaperEvents || !(crossServer.isEnabled()) && crossServer.isGlobalRespawning()) {
             return;
         }
         if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed

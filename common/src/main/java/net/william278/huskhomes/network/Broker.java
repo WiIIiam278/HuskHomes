@@ -157,7 +157,10 @@ public abstract class Broker {
     protected String getSubChannelId() {
         final String version = String.format("%s.%s", plugin.getVersion().getMajor(), plugin.getVersion().getMinor());
         try {
-            return plugin.getKey(plugin.getSettings().getClusterId().toLowerCase(Locale.ENGLISH), version).asString();
+            return plugin.getKey(
+                    plugin.getSettings().getCrossServer().getClusterId().toLowerCase(Locale.ENGLISH),
+                    version
+            ).asString();
         } catch (InvalidKeyException e) {
             plugin.log(Level.SEVERE, "Cluster ID specified in config contains invalid characters");
         }

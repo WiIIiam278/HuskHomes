@@ -97,7 +97,7 @@ public class TimedTeleport extends Teleport implements Runnable {
     public void run() {
         // Display a countdown action bar message
         if (timeLeft > 0) {
-            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
+            plugin.getSettings().getGeneral().getSoundEffects().get(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
                     .ifPresent(teleporter::playSound);
             plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
                     .ifPresent(this::sendStatusMessage);
@@ -142,7 +142,7 @@ public class TimedTeleport extends Teleport implements Runnable {
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
                     .ifPresent(this::sendStatusMessage);
-            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+            plugin.getSettings().getGeneral().getSoundEffects().get(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(teleporter::playSound);
             return true;
         }
@@ -153,7 +153,7 @@ public class TimedTeleport extends Teleport implements Runnable {
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
                     .ifPresent(this::sendStatusMessage);
-            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
+            plugin.getSettings().getGeneral().getSoundEffects().get(Settings.SoundEffectAction.TELEPORTATION_CANCELLED)
                     .ifPresent(teleporter::playSound);
             return true;
         }
@@ -164,7 +164,7 @@ public class TimedTeleport extends Teleport implements Runnable {
     }
 
     private void sendStatusMessage(@NotNull MineDown message) {
-        teleporter.sendMessage(message, plugin.getSettings().getTeleportWarmupDisplay());
+        teleporter.sendMessage(message, plugin.getSettings().getGeneral().getTeleportWarmupDisplay());
     }
 
     private boolean hasTeleporterMoved() {

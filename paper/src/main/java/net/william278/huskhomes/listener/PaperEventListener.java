@@ -22,6 +22,7 @@ package net.william278.huskhomes.listener;
 import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.util.BukkitAdapter;
@@ -48,7 +49,8 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerSetSpawnEvent event) {
-        if (!(plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalRespawning())) {
+        final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
+        if (!(crossServer.isEnabled() && crossServer.isGlobalRespawning())) {
             return;
         }
 

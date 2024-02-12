@@ -26,6 +26,9 @@ import com.djrapitops.plan.extension.ExtensionService;
 import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.position.Home;
@@ -87,17 +90,12 @@ public class PlanHook extends Hook {
             color = Color.LIGHT_BLUE
     )
     @SuppressWarnings("unused")
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     protected static class PlanDataExtension implements DataExtension {
 
         private static final String UNKNOWN_STRING = "N/A";
         private Database database;
-
-        protected PlanDataExtension(@NotNull Database database) {
-            this.database = database;
-        }
-
-        protected PlanDataExtension() {
-        }
 
         @Override
         public CallEvents[] callExtensionMethodsOn() {

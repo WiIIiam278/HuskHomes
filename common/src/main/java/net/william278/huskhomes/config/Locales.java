@@ -19,57 +19,65 @@
 
 package net.william278.huskhomes.config;
 
+import com.google.common.collect.Maps;
+import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.annotaml.YamlFile;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.paginedown.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Loaded locales used by the plugin to display styled messages.
  */
-@YamlFile(rootedMap = true, header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃      HuskHomes Locales       ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ See plugin about menu for international locale credits
-        ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-        ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/translations""")
+@SuppressWarnings("FieldMayBeFinal")
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Locales {
 
-    /**
-     * The raw set of locales loaded from yaml.
-     */
-    public Map<String, String> rawLocales = new HashMap<>();
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃      HuskHomes Locales       ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ See plugin about menu for international locale credits
+            ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+            ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/translations""";
 
-    @SuppressWarnings("unused")
-    private Locales() {
+    protected static final String DEFAULT_LOCALE = "en-gb";
+
+    // The raw set of locales loaded from yaml
+    private Map<String, String> locales = Maps.newTreeMap();
+
+    @TestOnly
+    @NotNull
+    public Map<String, String> getRawLocales() {
+        return locales;
     }
 
     /**
-     * Returns a raw, unformatted locale loaded from the locale file.
+     * Returns a raw, unformatted locale loaded from the locales file.
      *
      * @param localeId String identifier of the locale, corresponding to a key in the file
      * @return An {@link Optional} containing the locale corresponding to the id, if it exists
      */
     public Optional<String> getRawLocale(@NotNull String localeId) {
-        return Optional.ofNullable(rawLocales.get(localeId)).map(StringEscapeUtils::unescapeJava);
+        return Optional.ofNullable(locales.get(localeId)).map(StringEscapeUtils::unescapeJava);
     }
 
     /**
-     * Returns a raw, unformatted locale loaded from the locale file, with replacements applied.
+     * Returns a raw, un-formatted locale loaded from the locales file, with replacements applied.
      *
      * <p>Note that replacements will not be MineDown-escaped; use {@link #escapeText(String)} to escape replacements
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
-     * @param replacements An ordered array of replacement strings to fill in placeholders with
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return An {@link Optional} containing the replacement-applied locale corresponding to the id, if it exists
      */
     public Optional<String> getRawLocale(@NotNull String localeId, @NotNull String... replacements) {
@@ -77,34 +85,45 @@ public class Locales {
     }
 
     /**
-     * Returns a MineDown-formatted locale from the locale file.
+     * Returns a MineDown-formatted locale from the locales file.
      *
      * @param localeId String identifier of the locale, corresponding to a key in the file
      * @return An {@link Optional} containing the formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId) {
-        return getRawLocale(localeId).map(MineDown::new);
+        return getRawLocale(localeId).map(this::format);
     }
 
     /**
-     * Returns a MineDown-formatted locale from the locale file, with replacements applied.
+     * Returns a MineDown-formatted locale from the locales file, with replacements applied.
      *
      * <p>Note that replacements will be MineDown-escaped before application
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
-     * @param replacements An ordered array of replacement strings to fill in placeholders with
-     * @return An {@link Optional} with the replacement-applied, formatted locale corresponding to the id, if it exists
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
+     * @return An {@link Optional} containing the replacement-applied, formatted locale corresponding to the id
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
-                .toArray(String[]::new)).map(MineDown::new);
+                .toArray(String[]::new)).map(this::format);
+    }
+
+    /**
+     * Returns a MineDown-formatted string.
+     *
+     * @param text The text to format
+     * @return A {@link MineDown} object containing the formatted text
+     */
+    @NotNull
+    public MineDown format(@NotNull String text) {
+        return new MineDown(text);
     }
 
     /**
      * Apply placeholder replacements to a raw locale.
      *
      * @param rawLocale    The raw, unparsed locale
-     * @param replacements An ordered array of replacement strings to fill in placeholders with
+     * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return the raw locale, with inserted placeholders
      */
     @NotNull
@@ -138,7 +157,7 @@ public class Locales {
 
             value.append(c);
         }
-        return value.toString();
+        return value.toString().replace("__", "_\\_");
     }
 
     @NotNull
@@ -149,18 +168,19 @@ public class Locales {
         return string.length() > truncateAfter ? string.substring(0, truncateAfter) + "…" : string;
     }
 
-    /**
-     * Formats a description string, wrapping text on whitespace after 40 characters.
-     *
-     * @param string The string to format
-     * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
-     */
     @NotNull
-    public String wrapText(@NotNull String string, int wrapAfter) {
-        if (string.isBlank()) {
-            return this.getRawLocale("item_no_description").orElse("N/A");
-        }
-        return WordUtils.wrap(string, wrapAfter, "\n", true);
+    public String getNotApplicable() {
+        return getRawLocale("not_applicable").orElse("N/A");
+    }
+
+    @NotNull
+    public String getListJoiner() {
+        return getRawLocale("list_separator").orElse(", ");
+    }
+
+    @NotNull
+    public String getNone() {
+        return getRawLocale("none").orElse("(none)");
     }
 
     @NotNull

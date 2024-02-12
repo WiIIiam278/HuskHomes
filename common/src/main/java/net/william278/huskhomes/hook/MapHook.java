@@ -20,6 +20,7 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -47,12 +48,13 @@ public abstract class MapHook extends Hook {
      * Populate the map with public homes and warps.
      */
     protected void populateMap() {
-        if (plugin.getSettings().doPublicHomesOnMap()) {
+        final Settings.MapHookSettings settings = plugin.getSettings().getMapHook();
+        if (settings.isShowPublicHomes()) {
             plugin.getDatabase()
                     .getLocalPublicHomes(plugin)
                     .forEach(this::updateHome);
         }
-        if (plugin.getSettings().doWarpsOnMap()) {
+        if (settings.isShowWarps()) {
             plugin.getDatabase()
                     .getLocalWarps(plugin)
                     .forEach(this::updateWarp);
@@ -121,14 +123,16 @@ public abstract class MapHook extends Hook {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean isValidPosition(@NotNull SavedPosition position) {
-        if (position instanceof Warp && !plugin.getSettings().doWarpsOnMap()) {
+        final Settings.MapHookSettings settings = plugin.getSettings().getMapHook();
+        if (position instanceof Warp && !settings.isShowWarps()) {
             return false;
         }
-        if (position instanceof Home && !plugin.getSettings().doPublicHomesOnMap()) {
+        if (position instanceof Home && !settings.isShowPublicHomes()) {
             return false;
         }
 
-        return !plugin.getSettings().doCrossServer() || position.getServer().equals(plugin.getServerName());
+        return !plugin.getSettings().getCrossServer().isEnabled()
+                || position.getServer().equals(plugin.getServerName());
     }
 
     @NotNull
@@ -172,22 +176,20 @@ public abstract class MapHook extends Hook {
         }
 
         @NotNull
-        protected static DynmapHook.MarkerInformationPopup warp(@NotNull Warp warp, @NotNull String thumbnail,
-                                                                @NotNull HuskHomes plugin) {
+        protected static DynmapHook.MarkerInformationPopup warp(@NotNull Warp warp, @NotNull String thumbnail) {
             return MarkerInformationPopup.create(warp.getName())
                     .thumbnail(thumbnail)
-                    .field("Description", plugin.getLocales().wrapText(warp.getMeta().getDescription(), 60))
+                    .field("Description", warp.getMeta().getDescription())
                     .field("Location", warp.toString())
                     .field("Command", "/warp " + warp.getSafeIdentifier());
         }
 
         @NotNull
-        protected static DynmapHook.MarkerInformationPopup publicHome(@NotNull Home home, @NotNull String thumbnail,
-                                                                      @NotNull HuskHomes plugin) {
+        protected static DynmapHook.MarkerInformationPopup publicHome(@NotNull Home home, @NotNull String thumbnail) {
             return MarkerInformationPopup.create(home.getName())
                     .thumbnail(thumbnail)
                     .field("Owner", home.getOwner().getUsername())
-                    .field("Description", plugin.getLocales().wrapText(home.getMeta().getDescription(), 60))
+                    .field("Description", home.getMeta().getDescription())
                     .field("Location", home.toString())
                     .field("Command", "/phome " + home.getSafeIdentifier());
         }

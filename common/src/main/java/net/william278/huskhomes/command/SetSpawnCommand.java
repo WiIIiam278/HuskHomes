@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static net.william278.huskhomes.config.Settings.CrossServerSettings.GlobalSpawnSettings;
+
 public class SetSpawnCommand extends InGameCommand {
 
     protected SetSpawnCommand(@NotNull HuskHomes plugin) {
@@ -37,9 +39,10 @@ public class SetSpawnCommand extends InGameCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Position position = executor.getPosition();
+        final GlobalSpawnSettings global = plugin.getSettings().getCrossServer().getGlobalSpawn();
         try {
-            if (plugin.getSettings().doCrossServer() && plugin.getSettings().isGlobalSpawn()) {
-                final String warpName = plugin.getSettings().getGlobalSpawnName();
+            if (plugin.getSettings().getCrossServer().isEnabled() && global.isEnabled()) {
+                final String warpName = global.getWarpName();
                 plugin.getManager().warps().createWarp(warpName, position, true);
                 plugin.getLocales().getRawLocale("spawn_warp_default_description").ifPresent(
                         description -> plugin.getManager().warps().setWarpDescription(warpName, description)
@@ -48,7 +51,7 @@ public class SetSpawnCommand extends InGameCommand {
                 plugin.setServerSpawn(position);
             }
         } catch (ValidationException e) {
-            e.dispatchWarpError(executor, plugin, plugin.getSettings().getGlobalSpawnName());
+            e.dispatchWarpError(executor, plugin, global.getWarpName());
             return;
         }
 

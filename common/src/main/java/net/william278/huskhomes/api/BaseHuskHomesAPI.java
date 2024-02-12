@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 public class BaseHuskHomesAPI {
 
     /**
-     * <b>(Internal use only)</b> - API instance
+     * <b>(Internal use only)</b> - API instance.
      */
     protected static BaseHuskHomesAPI instance;
     /**

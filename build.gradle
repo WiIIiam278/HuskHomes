@@ -173,7 +173,7 @@ subprojects {
 
             if (['fabric'].contains(project.name)) {
                 publications {
-                    mavenJavaBukkit(MavenPublication) {
+                    mavenJavaFabric(MavenPublication) {
                         groupId = 'net.william278.huskhomes'
                         artifactId = 'huskhomes-fabric'
                         version = "$rootProject.version"
@@ -186,7 +186,7 @@ subprojects {
 
             if (['sponge'].contains(project.name)) {
                 publications {
-                    mavenJavaBukkit(MavenPublication) {
+                    mavenJavaSponge(MavenPublication) {
                         groupId = 'net.william278.huskhomes'
                         artifactId = 'huskhomes-sponge'
                         version = "$rootProject.version"

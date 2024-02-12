@@ -57,7 +57,7 @@ jobs:
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
           hangar-version-type: Alpha
-          files-primary: target/HuskHomes-Paper-*.jar
+          files-primary: target/HuskHomes-Paper-${{ env.version_name }}.jar
           name: HuskHomes (Spigot) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -82,7 +82,7 @@ jobs:
           modrinth-dependencies: |
             bluemap | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-*.jar
+          files-primary: target/HuskHomes-Sponge-${{ env.version_name }}.jar
           name: HuskHomes (Sponge) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -108,7 +108,7 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Fabric-*.jar
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -124,6 +124,6 @@ jobs:
         with:
           name: HuskHomes
           path: |
-            target/HuskHomes-Paper-*.jar
-            target/HuskHomes-Sponge-*.jar
-            target/HuskHomes-Fabric-*.jar
+            target/HuskHomes-Paper-${{ env.version_name }}.jar
+            target/HuskHomes-Sponge-${{ env.version_name }}.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}.jar

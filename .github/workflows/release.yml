@@ -45,7 +45,7 @@ jobs:
             plan | suggests | *
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
-          files-primary: target/HuskHomes-Paper-*.jar
+          files-primary: target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -69,7 +69,7 @@ jobs:
           modrinth-dependencies: |
             bluemap | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-*.jar
+          files-primary: target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Sponge) v${{ github.event.release.tag_name }}
           version: ${{ env.version_name }}
           version-type: release
@@ -94,7 +94,7 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Fabric-*.jar
+          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -109,6 +109,6 @@ jobs:
         with:
           name: HuskHomes
           path: |
-            target/HuskHomes-Paper-*.jar
-            target/HuskHomes-Sponge-*.jar
-            target/HuskHomes-Fabric-*.jar
+            target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}.jar

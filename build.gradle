@@ -24,6 +24,37 @@ ext {
     set 'mariadb_driver_version', mariadb_driver_version.toString()
 }
 
+publishing {
+    repositories {
+        if (System.getenv("RELEASES_MAVEN_USERNAME") != null) {
+            maven {
+                name = "william278-releases"
+                url = "https://repo.william278.net/releases"
+                credentials {
+                    username = System.getenv("RELEASES_MAVEN_USERNAME")
+                    password = System.getenv("RELEASES_MAVEN_PASSWORD")
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+        if (System.getenv("SNAPSHOTS_MAVEN_USERNAME") != null) {
+            maven {
+                name = "william278-snapshots"
+                url = "https://repo.william278.net/snapshots"
+                credentials {
+                    username = System.getenv("SNAPSHOTS_MAVEN_USERNAME")
+                    password = System.getenv("SNAPSHOTS_MAVEN_PASSWORD")
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+    }
+}
+
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'org.cadixdev.licenser'
@@ -74,97 +105,102 @@ allprojects {
         toolVersion = '10.12.0'
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     processResources {
         filesMatching(['**/*.json', '**/*.yml']) {
             filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
                     tokens: rootProject.ext.properties
         }
     }
-
 }
 
 subprojects {
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
-    compileJava.options.encoding = 'UTF-8'
 
     jar {
         from '../LICENSE'
     }
 
-    test {
-        useJUnitPlatform()
+    shadowJar {
+        destinationDirectory.set(file("$rootDir/target"))
+        archiveClassifier.set('')
     }
 
-    if (['paper', 'fabric'].contains(project.name)) {
-        compileJava.options.release.set 17
-    }
-
-    if (['bukkit', 'paper', 'plugin', 'fabric', 'sponge'].contains(project.name)) {
-        shadowJar {
-            destinationDirectory.set(file("$rootDir/target"))
-            archiveClassifier.set('')
+    // API publishing
+    if (['common', 'bukkit', 'fabric', 'sponge'].contains(project.name)) {
+        java {
+            withSourcesJar()
+            withJavadocJar()
         }
+        sourcesJar {
+            destinationDirectory.set(file("$rootDir/target"))
+        }
+        javadocJar {
+            destinationDirectory.set(file("$rootDir/target"))
+        }
+        shadowJar.dependsOn(sourcesJar, javadocJar)
 
-        if (['bukkit'].contains(project.name)) {
-            java {
-                withSourcesJar()
-                withJavadocJar()
-            }
-            sourcesJar {
-                destinationDirectory.set(file("$rootDir/target"))
-            }
-            javadocJar {
-                destinationDirectory.set(file("$rootDir/target"))
-            }
-            shadowJar.dependsOn(sourcesJar, javadocJar)
-
-            publishing {
-                repositories {
-                    if (System.getenv("RELEASES_MAVEN_USERNAME") != null) {
-                        maven {
-                            name = "william278-releases"
-                            url = "https://repo.william278.net/releases"
-                            credentials {
-                                username = System.getenv("RELEASES_MAVEN_USERNAME")
-                                password = System.getenv("RELEASES_MAVEN_PASSWORD")
-                            }
-                            authentication {
-                                basic(BasicAuthentication)
-                            }
-                        }
-                    }
-                    if (System.getenv("SNAPSHOTS_MAVEN_USERNAME") != null) {
-                        maven {
-                            name = "william278-snapshots"
-                            url = "https://repo.william278.net/snapshots"
-                            credentials {
-                                username = System.getenv("SNAPSHOTS_MAVEN_USERNAME")
-                                password = System.getenv("SNAPSHOTS_MAVEN_PASSWORD")
-                            }
-                            authentication {
-                                basic(BasicAuthentication)
-                            }
-                        }
-                    }
-                }
-
+        publishing {
+            if (['common'].contains(project.name)) {
                 publications {
-                    mavenJava(MavenPublication) {
-                        groupId = 'net.william278'
-                        artifactId = 'huskhomes'
+                    mavenJavaCommon(MavenPublication) {
+                        groupId = 'net.william278.huskhomes'
+                        artifactId = 'huskhomes-common'
                         version = "$rootProject.version"
                         artifact shadowJar
-                        artifact javadocJar
                         artifact sourcesJar
+                        artifact javadocJar
+                    }
+                }
+            }
+
+            if (['bukkit'].contains(project.name)) {
+                publications {
+                    mavenJavaBukkit(MavenPublication) {
+                        groupId = 'net.william278.huskhomes'
+                        artifactId = 'huskhomes-bukkit'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact sourcesJar
+                        artifact javadocJar
+                    }
+                }
+            }
+
+            if (['fabric'].contains(project.name)) {
+                publications {
+                    mavenJavaBukkit(MavenPublication) {
+                        groupId = 'net.william278.huskhomes'
+                        artifactId = 'huskhomes-fabric'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact sourcesJar
+                        artifact javadocJar
+                    }
+                }
+            }
+
+            if (['sponge'].contains(project.name)) {
+                publications {
+                    mavenJavaBukkit(MavenPublication) {
+                        groupId = 'net.william278.huskhomes'
+                        artifactId = 'huskhomes-sponge'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact sourcesJar
+                        artifact javadocJar
                     }
                 }
             }
         }
-
-        jar.dependsOn shadowJar
-        clean.delete "$rootDir/target"
     }
+
+    jar.dependsOn shadowJar
+    clean.delete "$rootDir/target"
 }
 
 logger.lifecycle("Building HuskHomes ${version} by William278")
@@ -183,4 +219,3 @@ def versionMetadata() {
     }
     return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }
-

@@ -104,7 +104,13 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         } else {
             plugin.getLocales().getLocale("teleporting_action_bar_processing")
                     .ifPresent(this::sendStatusMessage);
-            super.execute();
+
+            try {
+                super.execute();
+            } catch (TeleportationException e) {
+                e.displayMessage(executor);
+                return;
+            }
         }
 
         // Tick (decrement) the timed teleport timer and end it if done

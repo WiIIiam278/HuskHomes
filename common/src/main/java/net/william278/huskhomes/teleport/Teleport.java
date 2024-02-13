@@ -76,9 +76,9 @@ public class Teleport implements Completable {
     }
 
     /**
-     * Execute a teleport, throwing a {@link TeleportationException on an exception}
+     * Execute a teleport, throwing a {@link TeleportationException} if it fails.
      *
-     * @throws TeleportationException if
+     * @throws TeleportationException if the teleport fails for some reason.
      */
     public void execute() throws TeleportationException {
         validateTransactions();

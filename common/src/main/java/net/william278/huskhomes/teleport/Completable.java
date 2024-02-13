@@ -23,7 +23,7 @@ import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a Teleport that is completable
+ * Represents a Teleport that is completable.
  */
 public interface Completable {
 
@@ -33,7 +33,7 @@ public interface Completable {
     OnlineUser getExecutor();
 
     /**
-     * Complete the teleport and handle exceptions
+     * Complete the teleport and handle exceptions.
      *
      * @param args Optional args to pass to the teleport exception handler
      */

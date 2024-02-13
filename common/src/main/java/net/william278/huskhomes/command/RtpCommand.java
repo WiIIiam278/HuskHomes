@@ -23,7 +23,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
@@ -154,15 +153,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                             .teleporter(teleporter)
                             .actions(TransactionResolver.Action.RANDOM_TELEPORT)
                             .target(position.get());
-                    try {
-                        if (executor.equals(teleporter)) {
-                            builder.toTimedTeleport().execute();
-                        } else {
-                            builder.toTeleport().execute();
-                        }
-                    } catch (TeleportationException e) {
-                        e.displayMessage(executor, args);
-                    }
+                    builder.buildAndComplete(executor.equals(teleporter), args);
                 });
     }
 

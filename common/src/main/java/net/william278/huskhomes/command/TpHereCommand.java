@@ -21,7 +21,6 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,18 +43,15 @@ public class TpHereCommand extends InGameCommand implements UserListTabProvider 
             return;
         }
 
-        try {
-            Teleport.builder(plugin)
-                    .executor(executor)
-                    .teleporter(optionalTarget.get())
-                    .target(executor.getPosition())
-                    .toTeleport().execute();
+        // Teleport the user
+        final String target = optionalTarget.get();
+        Teleport.builder(plugin)
+                .executor(executor)
+                .teleporter(target)
+                .target(executor.getPosition())
+                .buildAndComplete(false, target);
 
-            plugin.getLocales().getLocale("teleporting_other_complete",
-                    optionalTarget.get(), executor.getUsername());
-        } catch (TeleportationException e) {
-            e.displayMessage(executor, args);
-        }
+        plugin.getLocales().getLocale("teleporting_other_complete", target, executor.getUsername());
     }
 
 }

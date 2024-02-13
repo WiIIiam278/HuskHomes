@@ -26,7 +26,6 @@ import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportRequest;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -323,12 +322,7 @@ public class RequestsManager {
                 } else {
                     builder.target(request.getRequesterName());
                 }
-
-                try {
-                    builder.toTimedTeleport().execute();
-                } catch (TeleportationException e) {
-                    e.displayMessage(recipient);
-                }
+                builder.buildAndComplete(true);
             }
         }));
     }
@@ -354,16 +348,11 @@ public class RequestsManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.getType() == TeleportRequest.Type.TPA)) {
-            try {
-                Teleport.builder(plugin)
-                        .teleporter(requester)
-                        .target(request.getRecipientName())
-                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
-                        .toTimedTeleport()
-                        .execute();
-            } catch (TeleportationException e) {
-                e.displayMessage(requester);
-            }
+            Teleport.builder(plugin)
+                    .teleporter(requester)
+                    .target(request.getRecipientName())
+                    .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
+                    .buildAndComplete(true);
         }
     }
 

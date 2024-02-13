@@ -59,6 +59,7 @@ public class EventListener {
         plugin.runAsync(() -> {
             // Ensure the user is in the database
             plugin.getDatabase().ensureUser(onlineUser);
+            plugin.getCurrentlyOnWarmup().remove(onlineUser.getUuid());
 
             // Handle cross-server checks
             if (plugin.getSettings().getCrossServer().isEnabled()) {
@@ -161,17 +162,11 @@ public class EventListener {
             plugin.getSpawn().ifPresent(spawn -> {
                 if (plugin.getSettings().getCrossServer().isEnabled()
                         && !spawn.getServer().equals(plugin.getServerName())) {
-                    plugin.runSyncDelayed(() -> {
-                        try {
-                            Teleport.builder(plugin)
-                                    .teleporter(teleporter)
-                                    .target(spawn)
-                                    .updateLastPosition(false)
-                                    .toTeleport().execute();
-                        } catch (TeleportationException e) {
-                            e.displayMessage(teleporter);
-                        }
-                    }, 40L);
+                    plugin.runSyncDelayed(() -> Teleport.builder(plugin)
+                            .teleporter(teleporter)
+                            .target(spawn)
+                            .updateLastPosition(false)
+                            .buildAndComplete(false), 40L);
                 } else {
                     try {
                         teleporter.teleportLocally(spawn, plugin.getSettings().getGeneral().isTeleportAsync());

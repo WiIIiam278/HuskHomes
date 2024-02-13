@@ -71,6 +71,14 @@ public class TeleportBuilder {
         );
     }
 
+    public void buildAndComplete(boolean timed, @NotNull String... args) {
+        try {
+            (timed ? toTimedTeleport() : toTeleport()).complete(args);
+        } catch (TeleportationException e) {
+            e.displayMessage(executor);
+        }
+    }
+
     private void validateTeleport() throws TeleportationException {
         if (teleporter == null) {
             throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND, plugin);

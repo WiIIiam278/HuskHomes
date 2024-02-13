@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.teleport;
 
+import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 public class TeleportationException extends IllegalStateException {
 
     private final HuskHomes plugin;
+    @Getter
     private final Type type;
 
     public TeleportationException(@NotNull Type cause, @NotNull HuskHomes plugin) {
@@ -58,12 +60,6 @@ public class TeleportationException extends IllegalStateException {
                 // Silent; no message
             }
         }
-    }
-
-    @NotNull
-    @SuppressWarnings("unused")
-    public Type getType() {
-        return type;
     }
 
     /**

@@ -80,7 +80,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         this.process();
     }
 
-    // Execute the warmup, fire the event, then executeTeleport the teleport if warmup completes normally
+    // Execute the warmup, fire the event, then execute the teleport if warmup completes normally
     private void process() {
         plugin.fireEvent(plugin.getTeleportWarmupEvent(this, timeLeft), (event) -> {
             plugin.getCurrentlyOnWarmup().add(teleporter.getUuid());

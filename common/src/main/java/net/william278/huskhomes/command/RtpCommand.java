@@ -59,7 +59,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
             return;
         }
 
-        // Validate, then executeTeleport the RTP
+        // Validate, then execute the RTP
         final OnlineUser teleporter = optionalTeleporter.get();
         this.validateRtp(teleporter, executor, args.length > 1 ? removeFirstArg(args) : args)
                 .ifPresent(world -> this.executeRtp(teleporter, executor, world, args));

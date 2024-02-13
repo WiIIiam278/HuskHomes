@@ -730,10 +730,10 @@ public class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport.
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
      *
      * @param teleporter The {@link OnlineUser} to teleport
-     * @return A {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport
+     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
      * @since 4.0
      */
     @NotNull
@@ -742,9 +742,9 @@ public class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport.
+     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
      *
-     * @return A {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport
+     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
      * @since 4.0
      */
     @NotNull

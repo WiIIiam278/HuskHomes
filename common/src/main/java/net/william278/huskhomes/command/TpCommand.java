@@ -84,7 +84,7 @@ public class TpCommand extends Command implements TabProvider {
     // Execute a teleport
     private void execute(@NotNull CommandUser executor, @NotNull Teleportable teleportable, @NotNull Target target,
                          @NotNull String[] args) {
-        // Build and executeTeleport the teleport
+        // Build and execute the teleport
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleportable)
                 .target(target);

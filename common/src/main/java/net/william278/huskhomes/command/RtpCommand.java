@@ -148,7 +148,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                         return;
                     }
 
-                    // Build and executeTeleport the teleport
+                    // Build and execute the teleport
                     final TeleportBuilder builder = Teleport.builder(plugin)
                             .teleporter(teleporter)
                             .actions(TransactionResolver.Action.RANDOM_TELEPORT)

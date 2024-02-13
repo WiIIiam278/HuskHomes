@@ -76,7 +76,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
             throw new TeleportationException(TeleportationException.Type.WARMUP_ALREADY_MOVING, plugin);
         }
 
-        // Process the warmup and executeTeleport the teleport
+        // Process the warmup and execute the teleport
         this.process();
     }
 

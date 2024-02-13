@@ -54,7 +54,7 @@ public class BackCommand extends InGameCommand {
                 .target(lastPosition.get())
                 .actions(TransactionResolver.Action.BACK_COMMAND)
                 .type(Teleport.Type.BACK)
-                .executeTimed();
+                .buildAndComplete(true);
     }
 
 }

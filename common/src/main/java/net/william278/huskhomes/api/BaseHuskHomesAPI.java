@@ -772,14 +772,10 @@ public class BaseHuskHomesAPI {
                         throw new IllegalStateException("Random teleport engine returned an empty position");
                     }
 
-                    final TeleportBuilder builder = Teleport.builder(plugin)
+                    Teleport.builder(plugin)
                             .teleporter(user)
-                            .target(position.get());
-                    if (timedTeleport) {
-                        builder.executeTimed();
-                    } else {
-                        builder.executeTeleport();
-                    }
+                            .target(position.get())
+                            .buildAndComplete(timedTeleport);
                 }).exceptionally(e -> {
                     throw new IllegalStateException("Random teleport engine threw an exception", e);
                 });

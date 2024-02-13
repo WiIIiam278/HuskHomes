@@ -91,7 +91,7 @@ public class TpCommand extends Command implements TabProvider {
         if (executor instanceof OnlineUser user) {
             builder.executor(user);
         }
-        builder.executeTeleport(args);
+        builder.buildAndComplete(false, args);
 
         // Display a teleport completion message
         final String teleporterName = teleportable instanceof OnlineUser user

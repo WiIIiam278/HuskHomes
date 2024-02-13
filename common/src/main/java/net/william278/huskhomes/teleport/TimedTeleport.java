@@ -108,7 +108,9 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
             try {
                 super.execute();
             } catch (TeleportationException e) {
-                e.displayMessage(executor);
+                e.displayMessage(teleporter);
+                task.cancel();
+                plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
                 return;
             }
         }

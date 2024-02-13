@@ -23,7 +23,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
@@ -60,7 +59,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
             return;
         }
 
-        // Validate, then execute the RTP
+        // Validate, then executeTeleport the RTP
         final OnlineUser teleporter = optionalTeleporter.get();
         this.validateRtp(teleporter, executor, args.length > 1 ? removeFirstArg(args) : args)
                 .ifPresent(world -> this.executeRtp(teleporter, executor, world, args));
@@ -149,20 +148,12 @@ public class RtpCommand extends Command implements UserListTabProvider {
                         return;
                     }
 
-                    // Build and execute the teleport
+                    // Build and executeTeleport the teleport
                     final TeleportBuilder builder = Teleport.builder(plugin)
                             .teleporter(teleporter)
                             .actions(TransactionResolver.Action.RANDOM_TELEPORT)
                             .target(position.get());
-                    try {
-                        if (executor.equals(teleporter)) {
-                            builder.toTimedTeleport().execute();
-                        } else {
-                            builder.toTeleport().execute();
-                        }
-                    } catch (TeleportationException e) {
-                        e.displayMessage(executor, args);
-                    }
+                    builder.buildAndComplete(executor.equals(teleporter), args);
                 });
     }
 

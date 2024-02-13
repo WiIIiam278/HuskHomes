@@ -29,7 +29,6 @@ import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -731,10 +730,10 @@ public class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
+     * Get a {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport.
      *
      * @param teleporter The {@link OnlineUser} to teleport
-     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * @return A {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport
      * @since 4.0
      */
     @NotNull
@@ -743,9 +742,9 @@ public class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link TeleportBuilder} to construct and execute a (timed) teleport.
+     * Get a {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport.
      *
-     * @return A {@link TeleportBuilder} to construct and execute a (timed) teleport
+     * @return A {@link TeleportBuilder} to construct and executeTeleport a (timed) teleport
      * @since 4.0
      */
     @NotNull
@@ -776,14 +775,10 @@ public class BaseHuskHomesAPI {
                     final TeleportBuilder builder = Teleport.builder(plugin)
                             .teleporter(user)
                             .target(position.get());
-                    try {
-                        if (timedTeleport) {
-                            builder.toTimedTeleport().execute();
-                        } else {
-                            builder.toTeleport().execute();
-                        }
-                    } catch (TeleportationException e) {
-                        e.displayMessage(user, rtpArgs);
+                    if (timedTeleport) {
+                        builder.executeTimed();
+                    } else {
+                        builder.executeTeleport();
                     }
                 }).exceptionally(e -> {
                     throw new IllegalStateException("Random teleport engine threw an exception", e);

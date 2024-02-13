@@ -42,7 +42,8 @@ import java.util.Optional;
  *
  * @see Teleport#builder(HuskHomes)
  */
-public class Teleport {
+@Getter
+public class Teleport implements Completable {
 
     protected final HuskHomes plugin;
     protected final OnlineUser executor;
@@ -74,41 +75,17 @@ public class Teleport {
         return new TeleportBuilder(plugin);
     }
 
+    /**
+     * Execute a teleport, throwing a {@link TeleportationException on an exception}
+     *
+     * @throws TeleportationException if
+     */
     public void execute() throws TeleportationException {
-        final Optional<OnlineUser> localTeleporter = resolveLocalTeleporter();
-
-        // Validate economy actions
         validateTransactions();
+        resolveLocalTeleporter().ifPresentOrElse(this::executeLocal, this::executeRemote);
+    }
 
-        // Teleport a user on another server
-        if (localTeleporter.isEmpty()) {
-            final Username teleporter = (Username) this.teleporter;
-            if (!plugin.getSettings().getCrossServer().isEnabled()) {
-                throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND, plugin);
-            }
-
-            fireEvent((event) -> {
-                performTransactions();
-                if (target instanceof Username username) {
-                    Message.builder()
-                            .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
-                            .target(teleporter.name())
-                            .payload(Payload.withString(username.name()))
-                            .build().send(plugin.getMessenger(), executor);
-                    return;
-                }
-
-                Message.builder()
-                        .type(Message.Type.TELEPORT_TO_POSITION)
-                        .target(teleporter.name())
-                        .payload(Payload.withPosition((Position) target))
-                        .build().send(plugin.getMessenger(), executor);
-            });
-            return;
-        }
-
-        // Teleport a local user
-        final OnlineUser teleporter = localTeleporter.get();
+    private void executeLocal(@NotNull OnlineUser teleporter) throws TeleportationException {
         if (target instanceof Username username) {
             final Optional<OnlineUser> localTarget = username.name().equals("@s")
                     ? Optional.of(executor) : username.findLocally(plugin);
@@ -119,12 +96,7 @@ public class Teleport {
                         plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
                     }
 
-                    try {
-                        teleporter.teleportLocally(localTarget.get().getPosition(), async);
-                    } catch (TeleportationException e) {
-                        e.displayMessage(teleporter);
-                        return;
-                    }
+                    teleporter.teleportLocally(localTarget.get().getPosition(), async);
                     this.displayTeleportingComplete(teleporter);
                 });
                 return;
@@ -153,18 +125,38 @@ public class Teleport {
             final Position target = (Position) this.target;
             if (!plugin.getSettings().getCrossServer().isEnabled()
                     || target.getServer().equals(plugin.getServerName())) {
-                try {
-                    teleporter.teleportLocally(target, async);
-                } catch (TeleportationException e) {
-                    e.displayMessage(teleporter);
-                    return;
-                }
+                teleporter.teleportLocally(target, async);
                 this.displayTeleportingComplete(teleporter);
                 return;
             }
 
             plugin.getDatabase().setCurrentTeleport(teleporter, this);
             plugin.getMessenger().changeServer(teleporter, target.getServer());
+        });
+    }
+
+    private void executeRemote() throws TeleportationException {
+        final Username teleporter = (Username) this.teleporter;
+        if (!plugin.getSettings().getCrossServer().isEnabled()) {
+            throw new TeleportationException(TeleportationException.Type.TELEPORTER_NOT_FOUND, plugin);
+        }
+
+        fireEvent((event) -> {
+            performTransactions();
+            if (target instanceof Username username) {
+                Message.builder()
+                        .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
+                        .target(teleporter.name())
+                        .payload(Payload.withString(username.name()))
+                        .build().send(plugin.getMessenger(), executor);
+                return;
+            }
+
+            Message.builder()
+                    .type(Message.Type.TELEPORT_TO_POSITION)
+                    .target(teleporter.name())
+                    .payload(Payload.withPosition((Position) target))
+                    .build().send(plugin.getMessenger(), executor);
         });
     }
 
@@ -200,21 +192,6 @@ public class Teleport {
     // Perform economy and cooldown transactions
     private void performTransactions() {
         actions.forEach(action -> plugin.performTransaction(executor, action));
-    }
-
-    @NotNull
-    public Type getType() {
-        return type;
-    }
-
-    @NotNull
-    public Teleportable getTeleporter() {
-        return teleporter;
-    }
-
-    @NotNull
-    public Target getTarget() {
-        return target;
     }
 
     /**

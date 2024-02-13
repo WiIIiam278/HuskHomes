@@ -22,7 +22,6 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -69,14 +68,10 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
 
         plugin.getLocales().getLocale("teleporting_offline_player", target.getUsername())
                 .ifPresent(user::sendMessage);
-        try {
-            Teleport.builder(plugin)
-                    .teleporter(user)
-                    .target(position.get())
-                    .toTeleport().execute();
-        } catch (TeleportationException e) {
-            e.displayMessage(user, args);
-        }
+        Teleport.builder(plugin)
+                .teleporter(user)
+                .target(position.get())
+                .buildAndComplete(false, args);
     }
 
 }

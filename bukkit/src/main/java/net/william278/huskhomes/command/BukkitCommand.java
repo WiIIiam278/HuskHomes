@@ -157,6 +157,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         TP_OFFLINE_COMMAND(TpOfflineCommand::new),
         TP_ALL_COMMAND(TpAllCommand::new),
         TPA_ALL_COMMAND(TpaAllCommand::new),
+        TP_PARALLEL(TpParallelCommand::new),
         SPAWN_COMMAND(SpawnCommand::new),
         SET_SPAWN_COMMAND(SetSpawnCommand::new),
         BACK_COMMAND(BackCommand::new),

@@ -259,6 +259,13 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td><code>huskhomes.command.tpall</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /ptp command -->
+        <tr>
+            <td colspan="2"><code>/paralleltp &lt;server&gt; [username]</code></td>
+            <td>Teleport an online user to another server with the same coordinates</td>
+            <td><code>huskhomes.command.ptp</code></td>
+            <td align="center">❌</td>
+        </tr>
         <!-- /tpa command -->
         <tr><th colspan="5">Teleport request commands</th></tr>
         <tr>

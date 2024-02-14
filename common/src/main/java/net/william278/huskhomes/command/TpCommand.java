@@ -36,7 +36,7 @@ public class TpCommand extends Command implements TabProvider {
 
     protected TpCommand(@NotNull HuskHomes plugin) {
         super("tp", List.of("tpo"), "[<player|position>] [target]", plugin);
-        addAdditionalPermissions(Map.of("coordinates", true, "player", true));
+        addAdditionalPermissions(Map.of("coordinates", true, "other", true));
         setOperatorCommand(true);
     }
 
@@ -49,7 +49,7 @@ public class TpCommand extends Command implements TabProvider {
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-                if (!executor.hasPermission(getPermission("player"))) {
+                if (!executor.hasPermission(getPermission("other"))) {
                     plugin.getLocales().getLocale("error_no_permission")
                             .ifPresent(executor::sendMessage);
                     return;
@@ -57,7 +57,7 @@ public class TpCommand extends Command implements TabProvider {
                 this.execute(executor, user, Target.username(args[0]), args);
             }
             case 2 -> {
-                if (!executor.hasPermission(getPermission("player"))) {
+                if (!executor.hasPermission(getPermission("other"))) {
                     plugin.getLocales().getLocale("error_no_permission")
                             .ifPresent(executor::sendMessage);
                     return;
@@ -79,6 +79,12 @@ public class TpCommand extends Command implements TabProvider {
                     return;
                 }
 
+                //tp <teleporter_name> <coordinates> needs player AND coordinates permissions
+                if (!executor.hasPermission(getPermission("other"))) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
                 target = executor.hasPermission(getPermission("coordinates"))
                         ? parsePositionArgs(basePosition, args, 1) : Optional.empty();
                 if (target.isPresent() && args.length >= 1) {
@@ -123,7 +129,7 @@ public class TpCommand extends Command implements TabProvider {
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final Position relative = getBasePosition(user);
         final boolean serveCoordinateCompletions = user.hasPermission(getPermission("coordinates"));
-        final boolean servePlayerCompletions = user.hasPermission(getPermission("player"));
+        final boolean servePlayerCompletions = user.hasPermission(getPermission("other"));
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = new ArrayList<>();

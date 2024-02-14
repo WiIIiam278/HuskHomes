@@ -36,7 +36,7 @@ public class TpCommand extends Command implements TabProvider {
 
     protected TpCommand(@NotNull HuskHomes plugin) {
         super("tp", List.of("tpo"), "[<player|position>] [target]", plugin);
-        addAdditionalPermissions(Map.of("coordinates", true));
+        addAdditionalPermissions(Map.of("coordinates", true, "player", true));
         setOperatorCommand(true);
     }
 
@@ -49,10 +49,21 @@ public class TpCommand extends Command implements TabProvider {
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-
+                if (!executor.hasPermission(getPermission("player"))) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
                 this.execute(executor, user, Target.username(args[0]), args);
             }
-            case 2 -> this.execute(executor, Teleportable.username(args[0]), Target.username(args[1]), args);
+            case 2 -> {
+                if (!executor.hasPermission(getPermission("player"))) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                this.execute(executor, Teleportable.username(args[0]), Target.username(args[1]), args);
+            }
             default -> {
                 final Position basePosition = getBasePosition(executor);
                 Optional<Position> target = executor.hasPermission(getPermission("coordinates"))
@@ -112,6 +123,7 @@ public class TpCommand extends Command implements TabProvider {
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final Position relative = getBasePosition(user);
         final boolean serveCoordinateCompletions = user.hasPermission(getPermission("coordinates"));
+        final boolean servePlayerCompletions = user.hasPermission(getPermission("player"));
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = new ArrayList<>();
@@ -121,7 +133,8 @@ public class TpCommand extends Command implements TabProvider {
                         ((int) relative.getX() + " " + (int) relative.getY()),
                         ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                         : List.of());
-                completions.addAll(plugin.getPlayerList(false));
+                if (servePlayerCompletions)
+                    completions.addAll(plugin.getPlayerList(false));
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -140,7 +153,8 @@ public class TpCommand extends Command implements TabProvider {
                                     ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                                     : List.of()
                     );
-                    completions.addAll(plugin.getPlayerList(false));
+                    if (servePlayerCompletions)
+                        completions.addAll(plugin.getPlayerList(false));
                 }
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))

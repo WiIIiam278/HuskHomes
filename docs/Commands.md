@@ -215,25 +215,25 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td rowspan="4"><code>/tp</code></td>
             <td><code>/tp &lt;target_name&gt;</code></td>
             <td>Teleport to an online user</td>
-            <td><code>huskhomes.command.tp</code></td>
+            <td><code>huskhomes.command.tp</code><br/><code>huskhomes.command.tp.other</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td><code>/tp &lt;teleporter_name&gt; &lt;target_name&gt;</code></td>
             <td>Teleport an online user to another online user</td>
-            <td><code>huskhomes.command.tp.other</code></td>
+            <td><code>huskhomes.command.tp</code><br/><code>huskhomes.command.tp.other</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td><code>/tp &lt;(x) (y) (z) [yaw] [pitch] [world_name] [server_name]&gt;</code></td>
             <td>Teleport to a set of coordinates</td>
-            <td><code>huskhomes.command.tp.coordinates</code></td>
+            <td><code>huskhomes.command.tp</code><br/><code>huskhomes.command.tp.coordinates</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td><code>/tp &lt;teleporter_name&gt; &lt;coordinates&gt;</code></td>
             <td>Teleport an online user to a set of coordinates</td>
-            <td><code>huskhomes.command.tp.other</code><br/><code>huskhomes.command.tp.coordinates</code></td>
+            <td><code>huskhomes.command.tp</code><br/><code>huskhomes.command.tp.other</code><br/><code>huskhomes.command.tp.coordinates</code></td>
             <td align="center">❌</td>
         </tr>
         <!-- /tphere command -->

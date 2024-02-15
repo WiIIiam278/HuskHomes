@@ -89,12 +89,13 @@ public class TpCommand extends Command implements TabProvider {
                 .target(target);
 
         if (executor instanceof OnlineUser onlineUser) {
-            if (!onlineUser.hasPermission(getPermission("other"))) {
-                plugin.getLocales().getLocale("error_no_permission")
-                        .ifPresent(executor::sendMessage);
-                return;
-            }
             if (target instanceof Teleportable teleportableTarget) {
+                if (!onlineUser.hasPermission(getPermission("other"))) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
                 if (onlineUser.getUsername().equals(teleportableTarget.getUsername())) {
                     plugin.getLocales().getLocale("error_cannot_teleport_self")
                             .ifPresent(onlineUser::sendMessage);

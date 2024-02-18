@@ -400,7 +400,7 @@ public final class Settings {
     }
 
     @Comment("List of commands to disable (e.g. ['/home', '/warp'] to disable /home and /warp)")
-    private List<String> disabledCommands = Lists.newArrayList();
+    private List<String> disabledCommands = Lists.newArrayList("paralleltp");
 
     public boolean isCommandDisabled(@NotNull Command type) {
         return disabledCommands.stream()

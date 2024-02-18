@@ -184,7 +184,8 @@ map_hook:
   # Show warps on the web map
   show_warps: true
 # List of commands to disable (e.g. ['/home', '/warp'] to disable /home and /warp)
-disabled_commands: []
+disabled_commands: 
+  - paralleltp
 ```
 </details>
 

@@ -53,7 +53,7 @@ import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.FabricEventDispatcher;
 import net.william278.huskhomes.hook.FabricImpactorEconomyHook;
 import net.william278.huskhomes.hook.Hook;
-import net.william278.huskhomes.hook.PlaceHolderAPIHook;
+import net.william278.huskhomes.hook.FabricPlaceholderAPIHook;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.FabricEventListener;
 import net.william278.huskhomes.manager.Manager;
@@ -203,7 +203,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
 
         if (isDependencyLoaded("placeholder-api")) {
-            getHooks().add(new PlaceHolderAPIHook(this));
+            getHooks().add(new FabricPlaceholderAPIHook(this));
         }
     }
 

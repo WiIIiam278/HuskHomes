@@ -6,7 +6,15 @@ HuskHomes supports restricting certain actions behind an economic cost. Players 
 
 > **Applies to:** Spigot, Paper
 
-To enable the Economy Hook on Sponge server, install both [Vault](https://www.spigotmc.org/resources/vault.34315/) and a compatible economy plugin. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
+To enable the Economy Hook on a Spigot/Paper server, install both [Vault](https://www.spigotmc.org/resources/vault.34315/) and a compatible economy plugin. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
+</details>
+
+<details>
+<summary>Fabric setup</summary>
+
+> **Applies to:** Fabric
+
+To enable the Economy Hook on a Fabric server, the [Impactor Economy](https://modrinth.com/mod/impactor) mod must be installed to provide an API for plugins to perform economy operations. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
 </details>
 
 <details>
@@ -14,7 +22,7 @@ To enable the Economy Hook on Sponge server, install both [Vault](https://www.sp
 
 > **Applies to:** Sponge
 
-To enable the Economy Hook on Sponge server, you require a mod installed for managing player economy accounts through the Sponge economy API. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
+To enable the Economy Hook on a Sponge server, you require a mod installed for managing player economy accounts through the Sponge economy API. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
 </details>
 
 ### Bypassing economy checks

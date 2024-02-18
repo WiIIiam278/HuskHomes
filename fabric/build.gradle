@@ -5,10 +5,23 @@ plugins {
 apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
+repositories {
+    maven {
+        url "https://maven.impactdev.net/repository/development/"
+        name "Impactor Economy"
+    }
+    maven {
+        url "https://maven.nucleoid.xyz/"
+        name "placeholderapi"
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
     mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation("net.impactdev.impactor.api:economy:${impactor_api_version}")
+    modImplementation include("eu.pb4:placeholder-api:${placeholder_api_version}")
 
     // Fabric API modules
     Set<String> fabricApiModules = [

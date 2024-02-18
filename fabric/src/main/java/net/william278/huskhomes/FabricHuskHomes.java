@@ -51,7 +51,9 @@ import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.FabricEventDispatcher;
+import net.william278.huskhomes.hook.FabricImpactorEconomyHook;
 import net.william278.huskhomes.hook.Hook;
+import net.william278.huskhomes.hook.PlaceHolderAPIHook;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.FabricEventListener;
 import net.william278.huskhomes.manager.Manager;
@@ -189,6 +191,20 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
 
         this.checkForUpdates();
+    }
+
+    @Override
+    public void registerHooks() {
+        HuskHomes.super.registerHooks();
+
+        // Register the impactor economy service if it is available
+        if (getSettings().getEconomy().isEnabled() && isDependencyLoaded("impactor")) {
+            getHooks().add(new FabricImpactorEconomyHook(this));
+        }
+
+        if (isDependencyLoaded("placeholder-api")) {
+            getHooks().add(new PlaceHolderAPIHook(this));
+        }
     }
 
     private void onDisable() {

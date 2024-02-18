@@ -49,6 +49,9 @@ public class RedisBroker extends PluginMessageBroker {
     @Blocking
     @Override
     public void initialize() throws IllegalStateException {
+        // Initialize plugin message channels
+        super.initialize();
+
         // Establish a connection with the Redis server
         final Pool<Jedis> jedisPool = getJedisPool(plugin.getSettings().getCrossServer().getRedis());
         try {

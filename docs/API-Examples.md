@@ -148,7 +148,7 @@ public class HuskHomesAPIHook {
 </details>
 
 ## Creating Teleports
-The API provides a method for getting a `TeleportBuilder`, which can be used to build a `Teleport` (with `#toTeleport`) or `TimedTeleport` (with toTimedTeleport; a teleport that requires the user to stand still for a period of time first). Teleports can be cross-server.
+The API provides a method for getting a `TeleportBuilder`, which can be used to build a `Teleport` (with `#toTeleport`) or `TimedTeleport` (a teleport that requires the user to stand still for a period of time first). Teleports can be cross-server.
 
 <details>
 <summary>Building a teleport</summary>
@@ -171,15 +171,12 @@ public class HuskHomesAPIHook {
         );
 
         // To construct a teleport, get a TeleportBuilder with #teleportBuilder
-        try {
-            huskHomesAPI.teleportBuilder()
-                .teleporter(onlineUser) // The person being teleported
-                .target(position) // The target position
-                .toTimedTeleport()
-                .execute(); // #execute() can throw a TeleportationException
-        } catch(TeleportationException e) {
-            e.printStackTrace(); // This exception will contain the reason why the teleport failed, so you can handle it gracefully.
-        }
+        huskHomesAPI.teleportBuilder()
+            .teleporter(onlineUser) // The person being teleported
+            .target(position) // The target position
+            .buildAndComplete(false); // This builds and executes the teleport instantly.
+        
+        // The `true` flag we passed above indicates we want an instant teleport (as opposed to a timed teleport)
     }
 
 }
@@ -206,10 +203,11 @@ public class HuskHomesAPIHook {
             huskHomesAPI.teleportBuilder()
                 .teleporter(onlineUser)
                 .target(targetUsername)
-                .toTimedTeleport()
+                .toTimedTeleport() // Instead of running buildAndComplete, we can get the Teleport object itself this way.
                 .execute(); // A timed teleport will throw a TeleportationException if the player moves/takes damage during the warmup, or if the target is not found.
-        } catch(TeleportationException e) {
-            e.printStackTrace(); // Note that the TimedTeleport will catch internal exceptions when executing the resultant Teleport (e.g. if the teleport is to an illegal position).
+        } catch(TeleportationException e) { // Since this doesn't catch the TeleportException (buildAndComplete does!), we need to do this.
+            // Use TeleportException#displayMessage() to display why the teleport failed to the user.
+            e.displayMessage(onlineUser);
         }
     }
 

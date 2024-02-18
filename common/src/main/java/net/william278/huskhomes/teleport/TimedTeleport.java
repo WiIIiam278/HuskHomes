@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @see Teleport#builder(HuskHomes)
  */
-public class TimedTeleport extends Teleport implements Runnable {
+public class TimedTeleport extends Teleport implements Runnable, Completable {
 
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
     private final OnlineUser teleporter;
@@ -104,10 +104,14 @@ public class TimedTeleport extends Teleport implements Runnable {
         } else {
             plugin.getLocales().getLocale("teleporting_action_bar_processing")
                     .ifPresent(this::sendStatusMessage);
+
             try {
                 super.execute();
             } catch (TeleportationException e) {
                 e.displayMessage(teleporter);
+                task.cancel();
+                plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
+                return;
             }
         }
 

@@ -88,15 +88,10 @@ public class TpCommand extends Command implements TabProvider {
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleportable)
                 .target(target);
-        try {
-            if (executor instanceof OnlineUser user) {
-                builder.executor(user);
-            }
-            builder.toTeleport().execute();
-        } catch (TeleportationException e) {
-            e.displayMessage(executor, args);
-            return;
+        if (executor instanceof OnlineUser user) {
+            builder.executor(user);
         }
+        builder.buildAndComplete(false, args);
 
         // Display a teleport completion message
         final String teleporterName = teleportable instanceof OnlineUser user

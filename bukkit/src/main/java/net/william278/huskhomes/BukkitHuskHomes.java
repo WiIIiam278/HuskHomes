@@ -353,8 +353,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void initializePluginChannels() {
         final String channelId = PluginMessageBroker.BUNGEE_CHANNEL_ID;
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, channelId, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, channelId);
+        getServer().getMessenger().registerIncomingPluginChannel(this, channelId, this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, channelId);
     }
 
     @Override

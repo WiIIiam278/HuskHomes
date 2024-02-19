@@ -108,6 +108,8 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan | suggests | *
+            impactor | suggests | *
+            placeholder-api | suggests | *
           files-primary: target/HuskHomes-Fabric-${{ env.version_name }}.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}

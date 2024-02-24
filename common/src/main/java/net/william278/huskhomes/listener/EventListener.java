@@ -148,6 +148,7 @@ public class EventListener {
             }
             plugin.getDatabase().clearCurrentTeleport(teleporter);
             teleport.displayTeleportingComplete(teleporter);
+            teleporter.handleInvulnerability();
         });
     }
 

@@ -32,10 +32,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
+import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportationException;
+import net.william278.huskhomes.util.FabricTask;
+import net.william278.huskhomes.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -163,6 +166,21 @@ public class FabricUser extends OnlineUser {
     public boolean isVanished() {
         return false;
     }
+
+    /**
+     * Handles player invulnerability after teleporting
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.setInvulnerable(true);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+    }
+
 
     @NotNull
     private static Identifier parseIdentifier(@NotNull String channel) {

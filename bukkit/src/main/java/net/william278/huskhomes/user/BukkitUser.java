@@ -25,10 +25,14 @@ import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.util.BukkitAdapter;
+import net.william278.huskhomes.util.BukkitTask;
+import net.william278.huskhomes.util.Task;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
@@ -158,6 +162,20 @@ public class BukkitUser extends OnlineUser {
                 .map(MetadataValue::asBoolean)
                 .findFirst()
                 .orElse(false);
+    }
+
+    /**
+     * Handles player invulnerability after teleporting
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.setInvulnerable(true);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
     }
 
     /**

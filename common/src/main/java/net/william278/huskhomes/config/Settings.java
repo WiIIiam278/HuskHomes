@@ -140,6 +140,9 @@ public final class Settings {
         @Comment("Where the teleport warmup timer should display (CHAT, ACTION_BAR, TITLE, SUBTITLE or NONE)")
         private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
 
+        @Comment("How long the player should be invulnerable for after teleporting (in seconds)")
+        private int teleportInvulnerabilityTime = 0;
+
         @Comment("How long before received teleport requests expire (in seconds)")
         private int teleportRequestExpiryTime = 60;
 

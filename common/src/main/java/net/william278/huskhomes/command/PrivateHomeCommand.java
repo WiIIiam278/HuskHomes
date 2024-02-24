@@ -48,7 +48,7 @@ public class PrivateHomeCommand extends HomeCommand {
                 super.execute(executor, homes.get(0), args);
                 return;
             }
-            plugin.getCommand(PrivateHomeListCommand.class)
+            plugin.getCommand(HomeListCommand.class)
                     .ifPresent(command -> command.showHomeList(executor, user.getUsername(), 1));
             return;
         }

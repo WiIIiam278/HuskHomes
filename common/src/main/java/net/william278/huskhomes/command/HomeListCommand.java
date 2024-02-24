@@ -34,9 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PrivateHomeListCommand extends ListCommand {
+public class HomeListCommand extends ListCommand {
 
-    protected PrivateHomeListCommand(@NotNull HuskHomes plugin) {
+    protected HomeListCommand(@NotNull HuskHomes plugin) {
         super("homelist", List.of("homes"), "[player] [page]", plugin);
         addAdditionalPermissions(Map.of("other", true));
     }

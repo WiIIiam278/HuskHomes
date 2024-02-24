@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.command;
 
+import de.themoep.minedown.adventure.MineDown;
+import de.themoep.minedown.adventure.MineDownParser;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Home;
@@ -110,6 +112,8 @@ public class HomeListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
                                         Locales.escapeText(home.getName()), home.getSafeIdentifier(),
+                                        home.isPublic() ? plugin.getLocales().getRawLocale("home_is_public").orElse("&#00fb9a&Public"):
+                                                plugin.getLocales().getRawLocale("home_is_private").orElse("&#239e6f&Private"),
                                         Locales.escapeText(home.getMeta().getDescription()))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()

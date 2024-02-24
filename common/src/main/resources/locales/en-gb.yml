@@ -64,8 +64,10 @@ locales:
   public_home_list_page_title: '[☀ Public Homes:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n'
   warp_list_page_title: '[Warps:](#00fb9a) [(%1%-%2% of](#00fb9a) [%3%](#00fb9a bold)[)](#00fb9a)\n'
   command_list_title: '[HuskHomes](#00fb9a bold) [| Command List](#00fb9a)\n'
-  home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:edithome %2%)'
+  home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7Status: %3%\n&7ℹ %4% run_command=/huskhomes:edithome %2%)'
   public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:phome %2%)'
+  home_is_public: "&#00fb9a&Public"
+  home_is_private: "&#239e6f&Private"
   warp_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7ℹ %3% run_command=/huskhomes:warp %2%)'
   command_list_item: '[/%1%](#00fb9a show_text=&7Click to suggest command suggest_command=/%1%)   [%2%](gray show_text=&#00fb9a&/%1%\n&7%3%)'
   list_item_divider: ' [•](gray) '

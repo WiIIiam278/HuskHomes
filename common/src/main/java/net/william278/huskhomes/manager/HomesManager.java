@@ -98,6 +98,13 @@ public class HomesManager {
                 .toList();
     }
 
+    @NotNull
+    public List<String> getPublicHomeIdentifiersReverse() {
+        return publicHomes.stream()
+                .map(Home::getIdentifierReverse)
+                .toList();
+    }
+
     /**
      * Cache user homes for a given user.
      *

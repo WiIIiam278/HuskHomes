@@ -179,6 +179,9 @@ public final class Settings {
 
             @Comment("Regex which home and warp names must match. Names have a max length of 16 characters")
             private String regex = "[a-zA-Z0-9-_]*";
+
+            @Comment("Whether to change the order of username and homename for phome commands default is Username.Homename, if true will be Homename.Username")
+            private boolean reversePHomeNaming = false;
         }
 
         @Comment("Settings for home and warp descriptions")

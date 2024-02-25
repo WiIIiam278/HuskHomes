@@ -213,7 +213,6 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
 
     /**
      * Handles player invulnerability after teleporting
-     *
      */
     public abstract void handleInvulnerability();
 

@@ -140,7 +140,7 @@ public class SpongeUser extends OnlineUser {
             return;
         }
         long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
-        player.invulnerable().set(true);
+        player.invulnerable().set(false);
         // Remove the invulnerability
         plugin.runSyncDelayed(() -> player.invulnerable().set(true), invulnerabilityTimeInTicks);
     }

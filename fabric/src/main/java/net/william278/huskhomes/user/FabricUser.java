@@ -32,13 +32,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
-import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportationException;
-import net.william278.huskhomes.util.FabricTask;
-import net.william278.huskhomes.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

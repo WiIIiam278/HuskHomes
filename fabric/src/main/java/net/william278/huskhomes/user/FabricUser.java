@@ -165,7 +165,7 @@ public class FabricUser extends OnlineUser {
     }
 
     /**
-     * Handles player invulnerability after teleporting
+     * Handles player invulnerability after teleporting.
      */
     @Override
     public void handleInvulnerability() {

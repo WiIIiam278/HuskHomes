@@ -131,4 +131,18 @@ public class SpongeUser extends OnlineUser {
         return false;
     }
 
+    /**
+     * Handles player invulnerability after teleporting
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.invulnerable().set(false);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.invulnerable().set(true), invulnerabilityTimeInTicks);
+    }
+
 }

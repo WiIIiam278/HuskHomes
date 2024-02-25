@@ -212,6 +212,11 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract boolean isVanished();
 
     /**
+     * Handles player invulnerability after teleporting
+     */
+    public abstract void handleInvulnerability();
+
+    /**
      * Get the maximum number of homes this user may set.
      *
      * @param defaultMaxHomes the default maximum number of homes if the user has not set a custom value

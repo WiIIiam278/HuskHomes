@@ -164,6 +164,21 @@ public class FabricUser extends OnlineUser {
         return false;
     }
 
+    /**
+     * Handles player invulnerability after teleporting
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.setInvulnerable(true);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+    }
+
+
     @NotNull
     private static Identifier parseIdentifier(@NotNull String channel) {
         if (channel.equals("BungeeCord")) {

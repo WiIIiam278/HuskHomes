@@ -95,9 +95,9 @@ public class Teleport implements Completable {
                     if (updateLastPosition) {
                         plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
                     }
-
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
                     this.displayTeleportingComplete(teleporter);
+                    teleporter.handleInvulnerability();
                 });
                 return;
             }
@@ -127,6 +127,7 @@ public class Teleport implements Completable {
                     || target.getServer().equals(plugin.getServerName())) {
                 teleporter.teleportLocally(target, async);
                 this.displayTeleportingComplete(teleporter);
+                teleporter.handleInvulnerability();
                 return;
             }
 

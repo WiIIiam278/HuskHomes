@@ -393,7 +393,7 @@ public final class Settings {
     public static class MapHookSettings {
 
         @Comment("Display public homes/warps on your Dynmap, BlueMap or Pl3xMap")
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         @Comment("Show public homes on the web map")
         private boolean showPublicHomes = true;

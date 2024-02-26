@@ -212,7 +212,9 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract boolean isVanished();
 
     /**
-     * Handles player invulnerability after teleporting
+     * Handles player invulnerability after teleporting.
+     *
+     * @since 4.6.2
      */
     public abstract void handleInvulnerability();
 

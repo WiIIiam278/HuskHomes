@@ -24,6 +24,9 @@ import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
+
+import static net.william278.huskhomes.position.Home.IDENTIFIER_DELIMITER;
 
 public class PublicHomeCommand extends HomeCommand implements TabProvider {
 
@@ -39,6 +42,16 @@ public class PublicHomeCommand extends HomeCommand implements TabProvider {
                     .ifPresent(command -> command.showPublicHomeList(executor, 1));
             return;
         }
+        if(plugin.getSettings().getGeneral().getNames().isReversePHomeNaming()) {
+            final Optional<String> name = parseStringArg(args, 0);
+            if (name.isPresent()) {
+                if (name.get().contains(IDENTIFIER_DELIMITER)) {
+                    String home = name.get().substring(0, name.get().indexOf(IDENTIFIER_DELIMITER));
+                    String owner = name.get().substring(name.get().indexOf(IDENTIFIER_DELIMITER) + 1);
+                    args[0] = owner + IDENTIFIER_DELIMITER + home;
+                }
+            }
+        }
         super.execute(executor, args);
     }
 
@@ -46,7 +59,12 @@ public class PublicHomeCommand extends HomeCommand implements TabProvider {
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
         if (args.length <= 2) {
-            return filter(plugin.getManager().homes().getPublicHomeIdentifiers(), args);
+            if(!plugin.getSettings().getGeneral().getNames().isReversePHomeNaming()){
+                return filter(plugin.getManager().homes().getPublicHomeIdentifiers(), args);
+            }
+            else{
+                return filter(plugin.getManager().homes().getPublicHomeIdentifiersReverse(), args);
+            }
         }
         return List.of();
     }

@@ -137,6 +137,11 @@ public class Home extends SavedPosition {
         return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
     }
 
+    @NotNull
+    public String getSafeIdentifierReverse() {
+        return super.getSafeIdentifier() + IDENTIFIER_DELIMITER + getOwner().getUsername();
+    }
+
     /**
      * Get the canonical home identifier string.
      *
@@ -149,6 +154,11 @@ public class Home extends SavedPosition {
     @Override
     public String getIdentifier() {
         return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getIdentifier();
+    }
+
+    @NotNull
+    public String getIdentifierReverse() {
+        return super.getIdentifier() + IDENTIFIER_DELIMITER + getOwner().getUsername();
     }
 
 }

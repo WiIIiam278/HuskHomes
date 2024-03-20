@@ -1,3 +1,0 @@
-HuskHomes lets you define one global cross-server `/spawn` point, for server networks who wish to define just one spawn position. This function uses a `/warp` to act as the cross-server spawn position.
-
-To enable global /spawn, your network must first be correctly configured in `cross_server` mode. Then, enable `global_spawn` under the `cross_server` section. You can additionally configure the name of the warp to use by modifying the `warp_name` parameter (default: `'Spawn'`).

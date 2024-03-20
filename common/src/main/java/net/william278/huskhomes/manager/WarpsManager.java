@@ -79,7 +79,7 @@ public class WarpsManager {
     }
 
     private void propagateCacheUpdate(@NotNull UUID warpId) {
-        if (plugin.getSettings().doCrossServer()) {
+        if (plugin.getSettings().getCrossServer().isEnabled()) {
             plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
                     .type(Message.Type.UPDATE_WARP)
                     .scope(Message.Scope.SERVER)
@@ -103,7 +103,8 @@ public class WarpsManager {
 
     @NotNull
     public List<String> getUsableWarps(@NotNull CommandUser user) {
-        if (!plugin.getSettings().doPermissionRestrictWarps() || user.hasPermission(Warp.getWildcardPermission())) {
+        if (!plugin.getSettings().getGeneral().isPermissionRestrictWarps()
+                || user.hasPermission(Warp.getWildcardPermission())) {
             return getWarps();
         }
         return warps.stream()
@@ -137,7 +138,7 @@ public class WarpsManager {
 
     @NotNull
     public Warp createWarp(@NotNull String name, @NotNull Position position) throws ValidationException {
-        return this.createWarp(name, position, plugin.getSettings().doOverwriteExistingHomesWarps());
+        return this.createWarp(name, position, plugin.getSettings().getGeneral().getNames().isOverwriteExisting());
     }
 
     public void deleteWarp(@NotNull String name) throws ValidationException {
@@ -169,7 +170,7 @@ public class WarpsManager {
     public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
         final int deleted = plugin.getDatabase().deleteAllWarps(worldName, serverName);
         warps.removeIf(warp -> warp.getServer().equals(serverName) && warp.getWorld().getName().equals(worldName));
-        if (plugin.getSettings().doCrossServer() && plugin.getServerName().equals(serverName)) {
+        if (plugin.getSettings().getCrossServer().isEnabled() && plugin.getServerName().equals(serverName)) {
             plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
         }
         plugin.getCommands().stream()

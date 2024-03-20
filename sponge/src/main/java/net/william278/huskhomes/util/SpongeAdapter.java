@@ -25,7 +25,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.world.WorldTypeTemplate;
+import org.spongepowered.api.registry.DefaultedRegistryType;
+import org.spongepowered.api.world.WorldType;
+import org.spongepowered.api.world.WorldTypes;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
@@ -75,13 +77,18 @@ public final class SpongeAdapter {
         if (world == null) {
             return Optional.empty();
         }
-        final String worldType = world.properties().worldType().asTemplate().key().asString();
+
+        // Get the world type from the world properties
+        final DefaultedRegistryType<WorldType> registry = WorldTypes.registry().type().asDefaultedType(world::engine);
         return Optional.of(World.from(
-                world.key().toString(), world.uniqueId(),
-                (worldType.equals(WorldTypeTemplate.theNether().key().toString()) ? World.Environment.NETHER
-                        : worldType.equals(WorldTypeTemplate.theEnd().key().toString()) ? World.Environment.THE_END
-                        : worldType.equals(WorldTypeTemplate.overworld().key().toString()) ? World.Environment.OVERWORLD
-                        : World.Environment.CUSTOM)
+                world.key().toString(),
+                world.uniqueId(),
+                switch (world.properties().worldType().key(registry).asString()) {
+                    case "minecraft:overworld" -> World.Environment.OVERWORLD;
+                    case "minecraft:the_nether" -> World.Environment.NETHER;
+                    case "minecraft:the_end" -> World.Environment.THE_END;
+                    default -> World.Environment.CUSTOM;
+                }
         ));
     }
 

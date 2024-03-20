@@ -22,13 +22,13 @@ package net.william278.huskhomes.api;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -52,8 +52,12 @@ import java.util.stream.Collectors;
  * This class should not be used directly, but rather through platform-specific extending API classes.
  */
 @SuppressWarnings("unused")
-public abstract class BaseHuskHomesAPI {
+public class BaseHuskHomesAPI {
 
+    /**
+     * <b>(Internal use only)</b> - API instance.
+     */
+    protected static BaseHuskHomesAPI instance;
     /**
      * <b>(Internal use only)</b> - Instance of the implementing plugin.
      */
@@ -188,7 +192,8 @@ public abstract class BaseHuskHomesAPI {
      * @since 3.0
      */
     public CompletableFuture<Optional<Position>> getUserRespawnPosition(@NotNull User user) {
-        if (!plugin.getSettings().doCrossServer() || plugin.getSettings().isGlobalRespawning()) {
+        final Settings.CrossServerSettings settings = plugin.getSettings().getCrossServer();
+        if (!settings.isEnabled() || settings.isGlobalRespawning()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
         return plugin.supplyAsync(() -> plugin.getDatabase().getRespawnPosition(user));
@@ -767,18 +772,10 @@ public abstract class BaseHuskHomesAPI {
                         throw new IllegalStateException("Random teleport engine returned an empty position");
                     }
 
-                    final TeleportBuilder builder = Teleport.builder(plugin)
+                    Teleport.builder(plugin)
                             .teleporter(user)
-                            .target(position.get());
-                    try {
-                        if (timedTeleport) {
-                            builder.toTimedTeleport().execute();
-                        } else {
-                            builder.toTeleport().execute();
-                        }
-                    } catch (TeleportationException e) {
-                        e.displayMessage(user, rtpArgs);
-                    }
+                            .target(position.get())
+                            .buildAndComplete(timedTeleport);
                 }).exceptionally(e -> {
                     throw new IllegalStateException("Random teleport engine threw an exception", e);
                 });
@@ -835,9 +832,34 @@ public abstract class BaseHuskHomesAPI {
     }
 
     /**
+     * Get an instance of the HuskHomes API.
+     *
+     * @return instance of the HuskHomes API
+     * @throws NotRegisteredException if the API has not yet been registered.
+     * @since 1.0
+     */
+    @NotNull
+    public static BaseHuskHomesAPI getInstance() throws NotRegisteredException {
+        if (instance == null) {
+            throw new NotRegisteredException();
+        }
+        return instance;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API instance.
+     *
+     * @since 1.0
+     */
+    @ApiStatus.Internal
+    public static void unregister() {
+        instance = null;
+    }
+
+    /**
      * An exception indicating the plugin has been accessed before it has been registered.
      */
-    static final class NotRegisteredException extends IllegalStateException {
+    public static final class NotRegisteredException extends IllegalStateException {
 
         private static final String MESSAGE = """
                 Could not access the HuskHomes API as it has not yet been registered. This could be because:

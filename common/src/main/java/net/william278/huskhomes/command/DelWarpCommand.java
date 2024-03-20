@@ -44,7 +44,8 @@ public class DelWarpCommand extends SavedPositionCommand<Warp> {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull Warp warp, @NotNull String[] args) {
-        if (plugin.getSettings().doPermissionRestrictWarps() && !executor.hasPermission(warp.getPermission())
+        if (plugin.getSettings().getGeneral().isPermissionRestrictWarps()
+                && !executor.hasPermission(warp.getPermission())
                 && !executor.hasPermission(Warp.getWildcardPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);

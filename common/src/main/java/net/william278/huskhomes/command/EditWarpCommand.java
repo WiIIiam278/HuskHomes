@@ -157,11 +157,11 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
         if (!warp.getMeta().getDescription().isEmpty()) {
             plugin.getLocales().getLocale("edit_warp_menu_description",
                             plugin.getLocales().truncateText(warp.getMeta().getDescription(), 50),
-                            plugin.getLocales().wrapText(warp.getMeta().getDescription(), 40))
+                            warp.getMeta().getDescription())
                     .ifPresent(messages::add);
         }
 
-        if (!plugin.getSettings().doCrossServer()) {
+        if (!plugin.getSettings().getCrossServer().isEnabled()) {
             plugin.getLocales().getLocale("edit_warp_menu_world",
                     warp.getWorld().getName()).ifPresent(messages::add);
         } else {

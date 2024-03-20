@@ -26,7 +26,6 @@ import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportRequest;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -117,7 +116,8 @@ public class RequestsManager {
     }
 
     public void sendTeleportAllRequest(@NotNull OnlineUser requester) {
-        final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
+        final long expiry = Instant.now().getEpochSecond()
+                + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
         for (OnlineUser onlineUser : plugin.getOnlineUsers()) {
             if (onlineUser.equals(requester)) {
@@ -127,7 +127,7 @@ public class RequestsManager {
             sendLocalTeleportRequest(request, onlineUser);
         }
 
-        if (plugin.getSettings().doCrossServer()) {
+        if (plugin.getSettings().getCrossServer().isEnabled()) {
             Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST)
                     .payload(Payload.withTeleportRequest(request))
@@ -145,7 +145,8 @@ public class RequestsManager {
      */
     public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
                                     @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
-        final long expiry = Instant.now().getEpochSecond() + plugin.getSettings().getTeleportRequestExpiryTime();
+        final long expiry = Instant.now().getEpochSecond()
+                + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
         final Optional<OnlineUser> localTarget = plugin.getOnlineUser(targetUser);
         if (localTarget.isPresent()) {
@@ -161,7 +162,7 @@ public class RequestsManager {
         }
 
         // If the player couldn't be found locally, send the request cross-server
-        if (plugin.getSettings().doCrossServer()) {
+        if (plugin.getSettings().getCrossServer().isEnabled()) {
             request.setRecipientName(targetUser);
             plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request), (event -> Message.builder()
                     .type(Message.Type.TELEPORT_REQUEST)
@@ -204,7 +205,8 @@ public class RequestsManager {
                     .ifPresent(recipient::sendMessage);
             plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
-            plugin.getSettings().getSoundEffect(Settings.SoundEffectAction.TELEPORT_REQUEST_RECEIVED)
+            plugin.getSettings().getGeneral().getSoundEffects()
+                    .get(Settings.SoundEffectAction.TELEPORT_REQUEST_RECEIVED)
                     .ifPresent(recipient::playSound);
         }));
     }
@@ -286,15 +288,16 @@ public class RequestsManager {
 
         // Fire event and send request response confirmation to the recipient
         plugin.fireEvent(plugin.getReplyTeleportRequestEvent(recipient, request), (event -> {
-            plugin.getLocales().getLocale("teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
-                            request.getRequesterName())
-                    .ifPresent(recipient::sendMessage);
+            plugin.getLocales().getLocale(
+                    "teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
+                    request.getRequesterName()
+            ).ifPresent(recipient::sendMessage);
 
             // Find the requester and inform them of the response
             final Optional<OnlineUser> localRequester = plugin.getOnlineUserExact(request.getRequesterName());
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
-            } else if (plugin.getSettings().doCrossServer()) {
+            } else if (plugin.getSettings().getCrossServer().isEnabled()) {
                 Message.builder()
                         .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
                         .payload(Payload.withTeleportRequest(request))
@@ -314,17 +317,12 @@ public class RequestsManager {
                         .teleporter(recipient);
 
                 // Strict /tpahere requests will teleport to where the sender was when typing the command
-                if (plugin.getSettings().doStrictTpaHereRequests()) {
+                if (plugin.getSettings().getGeneral().isStrictTpaHereRequests()) {
                     builder.target(request.getRequesterPosition());
                 } else {
                     builder.target(request.getRequesterName());
                 }
-
-                try {
-                    builder.toTimedTeleport().execute();
-                } catch (TeleportationException e) {
-                    e.displayMessage(recipient);
-                }
+                builder.buildAndComplete(true);
             }
         }));
     }
@@ -350,16 +348,11 @@ public class RequestsManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.getType() == TeleportRequest.Type.TPA)) {
-            try {
-                Teleport.builder(plugin)
-                        .teleporter(requester)
-                        .target(request.getRecipientName())
-                        .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
-                        .toTimedTeleport()
-                        .execute();
-            } catch (TeleportationException e) {
-                e.displayMessage(requester);
-            }
+            Teleport.builder(plugin)
+                    .teleporter(requester)
+                    .target(request.getRecipientName())
+                    .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
+                    .buildAndComplete(true);
         }
     }
 

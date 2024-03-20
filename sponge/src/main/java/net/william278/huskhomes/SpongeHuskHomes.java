@@ -19,9 +19,13 @@
 
 package net.william278.huskhomes;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
-import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.SpongeCommand;
@@ -41,7 +45,6 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
-import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -71,20 +74,19 @@ import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataHandler;
-import org.spongepowered.math.vector.Vector3i;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Plugin("huskhomes")
 public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSafetyResolver, SpongeEventDispatcher,
         RawPlayDataHandler<EngineConnection> {
@@ -95,17 +97,21 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private static final int METRICS_ID = 18423;
     private static final ResourceKey PLUGIN_MESSAGE_CHANNEL_KEY = ResourceKey.of("bungeecord", "main");
 
+    private final Set<SavedUser> savedUsers = Sets.newHashSet();
+    private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
+    private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
+
     @Inject
     @ConfigDir(sharedRoot = false)
-    private Path pluginDirectory;
+    private Path configDirectory;
     @Inject
     private PluginContainer pluginContainer;
     @Inject
     private Game game;
     @Inject
     private Metrics.Factory metricsFactory;
+    private RawPlayDataChannel pluginMessageChannel;
 
-    private Set<SavedUser> savedUsers;
     private Settings settings;
     private Locales locales;
     private Database database;
@@ -116,31 +122,22 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
     private List<SpongeCommand> commands;
-    private Map<String, List<String>> globalPlayerList;
-    private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
     private Broker broker;
-    private RawPlayDataChannel channel;
 
     @Listener
     public void onConstructPlugin(final ConstructPluginEvent event) {
         // Get plugin version from mod container
-        this.savedUsers = new HashSet<>();
-        this.globalPlayerList = new HashMap<>();
-        this.currentlyOnWarmup = new HashSet<>();
         this.validator = new Validator(this);
 
         // Load settings and locales
-        initialize("plugin config & locale files", (plugin) -> {
-            if (!loadConfigs()) {
-                throw new IllegalStateException("Failed to load config files. Please check the console for errors");
-            }
-        });
+        initialize("plugin config & locale files", (plugin) -> loadConfigs());
 
         // Initialize the database
-        initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
-            this.database = switch (getSettings().getDatabaseType()) {
+        final Database.Type type = getSettings().getDatabase().getType();
+        initialize(type.getDisplayName() + " database connection", (plugin) -> {
+            this.database = switch (type) {
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
                 case H2 -> new H2Database(this);
@@ -150,9 +147,10 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         });
 
         // Initialize the network messenger if proxy mode is enabled
-        if (getSettings().doCrossServer()) {
-            initialize(settings.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
-                broker = switch (settings.getBrokerType()) {
+        final Settings.CrossServerSettings crossServer = getSettings().getCrossServer();
+        if (crossServer.isEnabled()) {
+            initialize(crossServer.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
+                broker = switch (crossServer.getBrokerType()) {
                     case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
                     case REDIS -> new RedisBroker(this);
                 };
@@ -236,105 +234,20 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return game.server().player(user).map(player -> (Audience) player).orElse(Audience.empty());
     }
 
-    @NotNull
-    @Override
-    public Set<SavedUser> getSavedUsers() {
-        return savedUsers;
-    }
-
-    @NotNull
-    @Override
-    public Settings getSettings() {
-        return settings;
-    }
-
-    @Override
-    public void setSettings(@NotNull Settings settings) {
-        this.settings = settings;
-    }
-
-    @NotNull
-    @Override
-    public Locales getLocales() {
-        return locales;
-    }
-
-    @Override
-    public void setLocales(@NotNull Locales locales) {
-        this.locales = locales;
-    }
-
     @Override
     public Optional<Spawn> getServerSpawn() {
         return Optional.ofNullable(serverSpawn);
     }
 
-    @Override
-    public void setServerSpawn(@NotNull Spawn spawn) {
-        this.serverSpawn = spawn;
-    }
-
-    @Override
-    public void setServerSpawn(@NotNull Location location) {
-        try {
-            // Create or update the spawn.yml file
-            final File spawnFile = new File(getDataFolder(), "spawn.yml");
-            if (spawnFile.exists() && !spawnFile.delete()) {
-                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
-            }
-            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
-
-            // Update the world spawn location, too
-            game.server().worldManager().worlds().forEach(world -> {
-                if (world.properties().key().asString().equals(location.getWorld().getName())) {
-                    world.properties().setSpawnPosition(Vector3i.from(
-                            (int) location.getX(), (int) location.getY(), (int) location.getZ())
-                    );
-                }
-            });
-        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log(Level.WARNING, "Failed to save the server spawn.yml file", e);
-        }
-    }
-
     @NotNull
     @Override
     public String getServerName() {
-        return server.getName();
+        return server == null ? "server" : server.getName();
     }
 
     @Override
-    public void setServer(@NotNull Server server) {
+    public void setServerName(@NotNull Server server) {
         this.server = server;
-    }
-
-    @Override
-    public void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks) {
-        this.unsafeBlocks = unsafeBlocks;
-    }
-
-    @NotNull
-    @Override
-    public UnsafeBlocks getUnsafeBlocks() {
-        return unsafeBlocks;
-    }
-
-    @NotNull
-    @Override
-    public Database getDatabase() {
-        return database;
-    }
-
-    @NotNull
-    @Override
-    public Validator getValidator() {
-        return validator;
-    }
-
-    @NotNull
-    @Override
-    public Manager getManager() {
-        return manager;
     }
 
     @NotNull
@@ -346,34 +259,13 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return broker;
     }
 
-    @NotNull
-    @Override
-    public RandomTeleportEngine getRandomTeleportEngine() {
-        return randomTeleportEngine;
-    }
-
-    @Override
-    public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
-        this.randomTeleportEngine = randomTeleportEngine;
-    }
-
-    @NotNull
-    @Override
-    public List<Hook> getHooks() {
-        return hooks;
-    }
-
-    @Override
-    public void setHooks(@NotNull List<Hook> hooks) {
-        this.hooks = hooks;
-    }
-
     @Override
     public void registerHooks() {
         HuskHomes.super.registerHooks();
 
         // Register the sponge economy service if it is available
-        if (getSettings().doEconomy() && getGame().server().serviceProvider().economyService().isPresent()) {
+        if (getSettings().getEconomy().isEnabled()
+                && getGame().server().serviceProvider().economyService().isPresent()) {
             getHooks().add(new SpongeEconomyHook(this));
         }
     }
@@ -381,14 +273,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @Nullable
     @Override
     public InputStream getResource(@NotNull String name) {
-        return pluginContainer.openResource(URI.create(name))
-                .orElse(null);
-    }
-
-    @NotNull
-    @Override
-    public File getDataFolder() {
-        return pluginDirectory.toFile();
+        return pluginContainer.openResource(URI.create(name)).orElse(null);
     }
 
     @NotNull
@@ -429,18 +314,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return game.pluginManager().plugin(name).isPresent();
     }
 
-    @NotNull
-    @Override
-    public Map<String, List<String>> getGlobalPlayerList() {
-        return globalPlayerList;
-    }
-
-    @NotNull
-    @Override
-    public Set<UUID> getCurrentlyOnWarmup() {
-        return currentlyOnWarmup;
-    }
-
     @Override
     public void registerMetrics(int metricsId) {
         if (!getVersion().getMetadata().isBlank()) {
@@ -450,19 +323,20 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         try {
             final Metrics metrics = metricsFactory.make(METRICS_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
-                    () -> Boolean.toString(getSettings().doCrossServer())));
-            if (getSettings().doCrossServer()) {
+                    () -> Boolean.toString(getSettings().getCrossServer().isEnabled())));
+            if (getSettings().getCrossServer().isEnabled()) {
                 metrics.addCustomChart(new SimplePie("messenger_type",
-                        () -> getSettings().getBrokerType().getDisplayName()));
+                        () -> getSettings().getCrossServer().getBrokerType().getDisplayName())
+                );
             }
             metrics.addCustomChart(new SimplePie("language",
                     () -> getSettings().getLanguage().toLowerCase()));
             metrics.addCustomChart(new SimplePie("database_type",
-                    () -> getSettings().getDatabaseType().getDisplayName()));
+                    () -> getSettings().getDatabase().getType().getDisplayName()));
             metrics.addCustomChart(new SimplePie("using_economy",
-                    () -> Boolean.toString(getSettings().doEconomy())));
+                    () -> Boolean.toString(getSettings().getEconomy().isEnabled())));
             metrics.addCustomChart(new SimplePie("using_map",
-                    () -> Boolean.toString(getSettings().doMapHook())));
+                    () -> Boolean.toString(getSettings().getMapHook().isEnabled())));
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
         } catch (Throwable e) {
             log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
@@ -471,8 +345,10 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @Override
     public void initializePluginChannels() {
-        this.channel = game.channelManager().ofType(PLUGIN_MESSAGE_CHANNEL_KEY, RawDataChannel.class).play();
-        this.channel.addHandler(this);
+        this.pluginMessageChannel = game.channelManager().ofType(
+                PLUGIN_MESSAGE_CHANNEL_KEY, RawDataChannel.class
+        ).play();
+        this.pluginMessageChannel.addHandler(this);
     }
 
     @Override
@@ -491,7 +367,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         final SpongeUser user = (SpongeUser) playerConnection.get();
         final String channel = pluginMessage.readUTF();
         if (broker instanceof PluginMessageBroker messenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(channel, user, pluginMessage.readBytes(pluginMessage.available()));
         }
     }
@@ -510,23 +386,9 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     }
 
     @NotNull
-    public PluginContainer getPluginContainer() {
-        return pluginContainer;
-    }
-
-    @NotNull
-    public Game getGame() {
-        return game;
-    }
-
-    @NotNull
-    public RawPlayDataChannel getPluginMessageChannel() {
-        return channel;
-    }
-
-    @NotNull
     @Override
     public SpongeHuskHomes getPlugin() {
         return this;
     }
+
 }

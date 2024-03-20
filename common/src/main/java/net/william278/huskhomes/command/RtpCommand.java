@@ -23,7 +23,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
@@ -73,7 +72,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
             case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(args)
                     : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
             case 2 -> user.hasPermission("world") ? plugin.getWorlds().stream()
-                    .filter(w -> !plugin.getSettings().isWorldRtpRestricted(w))
+                    .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
                     .map(World::getName).toList() : List.of();
             default -> null;
         };
@@ -118,7 +117,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
-        if (plugin.getSettings().isWorldRtpRestricted(world)) {
+        if (plugin.getSettings().getRtp().isWorldRtpRestricted(world)) {
             plugin.getLocales().getLocale("error_rtp_restricted_world")
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -154,15 +153,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
                             .teleporter(teleporter)
                             .actions(TransactionResolver.Action.RANDOM_TELEPORT)
                             .target(position.get());
-                    try {
-                        if (executor.equals(teleporter)) {
-                            builder.toTimedTeleport().execute();
-                        } else {
-                            builder.toTeleport().execute();
-                        }
-                    } catch (TeleportationException e) {
-                        e.displayMessage(executor, args);
-                    }
+                    builder.buildAndComplete(executor.equals(teleporter), args);
                 });
     }
 

@@ -96,7 +96,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         }
 
         // Register commodore TAB completion
-        if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
+        if (CommodoreProvider.isSupported() && plugin.getSettings().getGeneral().isBrigadierTabCompletion()) {
             BrigadierUtil.registerCommodore(plugin, this, command);
         }
     }
@@ -136,7 +136,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
     public enum Type {
         HOME_COMMAND(PrivateHomeCommand::new),
         SET_HOME_COMMAND(SetHomeCommand::new),
-        HOME_LIST_COMMAND(PrivateHomeListCommand::new),
+        HOME_LIST_COMMAND(HomeListCommand::new),
         DEL_HOME_COMMAND(DelHomeCommand::new),
         EDIT_HOME_COMMAND(EditHomeCommand::new),
         PUBLIC_HOME_COMMAND(PublicHomeCommand::new),

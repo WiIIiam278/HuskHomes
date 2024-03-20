@@ -19,7 +19,12 @@
 
 package net.william278.huskhomes;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBufUtil;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -34,8 +39,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
@@ -48,6 +51,8 @@ import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.database.MySqlDatabase;
 import net.william278.huskhomes.database.SqLiteDatabase;
 import net.william278.huskhomes.event.FabricEventDispatcher;
+import net.william278.huskhomes.hook.FabricImpactorEconomyHook;
+import net.william278.huskhomes.hook.FabricPlaceholderAPIHook;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.FabricEventListener;
@@ -55,7 +60,6 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
-import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -73,26 +77,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggingEventBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
         FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
-
+    private final Map<String, Boolean> permissions = Maps.newHashMap();
+    private final Set<SavedUser> savedUsers = Sets.newHashSet();
+    private final ConcurrentMap<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
+    private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
     private MinecraftServer minecraftServer;
-    private Map<String, Boolean> permissions;
-    private Set<SavedUser> savedUsers;
+
     private Settings settings;
     private Locales locales;
     private Database database;
@@ -104,8 +113,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private UnsafeBlocks unsafeBlocks;
     private List<Hook> hooks;
     private List<Command> commands;
-    private ConcurrentHashMap<String, List<String>> globalPlayerList;
-    private Set<UUID> currentlyOnWarmup;
     private Server server;
     @Nullable
     private Broker broker;
@@ -114,18 +121,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public void onInitializeServer() {
         // Get plugin version from mod container
-        this.permissions = new HashMap<>();
-        this.savedUsers = new HashSet<>();
-        this.globalPlayerList = new ConcurrentHashMap<>();
-        this.currentlyOnWarmup = new HashSet<>();
         this.validator = new Validator(this);
 
         // Load settings and locales
-        initialize("plugin config & locale files", (plugin) -> {
-            if (!loadConfigs()) {
-                throw new IllegalStateException("Failed to load config files. Please check the console for errors");
-            }
-        });
+        initialize("plugin config & locale files", (plugin) -> loadConfigs());
 
         // Pre-register commands
         initialize("commands", (plugin) -> this.commands = registerCommands());
@@ -142,8 +141,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.audiences = FabricServerAudiences.of(minecraftServer);
 
         // Initialize the database
-        initialize(getSettings().getDatabaseType().getDisplayName() + " database connection", (plugin) -> {
-            this.database = switch (getSettings().getDatabaseType()) {
+        final Database.Type type = getSettings().getDatabase().getType();
+        initialize(type.getDisplayName() + " database connection", (plugin) -> {
+            this.database = switch (type) {
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
                 case H2 -> new H2Database(this);
@@ -156,9 +156,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.manager = new Manager(this);
 
         // Initialize the network messenger if proxy mode is enabled
-        if (getSettings().doCrossServer()) {
-            initialize(settings.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
-                broker = switch (settings.getBrokerType()) {
+        final Settings.CrossServerSettings crossServer = getSettings().getCrossServer();
+        if (crossServer.isEnabled()) {
+            initialize(crossServer.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
+                broker = switch (crossServer.getBrokerType()) {
                     case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
                     case REDIS -> new RedisBroker(this);
                 };
@@ -190,6 +191,20 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
 
         this.checkForUpdates();
+    }
+
+    @Override
+    public void registerHooks() {
+        HuskHomes.super.registerHooks();
+
+        // Register the impactor economy service if it is available
+        if (getSettings().getEconomy().isEnabled() && isDependencyLoaded("impactor")) {
+            getHooks().add(new FabricImpactorEconomyHook(this));
+        }
+
+        if (isDependencyLoaded("placeholder-api")) {
+            getHooks().add(new FabricPlaceholderAPIHook(this));
+        }
     }
 
     private void onDisable() {
@@ -230,102 +245,19 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    @NotNull
-    public Set<SavedUser> getSavedUsers() {
-        return savedUsers;
-    }
-
-    @Override
-    @NotNull
-    public Settings getSettings() {
-        return settings;
-    }
-
-    @Override
-    public void setSettings(@NotNull Settings settings) {
-        this.settings = settings;
-    }
-
-    @Override
-    @NotNull
-    public Locales getLocales() {
-        return locales;
-    }
-
-    @Override
-    public void setLocales(@NotNull Locales locales) {
-        this.locales = locales;
-    }
-
-    @Override
     public Optional<Spawn> getServerSpawn() {
         return Optional.ofNullable(serverSpawn);
     }
 
     @Override
-    public void setServerSpawn(@NotNull Spawn spawn) {
-        this.serverSpawn = spawn;
-    }
-
-    @Override
-    public void setServerSpawn(@NotNull Location location) {
-        try {
-            // Create or update the spawn.yml file
-            final File spawnFile = new File(getDataFolder(), "spawn.yml");
-            if (spawnFile.exists() && !spawnFile.delete()) {
-                log(Level.WARNING, "Failed to delete the existing spawn.yml file");
-            }
-            this.serverSpawn = Annotaml.create(spawnFile, new Spawn(location)).get();
-
-            // Update the world spawn location, too
-            minecraftServer.getWorlds().forEach(world -> {
-                if (world.getRegistryKey().getValue().asString().equals(location.getWorld().getName())) {
-                    world.setSpawnPos(BlockPos.ofFloored(location.getX(), location.getY(), location.getZ()), 0);
-                }
-            });
-        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log(Level.WARNING, "Failed to save the server spawn.yml file", e);
-        }
-    }
-
-    @Override
     @NotNull
     public String getServerName() {
-        return server.getName();
+        return server == null ? "server" : server.getName();
     }
 
     @Override
-    public void setServer(@NotNull Server server) {
+    public void setServerName(@NotNull Server server) {
         this.server = server;
-    }
-
-    @Override
-    public void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks) {
-        this.unsafeBlocks = unsafeBlocks;
-    }
-
-    @NotNull
-    @Override
-    public UnsafeBlocks getUnsafeBlocks() {
-        return unsafeBlocks;
-    }
-
-    @Override
-    @NotNull
-    public Database getDatabase() {
-        return database;
-    }
-
-    @Override
-    @NotNull
-    public Validator getValidator() {
-        return validator;
-    }
-
-    @Override
-    @NotNull
-    public Manager getManager() {
-        return manager;
     }
 
     @Override
@@ -335,28 +267,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             throw new IllegalStateException("Attempted to access message broker when it was not initialized");
         }
         return broker;
-    }
-
-    @Override
-    @NotNull
-    public RandomTeleportEngine getRandomTeleportEngine() {
-        return randomTeleportEngine;
-    }
-
-    @Override
-    public void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine) {
-        this.randomTeleportEngine = randomTeleportEngine;
-    }
-
-    @Override
-    @NotNull
-    public List<Hook> getHooks() {
-        return hooks;
-    }
-
-    @Override
-    public void setHooks(@NotNull List<Hook> hooks) {
-        this.hooks = hooks;
     }
 
     @Override
@@ -376,8 +286,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     @NotNull
-    public File getDataFolder() {
-        return FabricLoader.getInstance().getConfigDir().resolve("huskhomes").toFile();
+    public Path getConfigDirectory() {
+        return FabricLoader.getInstance().getConfigDir().resolve("huskhomes");
     }
 
     @Override
@@ -397,12 +307,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return Version.fromString(modContainer.getMetadata().getVersion().getFriendlyString(), "-");
     }
 
-    @Override
-    @NotNull
-    public List<Command> getCommands() {
-        return commands;
-    }
-
     @NotNull
     public List<Command> registerCommands() {
         final List<Command> commands = FabricCommand.Type.getCommands(getPlugin());
@@ -415,18 +319,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public boolean isDependencyLoaded(@NotNull String name) {
         return FabricLoader.getInstance().isModLoaded(name)
                 || FabricLoader.getInstance().isModLoaded(name.toLowerCase(Locale.ENGLISH));
-    }
-
-    @Override
-    @NotNull
-    public Map<String, List<String>> getGlobalPlayerList() {
-        return globalPlayerList;
-    }
-
-    @Override
-    @NotNull
-    public Set<UUID> getCurrentlyOnWarmup() {
-        return currentlyOnWarmup;
     }
 
     @Override
@@ -445,7 +337,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
                         @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
                         @NotNull PacketSender responseSender) {
         if (broker instanceof PluginMessageBroker messenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
                     FabricUser.adapt(player, this),

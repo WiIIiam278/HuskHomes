@@ -22,9 +22,7 @@ package net.william278.huskhomes.command;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.Teleportable;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
@@ -67,19 +65,11 @@ public class SpawnCommand extends Command {
             return;
         }
 
-        final TeleportBuilder builder = Teleport.builder(plugin)
+        Teleport.builder(plugin)
                 .teleporter(teleporter)
                 .actions(TransactionResolver.Action.SPAWN_TELEPORT)
-                .target(spawn);
-        try {
-            if (teleporter.equals(executor)) {
-                builder.toTimedTeleport().execute();
-            } else {
-                builder.toTeleport().execute();
-            }
-        } catch (TeleportationException e) {
-            e.displayMessage(executor, args);
-        }
+                .target(spawn)
+                .buildAndComplete(teleporter.equals(executor), args);
     }
 
 }

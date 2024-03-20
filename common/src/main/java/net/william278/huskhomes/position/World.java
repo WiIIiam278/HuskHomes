@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.position;
 
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,7 @@ import java.util.UUID;
 /**
  * Represents a world on a server.
  */
+@NoArgsConstructor
 public class World {
 
     private String name;
@@ -39,10 +41,6 @@ public class World {
         this.setName(name);
         this.setUuid(uuid);
         this.setEnvironment(environment);
-    }
-
-    @SuppressWarnings("unused")
-    public World() {
     }
 
     @NotNull

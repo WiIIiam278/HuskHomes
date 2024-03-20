@@ -19,9 +19,12 @@
 
 package net.william278.huskhomes.config;
 
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import com.google.common.collect.Lists;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.network.Broker;
@@ -35,592 +38,380 @@ import java.util.stream.Collectors;
 /**
  * Plugin settings, read from config.yml
  */
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃       HuskHomes Config       ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ Information: https://william278.net/project/huskhomes/
-        ┣╸ Config Help: https://william278.net/docs/huskhomes/config-files/
-        ┗╸ Documentation: https://william278.net/docs/huskhomes/""")
-public class Settings {
+@SuppressWarnings("FieldMayBeFinal")
+@Getter
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Settings {
+
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃       HuskHomes Config       ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ Information: https://william278.net/project/huskhomes/
+            ┣╸ Config Help: https://william278.net/docs/huskhomes/config-files/
+            ┗╸ Documentation: https://william278.net/docs/huskhomes/""";
 
     // Top-level settings
-    @YamlComment("Locale of the default language file to use. Docs: https://william278.net/docs/huskhomes/translations")
-    @YamlKey("language")
-    private String language = "en-gb";
+    @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/huskhomes/translations")
+    private String language = Locales.DEFAULT_LOCALE;
 
-    @YamlComment("Whether to automatically check for plugin updates on startup")
-    @YamlKey("check_for_updates")
+    @Comment("Whether to automatically check for plugin updates on startup")
     private boolean checkForUpdates = true;
 
     // Database settings
-    @YamlComment("Type of database to use (SQLITE, H2, MYSQL or MARIADB)")
-    @YamlKey("database.type")
-    private Database.Type databaseType = Database.Type.SQLITE;
+    @Comment("Database settings")
+    private DatabaseSettings database = new DatabaseSettings();
 
-    @YamlComment("Specify credentials here if you are using MYSQL or MARIADB as your database type")
-    @YamlKey("database.mysql.credentials.host")
-    private String mySqlHost = "localhost";
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class DatabaseSettings {
 
-    @YamlKey("database.mysql.credentials.port")
-    private int mySqlPort = 3306;
+        @Comment("Type of database to use (SQLITE, H2, MYSQL, or MARIADB)")
+        private Database.Type type = Database.Type.SQLITE;
 
-    @YamlKey("database.mysql.credentials.database")
-    private String mySqlDatabase = "HuskHomes";
+        @Comment("Specify credentials here if you are using MYSQL or MARIADB")
+        private DatabaseCredentials credentials = new DatabaseCredentials();
 
-    @YamlKey("database.mysql.credentials.username")
-    private String mySqlUsername = "root";
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class DatabaseCredentials {
+            private String host = "localhost";
+            private int port = 3306;
+            private String database = "huskhomes";
+            private String username = "root";
+            private String password = "pa55w0rd";
+            private String parameters = String.join("&",
+                    "?autoReconnect=true", "useSSL=false",
+                    "useUnicode=true", "characterEncoding=UTF-8");
+        }
 
-    @YamlKey("database.mysql.credentials.password")
-    private String mySqlPassword = "pa55w0rd";
+        @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
+                "Don't modify this unless you know what you're doing!"})
+        private PoolOptions poolOptions = new PoolOptions();
 
-    @YamlKey("database.mysql.credentials.parameters")
-    private String mySqlConnectionParameters = "?autoReconnect=true"
-            + "&useSSL=false"
-            + "&useUnicode=true"
-            + "&characterEncoding=UTF-8";
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PoolOptions {
+            private int size = 12;
+            private int idle = 12;
+            private long lifetime = 1800000;
+            private long keepAlive = 30000;
+            private long timeout = 20000;
+        }
 
-    @YamlComment("MYSQL / MARIADB database Hikari connection pool properties. "
-            + "Don't modify this unless you know what you're doing!")
-    @YamlKey("database.mysql.connection_pool.size")
-    private int mySqlConnectionPoolSize = 12;
+        @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
+        private Map<Database.Table, String> tableNames = Database.Table.getConfigMap();
 
-    @YamlKey("database.mysql.connection_pool.idle")
-    private int mySqlConnectionPoolIdle = 12;
+        @NotNull
+        public String getTableName(@NotNull Database.Table tableName) {
+            return Optional.ofNullable(tableNames.get(tableName)).orElse(tableName.getDefaultName());
+        }
+    }
 
-    @YamlKey("database.mysql.connection_pool.lifetime")
-    private long mySqlConnectionPoolLifetime = 1800000;
+    @Comment("General settings")
+    private GeneralSettings general = new GeneralSettings();
 
-    @YamlKey("database.mysql.connection_pool.keepalive")
-    private long mySqlConnectionPoolKeepAlive = 30000;
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class GeneralSettings {
+        @Comment("The maximum homes a user can create. Override with the huskhomes.max_homes.<number> permission.")
+        private int maxHomes = 10;
 
-    @YamlKey("database.mysql.connection_pool.timeout")
-    private long mySqlConnectionPoolTimeout = 20000;
+        @Comment("The maximum public homes a user can create. "
+                + "Override with the huskhomes.max_public_homes.<number> permission.")
+        private int maxPublicHomes = 10;
 
-    @YamlComment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-    @YamlKey("database.table_names")
-    private TreeMap<String, String> tableNames = new TreeMap<>(Database.Table.getConfigMap());
+        @Comment("Whether permission limits (i.e. huskhomes.max_homes.<number>) should stack "
+                + "if the user inherits multiple nodes.")
+        private boolean stackPermissionLimits = false;
 
+        @Comment("Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps")
+        private boolean permissionRestrictWarps = false;
 
-    // General settings
-    @YamlComment("The maximum homes a user can create. Override with the huskhomes.max_homes.<number> permission.")
-    @YamlKey("general.max_homes")
-    private int maxHomes = 10;
+        @Comment("How long a player has to stand still and not take damage for when teleporting (in seconds) ")
+        private int teleportWarmupTime = 5;
 
-    @YamlComment("The maximum public homes a user can create. "
-            + "Override with the huskhomes.max_public_homes.<number> permission.")
-    @YamlKey("general.max_public_homes")
-    private int maxPublicHomes = 10;
+        @Comment("Where the teleport warmup timer should display (CHAT, ACTION_BAR, TITLE, SUBTITLE or NONE)")
+        private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
 
-    @YamlComment("Whether permission limits (i.e. huskhomes.max_homes.<number>) "
-            + "should stack if the user inherits multiple nodes.")
-    @YamlKey("general.stack_permission_limits")
-    private boolean stackPermissionLimits = false;
+        @Comment("How long the player should be invulnerable for after teleporting (in seconds)")
+        private int teleportInvulnerabilityTime = 0;
 
-    @YamlComment("Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps")
-    @YamlKey("general.permission_restrict_warps")
-    private boolean permissionRestrictWarps = false;
+        @Comment("How long before received teleport requests expire (in seconds)")
+        private int teleportRequestExpiryTime = 60;
 
-    @YamlComment("Whether running /sethome <name> or /setwarp <name> when a home/warp already exists should overwrite.")
-    @YamlKey("general.overwrite_existing_homes_warps")
-    private boolean overwriteExistingHomesWarps = true;
+        @Comment("Whether /tpahere should use the location of the sender when sent. "
+                + "Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
+        private boolean strictTpaHereRequests = true;
 
-    @YamlComment("How long a player has to stand still and not take damage for when teleporting (in seconds) ")
-    @YamlKey("general.teleport_warmup_time")
-    private int teleportWarmupTime = 5;
+        @Comment("How many items should be displayed per-page in chat menu lists")
+        private int listItemsPerPage = 12;
 
-    @YamlComment("Where the teleport warmup timer should display (CHAT, ACTION_BAR, TITLE, SUBTITLE or NONE)")
-    @YamlKey("general.teleport_warmup_display")
-    private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
+        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
+        private boolean brigadierTabCompletion = true;
 
-    @YamlComment("How long before received teleport requests expire (in seconds)")
-    @YamlKey("general.teleport_request_expiry_time")
-    private int teleportRequestExpiryTime = 60;
+        @Comment("Whether the user should always be put back at the /spawn point when they die "
+                + "(ignores beds/respawn anchors)")
+        private boolean alwaysRespawnAtSpawn = false;
 
-    @YamlComment("Whether /tpahere should use the location of the sender when sent. Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
-    @YamlKey("general.strict_tpa_here_requests")
-    private boolean strictTpaHereRequests = true;
+        @Comment("Whether teleportation should be carried out async (ensuring chunks load before teleporting)")
+        private boolean teleportAsync = true;
 
+        @Comment("Settings for home and warp names")
+        private NameSettings names = new NameSettings();
 
-    // Name & description settings
-    @YamlComment("Whether home or warp names should be case insensitive (i.e. allow /home HomeOne and /home homeone)")
-    @YamlKey("general.case_insensitive_names")
-    private boolean caseInsensitiveNames = false;
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class NameSettings {
+            @Comment("Whether running /sethome <name> or /setwarp <name> when one already exists should overwrite.")
+            private boolean overwriteExisting = true;
 
-    @YamlComment("Whether home and warp names should be restricted by a regex."
-            + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
-    @YamlKey("general.restrict_names")
-    private boolean restrictNames = true;
+            @Comment("Whether home or warp names should be case insensitive (i.e. allow /home HomeOne & /home homeone)")
+            private boolean caseInsensitive = false;
 
-    @YamlComment("Regex which home and warp names must match. Names have a max length of 16 characters")
-    @YamlKey("general.name_regex")
-    private String nameRegex = "[a-zA-Z0-9-_]*";
+            @Comment("Whether home and warp names should be restricted to a regex filter."
+                    + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
+            private boolean restrict = true;
 
-    @YamlComment("Whether home/warp descriptions should be restricted. Set this to true to restrict UTF-8 usage.")
-    @YamlKey("general.restrict_descriptions")
-    private boolean restrictDescriptions = false;
+            @Comment("Regex which home and warp names must match. Names have a max length of 16 characters")
+            private String regex = "[a-zA-Z0-9-_]*";
+        }
 
-    @YamlComment("Regex which home and warp descriptions must match. A hard max length of 256 characters is enforced")
-    @YamlKey("general.description_regex")
-    private String descriptionRegex = "\\A\\p{ASCII}*\\z";
+        @Comment("Settings for home and warp descriptions")
+        private DescriptionSettings descriptions = new DescriptionSettings();
 
-    @YamlComment("Whether the user should back to spawn when they die")
-    @YamlKey("general.always_respawn_at_spawn")
-    private boolean alwaysRespawnAtSpawn = false;
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class DescriptionSettings {
+            @Comment("Whether home/warp descriptions should be restricted to a regex filter. "
+                    + "Set this to true to restrict UTF-8 usage.")
+            private boolean restrict = false;
 
-    // Back command settings
-    @YamlComment("Whether /back should work to teleport the user to where they died")
-    @YamlKey("general.back_command_return_by_death")
-    private boolean backCommandReturnByDeath = true;
+            @Comment("Regex which home and warp descriptions must match. "
+                    + "A hard max length of 256 characters is enforced")
+            private String regex = "\\A\\p{ASCII}*\\z";
+        }
 
-    @YamlComment("Whether /back should work with other plugins that use the PlayerTeleportEvent (can cause conflicts)")
-    @YamlKey("general.back_command_save_teleport_event")
-    private boolean backCommandSaveOnTeleportEvent = false;
+        @Comment("Settings for the /back command")
+        private BackCommandSettings backCommand = new BackCommandSettings();
 
-    @YamlComment("How many items should be displayed per-page in chat menu lists")
-    @YamlKey("general.list_items_per_page")
-    private int listItemsPerPage = 12;
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class BackCommandSettings {
+            @Comment("Whether /back should work to teleport the user to where they died")
+            private boolean returnByDeath = true;
 
-    @YamlComment("Whether teleportation should be carried out asynchronously (ensuring chunks load before teleporting)")
-    @YamlKey("general.asynchronous_teleports")
-    private boolean asynchronousTeleports = true;
+            @Comment("Whether /back should work with other plugins that use the PlayerTeleportEvent (can conflict)")
+            private boolean saveOnTeleportEvent = false;
+        }
 
-    @YamlComment("Whether to play sound effects")
-    @YamlKey("general.play_sound_effects")
-    private boolean playSoundEffects = true;
+        @Comment("Settings for sound effects")
+        private SoundEffectSettings soundEffects = new SoundEffectSettings();
 
-    @YamlComment("Which sound effects to play for various actions")
-    @YamlKey("general.sound_effects")
-    private TreeMap<String, String> soundEffects = new TreeMap<>(SoundEffectAction.getConfigMap());
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class SoundEffectSettings {
+            @Comment("Whether to play sound effects")
+            private boolean enabled = true;
 
-    @YamlComment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-    @YamlKey("general.brigadier_tab_completion")
-    private boolean brigadierTabCompletion = true;
+            @Comment("Map of sound effect actions to types")
+            private Map<SoundEffectAction, String> types = SoundEffectAction.getDefaults();
 
+            @NotNull
+            public Optional<String> get(@NotNull SoundEffectAction action) {
+                if (!enabled) {
+                    return Optional.empty();
+                }
+                return Optional.ofNullable(types.get(action));
+            }
+        }
+    }
 
-    // Cross-server settings
-    @YamlComment("Enable teleporting across your proxy network. Requires database type to be MYSQL")
-    @YamlKey("cross_server.enabled")
-    private boolean crossServer = false;
+    @Comment("Cross-server settings")
+    private CrossServerSettings crossServer = new CrossServerSettings();
 
-    @YamlComment("The type of message broker to use for cross-server communication. Options: PLUGIN_MESSAGE, REDIS")
-    @YamlKey("cross_server.messenger_type")
-    private Broker.Type messageBrokerType = Broker.Type.PLUGIN_MESSAGE;
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class CrossServerSettings {
+        @Comment("Whether to enable cross-server mode for teleporting across your proxy network.")
+        private boolean enabled = false;
 
-    @YamlComment("Specify a common ID for grouping servers running HuskHomes on your proxy. "
-            + "Don't modify this unless you know what you're doing!")
-    @YamlKey("cross_server.cluster_id")
-    private String clusterId = "";
+        @Comment({"The cluster ID, for if you're networking multiple separate groups of HuskHomes-enabled servers.",
+                "Do not change unless you know what you're doing"})
+        private String clusterId = "main";
 
-    @YamlComment("Define a single global /spawn for your network via a warp. Docs: https://william278.net/docs/huskhomes/global-spawn/")
-    @YamlKey("cross_server.global_spawn.enabled")
-    private boolean globalSpawn = false;
+        @Comment("Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)")
+        private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
-    @YamlComment("The name of the warp to use as the global spawn.")
-    @YamlKey("cross_server.global_spawn.warp_name")
-    private String globalSpawnName = "Spawn";
+        @Comment("Settings for if you're using REDIS as your message broker")
+        private RedisSettings redis = new RedisSettings();
 
-    @YamlComment("Whether player respawn positions should work cross-server. Docs: https://william278.net/docs/huskhomes/global-respawning/")
-    @YamlKey("cross_server.global_respawning")
-    private boolean globalRespawning = false;
+        @Getter
+        @Configuration
+        @NoArgsConstructor
+        public static class RedisSettings {
+            private String host = "localhost";
+            private int port = 6379;
+            @Comment("Password for your Redis server. Leave blank if you're not using a password.")
+            private String password = "";
+            private boolean useSsl = false;
 
-    @YamlComment("Specify credentials here if you are using REDIS as your messenger_type. Docs: https://william278.net/docs/huskhomes/redis-support/")
-    @YamlKey("cross_server.redis_credentials.host")
-    private String redisHost = "localhost";
+            @Comment({"Settings for if you're using Redis Sentinels.",
+                    "If you're not sure what this is, please ignore this section."})
+            private SentinelSettings sentinel = new SentinelSettings();
 
-    @YamlKey("cross_server.redis_credentials.port")
-    private int redisPort = 6379;
+            @Getter
+            @Configuration
+            @NoArgsConstructor
+            public static class SentinelSettings {
+                private String masterName = "";
+                @Comment("List of host:port pairs")
+                private List<String> nodes = Lists.newArrayList();
+                private String password = "";
+            }
+        }
 
-    @YamlKey("cross_server.redis_credentials.password")
-    private String redisPassword = "";
+        @Comment("Define a single global /spawn for your network via a warp. "
+                + "Docs: https://william278.net/docs/huskhomes/global-spawn/")
+        private GlobalSpawnSettings globalSpawn = new GlobalSpawnSettings();
 
-    @YamlKey("cross_server.redis_credentials.use_ssl")
-    private boolean redisUseSsl = false;
+        @Getter
+        @Configuration
+        @NoArgsConstructor
+        public static class GlobalSpawnSettings {
+            @Comment("Whether to define a single global /spawn for your network via a warp.")
+            private boolean enabled = false;
+            @Comment("The name of the warp to use as the global spawn.")
+            private String warpName = "Spawn";
+        }
 
+        @Comment("Whether player respawn positions should work cross-server. "
+                + "Docs: https://william278.net/docs/huskhomes/global-respawning/")
+        private boolean globalRespawning = false;
+    }
 
-    // Rtp command settings
-    @YamlComment("Radius around the spawn point in which players cannot be random teleported to")
-    @YamlKey("rtp.radius")
-    private int rtpRadius = 5000;
+    @Comment("Random teleport (/rtp) settings.")
+    private RtpSettings rtp = new RtpSettings();
 
-    @YamlComment("Radius of the spawn area in which players cannot be random teleported to")
-    @YamlKey("rtp.spawn_radius")
-    private int rtpSpawnRadius = 500;
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class RtpSettings {
 
-    @YamlComment("Mean of the normal distribution used to calculate the distance from the center of the world")
-    @YamlKey("rtp.distribution_mean")
-    private float rtpDistributionMean = 0.75f;
+        @Comment({"Radial region around the /spawn position where players CAN be randomly teleported.",
+                "If no /spawn has been set, (0, 0) will be used instead."})
+        private RtpRadius region = new RtpRadius();
 
-    @YamlComment("Standard deviation of the normal distribution for distributing players randomly")
-    @YamlKey("rtp.distribution_deviation")
-    private float rtpDistributionStandardDeviation = 2f;
+        @Getter
+        @Configuration
+        @NoArgsConstructor
+        public static class RtpRadius {
+            private int min = 500;
+            private int max = 5000;
+        }
 
-    @YamlComment("List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.")
-    @YamlKey("rtp.restricted_worlds")
-    private List<String> rtpRestrictedWorlds = List.of("world_nether", "world_the_end");
+        @Comment("Mean of the normal distribution used to calculate the distance from the center of the world")
+        private float distributionMean = 0.75f;
 
+        @Comment("Standard deviation of the normal distribution for distributing players randomly")
+        private float distributionStandardDeviation = 2.0f;
 
-    // Cooldown settings
-    @YamlComment("Whether to apply a cooldown between performing certain actions")
-    @YamlKey("cooldowns.enabled")
-    private boolean cooldowns = true;
+        @Comment("List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.")
+        private List<String> restrictedWorlds = List.of("world_nether", "world_the_end");
 
-    @YamlComment("Set a cooldown between performing actions (in seconds). Docs: https://william278.net/docs/huskhomes/cooldowns/")
-    @YamlKey("cooldowns.cooldown_times")
-    private TreeMap<String, Integer> cooldownTimes = new TreeMap<>(TransactionResolver.Action.getCooldownsConfigMap());
+        public boolean isWorldRtpRestricted(@NotNull World world) {
+            final String name = world.getName();
+            final String filteredName = name.startsWith("minecraft:") ? name.substring(10) : name;
+            return restrictedWorlds.stream()
+                    .map(n -> n.startsWith("minecraft:") ? n.substring(10) : n)
+                    .anyMatch(n -> n.equalsIgnoreCase(filteredName));
+        }
+    }
 
+    @Comment("Action cooldown settings. Docs: https://william278.net/docs/huskhomes/cooldowns")
+    private CooldownSettings cooldowns = new CooldownSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class CooldownSettings {
+
+        @Comment("Whether to apply a cooldown between performing certain actions")
+        private boolean enabled = true;
+
+        @Comment("Map of cooldown times to actions")
+        private Map<TransactionResolver.Action, Long> cooldownTimes = TransactionResolver.Action.getCooldownTimes();
+
+        public long getCooldown(@NotNull TransactionResolver.Action action) {
+            return enabled ? cooldownTimes.getOrDefault(action, 0L) : 0L;
+        }
+    }
 
     // Economy settings
-    @YamlComment("Enable economy plugin integration (requires Vault)")
-    @YamlKey("economy.enabled")
-    private boolean economy = false;
+    @Comment("Economy settings. Docs: https://william278.net/docs/huskhomes/economy-hook")
+    private EconomySettings economy = new EconomySettings();
 
-    @YamlComment("Specify how many homes players can set for free, before they need to pay for more slots")
-    @YamlKey("economy.free_home_slots")
-    private int freeHomeSlots = 5;
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class EconomySettings {
 
-    @YamlComment("Charge money for perform certain actions. Docs: https://william278.net/docs/huskhomes/economy-hook/")
-    @YamlKey("economy.costs")
-    private TreeMap<String, Double> economyCosts = new TreeMap<>(TransactionResolver.Action.getEconomyCostsConfigMap());
+        @Comment("Enable economy plugin integration (requires Vault and a compatible Economy plugin)")
+        private boolean enabled = true;
 
-    // Mapping plugins
-    @YamlComment("Display public homes/warps on your Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/huskhomes/map-hooks")
-    @YamlKey("map_hook.enabled")
-    private boolean doMapHook = true;
+        @Comment("Map of economy actions to costs.")
+        private Map<TransactionResolver.Action, Double> economyCosts = TransactionResolver.Action.getEconomyCosts();
 
-    @YamlComment("Show public homes on the web map")
-    @YamlKey("map_hook.show_public_homes")
-    private boolean publicHomesOnMap = true;
+        @Comment("Specify how many homes players can set for free, before they need to pay for more slots")
+        private int freeHomeSlots = 5;
 
-    @YamlComment("Show warps on the web map")
-    @YamlKey("map_hook.show_warps")
-    private boolean warpsOnMap = true;
-
-
-    // Disabled commands
-    @YamlComment("List of commands to disable (e.g. ['/home', '/warp'] to disable /home and /warp)")
-    @YamlKey("disabled_commands")
-    private List<String> disabledCommands = Collections.emptyList();
-
-
-    @SuppressWarnings("unused")
-    private Settings() {
-    }
-
-    @NotNull
-    public String getLanguage() {
-        return language;
-    }
-
-    public boolean doCheckForUpdates() {
-        return checkForUpdates;
-    }
-
-    @NotNull
-    public Database.Type getDatabaseType() {
-        return databaseType;
-    }
-
-    @NotNull
-    public String getMySqlHost() {
-        return mySqlHost;
-    }
-
-    public int getMySqlPort() {
-        return mySqlPort;
-    }
-
-    @NotNull
-    public String getMySqlDatabase() {
-        return mySqlDatabase;
-    }
-
-    @NotNull
-    public String getMySqlUsername() {
-        return mySqlUsername;
-    }
-
-    @NotNull
-    public String getMySqlPassword() {
-        return mySqlPassword;
-    }
-
-    @NotNull
-    public String getMySqlConnectionParameters() {
-        return mySqlConnectionParameters;
-    }
-
-    public int getMySqlConnectionPoolSize() {
-        return mySqlConnectionPoolSize;
-    }
-
-    public int getMySqlConnectionPoolIdle() {
-        return mySqlConnectionPoolIdle;
-    }
-
-    public long getMySqlConnectionPoolLifetime() {
-        return mySqlConnectionPoolLifetime;
-    }
-
-    public long getMySqlConnectionPoolKeepAlive() {
-        return mySqlConnectionPoolKeepAlive;
-    }
-
-    public long getMySqlConnectionPoolTimeout() {
-        return mySqlConnectionPoolTimeout;
-    }
-
-    @NotNull
-    public TreeMap<String, String> getTableNames() {
-        final TreeMap<String, String> tableNames = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        tableNames.putAll(this.tableNames);
-        return tableNames;
-    }
-
-    @NotNull
-    public String getTableName(@NotNull Database.Table table) {
-        return Optional.ofNullable(getTableNames().get(table.name())).orElse(table.getDefaultName());
-    }
-
-    public int getMaxHomes() {
-        return maxHomes;
-    }
-
-    public int getMaxPublicHomes() {
-        return maxPublicHomes;
-    }
-
-    public boolean doStackPermissionLimits() {
-        return stackPermissionLimits;
-    }
-
-    public boolean doPermissionRestrictWarps() {
-        return permissionRestrictWarps;
-    }
-
-    public boolean doOverwriteExistingHomesWarps() {
-        return overwriteExistingHomesWarps;
-    }
-
-    public int getTeleportWarmupTime() {
-        return teleportWarmupTime;
-    }
-
-    @NotNull
-    public Locales.DisplaySlot getTeleportWarmupDisplay() {
-        return teleportWarmupDisplay;
-    }
-
-    public int getTeleportRequestExpiryTime() {
-        return teleportRequestExpiryTime;
-    }
-
-    public boolean doStrictTpaHereRequests() {
-        return strictTpaHereRequests;
-    }
-
-    public boolean caseInsensitiveNames() {
-        return caseInsensitiveNames;
-    }
-
-    public boolean doRestrictNames() {
-        return restrictNames;
-    }
-
-    @NotNull
-    public String getNameRegex() {
-        return nameRegex;
-    }
-
-    public boolean doRestrictDescriptions() {
-        return restrictDescriptions;
-    }
-
-    @NotNull
-    public String getDescriptionRegex() {
-        return descriptionRegex;
-    }
-
-    public boolean doAlwaysRespawnAtSpawn() {
-        return alwaysRespawnAtSpawn;
-    }
-
-    public boolean doBackCommandReturnByDeath() {
-        return backCommandReturnByDeath;
-    }
-
-    public boolean doBackCommandSaveOnTeleportEvent() {
-        return backCommandSaveOnTeleportEvent;
-    }
-
-    public int getListItemsPerPage() {
-        return listItemsPerPage;
-    }
-
-    public boolean doAsynchronousTeleports() {
-        return asynchronousTeleports;
-    }
-
-    public boolean doPlaySoundEffects() {
-        return playSoundEffects;
-    }
-
-    @NotNull
-    public TreeMap<String, String> getSoundEffects() {
-        final TreeMap<String, String> soundEffects = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        soundEffects.putAll(this.soundEffects);
-        return soundEffects;
-    }
-
-    public Optional<String> getSoundEffect(@NotNull SoundEffectAction action) {
-        if (!doPlaySoundEffects()) {
-            return Optional.empty();
+        public Optional<Double> getCost(@NotNull TransactionResolver.Action action) {
+            if (!enabled) {
+                return Optional.empty();
+            }
+            return economyCosts.containsKey(action) ? Optional.of(economyCosts.get(action)) : Optional.empty();
         }
-        return Optional.ofNullable(getSoundEffects().get(action.name()));
     }
 
-    public boolean doCrossServer() {
-        return crossServer;
+    @Comment("Web map hook settings. Docs: https://william278.net/docs/huskhomes/map-hooks")
+    private MapHookSettings mapHook = new MapHookSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class MapHookSettings {
+
+        @Comment("Display public homes/warps on your Dynmap, BlueMap or Pl3xMap")
+        private boolean enabled = true;
+
+        @Comment("Show public homes on the web map")
+        private boolean showPublicHomes = true;
+
+        @Comment("Show warps on the web map")
+        private boolean showWarps = true;
     }
 
-    @NotNull
-    public Broker.Type getBrokerType() {
-        return messageBrokerType;
-    }
+    @Comment("List of commands to disable (e.g. ['/home', '/warp'] to disable /home and /warp)")
+    private List<String> disabledCommands = Lists.newArrayList();
 
-    @NotNull
-    public String getClusterId() {
-        return clusterId;
-    }
-
-    public boolean isGlobalSpawn() {
-        return globalSpawn;
-    }
-
-    @NotNull
-    public String getGlobalSpawnName() {
-        return globalSpawnName;
-    }
-
-    public boolean isGlobalRespawning() {
-        return globalRespawning;
-    }
-
-    @NotNull
-    public String getRedisHost() {
-        return redisHost;
-    }
-
-    public int getRedisPort() {
-        return redisPort;
-    }
-
-    @NotNull
-    public String getRedisPassword() {
-        return redisPassword;
-    }
-
-    public boolean useRedisSsl() {
-        return redisUseSsl;
-    }
-
-
-    public int getRtpRadius() {
-        return rtpRadius;
-    }
-
-    public int getRtpSpawnRadius() {
-        return rtpSpawnRadius;
-    }
-
-    public float getRtpDistributionMean() {
-        return rtpDistributionMean;
-    }
-
-    public float getRtpDistributionStandardDeviation() {
-        return rtpDistributionStandardDeviation;
-    }
-
-    public boolean isWorldRtpRestricted(@NotNull World world) {
-        final String worldName = world.getName();
-        final String filteredName = worldName.startsWith("minecraft:") ? worldName.substring(10) : worldName;
-        return rtpRestrictedWorlds.stream()
-                .map(name -> name.startsWith("minecraft:") ? name.substring(10) : name)
-                .anyMatch(name -> name.equalsIgnoreCase(filteredName));
-    }
-
-    public boolean doCooldowns() {
-        return cooldowns;
-    }
-
-    @NotNull
-    public TreeMap<String, Integer> getCooldownTimes() {
-        final TreeMap<String, Integer> cooldownTimes = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        cooldownTimes.putAll(this.cooldownTimes);
-        return cooldownTimes;
-    }
-
-    public long getCooldown(@NotNull TransactionResolver.Action action) {
-        if (!doCooldowns()) {
-            return 0;
-        }
-        final Integer cooldown = getCooldownTimes().get(action.name());
-        if (cooldown != null && cooldown > 0) {
-            return cooldown;
-        }
-        return 0;
-    }
-
-    public boolean doEconomy() {
-        return economy;
-    }
-
-    public int getFreeHomeSlots() {
-        return freeHomeSlots;
-    }
-
-    @NotNull
-    public TreeMap<String, Double> getEconomyCosts() {
-        final TreeMap<String, Double> economyCosts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        economyCosts.putAll(this.economyCosts);
-        return economyCosts;
-    }
-
-    public Optional<Double> getEconomyCost(@NotNull TransactionResolver.Action action) {
-        if (!doEconomy()) {
-            return Optional.empty();
-        }
-        final Double cost = getEconomyCosts().get(action.name());
-        if (cost != null && cost > 0d) {
-            return Optional.of(cost);
-        }
-        return Optional.empty();
-    }
-
-    public boolean doMapHook() {
-        return doMapHook;
-    }
-
-    public boolean doPublicHomesOnMap() {
-        return publicHomesOnMap;
-    }
-
-    public boolean doWarpsOnMap() {
-        return warpsOnMap;
-    }
-
-    public boolean isCommandDisabled(Command type) {
+    public boolean isCommandDisabled(@NotNull Command type) {
         return disabledCommands.stream()
                 .anyMatch(disabled -> {
                     final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
                     return command.equalsIgnoreCase(type.getName())
                             || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
                 });
-    }
-
-    public boolean doBrigadierTabCompletion() {
-        return brigadierTabCompletion;
     }
 
     /**
@@ -639,13 +430,14 @@ public class Settings {
         }
 
         @NotNull
-        public static Map<String, String> getConfigMap() {
+        public static Map<SoundEffectAction, String> getDefaults() {
             return Arrays.stream(values()).collect(Collectors.toMap(
-                    action -> action.name().toLowerCase(Locale.ENGLISH),
-                    action -> action.defaultEffect
+                    action -> action,
+                    action -> action.defaultEffect,
+                    (a, b) -> a,
+                    TreeMap::new
             ));
         }
-
     }
 
 }

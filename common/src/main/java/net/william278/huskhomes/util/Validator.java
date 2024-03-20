@@ -19,21 +19,19 @@
 
 package net.william278.huskhomes.util;
 
+import lombok.AllArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import org.jetbrains.annotations.NotNull;
 
+@AllArgsConstructor
 public class Validator {
 
     public static final int MAX_NAME_LENGTH = 16;
-    public static final int MIN_NAME_LENGTH = 1;
     public static final int MAX_DESCRIPTION_LENGTH = 256;
 
     private final HuskHomes plugin;
-
-    public Validator(@NotNull HuskHomes plugin) {
-        this.plugin = plugin;
-    }
 
     /**
      * Validate home and warp names.
@@ -67,7 +65,8 @@ public class Validator {
 
     // Check a home/warp name contains only valid characters
     private boolean isValidNameCharacters(@NotNull String name) {
-        return (name.matches(plugin.getSettings().getNameRegex()) || !plugin.getSettings().doRestrictNames())
+        final Settings.GeneralSettings.NameSettings config = plugin.getSettings().getGeneral().getNames();
+        return (name.matches(config.getRegex()) || !config.isRestrict())
                 && !name.contains("\u0000")
                 && !containsWhitespace(name)
                 && !name.contains(Home.IDENTIFIER_DELIMITER);
@@ -75,13 +74,13 @@ public class Validator {
 
     // Check a home/warp name is of a valid length
     private boolean isValidNameLength(@NotNull String name) {
-        return name.length() <= MAX_NAME_LENGTH && name.length() >= MIN_NAME_LENGTH;
+        return name.length() <= MAX_NAME_LENGTH && !name.isEmpty();
     }
 
     // Check a home/warp description contains only valid characters
     private boolean isValidDescriptionCharacters(@NotNull String description) {
-        return (description.matches(plugin.getSettings().getDescriptionRegex())
-                || !plugin.getSettings().doRestrictDescriptions())
+        final Settings.GeneralSettings.DescriptionSettings config = plugin.getSettings().getGeneral().getDescriptions();
+        return (description.matches(config.getRegex()) || !config.isRestrict())
                 && !description.contains("\u0000");
     }
 

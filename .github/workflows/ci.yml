@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: 'Build with Gradle 🏗️'
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build test publish
         env:
@@ -57,7 +57,7 @@ jobs:
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
           hangar-version-type: Alpha
-          files-primary: target/HuskHomes-Plugin-*.jar
+          files-primary: target/HuskHomes-Paper-${{ env.version_name }}.jar
           name: HuskHomes (Spigot) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -67,12 +67,11 @@ jobs:
             paper
             folia
           game-versions: |
-            1.16.5
             1.17.1
             1.18.2
             1.19.4
-            1.20.2
-          java: 16
+            1.20.4
+          java: 17
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
         if: success() || failure()
@@ -83,7 +82,7 @@ jobs:
           modrinth-dependencies: |
             bluemap | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-*.jar
+          files-primary: target/HuskHomes-Sponge-${{ env.version_name }}.jar
           name: HuskHomes (Sponge) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -91,8 +90,8 @@ jobs:
           loaders: |
             sponge
           game-versions: |
-            1.16.5
-          java: 16
+            1.19.4
+          java: 17
       - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         if: success() || failure()
@@ -109,7 +108,9 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Fabric-*.jar
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -117,7 +118,7 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.20.2
+            1.20.4
           java: 17
       - name: 'Upload GitHub Artifacts 📦'
         uses: actions/upload-artifact@v4
@@ -125,6 +126,6 @@ jobs:
         with:
           name: HuskHomes
           path: |
-            target/HuskHomes-Plugin-*.jar
-            target/HuskHomes-Sponge-*.jar
-            target/HuskHomes-Fabric-*.jar
+            target/HuskHomes-Paper-${{ env.version_name }}.jar
+            target/HuskHomes-Sponge-${{ env.version_name }}.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}.jar

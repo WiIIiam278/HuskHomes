@@ -24,7 +24,6 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,17 +57,11 @@ public abstract class Broker {
         }
         switch (message.getType()) {
             case TELEPORT_TO_POSITION -> message.getPayload()
-                    .getPosition().ifPresent(position -> {
-                        try {
-                            Teleport.builder(plugin)
-                                    .teleporter(receiver)
-                                    .target(position)
-                                    .toTeleport()
-                                    .execute();
-                        } catch (TeleportationException e) {
-                            e.displayMessage(plugin.getConsole());
-                        }
-                    });
+                    .getPosition().ifPresent(position -> Teleport.builder(plugin)
+                            .teleporter(receiver)
+                            .target(position)
+                            .toTeleport()
+                            .complete());
             case TELEPORT_TO_NETWORKED_POSITION -> Message.builder()
                     .type(Message.Type.TELEPORT_TO_POSITION)
                     .target(message.getSender())
@@ -157,7 +150,10 @@ public abstract class Broker {
     protected String getSubChannelId() {
         final String version = String.format("%s.%s", plugin.getVersion().getMajor(), plugin.getVersion().getMinor());
         try {
-            return plugin.getKey(plugin.getSettings().getClusterId().toLowerCase(Locale.ENGLISH), version).asString();
+            return plugin.getKey(
+                    plugin.getSettings().getCrossServer().getClusterId().toLowerCase(Locale.ENGLISH),
+                    version
+            ).asString();
         } catch (InvalidKeyException e) {
             plugin.log(Level.SEVERE, "Cluster ID specified in config contains invalid characters");
         }

@@ -45,7 +45,7 @@ public class FabricUser extends OnlineUser {
     private final ServerPlayerEntity player;
 
     private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
-        super(player.getUuid(), player.getEntityName(), plugin);
+        super(player.getUuid(), player.getGameProfile().getName(), plugin);
         this.player = player;
     }
 
@@ -163,6 +163,21 @@ public class FabricUser extends OnlineUser {
     public boolean isVanished() {
         return false;
     }
+
+    /**
+     * Handles player invulnerability after teleporting.
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.setInvulnerable(true);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+    }
+
 
     @NotNull
     private static Identifier parseIdentifier(@NotNull String channel) {

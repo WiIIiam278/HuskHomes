@@ -5,6 +5,11 @@ plugins {
 apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
+repositories {
+    maven { url 'https://maven.impactdev.net/repository/development/' }
+    maven { url 'https://maven.nucleoid.xyz/' }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
     mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
@@ -24,6 +29,8 @@ dependencies {
     }
     modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
+    modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
+    modImplementation("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
 
     implementation include("redis.clients:jedis:$jedis_version")
     implementation include("org.apache.commons:commons-pool2:$commons_pool_version")
@@ -33,6 +40,9 @@ dependencies {
     implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     shadow project(path: ":common")
 }
@@ -52,10 +62,9 @@ shadowJar {
     relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
     relocate 'org.intellij', 'net.william278.huskhomes.libraries'
     relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
-    relocate 'net.william278.annotaml', 'net.william278.huskhomes.libraries.annotaml'
     relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
-    relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskhomes.libraries.boostedyaml'
+    relocate 'de.exlll', 'net.william278.huskhomes.libraries'
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 }

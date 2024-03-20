@@ -24,9 +24,7 @@ import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
-import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.Teleportable;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
@@ -137,7 +135,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
-        if (executor instanceof OnlineUser user && plugin.getSettings().doPermissionRestrictWarps()
+        if (executor instanceof OnlineUser user && plugin.getSettings().getGeneral().isPermissionRestrictWarps()
                 && !user.hasPermission(Warp.getWildcardPermission())
                 && !user.hasPermission(Warp.getPermission(warpName))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
@@ -166,19 +164,11 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return;
         }
 
-        final TeleportBuilder builder = Teleport.builder(plugin)
+        Teleport.builder(plugin)
                 .teleporter(teleporter)
                 .actions(actions)
-                .target(position);
-        try {
-            if (executor.equals(teleporter)) {
-                builder.toTimedTeleport().execute();
-            } else {
-                builder.toTeleport().execute();
-            }
-        } catch (TeleportationException e) {
-            e.displayMessage(executor, teleporter.getUsername());
-        }
+                .target(position)
+                .buildAndComplete(executor.equals(teleporter), teleporter.getUsername());
     }
 
     @NotNull

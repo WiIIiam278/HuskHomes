@@ -34,9 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PrivateHomeListCommand extends ListCommand {
+public class HomeListCommand extends ListCommand {
 
-    protected PrivateHomeListCommand(@NotNull HuskHomes plugin) {
+    protected HomeListCommand(@NotNull HuskHomes plugin) {
         super("homelist", List.of("homes"), "[player] [page]", plugin);
         addAdditionalPermissions(Map.of("other", true));
     }
@@ -110,13 +110,15 @@ public class PrivateHomeListCommand extends ListCommand {
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
                                         Locales.escapeText(home.getName()), home.getSafeIdentifier(),
-                                        Locales.escapeText(plugin.getLocales().wrapText(
-                                                home.getMeta().getDescription(),
-                                                40
-                                        )))
+                                        home.isPublic()
+                                                ? plugin.getLocales().getRawLocale("home_is_public")
+                                                .orElse("Public")
+                                                : plugin.getLocales().getRawLocale("home_is_private")
+                                                .orElse("Private"),
+                                        Locales.escapeText(home.getMeta().getDescription()))
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
-                        .getBaseList(plugin.getSettings().getListItemsPerPage())
+                        .getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                         .setHeaderFormat(plugin.getLocales().getRawLocale("home_list_page_title",
                                         user.getUsername(), "%first_item_on_page_index%",
                                         "%last_item_on_page_index%", "%total_items%")

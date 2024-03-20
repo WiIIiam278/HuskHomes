@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: 'Build with Gradle 🏗️'
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build test publish
         env:
@@ -45,7 +45,7 @@ jobs:
             plan | suggests | *
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
-          files-primary: target/HuskHomes-Plugin-*.jar
+          files-primary: target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -55,12 +55,11 @@ jobs:
             paper
             folia
           game-versions: |
-            1.16.5
             1.17.1
             1.18.2
             1.19.4
-            1.20.2
-          java: 16
+            1.20.4
+          java: 17
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -70,7 +69,7 @@ jobs:
           modrinth-dependencies: |
             bluemap | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-*.jar
+          files-primary: target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Sponge) v${{ github.event.release.tag_name }}
           version: ${{ env.version_name }}
           version-type: release
@@ -78,8 +77,8 @@ jobs:
           loaders: |
             sponge
           game-versions: |
-            1.16.5
-          java: 16
+            1.19.4
+          java: 17
       - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -95,7 +94,9 @@ jobs:
             pl3xmap | suggests | *
             luckperms | suggests | *
             plan | suggests | *
-          files-primary: target/HuskHomes-Fabric-*.jar
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -103,13 +104,13 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.20.2
+            1.20.4
           java: 17
       - name: 'Upload GitHub Artifacts 📦'
         uses: actions/upload-artifact@v4
         with:
           name: HuskHomes
           path: |
-            target/HuskHomes-Plugin-*.jar
-            target/HuskHomes-Sponge-*.jar
-            target/HuskHomes-Fabric-*.jar
+            target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}.jar

@@ -48,9 +48,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.16 API.
+ * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.17 API.
  */
-@DisplayName("Bukkit Plugin Tests (1.16.5)")
+@DisplayName("Bukkit Plugin Tests (1.17.1)")
 public class BukkitPluginTests {
 
     private static ServerMock server;
@@ -131,7 +131,7 @@ public class BukkitPluginTests {
         @Test
         @DisplayName("Test Locale Loading")
         public void testLocalesLoading() {
-            final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
+            final Map<String, String> rawLocales = plugin.getLocales().getRawLocales();
             Assertions.assertFalse(rawLocales.isEmpty());
             rawLocales.forEach((key, value) -> Assertions.assertNotNull(value));
         }
@@ -139,7 +139,7 @@ public class BukkitPluginTests {
         @Test
         @DisplayName("Test Locale Parsing")
         public void testLocaleParsing() {
-            final Map<String, String> rawLocales = plugin.getLocales().rawLocales;
+            final Map<String, String> rawLocales = plugin.getLocales().getRawLocales();
             BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
             rawLocales.forEach((key, value) -> {
                 Optional<MineDown> locale = plugin.getLocales().getLocale(key);
@@ -457,8 +457,6 @@ public class BukkitPluginTests {
             private static final List<String> HOME_NAMES = List.of(
                     "mr_home",
                     "homble",
-                    "seaside",
-                    "hovel",
                     "tokyo-3",
                     "testington",
                     "h"

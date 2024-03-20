@@ -19,6 +19,9 @@
 
 package net.william278.huskhomes.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -29,24 +32,15 @@ import java.util.UUID;
 /**
  * Represents data about a player on the server.
  */
+@Getter
+@AllArgsConstructor
 public class SavedUser {
 
     private final User user;
+    @Setter
     private int homeSlots;
+    @Setter
     private boolean ignoringTeleports;
-
-    /**
-     * Create a new SavedUser object.
-     *
-     * @param user              The user to create the object for
-     * @param homeSlots         The number of home slots the user has
-     * @param ignoringTeleports Whether the user is ignoring teleports or not
-     */
-    public SavedUser(@NotNull User user, int homeSlots, boolean ignoringTeleports) {
-        this.user = user;
-        this.homeSlots = homeSlots;
-        this.ignoringTeleports = ignoringTeleports;
-    }
 
     /**
      * Create a new SavedUser object.
@@ -54,7 +48,7 @@ public class SavedUser {
      * <p>Please note that User RTP cooldowns are no longer stored in {@link SavedUser} objects;
      * please use the new API methods for getting/setting cooldowns
      *
-     * @deprecated See {@link #SavedUser(User, int, boolean)} to create a SavedUser object.
+     * @deprecated See {@code #SavedUser(User, int, boolean)} to create a SavedUser object.
      */
     @Deprecated(since = "4.4", forRemoval = true)
     @SuppressWarnings("unused")
@@ -63,35 +57,15 @@ public class SavedUser {
     }
 
     @NotNull
-    public User getUser() {
-        return user;
-    }
-
-    @NotNull
     public UUID getUserUuid() {
-        return user.getUuid();
+        return getUser().getUuid();
     }
 
     @NotNull
     public String getUsername() {
-        return user.getUsername();
+        return getUser().getUsername();
     }
 
-    public int getHomeSlots() {
-        return homeSlots;
-    }
-
-    public void setHomeSlots(int homeSlots) {
-        this.homeSlots = homeSlots;
-    }
-
-    public boolean isIgnoringTeleports() {
-        return ignoringTeleports;
-    }
-
-    public void setIgnoringTeleports(boolean ignoringTeleports) {
-        this.ignoringTeleports = ignoringTeleports;
-    }
 
     /**
      * Get the user's RTP cooldown. This method will always return 5 seconds before the current time since v4.4.

@@ -35,6 +35,7 @@ import net.pl3x.map.core.markers.option.Popup;
 import net.pl3x.map.core.markers.option.Tooltip;
 import net.pl3x.map.core.world.World;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.SavedPosition;
 import net.william278.huskhomes.position.Warp;
@@ -126,11 +127,12 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     }
 
     private void registerLayers(@NotNull World world) {
-        if (plugin.getSettings().doWarpsOnMap()) {
+        final Settings.MapHookSettings settings = plugin.getSettings().getMapHook();
+        if (settings.isShowWarps()) {
             WarpsLayer layer = new WarpsLayer(this, world);
             world.getLayerRegistry().register(layer);
         }
-        if (plugin.getSettings().doPublicHomesOnMap()) {
+        if (settings.isShowPublicHomes()) {
             PublicHomesLayer layer = new PublicHomesLayer(this, world);
             world.getLayerRegistry().register(layer);
         }
@@ -139,10 +141,11 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     @EventHandler
     public void onPl3xMapEnabled(@NotNull Pl3xMapEnabledEvent event) {
         // Register icons
-        if (plugin.getSettings().doWarpsOnMap()) {
+        final Settings.MapHookSettings settings = plugin.getSettings().getMapHook();
+        if (settings.isShowWarps()) {
             this.registerIcon(WARPS_LAYER, "markers/16x/warp.png");
         }
-        if (plugin.getSettings().doPublicHomesOnMap()) {
+        if (settings.isShowPublicHomes()) {
             this.registerIcon(PUBLIC_HOMES_LAYER, "markers/16x/public-home.png");
         }
 
@@ -172,9 +175,9 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         return Options.builder()
                 .tooltip(new Tooltip(position.getIdentifier()))
                 .popup(new Popup(position instanceof Home home ? MarkerInformationPopup.publicHome(
-                        home, ICON_PATH + WARPS_LAYER, plugin
+                        home, ICON_PATH + WARPS_LAYER
                 ).toHtml() : position instanceof Warp warp ? MarkerInformationPopup.warp(
-                        warp, ICON_PATH + PUBLIC_HOMES_LAYER, plugin
+                        warp, ICON_PATH + PUBLIC_HOMES_LAYER
                 ).toHtml() : ""))
                 .build();
     }

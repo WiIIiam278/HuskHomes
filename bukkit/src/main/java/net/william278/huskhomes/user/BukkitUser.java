@@ -161,6 +161,20 @@ public class BukkitUser extends OnlineUser {
     }
 
     /**
+     * Handles player invulnerability after teleporting.
+     */
+    @Override
+    public void handleInvulnerability() {
+        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+            return;
+        }
+        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.setInvulnerable(true);
+        // Remove the invulnerability
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+    }
+
+    /**
      * Send a Bukkit plugin message to the player.
      */
     public void sendPluginMessage(@NotNull String channel, final byte[] message) {

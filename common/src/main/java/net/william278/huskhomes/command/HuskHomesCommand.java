@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,6 +81,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         AboutMenu.Credit.of("Funasitien").description("French, (fr-fr)"),
                         AboutMenu.Credit.of("Ceddix").description("German, (de-de)"),
                         AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"),
+                        AboutMenu.Credit.of("WinTone01").description("Turkish, (tr-tr)"),
                         AboutMenu.Credit.of("EmanuelFNC").description("Brazilian Portuguese, (pt-br)"),
                         AboutMenu.Credit.of("xMattNice_").description("Brazilian Portuguese, (pt-br)"))
                 .buttons(
@@ -103,12 +105,16 @@ public class HuskHomesCommand extends Command implements TabProvider {
             case "help" -> executor.sendMessage(getCommandList(executor)
                     .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
             case "reload" -> {
-                if (!plugin.loadConfigs()) {
+                try {
+                    plugin.loadConfigs();
+                } catch (Throwable e) {
+                    plugin.log(Level.SEVERE, "Failed to reload config files", e);
                     executor.sendMessage(new MineDown(
                             "[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"
                     ));
                     return;
                 }
+
                 executor.sendMessage(new MineDown(
                         "[HuskHomes](#00fb9a bold) [| Reloaded config & message files.](#00fb9a)\n"
                                 + "[ℹ If you have modified the database or cross-server message broker settings,"
@@ -296,12 +302,12 @@ public class HuskHomesCommand extends Command implements TabProvider {
                                                 plugin.getLocales().truncateText(command.getDescription(), 50)
                                         ),
                                         Locales.escapeText(String.format("%s\n\n%s",
-                                                plugin.getLocales().wrapText(command.getUsage(), 50),
-                                                plugin.getLocales().wrapText(command.getDescription(), 50)
-                                        )))
+                                                command.getUsage(),
+                                                command.getDescription())
+                                        ))
                                 .orElse(command.getName()))
                         .collect(Collectors.toList()),
-                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getListItemsPerPage(), 6))
+                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getGeneral().getListItemsPerPage(), 6))
                         .setHeaderFormat(plugin.getLocales().getRawLocale("command_list_title").orElse(""))
                         .setItemSeparator("\n").setCommand("/huskhomes:huskhomes help")
                         .build());
@@ -317,7 +323,7 @@ public class HuskHomesCommand extends Command implements TabProvider {
                                                 .collect(Collectors.joining(", "))))
                                 .orElse(importer.getName()))
                         .collect(Collectors.toList()),
-                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getListItemsPerPage(), 6))
+                plugin.getLocales().getBaseList(Math.min(plugin.getSettings().getGeneral().getListItemsPerPage(), 6))
                         .setHeaderFormat(plugin.getLocales().getRawLocale("importer_list_title").orElse(""))
                         .setItemSeparator("\n").setCommand("/huskhomes:huskhomes import list")
                         .build());

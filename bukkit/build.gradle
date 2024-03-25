@@ -16,7 +16,7 @@ dependencies {
     compileOnly('net.essentialsx:EssentialsX:2.20.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
-    compileOnly 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
     testImplementation 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
@@ -26,7 +26,7 @@ dependencies {
     testImplementation "org.xerial:sqlite-jdbc:${sqlite_driver_version}"
     testImplementation "com.mysql:mysql-connector-j:${mysql_driver_version}"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
 
 shadowJar {

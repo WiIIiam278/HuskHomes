@@ -20,7 +20,6 @@
 package net.william278.huskhomes.user;
 
 import de.themoep.minedown.adventure.MineDown;
-import de.themoep.minedown.adventure.MineDownParser;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -95,7 +94,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
      */
     public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final Component message = mineDown.disable(MineDownParser.Option.SIMPLE_FORMATTING).replace().toComponent();
+        final Component message = mineDown.toComponent();
         getAudience().showTitle(Title.title(
                 subTitle ? Component.empty() : message,
                 subTitle ? message : Component.empty()
@@ -108,9 +107,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param mineDown the parsed {@link MineDown} to send
      */
     public void sendActionBar(@NotNull MineDown mineDown) {
-        getAudience().sendActionBar(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
+        getAudience().sendActionBar(mineDown.toComponent());
     }
 
 
@@ -120,9 +117,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param mineDown the parsed {@link MineDown} to send
      */
     public void sendMessage(@NotNull MineDown mineDown) {
-        getAudience().sendMessage(mineDown
-                .disable(MineDownParser.Option.SIMPLE_FORMATTING)
-                .replace().toComponent());
+        getAudience().sendMessage(mineDown.toComponent());
     }
 
     /**

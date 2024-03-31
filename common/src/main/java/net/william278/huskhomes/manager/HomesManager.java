@@ -100,8 +100,8 @@ public class HomesManager {
 
     /**
      * Get a list of all cached public homes.
-     * <p>
-     * This will return the full home identifier if there are multiple homes with the same name.
+     *
+     * <p>This will return the full home identifier if there are multiple homes with the same name.
      *
      * @return a list of all cached public home identifiers
      */

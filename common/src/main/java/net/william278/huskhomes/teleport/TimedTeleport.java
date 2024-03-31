@@ -141,7 +141,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         }
 
         // Cancel the timed teleport if the player takes damage
-        if (hasTeleporterTakenDamage()) {
+        if (hasTeleporterTakenDamage() && plugin.getSettings().getGeneral().isTeleportWarmupCancelOnDamage()) {
             plugin.getLocales().getLocale("teleporting_cancelled_damage")
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
@@ -152,7 +152,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         }
 
         // Cancel the timed teleport if the player moves
-        if (hasTeleporterMoved()) {
+        if (hasTeleporterMoved() && plugin.getSettings().getGeneral().isTeleportWarmupCancelOnMove()) {
             plugin.getLocales().getLocale("teleporting_cancelled_movement")
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")

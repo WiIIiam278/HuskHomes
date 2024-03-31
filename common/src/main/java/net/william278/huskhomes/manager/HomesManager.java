@@ -81,9 +81,11 @@ public class HomesManager {
      */
     @NotNull
     public Map<String, List<String>> getPublicHomes() {
-        return publicHomes.stream()
-                .collect(HashMap::new, (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
-                        HashMap::putAll);
+        return publicHomes.stream().collect(
+                HashMap::new,
+                (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
+                HashMap::putAll
+        );
     }
 
     /**
@@ -92,9 +94,26 @@ public class HomesManager {
      * @return a list of all cached public home identifiers
      */
     @NotNull
-    public List<String> getPublicHomeIdentifiers() {
+    public List<String> getPublicHomeIdentifierNames() {
+        return publicHomes.stream().map(Home::getIdentifier).toList();
+    }
+
+    /**
+     * Get a list of all cached public homes.
+     * <p>
+     * This will return the full home identifier if there are multiple homes with the same name.
+     *
+     * @return a list of all cached public home identifiers
+     */
+    @NotNull
+    public List<String> getPublicHomeNames() {
         return publicHomes.stream()
-                .map(Home::getIdentifier)
+                .map(home -> {
+                    if (publicHomes.stream().filter(h -> h.getName().equals(home.getName())).count() > 1) {
+                        return home.getIdentifier();
+                    }
+                    return home.getName();
+                })
                 .toList();
     }
 

@@ -32,8 +32,9 @@ import java.util.Optional;
 
 public abstract class HomeCommand extends SavedPositionCommand<Home> {
 
-    protected HomeCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull HuskHomes plugin) {
-        super(name, aliases, Home.class, List.of("player"), plugin);
+    protected HomeCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull PositionCommandType type,
+                          @NotNull HuskHomes plugin) {
+        super(name, aliases, type, List.of("player"), plugin);
     }
 
     @Override

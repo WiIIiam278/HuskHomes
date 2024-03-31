@@ -26,6 +26,7 @@ import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,19 +41,20 @@ public class PublicHomeListCommand extends ListCommand {
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final int pageNumber = parseIntArg(args, 0).orElse(1);
-        this.showPublicHomeList(executor, pageNumber);
+        this.showPublicHomeList(executor, null, pageNumber);
     }
 
-    protected void showPublicHomeList(@NotNull CommandUser executor, int pageNumber) {
-        if (executor instanceof OnlineUser user && cachedLists.containsKey(user.getUuid())) {
+    public void showPublicHomeList(@NotNull CommandUser executor, @Nullable String nameFilter, int pageNumber) {
+        if (nameFilter == null && executor instanceof OnlineUser user && cachedLists.containsKey(user.getUuid())) {
             executor.sendMessage(cachedLists.get(user.getUuid()).getNearestValidPage(pageNumber));
             return;
         }
 
-        final List<Home> homes = plugin.getDatabase().getPublicHomes();
+        final List<Home> homes = nameFilter == null ? plugin.getDatabase().getPublicHomes()
+                : plugin.getDatabase().getPublicHomes(nameFilter);
         plugin.fireEvent(plugin.getViewHomeListEvent(homes, executor, true),
                 (event) -> this.generateList(executor, event.getHomes()).ifPresent(homeList -> {
-                    if (executor instanceof OnlineUser onlineUser) {
+                    if (nameFilter == null && executor instanceof OnlineUser onlineUser) {
                         cachedLists.put(onlineUser.getUuid(), homeList);
                     }
                     executor.sendMessage(homeList.getNearestValidPage(pageNumber));
@@ -69,9 +71,15 @@ public class PublicHomeListCommand extends ListCommand {
         final PaginatedList homeList = PaginatedList.of(publicHomes.stream().map(home ->
                         plugin.getLocales()
                                 .getRawLocale("public_home_list_item",
-                                        Locales.escapeText(home.getName()), home.getSafeIdentifier(),
+                                        publicHomes.stream()
+                                                .filter(h -> h.getName().equals(home.getName())).count() > 1
+                                                ? home.getSafeIdentifier() : Locales.escapeText(home.getName()),
+                                        home.getSafeIdentifier(),
                                         Locales.escapeText(home.getOwner().getUsername()),
-                                        Locales.escapeText(home.getMeta().getDescription()))
+                                        home.getMeta().getDescription().isBlank()
+                                                ? plugin.getLocales().getNone()
+                                                : Locales.escapeText(home.getMeta().getDescription())
+                                )
                                 .orElse(home.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())

@@ -142,6 +142,7 @@ locales:
   error_no_homes_set: '[Ошибка:](#ff3300) [Вы не установили ни одного дома!](#ff7e5e)'
   error_no_public_homes_set: '[Ошибка:](#ff3300) [Публичные дома не установлены!](#ff7e5e)'
   error_no_warps_set: '[Ошибка:](#ff3300) [Телепортации не установлены!](#ff7e5e)'
+  error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[Ошибка:](#ff3300) [Невозможно найти публичный дом, принадлежащий %1%, с именем %2%.](#ff7e5e)'
   error_set_home_maximum_homes: '[Ошибка:](#ff3300) [Вы можете установить максимум %1% домов!](#ff7e5e)'
   error_spawn_not_set: '[Ошибка:](#ff3300) [Позиция спавна не установлена.](#ff7e5e)'

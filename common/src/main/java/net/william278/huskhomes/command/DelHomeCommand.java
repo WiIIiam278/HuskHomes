@@ -31,7 +31,7 @@ import java.util.List;
 public class DelHomeCommand extends SavedPositionCommand<Home> {
 
     public DelHomeCommand(@NotNull HuskHomes plugin) {
-        super("delhome", List.of(), Home.class, List.of(), plugin);
+        super("delhome", List.of(), PositionCommandType.HOME, List.of(), plugin);
     }
 
     @Override

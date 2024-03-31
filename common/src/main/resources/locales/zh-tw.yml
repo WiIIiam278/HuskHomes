@@ -142,6 +142,7 @@
   error_no_homes_set: '[錯誤:](#ff3300) [您還沒有設置任何家!](#ff7e5e)'
   error_no_public_homes_set: '[錯誤:](#ff3300) [目前沒有公共的家可傳送!](#ff7e5e)'
   error_no_warps_set: '[錯誤:](#ff3300) [目前沒有可傳送的地標!](#ff7e5e)'
+  error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[錯誤:](#ff3300) [沒有在 %1% 名下找到名為 %2% 的公開傳點.](#ff7e5e)'
   error_set_home_maximum_homes: '[錯誤:](#ff3300) [最多可以設置 %1% 個家!](#ff7e5e)'
   error_spawn_not_set: '[錯誤:](#ff3300) [重生點尚未設置.](#ff7e5e)'

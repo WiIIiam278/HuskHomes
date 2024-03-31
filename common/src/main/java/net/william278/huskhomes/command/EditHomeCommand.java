@@ -36,7 +36,13 @@ import java.util.regex.Pattern;
 public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     public EditHomeCommand(@NotNull HuskHomes plugin) {
-        super("edithome", List.of(), Home.class, List.of("rename", "description", "relocate", "privacy"), plugin);
+        super(
+                "edithome",
+                List.of(),
+                PositionCommandType.HOME,
+                List.of("rename", "description", "relocate", "privacy"),
+                plugin
+        );
     }
 
     @Override

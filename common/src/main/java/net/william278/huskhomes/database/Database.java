@@ -244,6 +244,27 @@ public abstract class Database {
     public abstract List<Home> getPublicHomes();
 
     /**
+     * Get a list of publicly-set {@link Home}s with a specific name.
+     *
+     * @param name            The name of the home
+     * @param caseInsensitive Whether the name lookup query should be case-insensitive
+     * @return A list containing all publicly-set {@link Home}s with the specified name
+     */
+    public abstract List<Home> getPublicHomes(@NotNull String name, boolean caseInsensitive);
+
+    /**
+     * Get a list of publicly-set {@link Home}s with a specific name.
+     *
+     * @param name The name of the home
+     * @return A list containing all publicly-set {@link Home}s with the specified name
+     * @apiNote Whether lookup is case-sensitive is determined by the {@code general.case_insensitive_names} setting
+     */
+    public List<Home> getPublicHomes(@NotNull String name) {
+        return getPublicHomes(name, plugin.getSettings().getGeneral().getNames().isCaseInsensitive());
+    }
+
+
+    /**
      * Get a list of publicly-set {@link Home}s on <i>this {@link Server server}</i>.
      *
      * @param plugin The plugin instance

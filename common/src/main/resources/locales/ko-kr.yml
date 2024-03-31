@@ -142,6 +142,7 @@ locales:
   error_no_homes_set: '[오류:](#ff3300) [당신은 아직 아무 집도 설정하지 않았습니다!](#ff7e5e)'
   error_no_public_homes_set: '[오류:](#ff3300) [설정된 공용 집이 없습니다!](#ff7e5e)'
   error_no_warps_set: '[오류:](#ff3300) [설정된 워프가 없습니다!](#ff7e5e)'
+  error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[오류:](#ff3300) [%1%님이 소유한 공용 집 %2%를 찾을 수 없습니다.](#ff7e5e)'
   error_set_home_maximum_homes: '[오류:](#ff3300) [%1%개 이상의 집을 생성할 수 없습니다!](#ff7e5e)'
   error_spawn_not_set: '[오류:](#ff3300) [스폰 위치가 아직 지정되지 않았습니다.](#ff7e5e)'

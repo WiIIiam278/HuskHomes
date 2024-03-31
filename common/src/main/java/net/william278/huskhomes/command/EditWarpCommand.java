@@ -37,7 +37,13 @@ import java.util.regex.Pattern;
 public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
     public EditWarpCommand(@NotNull HuskHomes plugin) {
-        super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
+        super(
+                "editwarp",
+                List.of(),
+                PositionCommandType.WARP,
+                List.of("rename", "description", "relocate"),
+                plugin
+        );
         setOperatorCommand(true);
     }
 

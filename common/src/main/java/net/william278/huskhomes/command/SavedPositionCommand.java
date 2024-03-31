@@ -31,10 +31,7 @@ import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabProvider {
 
@@ -48,6 +45,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         this.arguments = arguments;
 
         addAdditionalPermissions(Map.of("other", true));
+        addAdditionalPermissions(arguments.stream().collect(HashMap::new, (m, s) -> m.put(s, false), HashMap::putAll));
     }
 
     @NotNull
@@ -171,38 +169,52 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 .buildAndComplete(executor.equals(teleporter), teleporter.getUsername());
     }
 
+    protected boolean isInvalidOperation(String operation, CommandUser executor) {
+        if (!arguments.contains(operation.toLowerCase())) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return true;
+        }
+        if (!executor.hasPermission(getPermission(operation.toLowerCase(Locale.ENGLISH)))) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return true;
+        }
+        return false;
+    }
+
     @NotNull
-    private static String formatUsage(List<String> arguments) {
+    private static String formatUsage(Collection<String> arguments) {
         return ((!arguments.isEmpty()) ? " [" + String.join("|", arguments) + "]" : "");
     }
 
     @Override
     @NotNull
     public List<String> suggest(@NotNull CommandUser executor, @NotNull String[] args) {
-        if (positionType == Home.class) {
+        if (positionType != Home.class) {
             return switch (args.length) {
-                case 0, 1 -> {
-                    if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
-                        if (executor.hasPermission(getOtherPermission())) {
-                            yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
-                        }
-                        yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
-                    }
-                    if (executor instanceof OnlineUser user) {
-                        yield filter(plugin.getManager().homes().getUserHomes().get(user.getUsername()), args);
-                    }
-                    yield filter(plugin.getManager().homes().getUserHomeIdentifiers(), args);
-                }
-                case 2 -> filter(arguments.stream().toList(), args);
-                default -> List.of();
-            };
-        } else {
-            return switch (args.length) {
-                case 0, 1 -> filter(plugin.getManager().warps().getUsableWarps(executor), args);
-                case 2 -> filter(arguments.stream().toList(), args);
+                case 0, 1 -> plugin.getManager().warps().getUsableWarps(executor);
+                case 2 -> arguments.stream().filter(a -> executor.hasPermission(getPermission(a))).toList();
                 default -> List.of();
             };
         }
+
+        return switch (args.length) {
+            case 0, 1 -> {
+                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
+                    if (executor.hasPermission(getOtherPermission())) {
+                        yield plugin.getManager().homes().getUserHomeIdentifiers();
+                    }
+                    yield plugin.getManager().homes().getUserHomeIdentifiers();
+                }
+                if (executor instanceof OnlineUser user) {
+                    yield plugin.getManager().homes().getUserHomes().get(user.getUsername());
+                }
+                yield plugin.getManager().homes().getUserHomeIdentifiers();
+            }
+            case 2 -> arguments.stream().filter(a -> executor.hasPermission(getPermission(a))).toList();
+            default -> List.of();
+        };
     }
 
 }

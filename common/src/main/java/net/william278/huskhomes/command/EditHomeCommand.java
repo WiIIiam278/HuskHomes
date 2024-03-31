@@ -30,17 +30,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     public EditHomeCommand(@NotNull HuskHomes plugin) {
         super("edithome", List.of(), Home.class, List.of("rename", "description", "relocate", "privacy"), plugin);
-        addAdditionalPermissions(arguments.stream().collect(HashMap::new, (m, e) -> m.put(e, false), HashMap::putAll));
     }
 
     @Override
@@ -60,14 +56,11 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                     .forEach(executor::sendMessage);
             return;
         }
-
-        if (!arguments.contains(operation.get().toLowerCase())) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
+        if (isInvalidOperation(operation.get(), executor)) {
             return;
         }
 
-        switch (operation.get().toLowerCase()) {
+        switch (operation.get().toLowerCase(Locale.ENGLISH)) {
             case "rename" -> setHomeName(executor, home, ownerEditing, args);
             case "description" -> setHomeDescription(executor, home, ownerEditing, args);
             case "relocate" -> setHomePosition(executor, home, ownerEditing);

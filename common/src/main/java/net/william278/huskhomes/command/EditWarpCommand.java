@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -40,7 +39,6 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
     public EditWarpCommand(@NotNull HuskHomes plugin) {
         super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
         setOperatorCommand(true);
-        addAdditionalPermissions(arguments.stream().collect(HashMap::new, (m, e) -> m.put(e, false), HashMap::putAll));
     }
 
     @Override
@@ -50,10 +48,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
             getWarpEditorWindow(warp).forEach(executor::sendMessage);
             return;
         }
-
-        if (!arguments.contains(operation.get().toLowerCase())) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
+        if (isInvalidOperation(operation.get(), executor)) {
             return;
         }
 

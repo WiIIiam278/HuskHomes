@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -144,6 +145,11 @@ public class PositionMeta {
     @NotNull
     public Instant getCreationTime() {
         return creationTime;
+    }
+
+    @NotNull
+    public OffsetDateTime getCreationTimestamp() {
+        return OffsetDateTime.ofInstant(creationTime, OffsetDateTime.now().getOffset());
     }
 
     public void setCreationTime(Instant creationTime) {

@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[Erreur :](#ff3300) [Vous ingnorer actuellement les demandes de téléportations.](#ff7e5e) [[Arreter d''ignorer…]](#ff7e5e show_text=&#ff7e5e&Cliquez pour accepter les requêtes de téléportations run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[Erreur :](#ff3300) [Vous n''avez recu aucune requêtes de téléportation de %1%.](#ff7e5e)'
   error_teleport_request_self: '[Erreur :](#ff3300) [Vous ne pouvez pas vou téléportez à vous même.](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Erreur :](#ff3300) [Le joueur %1% est introuvable.](#ff7e5e)'
   error_rtp_restricted_world: '[Erreur :](#ff3300) [Vous ne pouvez pas vous téléporter aléatoirement dans ce monde.](#ff7e5e)'
   error_on_cooldown: '[Erreur :](#ff3300) [Vous devez attendre %1% avant de refaire ça.](#ff7e5e)'

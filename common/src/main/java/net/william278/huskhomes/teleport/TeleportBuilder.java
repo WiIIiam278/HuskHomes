@@ -71,12 +71,13 @@ public class TeleportBuilder {
         );
     }
 
-    public void buildAndComplete(boolean timed, @NotNull String... args) {
+    public boolean buildAndComplete(boolean timed, @NotNull String... args) {
         try {
-            (timed ? toTimedTeleport() : toTeleport()).complete(args);
+            return (timed ? toTimedTeleport() : toTeleport()).complete(args);
         } catch (TeleportationException e) {
             e.displayMessage(executor);
         }
+        return false;
     }
 
     private void validateTeleport() throws TeleportationException {

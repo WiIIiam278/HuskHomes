@@ -152,6 +152,7 @@
   error_ignoring_teleport_requests: '[錯誤:](#ff3300) [您目前忽略傳送請求.](#ff7e5e) [[停止忽略…]](#ff7e5e show_text=&#ff7e5e&點擊接收傳送請求 run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[錯誤:](#ff3300) [您目前沒有來自 %1% 的傳送請求.](#ff7e5e)'
   error_teleport_request_self: '[錯誤:](#ff3300) [您不能向自己發送傳送請求.](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[錯誤:](#ff3300) [沒有找到玩家 %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[錯誤:](#ff3300) [您不能在這個世界隨機傳送.](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'

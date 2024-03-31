@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[エラー:](#ff3300) [現在、テレポートリクエストを無視しています。](#ff7e5e) [[無視を停止…]](#ff7e5e show_text=&#ff7e5e&クリックすると、テレポートリクエストを表示できます。 run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[エラー:](#ff3300) [%1%からのテレポートリクエストは保留になっていません。](#ff7e5e)'
   error_teleport_request_self: '[エラー:](#ff3300) [自分自身にテレポートリクエストを送ることはできません。](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[エラー:](#ff3300) [プレイヤー %1% が見つかりませんでした。](#ff7e5e)'
   error_rtp_restricted_world: '[エラー:](#ff3300) [このワールドでは、ランダムテレポートはできません。](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'

@@ -38,8 +38,11 @@ public class TeleportationException extends IllegalStateException {
 
     public void displayMessage(@NotNull CommandUser user, @NotNull String... args) {
         switch (type) {
-            case TELEPORTER_NOT_FOUND, TARGET_NOT_FOUND -> plugin.getLocales()
+            case TELEPORTER_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_player_not_found", args)
+                    .ifPresent(user::sendMessage);
+            case TARGET_NOT_FOUND -> plugin.getLocales()
+                    .getLocale("error_target_not_found")
                     .ifPresent(user::sendMessage);
             case ALREADY_WARMING_UP -> plugin.getLocales()
                     .getLocale("error_already_teleporting")

@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[Errore:](#ff3300) [Stai ignorando le richieste di teletrasporto.](#ff7e5e) [[Riattiva…]](#ff7e5e show_text=&#ff7e5e&Clicca per attivare le richieste di teletrasporto run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[Errore:](#ff3300) [Non hai richieste di teletrasporto da %1%.](#ff7e5e)'
   error_teleport_request_self: '[Errore:](#ff3300) [Non puoi teletrasportarti da te stesso!](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Errore:](#ff3300) [Non trovo il giocatore: %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Errore:](#ff3300) [Non puoi teletrasportarti randomicamente in questo mondo.](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'

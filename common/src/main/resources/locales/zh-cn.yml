@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[错误:](#ff3300) [你已忽略传送请求](#ff7e5e) [[恢复接收]](#ff7e5e show_text=&#ff7e5e&点击恢复接收传送请求 run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[错误:](#ff3300) [目前没有来自 %1% 的传送请求](#ff7e5e)'
   error_teleport_request_self: '[错误:](#ff3300) [不能向自己发送传送请求](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[错误:](#ff3300) [没有找到玩家 %1%](#ff7e5e)'
   error_rtp_restricted_world: '[错误:](#ff3300) [你不能在这个世界随机传送](#ff7e5e)'
   error_on_cooldown: '[错误:](#ff3300) [你需要等待 %1% 才能再次进行此操作](#ff7e5e)'

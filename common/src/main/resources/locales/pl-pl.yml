@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[Błąd:](#ff3300) [Aktualnie ignorujesz prośby o teleportację.](#ff7e5e) [[Przestań Ignorować…]](#ff7e5e show_text=&#ff7e5e&Kliknij, aby akceptować przychodzące prośby o teleportację run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[Błąd:](#ff3300) [Nie masz oczekującej prośby o teleportację od %1%.](#ff7e5e)'
   error_teleport_request_self: '[Błąd:](#ff3300) [Nie możesz wysłać prośby o teleportację do siebie.](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Błąd:](#ff3300) [Nie można znaleźć gracza %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Błąd:](#ff3300) [Nie możesz losowo teleportować się w tej krainie.](#ff7e5e)'
   error_on_cooldown: '[Błąd:](#ff3300) [Musisz poczekać %1% przed kolejnym próbą.](#ff7e5e)'

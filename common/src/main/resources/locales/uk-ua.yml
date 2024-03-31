@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[Error:](#ff3300) [You are currently ignoring teleport requests.](#ff7e5e) [[Stop Ignoring…]](#ff7e5e show_text=&#ff7e5e&Click to listen for incoming teleport requests run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[Error:](#ff3300) [You do not have a pending teleport request from %1%.](#ff7e5e)'
   error_teleport_request_self: '[Error:](#ff3300) [You cannot send a teleport request to yourself.](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Помилка:](#ff3300) [Не вдалося знайти гравця %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Error:](#ff3300) [You cannot randomly teleport in this world.](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'

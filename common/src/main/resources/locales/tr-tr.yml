@@ -152,6 +152,7 @@ locales:
   error_ignoring_teleport_requests: '[Hata:](#ff3300) [Şu anda ışınlanma isteklerini yok sayıyorsunuz.](#ff7e5e) [[Görmezden Gelmeyi Durdur…]](#ff7e5e show_text=&#ff7e5e&Gelen ışınlanma isteklerini dinlemek için tıklayın run_command=/huskhomes:tpignore)'
   error_invalid_teleport_request: '[Hata:](#ff3300) [%1% tarafından bekleyen bir ışınlanma isteğiniz yok.](#ff7e5e)'
   error_teleport_request_self: '[Hata:](#ff3300) [Kendinize ışınlanma isteği gönderemezsiniz.](#ff7e5e)'
+  error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Hata:](#ff3300) [%1% adlı oyuncu bulunamadı.](#ff7e5e)'
   error_rtp_restricted_world: '[Hata:](#ff3300) [Bu dünyada rastgele ışınlanamazsınız.](#ff7e5e)'
   error_on_cooldown: '[Hata:](#ff3300) [Tekrar yapmadan önce %1% beklemelisiniz.](#ff7e5e)'

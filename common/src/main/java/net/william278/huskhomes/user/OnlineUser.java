@@ -37,6 +37,7 @@ import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A cross-platform representation of a logged-in {@link User}.
@@ -179,6 +180,13 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public Audience getAudience() {
         return plugin.getAudience(getUuid());
     }
+
+    /**
+     * Dismount the player, readying them for teleportation.
+     *
+     * @return a {@link CompletableFuture} that completes when the player has dismounted
+     */
+    public abstract CompletableFuture<Void> dismount();
 
     /**
      * Teleport a player to the specified local {@link Location}.

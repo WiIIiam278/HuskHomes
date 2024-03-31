@@ -28,8 +28,8 @@ import net.william278.huskhomes.util.TransactionResolver;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -247,8 +247,8 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
         }
 
         plugin.getLocales().getLocale("edit_home_menu_metadata_" + (!home.isPublic() ? "private" : "public"),
-                        SimpleDateFormat.getDateTimeInstance()
-                                .format(home.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                        home.getMeta().getCreationTimestamp().format(DateTimeFormatter
+                                .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)),
                         home.getUuid().toString().split(Pattern.quote("-"))[0],
                         home.getUuid().toString())
                 .ifPresent(messages::add);

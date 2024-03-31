@@ -27,8 +27,8 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,8 +148,8 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                 .ifPresent(messages::add);
 
         plugin.getLocales().getLocale("edit_warp_menu_metadata",
-                        SimpleDateFormat.getDateTimeInstance()
-                                .format(warp.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                        warp.getMeta().getCreationTimestamp().format(DateTimeFormatter
+                                .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)),
                         warp.getUuid().toString().split(Pattern.quote("-"))[0],
                         warp.getUuid().toString())
                 .ifPresent(messages::add);

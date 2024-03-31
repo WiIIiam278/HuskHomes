@@ -311,6 +311,9 @@ public class HomesManager {
     }
 
     public void setHomeName(@NotNull Home home, @NotNull String newName) throws ValidationException {
+        if (plugin.getDatabase().getHome(home.getOwner(), newName).isPresent()) {
+            throw new ValidationException(ValidationException.Type.NAME_TAKEN);
+        }
         plugin.getValidator().validateName(newName);
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);

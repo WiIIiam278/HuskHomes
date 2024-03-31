@@ -206,6 +206,9 @@ public class WarpsManager {
     }
 
     public void setWarpName(@NotNull Warp warp, @NotNull String newName) throws ValidationException {
+        if (plugin.getDatabase().getWarp(newName).isPresent()) {
+            throw new ValidationException(ValidationException.Type.NAME_TAKEN);
+        }
         plugin.getValidator().validateName(newName);
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);

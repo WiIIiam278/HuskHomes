@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api 'net.william278:minedown:1.8.2'
+    api 'net.william278:minedown:1.8.2-9323e27'
     api 'net.william278:paginedown:1.1.2'
     api 'net.william278:DesertWell:2.0.4'
     api 'commons-io:commons-io:2.15.1'

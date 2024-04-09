@@ -137,6 +137,12 @@ public final class Settings {
         @Comment("How long a player has to stand still and not take damage for when teleporting (in seconds) ")
         private int teleportWarmupTime = 5;
 
+        @Comment("Whether the teleport warmup timer should be cancelled if the player takes damage")
+        private boolean teleportWarmupCancelOnDamage = true;
+
+        @Comment("Whether the teleport warmup timer should be cancelled if the player moves")
+        private boolean teleportWarmupCancelOnMove = true;
+
         @Comment("Where the teleport warmup timer should display (CHAT, ACTION_BAR, TITLE, SUBTITLE or NONE)")
         private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;
 

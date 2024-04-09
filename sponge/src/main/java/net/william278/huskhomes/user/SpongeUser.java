@@ -33,6 +33,7 @@ import org.spongepowered.api.world.server.ServerLocation;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class SpongeUser extends OnlineUser {
 
@@ -105,6 +106,17 @@ public class SpongeUser extends OnlineUser {
     }
 
     @Override
+    public CompletableFuture<Void> dismount() {
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        plugin.runSync(() -> {
+            player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
+            player.passengers().forEach(passenger -> player.passengers().remove(passenger));
+            future.complete(null);
+        });
+        return future;
+    }
+
+    @Override
     public void teleportLocally(@NotNull Location location, boolean async) {
         plugin.runSync(() -> {
             final Optional<ServerLocation> serverLocation = SpongeAdapter.adaptLocation(location);
@@ -112,6 +124,7 @@ public class SpongeUser extends OnlineUser {
                 return;
             }
             player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
+            player.passengers().forEach(passenger -> player.passengers().remove(passenger));
             player.setLocation(serverLocation.get());
         });
     }

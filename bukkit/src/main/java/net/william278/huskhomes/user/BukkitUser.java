@@ -34,6 +34,7 @@ import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -104,6 +105,23 @@ public class BukkitUser extends OnlineUser {
                         PermissionAttachmentInfo::getPermission,
                         PermissionAttachmentInfo::getValue, (a, b) -> b
                 ));
+    }
+
+    @Override
+    public CompletableFuture<Void> dismount() {
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        ((BukkitHuskHomes) plugin).getScheduler().entitySpecificScheduler(player).run(
+                () -> {
+                    player.leaveVehicle();
+                    player.eject();
+                    future.complete(null);
+                },
+                () -> {
+                    plugin.log(Level.WARNING, "User offline when dismounting: " + player.getName());
+                    future.complete(null);
+                }
+        );
+        return future;
     }
 
     @Override

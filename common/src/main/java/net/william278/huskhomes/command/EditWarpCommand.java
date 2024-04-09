@@ -27,10 +27,9 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -38,9 +37,14 @@ import java.util.regex.Pattern;
 public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
     public EditWarpCommand(@NotNull HuskHomes plugin) {
-        super("editwarp", List.of(), Warp.class, List.of("rename", "description", "relocate"), plugin);
+        super(
+                "editwarp",
+                List.of(),
+                PositionCommandType.WARP,
+                List.of("rename", "description", "relocate"),
+                plugin
+        );
         setOperatorCommand(true);
-        addAdditionalPermissions(arguments.stream().collect(HashMap::new, (m, e) -> m.put(e, false), HashMap::putAll));
     }
 
     @Override
@@ -50,10 +54,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
             getWarpEditorWindow(warp).forEach(executor::sendMessage);
             return;
         }
-
-        if (!arguments.contains(operation.get().toLowerCase())) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
+        if (isInvalidOperation(operation.get(), executor)) {
             return;
         }
 
@@ -148,8 +149,8 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
                 .ifPresent(messages::add);
 
         plugin.getLocales().getLocale("edit_warp_menu_metadata",
-                        DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm")
-                                .format(warp.getMeta().getCreationTime().atZone(ZoneId.systemDefault())),
+                        warp.getMeta().getCreationTimestamp().format(DateTimeFormatter
+                                .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)),
                         warp.getUuid().toString().split(Pattern.quote("-"))[0],
                         warp.getUuid().toString())
                 .ifPresent(messages::add);

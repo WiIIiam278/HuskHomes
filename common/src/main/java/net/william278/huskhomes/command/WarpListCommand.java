@@ -69,8 +69,11 @@ public class WarpListCommand extends ListCommand {
         final PaginatedList warpList = PaginatedList.of(warps.stream().map(warp ->
                         plugin.getLocales()
                                 .getRawLocale("warp_list_item",
-                                        Locales.escapeText(warp.getName()), warp.getSafeIdentifier(),
-                                        Locales.escapeText(warp.getMeta().getDescription())
+                                        Locales.escapeText(warp.getName()),
+                                        warp.getSafeIdentifier(),
+                                        warp.getMeta().getDescription().isBlank()
+                                                ? plugin.getLocales().getNone()
+                                                : Locales.escapeText(warp.getMeta().getDescription())
                                 )
                                 .orElse(warp.getName())).sorted().collect(Collectors.toList()),
                 plugin.getLocales()

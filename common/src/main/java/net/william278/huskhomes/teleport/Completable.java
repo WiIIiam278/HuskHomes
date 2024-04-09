@@ -37,12 +37,14 @@ public interface Completable {
      *
      * @param args Optional args to pass to the teleport exception handler
      */
-    default void complete(@NotNull String... args) {
+    default boolean complete(@NotNull String... args) {
         try {
             execute();
         } catch (TeleportationException e) {
             e.displayMessage(getExecutor(), args);
+            return false;
         }
+        return true;
     }
 
 }

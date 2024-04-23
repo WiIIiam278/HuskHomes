@@ -23,6 +23,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -39,6 +40,7 @@ import net.william278.huskhomes.teleport.TeleportationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class FabricUser extends OnlineUser {
 
@@ -123,13 +125,26 @@ public class FabricUser extends OnlineUser {
     }
 
     @Override
+    public CompletableFuture<Void> dismount() {
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        plugin.runSync(() -> {
+            player.stopRiding();
+            player.getPassengerList().forEach(Entity::stopRiding);
+            future.complete(null);
+        });
+        return future;
+    }
+
+    @Override
     public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
         final MinecraftServer server = player.getServer();
         if (server == null) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
-        player.dismountVehicle();
+        player.stopRiding();
+        player.getPassengerList().forEach(Entity::stopRiding);
+
         FabricDimensions.teleport(
                 player,
                 server.getWorld(server.getWorldRegistryKeys().stream()

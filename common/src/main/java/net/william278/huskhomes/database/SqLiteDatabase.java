@@ -515,6 +515,52 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public List<Home> getPublicHomes(@NotNull String name, boolean caseInsensitive) {
+        final List<Home> userHomes = new ArrayList<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
+                SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
+                    `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
+                    `world_uuid`, `server_name`, `public`
+                FROM `%homes_table%`
+                INNER JOIN `%saved_positions_table%`
+                    ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
+                INNER JOIN `%positions_table%`
+                    ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
+                INNER JOIN `%players_table%`
+                    ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
+                WHERE `public`=true
+                AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))
+                ORDER BY `name`;"""))) {
+            statement.setBoolean(1, caseInsensitive);
+            statement.setString(2, name);
+            statement.setString(3, name);
+
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                userHomes.add(Home.from(resultSet.getDouble("x"),
+                        resultSet.getDouble("y"),
+                        resultSet.getDouble("z"),
+                        resultSet.getFloat("yaw"),
+                        resultSet.getFloat("pitch"),
+                        World.from(resultSet.getString("world_name"),
+                                UUID.fromString(resultSet.getString("world_uuid"))),
+                        resultSet.getString("server_name"),
+                        PositionMeta.from(resultSet.getString("name"),
+                                resultSet.getString("description"),
+                                resultSet.getTimestamp("timestamp").toInstant(),
+                                resultSet.getString("tags")),
+                        UUID.fromString(resultSet.getString("home_uuid")),
+                        User.of(UUID.fromString(resultSet.getString("owner_uuid")),
+                                resultSet.getString("owner_username")),
+                        resultSet.getBoolean("public")));
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to query the database for public home data");
+        }
+        return userHomes;
+    }
+
+    @Override
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
         try (PreparedStatement statement = getConnection().prepareStatement(formatStatementTables("""
                 SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,

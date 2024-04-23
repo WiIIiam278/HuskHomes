@@ -69,10 +69,10 @@ public final class Settings {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
-        @Comment("Type of database to use (SQLITE, H2, MYSQL, or MARIADB)")
+        @Comment("Type of database to use (SQLITE, H2, MYSQL, MARIADB, or POSTGRESQL)")
         private Database.Type type = Database.Type.SQLITE;
 
-        @Comment("Specify credentials here if you are using MYSQL or MARIADB")
+        @Comment("Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL")
         private DatabaseCredentials credentials = new DatabaseCredentials();
 
         @Getter
@@ -89,7 +89,7 @@ public final class Settings {
                     "useUnicode=true", "characterEncoding=UTF-8");
         }
 
-        @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
+        @Comment({"MYSQL / MARIADB / POSTGRESQL database Hikari connection pool properties",
                 "Don't modify this unless you know what you're doing!"})
         private PoolOptions poolOptions = new PoolOptions();
 
@@ -136,6 +136,12 @@ public final class Settings {
 
         @Comment("How long a player has to stand still and not take damage for when teleporting (in seconds) ")
         private int teleportWarmupTime = 5;
+
+        @Comment("Whether the teleport warmup timer should be cancelled if the player takes damage")
+        private boolean teleportWarmupCancelOnDamage = true;
+
+        @Comment("Whether the teleport warmup timer should be cancelled if the player moves")
+        private boolean teleportWarmupCancelOnMove = true;
 
         @Comment("Where the teleport warmup timer should display (CHAT, ACTION_BAR, TITLE, SUBTITLE or NONE)")
         private Locales.DisplaySlot teleportWarmupDisplay = Locales.DisplaySlot.ACTION_BAR;

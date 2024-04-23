@@ -63,13 +63,9 @@ public class FabricImpactorEconomyHook extends EconomyHook {
         final double currentBalance = account.balance().doubleValue();
         final double amountToChange = Math.abs(currentBalance - Math.max(0d, currentBalance + amount));
         if (amount < 0d) {
-            account.withdrawAsync(
-                    BigDecimal.valueOf(amountToChange)
-            );
+            account.withdraw(BigDecimal.valueOf(amountToChange));
         } else {
-            account.depositAsync(
-                    BigDecimal.valueOf(amountToChange)
-            );
+            account.deposit(BigDecimal.valueOf(amountToChange));
         }
     }
 

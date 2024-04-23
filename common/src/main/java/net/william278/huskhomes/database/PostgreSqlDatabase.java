@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.database;
 
+import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.teleport.Teleport;
@@ -27,74 +28,118 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
-import org.h2.jdbcx.JdbcConnectionPool;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
+import static net.william278.huskhomes.config.Settings.DatabaseSettings;
+
 /**
- * An H2 implementation of the plugin {@link Database}.
+ * A PostgreSQL implementation of the plugin {@link Database}.
  */
 @SuppressWarnings("DuplicatedCode")
-public class H2Database extends Database {
+public class PostgreSqlDatabase extends Database {
 
-    /**
-     * Path to the H2 HuskHomesData.h2 file.
-     */
-    private final File databaseFile;
+    private static final String DATA_POOL_NAME = "HuskHomesHikariPool";
+    private final String driverClass;
+    private HikariDataSource dataSource;
 
-    /**
-     * The name of the database file.
-     */
-    private static final String DATABASE_FILE_NAME = "HuskHomesData.h2";
-
-    private JdbcConnectionPool connectionPool;
-
-    public H2Database(@NotNull HuskHomes plugin) {
+    public PostgreSqlDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.databaseFile = plugin.getConfigDirectory().resolve(DATABASE_FILE_NAME).toFile();
+
+        this.driverClass = "org.postgresql.Driver";
     }
 
     /**
-     * Fetch the auto-closeable connection from the H2 Connection Pool.
+     * Fetch the auto-closeable connection from the hikariDataSource.
      *
-     * @return The {@link Connection} to the H2 database
+     * @return The {@link Connection} to the PostgreSQL database
      * @throws SQLException if the connection fails for some reason
      */
+    @Blocking
+    @NotNull
     private Connection getConnection() throws SQLException {
-        return connectionPool.getConnection();
+        if (dataSource == null) {
+            throw new IllegalStateException("The database has not been initialized");
+        }
+        return dataSource.getConnection();
     }
 
+    @Blocking
     @Override
     public void initialize() throws IllegalStateException {
-        // Prepare the database flat file
-        final String url = String.format("jdbc:h2:%s", databaseFile.getAbsolutePath());
-        this.connectionPool = JdbcConnectionPool.create(url, "sa", "sa");
+        // Initialize the Hikari pooled connection
+        final DatabaseSettings.DatabaseCredentials credentials = plugin.getSettings().getDatabase().getCredentials();
+        dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setJdbcUrl(String.format("jdbc:postgresql://%s:%s/%s%s",
+                credentials.getHost(),
+                credentials.getPort(),
+                credentials.getDatabase(),
+                credentials.getParameters()
+        ));
+
+        // Authenticate with the database
+        dataSource.setUsername(credentials.getUsername());
+        dataSource.setPassword(credentials.getPassword());
+
+        // Set connection pool options
+        final DatabaseSettings.PoolOptions pool = plugin.getSettings().getDatabase().getPoolOptions();
+        dataSource.setMaximumPoolSize(pool.getSize());
+        dataSource.setMinimumIdle(pool.getIdle());
+        dataSource.setMaxLifetime(pool.getLifetime());
+        dataSource.setKeepaliveTime(pool.getKeepAlive());
+        dataSource.setConnectionTimeout(pool.getTimeout());
+        dataSource.setPoolName(DATA_POOL_NAME);
+
+        // Set additional connection pool properties
+        final Properties properties = new Properties();
+        properties.putAll(
+                Map.of("cachePrepStmts", "true",
+                        "prepStmtCacheSize", "250",
+                        "prepStmtCacheSqlLimit", "2048",
+                        "useServerPrepStmts", "true",
+                        "useLocalSessionState", "true",
+                        "useLocalTransactionState", "true"
+                ));
+        properties.putAll(
+                Map.of(
+                        "rewriteBatchedStatements", "true",
+                        "cacheResultSetMetadata", "true",
+                        "cacheServerConfiguration", "true",
+                        "elideSetAutoCommits", "true",
+                        "maintainTimeStats", "false")
+        );
+        dataSource.setDataSourceProperties(properties);
 
         // Prepare database schema; make tables if they don't exist
-        try (Connection connection = getConnection()) {
-            final String[] databaseSchema = getSchemaStatements("database/h2_schema.sql");
+        try (Connection connection = dataSource.getConnection()) {
+            final String[] databaseSchema = getSchemaStatements("database/postgresql_schema.sql");
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : databaseSchema) {
                     statement.execute(tableCreationStatement);
                 }
+            } catch (SQLException e) {
+                throw new IllegalStateException("Failed to create database tables. Please ensure that your connecting "
+                        + "user account has privileges to create tables.", e);
             }
         } catch (SQLException | IOException e) {
-            throw new IllegalStateException("Failed to initialize the H2 database", e);
+            throw new IllegalStateException("Failed to establish a connection to the PostgreSQL database. "
+                    + "Please check the supplied database credentials in the config file", e);
         }
     }
 
     @Override
     protected int setPosition(@NotNull Position position, @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%positions_table%`
-                            (`x`,`y`,`z`,`yaw`,`pitch`,`world_name`,`world_uuid`,`server_name`)
+                        INSERT INTO "%positions_table%"
+                            ("x","y","z","yaw","pitch","world_name","world_uuid","server_name")
                         VALUES
                             (?,?,?,?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -121,16 +166,16 @@ public class H2Database extends Database {
     protected void updatePosition(int positionId, @NotNull Position position,
                                   @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                UPDATE `%positions_table%`
-                SET `x`=?,
-                `y`=?,
-                `z`=?,
-                `yaw`=?,
-                `pitch`=?,
-                `world_uuid`=?,
-                `world_name`=?,
-                `server_name`=?
-                WHERE `id`=?"""))) {
+                UPDATE "%positions_table%"
+                SET "x"=?,
+                "y"=?,
+                "z"=?,
+                "yaw"=?,
+                "pitch"=?,
+                "world_uuid"=?,
+                "world_name"=?,
+                "server_name"=?
+                WHERE "id"=?"""))) {
             statement.setDouble(1, position.getX());
             statement.setDouble(2, position.getY());
             statement.setDouble(3, position.getZ());
@@ -148,8 +193,8 @@ public class H2Database extends Database {
     protected int setSavedPosition(@NotNull SavedPosition position,
                                    @NotNull Connection connection) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%saved_positions_table%`
-                            (`position_id`, `name`, `description`, `tags`, `timestamp`)
+                        INSERT INTO "%saved_positions_table%"
+                            ("position_id", "name", "description", "tags", "timestamp")
                         VALUES
                             (?,?,?,?,?);"""),
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -173,9 +218,9 @@ public class H2Database extends Database {
     protected void updateSavedPosition(int savedPositionId, @NotNull SavedPosition position,
                                        @NotNull Connection connection) throws SQLException {
         try (PreparedStatement selectStatement = connection.prepareStatement(formatStatementTables("""
-                SELECT `position_id`
-                FROM `%saved_positions_table%`
-                WHERE `id`=?;"""))) {
+                SELECT "position_id"
+                FROM "%saved_positions_table%"
+                WHERE "id"=?;"""))) {
             selectStatement.setInt(1, savedPositionId);
 
             final ResultSet resultSet = selectStatement.executeQuery();
@@ -184,11 +229,11 @@ public class H2Database extends Database {
                 updatePosition(positionId, position, connection);
 
                 try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%saved_positions_table%`
-                        SET `name`=?,
-                        `description`=?,
-                        `tags`=?
-                        WHERE `id`=?;"""))) {
+                        UPDATE "%saved_positions_table%"
+                        SET "name"=?,
+                        "description"=?,
+                        "tags"=?
+                        WHERE "id"=?;"""))) {
                     updateStatement.setString(1, position.getName());
                     updateStatement.setString(2, position.getMeta().getDescription());
                     updateStatement.setString(3, position.getMeta().getSerializedTags());
@@ -207,9 +252,9 @@ public class H2Database extends Database {
                         // Update a player's name if it has changed in the database
                         try (Connection connection = getConnection()) {
                             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                                    UPDATE `%players_table%`
-                                    SET `username`=?
-                                    WHERE `uuid`=?"""))) {
+                                    UPDATE "%players_table%"
+                                    SET "username"=?
+                                    WHERE "uuid"=?"""))) {
 
                                 statement.setString(1, onlineUser.getUsername());
                                 statement.setString(2, existingUserData.getUserUuid().toString());
@@ -227,7 +272,7 @@ public class H2Database extends Database {
                     // Insert new player data into the database
                     try (Connection connection = getConnection()) {
                         try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                                INSERT INTO `%players_table%` (`uuid`,`username`)
+                                INSERT INTO "%players_table%" ("uuid","username")
                                 VALUES (?,?);"""))) {
 
                             statement.setString(1, onlineUser.getUuid().toString());
@@ -244,9 +289,9 @@ public class H2Database extends Database {
     public Optional<SavedUser> getUserDataByName(@NotNull String name) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
-                    FROM `%players_table%`
-                    WHERE `username`=?"""))) {
+                    SELECT "uuid", "username", "home_slots", "ignoring_requests"
+                    FROM "%players_table%"
+                    WHERE "username"=?"""))) {
                 statement.setString(1, name);
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -269,9 +314,9 @@ public class H2Database extends Database {
     public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
-                    FROM `%players_table%`
-                    WHERE `uuid`=?"""))) {
+                    SELECT "uuid", "username", "home_slots", "ignoring_requests"
+                    FROM "%players_table%"
+                    WHERE "uuid"=?"""))) {
 
                 statement.setString(1, uuid.toString());
 
@@ -294,26 +339,31 @@ public class H2Database extends Database {
     @Override
     public void deleteUserData(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
-            // Delete Position
-            PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `id`
-                        IN ((SELECT `last_position` FROM `%players_table%` WHERE `uuid` = ?),
-                            (SELECT `offline_position` FROM `%players_table%` WHERE `uuid` = ?),
-                            (SELECT `respawn_position` FROM `%players_table%` WHERE `uuid` = ?));"""));
-            statement.setString(1, uuid.toString());
-            statement.setString(2, uuid.toString());
-            statement.setString(3, uuid.toString());
-            statement.executeUpdate();
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM "%positions_table%"
+                    WHERE "id"
+                        IN ((SELECT "last_position" FROM "%players_table%" WHERE "uuid" = ?),
+                            (SELECT "offline_position" FROM "%players_table%" WHERE "uuid" = ?),
+                            (SELECT "respawn_position" FROM "%players_table%" WHERE "uuid" = ?));"""))) {
+                statement.setString(1, uuid.toString());
+                statement.setString(2, uuid.toString());
+                statement.setString(3, uuid.toString());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to delete player positions from the database", e);
+                return;
+            }
 
-            statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%players_table%`
-                    WHERE `uuid`=?;"""));
-            statement.setString(1, uuid.toString());
-            statement.executeUpdate();
-
+            try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
+                    DELETE FROM "%players_table%"
+                    WHERE "uuid"=?;"""))) {
+                statement.setString(1, uuid.toString());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+            }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to delete a player from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete user data", e);
         }
     }
 
@@ -321,10 +371,10 @@ public class H2Database extends Database {
     public Optional<Instant> getCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `type`, `start_timestamp`, `end_timestamp`
-                    FROM `%cooldowns_table%`
-                    WHERE `player_uuid`=? AND `type`=?
-                    ORDER BY `start_timestamp` DESC
+                    SELECT "type", "start_timestamp", "end_timestamp"
+                    FROM "%cooldowns_table%"
+                    WHERE "player_uuid"=? AND "type"=?
+                    ORDER BY "start_timestamp" DESC
                     LIMIT 1;"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
@@ -345,7 +395,7 @@ public class H2Database extends Database {
                             @NotNull Instant cooldownExpiry) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    INSERT INTO `%cooldowns_table%` (`player_uuid`, `type`, `start_timestamp`, `end_timestamp`)
+                    INSERT INTO "%cooldowns_table%" ("player_uuid", "type", "start_timestamp", "end_timestamp")
                     VALUES (?,?,?,?);"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
@@ -362,8 +412,8 @@ public class H2Database extends Database {
     public void removeCooldown(@NotNull TransactionResolver.Action action, @NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%cooldowns_table%`
-                    WHERE `player_uuid`=? AND `type`=?;"""))) {
+                    DELETE FROM "%cooldowns_table%"
+                    WHERE "player_uuid"=? AND "type"=?;"""))) {
 
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, action.name().toLowerCase(Locale.ENGLISH));
@@ -379,17 +429,17 @@ public class H2Database extends Database {
         final List<Home> userHomes = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `name`, `description`, `tags`,
-                        `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%`
-                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `owner_uuid`=?
-                    ORDER BY `name`;"""))) {
+                    SELECT "%homes_table%"."uuid" AS "home_uuid", "owner_uuid", "name", "description", "tags",
+                        "timestamp", "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name", "public"
+                    FROM "%homes_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%homes_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    INNER JOIN "%players_table%"
+                        ON "%homes_table%"."owner_uuid"="%players_table%"."uuid"
+                    WHERE "owner_uuid"=?
+                    ORDER BY "name";"""))) {
 
                 statement.setString(1, user.getUuid().toString());
 
@@ -423,14 +473,14 @@ public class H2Database extends Database {
         final List<Warp> warps = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
-                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    ORDER BY `name`;"""))) {
+                    SELECT "%warps_table%"."uuid" AS "warp_uuid", "name", "description", "tags", "timestamp",
+                        "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%warps_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%warps_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    ORDER BY "name";"""))) {
 
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
@@ -460,18 +510,18 @@ public class H2Database extends Database {
         final List<Home> userHomes = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`,
-                        `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`,
-                        `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%`
-                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `public`=true
-                    ORDER BY `name`;"""))) {
+                    SELECT "%homes_table%"."uuid" AS "home_uuid", "owner_uuid", "username" AS "owner_username", "name",
+                        "description", "tags", "timestamp", "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid",
+                        "server_name", "public"
+                    FROM "%homes_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%homes_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    INNER JOIN "%players_table%"
+                        ON "%homes_table%"."owner_uuid"="%players_table%"."uuid"
+                    WHERE "public"=true
+                    ORDER BY "name";"""))) {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     userHomes.add(Home.from(resultSet.getDouble("x"),
@@ -503,19 +553,19 @@ public class H2Database extends Database {
         final List<Home> userHomes = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`, `name`,
-                        `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`,
-                        `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table`
-                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `public`=true
-                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))
-                    ORDER BY `name`;"""))) {
+                    SELECT "%homes_table%"."uuid" AS "home_uuid", "owner_uuid", "username" AS "owner_username", "name",
+                        "description", "tags", "timestamp", "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid",
+                        "server_name", "public"
+                    FROM "%homes_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%homes_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    INNER JOIN "%players_table%"
+                        ON "%homes_table%"."owner_uuid"="%players_table%"."uuid"
+                    WHERE "public"=true
+                    AND ((? AND UPPER("name") LIKE UPPER(?)) OR ("name"=?))
+                    ORDER BY "name";"""))) {
                 statement.setBoolean(1, caseInsensitive);
                 statement.setString(2, name);
                 statement.setString(3, name);
@@ -550,18 +600,18 @@ public class H2Database extends Database {
     public Optional<Home> getHome(@NotNull User user, @NotNull String homeName, boolean caseInsensitive) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
-                        `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
-                        `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%`
-                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `owner_uuid`=?
-                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+                    SELECT "%homes_table%"."uuid" AS "home_uuid", "owner_uuid", "username" AS "owner_username",
+                        "name", "description", "tags", "timestamp", "x", "y", "z", "yaw", "pitch", "world_name",
+                        "world_uuid", "server_name", "public"
+                    FROM "%homes_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%homes_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    INNER JOIN "%players_table%"
+                        ON "%homes_table%"."owner_uuid"="%players_table%"."uuid"
+                    WHERE "owner_uuid"=?
+                    AND ((? AND UPPER("name") LIKE UPPER(?)) OR ("name"=?))"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setBoolean(2, caseInsensitive);
                 statement.setString(3, homeName);
@@ -596,17 +646,17 @@ public class H2Database extends Database {
     public Optional<Home> getHome(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%homes_table%`.`uuid` AS `home_uuid`, `owner_uuid`, `username` AS `owner_username`,
-                        `name`, `description`, `tags`, `timestamp`, `x`, `y`, `z`, `yaw`, `pitch`, `world_name`,
-                        `world_uuid`, `server_name`, `public`
-                    FROM `%homes_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%homes_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    INNER JOIN `%players_table%`
-                        ON `%homes_table%`.`owner_uuid`=`%players_table%`.`uuid`
-                    WHERE `%homes_table%`.`uuid`=?;"""))) {
+                    SELECT "%homes_table%"."uuid" AS "home_uuid", "owner_uuid", "username" AS "owner_username",
+                        "name", "description", "tags", "timestamp", "x", "y", "z", "yaw", "pitch", "world_name",
+                        "world_uuid", "server_name", "public"
+                    FROM "%homes_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%homes_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    INNER JOIN "%players_table%"
+                        ON "%homes_table%"."owner_uuid"="%players_table%"."uuid"
+                    WHERE "%homes_table%"."uuid"=?;"""))) {
                 statement.setString(1, uuid.toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -639,14 +689,14 @@ public class H2Database extends Database {
     public Optional<Warp> getWarp(@NotNull String warpName, boolean caseInsensitive) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
-                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    AND ((? AND UPPER(`name`) LIKE UPPER(?)) OR (`name`=?))"""))) {
+                    SELECT "%warps_table%"."uuid" AS "warp_uuid", "name", "description", "tags", "timestamp",
+                        "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%warps_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%warps_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    AND ((? AND UPPER("name") LIKE UPPER(?)) OR ("name"=?))"""))) {
                 statement.setBoolean(1, caseInsensitive);
                 statement.setString(2, warpName);
                 statement.setString(3, warpName);
@@ -678,14 +728,14 @@ public class H2Database extends Database {
     public Optional<Warp> getWarp(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `%warps_table%`.`uuid` AS `warp_uuid`, `name`, `description`, `tags`, `timestamp`,
-                        `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%warps_table%`
-                    INNER JOIN `%saved_positions_table%`
-                        ON `%warps_table%`.`saved_position_id`=`%saved_positions_table%`.`id`
-                    INNER JOIN `%positions_table%`
-                        ON `%saved_positions_table%`.`position_id`=`%positions_table%`.`id`
-                    WHERE `%warps_table%`.uuid=?;"""))) {
+                    SELECT "%warps_table%"."uuid" AS "warp_uuid", "name", "description", "tags", "timestamp",
+                        "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%warps_table%"
+                    INNER JOIN "%saved_positions_table%"
+                        ON "%warps_table%"."saved_position_id"="%saved_positions_table%"."id"
+                    INNER JOIN "%positions_table%"
+                        ON "%saved_positions_table%"."position_id"="%positions_table%"."id"
+                    WHERE "%warps_table%".uuid=?;"""))) {
                 statement.setString(1, uuid.toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -715,10 +765,10 @@ public class H2Database extends Database {
     public Optional<Teleport> getCurrentTeleport(@NotNull OnlineUser onlineUser) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`, `type`
-                    FROM `%teleports_table%`
-                    INNER JOIN `%positions_table%` ON `%teleports_table%`.`destination_id` = `%positions_table%`.`id`
-                    WHERE `player_uuid`=?"""))) {
+                    SELECT "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name", "type"
+                    FROM "%teleports_table%"
+                    INNER JOIN "%positions_table%" ON "%teleports_table%"."destination_id" = "%positions_table%"."id"
+                    WHERE "player_uuid"=?"""))) {
                 statement.setString(1, onlineUser.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -751,9 +801,9 @@ public class H2Database extends Database {
     public void updateUserData(@NotNull SavedUser savedUser) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    UPDATE `%players_table%`
-                    SET `home_slots`=?, `ignoring_requests`=?
-                    WHERE `uuid`=?"""))) {
+                    UPDATE "%players_table%"
+                    SET "home_slots"=?, "ignoring_requests"=?
+                    WHERE "uuid"=?"""))) {
 
                 statement.setInt(1, savedUser.getHomeSlots());
                 statement.setBoolean(2, savedUser.isIgnoringTeleports());
@@ -770,11 +820,11 @@ public class H2Database extends Database {
         try (Connection connection = getConnection()) {
             // Clear the user's current teleport
             try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `id`=(
-                        SELECT `destination_id`
-                        FROM `%teleports_table%`
-                        WHERE `%teleports_table%`.`player_uuid`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "id"=(
+                        SELECT "destination_id"
+                        FROM "%teleports_table%"
+                        WHERE "%teleports_table%"."player_uuid"=?
                     );"""))) {
                 deleteStatement.setString(1, user.getUuid().toString());
                 deleteStatement.executeUpdate();
@@ -783,7 +833,7 @@ public class H2Database extends Database {
             // Set the user's teleport into the database (if it's not null)
             if (teleport != null) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%teleports_table%` (`player_uuid`, `destination_id`, `type`)
+                        INSERT INTO "%teleports_table%" ("player_uuid", "destination_id", "type")
                         VALUES (?,?,?);"""))) {
                     statement.setString(1, user.getUuid().toString());
                     statement.setInt(2, setPosition((Position) teleport.getTarget(), connection));
@@ -801,10 +851,10 @@ public class H2Database extends Database {
     public Optional<Position> getLastPosition(@NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.`last_position` = `%positions_table%`.`id`
-                    WHERE `uuid`=?"""))) {
+                    SELECT "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%"."last_position" = "%positions_table%"."id"
+                    WHERE "uuid"=?"""))) {
                 statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -829,10 +879,10 @@ public class H2Database extends Database {
     public void setLastPosition(@NotNull User user, @NotNull Position position) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `last_position`
-                    FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.last_position = `%positions_table%`.`id`
-                    WHERE `uuid`=?;"""))) {
+                    SELECT "last_position"
+                    FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%".last_position = "%positions_table%"."id"
+                    WHERE "uuid"=?;"""))) {
                 queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
@@ -842,9 +892,9 @@ public class H2Database extends Database {
                 } else {
                     // Set the last position
                     try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `last_position`=?
-                            WHERE `uuid`=?;"""))) {
+                            UPDATE "%players_table%"
+                            SET "last_position"=?
+                            WHERE "uuid"=?;"""))) {
                         updateStatement.setInt(1, setPosition(position, connection));
                         updateStatement.setString(2, user.getUuid().toString());
                         updateStatement.executeUpdate();
@@ -860,10 +910,10 @@ public class H2Database extends Database {
     public Optional<Position> getOfflinePosition(@NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
-                    WHERE `uuid`=?"""))) {
+                    SELECT "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%"."offline_position" = "%positions_table%"."id"
+                    WHERE "uuid"=?"""))) {
                 statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -888,9 +938,9 @@ public class H2Database extends Database {
     public void setOfflinePosition(@NotNull User user, @NotNull Position position) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `offline_position` FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.`offline_position` = `%positions_table%`.`id`
-                    WHERE `uuid`=?;"""))) {
+                    SELECT "offline_position" FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%"."offline_position" = "%positions_table%"."id"
+                    WHERE "uuid"=?;"""))) {
                 queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
@@ -900,9 +950,9 @@ public class H2Database extends Database {
                 } else {
                     // Set the offline position
                     try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                            UPDATE `%players_table%`
-                            SET `offline_position`=?
-                            WHERE `uuid`=?;"""))) {
+                            UPDATE "%players_table%"
+                            SET "offline_position"=?
+                            WHERE "uuid"=?;"""))) {
                         updateStatement.setInt(1, setPosition(position, connection));
                         updateStatement.setString(2, user.getUuid().toString());
                         updateStatement.executeUpdate();
@@ -918,10 +968,10 @@ public class H2Database extends Database {
     public Optional<Position> getRespawnPosition(@NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `x`, `y`, `z`, `yaw`, `pitch`, `world_name`, `world_uuid`, `server_name`
-                    FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.`respawn_position` = `%positions_table%`.`id`
-                    WHERE `uuid`=?"""))) {
+                    SELECT "x", "y", "z", "yaw", "pitch", "world_name", "world_uuid", "server_name"
+                    FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%"."respawn_position" = "%positions_table%"."id"
+                    WHERE "uuid"=?"""))) {
                 statement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = statement.executeQuery();
@@ -946,9 +996,9 @@ public class H2Database extends Database {
     public void setRespawnPosition(@NotNull User user, @Nullable Position position) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement queryStatement = connection.prepareStatement(formatStatementTables("""
-                    SELECT `respawn_position` FROM `%players_table%`
-                    INNER JOIN `%positions_table%` ON `%players_table%`.respawn_position = `%positions_table%`.`id`
-                    WHERE `uuid`=?;"""))) {
+                    SELECT "respawn_position" FROM "%players_table%"
+                    INNER JOIN "%positions_table%" ON "%players_table%".respawn_position = "%positions_table%"."id"
+                    WHERE "uuid"=?;"""))) {
                 queryStatement.setString(1, user.getUuid().toString());
 
                 final ResultSet resultSet = queryStatement.executeQuery();
@@ -956,11 +1006,11 @@ public class H2Database extends Database {
                     if (position == null) {
                         // Delete a respawn position
                         try (PreparedStatement deleteStatement = connection.prepareStatement(formatStatementTables("""
-                                DELETE FROM `%positions_table%`
-                                WHERE `id`=(
-                                    SELECT `respawn_position`
-                                    FROM `%players_table%`
-                                    WHERE `%players_table%`.`uuid`=?
+                                DELETE FROM "%positions_table%"
+                                WHERE "id"=(
+                                    SELECT "respawn_position"
+                                    FROM "%players_table%"
+                                    WHERE "%players_table%"."uuid"=?
                                 );"""))) {
                             deleteStatement.setString(1, user.getUuid().toString());
                             deleteStatement.executeUpdate();
@@ -973,9 +1023,9 @@ public class H2Database extends Database {
                     if (position != null) {
                         // Set a respawn position
                         try (PreparedStatement updateStatement = connection.prepareStatement(formatStatementTables("""
-                                UPDATE `%players_table%`
-                                SET `respawn_position`=?
-                                WHERE `uuid`=?;"""))) {
+                                UPDATE "%players_table%"
+                                SET "respawn_position"=?
+                                WHERE "uuid"=?;"""))) {
                             updateStatement.setInt(1, setPosition(position, connection));
                             updateStatement.setString(2, user.getUuid().toString());
                             updateStatement.executeUpdate();
@@ -994,8 +1044,8 @@ public class H2Database extends Database {
             try (Connection connection = getConnection()) {
                 // Update the home's saved position, including metadata
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `saved_position_id` FROM `%homes_table%`
-                        WHERE `uuid`=?;"""))) {
+                        SELECT "saved_position_id" FROM "%homes_table%"
+                        WHERE "uuid"=?;"""))) {
                     statement.setString(1, home.getUuid().toString());
 
                     final ResultSet resultSet = statement.executeQuery();
@@ -1006,9 +1056,9 @@ public class H2Database extends Database {
 
                 // Update the home privacy
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        UPDATE `%homes_table%`
-                        SET `public`=?
-                        WHERE `uuid`=?;"""))) {
+                        UPDATE "%homes_table%"
+                        SET "public"=?
+                        WHERE "uuid"=?;"""))) {
                     statement.setBoolean(1, home.isPublic());
                     statement.setString(2, home.getUuid().toString());
                     statement.executeUpdate();
@@ -1020,7 +1070,7 @@ public class H2Database extends Database {
         }, () -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%homes_table%` (`uuid`, `saved_position_id`, `owner_uuid`, `public`)
+                        INSERT INTO "%homes_table%" ("uuid", "saved_position_id", "owner_uuid", "public")
                         VALUES (?,?,?,?);"""))) {
                     statement.setString(1, home.getUuid().toString());
                     statement.setInt(2, setSavedPosition(home, connection));
@@ -1041,8 +1091,8 @@ public class H2Database extends Database {
         getWarp(warp.getUuid()).ifPresentOrElse(presentWarp -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        SELECT `saved_position_id` FROM `%warps_table%`
-                        WHERE `uuid`=?;"""))) {
+                        SELECT "saved_position_id" FROM "%warps_table%"
+                        WHERE "uuid"=?;"""))) {
                     statement.setString(1, warp.getUuid().toString());
 
                     final ResultSet resultSet = statement.executeQuery();
@@ -1056,7 +1106,7 @@ public class H2Database extends Database {
         }, () -> {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                        INSERT INTO `%warps_table%` (`uuid`, `saved_position_id`)
+                        INSERT INTO "%warps_table%" ("uuid", "saved_position_id")
                         VALUES (?,?);"""))) {
                     statement.setString(1, warp.getUuid().toString());
                     statement.setInt(2, setSavedPosition(warp, connection));
@@ -1073,14 +1123,14 @@ public class H2Database extends Database {
     public void deleteHome(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id`=(
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id`=(
-                            SELECT `saved_position_id`
-                            FROM `%homes_table%`
-                            WHERE `uuid`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id"=(
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id"=(
+                            SELECT "saved_position_id"
+                            FROM "%homes_table%"
+                            WHERE "uuid"=?
                         )
                     );"""))) {
                 statement.setString(1, uuid.toString());
@@ -1096,14 +1146,14 @@ public class H2Database extends Database {
     public int deleteAllHomes(@NotNull User user) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id` IN (
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id` IN (
-                            SELECT `saved_position_id`
-                            FROM `%homes_table%`
-                            WHERE `owner_uuid`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id" IN (
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id" IN (
+                            SELECT "saved_position_id"
+                            FROM "%homes_table%"
+                            WHERE "owner_uuid"=?
                         )
                     );"""))) {
 
@@ -1120,15 +1170,15 @@ public class H2Database extends Database {
     public int deleteAllHomes(@NotNull String worldName, @NotNull String serverName) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id` IN (
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id` IN (
-                            SELECT `saved_position_id`
-                            FROM `%homes_table%`
-                            WHERE `world_name`=?
-                            AND `server_name`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id" IN (
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id" IN (
+                            SELECT "saved_position_id"
+                            FROM "%homes_table%"
+                            WHERE "world_name"=?
+                            AND "server_name"=?
                         )
                     );"""))) {
                 statement.setString(1, worldName);
@@ -1147,14 +1197,14 @@ public class H2Database extends Database {
     public void deleteWarp(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id`=(
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id`=(
-                            SELECT `saved_position_id`
-                            FROM `%warps_table%`
-                            WHERE `uuid`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id"=(
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id"=(
+                            SELECT "saved_position_id"
+                            FROM "%warps_table%"
+                            WHERE "uuid"=?
                         )
                     );"""))) {
                 statement.setString(1, uuid.toString());
@@ -1170,13 +1220,13 @@ public class H2Database extends Database {
     public int deleteAllWarps() {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id` IN (
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id` IN (
-                            SELECT `saved_position_id`
-                            FROM `%warps_table%`
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id" IN (
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id" IN (
+                            SELECT "saved_position_id"
+                            FROM "%warps_table%"
                         )
                     );"""))) {
                 return statement.executeUpdate();
@@ -1191,15 +1241,15 @@ public class H2Database extends Database {
     public int deleteAllWarps(@NotNull String worldName, @NotNull String serverName) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatementTables("""
-                    DELETE FROM `%positions_table%`
-                    WHERE `%positions_table%`.`id` IN (
-                        SELECT `position_id`
-                        FROM `%saved_positions_table%`
-                        WHERE `%saved_positions_table%`.`id` IN (
-                            SELECT `saved_position_id`
-                            FROM `%warps_table%`
-                            WHERE `world_name`=?
-                            AND `server_name`=?
+                    DELETE FROM "%positions_table%"
+                    WHERE "%positions_table%"."id" IN (
+                        SELECT "position_id"
+                        FROM "%saved_positions_table%"
+                        WHERE "%saved_positions_table%"."id" IN (
+                            SELECT "saved_position_id"
+                            FROM "%warps_table%"
+                            WHERE "world_name"=?
+                            AND "server_name"=?
                         )
                     );"""))) {
                 statement.setString(1, worldName);
@@ -1216,8 +1266,10 @@ public class H2Database extends Database {
 
     @Override
     public void terminate() {
-        if (connectionPool != null) {
-            connectionPool.dispose();
+        if (dataSource != null) {
+            if (!dataSource.isClosed()) {
+                dataSource.close();
+            }
         }
     }
 

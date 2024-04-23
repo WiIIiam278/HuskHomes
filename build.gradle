@@ -22,6 +22,7 @@ ext {
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
+    set 'postgresql_driver_version', postgresql_driver_version.toString()
 }
 
 publishing {

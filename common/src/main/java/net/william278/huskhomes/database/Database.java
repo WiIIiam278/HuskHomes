@@ -493,7 +493,8 @@ public abstract class Database {
         MYSQL("MySQL", "mysql"),
         MARIADB("MariaDB", "mariadb"),
         SQLITE("SQLite", "sqlite"),
-        H2("H2", "h2");
+        H2("H2", "h2"),
+        POSTGRESQL("PostgreSQL", "postgresql");
 
         private final String displayName;
         private final String protocol;

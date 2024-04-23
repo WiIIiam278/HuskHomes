@@ -69,10 +69,10 @@ public final class Settings {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
-        @Comment("Type of database to use (SQLITE, H2, MYSQL, or MARIADB)")
+        @Comment("Type of database to use (SQLITE, H2, MYSQL, MARIADB, or POSTGRESQL)")
         private Database.Type type = Database.Type.SQLITE;
 
-        @Comment("Specify credentials here if you are using MYSQL or MARIADB")
+        @Comment("Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL")
         private DatabaseCredentials credentials = new DatabaseCredentials();
 
         @Getter
@@ -89,7 +89,7 @@ public final class Settings {
                     "useUnicode=true", "characterEncoding=UTF-8");
         }
 
-        @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
+        @Comment({"MYSQL / MARIADB / POSTGRESQL database Hikari connection pool properties",
                 "Don't modify this unless you know what you're doing!"})
         private PoolOptions poolOptions = new PoolOptions();
 

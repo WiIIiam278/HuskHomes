@@ -35,10 +35,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
-import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.database.H2Database;
-import net.william278.huskhomes.database.MySqlDatabase;
-import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.database.*;
 import net.william278.huskhomes.event.BukkitEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
@@ -138,6 +135,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
                 case H2 -> new H2Database(this);
+                case POSTGRESQL -> new PostgreSqlDatabase(this);
             };
 
             database.initialize();

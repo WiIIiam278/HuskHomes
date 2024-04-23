@@ -20,6 +20,7 @@ dependencies {
     compileOnly "com.mysql:mysql-connector-j:${mysql_driver_version}"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}"
     compileOnly "com.h2database:h2:${h2_driver_version}"
+    compileOnly "org.postgresql:postgresql:${postgresql_driver_version}"
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.1.0-jre'

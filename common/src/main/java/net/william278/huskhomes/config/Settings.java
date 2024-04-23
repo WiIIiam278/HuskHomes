@@ -374,7 +374,7 @@ public final class Settings {
     public static class EconomySettings {
 
         @Comment("Enable economy plugin integration (requires Vault and a compatible Economy plugin)")
-        private boolean enabled = false;
+        private boolean enabled = true;
 
         @Comment("Map of economy actions to costs.")
         private Map<TransactionResolver.Action, Double> economyCosts = TransactionResolver.Action.getEconomyCosts();
@@ -399,7 +399,7 @@ public final class Settings {
     public static class MapHookSettings {
 
         @Comment("Display public homes/warps on your Dynmap, BlueMap or Pl3xMap")
-        private boolean enabled = false;
+        private boolean enabled = true;
 
         @Comment("Show public homes on the web map")
         private boolean showPublicHomes = true;

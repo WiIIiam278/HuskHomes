@@ -26,7 +26,7 @@ database:
   type: SQLITE
   mysql:
     credentials:
-      # Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQ as your database type
+      # Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL as your database type
       host: localhost
       port: 3306
       database: HuskHomes

@@ -72,7 +72,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
             case 2 -> plugin.getWorlds().stream()
                     .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
                     .map(World::getName)
-                    .filter(user::hasPermission).toList();
+                    .filter(world -> !user.hasPermission(world)).toList();
             default -> null;
         };
     }

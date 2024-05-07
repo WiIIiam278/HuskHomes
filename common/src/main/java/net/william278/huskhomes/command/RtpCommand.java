@@ -67,12 +67,12 @@ public class RtpCommand extends Command implements UserListTabProvider {
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(args)
+            case 0, 1 -> user.hasPermission(getPermission("other")) ? UserListTabProvider.super.suggestLocal(args)
                     : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
             case 2 -> plugin.getWorlds().stream()
                     .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
                     .map(World::getName)
-                    .filter(world -> !user.hasPermission(world)).toList();
+                    .filter(world -> !user.hasPermission(getPermission("world"))).toList();
             default -> null;
         };
     }

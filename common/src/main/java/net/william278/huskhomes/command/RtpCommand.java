@@ -29,18 +29,16 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class RtpCommand extends Command implements UserListTabProvider {
 
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player] [world]", plugin);
-        addAdditionalPermissions(Map.of(
-                "other", true,
-                "world", true
-        ));
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("other", true);
+        plugin.getWorlds().forEach(world -> map.put(world.getName(), true));
+        addAdditionalPermissions(map);
     }
 
     @Override
@@ -71,9 +69,10 @@ public class RtpCommand extends Command implements UserListTabProvider {
         return switch (args.length) {
             case 0, 1 -> user.hasPermission("other") ? UserListTabProvider.super.suggestLocal(args)
                     : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
-            case 2 -> user.hasPermission("world") ? plugin.getWorlds().stream()
+            case 2 -> plugin.getWorlds().stream()
                     .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
-                    .map(World::getName).toList() : List.of();
+                    .map(World::getName)
+                    .filter(user::hasPermission).toList();
             default -> null;
         };
     }
@@ -112,7 +111,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
 
         // Ensure the user has permission to randomly teleport in the world
         final World world = optionalWorld.get();
-        if (!world.equals(teleporterWorld) && !executor.hasPermission(getPermission("world"))) {
+        if (!world.equals(teleporterWorld) && !executor.hasPermission(getPermission(world.getName()))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return Optional.empty();

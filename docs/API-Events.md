@@ -17,7 +17,7 @@ HuskHomes provides a number of API events your plugin can listen to when certain
 | `ReceiveTeleportRequestEvent`  |  4.1  |      ✅      | Called when a player receives a teleport request from someone            |
 | `ReplyTeleportRequestEvent`    |  4.1  |      ✅      | Called when a player accepts or declines a teleport request              |
 | `TeleportWarmupEvent`          |  3.0  |      ✅      | Called when a player starts a teleport warmup countdown                  |
-| `TeleportWarmupCancelledEvent` | 4.6.3 |      ✅      | Called when a player cancels the teleport warmup                         |
+| `TeleportWarmupCancelledEvent` | 4.6.3 |      ❌      | Called when a player cancels the teleport warmup                         |
 | `TeleportEvent`                |  3.0  |      ✅      | Called when a player is teleported&ddagger;                              |
 | `TeleportBackEvent`            |  4.1  |      ✅      | Called when a player teleports to their last position (`/back`)&ddagger; |
 

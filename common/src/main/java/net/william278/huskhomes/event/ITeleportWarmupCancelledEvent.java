@@ -57,8 +57,17 @@ public interface ITeleportWarmupCancelledEvent extends Event {
     @NotNull
     CancelReason getCancelReason();
 
+    /**
+     * The reason the teleport warmup was cancelled.
+     */
     enum CancelReason {
+        /**
+         * The teleport warmup was cancelled due to the player moving.
+         */
         PLAYER_MOVE,
+        /**
+         * The teleport warmup was cancelled due to the player taking damage.
+         */
         PLAYER_DAMAGE,
     }
 

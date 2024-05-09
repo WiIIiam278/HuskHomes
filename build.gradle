@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.github.goooler.shadow' version '8.1.7'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'org.ajoberstar.grgit' version '5.2.2'
     id 'checkstyle'
@@ -57,7 +57,7 @@ publishing {
 }
 
 allprojects {
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'checkstyle'
     apply plugin: 'java'

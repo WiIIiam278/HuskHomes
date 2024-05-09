@@ -37,6 +37,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.logging.Level;
 
+import static net.william278.huskhomes.event.ITeleportWarmupCancelledEvent.CancelReason;
+
 public interface FabricEventDispatcher extends EventDispatcher {
 
     @SuppressWarnings("unchecked")
@@ -66,6 +68,15 @@ public interface FabricEventDispatcher extends EventDispatcher {
     @Override
     default @NotNull ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return TeleportWarmupCallback.SUPPLIER.apply(teleport, duration);
+    }
+
+    @Override
+    @NotNull
+    default ITeleportWarmupCancelledEvent getTeleportWarmupCancelledEvent(@NotNull TimedTeleport teleport,
+                                                                                   int duration,
+                                                                                   int cancelledAfter,
+                                                                                   @NotNull CancelReason cancelReason) {
+        return TeleportWarmupCancelledCallback.SUPPLIER.apply(teleport, duration, cancelledAfter, cancelReason);
     }
 
     @Override

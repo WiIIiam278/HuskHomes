@@ -35,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static net.william278.huskhomes.event.ITeleportWarmupCancelledEvent.CancelReason;
+
 /**
  * An abstract dispatcher of events.
  */
@@ -70,6 +72,12 @@ public interface EventDispatcher {
 
     @NotNull
     ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration);
+
+    @NotNull
+    ITeleportWarmupCancelledEvent getTeleportWarmupCancelledEvent(@NotNull TimedTeleport teleport,
+                                                                  int duration,
+                                                                  int cancelledAfter,
+                                                                  @NotNull CancelReason cancelReason);
 
     @NotNull
     ISendTeleportRequestEvent getSendTeleportRequestEvent(@NotNull OnlineUser sender, @NotNull TeleportRequest request);

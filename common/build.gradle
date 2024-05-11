@@ -23,7 +23,7 @@ dependencies {
     compileOnly "org.postgresql:postgresql:${postgresql_driver_version}"
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
-    compileOnly 'com.google.guava:guava:33.1.0-jre'
+    compileOnly 'com.google.guava:guava:33.2.0-jre'
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2391'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
@@ -32,7 +32,7 @@ dependencies {
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2391'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'
-    testImplementation 'com.google.guava:guava:33.1.0-jre'
+    testImplementation 'com.google.guava:guava:33.2.0-jre'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }

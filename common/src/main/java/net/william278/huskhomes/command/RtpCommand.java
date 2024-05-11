@@ -37,7 +37,9 @@ public class RtpCommand extends Command implements UserListTabProvider {
         super("rtp", List.of(), "[player] [world]", plugin);
         Map<String, Boolean> map = new HashMap<>();
         map.put("other", true);
-        plugin.getWorlds().forEach(world -> map.put(world.getName(), true));
+        plugin.getWorlds().stream()
+                .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
+                .map(World::getName).toList().forEach(world -> map.put(world, true));
         addAdditionalPermissions(map);
     }
 

@@ -24,7 +24,9 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -113,6 +115,33 @@ public abstract class Broker {
                 plugin.getManager().homes().updatePublicHomeCache();
                 plugin.getManager().warps().updateWarpCache();
             }
+            case REQUEST_RTP_LOCATION -> message.getPayload()
+                    .getWorld()
+                    .ifPresent((world) ->
+                            plugin.getRandomTeleportEngine().getRandomPosition(world, new String[]{""})
+                                    .thenAccept((position) -> {
+                                        Message.Builder builder = Message.builder()
+                                                .type(Message.Type.RTP_LOCATION)
+                                                .scope(Message.Scope.PLAYER)
+                                                .target(message.getSourceServer());
+                                        if (position.isEmpty()) {
+                                            builder.payload(Payload.empty());
+                                        } else {
+                                            builder.payload(Payload.withPosition(position.get()));
+                                        }
+                                        builder.build().send(this, receiver);
+                                    })
+                    );
+            case RTP_LOCATION -> message.getPayload()
+                    .getPosition()
+                    .ifPresentOrElse(position -> {
+                        final TeleportBuilder builder = Teleport.builder(plugin)
+                                .teleporter(receiver)
+                                .actions(TransactionResolver.Action.RANDOM_TELEPORT)
+                                .target(position);
+                        builder.buildAndComplete(true);
+                    }, () -> plugin.getLocales().getLocale("error_rtp_randomization_timeout")
+                            .ifPresent(receiver::sendMessage));
             default -> throw new IllegalStateException("Unexpected value: " + message.getType());
         }
     }

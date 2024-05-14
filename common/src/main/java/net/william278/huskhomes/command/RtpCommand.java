@@ -20,6 +20,8 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
@@ -32,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class RtpCommand extends Command implements UserListTabProvider {
+
+    private final Random random = new Random();
 
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player] [world]", plugin);
@@ -140,6 +144,19 @@ public class RtpCommand extends Command implements UserListTabProvider {
         // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
+
+        if (plugin.getSettings().getCrossServer().isEnabled()) {
+            List<String> allowedServers = plugin.getSettings().getRtp().getAllowedServers();
+            String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
+            Message.builder()
+                    .scope(Message.Scope.PLAYER)
+                    .target(randomServer)
+                    .type(Message.Type.TELEPORT_TO_POSITION)
+                    .payload(Payload.withWorld(world))
+                    .build().send(plugin.getMessenger(), teleporter);
+            return;
+        }
+
         plugin.getRandomTeleportEngine()
                 .getRandomPosition(world, args.length > 1 ? removeFirstArg(args) : args)
                 .thenAccept(position -> {

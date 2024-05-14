@@ -173,6 +173,8 @@ public class Message {
         UPDATE_HOME,
         UPDATE_WARP,
         UPDATE_CACHES,
+        REQUEST_RTP_LOCATION,
+        RTP_LOCATION,
     }
 
     public enum Scope {

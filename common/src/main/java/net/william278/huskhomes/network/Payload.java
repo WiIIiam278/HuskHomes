@@ -21,6 +21,7 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,16 @@ public class Payload {
     @Expose
     @SerializedName("teleport_request")
     private TeleportRequest teleportRequest;
+
+    @Nullable
+    @Expose
+    @SerializedName("rtp_response")
+    private RTPResponse rtpResponse;
+
+    @Nullable
+    @Expose
+    @SerializedName("rtp_request")
+    private RTPRequest rtpRequest;
 
     @Nullable
     @Expose
@@ -108,6 +119,26 @@ public class Payload {
         return payload;
     }
 
+    /**
+     * An RTP Response field.
+     */
+    @NotNull
+    public static Payload withRTPResponse(@NotNull RTPResponse rtpResponse) {
+        final Payload payload = new Payload();
+        payload.rtpResponse = rtpResponse;
+        return payload;
+    }
+
+    /**
+     * An RTP Request field.
+     */
+    @NotNull
+    public static Payload withRTPRequest(@NotNull RTPRequest rtpRequest) {
+        final Payload payload = new Payload();
+        payload.rtpRequest = rtpRequest;
+        return payload;
+    }
+
     private Payload() {
     }
 
@@ -140,4 +171,29 @@ public class Payload {
         return Optional.ofNullable(stringList);
     }
 
+    /**
+     * An RTP response.
+     */
+    public Optional<RTPResponse> getRTPResponse() {
+        return Optional.ofNullable(rtpResponse);
+    }
+
+    /**
+     * An RTP request.
+     */
+    public Optional<RTPRequest> getRTPRequest() {
+        return Optional.ofNullable(rtpRequest);
+    }
+
+    @Value(staticConstructor = "of")
+    public static class RTPResponse {
+        @Expose String username;
+        @Expose Position position;
+    }
+
+    @Value(staticConstructor = "of")
+    public static class RTPRequest {
+        @Expose String username;
+        @Expose String worldName;
+    }
 }

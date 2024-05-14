@@ -20,6 +20,9 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.network.Message;
+import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
@@ -32,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class RtpCommand extends Command implements UserListTabProvider {
+
+    private final Random random = new Random();
 
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player] [world]", plugin);
@@ -137,9 +142,39 @@ public class RtpCommand extends Command implements UserListTabProvider {
      */
     private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
                             @NotNull String[] args) {
-        // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
+
+        if (plugin.getSettings().getCrossServer().isEnabled()
+                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
+            List<String> allowedServers = plugin.getSettings().getRtp().getAllowedServers();
+            String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
+            if (randomServer.equals(plugin.getServerName())) {
+                performLocalRTP(teleporter, executor, world, args);
+                return;
+            }
+            Message.builder()
+                    .type(Message.Type.REQUEST_RTP_LOCATION)
+                    .scope(Message.Scope.SERVER)
+                    .target(randomServer)
+                    .payload(Payload.withRTPRequest(Payload.RTPRequest.of(teleporter.getUsername(), world.getName())))
+                    .build().send(plugin.getMessenger(), teleporter);
+            return;
+        }
+
+        performLocalRTP(teleporter, executor, world, args);
+    }
+
+    /**
+     * Performs the RTP locally.
+     *
+     * @param teleporter person to teleport
+     * @param executor the person executing the teleport
+     * @param world the world to teleport to
+     * @param args rtp engine args
+     */
+    private void performLocalRTP(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
+                                 @NotNull String[] args) {
         plugin.getRandomTeleportEngine()
                 .getRandomPosition(world, args.length > 1 ? removeFirstArg(args) : args)
                 .thenAccept(position -> {
@@ -157,5 +192,4 @@ public class RtpCommand extends Command implements UserListTabProvider {
                     builder.buildAndComplete(executor.equals(teleporter), args);
                 });
     }
-
 }

@@ -21,6 +21,7 @@ package net.william278.huskhomes.random;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -45,6 +46,12 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
         this.radius = plugin.getSettings().getRtp().getRegion();
         this.mean = plugin.getSettings().getRtp().getDistributionMean();
         this.standardDeviation = plugin.getSettings().getRtp().getDistributionStandardDeviation();
+
+        if (plugin.getSettings().getCrossServer().isEnabled()
+                && plugin.getSettings().getCrossServer().getBrokerType() != Broker.Type.REDIS) {
+            plugin.log(Level.WARNING,
+                    "CrossServer is enabled but is not using REDIS message broker, RTP will not work cross-server!");
+        }
     }
 
     // Utility for determining a valid spawn radius

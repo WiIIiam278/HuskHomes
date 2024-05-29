@@ -145,6 +145,7 @@ locales:
   error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[Errore:](#ff3300) [Non trovo la home di %1% chiamata %2%.](#ff7e5e)'
   error_set_home_maximum_homes: '[Errore:](#ff3300) [Puoi impostare un massimo di %1% home!](#ff7e5e)'
+  error_set_home_not_enough_slots: '[Error:](#ff3300) [You have used all %1% of your free home slots!](#ff7e5e)'
   error_spawn_not_set: '[Errore:](#ff3300) [Il punto di spawn non è impostato.](#ff7e5e)'
   error_no_teleport_requests: '[Errore:](#ff3300) [Non hai richieste di teletrasporto in sospeso.](#ff7e5e)'
   error_teleport_warmup_stand_still: '[Errore:](#ff3300) [Devi attendere e non muoverti mentre ti teletrasporti!](#ff7e5e)'

@@ -56,15 +56,20 @@ public class ValidationException extends IllegalArgumentException {
             case DESCRIPTION_INVALID_LENGTH -> plugin.getLocales()
                     .getLocale("error_home_description_length", args)
                     .ifPresent(viewer::sendMessage);
-            case NOT_ENOUGH_HOME_SLOTS, REACHED_MAX_HOMES -> plugin.getLocales()
+            case REACHED_MAX_HOMES -> plugin.getLocales()
                     .getLocale("error_set_home_maximum_homes",
                             Integer.toString(plugin.getManager().homes()
-                            .getMaxHomes(viewer instanceof OnlineUser user ? user : null)))
+                                    .getMaxHomes(viewer instanceof OnlineUser user ? user : null)))
+                    .ifPresent(viewer::sendMessage);
+            case NOT_ENOUGH_HOME_SLOTS -> plugin.getLocales()
+                    .getLocale("error_set_home_not_enough_slots",
+                            Integer.toString(plugin.getManager().homes()
+                                    .getFreeHomes(viewer instanceof OnlineUser user ? user : null)))
                     .ifPresent(viewer::sendMessage);
             case REACHED_MAX_PUBLIC_HOMES -> plugin.getLocales()
                     .getLocale("error_edit_home_maximum_public_homes",
                             Integer.toString(plugin.getManager().homes()
-                            .getMaxPublicHomes(viewer instanceof OnlineUser user ? user : null)))
+                                    .getMaxPublicHomes(viewer instanceof OnlineUser user ? user : null)))
                     .ifPresent(viewer::sendMessage);
             default -> {
                 // Do nothing (silently handle validation errors)

@@ -25,7 +25,7 @@ dependencies {
             'fabric-dimensions-v1',
     ]
     fabricApiModules.forEach {
-        modImplementation(fabricApi.module(it, fabric_api_version))
+        modCompileOnly(fabricApi.module(it, fabric_api_version))
     }
     modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")

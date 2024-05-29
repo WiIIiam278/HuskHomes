@@ -133,6 +133,10 @@ subprojects {
         archiveClassifier.set('')
     }
 
+    if (['fabric'].contains(project.name)) {
+        compileJava.options.release.set 21
+    }
+
     // API publishing
     if (['common', 'bukkit', 'fabric', 'sponge'].contains(project.name)) {
         java {

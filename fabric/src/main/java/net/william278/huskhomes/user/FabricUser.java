@@ -21,10 +21,8 @@ package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
+import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -163,10 +162,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        final PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeIdentifier(parseIdentifier(channel));
-        buf.writeBytes(message);
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(buf));
+        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(FabricPluginMessage.of(channel, message)));
     }
 
     @Override
@@ -191,16 +187,6 @@ public class FabricUser extends OnlineUser {
         player.setInvulnerable(true);
         // Remove the invulnerability
         plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
-    }
-
-
-    @NotNull
-    private static Identifier parseIdentifier(@NotNull String channel) {
-        if (channel.equals("BungeeCord")) {
-            return new Identifier("bungeecord", "main");
-        }
-        return Optional.ofNullable(Identifier.tryParse(channel))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid channel name: " + channel));
     }
 
 }

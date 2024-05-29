@@ -130,7 +130,7 @@ public class SpongeUser extends OnlineUser {
     }
 
     @Override
-    public void sendPluginMessage(@NotNull String channel, byte[] message) {
+    public void sendPluginMessage(byte[] message) {
         ((SpongeHuskHomes) plugin).getPluginMessageChannel().sendTo(player, buf -> buf.writeBytes(message));
     }
 

@@ -21,6 +21,7 @@ package net.william278.huskhomes.user;
 
 import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
@@ -50,22 +51,11 @@ public class BukkitUser extends OnlineUser {
         this.player = player;
     }
 
-    /**
-     * Adapt a {@link Player} to a {@link OnlineUser}.
-     *
-     * @param player the online {@link Player} to adapt
-     * @return the adapted {@link OnlineUser}
-     */
     @NotNull
     public static BukkitUser adapt(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
         return new BukkitUser(player, plugin);
     }
 
-    /**
-     * Return the {@link Player} wrapped by this {@link BukkitUser}.
-     *
-     * @return the {@link Player} wrapped by this {@link BukkitUser}
-     */
     @NotNull
     public Player getPlayer() {
         return player;
@@ -154,21 +144,16 @@ public class BukkitUser extends OnlineUser {
         );
     }
 
-    /**
-     * Get the player momentum and return if they are moving.
-     *
-     * @return {@code true} if the player is moving, {@code false} otherwise
-     **/
     @Override
     public boolean isMoving() {
         return player.getVelocity().length() >= 0.1;
     }
 
-    /**
-     * Return the value of the player's "vanished" metadata tag if they have it.
-     *
-     * @return {@code true} if the player is vanished, {@code false} otherwise
-     */
+    @Override
+    public void sendPluginMessage(byte[] message) {
+        player.sendPluginMessage((BukkitHuskHomes) plugin, PluginMessageBroker.BUNGEE_CHANNEL_ID, message);
+    }
+
     @Override
     public boolean isVanished() {
         return player.getMetadata("vanished")
@@ -178,9 +163,6 @@ public class BukkitUser extends OnlineUser {
                 .orElse(false);
     }
 
-    /**
-     * Handles player invulnerability after teleporting.
-     */
     @Override
     public void handleInvulnerability() {
         if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
@@ -190,13 +172,6 @@ public class BukkitUser extends OnlineUser {
         player.setInvulnerable(true);
         // Remove the invulnerability
         plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
-    }
-
-    /**
-     * Send a Bukkit plugin message to the player.
-     */
-    public void sendPluginMessage(@NotNull String channel, final byte[] message) {
-        player.sendPluginMessage((BukkitHuskHomes) plugin, channel, message);
     }
 
 }

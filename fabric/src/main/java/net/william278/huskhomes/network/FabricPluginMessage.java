@@ -20,27 +20,44 @@
 package net.william278.huskhomes.network;
 
 import lombok.*;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor
+@AllArgsConstructor
 public class FabricPluginMessage implements CustomPayload {
 
-    public static final Id<FabricPluginMessage> BUNGEE_CHANNEL_ID = new Id<>(
+    public static final PacketCodec<RegistryByteBuf, FabricPluginMessage> CODEC = PacketCodec.of(
+            (value, buf) -> writeBytes(buf, value.getData()),
+            FabricPluginMessage::new
+    );
+    public static final Id<FabricPluginMessage> CHANNEL_ID = new Id<>(
             Identifier.of("bungeecord", "main")
     );
 
-    private Id<FabricPluginMessage> id;
     private byte[] data;
 
-    @NotNull
-    public static FabricPluginMessage of(@NotNull String id, byte[] data) {
-        return new FabricPluginMessage(
-                id.equals("BungeeCord") ? BUNGEE_CHANNEL_ID : new Id<>(Identifier.tryParse(id)), data
-        );
+    private FabricPluginMessage(@NotNull PacketByteBuf buf) {
+        this(getWrittenBytes(buf));
+    }
+
+    private static byte[] getWrittenBytes(@NotNull PacketByteBuf buf) {
+        byte[] bs = new byte[buf.readableBytes()];
+        buf.readBytes(bs);
+        return bs;
+    }
+
+    private static void writeBytes(@NotNull PacketByteBuf buf, byte[] v) {
+        buf.writeBytes(v);
+    }
+
+    @Override
+    public Id<FabricPluginMessage> getId() {
+        return CHANNEL_ID;
     }
 
 }

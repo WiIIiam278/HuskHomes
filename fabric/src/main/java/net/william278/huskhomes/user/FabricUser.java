@@ -161,8 +161,8 @@ public class FabricUser extends OnlineUser {
     }
 
     @Override
-    public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(FabricPluginMessage.of(channel, message)));
+    public void sendPluginMessage(byte[] message) {
+        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
     }
 
     @Override

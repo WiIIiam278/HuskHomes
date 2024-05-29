@@ -93,7 +93,7 @@ public class PluginMessageBroker extends Broker {
             return;
         }
 
-        sender.sendPluginMessage(BUNGEE_CHANNEL_ID, messageWriter.toByteArray());
+        sender.sendPluginMessage(messageWriter.toByteArray());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class PluginMessageBroker extends Broker {
             outputStream.writeUTF("Connect");
             outputStream.writeUTF(server);
 
-            user.sendPluginMessage(BUNGEE_CHANNEL_ID, outputStream.toByteArray());
+            user.sendPluginMessage(outputStream.toByteArray());
         });
     }
 

@@ -28,13 +28,15 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public abstract class HomeCommand extends SavedPositionCommand<Home> {
 
     protected HomeCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull PositionCommandType type,
                           @NotNull HuskHomes plugin) {
-        super(name, aliases, type, List.of("player"), plugin);
+        super(name, aliases, type, List.of(), plugin);
+        addAdditionalPermissions(Map.of("player", true));
     }
 
     @Override

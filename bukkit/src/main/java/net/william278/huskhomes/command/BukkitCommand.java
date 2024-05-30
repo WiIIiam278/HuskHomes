@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.command;
 
-import me.lucko.commodore.CommodoreProvider;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.teleport.TeleportRequest;
@@ -93,11 +92,6 @@ public class BukkitCommand extends org.bukkit.command.Command {
                     PermissionDefault.FALSE,
                     childNodes.toArray(new Permission[0])
             );
-        }
-
-        // Register commodore TAB completion
-        if (CommodoreProvider.isSupported() && plugin.getSettings().getGeneral().isBrigadierTabCompletion()) {
-            BrigadierUtil.registerCommodore(plugin, this, command);
         }
     }
 

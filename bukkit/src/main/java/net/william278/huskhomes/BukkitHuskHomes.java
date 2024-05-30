@@ -47,6 +47,7 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
@@ -272,9 +273,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void setWorldSpawn(@NotNull Position position) {
-        BukkitAdapter.adaptLocation(position).ifPresent(location -> Objects
-                .requireNonNull(location.getWorld(), "World is null")
-                .setSpawnLocation(location));
+        Objects.requireNonNull(Adapter.adapt(position).getWorld()).setSpawnLocation(Adapter.adapt(position));
     }
 
     @NotNull
@@ -322,10 +321,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     @NotNull
     public List<World> getWorlds() {
-        return getServer().getWorlds().stream()
-                .filter(world -> BukkitAdapter.adaptWorld(world).isPresent())
-                .map(world -> BukkitAdapter.adaptWorld(world).orElse(null))
-                .toList();
+        return getServer().getWorlds().stream().map(Adapter::adapt).toList();
     }
 
     @Override
@@ -418,4 +414,47 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         return this;
     }
 
+    public static class Adapter {
+
+        @NotNull
+        public static Position adapt(@NotNull org.bukkit.Location location, @NotNull String server) {
+            return Position.at(
+                    location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(), location.getPitch(),
+                    adapt(Objects.requireNonNull(location.getWorld(), "Location world is null")),
+                    server
+            );
+        }
+
+        @NotNull
+        public static Location adapt(@NotNull org.bukkit.Location location) {
+            return Position.at(
+                    location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(), location.getPitch(),
+                    adapt(Objects.requireNonNull(location.getWorld(), "Location world is null"))
+            );
+        }
+
+        @NotNull
+        public static org.bukkit.Location adapt(@NotNull Location position) {
+            return new org.bukkit.Location(
+                    adapt(position.getWorld()),
+                    position.getX(), position.getY(), position.getZ(),
+                    position.getYaw(), position.getPitch()
+            );
+        }
+
+        @Nullable
+        public static org.bukkit.World adapt(@NotNull World world) {
+            return Optional.ofNullable(Bukkit.getWorld(world.getUuid()))
+                    .or(() -> Optional.ofNullable(Bukkit.getWorld(world.getName())))
+                    .orElse(null);
+        }
+
+        @NotNull
+        public static World adapt(@NotNull org.bukkit.World world) {
+            return World.from(world.getName(), world.getUID(), World.Environment.match(world.getEnvironment().name()));
+        }
+
+    }
 }

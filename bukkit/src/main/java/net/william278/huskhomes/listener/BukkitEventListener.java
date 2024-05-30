@@ -23,7 +23,6 @@ import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
-import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
@@ -85,9 +84,10 @@ public class BukkitEventListener extends EventListener implements Listener {
             return;
         }
 
-        final BukkitUser bukkitUser = BukkitUser.adapt(player, (BukkitHuskHomes) plugin);
-        BukkitAdapter.adaptLocation(event.getFrom()).ifPresent(sourceLocation ->
-                handlePlayerTeleport(bukkitUser, Position.at(sourceLocation, plugin.getServerName())));
+        this.handlePlayerTeleport(
+                BukkitUser.adapt(player, (BukkitHuskHomes) plugin),
+                BukkitHuskHomes.Adapter.adapt(event.getFrom(), plugin.getServerName())
+        );
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -107,9 +107,9 @@ public class BukkitEventListener extends EventListener implements Listener {
         }
 
         // Update the player's respawn location
-        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
+        this.handlePlayerUpdateSpawnPoint(
                 BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin),
-                Position.at(adaptedLocation, plugin.getServerName()))
+                BukkitHuskHomes.Adapter.adapt(location, plugin.getServerName())
         );
     }
 

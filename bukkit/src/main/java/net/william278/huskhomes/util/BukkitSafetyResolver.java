@@ -20,6 +20,7 @@
 package net.william278.huskhomes.util;
 
 import io.papermc.lib.PaperLib;
+import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -33,7 +34,7 @@ public interface BukkitSafetyResolver extends SafetyResolver {
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
-        final org.bukkit.Location bukkitLocation = BukkitAdapter.adaptLocation(location).orElse(null);
+        final org.bukkit.Location bukkitLocation = BukkitHuskHomes.Adapter.adapt(location);
         if (bukkitLocation == null || bukkitLocation.getWorld() == null) {
             return CompletableFuture.completedFuture(Optional.empty());
         }

@@ -25,7 +25,6 @@ import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
-import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -61,17 +60,13 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public Position getPosition() {
-        return Position.at(BukkitAdapter.adaptLocation(player.getLocation()).orElseThrow(
-                        () -> new IllegalStateException("Failed to get the position of a BukkitPlayer (null)")
-                ),
-                plugin.getServerName());
-
+        return BukkitHuskHomes.Adapter.adapt(player.getLocation(), plugin.getServerName());
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
-        return Optional.ofNullable(player.getBedSpawnLocation()).flatMap(BukkitAdapter::adaptLocation)
-                .map(location -> Position.at(location, plugin.getServerName()));
+        return Optional.ofNullable(player.getBedSpawnLocation())
+                .map(loc -> BukkitHuskHomes.Adapter.adapt(loc, plugin.getServerName()));
     }
 
     @Override
@@ -107,16 +102,13 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
-        // Ensure the world exists
-        final Optional<org.bukkit.Location> resolvedLocation = BukkitAdapter.adaptLocation(location);
-        if (resolvedLocation.isEmpty() || resolvedLocation.get().getWorld() == null) {
+    public void teleportLocally(@NotNull Location target, boolean async) throws TeleportationException {
+        // Ensure the location is valid (world exists, coordinates are within the world border)
+        final org.bukkit.Location location = BukkitHuskHomes.Adapter.adapt(target);
+        if (location.getWorld() == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
-
-        // Ensure the coordinates are within the world limits
-        final org.bukkit.Location bukkitLocation = resolvedLocation.get();
-        if (!bukkitLocation.getWorld().getWorldBorder().isInside(resolvedLocation.get())) {
+        if (!location.getWorld().getWorldBorder().isInside(location)) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
@@ -125,10 +117,10 @@ public class BukkitUser extends OnlineUser {
             player.leaveVehicle();
             player.eject();
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 return;
             }
-            player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, this);
     }
 

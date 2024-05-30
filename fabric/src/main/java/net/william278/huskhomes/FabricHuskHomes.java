@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Getter;
@@ -34,7 +35,11 @@ import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
@@ -54,6 +59,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
@@ -242,14 +248,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void setWorldSpawn(@NotNull Position position) {
-        minecraftServer.getWorlds().forEach(world -> {
-            if (!world.getRegistryKey().getValue().toString().equals(position.getWorld().getName())) {
-                return;
-            }
-            world.setSpawnPos(new BlockPos(
-                    (int) position.getX(), (int) position.getY(), (int) position.getZ()
-            ), position.getYaw());
-        });
+        final ServerWorld world = Adapter.adapt(position, minecraftServer);
+        if (world != null) {
+            world.setSpawnPos(BlockPos.ofFloored(Adapter.adapt(position).position), position.getYaw());
+        }
     }
 
     @Override
@@ -301,11 +303,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     @NotNull
     public List<World> getWorlds() {
-        final List<World> worlds = new ArrayList<>();
-        minecraftServer.getWorlds().forEach(world -> worlds.add(World.from(
-                world.getRegistryKey().getValue().asString(),
-                UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
-        )));
+        final List<World> worlds = Lists.newArrayList();
+        minecraftServer.getWorlds().forEach(world -> worlds.add(Adapter.adapt(world)));
         return worlds;
     }
 
@@ -383,6 +382,56 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public FabricHuskHomes getPlugin() {
         return this;
+    }
+
+    public static class Adapter {
+
+        @NotNull
+        public static Location adapt(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
+                                     float yaw, float pitch) {
+            return Position.at(
+                    pos.getX(), pos.getY(), pos.getZ(),
+                    yaw, pitch,
+                    adapt(world)
+            );
+        }
+
+        @NotNull
+        public static Position adapt(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
+                                     float yaw, float pitch, @NotNull String server) {
+            return Position.at(adapt(pos, world, yaw, pitch), server);
+        }
+
+        @NotNull
+        public static TeleportTarget adapt(@NotNull Location location) {
+            return new TeleportTarget(
+                    new Vec3d(location.getX(), location.getY(), location.getZ()),
+                    Vec3d.ZERO,
+                    location.getYaw(),
+                    location.getPitch()
+            );
+        }
+
+        @Nullable
+        public static ServerWorld adapt(@NotNull World world, @NotNull MinecraftServer server) {
+            return server.getWorld(server.getWorldRegistryKeys().stream()
+                    .filter(key -> key.getValue().equals(Identifier.tryParse(world.getName())))
+                    .findFirst().orElse(null));
+        }
+
+        @Nullable
+        public static ServerWorld adapt(@NotNull Location location, @NotNull MinecraftServer server) {
+            return adapt(location.getWorld(), server);
+        }
+
+        @NotNull
+        public static World adapt(@NotNull net.minecraft.world.World world) {
+            return World.from(
+                    world.getRegistryKey().getRegistry().asMinimalString(),
+                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
+            );
+        }
+
     }
 
 }

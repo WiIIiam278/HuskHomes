@@ -413,7 +413,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     @NotNull
-    public HuskHomes getPlugin() {
+    public BukkitHuskHomes getPlugin() {
         return this;
     }
 

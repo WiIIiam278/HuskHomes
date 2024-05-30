@@ -26,10 +26,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.position.Location;
@@ -57,13 +55,10 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public Position getPosition() {
-        return Position.at(
-                player.getX(), player.getY(), player.getZ(),
+        return FabricHuskHomes.Adapter.adapt(
+                player.getPos(),
+                player.getServerWorld(),
                 player.getYaw(), player.getPitch(),
-                World.from(
-                        player.getWorld().getRegistryKey().getValue().asString(),
-                        UUID.nameUUIDFromBytes(player.getWorld().getRegistryKey().getValue().asString().getBytes())
-                ),
                 plugin.getServerName()
         );
     }
@@ -141,23 +136,16 @@ public class FabricUser extends OnlineUser {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
+        // Dismount users
         player.stopRiding();
         player.getPassengerList().forEach(Entity::stopRiding);
 
-        FabricDimensions.teleport(
-                player,
-                server.getWorld(server.getWorldRegistryKeys().stream()
-                        .filter(key -> key.getValue().equals(Identifier.tryParse(location.getWorld().getName())))
-                        .findFirst().orElseThrow(
-                                () -> new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin)
-                        )),
-                new TeleportTarget(
-                        new Vec3d(location.getX(), location.getY(), location.getZ()),
-                        Vec3d.ZERO,
-                        location.getYaw(),
-                        location.getPitch()
-                )
-        );
+        // Adapt and teleport
+        final ServerWorld world = FabricHuskHomes.Adapter.adapt(location.getWorld(), server);
+        if (world == null) {
+            throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
+        }
+        FabricDimensions.teleport(player, world, FabricHuskHomes.Adapter.adapt(location));
     }
 
     @Override

@@ -69,7 +69,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
+import space.arim.morepaperlib.scheduling.AsynchronousScheduler;
+import space.arim.morepaperlib.scheduling.AttachedScheduler;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.RegionalScheduler;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -109,6 +112,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private BukkitAudiences audiences;
     @Getter(AccessLevel.NONE)
     private MorePaperLib paperLib;
+    private AsynchronousScheduler asyncScheduler;
+    private RegionalScheduler regionalScheduler;
     @Nullable
     private Broker broker;
 
@@ -383,6 +388,23 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @NotNull
     public GracefulScheduling getScheduler() {
         return paperLib.scheduling();
+    }
+
+    @NotNull
+    public AsynchronousScheduler getAsyncScheduler() {
+        return asyncScheduler == null
+                ? asyncScheduler = getScheduler().asyncScheduler() : asyncScheduler;
+    }
+
+    @NotNull
+    public RegionalScheduler getSyncScheduler() {
+        return regionalScheduler == null
+                ? regionalScheduler = getScheduler().globalRegionalScheduler() : regionalScheduler;
+    }
+
+    @NotNull
+    public AttachedScheduler getUserSyncScheduler(@NotNull OnlineUser user) {
+        return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
     }
 
     @NotNull

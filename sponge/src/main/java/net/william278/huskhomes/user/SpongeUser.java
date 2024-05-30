@@ -112,7 +112,7 @@ public class SpongeUser extends OnlineUser {
             player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.passengers().forEach(passenger -> player.passengers().remove(passenger));
             future.complete(null);
-        });
+        }, this);
         return future;
     }
 
@@ -126,7 +126,7 @@ public class SpongeUser extends OnlineUser {
             player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.passengers().forEach(passenger -> player.passengers().remove(passenger));
             player.setLocation(serverLocation.get());
-        });
+        }, this);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class SpongeUser extends OnlineUser {
         long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
         player.invulnerable().set(false);
         // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.invulnerable().set(true), invulnerabilityTimeInTicks);
+        plugin.runSyncDelayed(() -> player.invulnerable().set(true), this, invulnerabilityTimeInTicks);
     }
 
 }

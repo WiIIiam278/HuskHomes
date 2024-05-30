@@ -20,7 +20,9 @@
 package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -51,8 +53,11 @@ public interface Task extends Runnable {
 
     abstract class Async extends Base {
 
-        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable) {
+        protected long delayTicks;
+
+        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable, long delayTicks) {
             super(plugin, runnable);
+            this.delayTicks = delayTicks;
         }
 
     }
@@ -83,29 +88,40 @@ public interface Task extends Runnable {
     interface Supplier {
 
         @NotNull
-        Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks);
+        Task.Sync getSyncTask(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks);
 
         @NotNull
-        Task.Async getAsyncTask(@NotNull Runnable runnable);
+        Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks);
 
         @NotNull
         Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks);
 
         @NotNull
-        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, long delayTicks) {
-            final Task.Sync task = getSyncTask(runnable, delayTicks);
+        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks) {
+            final Task.Sync task = getSyncTask(runnable, user, delayTicks);
+            task.run();
+            return task;
+        }
+
+        default Task.Async runAsyncDelayed(@NotNull Runnable runnable, long delayTicks) {
+            final Task.Async task = getAsyncTask(runnable, delayTicks);
             task.run();
             return task;
         }
 
         @NotNull
         default Task.Sync runSync(@NotNull Runnable runnable) {
-            return runSyncDelayed(runnable, 0);
+            return runSyncDelayed(runnable, null, 0);
+        }
+
+        @NotNull
+        default Task.Sync runSync(@NotNull Runnable runnable, @NotNull OnlineUser user) {
+            return runSyncDelayed(runnable, user, 0);
         }
 
         @NotNull
         default Task.Async runAsync(@NotNull Runnable runnable) {
-            final Task.Async task = getAsyncTask(runnable);
+            final Task.Async task = getAsyncTask(runnable, 0);
             task.run();
             return task;
         }

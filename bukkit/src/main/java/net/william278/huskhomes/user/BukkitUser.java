@@ -31,12 +31,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
-import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -100,17 +98,11 @@ public class BukkitUser extends OnlineUser {
     @Override
     public CompletableFuture<Void> dismount() {
         final CompletableFuture<Void> future = new CompletableFuture<>();
-        ((BukkitHuskHomes) plugin).getScheduler().entitySpecificScheduler(player).run(
-                () -> {
-                    player.leaveVehicle();
-                    player.eject();
-                    future.complete(null);
-                },
-                () -> {
-                    plugin.log(Level.WARNING, "User offline when dismounting: " + player.getName());
-                    future.complete(null);
-                }
-        );
+        plugin.runSync(() -> {
+            player.leaveVehicle();
+            player.eject();
+            future.complete(null);
+        }, this);
         return future;
     }
 
@@ -129,19 +121,15 @@ public class BukkitUser extends OnlineUser {
         }
 
         // Run on the appropriate thread scheduler for this platform
-        final GracefulScheduling scheduler = ((BukkitHuskHomes) plugin).getScheduler();
-        scheduler.entitySpecificScheduler(player).run(
-                () -> {
-                    player.leaveVehicle();
-                    player.eject();
-                    if (async || scheduler.isUsingFolia()) {
-                        PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        return;
-                    }
-                    player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                },
-                () -> plugin.log(Level.WARNING, "User offline when teleporting: " + player.getName())
-        );
+        plugin.runSync(() -> {
+            player.leaveVehicle();
+            player.eject();
+            if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
+                PaperLib.teleportAsync(player, bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                return;
+            }
+            player.teleport(bukkitLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }, this);
     }
 
     @Override
@@ -171,7 +159,7 @@ public class BukkitUser extends OnlineUser {
         long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
         player.setInvulnerable(true);
         // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
     }
 
 }

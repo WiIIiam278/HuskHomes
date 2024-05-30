@@ -130,7 +130,7 @@ public class FabricUser extends OnlineUser {
             player.stopRiding();
             player.getPassengerList().forEach(Entity::stopRiding);
             future.complete(null);
-        });
+        }, this);
         return future;
     }
 
@@ -185,8 +185,9 @@ public class FabricUser extends OnlineUser {
         }
         long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
         player.setInvulnerable(true);
+
         // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.setInvulnerable(false), invulnerabilityTimeInTicks);
+        plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
     }
 
 }

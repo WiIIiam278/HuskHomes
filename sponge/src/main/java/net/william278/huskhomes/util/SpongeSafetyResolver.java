@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.util;
 
+import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
@@ -36,13 +37,8 @@ public interface SpongeSafetyResolver extends SafetyResolver {
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
-        final Optional<ServerLocation> adaptedLocation = SpongeAdapter.adaptLocation(location);
-        if (adaptedLocation.isEmpty()) {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-
         // Ensure the location is within the world border
-        final ServerLocation serverLocation = adaptedLocation.get();
+        final ServerLocation serverLocation = SpongeHuskHomes.Adapter.adapt(location);
         if (isInBorder(serverLocation.world().border(), serverLocation.blockPosition())) {
             return CompletableFuture.completedFuture(Optional.empty());
         }

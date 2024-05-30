@@ -56,7 +56,10 @@ import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.*;
+import net.william278.huskhomes.util.BukkitSafetyResolver;
+import net.william278.huskhomes.util.BukkitTask;
+import net.william278.huskhomes.util.UnsafeBlocks;
+import net.william278.huskhomes.util.Validator;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -417,22 +420,17 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     public static class Adapter {
 
         @NotNull
-        public static Position adapt(@NotNull org.bukkit.Location location, @NotNull String server) {
-            return Position.at(
-                    location.getX(), location.getY(), location.getZ(),
-                    location.getYaw(), location.getPitch(),
-                    adapt(Objects.requireNonNull(location.getWorld(), "Location world is null")),
-                    server
-            );
-        }
-
-        @NotNull
         public static Location adapt(@NotNull org.bukkit.Location location) {
             return Position.at(
                     location.getX(), location.getY(), location.getZ(),
                     location.getYaw(), location.getPitch(),
                     adapt(Objects.requireNonNull(location.getWorld(), "Location world is null"))
             );
+        }
+
+        @NotNull
+        public static Position adapt(@NotNull org.bukkit.Location location, @NotNull String server) {
+            return Position.at(adapt(location), server);
         }
 
         @NotNull

@@ -42,6 +42,7 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
@@ -50,13 +51,17 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.SpongeUser;
-import net.william278.huskhomes.util.*;
+import net.william278.huskhomes.util.SpongeSafetyResolver;
+import net.william278.huskhomes.util.SpongeTask;
+import net.william278.huskhomes.util.UnsafeBlocks;
+import net.william278.huskhomes.util.Validator;
 import org.bstats.charts.SimplePie;
 import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command.Raw;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
@@ -69,6 +74,9 @@ import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataHandler;
+import org.spongepowered.api.world.WorldTypes;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -232,9 +240,8 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @Override
     public void setWorldSpawn(@NotNull Position position) {
-        SpongeAdapter.adaptLocation(position).ifPresent(
-                loc -> loc.world().properties().setSpawnPosition(loc.blockPosition())
-        );
+        final ServerLocation loc = Adapter.adapt(position);
+        loc.world().properties().setSpawnPosition(loc.blockPosition());
     }
 
     @Override
@@ -394,4 +401,44 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return this;
     }
 
+    public static final class Adapter {
+
+        @NotNull
+        public static Location adapt(@NotNull ServerLocation location) {
+            return Location.at(
+                    location.x(), location.y(), location.z(),
+                    adapt(location.world())
+            );
+        }
+
+        @NotNull
+        public static Position adapt(@NotNull ServerLocation location, @NotNull String server) {
+            return Position.at(adapt(location), server);
+        }
+
+        @NotNull
+        public static ServerLocation adapt(@NotNull Location location) {
+            return ServerLocation.of(
+                    Objects.requireNonNull(adapt(location.getWorld())),
+                    location.getX(), location.getY(), location.getZ()
+            );
+        }
+
+        @Nullable
+        public static ServerWorld adapt(@NotNull World world) {
+            return Sponge.server().worldManager().world(ResourceKey.resolve(world.getName())).orElse(null);
+        }
+
+        @NotNull
+        public static World adapt(@NotNull ServerWorld world) {
+            final String worldType = world.properties().worldType().key(WorldTypes.registry().type()
+                    .asDefaultedType(world::engine)).value();
+            return World.from(
+                    world.properties().name(),
+                    world.uniqueId(),
+                    World.Environment.match(worldType)
+            );
+        }
+
+    }
 }

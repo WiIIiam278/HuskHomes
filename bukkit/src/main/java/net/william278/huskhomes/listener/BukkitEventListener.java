@@ -21,7 +21,6 @@ package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;

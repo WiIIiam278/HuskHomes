@@ -42,6 +42,7 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -49,10 +50,7 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.SpongeUser;
-import net.william278.huskhomes.util.SpongeSafetyResolver;
-import net.william278.huskhomes.util.SpongeTask;
-import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.Validator;
+import net.william278.huskhomes.util.*;
 import org.bstats.charts.SimplePie;
 import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
@@ -230,6 +228,13 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @Override
     public Audience getAudience(@NotNull UUID user) {
         return game.server().player(user).map(player -> (Audience) player).orElse(Audience.empty());
+    }
+
+    @Override
+    public void setWorldSpawn(@NotNull Position position) {
+        SpongeAdapter.adaptLocation(position).ifPresent(
+                loc -> loc.world().properties().setSpawnPosition(loc.blockPosition())
+        );
     }
 
     @Override

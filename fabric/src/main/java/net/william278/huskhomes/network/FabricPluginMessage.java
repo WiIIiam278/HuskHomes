@@ -19,7 +19,8 @@
 
 package net.william278.huskhomes.network;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;

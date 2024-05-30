@@ -47,6 +47,7 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -262,6 +263,13 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public Audience getAudience(@NotNull UUID user) {
         return audiences.player(user);
+    }
+
+    @Override
+    public void setWorldSpawn(@NotNull Position position) {
+        BukkitAdapter.adaptLocation(position).ifPresent(location -> Objects
+                .requireNonNull(location.getWorld(), "World is null")
+                .setSpawnLocation(location));
     }
 
     @NotNull

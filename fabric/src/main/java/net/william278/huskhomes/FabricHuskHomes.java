@@ -34,6 +34,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
@@ -53,6 +54,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -236,6 +238,18 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public Audience getAudience(@NotNull UUID user) {
         return audiences.player(user);
+    }
+
+    @Override
+    public void setWorldSpawn(@NotNull Position position) {
+        minecraftServer.getWorlds().forEach(world -> {
+            if (!world.getRegistryKey().getValue().toString().equals(position.getWorld().getName())) {
+                return;
+            }
+            world.setSpawnPos(new BlockPos(
+                    (int) position.getX(), (int) position.getY(), (int) position.getZ()
+            ), position.getYaw());
+        });
     }
 
     @Override

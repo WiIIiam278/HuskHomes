@@ -159,9 +159,6 @@ public final class Settings {
         @Comment("How many items should be displayed per-page in chat menu lists")
         private int listItemsPerPage = 12;
 
-        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-        private boolean brigadierTabCompletion = true;
-
         @Comment("Whether the user should always be put back at the /spawn point when they die "
                 + "(ignores beds/respawn anchors)")
         private boolean alwaysRespawnAtSpawn = false;

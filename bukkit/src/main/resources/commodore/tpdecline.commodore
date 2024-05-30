@@ -1,3 +1,0 @@
-tpdecline {
-    player brigadier:string single_word;
-}

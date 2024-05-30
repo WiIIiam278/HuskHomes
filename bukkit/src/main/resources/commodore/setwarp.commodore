@@ -1,3 +1,0 @@
-setwarp {
-    name brigadier:string single_word;
-}

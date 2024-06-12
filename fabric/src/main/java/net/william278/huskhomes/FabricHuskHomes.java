@@ -36,6 +36,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.api.HuskHomesAPI;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
 import net.william278.huskhomes.config.Locales;
@@ -187,6 +188,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
         // Register events
         initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
+        // Register API
+        initialize("API", (plugin) -> HuskHomesAPI.register(this));
 
         this.checkForUpdates();
     }

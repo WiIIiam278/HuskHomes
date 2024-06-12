@@ -56,6 +56,16 @@ public class FabricUser extends OnlineUser {
         return new FabricUser(player, plugin);
     }
 
+    /**
+     * Return the {@link ServerPlayerEntity} wrapped by this {@link FabricUser}.
+     *
+     * @return the {@link ServerPlayerEntity} wrapped by this {@link FabricUser}
+     */
+    @NotNull
+    public ServerPlayerEntity getPlayer() {
+        return player;
+    }
+
     @Override
     public Position getPosition() {
         return Position.at(

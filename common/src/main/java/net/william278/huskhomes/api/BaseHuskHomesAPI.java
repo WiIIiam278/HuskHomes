@@ -785,9 +785,9 @@ public class BaseHuskHomesAPI {
      */
     public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport,
                                              @NotNull String... rtpArgs) {
-        if (plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
-            List<String> allowedServers = plugin.getSettings().getRtp().getAllowedServers();
+        if (plugin.getSettings().getRtp().isCrossServer() && (plugin.getSettings().getCrossServer().isEnabled()
+                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS)) {
+            List<String> allowedServers = plugin.getSettings().getRtp().getRandomTargetServers();
             String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
             if (randomServer.equals(plugin.getServerName())) {
                 randomlyTeleportPlayerLocally(user, timedTeleport, rtpArgs);

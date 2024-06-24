@@ -39,7 +39,7 @@ public class FabricPlaceholderAPIHook extends Hook {
     @SuppressWarnings("SameParameterValue")
     @NotNull
     private Identifier createIdentifier(@NotNull String name) {
-        return new Identifier("huskhomes", name);
+        return Identifier.of("huskhomes", name);
     }
 
     @Override

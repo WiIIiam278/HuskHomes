@@ -3,6 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'io.github.goooler.shadow' version '8.1.7'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
+    id 'fabric-loom' version "$fabric_loom_version" apply false
     id 'org.ajoberstar.grgit' version '5.2.2'
     id 'checkstyle'
     id 'maven-publish'
@@ -70,10 +71,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            mavenContent { snapshotsOnly() }
-        }
         maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
@@ -87,6 +84,7 @@ allprojects {
         maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://repo.essentialsx.net/releases/' }
         maven { url 'https://repo.mikeprimm.com/' }
+        maven { url 'https://maven.impactdev.net/repository/development' }
         maven { url 'https://jitpack.io' }
     }
 
@@ -121,6 +119,11 @@ allprojects {
 }
 
 subprojects {
+    if (['fabric'].contains(project.name)) {
+        apply plugin: 'fabric-loom'
+        compileJava.options.release.set 21
+    }
+
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
 
@@ -131,10 +134,6 @@ subprojects {
     shadowJar {
         destinationDirectory.set(file("$rootDir/target"))
         archiveClassifier.set('')
-    }
-
-    if (['fabric'].contains(project.name)) {
-        compileJava.options.release.set 21
     }
 
     // API publishing
@@ -183,8 +182,8 @@ subprojects {
                     mavenJavaFabric(MavenPublication) {
                         groupId = 'net.william278.huskhomes'
                         artifactId = 'huskhomes-fabric'
-                        version = "$rootProject.version"
-                        artifact shadowJar
+                        version = "$rootProject.version+${fabric_minecraft_version}"
+                        artifact remapJar
                         artifact sourcesJar
                         artifact javadocJar
                     }
@@ -214,16 +213,20 @@ logger.lifecycle("Building HuskHomes ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    // Require grgit
     if (grgit == null) {
-        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-unknown'
     }
 
-    // Get if there is a tag for this commit
+    // If unclean, return the last commit hash with -indev
+    if (!grgit.status().clean) {
+        return '-' + grgit.head().abbreviatedId  + '-indev'
+    }
+
+    // Otherwise if this matches a tag, return nothing
     def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
     if (tag != null) {
         return ''
     }
-
-    // Otherwise, get the last commit hash and if it's a clean head
-    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId
 }

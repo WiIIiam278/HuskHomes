@@ -119,13 +119,15 @@ allprojects {
 }
 
 subprojects {
+    version rootProject.version
+    archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+
+    // Fabric-specific configuration
     if (['fabric'].contains(project.name)) {
         apply plugin: 'fabric-loom'
         compileJava.options.release.set 21
+        version += "+mc.${fabric_minecraft_version}"
     }
-
-    version rootProject.version
-    archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
 
     jar {
         from '../LICENSE'

@@ -35,12 +35,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
-public class RtpCommand extends Command implements UserListTabProvider {
+public class RTPCommand extends Command implements UserListTabProvider {
 
     private final Random random = new Random();
 
-    protected RtpCommand(@NotNull HuskHomes plugin) {
+    protected RTPCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player] [world]", plugin);
 
         addAdditionalPermissions(Map.of(
@@ -146,9 +147,9 @@ public class RtpCommand extends Command implements UserListTabProvider {
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
 
-        if (plugin.getSettings().getCrossServer().isEnabled()
+        if (plugin.getSettings().getRtp().isCrossServer() && plugin.getSettings().getCrossServer().isEnabled()
                 && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
-            List<String> allowedServers = plugin.getSettings().getRtp().getAllowedServers();
+            List<String> allowedServers = plugin.getSettings().getRtp().getRandomTargetServers();
             String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
             if (randomServer.equals(plugin.getServerName())) {
                 performLocalRTP(teleporter, executor, world, args);

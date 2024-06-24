@@ -173,7 +173,7 @@ public class SpongeCommand implements Raw {
         TPA_HERE_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA_HERE)),
         TPACCEPT_COMMAND((plugin) -> new TpRespondCommand(plugin, true)),
         TPDECLINE_COMMAND((plugin) -> new TpRespondCommand(plugin, false)),
-        RTP_COMMAND(RtpCommand::new),
+        RTP_COMMAND(RTPCommand::new),
         TP_IGNORE_COMMAND(TpIgnoreCommand::new),
         TP_OFFLINE_COMMAND(TpOfflineCommand::new),
         TP_ALL_COMMAND(TpAllCommand::new),

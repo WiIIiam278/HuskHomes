@@ -47,10 +47,11 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
         this.mean = plugin.getSettings().getRtp().getDistributionMean();
         this.standardDeviation = plugin.getSettings().getRtp().getDistributionStandardDeviation();
 
-        if (plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().getBrokerType() != Broker.Type.REDIS) {
+        if (plugin.getSettings().getRtp().isCrossServer()
+                && (plugin.getSettings().getCrossServer().isEnabled()
+                && plugin.getSettings().getCrossServer().getBrokerType() != Broker.Type.REDIS)) {
             plugin.log(Level.WARNING,
-                    "CrossServer is enabled but is not using REDIS message broker, RTP will not work cross-server!");
+                    "Cross-server /rtp support has been disabled as a REDIS message broker is required for this feature.");
         }
     }
 

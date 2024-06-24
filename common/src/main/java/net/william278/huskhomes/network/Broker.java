@@ -135,37 +135,34 @@ public abstract class Broker {
      *
      * @param message the message to handle
      */
-    protected void handle(@NotNull Message message) {
+    protected void handleRTPRequest(@NotNull Message message) {
         if (message.getSourceServer().equals(getServer())) {
             return;
         }
-        if (message.getType() == Message.Type.REQUEST_RTP_LOCATION) {
-            message.getPayload()
-                    .getRTPRequest()
-                    .ifPresent((request) -> {
-                        Optional<World> world = plugin.getWorlds().stream()
-                                .filter(w -> w.getName().equals(request.getWorldName())).findFirst();
-                        if (world.isEmpty()) {
-                            throw new RuntimeException("%s requested a position in a world we don't have! World: %s"
-                                    .formatted(message.getSourceServer(), request.getWorldName()));
-                        }
-                        plugin.getRandomTeleportEngine().getRandomPosition(world.get(), null)
-                                .thenAccept((position) -> {
-                                    final Message.Builder builder = Message.builder()
-                                            .type(Message.Type.RTP_LOCATION)
-                                            .target(request.getUsername());
-                                    if (position.isEmpty()) {
-                                        builder.payload(Payload.empty());
-                                    } else {
-                                        builder.payload(Payload.withRTPResponse(
-                                                Payload.RTPResponse.of(request.getUsername(), position.get())));
-                                    }
-                                    builder.build().send(plugin.getMessenger(), request.getUsername());
-                                });
-                    });
-        } else {
-            throw new IllegalStateException("Unexpected value: " + message.getType());
-        }
+
+        message.getPayload()
+                .getRTPRequest()
+                .ifPresent((request) -> {
+                    Optional<World> world = plugin.getWorlds().stream()
+                            .filter(w -> w.getName().equals(request.getWorldName())).findFirst();
+                    if (world.isEmpty()) {
+                        throw new RuntimeException("%s requested a position in a world we don't have! World: %s"
+                                .formatted(message.getSourceServer(), request.getWorldName()));
+                    }
+                    plugin.getRandomTeleportEngine().getRandomPosition(world.get(), null)
+                            .thenAccept((position) -> {
+                                final Message.Builder builder = Message.builder()
+                                        .type(Message.Type.RTP_LOCATION)
+                                        .target(request.getUsername());
+                                if (position.isEmpty()) {
+                                    builder.payload(Payload.empty());
+                                } else {
+                                    builder.payload(Payload.withRTPResponse(
+                                            Payload.RTPResponse.of(request.getUsername(), position.get())));
+                                }
+                                builder.build().send(plugin.getMessenger(), request.getUsername());
+                            });
+                });
     }
 
     /**

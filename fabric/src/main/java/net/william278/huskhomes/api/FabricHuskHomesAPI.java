@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.api;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -34,6 +35,8 @@ import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * The HuskHomes API implementation for the Fabric platform, providing methods to access ServerPlayerEntity data,
@@ -114,13 +117,27 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
     /**
      * Returns the Fabric {@link TeleportTarget} being represented by the given {@link Location}.
      *
+     * @param location      the {@link Location} to get the {@link TeleportTarget} from
+     * @param afterTeleport the {@link Consumer} to run after the teleport completes
+     * @return the {@link TeleportTarget} being represented by the given {@link Location}
+     * @since 4.7
+     */
+    @Nullable
+    public TeleportTarget getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
+        return FabricHuskHomes.Adapter.adapt(location, ((FabricHuskHomes) plugin).getMinecraftServer(), afterTeleport);
+    }
+
+    /**
+     * Returns the Fabric {@link TeleportTarget} being represented by the given {@link Location}.
+     *
      * @param location the {@link Location} to get the {@link TeleportTarget} from
      * @return the {@link TeleportTarget} being represented by the given {@link Location}
      * @since 4.7
      */
     @Nullable
     public TeleportTarget getTeleportTarget(@NotNull Location location) {
-        return FabricHuskHomes.Adapter.adapt(location, ((FabricHuskHomes) plugin).getMinecraftServer());
+        return getTeleportTarget(location, (entity) -> {
+        });
     }
 
     /**

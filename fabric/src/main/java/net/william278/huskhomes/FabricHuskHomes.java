@@ -34,6 +34,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
+import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -87,6 +88,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -412,17 +414,15 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
 
         @NotNull
-        public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server) {
+        public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server,
+                                           @NotNull Consumer<Entity> runAfterTeleport) {
             return new TeleportTarget(
                     adapt(location.getWorld(), server),
                     new Vec3d(location.getX(), location.getY(), location.getZ()),
                     Vec3d.ZERO,
                     location.getYaw(),
                     location.getPitch(),
-                    entity -> entity.refreshPositionAndAngles(
-                            location.getX(), location.getY(), location.getZ(),
-                            location.getYaw(), location.getPitch()
-                    )
+                    runAfterTeleport::accept
             );
         }
 
@@ -439,7 +439,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         @NotNull
         public static World adapt(@NotNull net.minecraft.world.World world) {
             return World.from(
-                    world.getRegistryKey().getRegistry().asMinimalString(),
+                    world.getRegistryKey().getValue().asMinimalString(),
                     UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
             );
         }

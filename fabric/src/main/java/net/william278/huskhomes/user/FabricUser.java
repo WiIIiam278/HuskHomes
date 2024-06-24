@@ -134,17 +134,17 @@ public class FabricUser extends OnlineUser {
         if (server == null) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
-
-        // Dismount users
-        player.stopRiding();
-        player.getPassengerList().forEach(Entity::stopRiding);
-
-        // Adapt and teleport
         final ServerWorld world = FabricHuskHomes.Adapter.adapt(location.getWorld(), server);
         if (world == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
-        player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server));
+
+        // Synchronously teleport
+        plugin.runSync(() -> {
+            player.stopRiding();
+            player.getPassengerList().forEach(Entity::stopRiding);
+            player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server, entity -> handleInvulnerability()));
+        });
     }
 
     @Override

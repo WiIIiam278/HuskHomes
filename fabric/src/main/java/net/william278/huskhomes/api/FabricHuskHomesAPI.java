@@ -124,7 +124,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @Nullable
     public TeleportTarget getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
-        return FabricHuskHomes.Adapter.adapt(location, ((FabricHuskHomes) plugin).getMinecraftServer(), afterTeleport);
+        return FabricHuskHomes.Adapter.adapt(location);
     }
 
     /**

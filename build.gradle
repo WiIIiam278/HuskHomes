@@ -125,7 +125,6 @@ subprojects {
     // Fabric-specific configuration
     if (['fabric'].contains(project.name)) {
         apply plugin: 'fabric-loom'
-        compileJava.options.release.set 21
         version += "+mc.${fabric_minecraft_version}"
     }
 

@@ -22,22 +22,25 @@ package net.william278.huskhomes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.netty.buffer.ByteBufUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
-import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -60,7 +63,6 @@ import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.FabricEventListener;
 import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
-import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.position.Location;
@@ -88,7 +90,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -97,7 +98,9 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
-        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
+        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayChannelHandler {
+
+    public static Identifier BUNGEE_CHANNEL_ID = new Identifier("bungeecord", "main");
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
@@ -346,20 +349,20 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void initializePluginChannels() {
-        PayloadTypeRegistry.playC2S().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
-        PayloadTypeRegistry.playS2C().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(FabricPluginMessage.CHANNEL_ID, this);
+        ServerPlayNetworking.registerGlobalReceiver(BUNGEE_CHANNEL_ID, this);
     }
 
     // When the server receives a plugin message
     @Override
-    public void receive(@NotNull FabricPluginMessage payload, @NotNull ServerPlayNetworking.Context context) {
+    public void receive(@NotNull MinecraftServer server, @NotNull ServerPlayerEntity player,
+                        @NotNull ServerPlayNetworkHandler handler, @NotNull PacketByteBuf buf,
+                        @NotNull PacketSender responseSender) {
         if (broker instanceof PluginMessageBroker messenger
                 && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
-                    FabricUser.adapt(context.player(), this),
-                    payload.getData()
+                    FabricUser.adapt(player, this),
+                    ByteBufUtil.getBytes(buf)
             );
         }
     }
@@ -414,15 +417,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
 
         @NotNull
-        public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server,
-                                           @NotNull Consumer<Entity> runAfterTeleport) {
+        public static TeleportTarget adapt(@NotNull Location location) {
             return new TeleportTarget(
-                    adapt(location.getWorld(), server),
                     new Vec3d(location.getX(), location.getY(), location.getZ()),
                     Vec3d.ZERO,
                     location.getYaw(),
-                    location.getPitch(),
-                    runAfterTeleport::accept
+                    location.getPitch()
             );
         }
 
@@ -439,7 +439,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         @NotNull
         public static World adapt(@NotNull net.minecraft.world.World world) {
             return World.from(
-                    world.getRegistryKey().getValue().asMinimalString(),
+                    world.getRegistryKey().getValue().asString(),
                     UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
             );
         }

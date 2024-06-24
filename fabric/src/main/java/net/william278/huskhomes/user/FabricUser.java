@@ -20,15 +20,17 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.william278.huskhomes.FabricHuskHomes;
-import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -143,13 +145,15 @@ public class FabricUser extends OnlineUser {
         plugin.runSync(() -> {
             player.stopRiding();
             player.getPassengerList().forEach(Entity::stopRiding);
-            player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server, entity -> handleInvulnerability()));
+            FabricDimensions.teleport(player, world, FabricHuskHomes.Adapter.adapt(location));
         });
     }
 
     @Override
     public void sendPluginMessage(byte[] message) {
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
+        final PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBytes(message);
+        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(FabricHuskHomes.BUNGEE_CHANNEL_ID, buf));
     }
 
     @Override

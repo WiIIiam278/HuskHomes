@@ -29,6 +29,7 @@ import net.william278.huskhomes.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FabricPlaceholderAPIHook extends Hook {
 
@@ -39,7 +40,7 @@ public class FabricPlaceholderAPIHook extends Hook {
     @SuppressWarnings("SameParameterValue")
     @NotNull
     private Identifier createIdentifier(@NotNull String name) {
-        return Identifier.of("huskhomes", name);
+        return Objects.requireNonNull(Identifier.of("huskhomes", name));
     }
 
     @Override

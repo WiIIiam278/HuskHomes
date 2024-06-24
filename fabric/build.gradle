@@ -15,22 +15,11 @@ dependencies {
     mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
-    // Fabric API modules
-    Set<String> fabricApiModules = [
-            'fabric-api-base',
-            'fabric-lifecycle-events-v1',
-            'fabric-entity-events-v1',
-            'fabric-command-api-v2',
-            'fabric-networking-api-v1',
-            'fabric-dimensions-v1',
-    ]
-    fabricApiModules.forEach {
-        modCompileOnly(fabricApi.module(it, fabric_api_version))
-    }
     modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
-    modImplementation("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
+    modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     implementation include("redis.clients:jedis:$jedis_version")
     implementation include("org.apache.commons:commons-pool2:$commons_pool_version")

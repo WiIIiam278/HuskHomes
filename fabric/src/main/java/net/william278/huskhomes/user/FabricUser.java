@@ -20,7 +20,6 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
@@ -145,7 +144,7 @@ public class FabricUser extends OnlineUser {
         if (world == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
-        FabricDimensions.teleport(player, world, FabricHuskHomes.Adapter.adapt(location));
+        player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server));
     }
 
     @Override
@@ -176,6 +175,11 @@ public class FabricUser extends OnlineUser {
 
         // Remove the invulnerability
         plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
+    }
+
+    @NotNull
+    public ServerPlayerEntity getPlayer() {
+        return player;
     }
 
 }

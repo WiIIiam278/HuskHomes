@@ -34,6 +34,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.fabric.FabricServerAudiences;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -41,6 +43,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.api.FabricHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.command.FabricCommand;
 import net.william278.huskhomes.config.Locales;
@@ -192,6 +195,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         // Register events
         initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
 
+        // Initialize the API
+        initialize("API", (plugin) -> FabricHuskHomesAPI.register(this));
+
         this.checkForUpdates();
     }
 
@@ -250,7 +256,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public void setWorldSpawn(@NotNull Position position) {
         final ServerWorld world = Adapter.adapt(position, minecraftServer);
         if (world != null) {
-            world.setSpawnPos(BlockPos.ofFloored(Adapter.adapt(position).position), position.getYaw());
+            world.setSpawnPos(
+                    BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
+                    position.getYaw()
+            );
         }
     }
 
@@ -403,25 +412,28 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
 
         @NotNull
-        public static TeleportTarget adapt(@NotNull Location location) {
+        public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server) {
             return new TeleportTarget(
+                    adapt(location.getWorld(), server),
                     new Vec3d(location.getX(), location.getY(), location.getZ()),
                     Vec3d.ZERO,
                     location.getYaw(),
-                    location.getPitch()
+                    location.getPitch(),
+                    entity -> entity.refreshPositionAndAngles(
+                            location.getX(), location.getY(), location.getZ(),
+                            location.getYaw(), location.getPitch()
+                    )
             );
         }
 
         @Nullable
         public static ServerWorld adapt(@NotNull World world, @NotNull MinecraftServer server) {
-            return server.getWorld(server.getWorldRegistryKeys().stream()
-                    .filter(key -> key.getValue().equals(Identifier.tryParse(world.getName())))
-                    .findFirst().orElse(null));
+            return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.tryParse(world.getName())));
         }
 
         @Nullable
-        public static ServerWorld adapt(@NotNull Location location, @NotNull MinecraftServer server) {
-            return adapt(location.getWorld(), server);
+        public static ServerWorld adapt(@NotNull Position position, @NotNull MinecraftServer server) {
+            return adapt(position.getWorld(), server);
         }
 
         @NotNull

@@ -38,6 +38,8 @@ import java.util.Objects;
  * and process teleports
  *
  * <p>Retrieve an instance of the API class via {@link #getInstance()}.
+ *
+ * @since 3.0
  */
 @SuppressWarnings("unused")
 public class HuskHomesAPI extends BaseHuskHomesAPI {
@@ -72,10 +74,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns an {@link OnlineUser} instance for the given bukkit {@link Player}.
+     * Returns an {@link OnlineUser} instance for the given Bukkit {@link Player}.
      *
-     * @param player the bukkit player to get the {@link User} instance for
-     * @return the {@link OnlineUser} instance for the given bukkit {@link Player}
+     * @param player the Bukkit player to get the {@link User} instance for
+     * @return the {@link OnlineUser} instance for the given Bukkit {@link Player}
      * @since 3.0
      */
     @NotNull
@@ -84,10 +86,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns the bukkit {@link Player} being represented by the given {@link OnlineUser}.
+     * Returns the Bukkit {@link Player} being represented by the given {@link OnlineUser}.
      *
-     * @param user {@link OnlineUser} to get the bukkit player from
-     * @return the bukkit {@link Player} being represented by the given {@link OnlineUser}
+     * @param user {@link OnlineUser} to get the Bukkit player from
+     * @return the Bukkit {@link Player} being represented by the given {@link OnlineUser}
      * @since 3.0
      */
     @NotNull
@@ -96,10 +98,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns the bukkit {@link Location} being represented by the given {@link Position}.
+     * Returns the Bukkit {@link Location} being represented by the given {@link Position}.
      *
-     * @param position the {@link Position} to get the bukkit location from
-     * @return the bukkit {@link Location} being represented by the given {@link Position}
+     * @param position the {@link Position} to get the Bukkit location from
+     * @return the Bukkit {@link Location} being represented by the given {@link Position}
      * @since 3.0
      */
     @Nullable
@@ -108,10 +110,10 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Location} instance for the given bukkit {@link Location} on the server.
+     * Returns a {@link Location} instance for the given Bukkit {@link Location} on the server.
      *
-     * @param location the bukkit location to get the {@link Location} instance for
-     * @return the {@link Location} instance for the given bukkit {@link Location}
+     * @param location the Bukkit location to get the {@link Location} instance for
+     * @return the {@link Location} instance for the given Bukkit {@link Location}
      * @since 3.0
      */
     @Nullable
@@ -120,11 +122,11 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
+     * Returns a {@link Position} instance for the given Bukkit {@link Location} on the server.
      *
-     * @param location the bukkit location to get the {@link Position} instance for
+     * @param location the Bukkit location to get the {@link Position} instance for
      * @param server   the {@link Server} the position is on
-     * @return the {@link Position} instance for the given bukkit {@link Location} on the given {@link Server}
+     * @return the {@link Position} instance for the given Bukkit {@link Location} on the given {@link Server}
      * @see Position#getServer() to get the server the position is on
      * @since 4.0
      */
@@ -134,26 +136,15 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns a {@link Position} instance for the given bukkit {@link Location} on the server.
+     * Returns a {@link Position} instance for the given Bukkit {@link Location} on the server.
      *
-     * @param location the bukkit location to get the {@link Position} instance for
+     * @param location the Bukkit location to get the {@link Position} instance for
      * @return the {@link Position} instance for the given {@link Location} on the server
      * @since 4.0
      */
     @NotNull
     public Position adaptPosition(@NotNull org.bukkit.Location location) {
         return Position.at(Objects.requireNonNull(adaptLocation(location)), getServer());
-    }
-
-    /**
-     * Get the name of this server.
-     *
-     * @return the server name
-     * @since 4.0
-     */
-    @NotNull
-    public String getServer() {
-        return plugin.getServerName();
     }
 
 }

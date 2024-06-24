@@ -96,6 +96,16 @@ public class PluginMessageBroker extends Broker {
         sender.sendPluginMessage(messageWriter.toByteArray());
     }
 
+    /**
+     * Send a message to the broker. (For Redis Only)
+     *
+     * @param message the message to send
+     */
+    @Override
+    protected void send(@NotNull Message message) {
+        throw new IllegalStateException("Tried to send a plugin message without a sender!");
+    }
+
     @Override
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         user.dismount().thenRun(() -> {

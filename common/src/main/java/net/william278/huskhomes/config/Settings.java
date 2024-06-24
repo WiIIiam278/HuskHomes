@@ -340,6 +340,13 @@ public final class Settings {
                     .map(n -> n.startsWith("minecraft:") ? n.substring(10) : n)
                     .anyMatch(n -> n.equalsIgnoreCase(filteredName));
         }
+
+        @Comment("Whether or not RTP should perform cross-server.")
+        private boolean crossServer = false;
+
+        @Comment({"List of server in which /rtp is allowed. (Only relevant when using cross server mode WITH REDIS)",
+                "If a server is not defined here the RTP logic has no way of knowing its existence."})
+        private List<String> randomTargetServers = List.of("server-01", "server-02");
     }
 
     @Comment("Action cooldown settings. Docs: https://william278.net/docs/huskhomes/cooldowns")

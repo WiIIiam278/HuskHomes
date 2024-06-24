@@ -21,7 +21,9 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,8 +42,22 @@ public class Payload {
 
     @Nullable
     @Expose
+    private World world;
+
+    @Nullable
+    @Expose
     @SerializedName("teleport_request")
     private TeleportRequest teleportRequest;
+
+    @Nullable
+    @Expose
+    @SerializedName("rtp_response")
+    private RTPResponse rtpResponse;
+
+    @Nullable
+    @Expose
+    @SerializedName("rtp_request")
+    private RTPRequest rtpRequest;
 
     @Nullable
     @Expose
@@ -72,6 +88,19 @@ public class Payload {
     public static Payload withPosition(@NotNull Position position) {
         final Payload payload = new Payload();
         payload.position = position;
+        return payload;
+    }
+
+    /**
+     * Returns a payload containing a {@link World}.
+     *
+     * @param world the world to send
+     * @return a payload containing the world
+     */
+    @NotNull
+    public static Payload withWorld(@NotNull World world) {
+        final Payload payload = new Payload();
+        payload.world = world;
         return payload;
     }
 
@@ -108,6 +137,26 @@ public class Payload {
         return payload;
     }
 
+    /**
+     * An RTP Response field.
+     */
+    @NotNull
+    public static Payload withRTPResponse(@NotNull RTPResponse rtpResponse) {
+        final Payload payload = new Payload();
+        payload.rtpResponse = rtpResponse;
+        return payload;
+    }
+
+    /**
+     * An RTP Request field.
+     */
+    @NotNull
+    public static Payload withRTPRequest(@NotNull RTPRequest rtpRequest) {
+        final Payload payload = new Payload();
+        payload.rtpRequest = rtpRequest;
+        return payload;
+    }
+
     private Payload() {
     }
 
@@ -118,6 +167,12 @@ public class Payload {
         return Optional.ofNullable(position);
     }
 
+    /**
+     * A world field.
+     */
+    public Optional<World> getWorld() {
+        return Optional.ofNullable(world);
+    }
 
     /**
      * A teleport request field.
@@ -140,4 +195,29 @@ public class Payload {
         return Optional.ofNullable(stringList);
     }
 
+    /**
+     * An RTP response.
+     */
+    public Optional<RTPResponse> getRTPResponse() {
+        return Optional.ofNullable(rtpResponse);
+    }
+
+    /**
+     * An RTP request.
+     */
+    public Optional<RTPRequest> getRTPRequest() {
+        return Optional.ofNullable(rtpRequest);
+    }
+
+    @Value(staticConstructor = "of")
+    public static class RTPResponse {
+        @Expose String username;
+        @Expose Position position;
+    }
+
+    @Value(staticConstructor = "of")
+    public static class RTPRequest {
+        @Expose String username;
+        @Expose String worldName;
+    }
 }

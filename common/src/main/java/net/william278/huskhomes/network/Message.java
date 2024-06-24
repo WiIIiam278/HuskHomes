@@ -75,6 +75,13 @@ public class Message {
         broker.send(this, sender);
     }
 
+    public void send(@NotNull Broker broker, @NotNull String sender) {
+        this.sender = sender;
+        this.sourceServer = broker.getServer();
+        broker.send(this);
+    }
+
+
     @NotNull
     public Type getType() {
         return type;
@@ -173,6 +180,8 @@ public class Message {
         UPDATE_HOME,
         UPDATE_WARP,
         UPDATE_CACHES,
+        REQUEST_RTP_LOCATION,
+        RTP_LOCATION,
     }
 
     public enum Scope {

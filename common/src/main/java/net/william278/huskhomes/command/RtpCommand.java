@@ -142,6 +142,7 @@ public class RtpCommand extends Command implements UserListTabProvider {
      */
     private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
                             @NotNull String[] args) {
+        // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
 

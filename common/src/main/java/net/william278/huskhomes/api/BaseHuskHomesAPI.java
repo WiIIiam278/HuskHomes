@@ -77,6 +77,17 @@ public class BaseHuskHomesAPI {
     }
 
     /**
+     * Get the name of this server.
+     *
+     * @return the server name
+     * @since 4.6.4
+     */
+    @NotNull
+    public String getServer() {
+        return plugin.getServerName();
+    }
+
+    /**
      * Returns saved {@link SavedUser} for the given player's account {@link UUID}, if they exist.
      *
      * @param uuid The {@link UUID} of the user to get data for.

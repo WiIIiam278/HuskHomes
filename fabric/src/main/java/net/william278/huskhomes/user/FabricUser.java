@@ -20,7 +20,6 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
@@ -135,17 +134,17 @@ public class FabricUser extends OnlineUser {
         if (server == null) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
-
-        // Dismount users
-        player.stopRiding();
-        player.getPassengerList().forEach(Entity::stopRiding);
-
-        // Adapt and teleport
         final ServerWorld world = FabricHuskHomes.Adapter.adapt(location.getWorld(), server);
         if (world == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
-        FabricDimensions.teleport(player, world, FabricHuskHomes.Adapter.adapt(location));
+
+        // Synchronously teleport
+        plugin.runSync(() -> {
+            player.stopRiding();
+            player.getPassengerList().forEach(Entity::stopRiding);
+            player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server, entity -> handleInvulnerability()));
+        });
     }
 
     @Override
@@ -176,6 +175,11 @@ public class FabricUser extends OnlineUser {
 
         // Remove the invulnerability
         plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
+    }
+
+    @NotNull
+    public ServerPlayerEntity getPlayer() {
+        return player;
     }
 
 }

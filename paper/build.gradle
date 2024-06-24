@@ -11,7 +11,6 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'net.william278:minedown:1.8.2'
     compileOnly 'net.william278:DesertWell:2.0.4'
-    compileOnly 'me.lucko:commodore:2.2'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -40,14 +39,13 @@ shadowJar {
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
     relocate 'io.papermc.lib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'space.arim.morepaperlib', 'net.william278.huskhomes.libraries.paperlib'
-    relocate 'me.lucko.commodore', 'net.william278.huskhomes.libraries.commodore'
 
     minimize()
 }
 
 tasks {
     runServer {
-        minecraftVersion('1.20.6')
+        minecraftVersion('1.21')
 
         downloadPlugins {
 //            url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")

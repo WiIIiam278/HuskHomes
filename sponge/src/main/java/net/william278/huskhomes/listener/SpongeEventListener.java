@@ -20,9 +20,7 @@
 package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.SpongeHuskHomes;
-import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.SpongeUser;
-import net.william278.huskhomes.util.SpongeAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -80,11 +78,13 @@ public class SpongeEventListener extends EventListener {
         if (event.entity() instanceof ServerPlayer player) {
             final Optional<MovementType> type = event.context().get(EventContextKeys.MOVEMENT_TYPE);
             if (type.isPresent() && type.get().equals(MovementTypes.ENTITY_TELEPORT.get())) {
-                SpongeAdapter.adaptLocation(ServerLocation.of(player.world(), event.originalPosition()))
-                        .ifPresent(location -> super.handlePlayerTeleport(
-                                SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
-                                Position.at(location, plugin.getServerName())
-                        ));
+                super.handlePlayerTeleport(
+                        SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
+                        SpongeHuskHomes.Adapter.adapt(
+                                ServerLocation.of(player.world(), event.originalPosition()),
+                                plugin.getServerName()
+                        )
+                );
             }
         }
     }
@@ -102,11 +102,13 @@ public class SpongeEventListener extends EventListener {
                     BlockTypes.PURPLE_BED, BlockTypes.RED_BED, BlockTypes.WHITE_BED, BlockTypes.YELLOW_BED,
                     BlockTypes.RESPAWN_ANCHOR)) {
 
-                super.handlePlayerUpdateSpawnPoint(SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
-                        Position.at(
-                                SpongeAdapter.adaptLocation(player.serverLocation()).orElseThrow(),
+                super.handlePlayerUpdateSpawnPoint(
+                        SpongeUser.adapt(player, (SpongeHuskHomes) plugin),
+                        SpongeHuskHomes.Adapter.adapt(
+                                player.serverLocation(),
                                 plugin.getServerName()
-                        ));
+                        )
+                );
             }
         }
     }

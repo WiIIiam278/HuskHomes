@@ -50,6 +50,7 @@ public class SetSpawnCommand extends InGameCommand {
             } else {
                 plugin.setServerSpawn(position);
             }
+            plugin.runSync(() -> plugin.setWorldSpawn(position));
         } catch (ValidationException e) {
             e.dispatchWarpError(executor, plugin, global.getWarpName());
             return;

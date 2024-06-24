@@ -32,7 +32,9 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class RtpCommand extends Command implements UserListTabProvider {
 
@@ -40,12 +42,10 @@ public class RtpCommand extends Command implements UserListTabProvider {
 
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super("rtp", List.of(), "[player] [world]", plugin);
-        Map<String, Boolean> map = new HashMap<>();
-        map.put("other", true);
-        plugin.getWorlds().stream()
-                .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
-                .map(World::getName).toList().forEach(world -> map.put(world, true));
-        addAdditionalPermissions(map);
+
+        addAdditionalPermissions(Map.of(
+                "other", true
+        ));
     }
 
     @Override

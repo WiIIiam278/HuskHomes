@@ -83,7 +83,8 @@ public class HuskHomesCommand extends Command implements TabProvider {
                         AboutMenu.Credit.of("Pukejoy_1").description("Bulgarian (bg-bg)"),
                         AboutMenu.Credit.of("WinTone01").description("Turkish, (tr-tr)"),
                         AboutMenu.Credit.of("EmanuelFNC").description("Brazilian Portuguese, (pt-br)"),
-                        AboutMenu.Credit.of("xMattNice_").description("Brazilian Portuguese, (pt-br)"))
+                        AboutMenu.Credit.of("xMattNice_").description("Brazilian Portuguese, (pt-br)"),
+                        AboutMenu.Credit.of("Iamsad_VN").description("Vietnamese, (vi-vn)"))
                 .buttons(
                         AboutMenu.Link.of("https://william278.net/docs/huskhomes").text("Documentation").icon("⛏"),
                         AboutMenu.Link.of("https://github.com/WiIIiam278/HuskHomes/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),

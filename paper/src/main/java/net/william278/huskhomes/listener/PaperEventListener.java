@@ -23,9 +23,7 @@ import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
-import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -61,9 +59,9 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
         }
 
         // Update the player's respawn location
-        BukkitAdapter.adaptLocation(location).ifPresent(adaptedLocation -> super.handlePlayerUpdateSpawnPoint(
-                BukkitUser.adapt(event.getPlayer(), (PaperHuskHomes) plugin),
-                Position.at(adaptedLocation, plugin.getServerName()))
+        this.handlePlayerUpdateSpawnPoint(
+                BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin),
+                BukkitHuskHomes.Adapter.adapt(location, plugin.getServerName())
         );
     }
 

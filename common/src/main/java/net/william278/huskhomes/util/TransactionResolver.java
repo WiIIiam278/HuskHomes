@@ -107,7 +107,7 @@ public interface TransactionResolver {
         if (minutes > 0) {
             formattedDuration.add(minutes + "m");
         }
-        if (seconds > 0) {
+        if (seconds >= 0) {
             formattedDuration.add(seconds + "s");
         }
         return formattedDuration.toString();

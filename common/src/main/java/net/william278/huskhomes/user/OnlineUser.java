@@ -193,12 +193,11 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException;
 
     /**
-     * Send a plugin message to the user.
+     * Send a plugin message to the user on the bungee channel.
      *
-     * @param channel channel to send it on
      * @param message byte array of message data
      */
-    public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
+    public abstract void sendPluginMessage(byte[] message);
 
     /**
      * Returns if a player is moving (i.e., they have momentum).

@@ -26,7 +26,6 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.util.BukkitAdapter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -105,7 +104,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @Nullable
     public org.bukkit.Location getLocation(@NotNull Position position) {
-        return BukkitAdapter.adaptLocation(position).orElse(null);
+        return BukkitHuskHomes.Adapter.adapt(position);
     }
 
     /**
@@ -117,7 +116,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @Nullable
     public Location adaptLocation(@NotNull org.bukkit.Location location) {
-        return BukkitAdapter.adaptLocation(location).orElse(null);
+        return BukkitHuskHomes.Adapter.adapt(location);
     }
 
     /**

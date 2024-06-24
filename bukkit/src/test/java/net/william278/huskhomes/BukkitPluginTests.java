@@ -30,7 +30,6 @@ import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
-import net.william278.huskhomes.util.BukkitAdapter;
 import net.william278.huskhomes.util.TransactionResolver;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
@@ -362,7 +361,7 @@ public class BukkitPluginTests {
             @MethodSource("provideWarpData")
             @Order(4)
             public void testWarpRelocation(@NotNull String name, @NotNull Position position) {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position newPosition = Position.at(
                         position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                         0, 0,
@@ -382,7 +381,7 @@ public class BukkitPluginTests {
             @MethodSource("provideWarpData")
             @Order(5)
             public void testWarpOverwrite(@NotNull String name, @NotNull Position position) {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position newPosition = Position.at(
                         position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                         0, 0,
@@ -442,7 +441,7 @@ public class BukkitPluginTests {
 
             @NotNull
             public static Stream<Arguments> provideWarpData() {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position position = Position.at(0, 0, 0, 0, 0, world, plugin.getServerName());
                 return WARP_NAMES.stream()
                         .flatMap(name -> Stream.of(Arguments.of(name, position)));
@@ -536,7 +535,7 @@ public class BukkitPluginTests {
             @Order(4)
             public void testHomeRelocation(@NotNull OnlineUser owner, @NotNull String name,
                                            @NotNull Position position) {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position newPosition = Position.at(
                         position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                         0, 0,
@@ -557,7 +556,7 @@ public class BukkitPluginTests {
             @MethodSource("provideHomeData")
             @Order(5)
             public void testHomeOverwrite(@NotNull OnlineUser owner, @NotNull String name, @NotNull Position position) {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position newPosition = Position.at(
                         position.getX() + 10, position.getY() + 10, position.getZ() + 10,
                         0, 0,
@@ -651,7 +650,7 @@ public class BukkitPluginTests {
 
             @NotNull
             public static Stream<Arguments> provideHomeData() {
-                final World world = BukkitAdapter.adaptWorld(server.getWorld("world")).orElseThrow();
+                final World world = BukkitHuskHomes.Adapter.adapt(server.getWorld("world"));
                 final Position position = Position.at(0, 0, 0, 0, 0, world, plugin.getServerName());
                 return HOME_NAMES.stream()
                         .flatMap(name -> Stream.of(Arguments.of(homeOwner, name, position)));

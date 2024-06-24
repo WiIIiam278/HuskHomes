@@ -162,6 +162,13 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
     }
 
     /**
+     * Update the spawn position of a world on the server.
+     *
+     * @param position The new spawn world and coordinates.
+     */
+    void setWorldSpawn(@NotNull Position position);
+
+    /**
      * Returns the {@link Server} the plugin is on.
      *
      * @return The {@link Server} object

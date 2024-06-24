@@ -79,8 +79,6 @@ general:
   strict_tpa_here_requests: true
   # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 12
-  # Whether to provide modern, rich TAB suggestions for commands (if available)
-  brigadier_tab_completion: true
   # Whether the user should always be put back at the /spawn point when they die (ignores beds/respawn anchors)
   always_respawn_at_spawn: false
   # Whether teleportation should be carried out async (ensuring chunks load before teleporting)

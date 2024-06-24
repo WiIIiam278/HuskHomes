@@ -1,5 +1,0 @@
-rtp {
-    player brigadier:string single_word {
-        world brigadier:string single_word;
-    }
-}

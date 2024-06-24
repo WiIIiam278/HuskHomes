@@ -145,6 +145,7 @@ locales:
   error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[오류:](#ff3300) [%1%님이 소유한 공용 집 %2%를 찾을 수 없습니다.](#ff7e5e)'
   error_set_home_maximum_homes: '[오류:](#ff3300) [%1%개 이상의 집을 생성할 수 없습니다!](#ff7e5e)'
+  error_set_home_not_enough_slots: '[Error:](#ff3300) [You have used all %1% of your free home slots!](#ff7e5e)'
   error_spawn_not_set: '[오류:](#ff3300) [스폰 위치가 아직 지정되지 않았습니다.](#ff7e5e)'
   error_no_teleport_requests: '[오류:](#ff3300) [수락할 이동 요청이 없습니다.](#ff7e5e)'
   error_teleport_warmup_stand_still: '[오류:](#ff3300) [이동을 요청하려면 서 있어야 합니다!](#ff7e5e)'

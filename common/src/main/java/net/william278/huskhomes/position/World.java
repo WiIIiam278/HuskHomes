@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -99,7 +100,16 @@ public class World {
         OVERWORLD,
         NETHER,
         THE_END,
-        CUSTOM
+        CUSTOM;
+
+        public static Environment match(@NotNull String name) {
+            return switch (name.toLowerCase(Locale.ENGLISH)) {
+                case "overworld" -> OVERWORLD;
+                case "nether" -> NETHER;
+                case "the_end" -> THE_END;
+                default -> CUSTOM;
+            };
+        }
     }
 
     @Override

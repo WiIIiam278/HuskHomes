@@ -67,7 +67,8 @@ public class EventListener {
 
                 // Synchronize the global player list
                 plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(
-                        onlineUser, plugin.getLocalPlayerList()), 40L
+                                onlineUser, plugin.getLocalPlayerList()),
+                        onlineUser, 40L
                 );
 
                 // Request updated player lists from other servers
@@ -167,7 +168,7 @@ public class EventListener {
                             .teleporter(teleporter)
                             .target(spawn)
                             .updateLastPosition(false)
-                            .buildAndComplete(false), 40L);
+                            .buildAndComplete(false), teleporter, 40L);
                 } else {
                     try {
                         teleporter.teleportLocally(spawn, plugin.getSettings().getGeneral().isTeleportAsync());

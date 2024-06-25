@@ -146,8 +146,14 @@ public abstract class Broker {
                     Optional<World> world = plugin.getWorlds().stream()
                             .filter(w -> w.getName().equals(request.getWorldName())).findFirst();
                     if (world.isEmpty()) {
-                        throw new RuntimeException("%s requested a position in a world we don't have! World: %s"
+                        plugin.log(Level.SEVERE, "%s requested a position in a world we don't have! World: %s"
                                 .formatted(message.getSourceServer(), request.getWorldName()));
+                        Message.builder()
+                                .type(Message.Type.RTP_LOCATION)
+                                .target(request.getUsername())
+                                .payload(Payload.empty())
+                                .build().send(plugin.getMessenger(), request.getUsername());
+                        return;
                     }
                     plugin.getRandomTeleportEngine().getRandomPosition(world.get(), null)
                             .thenAccept((position) -> {

@@ -55,7 +55,7 @@ These instructions are for installing HuskHomes on multiple Spigot, Fabric or Sp
 When using Cross-Server RTP 3 things must be true:
 1. You must set `rtp.cross-server` to `true`
 2. You must be using Redis as your message broker
-3. The server names in `rtp.allowed-servers` must match the `server.yml` & Proxy values!
+3. The server names in `rtp.random_target_servers` must match the `server.yml` & Proxy values!
 </details>
 
 ## Next steps

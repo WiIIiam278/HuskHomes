@@ -101,6 +101,7 @@ public class EventListener {
      * @param onlineUser the leaving {@link OnlineUser}
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
+        onlineUser.removeInvulnerabilityIfPermitted();
         plugin.runAsync(() -> {
             // Set offline position
             plugin.getDatabase().setOfflinePosition(onlineUser, onlineUser.getPosition());

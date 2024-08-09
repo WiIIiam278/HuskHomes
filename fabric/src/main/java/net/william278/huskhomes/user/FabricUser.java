@@ -177,6 +177,13 @@ public class FabricUser extends OnlineUser {
         plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
     }
 
+    @Override
+    public void removeInvulnerabilityIfPermitted() {
+        if (plugin.isInvulnerable(this.getUuid())) {
+            player.setInvulnerable(false);
+        }
+    }
+
     @NotNull
     public ServerPlayerEntity getPlayer() {
         return player;

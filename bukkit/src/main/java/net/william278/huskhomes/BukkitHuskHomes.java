@@ -98,6 +98,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newConcurrentHashSet();
 
     private Settings settings;
     private Locales locales;

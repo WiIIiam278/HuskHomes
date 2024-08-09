@@ -106,6 +106,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final ConcurrentMap<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newHashSet();
     private MinecraftServer minecraftServer;
 
     private Settings settings;

@@ -103,6 +103,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newHashSet();
 
     @Inject
     @ConfigDir(sharedRoot = false)

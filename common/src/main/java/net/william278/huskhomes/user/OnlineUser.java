@@ -220,6 +220,8 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      */
     public abstract void handleInvulnerability();
 
+    public abstract void removeInvulnerabilityIfPermitted();
+
     /**
      * Get the maximum number of homes this user may set.
      *

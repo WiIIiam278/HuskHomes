@@ -32,6 +32,30 @@ jobs:
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
+      - name: 'Publish to William278.net 🚀'
+        uses: WiIIiam278/bones-publish-action@v1
+        with:
+          api-key: ${{ secrets.BONES_API_KEY }}
+          project: 'huskhomes'
+          channel: 'release'
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          distro-names: |
+            paper
+            sponge-10
+            fabric-1.21
+          distro-groups: |
+            paper
+            sponge
+            fabric
+          distro-descriptions: |
+            Paper
+            Sponge API 10
+            Fabric 1.21
+          files: |
+            target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:

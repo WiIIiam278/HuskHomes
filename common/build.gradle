@@ -28,11 +28,11 @@ dependencies {
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
     compileOnly 'maven.modrinth:pl3xmap:1.20.4-489'
-    compileOnly 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2391'
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'
     testImplementation 'com.google.guava:guava:33.2.1-jre'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 }

@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A builder for {@link Teleport} and {@link TimedTeleport} objects.
@@ -64,9 +66,30 @@ public class TeleportBuilder {
             throw new IllegalStateException("Teleporter must be an OnlineUser for timed teleportation");
         }
 
+        int warmupTime = -1;
+        for (Map.Entry<String, Boolean> entry : onlineTeleporter.getPermissions().entrySet()) {
+            if (!entry.getValue()) {
+                continue;
+            }
+            String perm = entry.getKey();
+            if (perm.startsWith("huskhomes.teleport_warmup.")) {
+                String[] split = perm.split("\\.");
+                if (split.length == 3) {
+                    try {
+                        int currTime = Integer.parseInt(split[2]);
+                        if (currTime > warmupTime) {
+                            warmupTime = currTime;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        throw new IllegalStateException("Invalid warmup permission: " + perm);
+                    }
+                }
+            }
+        }
+
         return new TimedTeleport(
                 executor, onlineTeleporter, target, type,
-                plugin.getSettings().getGeneral().getTeleportWarmupTime(),
+                warmupTime == -1 ? plugin.getSettings().getGeneral().getTeleportWarmupTime() : warmupTime,
                 updateLastPosition, actions, plugin
         );
     }

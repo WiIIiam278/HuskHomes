@@ -174,7 +174,33 @@ public class SqLiteDatabase extends Database {
             statement.setString(7, position.getWorld().getName());
             statement.setString(8, position.getServer());
             statement.setDouble(9, positionId);
-            statement.executeUpdate();
+            int retryCount = 0;
+            boolean success = false;
+            while (retryCount < 20 && !success) {
+                try {
+                    statement.executeUpdate();
+                    success = true;
+                } catch (SQLException e) {
+                    if (e.getMessage().contains("locked")) {
+                        // Proper handling of table locking exceptions to prevent database disconnections
+                        retryCount++;
+                        plugin.log(Level.WARNING, "Database lock encountered, retrying update position...");
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            plugin.log(Level.SEVERE, "Thread was interrupted during retry wait", ie);
+                            break;
+                        }
+                    } else {
+                        // Throw the exception if it's not a lock issue
+                        throw e;
+                    }
+                }
+            }
+            if (!success) {
+                plugin.log(Level.SEVERE, "Failed to update position after 20 retries due to database lock!");
+            }
         }
     }
 

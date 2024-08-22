@@ -54,7 +54,7 @@ jobs:
           distro-names: |
             paper
             sponge-10
-            fabric-1.21
+            fabric-1.21.1
           distro-groups: |
             paper
             sponge
@@ -62,11 +62,11 @@ jobs:
           distro-descriptions: |
             Paper
             Sponge API 10
-            Fabric 1.21
+            Fabric 1.21.1
           files: |
             target/HuskHomes-Paper-${{ env.version_name }}.jar
             target/HuskHomes-Sponge-${{ env.version_name }}.jar
-            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -108,6 +108,7 @@ jobs:
             1.20.5
             1.20.6
             1.21
+            1.21.1
           java: 17
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
@@ -147,7 +148,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.jar
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -155,5 +156,5 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.21
+            1.21.1
           java: 21

@@ -144,7 +144,7 @@ public class FabricUser extends OnlineUser {
             player.stopRiding();
             player.getPassengerList().forEach(Entity::stopRiding);
             player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server, entity -> handleInvulnerability()));
-        });
+        }, this);
     }
 
     @Override

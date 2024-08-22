@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.*;
 
 public interface FabricTask extends Task {
+
     ScheduledExecutorService ASYNC_EXEC = Executors.newScheduledThreadPool(4,
             new ThreadFactoryBuilder()
                     .setDaemon(true)

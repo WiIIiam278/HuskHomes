@@ -109,7 +109,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
 
         final Home home = optionalHome.get();
         if (executor instanceof OnlineUser user && !home.isPublic() && !user.equals(home.getOwner())
-                && !user.hasPermission(getOtherPermission())) {
+            && !user.hasPermission(getOtherPermission())) {
             plugin.getLocales().getLocale("error_public_home_invalid", ownerUsername, ownerHome)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -162,8 +162,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
         if (executor instanceof OnlineUser user && plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-                && !user.hasPermission(Warp.getWildcardPermission())
-                && !user.hasPermission(Warp.getPermission(warpName))) {
+            && !user.hasPermission(Warp.getWildcardPermission())
+            && !user.hasPermission(Warp.getPermission(warpName))) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
@@ -238,10 +238,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private List<String> suggestHome(@NotNull CommandUser executor, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> {
-                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
-                    if (executor.hasPermission(getOtherPermission())) {
-                        yield plugin.getManager().homes().getUserHomeIdentifiers();
-                    }
+                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)
+                    && executor.hasPermission(getOtherPermission())) {
                     yield plugin.getManager().homes().getUserHomeIdentifiers();
                 }
                 if (executor instanceof OnlineUser user) {

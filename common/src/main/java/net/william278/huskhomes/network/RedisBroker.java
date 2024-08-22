@@ -63,7 +63,9 @@ public class RedisBroker extends PluginMessageBroker {
 
         // Subscribe using a thread (rather than a task)
         subscriber.enable(jedisPool);
-        new Thread(subscriber::subscribe, "huskhomes:redis_subscriber").start();
+        final Thread thread = new Thread(subscriber::subscribe, "huskhomes:redis_subscriber");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @NotNull

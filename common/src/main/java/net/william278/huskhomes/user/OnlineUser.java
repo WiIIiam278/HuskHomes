@@ -261,6 +261,20 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
+     * Get the largest permission node value for teleport warmup.
+     *
+     * @param defaultTeleportWarmup the default teleport warmup time, if no perms are set
+     * @return the largest permission node value for teleport warmup
+     */
+    public int getMaxTeleportWarmup(final int defaultTeleportWarmup) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.teleport_warmup.");
+        if (homes.isEmpty()) {
+            return defaultTeleportWarmup;
+        }
+        return homes.get(0);
+    }
+
+    /**
      * Get the number of free home slots this user may set.
      *
      * @param defaultFreeHomes the default number of free home slots to give this user

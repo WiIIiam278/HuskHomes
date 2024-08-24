@@ -203,7 +203,8 @@ public class Teleport implements Completable {
     public enum Type {
         TELEPORT(0),
         RESPAWN(1),
-        BACK(2);
+        BACK(2),
+        RANDOM_TELEPORT(3);
 
         private final int typeId;
 

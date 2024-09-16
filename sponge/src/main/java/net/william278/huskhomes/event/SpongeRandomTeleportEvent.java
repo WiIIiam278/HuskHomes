@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.event.Cancellable;
@@ -57,4 +58,8 @@ public class SpongeRandomTeleportEvent implements IRandomTeleportEvent, Event, C
                 .build();
     }
 
+    @Override
+    public @NotNull Position getPosition() {
+        return (Position) teleport.getTarget();
+    }
 }

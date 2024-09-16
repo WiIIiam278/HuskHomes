@@ -46,7 +46,11 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
-        return teleport.getType() == Teleport.Type.BACK ? new TeleportBackEvent(teleport) : new TeleportEvent(teleport);
+        return switch (teleport.getType()) {
+            case BACK -> new TeleportBackEvent(teleport);
+            case RANDOM_TELEPORT -> new RandomTeleportEvent(teleport);
+            default -> new TeleportEvent(teleport);
+        };
     }
 
     @Override

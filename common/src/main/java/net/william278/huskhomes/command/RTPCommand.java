@@ -189,6 +189,7 @@ public class RTPCommand extends Command implements UserListTabProvider {
                     // Build and execute the teleport
                     final TeleportBuilder builder = Teleport.builder(plugin)
                             .teleporter(teleporter)
+                            .type(Teleport.Type.RANDOM_TELEPORT)
                             .actions(TransactionResolver.Action.RANDOM_TELEPORT)
                             .target(position.get());
                     builder.buildAndComplete(executor.equals(teleporter), args);

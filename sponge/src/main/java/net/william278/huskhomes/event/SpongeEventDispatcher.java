@@ -46,7 +46,8 @@ public interface SpongeEventDispatcher extends EventDispatcher {
     @Override
     @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
-        return new SpongeTeleportEvent(teleport);
+        return teleport.getType() == Teleport.Type.RANDOM_TELEPORT ? new SpongeRandomTeleportEvent(teleport) :
+                new SpongeTeleportEvent(teleport);
     }
 
     @Override

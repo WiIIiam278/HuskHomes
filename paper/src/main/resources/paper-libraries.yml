@@ -5,3 +5,4 @@ libraries:
   - 'org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
   - 'com.h2database:h2:${h2_driver_version}'
+  - 'org.postgresql:postgresql:${postgresql_driver_version}'

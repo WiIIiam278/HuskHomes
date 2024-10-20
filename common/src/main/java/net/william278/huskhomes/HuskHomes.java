@@ -162,6 +162,13 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
     }
 
     /**
+     * Update the spawn position of a world on the server.
+     *
+     * @param position The new spawn world and coordinates.
+     */
+    void setWorldSpawn(@NotNull Position position);
+
+    /**
      * Returns the {@link Server} the plugin is on.
      *
      * @return The {@link Server} object
@@ -361,6 +368,19 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
      */
     default boolean isWarmingUp(@NotNull UUID userUuid) {
         return this.getCurrentlyOnWarmup().contains(userUuid);
+    }
+
+    @NotNull
+    Set<UUID> getCurrentlyInvulnerable();
+
+    /**
+     * Returns if the given user is currently invulnerable and if it should be removed.
+     *
+     * @param uuid the user to check.
+     * @return if the user is currently invulnerable.
+     */
+    default boolean isInvulnerable(@NotNull UUID uuid) {
+        return this.getCurrentlyInvulnerable().contains(uuid);
     }
 
     @NotNull

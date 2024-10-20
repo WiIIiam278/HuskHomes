@@ -33,10 +33,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
-import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.database.H2Database;
-import net.william278.huskhomes.database.MySqlDatabase;
-import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.database.*;
 import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.SpongeEconomyHook;
@@ -45,6 +42,8 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -62,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command.Raw;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
@@ -74,6 +74,9 @@ import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataHandler;
+import org.spongepowered.api.world.WorldTypes;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -100,6 +103,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newHashSet();
 
     @Inject
     @ConfigDir(sharedRoot = false)
@@ -141,6 +145,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
                 case H2 -> new H2Database(this);
+                case POSTGRESQL -> new PostgreSqlDatabase(this);
             };
 
             database.initialize();
@@ -232,6 +237,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @Override
     public Audience getAudience(@NotNull UUID user) {
         return game.server().player(user).map(player -> (Audience) player).orElse(Audience.empty());
+    }
+
+    @Override
+    public void setWorldSpawn(@NotNull Position position) {
+        final ServerLocation loc = Adapter.adapt(position);
+        loc.world().properties().setSpawnPosition(loc.blockPosition());
     }
 
     @Override
@@ -391,4 +402,44 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         return this;
     }
 
+    public static final class Adapter {
+
+        @NotNull
+        public static Location adapt(@NotNull ServerLocation location) {
+            return Location.at(
+                    location.x(), location.y(), location.z(),
+                    adapt(location.world())
+            );
+        }
+
+        @NotNull
+        public static Position adapt(@NotNull ServerLocation location, @NotNull String server) {
+            return Position.at(adapt(location), server);
+        }
+
+        @NotNull
+        public static ServerLocation adapt(@NotNull Location location) {
+            return ServerLocation.of(
+                    Objects.requireNonNull(adapt(location.getWorld())),
+                    location.getX(), location.getY(), location.getZ()
+            );
+        }
+
+        @Nullable
+        public static ServerWorld adapt(@NotNull World world) {
+            return Sponge.server().worldManager().world(ResourceKey.resolve(world.getName())).orElse(null);
+        }
+
+        @NotNull
+        public static World adapt(@NotNull ServerWorld world) {
+            final String worldType = world.properties().worldType().key(WorldTypes.registry().type()
+                    .asDefaultedType(world::engine)).value();
+            return World.from(
+                    world.properties().name(),
+                    world.uniqueId(),
+                    World.Environment.match(worldType)
+            );
+        }
+
+    }
 }

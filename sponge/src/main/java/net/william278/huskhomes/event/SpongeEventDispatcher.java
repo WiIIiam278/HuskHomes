@@ -34,6 +34,8 @@ import org.spongepowered.api.event.Event;
 
 import java.util.List;
 
+import static net.william278.huskhomes.event.ITeleportWarmupCancelledEvent.CancelReason;
+
 public interface SpongeEventDispatcher extends EventDispatcher {
 
     @Override
@@ -44,12 +46,22 @@ public interface SpongeEventDispatcher extends EventDispatcher {
     @Override
     @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
-        return new SpongeTeleportEvent(teleport);
+        return teleport.getType() == Teleport.Type.RANDOM_TELEPORT ? new SpongeRandomTeleportEvent(teleport) :
+                new SpongeTeleportEvent(teleport);
     }
 
     @Override
     default @NotNull ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return new SpongeTeleportWarmupEvent(teleport, duration);
+    }
+
+    @Override
+    @NotNull
+    default ITeleportWarmupCancelledEvent getTeleportWarmupCancelledEvent(@NotNull TimedTeleport teleport,
+                                                                          int duration,
+                                                                          int cancelledAfter,
+                                                                          @NotNull CancelReason cancelReason) {
+        return new SpongeTeleportWarmupCancelledEvent(teleport, duration, cancelledAfter, cancelReason);
     }
 
     @Override

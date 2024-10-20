@@ -88,7 +88,8 @@ public class SqLiteDatabase extends Database {
             SQLiteConfig config = new SQLiteConfig();
             config.enforceForeignKeys(true);
             config.setEncoding(SQLiteConfig.Encoding.UTF8);
-            config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
+            config.setJournalMode(SQLiteConfig.JournalMode.WAL);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.NORMAL);
 
             // Establish the connection
             connection = DriverManager.getConnection(

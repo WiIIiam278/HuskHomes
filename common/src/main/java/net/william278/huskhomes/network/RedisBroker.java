@@ -63,7 +63,9 @@ public class RedisBroker extends PluginMessageBroker {
 
         // Subscribe using a thread (rather than a task)
         subscriber.enable(jedisPool);
-        new Thread(subscriber::subscribe, "huskhomes:redis_subscriber").start();
+        final Thread thread = new Thread(subscriber::subscribe, "huskhomes:redis_subscriber");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @NotNull
@@ -97,6 +99,11 @@ public class RedisBroker extends PluginMessageBroker {
 
     @Override
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
+        plugin.runAsync(() -> subscriber.send(message));
+    }
+
+    @Override
+    protected void send(@NotNull Message message) {
         plugin.runAsync(() -> subscriber.send(message));
     }
 
@@ -196,6 +203,11 @@ public class RedisBroker extends PluginMessageBroker {
                 message = broker.plugin.getGson().fromJson(encoded, Message.class);
             } catch (Exception e) {
                 broker.plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
+                return;
+            }
+
+            if (message.getType() == Message.Type.REQUEST_RTP_LOCATION) {
+                broker.handleRTPRequest(message);
                 return;
             }
 

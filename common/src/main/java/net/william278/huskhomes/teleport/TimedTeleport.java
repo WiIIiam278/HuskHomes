@@ -22,6 +22,7 @@ package net.william278.huskhomes.teleport;
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.event.ITeleportWarmupCancelledEvent;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.Task;
@@ -42,6 +43,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
     private final OnlineUser teleporter;
     private final Position startLocation;
     private final double startHealth;
+    private final int warmupTime;
     private Task.Repeating task;
     private int timeLeft;
 
@@ -51,6 +53,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
         this.startLocation = teleporter.getPosition();
         this.startHealth = teleporter.getHealth();
+        this.warmupTime = warmupTime;
         this.timeLeft = Math.max(warmupTime, 0);
         this.teleporter = teleporter;
     }
@@ -142,6 +145,8 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
 
         // Cancel the timed teleport if the player takes damage
         if (hasTeleporterTakenDamage() && plugin.getSettings().getGeneral().isTeleportWarmupCancelOnDamage()) {
+            plugin.fireEvent(plugin.getTeleportWarmupCancelledEvent(this, warmupTime,
+                    timeLeft, ITeleportWarmupCancelledEvent.CancelReason.PLAYER_DAMAGE), null);
             plugin.getLocales().getLocale("teleporting_cancelled_damage")
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")
@@ -153,6 +158,8 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
 
         // Cancel the timed teleport if the player moves
         if (hasTeleporterMoved() && plugin.getSettings().getGeneral().isTeleportWarmupCancelOnMove()) {
+            plugin.fireEvent(plugin.getTeleportWarmupCancelledEvent(this, warmupTime,
+                    timeLeft, ITeleportWarmupCancelledEvent.CancelReason.PLAYER_MOVE), null);
             plugin.getLocales().getLocale("teleporting_cancelled_movement")
                     .ifPresent(teleporter::sendMessage);
             plugin.getLocales().getLocale("teleporting_action_bar_cancelled")

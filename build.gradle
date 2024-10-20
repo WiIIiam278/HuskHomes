@@ -1,8 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.github.goooler.shadow' version '8.1.8'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
+    id 'fabric-loom' version "$fabric_loom_version" apply false
     id 'org.ajoberstar.grgit' version '5.2.2'
     id 'checkstyle'
     id 'maven-publish'
@@ -22,6 +23,7 @@ ext {
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
+    set 'postgresql_driver_version', postgresql_driver_version.toString()
 }
 
 publishing {
@@ -56,7 +58,7 @@ publishing {
 }
 
 allprojects {
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'checkstyle'
     apply plugin: 'java'
@@ -69,10 +71,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            mavenContent { snapshotsOnly() }
-        }
         maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
@@ -86,13 +84,14 @@ allprojects {
         maven { url 'https://repo.alessiodp.com/releases/' }
         maven { url 'https://repo.essentialsx.net/releases/' }
         maven { url 'https://repo.mikeprimm.com/' }
+        maven { url 'https://maven.impactdev.net/repository/development' }
         maven { url 'https://jitpack.io' }
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
 
         testCompileOnly 'org.jetbrains:annotations:24.1.0'
     }
@@ -122,6 +121,13 @@ allprojects {
 subprojects {
     version rootProject.version
     archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+
+    // Fabric-specific configuration
+    if (['fabric'].contains(project.name)) {
+        apply plugin: 'fabric-loom'
+        compileJava.options.release.set 21
+        version += "+mc.${fabric_minecraft_version}"
+    }
 
     jar {
         from '../LICENSE'
@@ -178,8 +184,8 @@ subprojects {
                     mavenJavaFabric(MavenPublication) {
                         groupId = 'net.william278.huskhomes'
                         artifactId = 'huskhomes-fabric'
-                        version = "$rootProject.version"
-                        artifact shadowJar
+                        version = "$rootProject.version+${fabric_minecraft_version}"
+                        artifact remapJar
                         artifact sourcesJar
                         artifact javadocJar
                     }
@@ -209,16 +215,20 @@ logger.lifecycle("Building HuskHomes ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    // Require grgit
     if (grgit == null) {
-        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-unknown'
     }
 
-    // Get if there is a tag for this commit
+    // If unclean, return the last commit hash with -indev
+    if (!grgit.status().clean) {
+        return '-' + grgit.head().abbreviatedId  + '-indev'
+    }
+
+    // Otherwise if this matches a tag, return nothing
     def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
     if (tag != null) {
         return ''
     }
-
-    // Otherwise, get the last commit hash and if it's a clean head
-    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId
 }

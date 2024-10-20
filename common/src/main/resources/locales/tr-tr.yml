@@ -145,6 +145,7 @@ locales:
   error_unknown_public_home: '[Error:](#ff3300) [Could not find a public home with the name "%1%".](#ff7e5e)'
   error_public_home_invalid: '[Hata:](#ff3300) [%1% tarafından sahip olunan, %2% adında bir herkese açık ev bulunamadı.](#ff7e5e)'
   error_set_home_maximum_homes: '[Hata:](#ff3300) [En fazla %1% ev ayarlayabilirsiniz!](#ff7e5e)'
+  error_set_home_not_enough_slots: '[Error:](#ff3300) [You have used all %1% of your free home slots!](#ff7e5e)'
   error_spawn_not_set: '[Hata:](#ff3300) [Spawn konumu ayarlanmadı.](#ff7e5e)'
   error_no_teleport_requests: '[Hata:](#ff3300) [Bekleyen bir ışınlanma isteğiniz yok.](#ff7e5e)'
   error_teleport_warmup_stand_still: '[Hata:](#ff3300) [Işınlanmaya başlamadan önce hareketsiz duruyor olmalısınız!](#ff7e5e)'

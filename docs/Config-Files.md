@@ -26,9 +26,9 @@ language: en-gb
 check_for_updates: true
 # Database settings
 database:
-  # Type of database to use (SQLITE, H2, MYSQL, or MARIADB)
+  # Type of database to use (SQLITE, H2, MYSQL, MARIADB, or POSTGRESQL)
   type: SQLITE
-  # Specify credentials here if you are using MYSQL or MARIADB
+  # Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL
   credentials:
     host: localhost
     port: 3306
@@ -36,7 +36,7 @@ database:
     username: root
     password: pa55w0rd
     parameters: ?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8
-  # MYSQL / MARIADB database Hikari connection pool properties
+  # MYSQL / MARIADB / POSTGRESQL database Hikari connection pool properties
   # Don't modify this unless you know what you're doing!
   pool_options:
     size: 12
@@ -79,8 +79,6 @@ general:
   strict_tpa_here_requests: true
   # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 12
-  # Whether to provide modern, rich TAB suggestions for commands (if available)
-  brigadier_tab_completion: true
   # Whether the user should always be put back at the /spawn point when they die (ignores beds/respawn anchors)
   always_respawn_at_spawn: false
   # Whether teleportation should be carried out async (ensuring chunks load before teleporting)

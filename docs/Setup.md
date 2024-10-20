@@ -4,7 +4,7 @@ This will walk you through installing HuskHomes on your Spigot, Fabric or Sponge
 > **Note:** If the plugin fails to load, please check that you are not running an [incompatible version combination](Unsupported-Versions)
 
 * A Spigot (1.17.1+), Fabric (latest Minecraft version), or Sponge (Implementing API v10) _Minecraft: Java Edition_ server running on Java 17+
-* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB database
+* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB/PostgreSQL database
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 
 ## Download HuskHomes for your server
@@ -37,8 +37,8 @@ These instructions are for installing HuskHomes on multiple Spigot, Fabric or Sp
 - Advanced users: If you'd prefer, you can just create one config.yml file and create symbolic links in each `/plugins/HuskHomes/` (`/config/huskhomes/` on Fabric/Sponge) folder to it to make updating it easier.
 ### 3. Configure servers to use cross-server mode
 - Navigate to the HuskHomes [config](Config-Files) file on each server (`~/plugins/HuskHomes/config.yml` on Spigot, `~/config/huskhomes/config.yml` on Fabric/Sponge)
-- Under `database`, set `type` to `MYSQL` or `MARIADB` (depending on which type of database you wish to use)
-- Under `mysql`/`credentials`, enter the credentials of your MySQL or MariaDB database server.
+- Under `database`, set `type` to `MYSQL`, `MARIADB` or `POSTGRESQL` (depending on which type of database you wish to use)
+- Under `mysql`/`credentials`, enter the credentials of your MySQL, MariaDB or PostgreSQL database server.
 - Scroll down and look for the `cross_server` section. Set `enabled` to `true`.
 - You can additionally configure a Redis server to use for network messaging, if you prefer (set the `messenger_type` to `REDIS` if you do this).
 - Save the config file. Make sure you have updated the file on every server.
@@ -48,6 +48,15 @@ These instructions are for installing HuskHomes on multiple Spigot, Fabric or Sp
 ### 5. Restart your servers one last time
 - Provided your MySQL database credentials were correct, your network should now be setup to use HuskHomes!
 - You can delete the `HuskHomesData.db` SQLite flat file that was generated, if you would like.
+
+<details>
+<summary>Cross-Server RTP</summary>
+
+When using Cross-Server RTP 3 things must be true:
+1. You must set `rtp.cross-server` to `true`
+2. You must be using Redis as your message broker
+3. The server names in `rtp.random_target_servers` must match the `server.yml` & Proxy values!
+</details>
 
 ## Next steps
 * [Commands & Permissions](Commands)

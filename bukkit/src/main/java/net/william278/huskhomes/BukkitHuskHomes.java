@@ -35,10 +35,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
-import net.william278.huskhomes.database.Database;
-import net.william278.huskhomes.database.H2Database;
-import net.william278.huskhomes.database.MySqlDatabase;
-import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.database.*;
 import net.william278.huskhomes.event.BukkitEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.PlaceholderAPIHook;
@@ -50,6 +47,8 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.network.RedisBroker;
+import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
@@ -57,7 +56,10 @@ import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.*;
+import net.william278.huskhomes.util.BukkitSafetyResolver;
+import net.william278.huskhomes.util.BukkitTask;
+import net.william278.huskhomes.util.UnsafeBlocks;
+import net.william278.huskhomes.util.Validator;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -71,7 +73,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
+import space.arim.morepaperlib.scheduling.AsynchronousScheduler;
+import space.arim.morepaperlib.scheduling.AttachedScheduler;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.RegionalScheduler;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -93,6 +98,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newConcurrentHashSet();
 
     private Settings settings;
     private Locales locales;
@@ -111,6 +117,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private BukkitAudiences audiences;
     @Getter(AccessLevel.NONE)
     private MorePaperLib paperLib;
+    private AsynchronousScheduler asyncScheduler;
+    private RegionalScheduler regionalScheduler;
     @Nullable
     private Broker broker;
 
@@ -138,6 +146,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                 case MYSQL, MARIADB -> new MySqlDatabase(this);
                 case SQLITE -> new SqLiteDatabase(this);
                 case H2 -> new H2Database(this);
+                case POSTGRESQL -> new PostgreSqlDatabase(this);
             };
 
             database.initialize();
@@ -266,6 +275,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         return audiences.player(user);
     }
 
+    @Override
+    public void setWorldSpawn(@NotNull Position position) {
+        Objects.requireNonNull(Adapter.adapt(position).getWorld()).setSpawnLocation(Adapter.adapt(position));
+    }
+
     @NotNull
     @Override
     public Broker getMessenger() {
@@ -311,10 +325,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     @NotNull
     public List<World> getWorlds() {
-        return getServer().getWorlds().stream()
-                .filter(world -> BukkitAdapter.adaptWorld(world).isPresent())
-                .map(world -> BukkitAdapter.adaptWorld(world).orElse(null))
-                .toList();
+        return getServer().getWorlds().stream().map(Adapter::adapt).toList();
     }
 
     @Override
@@ -380,14 +391,69 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @NotNull
+    public AsynchronousScheduler getAsyncScheduler() {
+        return asyncScheduler == null
+                ? asyncScheduler = getScheduler().asyncScheduler() : asyncScheduler;
+    }
+
+    @NotNull
+    public RegionalScheduler getSyncScheduler() {
+        return regionalScheduler == null
+                ? regionalScheduler = getScheduler().globalRegionalScheduler() : regionalScheduler;
+    }
+
+    @NotNull
+    public AttachedScheduler getUserSyncScheduler(@NotNull OnlineUser user) {
+        return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
+    }
+
+    @NotNull
     public CommandRegistration getCommandRegistrar() {
         return paperLib.commandRegistration();
     }
 
     @Override
     @NotNull
-    public HuskHomes getPlugin() {
+    public BukkitHuskHomes getPlugin() {
         return this;
     }
 
+    public static class Adapter {
+
+        @NotNull
+        public static Location adapt(@NotNull org.bukkit.Location location) {
+            return Position.at(
+                    location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(), location.getPitch(),
+                    adapt(Objects.requireNonNull(location.getWorld(), "Location world is null"))
+            );
+        }
+
+        @NotNull
+        public static Position adapt(@NotNull org.bukkit.Location location, @NotNull String server) {
+            return Position.at(adapt(location), server);
+        }
+
+        @NotNull
+        public static org.bukkit.Location adapt(@NotNull Location position) {
+            return new org.bukkit.Location(
+                    adapt(position.getWorld()),
+                    position.getX(), position.getY(), position.getZ(),
+                    position.getYaw(), position.getPitch()
+            );
+        }
+
+        @Nullable
+        public static org.bukkit.World adapt(@NotNull World world) {
+            return Optional.ofNullable(Bukkit.getWorld(world.getUuid()))
+                    .or(() -> Optional.ofNullable(Bukkit.getWorld(world.getName())))
+                    .orElse(null);
+        }
+
+        @NotNull
+        public static World adapt(@NotNull org.bukkit.World world) {
+            return World.from(world.getName(), world.getUID(), World.Environment.match(world.getEnvironment().name()));
+        }
+
+    }
 }

@@ -19,8 +19,8 @@ The HuskHomes API shares version numbering with the plugin itself for consistenc
 
 The HuskHomes API is available for the following platforms:
 
-* `bukkit` - Bukkit, Spigot, Paper, etc. Provides Bukkit API events and extends `BaseHuskHomesAPI` with `org.bukkit` adapters.
-* `fabric` - Fabric, Quilt, etc. Provides Fabric callback-style listeners
+* `bukkit` - Bukkit, Spigot, Paper, etc. Provides Bukkit API event listeners and adapters to `org.bukkit` objects.
+* `fabric` - Fabric, Quilt, etc. Provides Fabric API event callbacks and adapters to `net.minecraft` objects.
 * `sponge` - Sponge. Provides Sponge API events.
 * `common` - Common API for all platforms.
 
@@ -35,12 +35,10 @@ The HuskHomes API is available for the following platforms:
 1. [API Introduction](#1-api-introduction)
     1. [Setup with Maven](#11-setup-with-maven)
     2. [Setup with Gradle](#12-setup-with-gradle)
-    3. [Next steps](#3-next-steps)
 2. [Adding HuskHomes as a dependency](#2-adding-huskhomes-as-a-dependency)
 3. [Next steps](#3-next-steps)
 
-## 1 API Introduction
-
+## API Introduction
 ### 1.1 Setup with Maven
 <details>
 <summary>Maven setup information</summary>
@@ -54,7 +52,7 @@ Add the repository to your `pom.xml` as per below. You can alternatively specify
     </repository>
 </repositories>
 ```
-Add the dependency to your `pom.xml` as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square)
+Add the dependency to your `pom.xml` as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square). Note for Fabric you must append the target Minecraft version to the version number (e.g. `3.6.1+1.20.1`).
 ```xml
 <dependency>
     <groupId>net.william278.huskhomes</groupId>
@@ -77,7 +75,7 @@ allprojects {
 	}
 }
 ```
-Add the dependency as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square)
+Add the dependency as per below. Replace `VERSION` with the latest version of HuskHomes (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskHomes?color=%23282828&label=%20&style=flat-square). Note for Fabric you must append the target Minecraft version to the version number (e.g. `3.6.1+1.20.1`).
 
 ```groovy
 dependencies {
@@ -86,7 +84,7 @@ dependencies {
 ```
 </details>
 
-### 2. Adding HuskHomes as a dependency
+## 2. Adding HuskHomes as a dependency
 Add HuskHomes to your `softdepend` (if you want to optionally use HuskHomes) or `depend` (if your plugin relies on HuskHomes) section in `plugin.yml` of your project.
 
 ```yaml
@@ -99,7 +97,7 @@ softdepend: # Or, use 'depend' here
   - HuskHomes
 ```
 
-### 3. Next steps
+## 3. Next steps
 Now that you've got everything ready, you can start doing stuff with the HuskHomes API!
 - [[API Examples]]
 - [[API Events]]

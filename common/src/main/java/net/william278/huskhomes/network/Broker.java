@@ -23,8 +23,11 @@ import net.kyori.adventure.key.InvalidKeyException;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Warp;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -113,8 +116,59 @@ public abstract class Broker {
                 plugin.getManager().homes().updatePublicHomeCache();
                 plugin.getManager().warps().updateWarpCache();
             }
+            case RTP_LOCATION -> message.getPayload()
+                    .getRTPResponse()
+                    .ifPresentOrElse(response -> {
+                        final TeleportBuilder builder = Teleport.builder(plugin)
+                                .teleporter(receiver)
+                                .actions(TransactionResolver.Action.RANDOM_TELEPORT)
+                                .target(response.getPosition());
+                        builder.buildAndComplete(true);
+                    }, () -> plugin.getLocales().getLocale("error_rtp_randomization_timeout")
+                            .ifPresent(receiver::sendMessage));
             default -> throw new IllegalStateException("Unexpected value: " + message.getType());
         }
+    }
+
+    /**
+     * Separate handler for RTP Request because it doesn't need a receiver to handle it.
+     *
+     * @param message the message to handle
+     */
+    protected void handleRTPRequest(@NotNull Message message) {
+        if (message.getSourceServer().equals(getServer())) {
+            return;
+        }
+
+        message.getPayload()
+                .getRTPRequest()
+                .ifPresent((request) -> {
+                    Optional<World> world = plugin.getWorlds().stream()
+                            .filter(w -> w.getName().equals(request.getWorldName())).findFirst();
+                    if (world.isEmpty()) {
+                        plugin.log(Level.SEVERE, "%s requested a position in a world we don't have! World: %s"
+                                .formatted(message.getSourceServer(), request.getWorldName()));
+                        Message.builder()
+                                .type(Message.Type.RTP_LOCATION)
+                                .target(request.getUsername())
+                                .payload(Payload.empty())
+                                .build().send(plugin.getMessenger(), request.getUsername());
+                        return;
+                    }
+                    plugin.getRandomTeleportEngine().getRandomPosition(world.get(), null)
+                            .thenAccept((position) -> {
+                                final Message.Builder builder = Message.builder()
+                                        .type(Message.Type.RTP_LOCATION)
+                                        .target(request.getUsername());
+                                if (position.isEmpty()) {
+                                    builder.payload(Payload.empty());
+                                } else {
+                                    builder.payload(Payload.withRTPResponse(
+                                            Payload.RTPResponse.of(request.getUsername(), position.get())));
+                                }
+                                builder.build().send(plugin.getMessenger(), request.getUsername());
+                            });
+                });
     }
 
     /**
@@ -131,6 +185,13 @@ public abstract class Broker {
      * @param sender  the sender of the message
      */
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
+
+    /**
+     * Send a message to the broker. (For Redis Only)
+     *
+     * @param message the message to send
+     */
+    protected abstract void send(@NotNull Message message);
 
     /**
      * Move an {@link OnlineUser} to a new server on the proxy network.

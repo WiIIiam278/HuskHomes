@@ -19,20 +19,27 @@
 
 package net.william278.huskhomes.util;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public interface FabricTask extends Task {
 
+    ScheduledExecutorService ASYNC_EXEC = Executors.newScheduledThreadPool(4,
+            new ThreadFactoryBuilder()
+                    .setDaemon(true)
+                    .setNameFormat("HuskHomes-ThreadPool")
+                    .build());
+
     class Sync extends Task.Sync implements FabricTask {
 
-        protected Sync(@NotNull HuskHomes plugin, @NotNull Runnable runnable, long delayTicks) {
+        protected Sync(@NotNull HuskHomes plugin, @NotNull Runnable runnable,
+                       @SuppressWarnings("unused") @Nullable OnlineUser user, long delayTicks) {
             super(plugin, runnable, delayTicks);
         }
 
@@ -44,11 +51,9 @@ public interface FabricTask extends Task {
         @Override
         public void run() {
             if (!cancelled) {
-                Executors.newSingleThreadScheduledExecutor().schedule(
-                        () -> ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable),
+                ASYNC_EXEC.schedule(() -> ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable),
                         delayTicks * 50,
-                        TimeUnit.MILLISECONDS
-                );
+                        TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -56,8 +61,8 @@ public interface FabricTask extends Task {
     class Async extends Task.Async implements FabricTask {
         private CompletableFuture<Void> task;
 
-        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable) {
-            super(plugin, runnable);
+        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable, long delayTicks) {
+            super(plugin, runnable, delayTicks);
         }
 
         @Override
@@ -71,7 +76,7 @@ public interface FabricTask extends Task {
         @Override
         public void run() {
             if (!cancelled) {
-                this.task = CompletableFuture.runAsync(runnable, ((FabricHuskHomes) getPlugin()).getMinecraftServer());
+                this.task = CompletableFuture.runAsync(runnable, ASYNC_EXEC);
             }
         }
     }
@@ -95,12 +100,11 @@ public interface FabricTask extends Task {
         @Override
         public void run() {
             if (!cancelled) {
-                this.task = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                this.task = ASYNC_EXEC.scheduleAtFixedRate(
                         runnable,
                         0,
                         repeatingTicks * 50,
-                        TimeUnit.MILLISECONDS
-                );
+                        TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -109,14 +113,14 @@ public interface FabricTask extends Task {
 
         @NotNull
         @Override
-        default Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks) {
-            return new Sync(getPlugin(), runnable, delayTicks);
+        default Task.Sync getSyncTask(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks) {
+            return new Sync(getPlugin(), runnable, user, delayTicks);
         }
 
         @NotNull
         @Override
-        default Task.Async getAsyncTask(@NotNull Runnable runnable) {
-            return new Async(getPlugin(), runnable);
+        default Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks) {
+            return new Async(getPlugin(), runnable, delayTicks);
         }
 
         @NotNull
@@ -127,7 +131,7 @@ public interface FabricTask extends Task {
 
         @Override
         default void cancelTasks() {
-            // Do nothing
+            ASYNC_EXEC.shutdownNow();
         }
 
     }

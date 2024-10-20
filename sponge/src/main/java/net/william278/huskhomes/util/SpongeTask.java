@@ -21,7 +21,9 @@ package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.SpongeHuskHomes;
+import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.util.Ticks;
 
@@ -33,7 +35,8 @@ public interface SpongeTask extends Task {
 
         private ScheduledTask task;
 
-        protected Sync(@NotNull HuskHomes plugin, @NotNull Runnable runnable, long delayTicks) {
+        protected Sync(@NotNull HuskHomes plugin, @NotNull Runnable runnable,
+                       @SuppressWarnings("unused") @Nullable OnlineUser user, long delayTicks) {
             super(plugin, runnable, delayTicks);
         }
 
@@ -62,8 +65,8 @@ public interface SpongeTask extends Task {
 
         private ScheduledTask task;
 
-        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable) {
-            super(plugin, runnable);
+        protected Async(@NotNull HuskHomes plugin, @NotNull Runnable runnable, long delayTicks) {
+            super(plugin, runnable, delayTicks);
         }
 
         @Override
@@ -119,14 +122,14 @@ public interface SpongeTask extends Task {
 
         @NotNull
         @Override
-        default Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks) {
-            return new Sync(getPlugin(), runnable, delayTicks);
+        default Task.Sync getSyncTask(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks) {
+            return new Sync(getPlugin(), runnable, user, delayTicks);
         }
 
         @NotNull
         @Override
-        default Task.Async getAsyncTask(@NotNull Runnable runnable) {
-            return new Async(getPlugin(), runnable);
+        default Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks) {
+            return new Async(getPlugin(), runnable, delayTicks);
         }
 
         @NotNull
@@ -137,7 +140,6 @@ public interface SpongeTask extends Task {
 
         @Override
         default void cancelTasks() {
-            // Do nothing
         }
 
     }

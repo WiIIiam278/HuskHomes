@@ -1,3 +1,0 @@
-publichome {
-    name brigadier:string single_word;
-}

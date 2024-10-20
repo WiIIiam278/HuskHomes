@@ -66,7 +66,7 @@ public class TeleportBuilder {
 
         return new TimedTeleport(
                 executor, onlineTeleporter, target, type,
-                plugin.getSettings().getGeneral().getTeleportWarmupTime(),
+                onlineTeleporter.getMaxTeleportWarmup(plugin.getSettings().getGeneral().getTeleportWarmupTime()),
                 updateLastPosition, actions, plugin
         );
     }

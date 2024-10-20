@@ -23,13 +23,12 @@ import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.SpongeHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
-import net.william278.huskhomes.util.SpongeAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.util.RespawnLocation;
-import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.Map;
 import java.util.Optional;
@@ -67,20 +66,15 @@ public class SpongeUser extends OnlineUser {
 
     @Override
     public Position getPosition() {
-        return Position.at(
-                SpongeAdapter.adaptLocation(player.serverLocation())
-                        .orElseThrow(() -> new IllegalStateException("Failed to adapt player location")),
-                plugin.getServerName()
-        );
+        return SpongeHuskHomes.Adapter.adapt(player.serverLocation(), plugin.getServerName());
     }
 
+    // Resolve the player's RespawnLocation from the world-key map and adapt as location
     @Override
     public Optional<Position> getBedSpawnPosition() {
-        // Resolve the player's RespawnLocation from the world-key map and adapt as location
         return player.get(Keys.RESPAWN_LOCATIONS)
-                .flatMap(resourceMap -> resourceMap.values().stream().findFirst())
-                .flatMap(RespawnLocation::asLocation).flatMap(SpongeAdapter::adaptLocation)
-                .map(location -> Position.at(location, plugin.getServerName()));
+                .flatMap(resourceMap -> resourceMap.values().stream().findFirst()).flatMap(RespawnLocation::asLocation)
+                .map(location -> SpongeHuskHomes.Adapter.adapt(location, plugin.getServerName()));
     }
 
     @Override
@@ -112,25 +106,25 @@ public class SpongeUser extends OnlineUser {
             player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.passengers().forEach(passenger -> player.passengers().remove(passenger));
             future.complete(null);
-        });
+        }, this);
         return future;
     }
 
     @Override
     public void teleportLocally(@NotNull Location location, boolean async) {
         plugin.runSync(() -> {
-            final Optional<ServerLocation> serverLocation = SpongeAdapter.adaptLocation(location);
-            if (serverLocation.isEmpty()) {
+            final ServerWorld world = SpongeHuskHomes.Adapter.adapt(location.getWorld());
+            if (world == null) {
                 return;
             }
             player.vehicle().ifPresent(vehicle -> vehicle.get().passengers().remove(player));
             player.passengers().forEach(passenger -> player.passengers().remove(passenger));
-            player.setLocation(serverLocation.get());
-        });
+            player.setLocation(SpongeHuskHomes.Adapter.adapt(location));
+        }, this);
     }
 
     @Override
-    public void sendPluginMessage(@NotNull String channel, byte[] message) {
+    public void sendPluginMessage(byte[] message) {
         ((SpongeHuskHomes) plugin).getPluginMessageChannel().sendTo(player, buf -> buf.writeBytes(message));
     }
 
@@ -153,9 +147,15 @@ public class SpongeUser extends OnlineUser {
             return;
         }
         long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
-        player.invulnerable().set(false);
+        player.invulnerable().set(true);
         // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.invulnerable().set(true), invulnerabilityTimeInTicks);
+        plugin.runSyncDelayed(() -> player.invulnerable().set(false), this, invulnerabilityTimeInTicks);
     }
 
+    @Override
+    public void removeInvulnerabilityIfPermitted() {
+        if (plugin.isInvulnerable(this.getUuid())) {
+            player.invulnerable().set(false);
+        }
+    }
 }

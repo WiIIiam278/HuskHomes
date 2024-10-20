@@ -19,10 +19,10 @@ jobs:
     steps:
       - name: 'Checkout for CI 🛎️'
         uses: actions/checkout@v4
-      - name: 'Set up JDK 17 📦'
+      - name: 'Set up JDK 21 📦'
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
       - name: 'Build with Gradle 🏗️'
         uses: gradle/gradle-build-action@v3
@@ -43,6 +43,30 @@ jobs:
       - name: Get Version
         run: |
           echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+      - name: 'Publish to William278.net 🚀'
+        uses: WiIIiam278/bones-publish-action@v1
+        with:
+          api-key: ${{ secrets.BONES_API_KEY }}
+          project: 'huskhomes'
+          channel: 'alpha'
+          version: ${{ env.version_name }}
+          changelog: ${{ github.event.head_commit.message }}
+          distro-names: |
+            paper
+            sponge-10
+            fabric-1.21.1
+          distro-groups: |
+            paper
+            sponge
+            fabric
+          distro-descriptions: |
+            Paper
+            Sponge API 10
+            Fabric 1.21.1
+          files: |
+            target/HuskHomes-Paper-${{ env.version_name }}.jar
+            target/HuskHomes-Sponge-${{ env.version_name }}.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -68,9 +92,23 @@ jobs:
             folia
           game-versions: |
             1.17.1
+            1.18
+            1.18.1
             1.18.2
+            1.19
+            1.19.1
+            1.19.2
+            1.19.3
             1.19.4
+            1.20
+            1.20.1
+            1.20.2
+            1.20.3
             1.20.4
+            1.20.5
+            1.20.6
+            1.21
+            1.21.1
           java: 17
       - name: 'Sponge: Publish to Modrinth 🧽'
         uses: WiIIiam278/mc-publish@hangar
@@ -110,7 +148,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}.jar
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -118,14 +156,5 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.20.4
-          java: 17
-      - name: 'Upload GitHub Artifacts 📦'
-        uses: actions/upload-artifact@v4
-        if: success() || failure()
-        with:
-          name: HuskHomes
-          path: |
-            target/HuskHomes-Paper-${{ env.version_name }}.jar
-            target/HuskHomes-Sponge-${{ env.version_name }}.jar
-            target/HuskHomes-Fabric-${{ env.version_name }}.jar
+            1.21.1
+          java: 21

@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static net.william278.huskhomes.event.ITeleportWarmupCancelledEvent.CancelReason;
+
 public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
@@ -44,12 +46,24 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     @NotNull
     default ITeleportEvent getTeleportEvent(@NotNull Teleport teleport) {
-        return teleport.getType() == Teleport.Type.BACK ? new TeleportBackEvent(teleport) : new TeleportEvent(teleport);
+        return switch (teleport.getType()) {
+            case BACK -> new TeleportBackEvent(teleport);
+            case RANDOM_TELEPORT -> new RandomTeleportEvent(teleport);
+            default -> new TeleportEvent(teleport);
+        };
     }
 
     @Override
     default @NotNull ITeleportWarmupEvent getTeleportWarmupEvent(@NotNull TimedTeleport teleport, int duration) {
         return new TeleportWarmupEvent(teleport, duration);
+    }
+
+    @Override
+    default @NotNull ITeleportWarmupCancelledEvent getTeleportWarmupCancelledEvent(@NotNull TimedTeleport teleport,
+                                                                                   int duration,
+                                                                                   int cancelledAfter,
+                                                                                   @NotNull CancelReason cancelReason) {
+        return new TeleportWarmupCancelledEvent(teleport, duration, cancelledAfter, cancelReason);
     }
 
     @Override

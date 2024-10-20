@@ -128,7 +128,6 @@ public class TpCommand extends Command implements TabProvider {
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final Position relative = getBasePosition(user);
         final boolean serveCoordinateCompletions = user.hasPermission(getPermission("coordinates"));
-        final boolean servePlayerCompletions = user.hasPermission(getPermission("other"));
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = Lists.newArrayList(serveCoordinateCompletions
@@ -137,9 +136,7 @@ public class TpCommand extends Command implements TabProvider {
                         ((int) relative.getX() + " " + (int) relative.getY()),
                         ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                         : List.of());
-                if (servePlayerCompletions) {
-                    completions.addAll(plugin.getPlayerList(false));
-                }
+                completions.addAll(plugin.getPlayerList(false));
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -157,7 +154,7 @@ public class TpCommand extends Command implements TabProvider {
                             ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                             : List.of()
                     );
-                    if (servePlayerCompletions) {
+                    if (user.hasPermission(getPermission("other"))) {
                         completions.addAll(plugin.getPlayerList(false));
                     }
                 }

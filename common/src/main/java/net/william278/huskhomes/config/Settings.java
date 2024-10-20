@@ -69,10 +69,10 @@ public final class Settings {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
-        @Comment("Type of database to use (SQLITE, H2, MYSQL, or MARIADB)")
+        @Comment("Type of database to use (SQLITE, H2, MYSQL, MARIADB, or POSTGRESQL)")
         private Database.Type type = Database.Type.SQLITE;
 
-        @Comment("Specify credentials here if you are using MYSQL or MARIADB")
+        @Comment("Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL")
         private DatabaseCredentials credentials = new DatabaseCredentials();
 
         @Getter
@@ -89,7 +89,7 @@ public final class Settings {
                     "useUnicode=true", "characterEncoding=UTF-8");
         }
 
-        @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
+        @Comment({"MYSQL / MARIADB / POSTGRESQL database Hikari connection pool properties",
                 "Don't modify this unless you know what you're doing!"})
         private PoolOptions poolOptions = new PoolOptions();
 
@@ -158,9 +158,6 @@ public final class Settings {
 
         @Comment("How many items should be displayed per-page in chat menu lists")
         private int listItemsPerPage = 12;
-
-        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-        private boolean brigadierTabCompletion = true;
 
         @Comment("Whether the user should always be put back at the /spawn point when they die "
                 + "(ignores beds/respawn anchors)")
@@ -343,6 +340,13 @@ public final class Settings {
                     .map(n -> n.startsWith("minecraft:") ? n.substring(10) : n)
                     .anyMatch(n -> n.equalsIgnoreCase(filteredName));
         }
+
+        @Comment("Whether or not RTP should perform cross-server.")
+        private boolean crossServer = false;
+
+        @Comment({"List of server in which /rtp is allowed. (Only relevant when using cross server mode WITH REDIS)",
+                "If a server is not defined here the RTP logic has no way of knowing its existence."})
+        private List<String> randomTargetServers = List.of("server-01", "server-02");
     }
 
     @Comment("Action cooldown settings. Docs: https://william278.net/docs/huskhomes/cooldowns")

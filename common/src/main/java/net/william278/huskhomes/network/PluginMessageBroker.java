@@ -93,7 +93,17 @@ public class PluginMessageBroker extends Broker {
             return;
         }
 
-        sender.sendPluginMessage(BUNGEE_CHANNEL_ID, messageWriter.toByteArray());
+        sender.sendPluginMessage(messageWriter.toByteArray());
+    }
+
+    /**
+     * Send a message to the broker. (For Redis Only)
+     *
+     * @param message the message to send
+     */
+    @Override
+    protected void send(@NotNull Message message) {
+        throw new IllegalStateException("Tried to send a plugin message without a sender!");
     }
 
     @Override
@@ -104,7 +114,7 @@ public class PluginMessageBroker extends Broker {
             outputStream.writeUTF("Connect");
             outputStream.writeUTF(server);
 
-            user.sendPluginMessage(BUNGEE_CHANNEL_ID, outputStream.toByteArray());
+            user.sendPluginMessage(outputStream.toByteArray());
         });
     }
 

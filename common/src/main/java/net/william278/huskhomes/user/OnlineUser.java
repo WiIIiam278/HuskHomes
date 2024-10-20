@@ -193,12 +193,11 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException;
 
     /**
-     * Send a plugin message to the user.
+     * Send a plugin message to the user on the bungee channel.
      *
-     * @param channel channel to send it on
      * @param message byte array of message data
      */
-    public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
+    public abstract void sendPluginMessage(byte[] message);
 
     /**
      * Returns if a player is moving (i.e., they have momentum).
@@ -220,6 +219,8 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @since 4.6.2
      */
     public abstract void handleInvulnerability();
+
+    public abstract void removeInvulnerabilityIfPermitted();
 
     /**
      * Get the maximum number of homes this user may set.
@@ -257,6 +258,20 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
         } else {
             return homes.get(0);
         }
+    }
+
+    /**
+     * Get the largest permission node value for teleport warmup.
+     *
+     * @param defaultTeleportWarmup the default teleport warmup time, if no perms are set
+     * @return the largest permission node value for teleport warmup
+     */
+    public int getMaxTeleportWarmup(final int defaultTeleportWarmup) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.teleport_warmup.");
+        if (homes.isEmpty()) {
+            return defaultTeleportWarmup;
+        }
+        return homes.get(0);
     }
 
     /**

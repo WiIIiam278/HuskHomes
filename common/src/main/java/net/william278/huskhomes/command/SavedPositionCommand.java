@@ -238,10 +238,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private List<String> suggestHome(@NotNull CommandUser executor, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> {
-                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
-                    if (executor.hasPermission(getOtherPermission())) {
-                        yield plugin.getManager().homes().getUserHomeIdentifiers();
-                    }
+                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)
+                        && executor.hasPermission(getOtherPermission())) {
                     yield plugin.getManager().homes().getUserHomeIdentifiers();
                 }
                 if (executor instanceof OnlineUser user) {

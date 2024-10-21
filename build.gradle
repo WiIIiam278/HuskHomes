@@ -4,7 +4,7 @@ plugins {
     id 'io.github.goooler.shadow' version '8.1.8'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'fabric-loom' version "$fabric_loom_version" apply false
-    id 'org.ajoberstar.grgit' version '5.2.2'
+    id 'org.ajoberstar.grgit' version '5.3.0'
     id 'checkstyle'
     id 'maven-publish'
     id 'java'

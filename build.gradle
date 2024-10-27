@@ -222,7 +222,7 @@ def versionMetadata() {
 
     // If unclean, return the last commit hash with -indev
     if (!grgit.status().clean) {
-        return '-' + grgit.head().abbreviatedId  + '-indev'
+        return '-' + grgit.head().abbreviatedId + '-indev'
     }
 
     // Otherwise if this matches a tag, return nothing

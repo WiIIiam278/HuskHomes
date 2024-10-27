@@ -19,11 +19,12 @@
 
 package net.william278.huskhomes.database;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Server;
-import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.SavedPosition;
@@ -33,79 +34,161 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * An abstract representation of the plugin database, storing home, warp and player data.
- *
- * <p>Implemented by different database platforms - MySQL, SQLite, etc. - as configured by the administrator.
- */
+
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Database {
 
-    protected final HuskHomes plugin;
+    protected HuskHomes plugin;
 
-    /**
-     * Loads SQL table creation schema statements from a resource file as a string array.
-     *
-     * @param schemaFileName database script resource file to load from
-     * @return Array of string-formatted table creation schema statements
-     * @throws IOException if the resource could not be read
-     */
-    protected final String[] getSchemaStatements(@NotNull String schemaFileName) throws IOException {
-        return formatStatementTables(
-                new String(Objects.requireNonNull(plugin.getResource(schemaFileName)).readAllBytes(),
-                        StandardCharsets.UTF_8))
-                .split(";");
-    }
+    @Getter
+    @Setter
+    private boolean loaded;
 
-    /**
-     * Format all table name placeholder strings in an SQL statement.
-     *
-     * @param sql the SQL statement with unformatted table name placeholders
-     * @return the formatted statement, with table placeholders replaced with the correct names
-     */
-    protected final String formatStatementTables(@NotNull String sql) {
-        final Settings.DatabaseSettings settings = plugin.getSettings().getDatabase();
-        return sql
-                .replaceAll("%positions_table%", settings
-                        .getTableName(Table.POSITION_DATA))
-                .replaceAll("%players_table%", settings
-                        .getTableName(Table.PLAYER_DATA))
-                .replaceAll("%cooldowns_table%", settings
-                        .getTableName(Table.PLAYER_COOLDOWNS_DATA))
-                .replaceAll("%teleports_table%", settings
-                        .getTableName(Table.TELEPORT_DATA))
-                .replaceAll("%saved_positions_table%", settings
-                        .getTableName(Table.SAVED_POSITION_DATA))
-                .replaceAll("%homes_table%", settings
-                        .getTableName(Table.HOME_DATA))
-                .replaceAll("%warps_table%", settings
-                        .getTableName(Table.WARP_DATA));
-    }
-
-    /**
-     * Create a database instance, pulling table names from the plugin config.
-     *
-     * @param plugin the implementing plugin instance
-     */
     protected Database(@NotNull HuskHomes plugin) {
         this.plugin = plugin;
     }
 
     /**
-     * Initialize the database and ensure tables are present; create tables if they do not exist.
+     * Get the schema statements from the schema file
+     *
+     * @return the {@link #format formatted} schema statements
+     */
+    @NotNull
+    protected final String[] getScript(@NotNull String name) {
+        name = (name.startsWith("database/") ? "" : "database/") + name + (name.endsWith(".sql") ? "" : ".sql");
+        try (InputStream file = Objects.requireNonNull(plugin.getResource(name), "Invalid script %s".formatted(name))) {
+            @Language("SQL") final String schema = new String(file.readAllBytes(), StandardCharsets.UTF_8);
+            return format(schema).split(";");
+        } catch (IOException e) {
+            plugin.log(Level.SEVERE, "Failed to load database schema", e);
+        }
+        return new String[0];
+    }
+
+    protected abstract void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException;
+
+    /**
+     * Format a string for use in an SQL query
+     *
+     * @param statement The SQL statement to format
+     * @return The formatted SQL statement
+     */
+    @NotNull
+    protected final String format(@NotNull @Language("SQL") String statement) {
+        final Pattern pattern = Pattern.compile("%(\\w+)%");
+        final Matcher matcher = pattern.matcher(statement);
+        final StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            final Table table = Table.match(matcher.group(1));
+            matcher.appendReplacement(sb, plugin.getSettings().getDatabase().getTableName(table));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Backup a flat file database
+     *
+     * @param file the file to back up
+     */
+    protected final void backupFlatFile(@NotNull Path file) {
+        if (!file.toFile().exists()) {
+            return;
+        }
+
+        final Path backup = file.getParent().resolve(String.format("%s.bak", file.getFileName().toString()));
+        try {
+            final File backupFile = backup.toFile();
+            if (!backupFile.exists() || backupFile.delete()) {
+                Files.copy(file, backup);
+            }
+        } catch (IOException e) {
+            plugin.log(Level.WARNING, "Failed to backup flat file database", e);
+        }
+    }
+
+    /**
+     * Initialize the database connection
+     *
+     * @throws IllegalStateException if the database initialization fails
      */
     public abstract void initialize() throws IllegalStateException;
+
+    /**
+     * Check if the database has been created
+     *
+     * @return {@code true} if the database has been created; {@code false} otherwise
+     */
+    public abstract boolean isCreated();
+
+    /**
+     * Perform database migrations
+     *
+     * @param connection the database connection
+     * @throws SQLException if an SQL error occurs during migration
+     */
+    protected final void performMigrations(@NotNull Connection connection, @NotNull Type type) throws SQLException {
+        final int currentVersion = getSchemaVersion();
+        final int latestVersion = Migration.getLatestVersion();
+        if (currentVersion < latestVersion) {
+            plugin.log(Level.INFO, "Performing database migrations (Target version: v" + latestVersion + ")");
+            for (Migration migration : Migration.getOrderedMigrations()) {
+                if (!migration.isSupported(type)) {
+                    continue;
+                }
+                if (migration.getVersion() > currentVersion) {
+                    try {
+                        plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
+                                               + " (v" + migration.getVersion() + ")");
+                        executeScript(connection, "migrations/%s-%s-%s.sql".formatted(
+                                migration.getVersion(),
+                                type.name().toLowerCase(Locale.ENGLISH),
+                                migration.getMigrationName()
+                        ));
+                    } catch (SQLException e) {
+                        plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
+                                                  + " (v" + migration.getVersion() + ") failed; skipping", e);
+                    }
+                }
+            }
+            setSchemaVersion(latestVersion);
+            plugin.log(Level.INFO, "Completed database migration (Target version: v" + latestVersion + ")");
+        }
+    }
+
+    /**
+     * Get the database schema version
+     *
+     * @return the database schema version
+     */
+    public abstract int getSchemaVersion();
+
+    /**
+     * Set the database schema version
+     *
+     * @param version the database schema version
+     */
+    public abstract void setSchemaVersion(int version);
 
     /**
      * <b>(Internal use only)</b> - Sets a position to the position table in the database.
@@ -479,10 +562,9 @@ public abstract class Database {
     public abstract int deleteAllWarps(@NotNull String worldName, @NotNull String serverName);
 
     /**
-     * Close any remaining connection to the database source.
+     * Close the database connection
      */
-    public abstract void terminate();
-
+    public abstract void close();
 
     /**
      * Identifies types of databases.
@@ -506,6 +588,7 @@ public abstract class Database {
     @Getter
     @AllArgsConstructor
     public enum Table {
+        META_DATA("huskhomes_metadata"),
         PLAYER_DATA("huskhomes_users"),
         PLAYER_COOLDOWNS_DATA("huskhomes_user_cooldowns"),
         POSITION_DATA("huskhomes_position_data"),
@@ -514,7 +597,18 @@ public abstract class Database {
         WARP_DATA("huskhomes_warps"),
         TELEPORT_DATA("huskhomes_teleports");
 
+        @NotNull
         private final String defaultName;
+
+        @NotNull
+        public static Database.Table match(@NotNull String placeholder) throws IllegalArgumentException {
+            return Table.valueOf(placeholder.toUpperCase(Locale.ENGLISH));
+        }
+
+        @NotNull
+        public String getDefaultName() {
+            return defaultName;
+        }
 
         @NotNull
         public static Map<Table, String> getConfigMap() {
@@ -524,4 +618,49 @@ public abstract class Database {
         }
 
     }
+
+    /**
+     * Represents database migrations that need to be run
+     */
+    public enum Migration {
+        ADD_METADATA_TABLE(
+                0, "add_metadata_table",
+                Type.MYSQL, Type.MARIADB, Type.POSTGRESQL, Type.SQLITE, Type.H2
+        );
+
+        private final int version;
+        private final String migrationName;
+        private final Type[] supportedTypes;
+
+        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+            this.version = version;
+            this.migrationName = migrationName;
+            this.supportedTypes = supportedTypes;
+        }
+
+        private int getVersion() {
+            return version;
+        }
+
+        private String getMigrationName() {
+            return migrationName;
+        }
+
+        private boolean isSupported(@NotNull Type type) {
+            return Arrays.stream(supportedTypes).anyMatch(supportedType -> supportedType == type);
+        }
+
+        @NotNull
+        public static List<Migration> getOrderedMigrations() {
+            return Arrays.stream(Migration.values())
+                    .sorted(Comparator.comparingInt(Migration::getVersion))
+                    .collect(Collectors.toList());
+        }
+
+        public static int getLatestVersion() {
+            return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
+        }
+
+    }
+
 }

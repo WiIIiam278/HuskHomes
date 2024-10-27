@@ -223,7 +223,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             this.eventListener.handlePluginDisable();
         }
         if (database != null) {
-            database.terminate();
+            database.close();
         }
         if (broker != null) {
             broker.close();

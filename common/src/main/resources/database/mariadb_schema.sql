@@ -4,6 +4,14 @@ SET DEFAULT_STORAGE_ENGINE = InnoDB;
 -- Enable foreign key constraints
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Create the metadata table if it does not exist
+CREATE TABLE IF NOT EXISTS `%meta_data%`
+(
+    `schema_version` integer NOT NULL,
+
+    PRIMARY KEY (`schema_version`)
+);
+
 -- Create the positions table if it does not exist
 CREATE TABLE IF NOT EXISTS `%positions_table%`
 (

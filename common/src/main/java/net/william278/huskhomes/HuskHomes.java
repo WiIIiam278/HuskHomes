@@ -30,7 +30,7 @@ import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.ConfigProvider;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.DatabaseProvider;
 import net.william278.huskhomes.event.EventDispatcher;
 import net.william278.huskhomes.hook.*;
 import net.william278.huskhomes.importer.Importer;
@@ -58,7 +58,8 @@ import java.util.stream.Stream;
 /**
  * Represents a cross-platform instance of the plugin.
  */
-public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolver, TransactionResolver, ConfigProvider {
+public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolver, TransactionResolver, ConfigProvider,
+        DatabaseProvider {
 
     /**
      * The spigot resource ID, used for update checking.
@@ -182,14 +183,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
 
     @NotNull
     UnsafeBlocks getUnsafeBlocks();
-
-    /**
-     * The {@link Database} that store persistent plugin data.
-     *
-     * @return the {@link Database} implementation for accessing data
-     */
-    @NotNull
-    Database getDatabase();
 
     /**
      * The {@link Validator} for validating home names and descriptions.
@@ -397,7 +390,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
             getUpdateChecker().check().thenAccept(checked -> {
                 if (!checked.isUpToDate()) {
                     log(Level.WARNING, "A new version of HuskHomes is available: v"
-                            + checked.getLatestVersion() + " (running v" + getVersion() + ")");
+                                       + checked.getLatestVersion() + " (running v" + getVersion() + ")");
                 }
             });
         }

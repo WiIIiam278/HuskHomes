@@ -1,12 +1,4 @@
--- Create the metadata table if it does not exist
-CREATE TABLE IF NOT EXISTS `%meta_data%`
-(
-    `schema_version` integer NOT NULL,
-
-    PRIMARY KEY (`schema_version`)
-);
-
--- Create the positions table if it does not exist
+/* Create the positions table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%positions_table%`
 (
     `id`          integer      NOT NULL,
@@ -22,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `%positions_table%`
     PRIMARY KEY (`id`)
 );
 
--- Create the players table if it does not exist
+/* Create the players table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%players_table%`
 (
     `uuid`              char(36)    NOT NULL UNIQUE,
@@ -40,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `%players_table%`
 );
 CREATE INDEX IF NOT EXISTS `%players_table%_username` ON `%players_table%` (`username`);
 
--- Create the cooldowns table if it does not exist
+/* Create the cooldowns table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
 (
     `id`              integer      NOT NULL,
@@ -54,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `%cooldowns_table%`
 );
 CREATE INDEX IF NOT EXISTS `%cooldowns_table%_player_uuid` ON `%cooldowns_table%` (`player_uuid`);
 
--- Create the current cross-server teleports table if it does not exist
+/* Create the current cross-server teleports table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%teleports_table%`
 (
     `player_uuid`    char(36) NOT NULL UNIQUE,
@@ -66,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `%teleports_table%`
     FOREIGN KEY (`destination_id`) REFERENCES `%positions_table%` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
--- Create the saved positions table if it does not exist
+/* Create the saved positions table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
 (
     `id`          integer      NOT NULL,
@@ -81,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `%saved_positions_table%`
 );
 CREATE INDEX IF NOT EXISTS `%saved_positions_table%_name` ON `%saved_positions_table%` (`name`);
 
--- Create the homes table if it does not exist
+/* Create the homes table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%homes_table%`
 (
     `uuid`              char(36) NOT NULL UNIQUE,
@@ -95,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `%homes_table%`
 );
 CREATE INDEX IF NOT EXISTS `%homes_table%_owner_uuid` ON `%homes_table%` (`owner_uuid`);
 
--- Create the warps table if it does not exist
+/* Create the warps table if it does not exist */
 CREATE TABLE IF NOT EXISTS `%warps_table%`
 (
     `uuid`              char(36) NOT NULL UNIQUE,

@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Uses MockBukkit to 0-mariadb-add_metadata_table.sql the plugin on a mock Paper server implementing the Bukkit 1.17 API.
+ * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.17 API.
  */
 @DisplayName("Bukkit Plugin Tests (1.17.1)")
 public class BukkitPluginTests {
@@ -319,7 +319,7 @@ public class BukkitPluginTests {
                         .anyMatch(warp -> warp.equals(name)));
             }
 
-            // 0-mariadb-add_metadata_table.sql warp renaming
+            // test warp renaming
             @DisplayName("Test Warp Renaming")
             @ParameterizedTest(name = "Rename: \"{0}\" > \"{0}2\"")
             @MethodSource("provideWarpData")
@@ -347,7 +347,7 @@ public class BukkitPluginTests {
             @Order(3)
             @SuppressWarnings("unused")
             public void testWarpChangingDescription(@NotNull String name, @NotNull Position position) {
-                final String description = "This is a 0-mariadb-add_metadata_table.sql description for " + name + ".";
+                final String description = "This is a test description for " + name + ".";
                 plugin.getManager().warps().setWarpDescription(name, description);
                 final Optional<String> warpDescription = plugin.getDatabase().getWarp(name)
                         .map(Warp::getMeta)
@@ -518,7 +518,7 @@ public class BukkitPluginTests {
             @SuppressWarnings("unused")
             public void testHomeDescription(@NotNull OnlineUser owner, @NotNull String name,
                                             @NotNull Position position) {
-                final String description = "This is a 0-mariadb-add_metadata_table.sql description for the home " + name + "!";
+                final String description = "This is a test description for the home " + name + "!";
                 plugin.getManager().homes().setHomeDescription(owner, name, description);
                 Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
 

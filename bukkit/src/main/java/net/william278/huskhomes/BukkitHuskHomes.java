@@ -243,7 +243,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
             this.eventListener.handlePluginDisable();
         }
         if (database != null) {
-            database.close();
+            database.terminate();
         }
         if (broker != null) {
             broker.close();

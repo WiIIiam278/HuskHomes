@@ -69,7 +69,7 @@ public class MessageSerializationTests {
                     .build()
     );
 
-    // Parameterized 0-mariadb-add_metadata_table.sql for Message serialization
+    // Parameterized test for Message serialization
     @DisplayName("Test Message Serialization/Deserialization")
     @ParameterizedTest(name = "{1} Message")
     @MethodSource("provideMessages")

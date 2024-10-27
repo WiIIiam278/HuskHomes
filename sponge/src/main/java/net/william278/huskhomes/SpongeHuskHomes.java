@@ -206,7 +206,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     @Listener
     public void onShutdown(final StoppingEngineEvent<org.spongepowered.api.Server> event) {
         if (database != null) {
-            database.close();
+            database.terminate();
         }
         if (broker != null) {
             broker.close();

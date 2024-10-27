@@ -33,7 +33,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.fabric.FabricServerAudiences;
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -123,7 +123,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private Server server;
     @Nullable
     private Broker broker;
-    private FabricServerAudiences audiences;
+    private MinecraftServerAudiences audiences;
 
     @Override
     public void onInitializeServer() {
@@ -145,7 +145,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private void onEnable() {
         // Create adventure audience
-        this.audiences = FabricServerAudiences.of(minecraftServer);
+        this.audiences = MinecraftServerAudiences.of(minecraftServer);
 
         // Initialize the database
         final Database.Type type = getSettings().getDatabase().getType();

@@ -5,6 +5,7 @@
 * ⛔ [[Managing Access]]
 * 🖥️ [[Commands]]
 * 📜 [[Command Conflicts]]
+* ❓ [[FAQs]]
 
 ## Documentation
 * 📁 [[Database]]

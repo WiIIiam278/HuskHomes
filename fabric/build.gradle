@@ -6,6 +6,11 @@ apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 repositories {
+    maven {
+        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        mavenContent { snapshotsOnly() }
+    }
+
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
 }
@@ -33,7 +38,7 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    shadow project(path: ":common")
+    implementation project(path: ":common")
 }
 
 shadowJar {

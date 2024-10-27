@@ -69,7 +69,7 @@ public abstract class Database {
     }
 
     /**
-     * Get the schema statements from the schema file
+     * Get the schema statements from the schema file.
      *
      * @return the {@link #format formatted} schema statements
      */
@@ -88,7 +88,7 @@ public abstract class Database {
     protected abstract void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException;
 
     /**
-     * Format a string for use in an SQL query
+     * Format a string for use in an SQL query.
      *
      * @param statement The SQL statement to format
      * @return The formatted SQL statement
@@ -107,7 +107,7 @@ public abstract class Database {
     }
 
     /**
-     * Backup a flat file database
+     * Backup a flat file database.
      *
      * @param file the file to back up
      */
@@ -128,21 +128,21 @@ public abstract class Database {
     }
 
     /**
-     * Initialize the database connection
+     * Initialize the database connection.
      *
      * @throws IllegalStateException if the database initialization fails
      */
     public abstract void initialize() throws IllegalStateException;
 
     /**
-     * Check if the database has been created
+     * Check if the database has been created.
      *
      * @return {@code true} if the database has been created; {@code false} otherwise
      */
     public abstract boolean isCreated();
 
     /**
-     * Perform database migrations
+     * Perform database migrations.
      *
      * @param connection the database connection
      * @throws SQLException if an SQL error occurs during migration
@@ -177,14 +177,14 @@ public abstract class Database {
     }
 
     /**
-     * Get the database schema version
+     * Get the database schema version.
      *
      * @return the database schema version
      */
     public abstract int getSchemaVersion();
 
     /**
-     * Set the database schema version
+     * Set the database schema version.
      *
      * @param version the database schema version
      */
@@ -562,7 +562,7 @@ public abstract class Database {
     public abstract int deleteAllWarps(@NotNull String worldName, @NotNull String serverName);
 
     /**
-     * Close the database connection
+     * Close the database connection.
      */
     public abstract void close();
 
@@ -620,7 +620,7 @@ public abstract class Database {
     }
 
     /**
-     * Represents database migrations that need to be run
+     * Represents database migrations that need to be run.
      */
     public enum Migration {
         ADD_METADATA_TABLE(

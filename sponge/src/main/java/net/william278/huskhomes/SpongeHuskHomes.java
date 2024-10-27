@@ -33,7 +33,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
-import net.william278.huskhomes.database.*;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.SpongeEventDispatcher;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.hook.SpongeEconomyHook;
@@ -139,17 +139,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         initialize("plugin config & locale files", (plugin) -> loadConfigs());
 
         // Initialize the database
-        final Database.Type type = getSettings().getDatabase().getType();
-        initialize(type.getDisplayName() + " database connection", (plugin) -> {
-            this.database = switch (type) {
-                case MYSQL, MARIADB -> new MySqlDatabase(this);
-                case SQLITE -> new SqLiteDatabase(this);
-                case H2 -> new H2Database(this);
-                case POSTGRESQL -> new PostgreSqlDatabase(this);
-            };
-
-            database.initialize();
-        });
+        initialize("database", (plugin) -> loadDatabase());
 
         // Initialize the network messenger if proxy mode is enabled
         final Settings.CrossServerSettings crossServer = getSettings().getCrossServer();
@@ -205,9 +195,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @Listener
     public void onShutdown(final StoppingEngineEvent<org.spongepowered.api.Server> event) {
-        if (database != null) {
-            database.close();
-        }
+        this.closeDatabase();
         if (broker != null) {
             broker.close();
         }
@@ -394,6 +382,13 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
             return;
         }
         pluginContainer.logger().log(adaptedLevel, message);
+    }
+
+    @Override
+    public void closeDatabase() {
+        if (database != null) {
+            database.close();
+        }
     }
 
     @NotNull

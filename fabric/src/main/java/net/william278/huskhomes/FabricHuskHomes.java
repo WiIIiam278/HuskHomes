@@ -51,7 +51,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
-import net.william278.huskhomes.database.*;
+import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.FabricEventDispatcher;
 import net.william278.huskhomes.hook.FabricImpactorEconomyHook;
 import net.william278.huskhomes.hook.FabricPlaceholderAPIHook;
@@ -111,6 +111,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private Settings settings;
     private Locales locales;
+    @Setter
     private Database database;
     private Validator validator;
     private Manager manager;
@@ -148,17 +149,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         this.audiences = MinecraftServerAudiences.of(minecraftServer);
 
         // Initialize the database
-        final Database.Type type = getSettings().getDatabase().getType();
-        initialize(type.getDisplayName() + " database connection", (plugin) -> {
-            this.database = switch (type) {
-                case MYSQL, MARIADB -> new MySqlDatabase(this);
-                case SQLITE -> new SqLiteDatabase(this);
-                case H2 -> new H2Database(this);
-                case POSTGRESQL -> new PostgreSqlDatabase(this);
-            };
-
-            database.initialize();
-        });
+        initialize("database", (plugin) -> loadDatabase());
 
         // Initialize the manager
         this.manager = new Manager(this);
@@ -222,9 +213,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         if (this.eventListener != null) {
             this.eventListener.handlePluginDisable();
         }
-        if (database != null) {
-            database.close();
-        }
+        this.closeDatabase();
         if (broker != null) {
             broker.close();
         }
@@ -388,6 +377,13 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public MinecraftServer getMinecraftServer() {
         return minecraftServer;
+    }
+
+    @Override
+    public void closeDatabase() {
+        if (database != null) {
+            database.close();
+        }
     }
 
     @Override

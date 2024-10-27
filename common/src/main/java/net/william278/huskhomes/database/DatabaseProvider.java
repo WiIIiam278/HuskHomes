@@ -25,6 +25,9 @@ import org.jetbrains.annotations.NotNull;
 public interface DatabaseProvider {
 
     @NotNull
+    String DATA_POOL_NAME = "HuskHomesHikariPool";
+
+    @NotNull
     Database getDatabase();
 
     void setDatabase(@NotNull Database database);

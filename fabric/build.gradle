@@ -6,6 +6,11 @@ apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 repositories {
+    maven {
+        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        mavenContent { snapshotsOnly() }
+    }
+
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
 }
@@ -15,7 +20,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
-    modImplementation include("net.kyori:adventure-platform-mod:${adventure_platform_mod_version}")
+    modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform_fabric_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
@@ -33,7 +38,7 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    shadow project(path: ":common")
+    implementation project(path: ":common")
 }
 
 shadowJar {

@@ -154,7 +154,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean isMoving() {
-        return player.isTouchingWater() || player.isFallFlying() || player.isSprinting() || player.isSneaking();
+        return player.isTouchingWater() || player.isGliding() || player.isSprinting() || player.isSneaking();
     }
 
     @Override

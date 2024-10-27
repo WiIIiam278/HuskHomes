@@ -71,11 +71,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            mavenContent { snapshotsOnly() }
-        }
-
         maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }

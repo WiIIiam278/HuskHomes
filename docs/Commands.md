@@ -459,6 +459,13 @@ If users have multiple permission nodes (i.e. from being in multiple permission 
 
 Note that these permission-set values override the values set in the plugin config (`max_homes`, `max_public_homes` under `general` and `free_homes` under `economy`).
 
+## Teleport warmup times
+You can change the teleport warmup time based on a permission node:
+
+* `huskhomes.teleport_warmup.<seconds>` — Determines how long this player has to wait before teleporting.
+
+HuskHomes will always take the highest node value present for this, regardless of the `stack_permission_limits` value.
+
 ## Bypass permission nodes
 
 These permissions let you bypass teleportation warmup checks, cooldown, and economy checks
@@ -469,4 +476,4 @@ These permissions let you bypass teleportation warmup checks, cooldown, and econ
 | Bypass [cooldown checks](cooldowns)        | `huskhomes.bypass_cooldowns`       | Not set |
 | Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
-&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file.
+&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file. This permission also bypasses the numerical teleport warmup time permission detailed above.

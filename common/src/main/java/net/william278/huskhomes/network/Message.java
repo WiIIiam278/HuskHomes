@@ -70,7 +70,7 @@ public class Message {
     }
 
     public void send(@NotNull Broker broker, @NotNull OnlineUser sender) {
-        this.sender = sender.getUsername();
+        this.sender = sender.getName();
         this.sourceServer = broker.getServer();
         broker.send(this, sender);
     }

@@ -29,6 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -49,6 +50,7 @@ public class BukkitUser extends OnlineUser {
     }
 
     @NotNull
+    @ApiStatus.Internal
     public static BukkitUser adapt(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
         return new BukkitUser(player, plugin);
     }

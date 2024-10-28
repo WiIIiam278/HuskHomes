@@ -21,7 +21,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.ListCommand;
-import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
@@ -49,7 +48,7 @@ public class WarpsManager {
     public void cacheWarp(@NotNull Warp warp, boolean propagate) {
         warps.remove(warp);
         warps.add(warp);
-        plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+        plugin.addMappedWarp(warp);
 
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
@@ -63,7 +62,7 @@ public class WarpsManager {
     public void unCacheWarp(@NotNull UUID warpId, boolean propagate) {
         warps.removeIf(warp -> {
             if (warp.getUuid().equals(warpId)) {
-                plugin.getMapHook().ifPresent(hook -> hook.removeWarp(warp));
+                plugin.removeMappedWarp(warp);
                 return true;
             }
             return false;
@@ -79,14 +78,13 @@ public class WarpsManager {
     }
 
     private void propagateCacheUpdate(@NotNull UUID warpId) {
-        if (plugin.getSettings().getCrossServer().isEnabled()) {
-            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
-                    .type(Message.Type.UPDATE_WARP)
-                    .scope(Message.Scope.SERVER)
-                    .target(Message.TARGET_ALL)
-                    .payload(Payload.withString(warpId.toString()))
-                    .build().send(plugin.getMessenger(), user));
-        }
+        plugin.getOnlineUsers().stream().findAny().ifPresent(user -> plugin.getBroker()
+                .ifPresent(b -> Message.builder()
+                        .type(Message.Type.UPDATE_WARP)
+                        .scope(Message.Scope.SERVER)
+                        .target(Message.TARGET_ALL)
+                        .payload(Payload.withString(warpId.toString()))
+                        .build().send(b, user)));
     }
 
     public void updateWarpCache() {
@@ -104,7 +102,7 @@ public class WarpsManager {
     @NotNull
     public List<String> getUsableWarps(@NotNull CommandUser user) {
         if (!plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-                || user.hasPermission(Warp.getWildcardPermission())) {
+            || user.hasPermission(Warp.getWildcardPermission())) {
             return getWarps();
         }
         return warps.stream()
@@ -122,7 +120,7 @@ public class WarpsManager {
         }
 
         // Validate the home name; throw an exception if invalid
-        plugin.getValidator().validateName(name);
+        plugin.validateName(name);
 
         final Warp warp = existingWarp
                 .map(existing -> {
@@ -158,7 +156,7 @@ public class WarpsManager {
     public int deleteAllWarps() {
         final int deleted = plugin.getDatabase().deleteAllWarps();
         warps.clear();
-        plugin.getMapHook().ifPresent(MapHook::clearWarps);
+        plugin.removeAllMappedWarps();
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
                 .map(command -> (ListCommand) command)
@@ -171,7 +169,7 @@ public class WarpsManager {
         final int deleted = plugin.getDatabase().deleteAllWarps(worldName, serverName);
         warps.removeIf(warp -> warp.getServer().equals(serverName) && warp.getWorld().getName().equals(worldName));
         if (plugin.getSettings().getCrossServer().isEnabled() && plugin.getServerName().equals(serverName)) {
-            plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
+            plugin.removeAllMappedWarps(worldName);
         }
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
@@ -209,7 +207,7 @@ public class WarpsManager {
         if (plugin.getDatabase().getWarp(newName).isPresent()) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
-        plugin.getValidator().validateName(newName);
+        plugin.validateName(newName);
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
@@ -225,7 +223,7 @@ public class WarpsManager {
     }
 
     public void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
-        plugin.getValidator().validateDescription(description);
+        plugin.validateDescription(description);
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);

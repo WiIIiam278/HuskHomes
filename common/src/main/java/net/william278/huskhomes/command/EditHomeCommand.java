@@ -40,8 +40,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
 
     public EditHomeCommand(@NotNull HuskHomes plugin) {
         super(
-                "edithome",
-                List.of(),
+                List.of("edithome"),
                 PositionCommandType.HOME,
                 List.of("rename", "description", "relocate", "privacy"),
                 plugin
@@ -104,7 +103,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("edit_home_update_name_other",
-                                home.getOwner().getUsername(), original.getName(), newName)
+                                home.getOwner().getName(), original.getName(), newName)
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -137,7 +136,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("edit_home_update_description_other",
-                                home.getOwner().getUsername(), home.getName(),
+                                home.getOwner().getName(), home.getName(),
                                 original.getMeta().getDescription(), newDescription)
                         .ifPresent(executor::sendMessage);
             }
@@ -166,7 +165,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("edit_home_update_location_other",
-                                home.getOwner().getUsername(), home.getName())
+                                home.getOwner().getName(), home.getName())
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -220,7 +219,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("edit_home_privacy_" + privacy + "_success_other",
-                                home.getOwner().getUsername(), home.getName())
+                                home.getOwner().getName(), home.getName())
                         .ifPresent(executor::sendMessage);
             }
         });
@@ -244,7 +243,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                     .ifPresent(messages::add);
         } else {
             plugin.getLocales().getLocale("edit_home_menu_title_other",
-                            home.getOwner().getUsername(), home.getName())
+                            home.getOwner().getName(), home.getName())
                     .ifPresent(messages::add);
         }
 

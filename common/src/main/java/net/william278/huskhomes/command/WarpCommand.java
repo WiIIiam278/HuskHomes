@@ -33,7 +33,12 @@ import java.util.Optional;
 public class WarpCommand extends SavedPositionCommand<Warp> {
 
     protected WarpCommand(@NotNull HuskHomes plugin) {
-        super("warp", List.of(), PositionCommandType.WARP, List.of(), plugin);
+        super(
+                List.of("warp"),
+                PositionCommandType.WARP,
+                List.of(),
+                plugin
+        );
         addAdditionalPermissions(Map.of("player", true));
     }
 

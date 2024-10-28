@@ -49,7 +49,7 @@ public class PluginMessageBroker extends Broker {
 
     @Override
     public void initialize() throws IllegalStateException {
-        plugin.initializePluginChannels();
+        plugin.setupPluginMessagingChannels();
     }
 
     public final void onReceive(@NotNull String channel, @NotNull OnlineUser user, byte[] message) {

@@ -43,20 +43,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-/**
- * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps.
- */
+@PluginHook(
+        name = "BlueMap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BlueMapHook extends MapHook {
 
     private Map<String, MarkerSet> publicHomesMarkerSets;
     private Map<String, MarkerSet> warpsMarkerSets;
 
     public BlueMapHook(@NotNull HuskHomes plugin) {
-        super(plugin, "BlueMap");
+        super(plugin);
     }
 
     @Override
-    public void initialize() {
+    public void load() {
         BlueMapAPI.onEnable(api -> {
             this.publicHomesMarkerSets = new ConcurrentHashMap<>();
             this.warpsMarkerSets = new ConcurrentHashMap<>();
@@ -81,7 +82,7 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
-    public void updateHome(@NotNull Home home) {
+    public void addHome(@NotNull Home home) {
         if (!isValidPosition(home)) {
             return;
         }
@@ -121,7 +122,7 @@ public class BlueMapHook extends MapHook {
     }
 
     @Override
-    public void updateWarp(@NotNull Warp warp) {
+    public void addWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
         }

@@ -28,7 +28,11 @@ import java.util.List;
 public class DisabledCommand extends Command {
 
     public DisabledCommand(@NotNull String name, @NotNull HuskHomes plugin) {
-        super(name, List.of(), "", plugin);
+        super(
+                List.of(name),
+                "",
+                plugin
+        );
         setOperatorCommand(true);
     }
 

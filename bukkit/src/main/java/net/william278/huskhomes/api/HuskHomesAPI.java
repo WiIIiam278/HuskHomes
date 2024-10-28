@@ -82,7 +82,7 @@ public class HuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(@NotNull Player player) {
-        return BukkitUser.adapt(player, (BukkitHuskHomes) plugin);
+        return ((BukkitHuskHomes) plugin).getOnlineUser(player);
     }
 
     /**

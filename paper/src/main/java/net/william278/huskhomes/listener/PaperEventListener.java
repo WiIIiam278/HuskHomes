@@ -23,7 +23,6 @@ import com.destroystokyo.paper.event.player.PlayerSetSpawnEvent;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.PaperHuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,15 +38,13 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
     }
 
     @Override
-    @NotNull
-    public PaperEventListener register(@NotNull BukkitHuskHomes plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        return this;
+    public void register() {
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerSetSpawnEvent event) {
-        final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
+        final Settings.CrossServerSettings crossServer = getPlugin().getSettings().getCrossServer();
         if (!(crossServer.isEnabled() && crossServer.isGlobalRespawning())) {
             return;
         }
@@ -60,8 +57,8 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
 
         // Update the player's respawn location
         this.handlePlayerUpdateSpawnPoint(
-                BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin),
-                BukkitHuskHomes.Adapter.adapt(location, plugin.getServerName())
+                getPlugin().getOnlineUser(event.getPlayer()),
+                BukkitHuskHomes.Adapter.adapt(location, getPlugin().getServerName())
         );
     }
 
@@ -71,7 +68,13 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
         if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
             return;
         }
-        super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
+        super.handlePlayerRespawn(getPlugin().getOnlineUser(event.getPlayer()));
+    }
+
+    @NotNull
+    @Override
+    public PaperHuskHomes getPlugin() {
+        return (PaperHuskHomes) super.getPlugin();
     }
 
 }

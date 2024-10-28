@@ -27,6 +27,7 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 
@@ -87,11 +88,11 @@ public abstract class Broker {
                     .type(Message.Type.PLAYER_LIST)
                     .scope(Message.Scope.SERVER)
                     .target(message.getSourceServer())
-                    .payload(Payload.withStringList(plugin.getLocalPlayerList()))
+                    .payload(Payload.withUserList(plugin.getOnlineUsers().stream().map(u -> (User) u).toList()))
                     .build().send(this, receiver);
             case PLAYER_LIST -> message.getPayload()
-                    .getStringList()
-                    .ifPresent(players -> plugin.setPlayerList(message.getSourceServer(), players));
+                    .getUserList()
+                    .ifPresent(players -> plugin.setUserList(message.getSourceServer(), players));
             case UPDATE_HOME -> message.getPayload().getString()
                     .map(UUID::fromString)
                     .ifPresent(homeId -> {
@@ -148,11 +149,11 @@ public abstract class Broker {
                     if (world.isEmpty()) {
                         plugin.log(Level.SEVERE, "%s requested a position in a world we don't have! World: %s"
                                 .formatted(message.getSourceServer(), request.getWorldName()));
-                        Message.builder()
+                        plugin.getBroker().ifPresent(b -> Message.builder()
                                 .type(Message.Type.RTP_LOCATION)
                                 .target(request.getUsername())
                                 .payload(Payload.empty())
-                                .build().send(plugin.getMessenger(), request.getUsername());
+                                .build().send(b, request.getUsername()));
                         return;
                     }
                     plugin.getRandomTeleportEngine().getRandomPosition(world.get(), null)
@@ -166,7 +167,7 @@ public abstract class Broker {
                                     builder.payload(Payload.withRTPResponse(
                                             Payload.RTPResponse.of(request.getUsername(), position.get())));
                                 }
-                                builder.build().send(plugin.getMessenger(), request.getUsername());
+                                plugin.getBroker().ifPresent(b -> builder.build().send(b, request.getUsername()));
                             });
                 });
     }
@@ -209,7 +210,11 @@ public abstract class Broker {
     // Get the formatted channel ID for the broker
     @NotNull
     protected String getSubChannelId() {
-        final String version = String.format("%s.%s", plugin.getVersion().getMajor(), plugin.getVersion().getMinor());
+        final String version = String.format(
+                "%s.%s",
+                plugin.getPluginVersion().getMajor(),
+                plugin.getPluginVersion().getMinor()
+        );
         try {
             return plugin.getKey(
                     plugin.getSettings().getCrossServer().getClusterId().toLowerCase(Locale.ENGLISH),

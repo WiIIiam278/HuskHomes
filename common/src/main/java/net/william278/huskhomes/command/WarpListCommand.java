@@ -34,7 +34,11 @@ import java.util.stream.Collectors;
 public class WarpListCommand extends ListCommand {
 
     protected WarpListCommand(@NotNull HuskHomes plugin) {
-        super("warplist", List.of("warps"), "[player] [page]", plugin);
+        super(
+                List.of("warplist", "warps"),
+                "[player] [page]",
+                plugin
+        );
     }
 
     @Override
@@ -89,7 +93,7 @@ public class WarpListCommand extends ListCommand {
     private List<Warp> getItems(@NotNull CommandUser executor) {
         List<Warp> warps = plugin.getDatabase().getWarps();
         if (plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-                && !executor.hasPermission(Warp.getWildcardPermission())) {
+            && !executor.hasPermission(Warp.getWildcardPermission())) {
             warps = warps.stream().filter(warp -> executor.hasPermission(warp.getPermission())).toList();
         }
         return warps;

@@ -20,6 +20,8 @@
 package net.william278.huskhomes.listener;
 
 import de.themoep.minedown.adventure.MineDown;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.command.Command;
@@ -32,23 +34,22 @@ import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 /**
  * A handler for when events take place.
  */
-public class EventListener {
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class EventListener {
 
     @NotNull
-    protected final HuskHomes plugin;
+    private final HuskHomes plugin;
 
-    protected EventListener(@NotNull HuskHomes plugin) {
-        this.plugin = plugin;
-    }
+    public abstract void register();
 
     /**
      * Handle when a {@link OnlineUser} joins the server.
@@ -67,7 +68,7 @@ public class EventListener {
 
                 // Synchronize the global player list
                 plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(
-                                onlineUser, plugin.getLocalPlayerList()),
+                                onlineUser, plugin.getOnlineUsers().stream().map(User::getName).toList()),
                         onlineUser, 40L
                 );
 
@@ -82,7 +83,7 @@ public class EventListener {
             plugin.getManager().homes().cacheUserHomes(onlineUser);
 
             // Set their ignoring requests state
-            plugin.getDatabase().getUserData(onlineUser.getUuid()).ifPresent(userData -> {
+            plugin.getDatabase().getUser(onlineUser.getUuid()).ifPresent(userData -> {
                 plugin.getSavedUsers().add(userData);
 
                 // Send a reminder message if they are still ignoring requests
@@ -111,10 +112,8 @@ public class EventListener {
 
             // Update global lists
             if (plugin.getSettings().getCrossServer().isEnabled()) {
-                final List<String> localPlayerList = plugin.getLocalPlayerList().stream()
-                        .filter(player -> !player.equals(onlineUser.getUsername()))
-                        .toList();
-
+                final List<String> localPlayerList = plugin.getOnlineUsers().stream().map(User::getName)
+                        .filter(player -> !player.equals(onlineUser.getName())).toList();
                 if (plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
                     this.synchronizeGlobalPlayerList(onlineUser, localPlayerList);
                     return;
@@ -125,6 +124,9 @@ public class EventListener {
                         .findAny()
                         .ifPresent(player -> this.synchronizeGlobalPlayerList(player, localPlayerList));
             }
+
+            // Remove from user map
+            plugin.getOnlineUserMap().remove(onlineUser.getUuid());
         });
     }
 
@@ -164,7 +166,7 @@ public class EventListener {
         if (bedPosition.isEmpty()) {
             plugin.getSpawn().ifPresent(spawn -> {
                 if (plugin.getSettings().getCrossServer().isEnabled()
-                        && !spawn.getServer().equals(plugin.getServerName())) {
+                    && !spawn.getServer().equals(plugin.getServerName())) {
                     plugin.runSyncDelayed(() -> Teleport.builder(plugin)
                             .teleporter(teleporter)
                             .target(spawn)
@@ -190,25 +192,27 @@ public class EventListener {
         plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
     }
 
-    // Synchronize the global player list
+    // Synchronize the global player list TODO CHECK
     private void synchronizeGlobalPlayerList(@NotNull OnlineUser user, @NotNull List<String> localPlayerList) {
-        // Send this server's player list to all servers
-        Message.builder()
-                .type(Message.Type.PLAYER_LIST)
-                .scope(Message.Scope.SERVER)
-                .target(Message.TARGET_ALL)
-                .payload(Payload.withStringList(localPlayerList))
-                .build().send(plugin.getMessenger(), user);
-
-        // Clear cached global player lists and request updated lists from all servers
-        if (plugin.getOnlineUsers().size() == 1) {
-            plugin.getGlobalPlayerList().clear();
+        plugin.getBroker().ifPresent(broker -> {
+            // Send this server's player list to all servers
             Message.builder()
-                    .type(Message.Type.REQUEST_PLAYER_LIST)
+                    .type(Message.Type.PLAYER_LIST)
                     .scope(Message.Scope.SERVER)
                     .target(Message.TARGET_ALL)
-                    .build().send(plugin.getMessenger(), user);
-        }
+                    .payload(Payload.withStringList(localPlayerList))
+                    .build().send(broker, user);
+
+            // Clear cached global player lists and request updated lists from all servers
+            if (plugin.getOnlineUsers().size() == 1) {
+                plugin.getGlobalUserList().clear();
+                Message.builder()
+                        .type(Message.Type.REQUEST_PLAYER_LIST)
+                        .scope(Message.Scope.SERVER)
+                        .target(Message.TARGET_ALL)
+                        .build().send(broker, user);
+            }
+        });
     }
 
     /**
@@ -233,7 +237,7 @@ public class EventListener {
             // Display the return by death via /back notification
             final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
                     .map(command -> onlineUser.hasPermission(command.getPermission())
-                            && onlineUser.hasPermission(command.getPermission("death")))
+                                    && onlineUser.hasPermission(command.getPermission("death")))
                     .orElse(false);
             if (plugin.getSettings().getGeneral().getBackCommand().isReturnByDeath() && canReturnByDeath) {
                 plugin.getLocales().getLocale("return_by_death_notification")
@@ -288,7 +292,7 @@ public class EventListener {
             return;
         }
 
-        plugin.runAsync(() -> plugin.getDatabase().getUserData(onlineUser.getUuid())
+        plugin.runAsync(() -> plugin.getDatabase().getUser(onlineUser.getUuid())
                 .ifPresent(data -> plugin.getDatabase().setLastPosition(data.getUser(), sourcePosition)));
     }
 
@@ -300,17 +304,15 @@ public class EventListener {
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         if (!plugin.getSettings().getGeneral().isAlwaysRespawnAtSpawn()
-                && plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
+            && plugin.getSettings().getCrossServer().isEnabled()
+            && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
     }
 
-    /**
-     * Handle when the plugin is disabling (server is shutting down).
-     */
-    public final void handlePluginDisable() {
-        plugin.log(Level.INFO, "Successfully disabled HuskHomes v" + plugin.getVersion());
+    @NotNull
+    protected HuskHomes getPlugin() {
+        return plugin;
     }
 
 }

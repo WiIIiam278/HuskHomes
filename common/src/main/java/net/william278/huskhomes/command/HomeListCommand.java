@@ -37,14 +37,18 @@ import java.util.stream.Collectors;
 public class HomeListCommand extends ListCommand {
 
     protected HomeListCommand(@NotNull HuskHomes plugin) {
-        super("homelist", List.of("homes"), "[player] [page]", plugin);
+        super(
+                List.of("homelist", "homes"),
+                "[player] [page]",
+                plugin
+        );
         addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<String> homeOwner = args.length > 0 ? parseStringArg(args, 0)
-                : executor instanceof OnlineUser user ? Optional.of(user.getUsername()) : Optional.empty();
+                : executor instanceof OnlineUser user ? Optional.of(user.getName()) : Optional.empty();
         final int pageNumber = parseIntArg(args, args.length > 1 ? 1 : 0).orElse(1);
         if (homeOwner.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -56,7 +60,7 @@ public class HomeListCommand extends ListCommand {
     }
 
     protected void showHomeList(@NotNull CommandUser executor, @NotNull String homeOwner, int pageNumber) {
-        final Optional<User> targetUser = plugin.getDatabase().getUserDataByName(homeOwner).map(SavedUser::getUser);
+        final Optional<User> targetUser = plugin.getDatabase().getUser(homeOwner).map(SavedUser::getUser);
         final User user;
         final int page;
         if (targetUser.isEmpty()) {
@@ -74,7 +78,7 @@ public class HomeListCommand extends ListCommand {
         }
 
         if (executor instanceof OnlineUser onlineUser && !user.getUuid().equals(onlineUser.getUuid())
-                && !executor.hasPermission(getPermission("other"))) {
+            && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -97,7 +101,7 @@ public class HomeListCommand extends ListCommand {
                                                  @NotNull List<Home> homes) {
         if (homes.isEmpty()) {
             if (!executor.equals(user)) {
-                plugin.getLocales().getLocale("error_no_homes_set_other", user.getUsername())
+                plugin.getLocales().getLocale("error_no_homes_set_other", user.getName())
                         .ifPresent(executor::sendMessage);
             } else {
                 plugin.getLocales().getLocale("error_no_homes_set").ifPresent(executor::sendMessage);
@@ -105,7 +109,7 @@ public class HomeListCommand extends ListCommand {
             return Optional.empty();
         }
 
-        final String homeListArguments = !executor.equals(user) ? " " + user.getUsername() : "";
+        final String homeListArguments = !executor.equals(user) ? " " + user.getName() : "";
         final PaginatedList homeList = PaginatedList.of(homes.stream().map(home ->
                         plugin.getLocales()
                                 .getRawLocale("home_list_item",
@@ -124,7 +128,7 @@ public class HomeListCommand extends ListCommand {
                 plugin.getLocales()
                         .getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                         .setHeaderFormat(plugin.getLocales().getRawLocale("home_list_page_title",
-                                        user.getUsername(), "%first_item_on_page_index%",
+                                        user.getName(), "%first_item_on_page_index%",
                                         "%last_item_on_page_index%", "%total_items%")
                                 .orElse(""))
                         .setCommand("/huskhomes:homelist" + homeListArguments).build());

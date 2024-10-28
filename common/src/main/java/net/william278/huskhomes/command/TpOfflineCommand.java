@@ -30,10 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TpOfflineCommand extends InGameCommand implements UserListTabProvider {
+public class TpOfflineCommand extends InGameCommand implements UserListTabCompletable {
 
     protected TpOfflineCommand(@NotNull HuskHomes plugin) {
-        super("tpoffline", List.of(), "<player>", plugin);
+        super(
+                List.of("tpoffline"),
+                "<player>",
+                plugin
+        );
+
         setOperatorCommand(true);
     }
 
@@ -47,7 +52,7 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
         }
 
         final Optional<User> targetUserData = plugin.getDatabase()
-                .getUserDataByName(optionalUser.get())
+                .getUser(optionalUser.get())
                 .map(SavedUser::getUser);
         if (targetUserData.isEmpty()) {
             plugin.getLocales().getLocale("error_player_not_found", optionalUser.get())
@@ -61,12 +66,12 @@ public class TpOfflineCommand extends InGameCommand implements UserListTabProvid
     private void teleportToOfflinePosition(@NotNull OnlineUser user, @NotNull User target, @NotNull String[] args) {
         final Optional<Position> position = plugin.getDatabase().getOfflinePosition(target);
         if (position.isEmpty()) {
-            plugin.getLocales().getLocale("error_no_offline_position", target.getUsername())
+            plugin.getLocales().getLocale("error_no_offline_position", target.getName())
                     .ifPresent(user::sendMessage);
             return;
         }
 
-        plugin.getLocales().getLocale("teleporting_offline_player", target.getUsername())
+        plugin.getLocales().getLocale("teleporting_offline_player", target.getName())
                 .ifPresent(user::sendMessage);
         Teleport.builder(plugin)
                 .teleporter(user)

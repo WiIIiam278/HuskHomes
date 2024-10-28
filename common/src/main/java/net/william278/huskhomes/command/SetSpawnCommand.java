@@ -32,7 +32,11 @@ import static net.william278.huskhomes.config.Settings.CrossServerSettings.Globa
 public class SetSpawnCommand extends InGameCommand {
 
     protected SetSpawnCommand(@NotNull HuskHomes plugin) {
-        super("setspawn", List.of(), "", plugin);
+        super(
+                List.of("setspawn"),
+                "",
+                plugin
+        );
         setOperatorCommand(true);
     }
 

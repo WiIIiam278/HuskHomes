@@ -33,7 +33,11 @@ import java.util.Optional;
 public class BackCommand extends InGameCommand {
 
     protected BackCommand(@NotNull HuskHomes plugin) {
-        super("back", List.of(), "", plugin);
+        super(
+                List.of("back"),
+                "",
+                plugin
+        );
         addAdditionalPermissions(Map.of(
                 "death", false,
                 "previous", false

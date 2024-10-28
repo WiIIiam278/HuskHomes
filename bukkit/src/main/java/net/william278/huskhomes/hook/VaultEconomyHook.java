@@ -31,21 +31,30 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A hook that hooks into the Vault API to provide economy features.
  */
+@PluginHook(
+        name = "Vault",
+        register = PluginHook.Register.ON_LOAD
+)
 public class VaultEconomyHook extends EconomyHook {
 
     protected Economy economy;
 
     public VaultEconomyHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Vault (Economy)");
+        super(plugin);
     }
 
     @Override
-    public void initialize()  {
+    public void load() {
         final RegisteredServiceProvider<Economy> economyProvider = ((BukkitHuskHomes) plugin).getServer()
                 .getServicesManager().getRegistration(Economy.class);
         if (economyProvider != null) {
             economy = economyProvider.getProvider();
         }
+    }
+
+    @Override
+    public void unload() {
+        this.economy = null;
     }
 
     @Override

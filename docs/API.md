@@ -21,7 +21,6 @@ The HuskHomes API is available for the following platforms:
 
 * `bukkit` - Bukkit, Spigot, Paper, etc. Provides Bukkit API event listeners and adapters to `org.bukkit` objects.
 * `fabric` - Fabric, Quilt, etc. Provides Fabric API event callbacks and adapters to `net.minecraft` objects.
-* `sponge` - Sponge. Provides Sponge API events.
 * `common` - Common API for all platforms.
 
 <details>
@@ -38,7 +37,7 @@ The HuskHomes API is available for the following platforms:
 2. [Adding HuskHomes as a dependency](#2-adding-huskhomes-as-a-dependency)
 3. [Next steps](#3-next-steps)
 
-## API Introduction
+## 1 API Introduction
 ### 1.1 Setup with Maven
 <details>
 <summary>Maven setup information</summary>
@@ -84,7 +83,7 @@ dependencies {
 ```
 </details>
 
-## 2. Adding HuskHomes as a dependency
+## 2 Adding HuskHomes as a dependency
 Add HuskHomes to your `softdepend` (if you want to optionally use HuskHomes) or `depend` (if your plugin relies on HuskHomes) section in `plugin.yml` of your project.
 
 ```yaml
@@ -97,7 +96,7 @@ softdepend: # Or, use 'depend' here
   - HuskHomes
 ```
 
-## 3. Next steps
+## 3 Next steps
 Now that you've got everything ready, you can start doing stuff with the HuskHomes API!
 - [[API Examples]]
 - [[API Events]]

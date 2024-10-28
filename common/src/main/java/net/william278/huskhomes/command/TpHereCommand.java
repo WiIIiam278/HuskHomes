@@ -27,10 +27,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TpHereCommand extends InGameCommand implements UserListTabProvider {
+public class TpHereCommand extends InGameCommand implements UserListTabCompletable {
 
     protected TpHereCommand(@NotNull HuskHomes plugin) {
-        super("tphere", List.of("tpohere"), "<player>", plugin);
+        super(
+                List.of("tphere", "tpohere"),
+                "<player>",
+                plugin
+        );
         setOperatorCommand(true);
     }
 
@@ -51,7 +55,7 @@ public class TpHereCommand extends InGameCommand implements UserListTabProvider 
                 .target(executor.getPosition())
                 .buildAndComplete(false, target);
 
-        plugin.getLocales().getLocale("teleporting_other_complete", target, executor.getUsername());
+        plugin.getLocales().getLocale("teleporting_other_complete", target, executor.getName());
     }
 
 }

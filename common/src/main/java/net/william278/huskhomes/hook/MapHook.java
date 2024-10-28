@@ -40,8 +40,14 @@ public abstract class MapHook extends Hook {
     protected static final String WARP_MARKER_IMAGE_NAME = "warp";
     protected static final String PUBLIC_HOME_MARKER_IMAGE_NAME = "public-home";
 
-    protected MapHook(@NotNull HuskHomes plugin, @NotNull String name) {
-        super(plugin, name);
+    protected MapHook(@NotNull HuskHomes plugin) {
+        super(plugin);
+    }
+
+    @Override
+    public void unload() {
+        getPlugin().getWorlds().forEach(world -> clearHomes(world.getName()));
+        clearWarps();
     }
 
     /**
@@ -191,7 +197,7 @@ public abstract class MapHook extends Hook {
         protected static MarkerInformationPopup publicHome(@NotNull Home home, @NotNull String thumbnail) {
             final MarkerInformationPopup popup = MarkerInformationPopup.create(home.getName())
                     .thumbnail(thumbnail)
-                    .field("Owner", home.getOwner().getUsername())
+                    .field("Owner", home.getOwner().getName())
                     .field("Location", home.toString())
                     .field("Command", "/phome " + home.getSafeIdentifier());
             if (!home.getMeta().getDescription().isBlank()) {

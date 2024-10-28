@@ -37,11 +37,17 @@ public class User implements Comparable<User> {
     private final UUID uuid;
 
     @NotNull
-    private final String username;
+    private final String name;
 
     @NotNull
     public static User of(@NotNull UUID uuid, @NotNull String username) {
         return new User(uuid, username);
+    }
+
+    @Deprecated(since = "4.8")
+    @NotNull
+    public String getUsername() {
+        return getName();
     }
 
     @Override
@@ -54,7 +60,7 @@ public class User implements Comparable<User> {
 
     @Override
     public int compareTo(@NotNull User o) {
-        return getUsername().compareTo(o.getUsername());
+        return getName().compareTo(o.getName());
     }
 
 }

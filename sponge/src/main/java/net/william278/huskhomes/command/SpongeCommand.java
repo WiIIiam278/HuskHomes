@@ -97,7 +97,7 @@ public class SpongeCommand implements Raw {
     @Override
     @NotNull
     public List<CommandCompletion> complete(@NotNull CommandCause cause, @NotNull ArgumentReader.Mutable arguments) {
-        if (this.command instanceof TabProvider provider) {
+        if (this.command instanceof TabCompletable provider) {
             return provider.getSuggestions(resolveExecutor(cause), assimilateArguments(arguments)).stream()
                     .map(CommandCompletion::of)
                     .toList();
@@ -169,11 +169,11 @@ public class SpongeCommand implements Raw {
         EDIT_WARP_COMMAND(EditWarpCommand::new),
         TP_COMMAND(TpCommand::new),
         TP_HERE_COMMAND(TpHereCommand::new),
-        TPA_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA)),
-        TPA_HERE_COMMAND((plugin) -> new TeleportRequestCommand(plugin, TeleportRequest.Type.TPA_HERE)),
+        TPA_COMMAND((plugin) -> new TpRequestCommand(plugin, TeleportRequest.Type.TPA)),
+        TPA_HERE_COMMAND((plugin) -> new TpRequestCommand(plugin, TeleportRequest.Type.TPA_HERE)),
         TPACCEPT_COMMAND((plugin) -> new TpRespondCommand(plugin, true)),
         TPDECLINE_COMMAND((plugin) -> new TpRespondCommand(plugin, false)),
-        RTP_COMMAND(RTPCommand::new),
+        RTP_COMMAND(RtpCommand::new),
         TP_IGNORE_COMMAND(TpIgnoreCommand::new),
         TP_OFFLINE_COMMAND(TpOfflineCommand::new),
         TP_ALL_COMMAND(TpAllCommand::new),

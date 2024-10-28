@@ -19,27 +19,18 @@
 
 package net.william278.huskhomes.util;
 
-import lombok.AllArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.position.Home;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-public class Validator {
+public interface TextValidator {
 
-    public static final int MAX_NAME_LENGTH = 16;
-    public static final int MAX_DESCRIPTION_LENGTH = 256;
+    int MAX_NAME_LENGTH = 16;
+    int MAX_DESCRIPTION_LENGTH = 256;
 
-    private final HuskHomes plugin;
-
-    /**
-     * Validate home and warp names.
-     *
-     * @param name The name to validate
-     * @throws ValidationException If the name is invalid
-     */
-    public void validateName(@NotNull String name) throws ValidationException {
+    // Validate home and warp names
+    default void validateName(@NotNull String name) throws ValidationException {
         if (!isValidNameCharacters(name)) {
             throw new ValidationException(ValidationException.Type.NAME_INVALID_CHARACTERS);
         }
@@ -48,13 +39,8 @@ public class Validator {
         }
     }
 
-    /**
-     * Validate home and warp descriptions.
-     *
-     * @param description The description to validate
-     * @throws ValidationException If the description is invalid
-     */
-    public void validateDescription(@NotNull String description) throws ValidationException {
+    // Validate home and warp descriptions.
+    default void validateDescription(@NotNull String description) throws ValidationException {
         if (!isValidDescriptionCharacters(description)) {
             throw new ValidationException(ValidationException.Type.DESCRIPTION_INVALID_CHARACTERS);
         }
@@ -65,7 +51,7 @@ public class Validator {
 
     // Check a home/warp name contains only valid characters
     private boolean isValidNameCharacters(@NotNull String name) {
-        final Settings.GeneralSettings.NameSettings config = plugin.getSettings().getGeneral().getNames();
+        final Settings.GeneralSettings.NameSettings config = getSettings().getGeneral().getNames();
         return (name.matches(config.getRegex()) || !config.isRestrict())
                 && !name.contains("\u0000")
                 && !containsWhitespace(name)
@@ -79,7 +65,7 @@ public class Validator {
 
     // Check a home/warp description contains only valid characters
     private boolean isValidDescriptionCharacters(@NotNull String description) {
-        final Settings.GeneralSettings.DescriptionSettings config = plugin.getSettings().getGeneral().getDescriptions();
+        final Settings.GeneralSettings.DescriptionSettings config = getSettings().getGeneral().getDescriptions();
         return (description.matches(config.getRegex()) || !config.isRestrict())
                 && !description.contains("\u0000");
     }
@@ -93,5 +79,11 @@ public class Validator {
     private boolean containsWhitespace(@NotNull String string) {
         return string.matches(".*\\s.*");
     }
+    
+    @NotNull
+    HuskHomes getPlugin();
+
+    @NotNull
+    Settings getSettings();
 
 }

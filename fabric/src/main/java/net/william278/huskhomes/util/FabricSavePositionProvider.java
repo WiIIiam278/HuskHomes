@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public interface FabricSafetyResolver extends SafetyResolver {
+public interface FabricSavePositionProvider extends SavePositionProvider {
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {

@@ -37,12 +37,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-public class RTPCommand extends Command implements UserListTabProvider {
+public class RtpCommand extends Command implements UserListTabCompletable {
 
     private final Random random = new Random();
 
-    protected RTPCommand(@NotNull HuskHomes plugin) {
-        super("rtp", List.of(), "[player] [world]", plugin);
+    protected RtpCommand(@NotNull HuskHomes plugin) {
+        super(
+                List.of("rtp"),
+                "[player] [world]",
+                plugin
+        );
 
         addAdditionalPermissions(Map.of(
                 "other", true
@@ -75,8 +79,9 @@ public class RTPCommand extends Command implements UserListTabProvider {
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> user.hasPermission(getPermission("other")) ? UserListTabProvider.super.suggestLocal(args)
-                    : user instanceof OnlineUser online ? List.of(online.getUsername()) : List.of();
+            case 0, 1 -> user.hasPermission(getPermission("other"))
+                    ? UserListTabCompletable.super.suggest(user, args)
+                    : user instanceof OnlineUser online ? List.of(online.getName()) : List.of();
             case 2 -> plugin.getWorlds().stream()
                     .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
                     .map(World::getName)
@@ -148,19 +153,20 @@ public class RTPCommand extends Command implements UserListTabProvider {
                 .ifPresent(teleporter::sendMessage);
 
         if (plugin.getSettings().getRtp().isCrossServer() && plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
+            && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
             List<String> allowedServers = plugin.getSettings().getRtp().getRandomTargetServers();
             String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
             if (randomServer.equals(plugin.getServerName())) {
                 performLocalRTP(teleporter, executor, world, args);
                 return;
             }
-            Message.builder()
+
+            plugin.getBroker().ifPresent(b -> Message.builder()
                     .type(Message.Type.REQUEST_RTP_LOCATION)
                     .scope(Message.Scope.SERVER)
                     .target(randomServer)
-                    .payload(Payload.withRTPRequest(Payload.RTPRequest.of(teleporter.getUsername(), world.getName())))
-                    .build().send(plugin.getMessenger(), teleporter);
+                    .payload(Payload.withRTPRequest(Payload.RTPRequest.of(teleporter.getName(), world.getName())))
+                    .build().send(b, teleporter));
             return;
         }
 
@@ -171,9 +177,9 @@ public class RTPCommand extends Command implements UserListTabProvider {
      * Performs the RTP locally.
      *
      * @param teleporter person to teleport
-     * @param executor the person executing the teleport
-     * @param world the world to teleport to
-     * @param args rtp engine args
+     * @param executor   the person executing the teleport
+     * @param world      the world to teleport to
+     * @param args       rtp engine args
      */
     private void performLocalRTP(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
                                  @NotNull String[] args) {

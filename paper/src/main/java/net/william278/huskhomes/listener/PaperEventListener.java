@@ -39,10 +39,8 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
     }
 
     @Override
-    @NotNull
-    public PaperEventListener register(@NotNull BukkitHuskHomes plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        return this;
+    public void register() {
+        ((PaperHuskHomes) plugin).getServer().getPluginManager().registerEvents(this, (PaperHuskHomes) plugin);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

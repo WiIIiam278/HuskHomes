@@ -33,7 +33,7 @@ import org.spongepowered.math.vector.Vector3i;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public interface SpongeSafetyResolver extends SafetyResolver {
+public interface SpongeSavePositionProvider extends SavePositionProvider {
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {

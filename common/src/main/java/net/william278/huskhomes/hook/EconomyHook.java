@@ -32,8 +32,8 @@ import java.util.Locale;
  */
 public abstract class EconomyHook extends Hook {
 
-    protected EconomyHook(@NotNull HuskHomes plugin, @NotNull String hookName) {
-        super(plugin, hookName);
+    protected EconomyHook(@NotNull HuskHomes plugin) {
+        super(plugin);
     }
 
     /**

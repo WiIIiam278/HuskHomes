@@ -249,7 +249,7 @@ public abstract class Database {
      * @param name Username of the {@link SavedUser} to get (<i>case-insensitive</i>)
      * @return An optional with the {@link SavedUser} present if they exist
      */
-    public abstract Optional<SavedUser> getUserDataByName(@NotNull String name);
+    public abstract Optional<SavedUser> getUser(@NotNull String name);
 
     /**
      * Get {@link SavedUser} for a user by their Minecraft account {@link UUID}.
@@ -257,14 +257,14 @@ public abstract class Database {
      * @param uuid Minecraft account {@link UUID} of the {@link SavedUser} to get
      * @return An optional with the {@link SavedUser} present if they exist
      */
-    public abstract Optional<SavedUser> getUserData(@NotNull UUID uuid);
+    public abstract Optional<SavedUser> getUser(@NotNull UUID uuid);
 
     /**
      * Delete a {@link SavedUser} from the database.
      *
      * @param uuid The {@link UUID} of the {@link SavedUser} to delete
      */
-    public abstract void deleteUserData(@NotNull UUID uuid);
+    public abstract void deleteUser(@NotNull UUID uuid);
 
     /**
      * Get the currently active cooldown of a {@link User} for a specific {@link TransactionResolver.Action}.

@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public interface SafetyResolver {
+public interface SavePositionProvider {
 
     int SEARCH_RADIUS = 2;
 

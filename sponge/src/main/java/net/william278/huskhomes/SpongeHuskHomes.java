@@ -51,10 +51,10 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.SpongeUser;
-import net.william278.huskhomes.util.SpongeSafetyResolver;
+import net.william278.huskhomes.util.SpongeSavePositionProvider;
 import net.william278.huskhomes.util.SpongeTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.Validator;
+import net.william278.huskhomes.util.TextValidator;
 import org.bstats.charts.SimplePie;
 import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +91,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @Plugin("huskhomes")
-public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSafetyResolver, SpongeEventDispatcher,
+public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSavePositionProvider, SpongeEventDispatcher,
         RawPlayDataHandler<EngineConnection> {
 
     /**
@@ -119,7 +119,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     private Settings settings;
     private Locales locales;
     private Database database;
-    private Validator validator;
     private Manager manager;
     private RandomTeleportEngine randomTeleportEngine;
     private Spawn serverSpawn;
@@ -132,9 +131,6 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @Listener
     public void onConstructPlugin(final ConstructPluginEvent event) {
-        // Get plugin version from mod container
-        this.validator = new Validator(this);
-
         // Load settings and locales
         initialize("plugin config & locale files", (plugin) -> loadConfigs());
 
@@ -190,7 +186,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
         });
 
         // Hook into bStats
-        initialize("metrics", (plugin) -> this.registerMetrics(METRICS_ID));
+        initialize("metrics", (plugin) -> this.loadMetrics(METRICS_ID));
     }
 
     @Listener
@@ -251,7 +247,7 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
 
     @NotNull
     @Override
-    public Broker getMessenger() {
+    public Broker getBroker() {
         if (broker == null) {
             throw new IllegalStateException("Attempted to access message broker when it was not initialized");
         }
@@ -309,12 +305,12 @@ public class SpongeHuskHomes implements HuskHomes, SpongeTask.Supplier, SpongeSa
     }
 
     @Override
-    public boolean isDependencyLoaded(@NotNull String name) {
+    public boolean isDependencyAvailable(@NotNull String name) {
         return game.pluginManager().plugin(name).isPresent();
     }
 
     @Override
-    public void registerMetrics(int metricsId) {
+    public void loadMetrics(int metricsId) {
         if (!getVersion().getMetadata().isBlank()) {
             return;
         }

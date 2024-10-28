@@ -72,10 +72,10 @@ import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.util.FabricSafetyResolver;
+import net.william278.huskhomes.util.FabricSavePositionProvider;
 import net.william278.huskhomes.util.FabricTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.Validator;
+import net.william278.huskhomes.util.TextValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -90,14 +90,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
-        FabricEventDispatcher, FabricSafetyResolver, ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
+        FabricEventDispatcher, FabricSavePositionProvider, ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
@@ -113,7 +112,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private Locales locales;
     @Setter
     private Database database;
-    private Validator validator;
     private Manager manager;
     private EventListener eventListener;
     private RandomTeleportEngine randomTeleportEngine;
@@ -128,14 +126,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void onInitializeServer() {
-        // Get plugin version from mod container
-        this.validator = new Validator(this);
-
-        // Load settings and locales
-        initialize("plugin config & locale files", (plugin) -> loadConfigs());
-
-        // Pre-register commands
-        initialize("commands", (plugin) -> this.commands = registerCommands());
+        onEnable();
+        registerCommands();
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             this.minecraftServer = server;
@@ -144,75 +136,13 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.onDisable());
     }
 
+    // Enable, create audiences
     private void onEnable() {
-        // Create adventure audience
         this.audiences = MinecraftServerAudiences.of(minecraftServer);
-
-        // Initialize the database
-        initialize("database", (plugin) -> loadDatabase());
-
-        // Initialize the manager
-        this.manager = new Manager(this);
-
-        // Initialize the network messenger if proxy mode is enabled
-        final Settings.CrossServerSettings crossServer = getSettings().getCrossServer();
-        if (crossServer.isEnabled()) {
-            initialize(crossServer.getBrokerType().getDisplayName() + " message broker", (plugin) -> {
-                broker = switch (crossServer.getBrokerType()) {
-                    case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
-                    case REDIS -> new RedisBroker(this);
-                };
-                broker.initialize();
-            });
-        }
-
-        setRandomTeleportEngine(new NormalDistributionEngine(this));
-
-        // Register plugin hooks (Economy, Maps, Plan)
-        initialize("hooks", (plugin) -> {
-            this.registerHooks();
-
-            if (!hooks.isEmpty()) {
-                hooks.forEach(hook -> {
-                    try {
-                        hook.initialize();
-                    } catch (Throwable e) {
-                        log(Level.WARNING, "Failed to initialize " + hook.getName() + " hook", e);
-                    }
-                });
-                log(Level.INFO, "Registered " + hooks.size() + " mod hooks: " + hooks.stream()
-                        .map(Hook::getName)
-                        .collect(Collectors.joining(", ")));
-            }
-        });
-
-        // Register events
-        initialize("events", (plugin) -> this.eventListener = new FabricEventListener(this));
-
-        // Initialize the API
-        initialize("API", (plugin) -> FabricHuskHomesAPI.register(this));
-
-        this.checkForUpdates();
-    }
-
-    @Override
-    public void registerHooks() {
-        HuskHomes.super.registerHooks();
-
-        // Register the impactor economy service if it is available
-        if (getSettings().getEconomy().isEnabled() && isDependencyLoaded("impactor")) {
-            getHooks().add(new FabricImpactorEconomyHook(this));
-        }
-
-        if (isDependencyLoaded("placeholder-api")) {
-            getHooks().add(new FabricPlaceholderAPIHook(this));
-        }
+        this.enable();
     }
 
     private void onDisable() {
-        if (this.eventListener != null) {
-            this.eventListener.handlePluginDisable();
-        }
         this.closeDatabase();
         if (broker != null) {
             broker.close();
@@ -272,15 +202,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    @NotNull
-    public Broker getMessenger() {
-        if (broker == null) {
-            throw new IllegalStateException("Attempted to access message broker when it was not initialized");
-        }
-        return broker;
-    }
-
-    @Override
     @Nullable
     public InputStream getResource(@NotNull String name) {
         return this.modContainer.findPath(name)
@@ -311,7 +232,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     @NotNull
-    public Version getVersion() {
+    public Version getPluginVersion() {
         return Version.fromString(modContainer.getMetadata().getVersion().getFriendlyString(), "-");
     }
 
@@ -321,17 +242,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
                 commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
         return commands;
-    }
-
-    @Override
-    public boolean isDependencyLoaded(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name)
-                || FabricLoader.getInstance().isModLoaded(name.toLowerCase(Locale.ENGLISH));
-    }
-
-    @Override
-    public void registerMetrics(int metricsId) {
-        // No metrics for Fabric
     }
 
     @Override

@@ -35,7 +35,7 @@ public class SpongeEconomyHook extends EconomyHook {
     private Currency currency;
 
     public SpongeEconomyHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Sponge Economy");
+        super(plugin);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SpongeEconomyHook extends EconomyHook {
     public void changePlayerBalance(@NotNull OnlineUser player, double amount) {
         if (amount != 0d) {
             final Account account = economyService.findOrCreateAccount(player.getUuid())
-                    .orElseThrow(() -> new IllegalStateException("Account not found for " + player.getUsername()));
+                    .orElseThrow(() -> new IllegalStateException("Account not found for " + player.getName()));
             final double currentBalance = getPlayerBalance(player);
             final double amountToChange = Math.abs(currentBalance - Math.max(0d, currentBalance + amount));
             if (amount < 0d) {

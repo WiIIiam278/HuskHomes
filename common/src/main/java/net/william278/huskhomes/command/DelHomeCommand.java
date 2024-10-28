@@ -31,7 +31,12 @@ import java.util.List;
 public class DelHomeCommand extends SavedPositionCommand<Home> {
 
     public DelHomeCommand(@NotNull HuskHomes plugin) {
-        super("delhome", List.of(), PositionCommandType.HOME, List.of(), plugin);
+        super(
+                List.of("delhome"),
+                PositionCommandType.HOME,
+                List.of(),
+                plugin
+        );
     }
 
     @Override
@@ -45,7 +50,7 @@ public class DelHomeCommand extends SavedPositionCommand<Home> {
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull Home home, @NotNull String[] args) {
         if (executor instanceof OnlineUser user && !home.getOwner().equals(user)
-                && !user.hasPermission(getOtherPermission())) {
+            && !user.hasPermission(getOtherPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(user::sendMessage);
             return;

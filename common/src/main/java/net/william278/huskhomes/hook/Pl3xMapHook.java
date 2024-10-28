@@ -62,11 +62,11 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     private final ConcurrentLinkedQueue<Warp> warps = new ConcurrentLinkedQueue<>();
 
     public Pl3xMapHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Pl3xMap");
+        super(plugin);
     }
 
     @Override
-    public void initialize() {
+    public void load() {
         Pl3xMap.api().getEventRegistry().register(this);
         if (Pl3xMap.api().isEnabled()) {
             onPl3xMapEnabled(new Pl3xMapEnabledEvent());

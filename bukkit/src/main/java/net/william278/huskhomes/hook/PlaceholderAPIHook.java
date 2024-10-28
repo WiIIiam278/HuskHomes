@@ -19,6 +19,8 @@
 
 package net.william278.huskhomes.hook;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.william278.huskhomes.BukkitHuskHomes;
@@ -30,26 +32,39 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
+@PluginHook(
+        name = "PlaceholderAPI",
+        register = PluginHook.Register.ON_LOAD
+)
 public class PlaceholderAPIHook extends Hook {
 
     public PlaceholderAPIHook(@NotNull BukkitHuskHomes plugin) {
-        super(plugin, "PlaceholderAPI");
+        super(plugin);
     }
 
     @Override
-    public void initialize() {
-        new HuskHomesExpansion((BukkitHuskHomes) plugin).register();
+    public void load() {
+        new HuskHomesExpansion(
+                (BukkitHuskHomes) plugin,
+                plugin.getPluginVersion().toStringWithoutMetadata()
+        ).register();
     }
 
+    @Override
+    public void unload() {
+    }
+
+    @Getter
+    @RequiredArgsConstructor
     public static class HuskHomesExpansion extends PlaceholderExpansion {
 
         @NotNull
         private final BukkitHuskHomes plugin;
-
-        private HuskHomesExpansion(@NotNull BukkitHuskHomes plugin) {
-            this.plugin = plugin;
-        }
+        private final String version;
+        private final String author = "William278";
+        private final String identifier = "huskhomes";
 
         @Override
         @Nullable
@@ -63,7 +78,7 @@ public class PlaceholderAPIHook extends Hook {
             return switch (params) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "max_homes" -> String.valueOf(plugin.getManager().homes().getMaxHomes(player));
                 case "max_public_homes" -> String.valueOf(plugin.getManager().homes().getMaxPublicHomes(player));
                 case "free_home_slots" -> String.valueOf(plugin.getManager().homes().getFreeHomes(player));
@@ -72,40 +87,17 @@ public class PlaceholderAPIHook extends Hook {
                         .orElse(0));
                 case "homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "public_homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "public_homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "ignoring_tp_requests" -> getBooleanValue(plugin.getManager().requests()
                         .isIgnoringRequests(player));
                 default -> null;
             };
-        }
-
-        @Override
-        public boolean persist() {
-            return true;
-        }
-
-        @Override
-        @NotNull
-        public String getIdentifier() {
-            return "huskhomes";
-        }
-
-        @Override
-        @NotNull
-        public String getAuthor() {
-            return "William278";
-        }
-
-        @Override
-        @NotNull
-        public String getVersion() {
-            return plugin.getVersion().toStringWithoutMetadata();
         }
 
         @NotNull

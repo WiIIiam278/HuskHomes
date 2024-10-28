@@ -29,13 +29,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TeleportRequestCommand extends InGameCommand implements UserListTabProvider {
+public class TpRequestCommand extends InGameCommand implements UserListTabCompletable {
 
     private final TeleportRequest.Type requestType;
 
-    protected TeleportRequestCommand(@NotNull HuskHomes plugin, @NotNull TeleportRequest.Type requestType) {
-        super(requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere", List.of(), "<player>", plugin);
-        this.requestType = requestType;
+    protected TpRequestCommand(@NotNull HuskHomes plugin, @NotNull TeleportRequest.Type type) {
+        super(
+                List.of(type == TeleportRequest.Type.TPA ? "tpa" : "tpahere"),
+                "<player>",
+                plugin
+        );
+        this.requestType = type;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class TeleportRequestCommand extends InGameCommand implements UserListTab
 
         // Ensure the user does not send a request to themselves
         final String target = optionalTarget.get();
-        if (target.equalsIgnoreCase(onlineUser.getUsername())) {
+        if (target.equalsIgnoreCase(onlineUser.getName())) {
             plugin.getLocales().getLocale("error_teleport_request_self")
                     .ifPresent(onlineUser::sendMessage);
             return;

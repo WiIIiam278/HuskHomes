@@ -59,7 +59,7 @@ public class FabricPlaceholderAPIHook extends Hook {
             final String response = switch (arg) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "max_homes" -> String.valueOf(plugin.getManager().homes().getMaxHomes(player));
                 case "max_public_homes" -> String.valueOf(plugin.getManager().homes().getMaxPublicHomes(player));
                 case "free_home_slots" -> String.valueOf(plugin.getManager().homes().getFreeHomes(player));
@@ -67,13 +67,13 @@ public class FabricPlaceholderAPIHook extends Hook {
                         .map(SavedUser::getHomeSlots).orElse(0));
                 case "homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "public_homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "public_homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "ignoring_tp_requests" -> String.valueOf(plugin.getManager().requests()
                         .isIgnoringRequests(player));
                 default -> null;

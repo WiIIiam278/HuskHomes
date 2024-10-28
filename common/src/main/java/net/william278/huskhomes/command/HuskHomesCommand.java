@@ -39,7 +39,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class HuskHomesCommand extends Command implements TabProvider {
+public class HuskHomesCommand extends Command implements TabCompletable {
 
     private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
             "about", false,
@@ -55,14 +55,18 @@ public class HuskHomesCommand extends Command implements TabProvider {
     private final AboutMenu aboutMenu;
 
     protected HuskHomesCommand(@NotNull HuskHomes plugin) {
-        super("huskhomes", List.of(), "[" + String.join("|", SUB_COMMANDS.keySet()) + "]", plugin);
+        super(
+                List.of("huskhomes"),
+                "[" + String.join("|", SUB_COMMANDS.keySet()) + "]",
+                plugin
+        );
         addAdditionalPermissions(SUB_COMMANDS);
 
         this.updateChecker = plugin.getUpdateChecker();
         this.aboutMenu = AboutMenu.builder()
                 .title(Component.text("HuskHomes"))
                 .description(Component.text("The powerful & intuitive homes, warps, and teleportation suite"))
-                .version(plugin.getVersion())
+                .version(plugin.getPluginVersion())
                 .credits("Author",
                         AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
                 .credits("Contributors",
@@ -118,14 +122,14 @@ public class HuskHomesCommand extends Command implements TabProvider {
 
                 executor.sendMessage(new MineDown(
                         "[HuskHomes](#00fb9a bold) [| Reloaded config & message files.](#00fb9a)\n"
-                                + "[ℹ If you have modified the database or cross-server message broker settings,"
-                                + " you need to restart your server for these changes to take effect.](gray)"
+                        + "[ℹ If you have modified the database or cross-server message broker settings,"
+                        + " you need to restart your server for these changes to take effect.](gray)"
                 ));
             }
             case "import" -> {
                 if (!importersLoaded) {
                     importersLoaded = true;
-                    plugin.registerImporters();
+                    plugin.loadHooks();
                 }
                 if (plugin.getImporters().isEmpty()) {
                     plugin.getLocales().getLocale("error_no_importers_available")
@@ -152,12 +156,12 @@ public class HuskHomesCommand extends Command implements TabProvider {
             }
             case "update" -> updateChecker.check().thenAccept(checked -> {
                 if (checked.isUpToDate()) {
-                    plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
+                    plugin.getLocales().getLocale("up_to_date", plugin.getPlugin().toString())
                             .ifPresent(executor::sendMessage);
                     return;
                 }
                 plugin.getLocales().getLocale("update_available", checked.getLatestVersion().toString(),
-                        plugin.getVersion().toString()).ifPresent(executor::sendMessage);
+                        plugin.getPluginVersion().toString()).ifPresent(executor::sendMessage);
             });
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -203,9 +207,9 @@ public class HuskHomesCommand extends Command implements TabProvider {
         plugin.runAsync(() -> {
             Optional<SavedUser> savedUser;
             try {
-                savedUser = plugin.getDatabase().getUserData(UUID.fromString(nameOrUuid.get()));
+                savedUser = plugin.getDatabase().getUser(UUID.fromString(nameOrUuid.get()));
             } catch (IllegalArgumentException e) {
-                savedUser = plugin.getDatabase().getUserDataByName(nameOrUuid.get());
+                savedUser = plugin.getDatabase().getUser(nameOrUuid.get());
             }
 
             if (savedUser.isEmpty()) {
@@ -218,14 +222,14 @@ public class HuskHomesCommand extends Command implements TabProvider {
             if (!parseStringArg(args, 1)
                     .map(a -> a.equalsIgnoreCase("confirm")).orElse(false)) {
                 plugin.getLocales().getLocale("delete_player_confirm",
-                        savedUser.get().getUser().getUsername()).ifPresent(executor::sendMessage);
+                        savedUser.get().getUser().getName()).ifPresent(executor::sendMessage);
                 return;
             }
 
             final int homesDeleted = plugin.getManager().homes().deleteAllHomes(user);
-            plugin.getDatabase().deleteUserData(user.getUuid());
+            plugin.getDatabase().deleteUser(user.getUuid());
             plugin.getLocales().getLocale("delete_player_success",
-                            savedUser.get().getUser().getUsername(), Integer.toString(homesDeleted))
+                            savedUser.get().getUser().getName(), Integer.toString(homesDeleted))
                     .ifPresent(executor::sendMessage);
         });
     }

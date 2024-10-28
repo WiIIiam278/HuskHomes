@@ -33,15 +33,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabProvider {
+public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabCompletable {
 
     protected final List<String> arguments;
     protected final PositionCommandType positionType;
 
-    protected SavedPositionCommand(@NotNull String name, @NotNull List<String> aliases,
+    protected SavedPositionCommand(@NotNull List<String> aliases,
                                    @NotNull PositionCommandType positionType,
                                    @NotNull List<String> arguments, @NotNull HuskHomes plugin) {
-        super(name, aliases, "<name>" + formatUsage(arguments), plugin);
+        super(aliases, "<name>" + formatUsage(arguments), plugin);
         this.positionType = positionType;
         this.arguments = arguments;
 
@@ -98,7 +98,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
 
-        final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(ownerUsername)
+        final Optional<Home> optionalHome = plugin.getDatabase().getUser(ownerUsername)
                 .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHome));
         if (optionalHome.isEmpty()) {
             plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())
@@ -243,7 +243,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                     yield plugin.getManager().homes().getUserHomeIdentifiers();
                 }
                 if (executor instanceof OnlineUser user) {
-                    yield plugin.getManager().homes().getUserHomes().get(user.getUsername());
+                    yield plugin.getManager().homes().getUserHomes().get(user.getName());
                 }
                 yield plugin.getManager().homes().getUserHomeIdentifiers();
             }

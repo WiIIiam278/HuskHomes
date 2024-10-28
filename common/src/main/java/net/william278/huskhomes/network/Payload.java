@@ -21,10 +21,12 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportRequest;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +36,7 @@ import java.util.Optional;
 /**
  * Represents a payload sent in a cross-server {@link Message}.
  */
+@NoArgsConstructor
 public class Payload {
 
     @Nullable
@@ -67,6 +70,11 @@ public class Payload {
     @Expose
     @SerializedName("string_list")
     private List<String> stringList;
+
+    @Nullable
+    @Expose
+    @SerializedName("user_list")
+    private List<User> userList;
 
     /**
      * Returns an empty cross-server message payload.
@@ -138,6 +146,16 @@ public class Payload {
     }
 
     /**
+     * A usr list field.
+     */
+    @NotNull
+    public static Payload withUserList(@NotNull List<User> target) {
+        final Payload payload = new Payload();
+        payload.userList = target;
+        return payload;
+    }
+
+    /**
      * An RTP Response field.
      */
     @NotNull
@@ -155,9 +173,6 @@ public class Payload {
         final Payload payload = new Payload();
         payload.rtpRequest = rtpRequest;
         return payload;
-    }
-
-    private Payload() {
     }
 
     /**
@@ -193,6 +208,13 @@ public class Payload {
      */
     public Optional<List<String>> getStringList() {
         return Optional.ofNullable(stringList);
+    }
+
+    /**
+     * A string list field.
+     */
+    public Optional<List<User>> getUserList() {
+        return Optional.ofNullable(userList);
     }
 
     /**

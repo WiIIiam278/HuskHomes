@@ -214,7 +214,7 @@ public class RedisBroker extends PluginMessageBroker {
             if (message.getScope() == Message.Scope.PLAYER) {
                 broker.plugin.getOnlineUsers().stream()
                         .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                || online.getUsername().equals(message.getTarget()))
+                                || online.getName().equals(message.getTarget()))
                         .forEach(receiver -> broker.handle(receiver, message));
                 return;
             }

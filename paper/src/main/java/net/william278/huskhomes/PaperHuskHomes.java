@@ -30,7 +30,7 @@ public class PaperHuskHomes extends BukkitHuskHomes {
 
     @Override
     @NotNull
-    protected PaperEventListener getListener() {
+    public PaperEventListener createListener() {
         return new PaperEventListener(this);
     }
 

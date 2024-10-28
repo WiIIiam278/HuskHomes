@@ -317,9 +317,9 @@ public class PostgreSqlDatabase extends Database {
 
     @Override
     public void ensureUser(@NotNull User onlineUser) {
-        getUserData(onlineUser.getUuid()).ifPresentOrElse(
+        getUser(onlineUser.getUuid()).ifPresentOrElse(
                 existingUserData -> {
-                    if (!existingUserData.getUsername().equals(onlineUser.getUsername())) {
+                    if (!existingUserData.getUsername().equals(onlineUser.getName())) {
                         // Update a player's name if it has changed in the database
                         try (Connection connection = getConnection()) {
                             try (PreparedStatement statement = connection.prepareStatement(format("""
@@ -327,13 +327,13 @@ public class PostgreSqlDatabase extends Database {
                                     SET "username"=?
                                     WHERE "uuid"=?"""))) {
 
-                                statement.setString(1, onlineUser.getUsername());
+                                statement.setString(1, onlineUser.getName());
                                 statement.setString(2, existingUserData.getUserUuid().toString());
                                 statement.executeUpdate();
                             }
-                            plugin.log(Level.INFO, "Updated " + onlineUser.getUsername()
+                            plugin.log(Level.INFO, "Updated " + onlineUser.getName()
                                                    + "'s name in the database (" + existingUserData.getUsername()
-                                                   + " -> " + onlineUser.getUsername() + ")");
+                                                   + " -> " + onlineUser.getName() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -347,7 +347,7 @@ public class PostgreSqlDatabase extends Database {
                                 VALUES (?,?);"""))) {
 
                             statement.setString(1, onlineUser.getUuid().toString());
-                            statement.setString(2, onlineUser.getUsername());
+                            statement.setString(2, onlineUser.getName());
                             statement.executeUpdate();
                         }
                     } catch (SQLException e) {
@@ -357,7 +357,7 @@ public class PostgreSqlDatabase extends Database {
     }
 
     @Override
-    public Optional<SavedUser> getUserDataByName(@NotNull String name) {
+    public Optional<SavedUser> getUser(@NotNull String name) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     SELECT "uuid", "username", "home_slots", "ignoring_requests"
@@ -382,7 +382,7 @@ public class PostgreSqlDatabase extends Database {
     }
 
     @Override
-    public Optional<SavedUser> getUserData(@NotNull UUID uuid) {
+    public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     SELECT "uuid", "username", "home_slots", "ignoring_requests"
@@ -408,7 +408,7 @@ public class PostgreSqlDatabase extends Database {
     }
 
     @Override
-    public void deleteUserData(@NotNull UUID uuid) {
+    public void deleteUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     DELETE FROM "%position_data%"
@@ -534,7 +534,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to query the database for home data for:" + user.getUsername());
+            plugin.log(Level.SEVERE, "Failed to query the database for home data for:" + user.getName());
         }
         return userHomes;
     }
@@ -861,7 +861,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the current teleport of " + onlineUser.getName(), e);
         } catch (TeleportationException e) {
             e.displayMessage(onlineUser);
         }
@@ -914,7 +914,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to clear the current teleport of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to clear the current teleport of " + user.getName(), e);
         }
     }
 
@@ -941,7 +941,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to query the last teleport position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the last teleport position of " + user.getName(), e);
         }
         return Optional.empty();
     }
@@ -973,7 +973,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to set the last position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the last position of " + user.getName(), e);
         }
     }
 
@@ -1000,7 +1000,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to query the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the offline position of " + user.getName(), e);
         }
         return Optional.empty();
     }
@@ -1031,7 +1031,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to set the offline position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the offline position of " + user.getName(), e);
         }
     }
 
@@ -1058,7 +1058,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to query the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to query the respawn position of " + user.getName(), e);
         }
         return Optional.empty();
     }
@@ -1105,7 +1105,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to set the respawn position of " + user.getUsername(), e);
+            plugin.log(Level.SEVERE, "Failed to set the respawn position of " + user.getName(), e);
         }
     }
 
@@ -1136,7 +1136,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE,
-                        "Failed to update a home in the database for " + home.getOwner().getUsername(), e);
+                        "Failed to update a home in the database for " + home.getOwner().getName(), e);
             }
         }, () -> {
             try (Connection connection = getConnection()) {
@@ -1152,7 +1152,7 @@ public class PostgreSqlDatabase extends Database {
                 }
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE,
-                        "Failed to set a home to the database for " + home.getOwner().getUsername(), e);
+                        "Failed to set a home to the database for " + home.getOwner().getName(), e);
             }
         });
     }
@@ -1232,7 +1232,7 @@ public class PostgreSqlDatabase extends Database {
                 return statement.executeUpdate();
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to delete all homes for " + user.getUsername() + " from the database", e);
+            plugin.log(Level.SEVERE, "Failed to delete all homes for " + user.getName() + " from the database", e);
         }
         return 0;
     }

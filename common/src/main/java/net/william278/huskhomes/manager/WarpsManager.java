@@ -79,14 +79,13 @@ public class WarpsManager {
     }
 
     private void propagateCacheUpdate(@NotNull UUID warpId) {
-        if (plugin.getSettings().getCrossServer().isEnabled()) {
-            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
-                    .type(Message.Type.UPDATE_WARP)
-                    .scope(Message.Scope.SERVER)
-                    .target(Message.TARGET_ALL)
-                    .payload(Payload.withString(warpId.toString()))
-                    .build().send(plugin.getMessenger(), user));
-        }
+        plugin.getOnlineUsers().stream().findAny().ifPresent(user -> plugin.getBroker()
+                .ifPresent(b -> Message.builder()
+                        .type(Message.Type.UPDATE_WARP)
+                        .scope(Message.Scope.SERVER)
+                        .target(Message.TARGET_ALL)
+                        .payload(Payload.withString(warpId.toString()))
+                        .build().send(b, user)));
     }
 
     public void updateWarpCache() {
@@ -104,7 +103,7 @@ public class WarpsManager {
     @NotNull
     public List<String> getUsableWarps(@NotNull CommandUser user) {
         if (!plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-                || user.hasPermission(Warp.getWildcardPermission())) {
+            || user.hasPermission(Warp.getWildcardPermission())) {
             return getWarps();
         }
         return warps.stream()
@@ -122,7 +121,7 @@ public class WarpsManager {
         }
 
         // Validate the home name; throw an exception if invalid
-        plugin.getValidator().validateName(name);
+        plugin.validateName(name);
 
         final Warp warp = existingWarp
                 .map(existing -> {
@@ -209,7 +208,7 @@ public class WarpsManager {
         if (plugin.getDatabase().getWarp(newName).isPresent()) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
-        plugin.getValidator().validateName(newName);
+        plugin.validateName(newName);
         warp.getMeta().setName(newName);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);
@@ -225,7 +224,7 @@ public class WarpsManager {
     }
 
     public void setWarpDescription(@NotNull Warp warp, @NotNull String description) {
-        plugin.getValidator().validateDescription(description);
+        plugin.validateDescription(description);
         warp.getMeta().setDescription(description);
         plugin.getDatabase().saveWarp(warp);
         this.cacheWarp(warp, true);

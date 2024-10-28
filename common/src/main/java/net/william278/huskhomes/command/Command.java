@@ -19,24 +19,22 @@
 
 package net.william278.huskhomes.command;
 
+import com.google.common.collect.Maps;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Command extends Node {
 
     private final String usage;
     private final Map<String, Boolean> additionalPermissions;
 
-    protected Command(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
-                      @NotNull HuskHomes plugin) {
-        super(name, aliases, plugin);
+    protected Command(@NotNull List<String> aliases, @NotNull String usage, @NotNull HuskHomes plugin) {
+        super(aliases, plugin);
         this.usage = usage;
-        this.additionalPermissions = new HashMap<>();
+        this.additionalPermissions = Maps.newTreeMap();
     }
 
     @Override
@@ -82,7 +80,7 @@ public abstract class Command extends Node {
 
     @NotNull
     public String getDescription() {
-        return plugin.getLocales().getRawLocale(getName() + "_command_description")
+        return plugin.getLocales().getRawLocale(String.format("%s_command_description", getName()))
                 .orElse(getUsage());
     }
 

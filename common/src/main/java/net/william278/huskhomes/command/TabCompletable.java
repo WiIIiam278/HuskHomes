@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface TabProvider {
+public interface TabCompletable {
 
     @Nullable
     List<String> suggest(@NotNull CommandUser user, @NotNull String[] args);

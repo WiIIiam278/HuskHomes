@@ -96,7 +96,7 @@ public class EssentialsXImporter extends Importer {
     @NotNull
     private String normalizeName(@NotNull String name) {
         try {
-            plugin.getValidator().validateName(name);
+            plugin.validateName(name);
             return name;
         } catch (ValidationException e) {
             // Remove spaces

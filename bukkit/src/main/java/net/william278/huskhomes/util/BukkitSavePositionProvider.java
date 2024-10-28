@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public interface BukkitSafetyResolver extends SafetyResolver {
+public interface BukkitSavePositionProvider extends SavePositionProvider {
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {

@@ -21,22 +21,18 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface UserListTabProvider extends TabProvider {
+public interface UserListTabCompletable extends TabCompletable {
 
     @Override
     @Nullable
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? getPlugin().getPlayerList(false) : null;
-    }
-
-    @Nullable
-    default List<String> suggestLocal(@NotNull String[] args) {
-        return args.length < 2 ? getPlugin().getLocalPlayerList(false) : null;
+        return args.length < 2 ? getPlugin().getUserList().stream().map(User::getName).toList() : null;
     }
 
     @NotNull

@@ -31,7 +31,11 @@ import java.util.List;
 public class TpIgnoreCommand extends InGameCommand {
 
     protected TpIgnoreCommand(@NotNull HuskHomes plugin) {
-        super("tpignore", List.of(), "", plugin);
+        super(
+                List.of("tpignore"),
+                "",
+                plugin
+        );
     }
 
     @Override

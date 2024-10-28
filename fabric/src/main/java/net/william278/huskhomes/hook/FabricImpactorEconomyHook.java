@@ -35,7 +35,21 @@ public class FabricImpactorEconomyHook extends EconomyHook {
     private Currency currency;
 
     public FabricImpactorEconomyHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Fabric Impactor Economy");
+        super(plugin);
+    }
+
+    @Override
+    public void load() {
+        this.economyService = EconomyService.instance();
+        if (this.economyService == null) {
+            throw new IllegalStateException("Impactor API is not available, No economy service has been registered!");
+        }
+        this.currency = this.economyService.currencies().primary();
+    }
+
+    @Override
+    public void unload() {
+        this.economyService = null;
     }
 
     @Override
@@ -72,14 +86,5 @@ public class FabricImpactorEconomyHook extends EconomyHook {
     @Override
     public String formatCurrency(double amount) {
         return PlainTextComponentSerializer.plainText().serialize(currency.format(BigDecimal.valueOf(amount)));
-    }
-
-    @Override
-    public void initialize() {
-        this.economyService = EconomyService.instance();
-        if (this.economyService == null) {
-            throw new IllegalStateException("Impactor API is not available, No economy service has been registered!");
-        }
-        this.currency = this.economyService.currencies().primary();
     }
 }

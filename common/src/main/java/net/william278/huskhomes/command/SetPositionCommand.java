@@ -28,8 +28,8 @@ import java.util.Optional;
 
 public abstract class SetPositionCommand extends InGameCommand {
 
-    protected SetPositionCommand(@NotNull String name, @NotNull HuskHomes plugin) {
-        super(name, List.of(), "<name>", plugin);
+    protected SetPositionCommand(@NotNull List<String> aliases, @NotNull HuskHomes plugin) {
+        super(aliases, "<name>", plugin);
     }
 
     @Override

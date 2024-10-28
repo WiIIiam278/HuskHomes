@@ -47,7 +47,7 @@ import java.util.Optional;
 public abstract class EventListener {
 
     @NotNull
-    protected final HuskHomes plugin;
+    private final HuskHomes plugin;
 
     public abstract void register();
 
@@ -124,6 +124,9 @@ public abstract class EventListener {
                         .findAny()
                         .ifPresent(player -> this.synchronizeGlobalPlayerList(player, localPlayerList));
             }
+
+            // Remove from user map
+            plugin.getOnlineUserMap().remove(onlineUser.getUuid());
         });
     }
 
@@ -305,6 +308,11 @@ public abstract class EventListener {
             && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
+    }
+
+    @NotNull
+    protected HuskHomes getPlugin() {
+        return plugin;
     }
 
 }

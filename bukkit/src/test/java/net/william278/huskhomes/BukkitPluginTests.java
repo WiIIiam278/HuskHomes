@@ -23,7 +23,6 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.user.BukkitUser;
@@ -76,14 +75,14 @@ public class BukkitPluginTests {
         @Test
         @DisplayName("Test Command Registration")
         public void testCommandRegistration() {
-            Assertions.assertEquals(BukkitCommand.Type.values().length, plugin.getCommands().size());
+            Assertions.assertFalse(plugin.getCommands().isEmpty());
         }
 
         @Test
         @DisplayName("Test Player Adapter")
         public void testPlayerAdaption() {
             PlayerMock player = server.addPlayer();
-            Assertions.assertNotNull(BukkitUser.adapt(player, plugin));
+            Assertions.assertNotNull(plugin.getOnlineUser(player));
         }
 
         @Test
@@ -109,14 +108,14 @@ public class BukkitPluginTests {
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
             final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
                     .orElseThrow(() -> new IllegalStateException("Failed to load raw locale"));
-            BukkitUser.adapt(player, plugin).sendMessage(simpleLocale);
+            plugin.getOnlineUser(player).sendMessage(simpleLocale);
             player.assertSaid(simpleLocaleText);
         }
 
         @Test
         @DisplayName("Test Message Dispatching")
         public void testMessageDispatching() {
-            final BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
+            final BukkitUser user = plugin.getOnlineUser(server.addPlayer());
 
             final MineDown locale = plugin.getLocales()
                     .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
@@ -139,7 +138,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Locale Parsing")
         public void testLocaleParsing() {
             final Map<String, String> rawLocales = plugin.getLocales().getRawLocales();
-            BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
+            BukkitUser user = plugin.getOnlineUser(server.addPlayer());
             rawLocales.forEach((key, value) -> {
                 Optional<MineDown> locale = plugin.getLocales().getLocale(key);
                 Assertions.assertTrue(locale.isPresent());
@@ -178,7 +177,7 @@ public class BukkitPluginTests {
             final PlayerMock player = server.addPlayer();
             player.setOp(true);
 
-            final BukkitUser playerUser = BukkitUser.adapt(player, plugin);
+            final OnlineUser playerUser = (plugin).getOnlineUser(player);
             return commands.stream()
                     .flatMap(command -> Stream.of(Arguments.of(command, playerUser, command.getName())));
         }
@@ -256,7 +255,7 @@ public class BukkitPluginTests {
 
             @BeforeAll
             public static void setup() {
-                player = BukkitUser.adapt(server.addPlayer(), plugin);
+                player = plugin.getOnlineUser(server.addPlayer());
             }
 
             @DisplayName("Test Applying Cooldown")
@@ -465,7 +464,7 @@ public class BukkitPluginTests {
             @DisplayName("Ensure User Data")
             @BeforeAll
             public static void createHomeUser() {
-                homeOwner = BukkitUser.adapt(server.addPlayer("TestUser278"), plugin);
+                homeOwner = plugin.getOnlineUser(server.addPlayer("TestUser278"));
                 plugin.getDatabase().ensureUser(homeOwner);
                 Assertions.assertTrue(plugin.getDatabase().getUser(homeOwner.getUuid()).isPresent());
             }

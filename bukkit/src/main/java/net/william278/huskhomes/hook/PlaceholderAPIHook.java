@@ -19,12 +19,12 @@
 
 package net.william278.huskhomes.hook;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import org.bukkit.OfflinePlayer;
@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Locale;
 
 @PluginHook(
         name = "PlaceholderAPI",
@@ -61,6 +60,7 @@ public class PlaceholderAPIHook extends Hook {
     public static class HuskHomesExpansion extends PlaceholderExpansion {
 
         @NotNull
+        @Getter(AccessLevel.NONE)
         private final BukkitHuskHomes plugin;
         private final String version;
         private final String author = "William278";
@@ -74,7 +74,7 @@ public class PlaceholderAPIHook extends Hook {
             }
 
             // Return the requested data
-            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer(), plugin);
+            final OnlineUser player = plugin.getOnlineUser(offlinePlayer.getPlayer());
             return switch (params) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()

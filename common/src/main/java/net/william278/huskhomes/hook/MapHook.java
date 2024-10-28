@@ -58,12 +58,12 @@ public abstract class MapHook extends Hook {
         if (settings.isShowPublicHomes()) {
             plugin.getDatabase()
                     .getLocalPublicHomes(plugin)
-                    .forEach(this::updateHome);
+                    .forEach(this::addHome);
         }
         if (settings.isShowWarps()) {
             plugin.getDatabase()
                     .getLocalWarps(plugin)
-                    .forEach(this::updateWarp);
+                    .forEach(this::addWarp);
         }
     }
 
@@ -72,7 +72,7 @@ public abstract class MapHook extends Hook {
      *
      * @param home the home to update
      */
-    public abstract void updateHome(@NotNull Home home);
+    public abstract void addHome(@NotNull Home home);
 
     /**
      * Removes a home from the map.
@@ -100,7 +100,7 @@ public abstract class MapHook extends Hook {
      *
      * @param warp the warp to update
      */
-    public abstract void updateWarp(@NotNull Warp warp);
+    public abstract void addWarp(@NotNull Warp warp);
 
     /**
      * Removes a warp from the map.

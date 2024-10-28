@@ -24,10 +24,8 @@ HuskHomes provides a number of API events your plugin can listen to when certain
 &dagger; If the player uses `/delhome all` or `/delwarp all` to delete all their homes or all the warps, a single `DeleteAllHomesEvent` or `DeleteAllWarpsEvent` is fired instead.
 &ddagger; Called on the server the player *is teleported from*; not necessarily where the executor of the teleport is.
 
-## Events on Sponge & Fabric
+## Events on Fabric
 > **Note:** Check the [[API]] introduction for details on targeting platforms
-
-Sponge, which has a similar Event api as Bukkit, has equivalent events for all of the above, prefixed with `Sponge` (so HomeCreateEvent on Bukkit is SpongeHomeCreateEvent on Sponge).
 
 Fabric uses callbacks for handling events. HuskHomes provides callback equivalents for all the above events. For instance, to handle what to do when someone creates a home, you can register a callback to handle what to do as follows:
 <details>

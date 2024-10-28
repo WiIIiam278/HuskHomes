@@ -20,9 +20,6 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.BukkitHuskHomes;
-import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.teleport.TeleportRequest;
-import net.william278.huskhomes.user.BukkitUser;
 import net.william278.huskhomes.user.CommandUser;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class BukkitCommand extends org.bukkit.command.Command {
 
@@ -48,7 +44,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
+        this.command.onExecuted(sender instanceof Player p ? plugin.getOnlineUser(p) : plugin.getConsole(), args);
         return true;
     }
 
@@ -59,7 +55,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         if (!(this.command instanceof TabCompletable completable)) {
             return List.of();
         }
-        final CommandUser user = sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole();
+        final CommandUser user = sender instanceof Player p ? plugin.getOnlineUser(p) : plugin.getConsole();
         return completable.getSuggestions(user, args);
     }
 

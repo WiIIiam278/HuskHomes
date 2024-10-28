@@ -139,11 +139,11 @@ public class HomesManager {
             return v;
         });
         if (publicHomes.remove(home) && !home.isPublic()) {
-            plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+            plugin.removeMappedHome(home);
         }
         if (home.isPublic()) {
             publicHomes.add(home);
-            plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
+            plugin.addMappedHome(home);
         }
 
         plugin.getCommands().stream()
@@ -159,7 +159,7 @@ public class HomesManager {
         userHomes.values().forEach(homes -> homes.removeIf(home -> home.getUuid().equals(homeId)));
         publicHomes.removeIf(home -> {
             if (home.getUuid().equals(homeId)) {
-                plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+                plugin.removeMappedHome(home);
                 return true;
             }
             return false;
@@ -232,7 +232,7 @@ public class HomesManager {
                 throw new ValidationException(ValidationException.Type.TRANSACTION_FAILED);
             }
             plugin.performTransaction(online, TransactionResolver.Action.ADDITIONAL_HOME_SLOT);
-            plugin.editUserData(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
+            plugin.editSavedUser(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
         }
 
         final Home home = existingHome
@@ -276,7 +276,7 @@ public class HomesManager {
             return v;
         });
         publicHomes.removeIf(h -> h.getOwner().getUuid().equals(owner.getUuid()));
-        plugin.getMapHook().ifPresent(hook -> hook.clearHomes(owner));
+        plugin.removeAllMappedHomes(owner);
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
                 .map(command -> (ListCommand) command)
@@ -292,7 +292,7 @@ public class HomesManager {
         ));
         publicHomes.removeIf(h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName));
         if (plugin.getSettings().getCrossServer().isEnabled() && serverName.equals(plugin.getServerName())) {
-            plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
+            plugin.removeAllMappedHomes(worldName);
         }
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)

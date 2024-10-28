@@ -21,7 +21,6 @@ package net.william278.huskhomes.manager;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.ListCommand;
-import net.william278.huskhomes.hook.MapHook;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
@@ -49,7 +48,7 @@ public class WarpsManager {
     public void cacheWarp(@NotNull Warp warp, boolean propagate) {
         warps.remove(warp);
         warps.add(warp);
-        plugin.getMapHook().ifPresent(hook -> hook.updateWarp(warp));
+        plugin.addMappedWarp(warp);
 
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
@@ -63,7 +62,7 @@ public class WarpsManager {
     public void unCacheWarp(@NotNull UUID warpId, boolean propagate) {
         warps.removeIf(warp -> {
             if (warp.getUuid().equals(warpId)) {
-                plugin.getMapHook().ifPresent(hook -> hook.removeWarp(warp));
+                plugin.removeMappedWarp(warp);
                 return true;
             }
             return false;
@@ -157,7 +156,7 @@ public class WarpsManager {
     public int deleteAllWarps() {
         final int deleted = plugin.getDatabase().deleteAllWarps();
         warps.clear();
-        plugin.getMapHook().ifPresent(MapHook::clearWarps);
+        plugin.removeAllMappedWarps();
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
                 .map(command -> (ListCommand) command)
@@ -170,7 +169,7 @@ public class WarpsManager {
         final int deleted = plugin.getDatabase().deleteAllWarps(worldName, serverName);
         warps.removeIf(warp -> warp.getServer().equals(serverName) && warp.getWorld().getName().equals(worldName));
         if (plugin.getSettings().getCrossServer().isEnabled() && plugin.getServerName().equals(serverName)) {
-            plugin.getMapHook().ifPresent(hook -> hook.clearWarps(worldName));
+            plugin.removeAllMappedWarps(worldName);
         }
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)

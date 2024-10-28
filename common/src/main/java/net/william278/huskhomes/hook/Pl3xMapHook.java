@@ -74,7 +74,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     }
 
     @Override
-    public void updateHome(@NotNull Home home) {
+    public void addHome(@NotNull Home home) {
         publicHomes.remove(home);
         if (isValidPosition(home)) {
             publicHomes.add(home);
@@ -97,7 +97,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     }
 
     @Override
-    public void updateWarp(@NotNull Warp warp) {
+    public void addWarp(@NotNull Warp warp) {
         warps.remove(warp);
         if (isValidPosition(warp)) {
             warps.add(warp);
@@ -159,8 +159,8 @@ public class Pl3xMapHook extends MapHook implements EventListener {
 
         // Update home positions
         plugin.runAsync(() -> {
-            plugin.getDatabase().getLocalPublicHomes(plugin).forEach(this::updateHome);
-            plugin.getDatabase().getLocalWarps(plugin).forEach(this::updateWarp);
+            plugin.getDatabase().getLocalPublicHomes(plugin).forEach(this::addHome);
+            plugin.getDatabase().getLocalWarps(plugin).forEach(this::addWarp);
         });
     }
 

@@ -77,7 +77,7 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
-    public void updateHome(@NotNull Home home) {
+    public void addHome(@NotNull Home home) {
         if (!isValidPosition(home)) {
             return;
         }
@@ -123,7 +123,7 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
-    public void updateWarp(@NotNull Warp warp) {
+    public void addWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
         }

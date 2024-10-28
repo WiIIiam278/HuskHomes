@@ -173,8 +173,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
         switch (parseStringArg(args, 0).orElse("list")) {
             case "start" -> parseStringArg(args, 1).ifPresentOrElse(
                     name -> {
-                        final Optional<Importer> importer = plugin.getImporters().stream()
-                                .filter(available -> available.getImporterName().equalsIgnoreCase(name)).findFirst();
+                        final Optional<Importer> importer = plugin.getImporterByName(name);
                         if (importer.isEmpty()) {
                             plugin.getLocales().getLocale("error_invalid_importer")
                                     .ifPresent(executor::sendMessage);
@@ -322,7 +321,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
     private PaginatedList getImporterList() {
         return PaginatedList.of(plugin.getImporters().stream()
                         .map(importer -> plugin.getLocales().getRawLocale("importer_list_item",
-                                        Locales.escapeText(importer.getImporterName()),
+                                        Locales.escapeText(importer.getName()),
                                         Locales.escapeText(importer.getSupportedImportData().stream()
                                                 .map(Importer.ImportData::getName)
                                                 .collect(Collectors.joining(", "))))
@@ -350,7 +349,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
                 if (!args[0].equalsIgnoreCase("import") && !args[1].equalsIgnoreCase("start")) {
                     yield null;
                 }
-                yield plugin.getImporters().stream().map(Importer::getImporterName).toList();
+                yield plugin.getImporters().stream().map(Importer::getName).toList();
             }
             default -> null;
         };

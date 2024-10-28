@@ -53,8 +53,7 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.config.Spawn;
 import net.william278.huskhomes.database.Database;
 import net.william278.huskhomes.event.FabricEventDispatcher;
-import net.william278.huskhomes.hook.FabricImpactorEconomyHook;
-import net.william278.huskhomes.hook.FabricPlaceholderAPIHook;
+import net.william278.huskhomes.hook.FabricHookProvider;
 import net.william278.huskhomes.hook.Hook;
 import net.william278.huskhomes.listener.EventListener;
 import net.william278.huskhomes.listener.FabricEventListener;
@@ -62,20 +61,14 @@ import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.network.PluginMessageBroker;
-import net.william278.huskhomes.network.RedisBroker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
-import net.william278.huskhomes.random.NormalDistributionEngine;
 import net.william278.huskhomes.random.RandomTeleportEngine;
-import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.FabricUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.*;
 import net.william278.huskhomes.util.FabricSavePositionProvider;
 import net.william278.huskhomes.util.FabricTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
-import net.william278.huskhomes.util.TextValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -87,85 +80,98 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
-        FabricEventDispatcher, FabricSavePositionProvider, ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
+        FabricEventDispatcher, FabricSavePositionProvider, FabricUserProvider, FabricHookProvider,
+        ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
     private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
-    private final Set<SavedUser> savedUsers = Sets.newHashSet();
-    private final ConcurrentMap<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
-    private final Set<UUID> currentlyOnWarmup = Sets.newHashSet();
-    private final Set<UUID> currentlyInvulnerable = Sets.newHashSet();
-    private MinecraftServer minecraftServer;
 
+    private MinecraftServer minecraftServer;
+    private MinecraftServerAudiences audiences;
+
+    private final Set<SavedUser> savedUsers = Sets.newHashSet();
+    private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newConcurrentHashSet();
+    private final Map<UUID, OnlineUser> onlineUserMap = Maps.newHashMap();
+    private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
+    private final List<Command> commands = Lists.newArrayList();
+
+    @Setter
+    private Set<Hook> hooks = Sets.newHashSet();
+    @Setter
     private Settings settings;
+    @Setter
     private Locales locales;
     @Setter
     private Database database;
+    @Setter
     private Manager manager;
+    @Setter
     private EventListener eventListener;
+    @Setter
     private RandomTeleportEngine randomTeleportEngine;
+    @Setter
     private Spawn serverSpawn;
+    @Setter
     private UnsafeBlocks unsafeBlocks;
-    private List<Hook> hooks;
-    private List<Command> commands;
-    private Server server;
+    @Setter
     @Nullable
     private Broker broker;
-    private MinecraftServerAudiences audiences;
+    @Setter
+    @Nullable
+    private Server serverName;
 
     @Override
     public void onInitializeServer() {
-        onEnable();
-        registerCommands();
+        this.load();
+        this.loadCommands();
 
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            this.minecraftServer = server;
-            this.onEnable();
-        });
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.onDisable());
+        ServerLifecycleEvents.SERVER_STARTING.register(this::onEnable);
+        ServerLifecycleEvents.SERVER_STOPPING.register(this::onDisable);
     }
 
-    // Enable, create audiences
-    private void onEnable() {
+    private void onEnable(@NotNull MinecraftServer server) {
+        this.minecraftServer = server;
         this.audiences = MinecraftServerAudiences.of(minecraftServer);
         this.enable();
     }
 
-    private void onDisable() {
-        this.closeDatabase();
-        if (broker != null) {
-            broker.close();
-        }
+    private void onDisable(@NotNull MinecraftServer server) {
+        this.shutdown();
         if (audiences != null) {
             audiences.close();
             audiences = null;
         }
-        cancelTasks();
+    }
+
+    @Override
+    public void loadAPI() {
+        FabricHuskHomesAPI.register(this);
+    }
+
+    @Override
+    public void loadMetrics() {
+        // No metrics on Fabric
+    }
+
+    @Override
+    public void disablePlugin() {
+        onDisable(minecraftServer);
     }
 
     @Override
     @NotNull
     public ConsoleUser getConsole() {
         return new ConsoleUser(audiences.console());
-    }
-
-    @Override
-    @NotNull
-    public List<OnlineUser> getOnlineUsers() {
-        return minecraftServer.getPlayerManager().getPlayerList()
-                .stream().map(user -> (OnlineUser) FabricUser.adapt(user, this))
-                .toList();
     }
 
     @NotNull
@@ -193,12 +199,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     @NotNull
     public String getServerName() {
-        return server == null ? "server" : server.getName();
+        return serverName == null ? "server" : serverName.getName();
     }
 
     @Override
-    public void setServerName(@NotNull Server server) {
-        this.server = server;
+    public boolean isDependencyAvailable(@NotNull String name) {
+        return FabricLoader.getInstance().isModLoaded(name);
     }
 
     @Override
@@ -236,16 +242,40 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         return Version.fromString(modContainer.getMetadata().getVersion().getFriendlyString(), "-");
     }
 
+    @Override
     @NotNull
-    public List<Command> registerCommands() {
-        final List<Command> commands = FabricCommand.Type.getCommands(getPlugin());
-        CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) ->
-                commands.forEach(command -> new FabricCommand(command, this).register(dispatcher)));
-        return commands;
+    public String getServerType() {
+        return String.format("fabric %s/%s", FabricLoader.getInstance()
+                .getModContainer("fabricloader").map(l -> l.getMetadata().getVersion().getFriendlyString())
+                .orElse("unknown"), minecraftServer.getVersion());
     }
 
     @Override
-    public void initializePluginChannels() {
+    @NotNull
+    public Version getMinecraftVersion() {
+        return Version.fromString(minecraftServer.getVersion());
+    }
+
+    @Override
+    public void registerCommands(@NotNull List<Command> commands) {
+        CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) -> commands.forEach(
+                (command) -> new FabricCommand(command, this).register(dispatcher))
+        );
+    }
+
+    @Override
+    @NotNull
+    public EventListener createListener() {
+        return new FabricEventListener(this);
+    }
+
+    @Override
+    public Optional<Broker> getBroker() {
+        return Optional.ofNullable(broker);
+    }
+
+    @Override
+    public void setupPluginMessagingChannels() {
         PayloadTypeRegistry.playC2S().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
         PayloadTypeRegistry.playS2C().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(FabricPluginMessage.CHANNEL_ID, this);
@@ -255,10 +285,10 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @Override
     public void receive(@NotNull FabricPluginMessage payload, @NotNull ServerPlayNetworking.Context context) {
         if (broker instanceof PluginMessageBroker messenger
-                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
-                    FabricUser.adapt(context.player(), this),
+                    getOnlineUser(context.player()),
                     payload.getData()
             );
         }
@@ -279,20 +309,17 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         logEvent.log(message);
     }
 
-    @NotNull
-    public Map<String, Boolean> getPermissions() {
-        return permissions;
-    }
-
-    @NotNull
-    public MinecraftServer getMinecraftServer() {
-        return minecraftServer;
-    }
-
     @Override
     public void closeDatabase() {
         if (database != null) {
             database.close();
+        }
+    }
+
+    @Override
+    public void closeBroker() {
+        if (broker != null) {
+            broker.close();
         }
     }
 

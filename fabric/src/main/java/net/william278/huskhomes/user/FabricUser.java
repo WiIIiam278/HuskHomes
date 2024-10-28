@@ -33,6 +33,7 @@ import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportationException;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -48,6 +49,7 @@ public class FabricUser extends OnlineUser {
     }
 
     @NotNull
+    @ApiStatus.Internal
     public static FabricUser adapt(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
         return new FabricUser(player, plugin);
     }

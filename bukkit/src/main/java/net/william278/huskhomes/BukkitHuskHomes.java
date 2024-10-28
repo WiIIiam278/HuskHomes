@@ -19,14 +19,13 @@
 
 package net.william278.huskhomes;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.Audiences;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.Version;
@@ -66,7 +65,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
-import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.AsynchronousScheduler;
 import space.arim.morepaperlib.scheduling.AttachedScheduler;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
@@ -78,36 +76,46 @@ import java.util.*;
 import java.util.logging.Level;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask.Supplier, BukkitEventDispatcher,
-        PluginMessageListener, BukkitHookProvider, BukkitSavePositionProvider {
+        PluginMessageListener, BukkitHookProvider, BukkitSavePositionProvider, BukkitUserProvider {
 
-    // bStats Metric ID (Bukkit)
-    private static final int METRICS_ID = 8430;
-
-    private final Set<SavedUser> savedUsers = Sets.newHashSet();
-    private final Map<String, List<String>> globalPlayerList = Maps.newConcurrentMap();
-    private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
-    private final Set<UUID> currentlyInvulnerable = Sets.newConcurrentHashSet();
-    private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
-
-    private Settings settings;
-    private Locales locales;
-    private Database database;
-    private Manager manager;
-    private EventListener eventListener;
-    private RandomTeleportEngine randomTeleportEngine;
-    private Spawn serverSpawn;
-    private UnsafeBlocks unsafeBlocks;
-    private List<Command> commands;
-    private Set<Hook> hooks;
     private AudienceProvider audiences;
     private AsynchronousScheduler asyncScheduler;
     private RegionalScheduler regionalScheduler;
     private MorePaperLib morePaperLib;
-    private @Nullable Broker broker;
-    private @Getter(AccessLevel.NONE) Server server;
+
+    private final Set<SavedUser> savedUsers = Sets.newHashSet();
+    private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
+    private final Set<UUID> currentlyInvulnerable = Sets.newConcurrentHashSet();
+    private final Map<UUID, OnlineUser> onlineUserMap = Maps.newHashMap();
+    private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
+    private final List<Command> commands = Lists.newArrayList();
+
+    @Setter
+    private Set<Hook> hooks = Sets.newHashSet();
+    @Setter
+    private Settings settings;
+    @Setter
+    private Locales locales;
+    @Setter
+    private Database database;
+    @Setter
+    private Manager manager;
+    @Setter
+    private EventListener eventListener;
+    @Setter
+    private RandomTeleportEngine randomTeleportEngine;
+    @Setter
+    private Spawn serverSpawn;
+    @Setter
+    private UnsafeBlocks unsafeBlocks;
+    @Setter
+    @Nullable
+    private Broker broker;
+    @Setter
+    @Nullable
+    private Server serverName;
 
     // Super constructor for unit testing
     @TestOnly
@@ -145,7 +153,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void loadMetrics() {
         try {
-            final Metrics metrics = new Metrics(this, SPIGOT_RESOURCE_ID);
+            final Metrics metrics = new Metrics(this, BUKKIT_METRICS_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
                     () -> Boolean.toString(getSettings().getCrossServer().isEnabled())
             ));
@@ -163,7 +171,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                     () -> Boolean.toString(getSettings().getEconomy().isEnabled())));
             metrics.addCustomChart(new SimplePie("using_map",
                     () -> Boolean.toString(getSettings().getMapHook().isEnabled())));
-            getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type", hook::getName)));
         } catch (Throwable e) {
             log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
         }
@@ -201,14 +208,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @Override
-    @NotNull
-    public List<OnlineUser> getOnlineUsers() {
-        return getServer().getOnlinePlayers().stream()
-                .map(player -> (OnlineUser) BukkitUser.adapt(player, this))
-                .toList();
-    }
-
-    @Override
     public boolean isDependencyAvailable(@NotNull String name) {
         return Bukkit.getPluginManager().getPlugin(name) != null;
     }
@@ -223,11 +222,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         if (broker != null) {
             broker.close();
         }
-    }
-
-    @Override
-    public void setupPluginMessagingChannels() {
-
     }
 
     @Override
@@ -249,7 +243,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void registerCommands(@NotNull List<Command> commands) {
-        commands.stream().peek(commands::add)
+        commands.stream().peek(this.commands::add)
                 .map(c -> new BukkitCommand(c, getPlugin()))
                 .forEach(BukkitCommand::register);
     }
@@ -260,19 +254,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @Override
-    public void setServerSpawn(@NotNull Spawn spawn) {
-        this.serverSpawn = spawn;
-    }
-
-    @Override
     @NotNull
     public String getServerName() {
-        return server != null ? server.getName() : "server";
-    }
-
-    @Override
-    public void setServerName(@NotNull Server server) {
-        this.server = server;
+        return serverName != null ? serverName.getName() : "server";
     }
 
     @Override
@@ -288,7 +272,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @Override
-    public void initializePluginChannels() {
+    public void setupPluginMessagingChannels() {
         final String channelId = PluginMessageBroker.BUNGEE_CHANNEL_ID;
         getServer().getMessenger().registerIncomingPluginChannel(this, channelId, this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, channelId);
@@ -305,9 +289,9 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger &&
+            getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            pluginMessenger.onReceive(channel, getOnlineUser(player), message);
         }
     }
 
@@ -331,11 +315,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @NotNull
     public AttachedScheduler getUserSyncScheduler(@NotNull OnlineUser user) {
         return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
-    }
-
-    @NotNull
-    public CommandRegistration getCommandRegistrar() {
-        return morePaperLib.commandRegistration();
     }
 
     @Override

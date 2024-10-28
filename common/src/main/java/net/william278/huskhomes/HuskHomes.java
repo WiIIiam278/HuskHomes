@@ -30,27 +30,26 @@ import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.database.DatabaseProvider;
 import net.william278.huskhomes.event.EventDispatcher;
-import net.william278.huskhomes.hook.*;
+import net.william278.huskhomes.hook.HookProvider;
+import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.listener.ListenerProvider;
-import net.william278.huskhomes.manager.Manager;
 import net.william278.huskhomes.manager.ManagerProvider;
-import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.BrokerProvider;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportProvider;
 import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.UserProvider;
 import net.william278.huskhomes.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -58,7 +57,9 @@ import java.util.logging.Level;
  */
 public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionProvider, TransactionResolver,
         ConfigProvider, DatabaseProvider, BrokerProvider, MetaProvider, HookProvider, RandomTeleportProvider,
-        AudiencesProvider, UserListProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider {
+        AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider {
+
+    int BUKKIT_METRICS_ID = 8430;
 
     /**
      * Load plugin systems.
@@ -114,6 +115,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
         try {
             unloadHooks();
             closeDatabase();
+            closeBroker();
             cancelTasks();
             unloadAPI();
         } catch (Throwable e) {
@@ -161,57 +163,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     ConsoleUser getConsole();
 
     /**
-     * Get a list of all {@link OnlineUser online users} on this server
-     *
-     * @return A list of {@link OnlineUser}s
-     * @since 4.8
-     */
-    @NotNull
-    List<OnlineUser> getOnlineUsers();
-
-    /**
-     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {
-        return getOnlineUserExact(playerName)
-                .or(() -> getOnlineUsers().stream()
-                        .filter(user -> user.getName().toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst());
-    }
-
-    /**
-     * Finds a local {@link OnlineUser} by their name.
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    default Optional<OnlineUser> getOnlineUserExact(@NotNull String playerName) {
-        return getOnlineUsers().stream()
-                .filter(user -> user.getName().equalsIgnoreCase(playerName))
-                .findFirst();
-    }
-
-    @NotNull
-    Set<SavedUser> getSavedUsers();
-
-    default Optional<SavedUser> getSavedUser(@NotNull User user) {
-        return getSavedUsers().stream()
-                .filter(savedUser -> savedUser.getUser().equals(user))
-                .findFirst();
-    }
-
-    default void editUserData(@NotNull User user, @NotNull Consumer<SavedUser> editor) {
-        runAsync(() -> getSavedUser(user)
-                .ifPresent(result -> {
-                    editor.accept(result);
-                    getDatabase().updateUserData(result);
-                }));
-    }
-
-    /**
      * The canonical spawn {@link Position} of this server, if it has been set.
      *
      * @return the {@link Position} of the spawn, or an empty {@link Optional} if it has not been set
@@ -230,7 +181,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
      */
     void setWorldSpawn(@NotNull Position position);
 
-    void setServer(@NotNull Server server);
+    void setServerName(@NotNull Server serverName);
 
     /**
      * Returns a resource read from the plugin resources folder.
@@ -289,11 +240,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     default boolean isInvulnerable(@NotNull UUID uuid) {
         return this.getCurrentlyInvulnerable().contains(uuid);
     }
-
-    /**
-     * Initialize plugin messaging channels.
-     */
-    void initializePluginChannels();
 
     /**
      * Log a message to the console.

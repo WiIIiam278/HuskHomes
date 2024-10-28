@@ -59,7 +59,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
         ConfigProvider, DatabaseProvider, BrokerProvider, MetaProvider, HookProvider, RandomTeleportProvider,
         AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider {
 
-    int BUKKIT_METRICS_ID = 8430;
+    int BSTATS_BUKKIT_PLUGIN_ID = 8430;
 
     /**
      * Load plugin systems.

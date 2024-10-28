@@ -153,26 +153,27 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @Override
     public void loadMetrics() {
         try {
-            final Metrics metrics = new Metrics(this, BUKKIT_METRICS_ID);
+            final Metrics metrics = new Metrics(this, BSTATS_BUKKIT_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
-                    () -> Boolean.toString(getSettings().getCrossServer().isEnabled())
-            ));
-
-            if (getSettings().getCrossServer().isEnabled()) {
-                metrics.addCustomChart(new SimplePie("messenger_type",
-                        () -> getSettings().getCrossServer().getBrokerType().getDisplayName())
-                );
-            }
+                    () -> Boolean.toString(getSettings().getCrossServer().isEnabled()))
+            );
             metrics.addCustomChart(new SimplePie("language",
-                    () -> getSettings().getLanguage().toLowerCase()));
+                    () -> getSettings().getLanguage().toLowerCase())
+            );
             metrics.addCustomChart(new SimplePie("database_type",
-                    () -> getSettings().getDatabase().getType().getDisplayName()));
+                    () -> getSettings().getDatabase().getType().getDisplayName())
+            );
             metrics.addCustomChart(new SimplePie("using_economy",
-                    () -> Boolean.toString(getSettings().getEconomy().isEnabled())));
+                    () -> Boolean.toString(getSettings().getEconomy().isEnabled()))
+            );
             metrics.addCustomChart(new SimplePie("using_map",
-                    () -> Boolean.toString(getSettings().getMapHook().isEnabled())));
+                    () -> Boolean.toString(getSettings().getMapHook().isEnabled()))
+            );
+            getBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
+                    () -> settings.getCrossServer().getBrokerType().getDisplayName()
+            )));
         } catch (Throwable e) {
-            log(Level.WARNING, "Failed to register bStats metrics (" + e.getMessage() + ")");
+            log(Level.WARNING, "Failed to register plugin metrics", e);
         }
     }
 

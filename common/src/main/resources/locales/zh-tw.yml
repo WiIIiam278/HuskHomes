@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[錯誤:](#ff3300) [沒有找到玩家 %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[錯誤:](#ff3300) [您不能在這個世界隨機傳送.](#ff7e5e)'
   error_on_cooldown: '[錯誤:](#ff3300) [您必須等待 %1% 後才能再次執行此操作.](#ff7e5e)'
-  error_command_disabled: '[錯誤:](#ff3300) [該指令已禁用!](#ff7e5e)'
   error_console_command_only: '[錯誤:](#ff3300) [該指令只能從伺服器控制台運行.](#ff7e5e)'
   error_rtp_randomization_timeout: '[錯誤:](#ff3300) [找不到安全的隨機位置傳送您.](#ff7e5e)'
   error_invalid_world: '[錯誤:](#ff3300) [無法完成傳送, 找不到目標世界.](#ff7e5e)'

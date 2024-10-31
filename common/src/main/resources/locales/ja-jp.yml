@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[エラー:](#ff3300) [プレイヤー %1% が見つかりませんでした。](#ff7e5e)'
   error_rtp_restricted_world: '[エラー:](#ff3300) [このワールドでは、ランダムテレポートはできません。](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
-  error_command_disabled: '[エラー:](#ff3300) [そのコマンドは無効です！](#ff7e5e)'
   error_console_command_only: '[エラー:](#ff3300) [そのコマンドはサーバーコンソールからしか実行できません。](#ff7e5e)'
   error_rtp_randomization_timeout: '[エラー:](#ff3300) [テレポートする安全なランダムな座標を見つけるのに失敗しました。](#ff7e5e)'
   error_invalid_world: '[エラー:](#ff3300) [指定したワールドが見つからなかったため、テレポートの終了に失敗しました。](#ff7e5e)'

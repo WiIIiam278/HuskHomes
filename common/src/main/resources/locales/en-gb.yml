@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[Error:](#ff3300) [Could not find the player %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Error:](#ff3300) [You cannot randomly teleport in this world.](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
-  error_command_disabled: '[Error:](#ff3300) [That command is disabled!](#ff7e5e)'
   error_console_command_only: '[Error:](#ff3300) [That command can only be run from the server console.](#ff7e5e)'
   error_rtp_randomization_timeout: '[Error:](#ff3300) [Failed to find a safe random location to teleport you.](#ff7e5e)'
   error_invalid_world: '[Error:](#ff3300) [Failed to finish teleportation as the target world could not be found.](#ff7e5e)'

@@ -104,6 +104,7 @@ public interface CommandProvider {
         commands.add(new TpRequestCommand(getPlugin(), TeleportRequest.Type.TPA_HERE));
         commands.add(new TpRespondCommand(getPlugin(), true));
         commands.add(new TpRespondCommand(getPlugin(), false));
+        commands.add(new TpaAllCommand(getPlugin()));
         commands.add(new RtpCommand(getPlugin()));
         commands.add(new TpIgnoreCommand(getPlugin()));
         commands.add(new TpOfflineCommand(getPlugin()));

@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[Lỗi:](#ff3300) [Không thể tìm thấy người chơi %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Lỗi:](#ff3300) [Bạn không thể dịch chuyển ngẫu nhiên trong thế giới này.](#ff7e5e)'
   error_on_cooldown: '[Lỗi:](#ff3300) [Bạn phải đợi %1% trước khi làm lại điều đó.](#ff7e5e)'
-  error_command_disabled: '[Lỗi:](#ff3300) [Lệnh này đã bị vô hiệu hóa!](#ff7e5e)'
   error_console_command_only: '[Lỗi:](#ff3300) [Lệnh đó chỉ có thể được dùng từ bảng điều khiển máy chủ.](#ff7e5e)'
   error_rtp_randomization_timeout: '[Lỗi:](#ff3300) [Không tìm được vị trí ngẫu nhiên an toàn để dịch chuyển bạn.](#ff7e5e)'
   error_invalid_world: '[Lỗi:](#ff3300) [Không thể hoàn thành dịch chuyển vì không thể tìm thấy thế giới được chỉ định.](#ff7e5e)'

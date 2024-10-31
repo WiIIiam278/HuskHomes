@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[Errore:](#ff3300) [Non trovo il giocatore: %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Errore:](#ff3300) [Non puoi teletrasportarti randomicamente in questo mondo.](#ff7e5e)'
   error_on_cooldown: '[Error:](#ff3300) [You must wait %1% before doing that again.](#ff7e5e)'
-  error_command_disabled: '[Errore:](#ff3300) [Questo comando è disabilitato!](#ff7e5e)'
   error_console_command_only: '[Errore:](#ff3300) [Quel comando può essere eseguito solo da console.](#ff7e5e)'
   error_rtp_randomization_timeout: '[Errore:](#ff3300) [Non sono riuscito a trovare una posizione sicura, riprova.](#ff7e5e)'
   error_invalid_world: '[Errore:](#ff3300) [Teletrasporto fallito! Il mondo non è stato trovato.](#ff7e5e)'

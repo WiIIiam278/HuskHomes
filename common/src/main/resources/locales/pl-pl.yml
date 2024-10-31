@@ -158,7 +158,6 @@ locales:
   error_player_not_found: '[Błąd:](#ff3300) [Nie można znaleźć gracza %1%.](#ff7e5e)'
   error_rtp_restricted_world: '[Błąd:](#ff3300) [Nie możesz losowo teleportować się w tej krainie.](#ff7e5e)'
   error_on_cooldown: '[Błąd:](#ff3300) [Musisz poczekać %1% przed kolejnym próbą.](#ff7e5e)'
-  error_command_disabled: '[Błąd:](#ff3300) [Ta komenda jest wyłączona!](#ff7e5e)'
   error_console_command_only: '[Błąd:](#ff3300) [Tą komendę można wykonać tylko z konsoli serwera.](#ff7e5e)'
   error_rtp_randomization_timeout: '[Błąd:](#ff3300) [Nie udało się znaleźć bezpiecznej losowej lokalizacji do teleportacji.](#ff7e5e)'
   error_invalid_world: '[Błąd:](#ff3300) [Nie udało się zakończyć teleportacji, ponieważ docelowa kraina nie mogła zostać znaleziona.](#ff7e5e)'

@@ -40,29 +40,24 @@ public class MessageSerializationTests {
     private static final List<Message> TEST_MESSAGES = List.of(
             Message.builder()
                     .type(Message.MessageType.REQUEST_USER_LIST)
-                    .target("TestTarget")
+                    .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.empty())
                     .build(),
             Message.builder()
                     .type(Message.MessageType.TELEPORT_REQUEST)
-                    .target("TestTarget")
+                    .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build(),
             Message.builder()
                     .type(Message.MessageType.TELEPORT_TO_NETWORKED_USER)
-                    .target("TestTarget")
+                    .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.string("TestString"))
                     .build(),
             Message.builder()
-                    .type(Message.MessageType.UPDATE_USER_LIST)
-                    .target("TestTarget")
-                    .payload(Payload.withStringList(List.of("TestString1", "TestString2", "TestString3")))
-                    .build(),
-            Message.builder()
                     .type(Message.MessageType.TELEPORT_TO_POSITION)
-                    .target("TestTarget")
+                    .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
@@ -89,14 +84,6 @@ public class MessageSerializationTests {
         Assertions.assertEquals(
                 message.getPayload().getString().isPresent(),
                 deserialized.getPayload().getString().isPresent()
-        );
-        Assertions.assertEquals(
-                message.getPayload().getStringList().isPresent(),
-                deserialized.getPayload().getStringList().isPresent())
-        ;
-        Assertions.assertEquals(
-                message.getPayload().getStringList().isPresent(),
-                deserialized.getPayload().getStringList().isPresent()
         );
     }
 

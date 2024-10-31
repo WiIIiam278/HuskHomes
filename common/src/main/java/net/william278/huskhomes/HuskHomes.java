@@ -228,19 +228,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
         return this.getCurrentlyOnWarmup().contains(userUuid);
     }
 
-    @NotNull
-    Set<UUID> getCurrentlyInvulnerable();
-
-    /**
-     * Returns if the given user is currently invulnerable and if it should be removed.
-     *
-     * @param uuid the user to check.
-     * @return if the user is currently invulnerable.
-     */
-    default boolean isInvulnerable(@NotNull UUID uuid) {
-        return this.getCurrentlyInvulnerable().contains(uuid);
-    }
-
     /**
      * Log a message to the console.
      *

@@ -33,6 +33,7 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.teleport.TeleportationException;
 import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -213,13 +214,13 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      */
     public abstract boolean isVanished();
 
-    /**
-     * Handles player invulnerability after teleporting.
-     *
-     * @since 4.6.2
-     */
+    @ApiStatus.Internal
+    public abstract boolean hasInvulnerability();
+
+    @ApiStatus.Internal
     public abstract void handleInvulnerability();
 
+    @ApiStatus.Internal
     public abstract void removeInvulnerabilityIfPermitted();
 
     /**

@@ -41,6 +41,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class FabricUser extends OnlineUser {
 
+    private final String INVULNERABLE_TAG = plugin.getKey("invulnerable").asString();
     private final ServerPlayerEntity player;
 
     private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
@@ -164,26 +165,28 @@ public class FabricUser extends OnlineUser {
         return false;
     }
 
-    /**
-     * Handles player invulnerability after teleporting.
-     */
+    @Override
+    public boolean hasInvulnerability() {
+        return player.getCommandTags().contains(INVULNERABLE_TAG);
+    }
+
     @Override
     public void handleInvulnerability() {
-        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+        final long invulnerableTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        if (invulnerableTicks <= 0) {
             return;
         }
-        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
         player.setInvulnerable(true);
-
-        // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
+        player.getCommandTags().add(INVULNERABLE_TAG);
+        plugin.runSyncDelayed(this::removeInvulnerabilityIfPermitted, this, invulnerableTicks);
     }
 
     @Override
     public void removeInvulnerabilityIfPermitted() {
-        if (plugin.isInvulnerable(this.getUuid())) {
+        if (this.hasInvulnerability()) {
             player.setInvulnerable(false);
         }
+        player.removeCommandTag(INVULNERABLE_TAG);
     }
 
     @NotNull

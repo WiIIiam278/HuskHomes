@@ -25,10 +25,12 @@ import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
  */
 public class BukkitUser extends OnlineUser {
 
+    private final NamespacedKey INVULNERABLE_KEY = new NamespacedKey((BukkitHuskHomes) plugin, "invulnerable");
     private final Player player;
 
     private BukkitUser(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
@@ -146,21 +149,27 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public boolean hasInvulnerability() {
+        return player.getPersistentDataContainer().has(INVULNERABLE_KEY, PersistentDataType.INTEGER);
+    }
+
+    @Override
     public void handleInvulnerability() {
-        if (plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime() <= 0) {
+        final long invulnerableTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        if (invulnerableTicks <= 0) {
             return;
         }
-        long invulnerabilityTimeInTicks = 20L * plugin.getSettings().getGeneral().getTeleportInvulnerabilityTime();
+        player.getPersistentDataContainer().set(INVULNERABLE_KEY, PersistentDataType.INTEGER, 1);
         player.setInvulnerable(true);
-        // Remove the invulnerability
-        plugin.runSyncDelayed(() -> player.setInvulnerable(false), this, invulnerabilityTimeInTicks);
+        plugin.runSyncDelayed(this::removeInvulnerabilityIfPermitted, this, invulnerableTicks);
     }
 
     @Override
     public void removeInvulnerabilityIfPermitted() {
-        if (plugin.isInvulnerable(this.getUuid())) {
+        if (this.hasInvulnerability()) {
             player.setInvulnerable(false);
         }
+        player.getPersistentDataContainer().remove(INVULNERABLE_KEY);
     }
 
 }

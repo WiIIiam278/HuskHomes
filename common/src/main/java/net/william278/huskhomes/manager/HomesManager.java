@@ -184,10 +184,9 @@ public class HomesManager {
     private void propagateCacheUpdate(@NotNull UUID homeId) {
         plugin.getBroker().ifPresent(b -> plugin.getOnlineUsers().stream().findAny()
                 .ifPresent(user -> Message.builder()
-                        .type(Message.Type.UPDATE_HOME)
-                        .scope(Message.Scope.SERVER)
-                        .target(Message.TARGET_ALL)
-                        .payload(Payload.withString(homeId.toString()))
+                        .type(Message.MessageType.UPDATE_HOME)
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .payload(Payload.string(homeId.toString()))
                         .build().send(b, user)));
     }
 

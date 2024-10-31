@@ -22,7 +22,6 @@ package net.william278.huskhomes.network;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.TeleportRequest;
@@ -41,205 +40,79 @@ public class Payload {
 
     @Nullable
     @Expose
+    private String string;
+    @Nullable
+    @Expose
     private Position position;
-
     @Nullable
     @Expose
     private World world;
-
     @Nullable
     @Expose
-    @SerializedName("teleport_request")
     private TeleportRequest teleportRequest;
-
-    @Nullable
-    @Expose
-    @SerializedName("rtp_response")
-    private RTPResponse rtpResponse;
-
-    @Nullable
-    @Expose
-    @SerializedName("rtp_request")
-    private RTPRequest rtpRequest;
-
-    @Nullable
-    @Expose
-    private String string;
-
-    @Nullable
-    @Expose
-    @SerializedName("string_list")
-    private List<String> stringList;
-
     @Nullable
     @Expose
     @SerializedName("user_list")
     private List<User> userList;
 
-    /**
-     * Returns an empty cross-server message payload.
-     *
-     * @return an empty payload
-     */
     @NotNull
     public static Payload empty() {
         return new Payload();
     }
 
-    /**
-     * Returns a payload containing a {@link Position}.
-     *
-     * @param position the position to send
-     * @return a payload containing the position
-     */
     @NotNull
-    public static Payload withPosition(@NotNull Position position) {
-        final Payload payload = new Payload();
-        payload.position = position;
-        return payload;
-    }
-
-    /**
-     * Returns a payload containing a {@link World}.
-     *
-     * @param world the world to send
-     * @return a payload containing the world
-     */
-    @NotNull
-    public static Payload withWorld(@NotNull World world) {
-        final Payload payload = new Payload();
-        payload.world = world;
-        return payload;
-    }
-
-    /**
-     * Returns a payload containing a {@link TeleportRequest}.
-     *
-     * @param teleportRequest the teleport to send
-     * @return a payload containing the teleport request
-     */
-    @NotNull
-    public static Payload withTeleportRequest(@NotNull TeleportRequest teleportRequest) {
-        final Payload payload = new Payload();
-        payload.teleportRequest = teleportRequest;
-        return payload;
-    }
-
-    /**
-     * A string field.
-     */
-    @NotNull
-    public static Payload withString(@NotNull String target) {
+    public static Payload string(@Nullable String target) {
         final Payload payload = new Payload();
         payload.string = target;
         return payload;
     }
 
-    /**
-     * A string list field.
-     */
     @NotNull
-    public static Payload withStringList(@NotNull List<String> target) {
+    public static Payload position(@Nullable Position position) {
         final Payload payload = new Payload();
-        payload.stringList = target;
+        payload.position = position;
         return payload;
     }
 
-    /**
-     * A usr list field.
-     */
     @NotNull
-    public static Payload withUserList(@NotNull List<User> target) {
+    public static Payload world(@Nullable World world) {
+        final Payload payload = new Payload();
+        payload.world = world;
+        return payload;
+    }
+
+    @NotNull
+    public static Payload teleportRequest(@Nullable TeleportRequest teleportRequest) {
+        final Payload payload = new Payload();
+        payload.teleportRequest = teleportRequest;
+        return payload;
+    }
+
+    @NotNull
+    public static Payload userList(@Nullable List<User> target) {
         final Payload payload = new Payload();
         payload.userList = target;
         return payload;
     }
 
-    /**
-     * An RTP Response field.
-     */
-    @NotNull
-    public static Payload withRTPResponse(@NotNull RTPResponse rtpResponse) {
-        final Payload payload = new Payload();
-        payload.rtpResponse = rtpResponse;
-        return payload;
-    }
-
-    /**
-     * An RTP Request field.
-     */
-    @NotNull
-    public static Payload withRTPRequest(@NotNull RTPRequest rtpRequest) {
-        final Payload payload = new Payload();
-        payload.rtpRequest = rtpRequest;
-        return payload;
-    }
-
-    /**
-     * A position field.
-     */
-    public Optional<Position> getPosition() {
-        return Optional.ofNullable(position);
-    }
-
-    /**
-     * A world field.
-     */
-    public Optional<World> getWorld() {
-        return Optional.ofNullable(world);
-    }
-
-    /**
-     * A teleport request field.
-     */
-    public Optional<TeleportRequest> getTeleportRequest() {
-        return Optional.ofNullable(teleportRequest);
-    }
-
-    /**
-     * A string field.
-     */
     public Optional<String> getString() {
         return Optional.ofNullable(string);
     }
 
-    /**
-     * A string list field.
-     */
-    public Optional<List<String>> getStringList() {
-        return Optional.ofNullable(stringList);
+    public Optional<Position> getPosition() {
+        return Optional.ofNullable(position);
     }
 
-    /**
-     * A string list field.
-     */
+    public Optional<World> getWorld() {
+        return Optional.ofNullable(world);
+    }
+
+    public Optional<TeleportRequest> getTeleportRequest() {
+        return Optional.ofNullable(teleportRequest);
+    }
+
     public Optional<List<User>> getUserList() {
         return Optional.ofNullable(userList);
     }
 
-    /**
-     * An RTP response.
-     */
-    public Optional<RTPResponse> getRTPResponse() {
-        return Optional.ofNullable(rtpResponse);
-    }
-
-    /**
-     * An RTP request.
-     */
-    public Optional<RTPRequest> getRTPRequest() {
-        return Optional.ofNullable(rtpRequest);
-    }
-
-    @Value(staticConstructor = "of")
-    public static class RTPResponse {
-        @Expose String username;
-        @Expose Position position;
-    }
-
-    @Value(staticConstructor = "of")
-    public static class RTPRequest {
-        @Expose String username;
-        @Expose String worldName;
-    }
 }

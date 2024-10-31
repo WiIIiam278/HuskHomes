@@ -28,6 +28,7 @@ import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportEvent;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
+import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
@@ -106,8 +107,8 @@ public class Teleport implements Completable {
                 fireEvent((event) -> {
                     performTransactions();
                     plugin.getBroker().ifPresent(b -> Message.builder()
-                            .type(Message.Type.TELEPORT_TO_NETWORKED_POSITION)
-                            .target(username.name())
+                            .type(Message.MessageType.TELEPORT_TO_NETWORKED_POSITION)
+                            .target(username.name(), Message.TargetType.PLAYER)
                             .build().send(b, executor));
                 });
                 return;
@@ -132,7 +133,7 @@ public class Teleport implements Completable {
             }
 
             plugin.getDatabase().setCurrentTeleport(teleporter, this);
-            plugin.getBroker().ifPresent(b -> b.changeServer(teleporter, target.getServer()));
+            plugin.getBroker().ifPresent(b -> ((PluginMessageBroker) b).changeServer(teleporter, target.getServer()));
         });
     }
 
@@ -146,17 +147,17 @@ public class Teleport implements Completable {
             performTransactions();
             if (target instanceof Username username) {
                 Message.builder()
-                        .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
-                        .target(teleporter.name())
-                        .payload(Payload.withString(username.name()))
+                        .type(Message.MessageType.TELEPORT_TO_NETWORKED_USER)
+                        .target(teleporter.name(), Message.TargetType.PLAYER)
+                        .payload(Payload.string(username.name()))
                         .build().send(b, executor);
                 return;
             }
 
             Message.builder()
-                    .type(Message.Type.TELEPORT_TO_POSITION)
-                    .target(teleporter.name())
-                    .payload(Payload.withPosition((Position) target))
+                    .type(Message.MessageType.TELEPORT_TO_POSITION)
+                    .target(teleporter.name(), Message.TargetType.PLAYER)
+                    .payload(Payload.position((Position) target))
                     .build().send(b, executor);
         }));
     }

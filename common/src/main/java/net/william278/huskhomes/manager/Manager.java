@@ -56,9 +56,8 @@ public class Manager {
     protected void propagateCacheUpdate() {
         plugin.getBroker().ifPresent(b -> plugin.getOnlineUsers().stream()
                 .findAny().ifPresent(user -> Message.builder()
-                        .type(Message.Type.UPDATE_CACHES)
-                        .scope(Message.Scope.SERVER)
-                        .target(Message.TARGET_ALL)
+                        .type(Message.MessageType.UPDATE_CACHES)
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                         .build().send(b, user)));
     }
 }

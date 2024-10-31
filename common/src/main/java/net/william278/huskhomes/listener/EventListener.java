@@ -67,9 +67,11 @@ public abstract class EventListener {
                 this.handleInboundTeleport(onlineUser);
 
                 // Synchronize the global player list
-                plugin.runSyncDelayed(() -> this.synchronizeGlobalPlayerList(
-                                onlineUser, plugin.getOnlineUsers().stream().map(User::getName).toList()),
-                        onlineUser, 40L
+                plugin.runSyncDelayed(() -> this.updateUserList(
+                        onlineUser,
+                        plugin.getOnlineUsers().stream().map(u -> (User) u).toList()),
+                        onlineUser,
+                        40L
                 );
 
                 // Request updated player lists from other servers
@@ -99,34 +101,33 @@ public abstract class EventListener {
     /**
      * Handle when a {@link OnlineUser} leaves the server.
      *
-     * @param onlineUser the leaving {@link OnlineUser}
+     * @param online the leaving {@link OnlineUser}
      */
-    protected final void handlePlayerLeave(@NotNull OnlineUser onlineUser) {
-        onlineUser.removeInvulnerabilityIfPermitted();
+    protected final void handlePlayerLeave(@NotNull OnlineUser online) {
+        online.removeInvulnerabilityIfPermitted();
         plugin.runAsync(() -> {
             // Set offline position
-            plugin.getDatabase().setOfflinePosition(onlineUser, onlineUser.getPosition());
+            plugin.getDatabase().setOfflinePosition(online, online.getPosition());
 
             // Remove this user's home cache
-            plugin.getManager().homes().removeUserHomes(onlineUser);
+            plugin.getManager().homes().removeUserHomes(online);
 
             // Update global lists
             if (plugin.getSettings().getCrossServer().isEnabled()) {
-                final List<String> localPlayerList = plugin.getOnlineUsers().stream().map(User::getName)
-                        .filter(player -> !player.equals(onlineUser.getName())).toList();
+                final List<User> users = plugin.getOnlineUsers().stream().map(u -> (User) u).toList();
                 if (plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
-                    this.synchronizeGlobalPlayerList(onlineUser, localPlayerList);
+                    this.updateUserList(online, users);
                     return;
                 }
 
                 plugin.getOnlineUsers().stream()
-                        .filter(user -> !user.equals(onlineUser))
+                        .filter(user -> !user.equals(online))
                         .findAny()
-                        .ifPresent(player -> this.synchronizeGlobalPlayerList(player, localPlayerList));
+                        .ifPresent(player -> this.updateUserList(player, users));
             }
 
             // Remove from user map
-            plugin.getOnlineUserMap().remove(onlineUser.getUuid());
+            plugin.getOnlineUserMap().remove(online.getUuid());
         });
     }
 
@@ -192,24 +193,22 @@ public abstract class EventListener {
         plugin.getDatabase().setRespawnPosition(teleporter, bedPosition.orElse(null));
     }
 
-    // Synchronize the global player list TODO CHECK
-    private void synchronizeGlobalPlayerList(@NotNull OnlineUser user, @NotNull List<String> localPlayerList) {
+    // Synchronize the global player list
+    private void updateUserList(@NotNull OnlineUser user, @NotNull List<User> localPlayerList) {
         plugin.getBroker().ifPresent(broker -> {
             // Send this server's player list to all servers
             Message.builder()
-                    .type(Message.Type.PLAYER_LIST)
-                    .scope(Message.Scope.SERVER)
-                    .target(Message.TARGET_ALL)
-                    .payload(Payload.withStringList(localPlayerList))
+                    .type(Message.MessageType.UPDATE_USER_LIST)
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .payload(Payload.userList(localPlayerList))
                     .build().send(broker, user);
 
             // Clear cached global player lists and request updated lists from all servers
             if (plugin.getOnlineUsers().size() == 1) {
                 plugin.getGlobalUserList().clear();
                 Message.builder()
-                        .type(Message.Type.REQUEST_PLAYER_LIST)
-                        .scope(Message.Scope.SERVER)
-                        .target(Message.TARGET_ALL)
+                        .type(Message.MessageType.REQUEST_USER_LIST)
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                         .build().send(broker, user);
             }
         });

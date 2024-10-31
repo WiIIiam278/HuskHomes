@@ -21,123 +21,76 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a message sent by a {@link Broker} cross-server. See {@link #builder()} for
  * a builder to create a message.
  */
+@Getter
+@NoArgsConstructor
 public class Message {
 
-    /**
-     * Message target indicating all players.
-     */
     public static final String TARGET_ALL = "ALL";
 
+    @NotNull
     @Expose
-    private UUID id;
+    private MessageType type;
+    @NotNull
     @Expose
-    private Type type;
-    @Expose
-    private Scope scope;
+    @SerializedName("target_type")
+    private TargetType targetType;
+    @NotNull
     @Expose
     private String target;
+    @NotNull
     @Expose
     private Payload payload;
+    @NotNull
     @Expose
     private String sender;
+    @NotNull
     @Expose
     @SerializedName("source_server")
     private String sourceServer;
 
-    private Message(@NotNull Type type, @NotNull Scope scope, @NotNull String target, @NotNull Payload payload) {
+    private Message(@NotNull MessageType type, @NotNull String target, @NotNull TargetType targetType,
+                    @NotNull Payload payload) {
         this.type = type;
-        this.scope = scope;
         this.target = target;
+        this.targetType = targetType;
         this.payload = payload;
-        this.id = UUID.randomUUID();
     }
 
-    @SuppressWarnings("unused")
-    private Message() {
-    }
-
+    @NotNull
     public static Builder builder() {
         return new Builder();
     }
 
-    public void send(@NotNull Broker broker, @NotNull OnlineUser sender) {
-        this.sender = sender.getName();
+    public void send(@NotNull Broker broker, @Nullable OnlineUser sender) {
+        this.sender = sender != null ? sender.getName() : broker.getServer();
         this.sourceServer = broker.getServer();
         broker.send(this, sender);
     }
 
-    public void send(@NotNull Broker broker, @NotNull String sender) {
-        this.sender = sender;
-        this.sourceServer = broker.getServer();
-        broker.send(this);
-    }
-
-
-    @NotNull
-    public Type getType() {
-        return type;
-    }
-
-    @NotNull
-    public Scope getScope() {
-        return scope;
-    }
-
-    @NotNull
-    public String getTarget() {
-        return target;
-    }
-
-    @NotNull
-    public Payload getPayload() {
-        return payload;
-    }
-
-    @NotNull
-    public String getSender() {
-        return sender;
-    }
-
-    @NotNull
-    public String getSourceServer() {
-        return sourceServer;
-    }
-
-    @NotNull
-    public UUID getUuid() {
-        return id;
-    }
-
     /**
-     * Builder for {@link Message}s.
+     * Builder for {@link Message}s
      */
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
-        private Type type;
-        private Scope scope = Scope.PLAYER;
+        private MessageType type;
         private Payload payload = Payload.empty();
+        private TargetType targetType = TargetType.PLAYER;
         private String target;
 
-        private Builder() {
-        }
-
         @NotNull
-        public Builder type(@NotNull Type type) {
+        public Builder type(@NotNull MessageType type) {
             this.type = type;
-            return this;
-        }
-
-        @NotNull
-        public Builder scope(@NotNull Scope scope) {
-            this.scope = scope;
             return this;
         }
 
@@ -148,55 +101,34 @@ public class Message {
         }
 
         @NotNull
-        public Builder target(@NotNull String target) {
+        public Builder target(@NotNull String target, @NotNull TargetType targetType) {
             this.target = target;
+            this.targetType = targetType;
             return this;
         }
 
         @NotNull
         public Message build() {
-            if (type == null) {
-                throw new IllegalStateException("Message type must be set");
+            if (target == null || type == null) {
+                throw new IllegalStateException("Message not fully built. Type: " + type + ", Target: " + target);
             }
-            if (target == null) {
-                throw new IllegalStateException("Message target must be set");
-            }
-            return new Message(type, scope, target, payload);
+            return new Message(type, target, targetType, payload);
         }
 
     }
 
     /**
-     * Different types of cross-server messages.
+     * Type of targets messages can be sent to
+     *
+     * @since 4.8
      */
-    public enum Type {
-        TELEPORT_TO_POSITION,
-        TELEPORT_TO_NETWORKED_POSITION,
-        TELEPORT_REQUEST,
-        TELEPORT_TO_NETWORKED_USER,
-        TELEPORT_REQUEST_RESPONSE,
-        REQUEST_PLAYER_LIST,
-        PLAYER_LIST,
-        UPDATE_HOME,
-        UPDATE_WARP,
-        UPDATE_CACHES,
-        REQUEST_RTP_LOCATION,
-        RTP_LOCATION,
-    }
-
-    public enum Scope {
-        /**
-         * The target is a server name, or "all" to indicate all servers.
-         */
+    public enum TargetType {
         SERVER("Forward"),
-        /**
-         * The target is a player name, or "all" to indicate all players.
-         */
         PLAYER("ForwardToPlayer");
 
         private final String pluginMessageChannel;
 
-        Scope(@NotNull String pluginMessageChannel) {
+        TargetType(@NotNull String pluginMessageChannel) {
             this.pluginMessageChannel = pluginMessageChannel;
         }
 
@@ -204,6 +136,26 @@ public class Message {
         public String getPluginMessageChannel() {
             return pluginMessageChannel;
         }
+    }
+
+    /**
+     * Different types of cross-server messages
+     *
+     * @since 4.8
+     */
+    public enum MessageType {
+        TELEPORT_TO_POSITION,
+        TELEPORT_TO_NETWORKED_POSITION,
+        TELEPORT_REQUEST,
+        TELEPORT_TO_NETWORKED_USER,
+        TELEPORT_REQUEST_RESPONSE,
+        REQUEST_USER_LIST,
+        UPDATE_USER_LIST,
+        UPDATE_HOME,
+        UPDATE_WARP,
+        UPDATE_CACHES,
+        REQUEST_RTP_LOCATION,
+        RTP_LOCATION,
     }
 
 }

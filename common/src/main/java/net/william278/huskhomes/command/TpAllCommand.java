@@ -63,9 +63,9 @@ public class TpAllCommand extends InGameCommand {
         }
 
         plugin.getBroker().ifPresent(b -> Message.builder()
-                .target(Message.TARGET_ALL)
-                .type(Message.Type.TELEPORT_TO_POSITION)
-                .payload(Payload.withPosition(targetPosition))
+                .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
+                .type(Message.MessageType.TELEPORT_TO_POSITION)
+                .payload(Payload.position(targetPosition))
                 .build().send(b, executor));
 
         plugin.getLocales().getLocale("teleporting_all_players")

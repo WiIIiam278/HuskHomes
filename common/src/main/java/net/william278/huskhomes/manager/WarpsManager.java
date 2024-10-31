@@ -80,10 +80,9 @@ public class WarpsManager {
     private void propagateCacheUpdate(@NotNull UUID warpId) {
         plugin.getOnlineUsers().stream().findAny().ifPresent(user -> plugin.getBroker()
                 .ifPresent(b -> Message.builder()
-                        .type(Message.Type.UPDATE_WARP)
-                        .scope(Message.Scope.SERVER)
-                        .target(Message.TARGET_ALL)
-                        .payload(Payload.withString(warpId.toString()))
+                        .type(Message.MessageType.UPDATE_WARP)
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .payload(Payload.string(warpId.toString()))
                         .build().send(b, user)));
     }
 

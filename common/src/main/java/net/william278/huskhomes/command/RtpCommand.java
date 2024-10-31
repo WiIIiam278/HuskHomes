@@ -162,10 +162,9 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             }
 
             plugin.getBroker().ifPresent(b -> Message.builder()
-                    .type(Message.Type.REQUEST_RTP_LOCATION)
-                    .scope(Message.Scope.SERVER)
-                    .target(randomServer)
-                    .payload(Payload.withRTPRequest(Payload.RTPRequest.of(teleporter.getName(), world.getName())))
+                    .type(Message.MessageType.REQUEST_RTP_LOCATION)
+                    .target(randomServer, Message.TargetType.SERVER)
+                    .payload(Payload.string(world.getName()))
                     .build().send(b, teleporter));
             return;
         }

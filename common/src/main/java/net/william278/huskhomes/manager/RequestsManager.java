@@ -128,9 +128,9 @@ public class RequestsManager {
         }
 
         plugin.getBroker().ifPresent(b -> Message.builder()
-                .type(Message.Type.TELEPORT_REQUEST)
-                .payload(Payload.withTeleportRequest(request))
-                .target(Message.TARGET_ALL)
+                .type(Message.MessageType.TELEPORT_REQUEST)
+                .payload(Payload.teleportRequest(request))
+                .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
                 .build().send(b, requester));
     }
 
@@ -168,9 +168,9 @@ public class RequestsManager {
             plugin.fireEvent(
                     plugin.getSendTeleportRequestEvent(requester, request),
                     (event -> plugin.getBroker().ifPresent(b -> Message.builder()
-                            .type(Message.Type.TELEPORT_REQUEST)
-                            .payload(Payload.withTeleportRequest(request))
-                            .target(targetUser)
+                            .type(Message.MessageType.TELEPORT_REQUEST)
+                            .payload(Payload.teleportRequest(request))
+                            .target(targetUser, Message.TargetType.PLAYER)
                             .build().send(b, requester)))
             );
             return;
@@ -303,11 +303,10 @@ public class RequestsManager {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().getCrossServer().isEnabled()) {
                 plugin.getBroker().ifPresent(b -> Message.builder()
-                        .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
-                        .payload(Payload.withTeleportRequest(request))
-                        .target(request.getRequesterName())
-                        .build()
-                        .send(b, recipient));
+                        .type(Message.MessageType.TELEPORT_REQUEST_RESPONSE)
+                        .payload(Payload.teleportRequest(request))
+                        .target(request.getRequesterName(), Message.TargetType.PLAYER)
+                        .build().send(b, recipient));
             } else {
                 plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
                         .ifPresent(recipient::sendMessage);

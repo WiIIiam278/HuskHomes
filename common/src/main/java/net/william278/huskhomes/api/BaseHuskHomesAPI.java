@@ -795,11 +795,9 @@ public class BaseHuskHomesAPI {
             }
 
             plugin.getBroker().ifPresent(b -> Message.builder()
-                    .scope(Message.Scope.SERVER)
-                    .target(randomServer)
-                    .type(Message.Type.REQUEST_RTP_LOCATION)
-                    .payload(Payload.withStringList(
-                            List.of(user.getPosition().getWorld().getName(), user.getName())))
+                    .target(randomServer, Message.TargetType.SERVER)
+                    .type(Message.MessageType.REQUEST_RTP_LOCATION)
+                    .payload(Payload.world(user.getPosition().getWorld()))
                     .build().send(b, user));
             return;
         }

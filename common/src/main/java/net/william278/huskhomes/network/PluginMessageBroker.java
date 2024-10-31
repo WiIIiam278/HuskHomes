@@ -19,12 +19,14 @@
 
 package net.william278.huskhomes.network;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -75,9 +77,11 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
+    protected void send(@NotNull Message message, @Nullable OnlineUser sender) {
+        Preconditions.checkNotNull(sender, "Sender cannot be null with a Plugin Message broker");
+
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
-        messageWriter.writeUTF(message.getScope().getPluginMessageChannel());
+        messageWriter.writeUTF(message.getTargetType().getPluginMessageChannel());
         messageWriter.writeUTF(message.getTarget());
         messageWriter.writeUTF(getSubChannelId());
 
@@ -96,17 +100,6 @@ public class PluginMessageBroker extends Broker {
         sender.sendPluginMessage(messageWriter.toByteArray());
     }
 
-    /**
-     * Send a message to the broker. (For Redis Only)
-     *
-     * @param message the message to send
-     */
-    @Override
-    protected void send(@NotNull Message message) {
-        throw new IllegalStateException("Tried to send a plugin message without a sender!");
-    }
-
-    @Override
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         user.dismount().thenRun(() -> {
             final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();

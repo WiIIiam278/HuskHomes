@@ -39,31 +39,31 @@ public class MessageSerializationTests {
 
     private static final List<Message> TEST_MESSAGES = List.of(
             Message.builder()
-                    .type(Message.Type.REQUEST_PLAYER_LIST)
+                    .type(Message.MessageType.REQUEST_USER_LIST)
                     .target("TestTarget")
                     .payload(Payload.empty())
                     .build(),
             Message.builder()
-                    .type(Message.Type.TELEPORT_REQUEST)
+                    .type(Message.MessageType.TELEPORT_REQUEST)
                     .target("TestTarget")
-                    .payload(Payload.withPosition(
+                    .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build(),
             Message.builder()
-                    .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
+                    .type(Message.MessageType.TELEPORT_TO_NETWORKED_USER)
                     .target("TestTarget")
-                    .payload(Payload.withString("TestString"))
+                    .payload(Payload.string("TestString"))
                     .build(),
             Message.builder()
-                    .type(Message.Type.PLAYER_LIST)
+                    .type(Message.MessageType.UPDATE_USER_LIST)
                     .target("TestTarget")
                     .payload(Payload.withStringList(List.of("TestString1", "TestString2", "TestString3")))
                     .build(),
             Message.builder()
-                    .type(Message.Type.TELEPORT_TO_POSITION)
+                    .type(Message.MessageType.TELEPORT_TO_POSITION)
                     .target("TestTarget")
-                    .payload(Payload.withPosition(
+                    .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build()
@@ -80,7 +80,7 @@ public class MessageSerializationTests {
         final Message deserialized = gson.fromJson(serializedMessage, Message.class);
         Assertions.assertNotNull(deserialized);
         Assertions.assertEquals(message.getType(), deserialized.getType());
-        Assertions.assertEquals(message.getScope(), deserialized.getScope());
+        Assertions.assertEquals(message.getTargetType(), deserialized.getTargetType());
         Assertions.assertEquals(message.getTarget(), deserialized.getTarget());
         Assertions.assertEquals(
                 message.getPayload().getPosition().isPresent(),

@@ -68,8 +68,10 @@ public interface UserProvider {
         getGlobalUserList().put(server, players);
     }
 
-    default boolean isUserOnline(@NotNull User user) {
-        return getOnlineUserMap().containsKey(user.getUuid());
+    default boolean isUserOnlineGlobally(@NotNull String playerName) {
+        return getUserList().stream()
+                .map(u -> u.getName().toLowerCase(Locale.ENGLISH))
+                .anyMatch(u -> u.equals(playerName.toLowerCase(Locale.ENGLISH)));
     }
 
     default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {

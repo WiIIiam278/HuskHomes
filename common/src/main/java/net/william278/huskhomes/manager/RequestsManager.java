@@ -146,7 +146,10 @@ public class RequestsManager {
         final long expiry = Instant.now().getEpochSecond()
                             + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
-        final Optional<OnlineUser> localTarget = plugin.getOnlineUser(targetUser);
+
+        // Lookup the user locally first. If there's a username match globally, perform an exact local check
+        final Optional<OnlineUser> localTarget = plugin.isUserOnlineGlobally(targetUser)
+                ? plugin.getOnlineUserExact(targetUser) : plugin.getOnlineUser(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");

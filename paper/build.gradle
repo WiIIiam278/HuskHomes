@@ -8,7 +8,7 @@ dependencies {
 
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
     compileOnly 'org.bstats:bstats-bukkit:3.1.0'
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'net.william278:minedown:1.8.2'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'

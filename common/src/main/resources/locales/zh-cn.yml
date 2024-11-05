@@ -64,7 +64,7 @@ locales:
   public_home_list_page_title: '[☀ 公共家:](#00fb9a) [(%1%-%2% 共](#00fb9a)[%3%](#00fb9a bold)[个)](#00fb9a)\n'
   warp_list_page_title: '[地标:](#00fb9a) [(%1%-%2% 共](#00fb9a)[%3%](#00fb9a bold)[个)](#00fb9a)\n'
   command_list_title: '[HuskHomes](#00fb9a bold) [| 命令列表](#00fb9a)\n'
-  home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7状态: %3%\n&7ℹ %4% run_command=/huskhomes:edithome %2%)'
+  home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n%3%\n&7ℹ %4% run_command=/huskhomes:edithome %2%)'
   public_home_list_item: '[[%1%]](show_text=&#00fb9a&%1%\n&7☻ %3%\n&7ℹ %4% run_command=/huskhomes:phome %2%)'
   home_is_public: '&#6fff00&☀ 公共'
   home_is_private: '&#ff9f0f&∅ 私有'

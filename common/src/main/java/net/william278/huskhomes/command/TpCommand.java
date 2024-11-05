@@ -98,7 +98,7 @@ public class TpCommand extends Command implements TabCompletable {
                 : target instanceof OnlineUser online ? online.getName() : null;
         if (executor instanceof OnlineUser online) {
             if (online.equals(teleporter)) {
-                if (teleporter.getUsername().equalsIgnoreCase(targetName)) {
+                if (teleporter.getName().equalsIgnoreCase(targetName)) {
                     plugin.getLocales().getLocale("error_cannot_teleport_self")
                             .ifPresent(executor::sendMessage);
                     return;
@@ -118,14 +118,14 @@ public class TpCommand extends Command implements TabCompletable {
 
         // Display the teleport completion message
         if (target instanceof Position position) {
-            plugin.getLocales().getLocale("teleporting_other_complete_position", teleporter.getUsername(),
+            plugin.getLocales().getLocale("teleporting_other_complete_position", teleporter.getName(),
                             Integer.toString((int) position.getX()), Integer.toString((int) position.getY()),
                             Integer.toString((int) position.getZ()))
                     .ifPresent(executor::sendMessage);
             return;
         }
         plugin.getLocales().getLocale("teleporting_other_complete",
-                        teleporter.getUsername(), Objects.requireNonNull(targetName))
+                        teleporter.getName(), Objects.requireNonNull(targetName))
                 .ifPresent(executor::sendMessage);
     }
 

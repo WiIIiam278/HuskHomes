@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.teleport;
 
+import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -56,11 +57,12 @@ public record Username(@NotNull String name) implements Teleportable, Target {
     /**
      * Get the username {@link String} being represented by this object.
      *
-     * @return the username
+     * @return the name
+     * @since 4.8
      */
-    @NotNull
     @Override
-    public String getUsername() {
+    @NotNull
+    public String getName() {
         return name;
     }
 

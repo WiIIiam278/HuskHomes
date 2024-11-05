@@ -19,9 +19,8 @@
 
 package net.william278.huskhomes.user;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.google.gson.annotations.Expose;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -30,14 +29,17 @@ import java.util.UUID;
  * Represents a user who has data saved in the database.
  */
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements Comparable<User> {
 
+    @Expose
     @NotNull
-    private final UUID uuid;
-
+    private UUID uuid;
+    @Expose
+    @Setter
     @NotNull
-    private final String name;
+    private String name;
 
     @NotNull
     public static User of(@NotNull UUID uuid, @NotNull String username) {

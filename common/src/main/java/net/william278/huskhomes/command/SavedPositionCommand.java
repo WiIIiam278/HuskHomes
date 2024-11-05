@@ -194,7 +194,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 .teleporter(teleporter)
                 .actions(actions)
                 .target(position)
-                .buildAndComplete(executor.equals(teleporter), teleporter.getUsername());
+                .buildAndComplete(executor.equals(teleporter), teleporter.getName());
     }
 
     protected boolean isInvalidOperation(String operation, CommandUser executor) {

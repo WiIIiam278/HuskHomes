@@ -20,6 +20,7 @@ HuskHomes provides a number of API events your plugin can listen to when certain
 | `TeleportWarmupCancelledEvent` | 4.6.3 |      ❌      | Called when a player cancels the teleport warmup                         |
 | `TeleportEvent`                |  3.0  |      ✅      | Called when a player is teleported&ddagger;                              |
 | `TeleportBackEvent`            |  4.1  |      ✅      | Called when a player teleports to their last position (`/back`)&ddagger; |
+| `RandomTeleportEvent`          |  4.8  |      ✅      | Called when a player is randomly teleported                              |
 
 &dagger; If the player uses `/delhome all` or `/delwarp all` to delete all their homes or all the warps, a single `DeleteAllHomesEvent` or `DeleteAllWarpsEvent` is fired instead.
 &ddagger; Called on the server the player *is teleported from*; not necessarily where the executor of the teleport is.

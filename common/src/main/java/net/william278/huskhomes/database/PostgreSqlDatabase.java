@@ -163,7 +163,7 @@ public class PostgreSqlDatabase extends Database {
     public int getSchemaVersion() {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT schema_version
+                    SELECT "schema_version"
                     FROM "%meta_data%"
                     LIMIT 1;"""))) {
                 final ResultSet resultSet = statement.executeQuery();
@@ -183,7 +183,7 @@ public class PostgreSqlDatabase extends Database {
         if (getSchemaVersion() == -1) {
             try (Connection connection = getConnection()) {
                 try (PreparedStatement insertStatement = connection.prepareStatement(format("""
-                        INSERT INTO "%meta_data%" (`schema_version`)
+                        INSERT INTO "%meta_data%" ("schema_version")
                         VALUES (?)"""))) {
                     insertStatement.setInt(1, version);
                     insertStatement.executeUpdate();
@@ -197,7 +197,7 @@ public class PostgreSqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE "%meta_data%"
-                    SET `schema_version` = ?;"""))) {
+                    SET "schema_version" = ?;"""))) {
                 statement.setInt(1, version);
                 statement.executeUpdate();
             }

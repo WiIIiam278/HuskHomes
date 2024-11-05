@@ -200,7 +200,8 @@ public class HomesManager {
 
     @NotNull
     public Home createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
-                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes)
+                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes,
+                           boolean ignoreHomeSlots)
             throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
@@ -220,7 +221,7 @@ public class HomesManager {
         final SavedUser savedOwner = plugin.getSavedUser(owner)
                 .or(() -> plugin.getDatabase().getUser(owner.getUuid()))
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
-        if (plugin.getSettings().getEconomy().isEnabled()
+        if (!ignoreHomeSlots && plugin.getSettings().getEconomy().isEnabled()
             && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
@@ -250,7 +251,7 @@ public class HomesManager {
             throws ValidationException {
         this.createHome(
                 owner, name, position, plugin.getSettings().getGeneral().getNames().isOverwriteExisting(),
-                true, false
+                true, false, false
         );
     }
 

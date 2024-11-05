@@ -69,6 +69,7 @@ public class EssentialsXImporter extends Importer {
                         this.normalizeName(homeName),
                         BukkitHuskHomes.Adapter.adapt(essentialsUser.getHome(homeName), plugin.getServerName()),
                         true,
+                        false,
                         true,
                         true
                 );

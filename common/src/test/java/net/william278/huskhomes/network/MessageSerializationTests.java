@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.network;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.william278.huskhomes.position.Position;
@@ -89,7 +90,9 @@ public class MessageSerializationTests {
 
     @NotNull
     private static Gson createGson() {
-        return new GsonBuilder().create();
+        return Converters.registerOffsetDateTime(new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+        ).create();
     }
 
     private static Stream<Arguments> provideMessages() {

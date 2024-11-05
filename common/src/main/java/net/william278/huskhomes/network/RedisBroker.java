@@ -196,7 +196,7 @@ public class RedisBroker extends PluginMessageBroker {
         public void onMessage(@NotNull String channel, @NotNull String encoded) {
             final Message message;
             try {
-                message = broker.plugin.getGson().fromJson(encoded, Message.class);
+                message = broker.plugin.getMessageFromJson(encoded);
             } catch (Exception e) {
                 broker.plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
                 return;

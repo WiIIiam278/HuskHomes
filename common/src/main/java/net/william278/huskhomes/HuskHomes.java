@@ -19,8 +19,6 @@
 
 package net.william278.huskhomes;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.huskhomes.api.BaseHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -57,7 +55,8 @@ import java.util.logging.Level;
  */
 public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionProvider, TransactionResolver,
         ConfigProvider, DatabaseProvider, BrokerProvider, MetaProvider, HookProvider, RandomTeleportProvider,
-        AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider {
+        AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider,
+        GsonProvider {
 
     int BSTATS_BUKKIT_PLUGIN_ID = 8430;
 
@@ -250,11 +249,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
         }
         @Subst("foo") final String joined = String.join("/", data);
         return Key.key("huskhomes", joined);
-    }
-
-    @NotNull
-    default Gson getGson() {
-        return new GsonBuilder().create();
     }
 
 }

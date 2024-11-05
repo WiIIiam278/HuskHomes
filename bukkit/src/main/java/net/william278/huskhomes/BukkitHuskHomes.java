@@ -364,7 +364,11 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
         @NotNull
         public static World adapt(@NotNull org.bukkit.World world) {
-            return World.from(world.getName(), world.getUID(), World.Environment.match(world.getEnvironment().name()));
+            return World.from(
+                    world.getName(),
+                    world.getUID(),
+                    World.Environment.match(world.getEnvironment().name())
+            );
         }
 
     }

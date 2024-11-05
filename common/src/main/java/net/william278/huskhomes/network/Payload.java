@@ -21,6 +21,7 @@ package net.william278.huskhomes.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -35,7 +36,7 @@ import java.util.Optional;
 /**
  * Represents a payload sent in a cross-server {@link Message}.
  */
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Payload {
 
     @Nullable

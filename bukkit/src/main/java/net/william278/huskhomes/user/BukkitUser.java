@@ -45,11 +45,11 @@ import java.util.stream.Collectors;
 public class BukkitUser extends OnlineUser {
 
     private final NamespacedKey INVULNERABLE_KEY = new NamespacedKey((BukkitHuskHomes) plugin, "invulnerable");
-    private final Player player;
+    private final Player bukkitPlayer;
 
-    private BukkitUser(@NotNull Player player, @NotNull BukkitHuskHomes plugin) {
-        super(player.getUniqueId(), player.getName(), plugin);
-        this.player = player;
+    private BukkitUser(@NotNull Player bukkitPlayer, @NotNull BukkitHuskHomes plugin) {
+        super(bukkitPlayer.getUniqueId(), bukkitPlayer.getName(), plugin);
+        this.bukkitPlayer = bukkitPlayer;
     }
 
     @NotNull
@@ -60,35 +60,35 @@ public class BukkitUser extends OnlineUser {
 
     @NotNull
     public Player getPlayer() {
-        return player;
+        return bukkitPlayer;
     }
 
     @Override
     public Position getPosition() {
-        return BukkitHuskHomes.Adapter.adapt(player.getLocation(), plugin.getServerName());
+        return BukkitHuskHomes.Adapter.adapt(bukkitPlayer.getLocation(), plugin.getServerName());
     }
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
-        return Optional.ofNullable(player.getBedSpawnLocation())
+        return Optional.ofNullable(bukkitPlayer.getBedSpawnLocation())
                 .map(loc -> BukkitHuskHomes.Adapter.adapt(loc, plugin.getServerName()));
     }
 
     @Override
     public double getHealth() {
-        return player.getHealth();
+        return bukkitPlayer.getHealth();
     }
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        return player.hasPermission(node);
+        return bukkitPlayer.hasPermission(node);
     }
 
 
     @Override
     @NotNull
     public Map<String, Boolean> getPermissions() {
-        return player.getEffectivePermissions().stream()
+        return bukkitPlayer.getEffectivePermissions().stream()
                 .collect(Collectors.toMap(
                         PermissionAttachmentInfo::getPermission,
                         PermissionAttachmentInfo::getValue, (a, b) -> b
@@ -99,8 +99,8 @@ public class BukkitUser extends OnlineUser {
     public CompletableFuture<Void> dismount() {
         final CompletableFuture<Void> future = new CompletableFuture<>();
         plugin.runSync(() -> {
-            player.leaveVehicle();
-            player.eject();
+            bukkitPlayer.leaveVehicle();
+            bukkitPlayer.eject();
             future.complete(null);
         }, this);
         return future;
@@ -119,29 +119,29 @@ public class BukkitUser extends OnlineUser {
 
         // Run on the appropriate thread scheduler for this platform
         plugin.runSync(() -> {
-            player.leaveVehicle();
-            player.eject();
+            bukkitPlayer.leaveVehicle();
+            bukkitPlayer.eject();
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 return;
             }
-            player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, this);
     }
 
     @Override
     public boolean isMoving() {
-        return player.getVelocity().length() >= 0.1;
+        return bukkitPlayer.getVelocity().length() >= 0.1;
     }
 
     @Override
     public void sendPluginMessage(byte[] message) {
-        player.sendPluginMessage((BukkitHuskHomes) plugin, PluginMessageBroker.BUNGEE_CHANNEL_ID, message);
+        bukkitPlayer.sendPluginMessage((BukkitHuskHomes) plugin, PluginMessageBroker.BUNGEE_CHANNEL_ID, message);
     }
 
     @Override
     public boolean isVanished() {
-        return player.getMetadata("vanished")
+        return bukkitPlayer.getMetadata("vanished")
                 .stream()
                 .map(MetadataValue::asBoolean)
                 .findFirst()
@@ -150,7 +150,7 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public boolean hasInvulnerability() {
-        return player.getPersistentDataContainer().has(INVULNERABLE_KEY, PersistentDataType.INTEGER);
+        return bukkitPlayer.getPersistentDataContainer().has(INVULNERABLE_KEY, PersistentDataType.INTEGER);
     }
 
     @Override
@@ -159,17 +159,17 @@ public class BukkitUser extends OnlineUser {
         if (invulnerableTicks <= 0) {
             return;
         }
-        player.getPersistentDataContainer().set(INVULNERABLE_KEY, PersistentDataType.INTEGER, 1);
-        player.setInvulnerable(true);
+        bukkitPlayer.getPersistentDataContainer().set(INVULNERABLE_KEY, PersistentDataType.INTEGER, 1);
+        bukkitPlayer.setInvulnerable(true);
         plugin.runSyncDelayed(this::removeInvulnerabilityIfPermitted, this, invulnerableTicks);
     }
 
     @Override
     public void removeInvulnerabilityIfPermitted() {
         if (this.hasInvulnerability()) {
-            player.setInvulnerable(false);
+            bukkitPlayer.setInvulnerable(false);
         }
-        player.getPersistentDataContainer().remove(INVULNERABLE_KEY);
+        bukkitPlayer.getPersistentDataContainer().remove(INVULNERABLE_KEY);
     }
 
 }

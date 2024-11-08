@@ -54,15 +54,16 @@ public class FabricEventListener extends EventListener {
         });
 
         // Respawn event
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> handlePlayerRespawn(
-                getPlugin().getOnlineUser(newPlayer)
-        ));
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            getPlugin().getOnlineUserMap().remove(oldPlayer.getUuid());
+            handlePlayerRespawn(getPlugin().getOnlineUser(newPlayer));
+        });
     }
-    
+
     @NotNull
     @Override
     protected FabricHuskHomes getPlugin() {
         return (FabricHuskHomes) super.getPlugin();
     }
-    
+
 }

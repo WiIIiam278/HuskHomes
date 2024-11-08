@@ -256,10 +256,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    public void registerCommands(@NotNull List<Command> commands) {
-        CommandRegistrationCallback.EVENT.register((dispatcher, ignored, ignored2) -> commands.forEach(
-                (command) -> new FabricCommand(command, this).register(dispatcher))
-        );
+    public void registerCommands(@NotNull List<Command> toRegister) {
+        CommandRegistrationCallback.EVENT.register((dispatcher, i1, i2) -> toRegister.stream().peek(commands::add)
+                .forEach((command) -> new FabricCommand(command, this).register(dispatcher)));
     }
 
     @Override

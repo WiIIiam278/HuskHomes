@@ -105,8 +105,10 @@ public abstract class EventListener {
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser online) {
         online.removeInvulnerabilityIfPermitted();
+        plugin.getOnlineUserMap().remove(online.getUuid());
+
         plugin.runAsync(() -> {
-            // Set offline position
+           // Set offline position
             plugin.getDatabase().setOfflinePosition(online, online.getPosition());
 
             // Remove this user's home cache
@@ -125,9 +127,6 @@ public abstract class EventListener {
                         .findAny()
                         .ifPresent(player -> this.updateUserList(player, users));
             }
-
-            // Remove from user map
-            plugin.getOnlineUserMap().remove(online.getUuid());
         });
     }
 

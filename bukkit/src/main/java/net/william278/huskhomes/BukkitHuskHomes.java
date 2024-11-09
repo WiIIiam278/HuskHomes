@@ -208,11 +208,6 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     }
 
     @Override
-    public boolean isDependencyAvailable(@NotNull String name) {
-        return Bukkit.getPluginManager().getPlugin(name) != null;
-    }
-
-    @Override
     public Optional<Broker> getBroker() {
         return Optional.ofNullable(broker);
     }

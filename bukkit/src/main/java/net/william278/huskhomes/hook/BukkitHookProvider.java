@@ -40,7 +40,7 @@ public interface BukkitHookProvider extends HookProvider {
             getHooks().add(new PlaceholderAPIHook(getPlugin()));
         }
 
-        // Importers
+        // Importers todo TOO EARLY, race condition as we OMIT EssX on Paper for compat reasons...
         if (isDependencyAvailable("Essentials")) {
             getHooks().add(new EssentialsXImporter(getPlugin()));
         }

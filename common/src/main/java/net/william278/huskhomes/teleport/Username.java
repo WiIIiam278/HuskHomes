@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.teleport;
 
-import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;

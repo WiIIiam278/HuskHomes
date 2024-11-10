@@ -361,7 +361,7 @@ This is a table of HuskHomes commands, how to use them, and their required permi
         <!-- /huskhomes command -->
         <tr><th colspan="5">Plugin management command</th></tr>
         <tr>
-            <td rowspan="9"><code>/huskhomes</code></td>
+            <td rowspan="10"><code>/huskhomes</code></td>
             <td><code>/huskhomes</code></td>
             <td>Use plugin management commands</td>
             <td><code>huskhomes.command.huskhomes</code></td>
@@ -410,6 +410,12 @@ This is a table of HuskHomes commands, how to use them, and their required permi
         <tr>
             <td><code>/huskhomes delete warps &lt;world_name&gt; [server_name] [confirm]</code></td>
             <td>Delete all warps on a specific world and/or server</td>
+        </tr>
+        <tr>
+            <td><code>/huskhomes status</code></td>
+            <td>View the system status debug info screen.</td>
+            <td><code>huskhomes.command.huskhomes.status</code></td>
+            <td align="center">❌</td>
         </tr>
     </tbody>
 </table>

@@ -65,6 +65,7 @@ public class PaperEventListener extends BukkitEventListener implements Listener 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     @Override
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
         if (event.getRespawnReason() != PlayerRespawnEvent.RespawnReason.DEATH) {
             return;
         }

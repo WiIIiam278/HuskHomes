@@ -40,7 +40,7 @@ public interface FabricUserProvider extends UserProvider {
             throw new IllegalArgumentException("Player is not online");
         }
         FabricUser user = (FabricUser) getOnlineUserMap().get(player.getUuid());
-        if (user == null) {
+        if (user == null || user.getPlayer().isRemoved() || user.getPlayer().isDisconnected()) {
             user = FabricUser.adapt(player, getPlugin());
             getOnlineUserMap().put(player.getUuid(), user);
             return user;

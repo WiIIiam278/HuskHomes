@@ -40,7 +40,7 @@ public interface BukkitUserProvider extends UserProvider {
             throw new IllegalArgumentException("Player is not online");
         }
         BukkitUser user = (BukkitUser) getOnlineUserMap().get(player.getUniqueId());
-        if (user == null) {
+        if (user == null || !user.getPlayer().isOnline()) {
             user = BukkitUser.adapt(player, getPlugin());
             getOnlineUserMap().put(player.getUniqueId(), user);
             return user;

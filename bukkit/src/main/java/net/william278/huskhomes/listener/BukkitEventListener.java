@@ -65,6 +65,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (usePaperEvents) {
             return;
         }
+        getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
         super.handlePlayerRespawn(getPlugin().getOnlineUser(event.getPlayer()));
     }
 

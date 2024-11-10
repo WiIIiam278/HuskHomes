@@ -22,6 +22,7 @@ package net.william278.huskhomes.hook;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.importer.Importer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -59,8 +60,10 @@ public interface HookProvider extends MapHookProvider {
 
     void setHooks(@NotNull Set<Hook> hooks);
 
-    default void loadHooks() {
-        setHooks(Sets.newHashSet(getAvailableHooks()));
+    default void loadHooks(@NotNull PluginHook.Register... register) {
+        final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
+        final List<Hook> load = getAvailableHooks().stream().filter(h -> registers.contains(h.getRegister())).toList();
+        setHooks(Sets.newHashSet(load));
     }
 
     default void registerHooks(@NotNull PluginHook.Register... register) {
@@ -81,8 +84,19 @@ public interface HookProvider extends MapHookProvider {
                 .map(h -> h.name().toLowerCase(Locale.ENGLISH)).collect(Collectors.joining(" & "))));
     }
 
-    default void unloadHooks() {
+    default void loadAfterLoadHooks() {
+        getPlugin().runAsyncDelayed(() -> {
+            loadHooks(PluginHook.Register.AFTER_LOAD);
+            registerHooks(PluginHook.Register.AFTER_LOAD);
+        }, 5 * 20); // 5 secs later
+    }
+
+    default void unloadHooks(@NotNull PluginHook.Register... register) {
+        final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
         getHooks().removeIf(hook -> {
+            if (!registers.contains(hook.getRegister())) {
+                return false;
+            }
             try {
                 hook.unload();
             } catch (Throwable e) {
@@ -95,18 +109,22 @@ public interface HookProvider extends MapHookProvider {
     @NotNull
     default List<Hook> getAvailableHooks() {
         final List<Hook> hooks = Lists.newArrayList();
+        final Settings settings = getPlugin().getSettings();
 
-        if (getPlugin().getSettings().getMapHook().isEnabled()) {
-            if (isDependencyAvailable("Dynmap")) {
-                getHooks().add(new DynmapHook(getPlugin()));
-            } else if (isDependencyAvailable("BlueMap")) {
-                getHooks().add(new BlueMapHook(getPlugin()));
-            } else if (isDependencyAvailable("Pl3xMap")) {
-                getHooks().add(new Pl3xMapHook(getPlugin()));
-            }
-        }
+        // Common hooks
         if (isDependencyAvailable("Plan")) {
-            getHooks().add(new PlanHook(getPlugin()));
+            hooks.add(new PlanHook(getPlugin()));
+        }
+
+        // Map hooks
+        if (settings.getMapHook().isEnabled()) {
+            if (isDependencyAvailable("Dynmap")) {
+                hooks.add(new DynmapHook(getPlugin()));
+            } else if (isDependencyAvailable("BlueMap")) {
+                hooks.add(new BlueMapHook(getPlugin()));
+            } else if (isDependencyAvailable("Pl3xMap")) {
+                hooks.add(new Pl3xMapHook(getPlugin()));
+            }
         }
 
         return hooks;

@@ -21,20 +21,25 @@ package net.william278.huskhomes.command;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.paginedown.PaginatedList;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -45,12 +50,12 @@ public class HuskHomesCommand extends Command implements TabCompletable {
             "about", false,
             "help", false,
             "reload", true,
+            "status", true,
             "import", true,
             "delete", true,
             "update", true
     );
 
-    private boolean importersLoaded = false;
     private final UpdateChecker updateChecker;
     private final AboutMenu aboutMenu;
 
@@ -107,30 +112,17 @@ public class HuskHomesCommand extends Command implements TabCompletable {
 
         switch (action.toLowerCase()) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
-            case "help" -> executor.sendMessage(getCommandList(executor)
-                    .getNearestValidPage(parseIntArg(args, 1).orElse(1)));
-            case "reload" -> {
-                try {
-                    plugin.loadConfigs();
-                } catch (Throwable e) {
-                    plugin.log(Level.SEVERE, "Failed to reload config files", e);
-                    executor.sendMessage(new MineDown(
-                            "[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"
-                    ));
-                    return;
-                }
-
-                executor.sendMessage(new MineDown(
-                        "[HuskHomes](#00fb9a bold) [| Reloaded config & message files.](#00fb9a)\n"
-                        + "[ℹ If you have modified the database or cross-server message broker settings,"
-                        + " you need to restart your server for these changes to take effect.](gray)"
+            case "help" -> executor.sendMessage(
+                    getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))
+            );
+            case "status" -> {
+                getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
+                executor.sendMessage(Component.join(
+                        JoinConfiguration.newlines(),
+                        Arrays.stream(StatusLine.values()).map(s -> s.get(plugin)).toList()
                 ));
             }
             case "import" -> {
-                if (!importersLoaded) {
-                    importersLoaded = true;
-                    plugin.loadHooks();
-                }
                 if (plugin.getImporters().isEmpty()) {
                     plugin.getLocales().getLocale("error_no_importers_available")
                             .ifPresent(executor::sendMessage);
@@ -138,6 +130,20 @@ public class HuskHomesCommand extends Command implements TabCompletable {
                 }
                 this.importData(executor, removeFirstArg(args));
             }
+            case "reload" -> plugin.runSync(() -> {
+                try {
+                    plugin.unloadHooks(PluginHook.Register.ON_ENABLE, PluginHook.Register.AFTER_LOAD);
+                    plugin.loadConfigs();
+                    plugin.loadHooks(PluginHook.Register.ON_ENABLE, PluginHook.Register.AFTER_LOAD);
+                    plugin.registerHooks(PluginHook.Register.ON_ENABLE, PluginHook.Register.AFTER_LOAD);
+                    plugin.getLocales().getLocale("reload_complete").ifPresent(executor::sendMessage);
+                } catch (Throwable e) {
+                    executor.sendMessage(new MineDown(
+                            "[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"
+                    ));
+                    plugin.log(Level.SEVERE, "Failed to reload the plugin", e);
+                }
+            });
             case "delete" -> {
                 if (args.length < 2) {
                     plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -156,7 +162,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
             }
             case "update" -> updateChecker.check().thenAccept(checked -> {
                 if (checked.isUpToDate()) {
-                    plugin.getLocales().getLocale("up_to_date", plugin.getPlugin().toString())
+                    plugin.getLocales().getLocale("up_to_date", plugin.getPluginVersion().toString())
                             .ifPresent(executor::sendMessage);
                     return;
                 }
@@ -172,7 +178,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
     private void importData(@NotNull CommandUser executor, @NotNull String[] args) {
         switch (parseStringArg(args, 0).orElse("list")) {
             case "start" -> parseStringArg(args, 1).ifPresentOrElse(
-                    name -> {
+                    (name) -> {
                         final Optional<Importer> importer = plugin.getImporterByName(name);
                         if (importer.isEmpty()) {
                             plugin.getLocales().getLocale("error_invalid_importer")
@@ -353,6 +359,64 @@ public class HuskHomesCommand extends Command implements TabCompletable {
             }
             default -> null;
         };
+    }
+
+    private enum StatusLine {
+        PLUGIN_VERSION(plugin -> Component.text("v" + plugin.getPluginVersion().toStringWithoutMetadata())
+                .appendSpace().append(plugin.getPluginVersion().getMetadata().isBlank() ? Component.empty()
+                        : Component.text("(build " + plugin.getPluginVersion().getMetadata() + ")"))),
+        SERVER_VERSION(plugin -> Component.text(plugin.getServerType())),
+        LANGUAGE(plugin -> Component.text(plugin.getSettings().getLanguage())),
+        MINECRAFT_VERSION(plugin -> Component.text(plugin.getMinecraftVersion().toString())),
+        JAVA_VERSION(plugin -> Component.text(System.getProperty("java.version"))),
+        JAVA_VENDOR(plugin -> Component.text(System.getProperty("java.vendor"))),
+        SERVER_NAME(plugin -> Component.text(plugin.getServerName())),
+        DATABASE_TYPE(plugin -> Component.text(plugin.getSettings().getDatabase().getType().getDisplayName())),
+        IS_DATABASE_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getDatabase().getCredentials().getHost())),
+        USING_REDIS_SENTINEL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getSentinel()
+                .getMasterName().isBlank())),
+        USING_REDIS_PASSWORD(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getPassword()
+                .isBlank())),
+        REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSsl())),
+        IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
+        LOADED_HOOKS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))
+                        .map(hook -> Component.text(hook.getName())).toList()
+        )),
+        LOADED_IMPORTERS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getImporters().stream().map(hook -> Component.text(hook.getName())).toList()
+        ));
+
+        private final Function<HuskHomes, Component> supplier;
+
+        StatusLine(@NotNull Function<HuskHomes, Component> supplier) {
+            this.supplier = supplier;
+        }
+
+        @NotNull
+        private Component get(@NotNull HuskHomes plugin) {
+            return Component
+                    .text("•").appendSpace()
+                    .append(Component.text(
+                            WordUtils.capitalizeFully(name().replaceAll("_", " ")),
+                            TextColor.color(0x848484)
+                    ))
+                    .append(Component.text(':')).append(Component.space().color(NamedTextColor.WHITE))
+                    .append(supplier.apply(plugin));
+        }
+
+        @NotNull
+        private static Component getBoolean(boolean value) {
+            return Component.text(value ? "Yes" : "No", value ? NamedTextColor.GREEN : NamedTextColor.RED);
+        }
+
+        @NotNull
+        private static Component getLocalhostBoolean(@NotNull String value) {
+            return getBoolean(value.equals("127.0.0.1") || value.equals("0.0.0.0")
+                              || value.equals("localhost") || value.equals("::1"));
+        }
     }
 
 }

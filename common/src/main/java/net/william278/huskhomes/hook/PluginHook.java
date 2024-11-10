@@ -38,7 +38,8 @@ public @interface PluginHook {
 
     enum Register {
         ON_LOAD,
-        ON_ENABLE
+        ON_ENABLE,
+        AFTER_LOAD
     }
 
 }

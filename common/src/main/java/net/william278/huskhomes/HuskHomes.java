@@ -68,7 +68,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     default void load() {
         try {
             loadConfigs();
-            loadHooks();
+            loadHooks(PluginHook.Register.ON_LOAD);
             registerHooks(PluginHook.Register.ON_LOAD);
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst loading HuskHomes", e);
@@ -90,6 +90,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
             loadManager();
             loadRandomTeleportEngine();
             loadListeners();
+            loadHooks(PluginHook.Register.ON_ENABLE);
             registerHooks(PluginHook.Register.ON_ENABLE);
             loadAPI();
             if (getPluginVersion().getMetadata().isBlank()) {
@@ -102,6 +103,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
         }
         log(Level.INFO, String.format("Successfully enabled HuskHomes v%s", getPluginVersion()));
         checkForUpdates();
+        loadAfterLoadHooks();
     }
 
     /**
@@ -112,7 +114,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     default void shutdown() {
         log(Level.INFO, String.format("Disabling HuskHomes v%s...", getPluginVersion()));
         try {
-            unloadHooks();
+            unloadHooks(PluginHook.Register.values());
             closeDatabase();
             closeBroker();
             cancelTasks();

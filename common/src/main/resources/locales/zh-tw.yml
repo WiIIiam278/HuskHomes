@@ -108,6 +108,8 @@ locales:
   map_hook_warps_marker_set_name: '地標'
   up_to_date: '[HuskHomes](#00fb9a bold) [| 您執行的是最新版本的 HuskHomes (v%1%)。](#00fb9a)'
   update_available: '[HuskHomes](#ff7e5e bold) [| 發現可用的新版本：v%1%（目前版本：v%2%）。](#ff7e5e)'
+  reload_complete: '[HuskHomes](#00fb9a bold) [| 已重新載入設定和訊息檔案。](#00fb9a)\n[⚠ 請確保所有伺服器上的設定檔案都是最新的！](#00fb9a)\n[需要重新啟動才能使設定變更生效。](#00fb9a italic)'
+  system_status_header: '[HuskHomes](#00fb9a bold) [| 系統狀態報告：](#00fb9a)'
   importer_list_title: '[HuskHomes](#00fb9a bold) [| 可用的資料匯入器：](#00fb9a)\n'
   importer_list_item: '[%1%](#00fb9a show_text=&#00fb9a&按這裡透過此匯入器匯入資料。suggest_command=/huskhomes:huskhomes import start %1%)    [⏩ %2%](white show_text=&#00fb9a&此匯入器支援匯入：\n&f%2% suggest_command=/huskhomes:huskhomes import start %1%)'
   delete_player_confirm: '[警告：](#ff3300)[您確定要刪除 %1% 的所有資料嗎？](#ff7e5e)\n[所有相關的家也將被刪除。此操作不可復原。](gray)\n[→](gray)[[確定]](#ff3300 show_text=&#ff3300&按這裡確定刪除。此操作不可復原！run_command=/huskhomes:huskhomes delete player %1% confirm)'

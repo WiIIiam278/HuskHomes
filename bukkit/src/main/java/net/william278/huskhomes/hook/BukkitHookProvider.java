@@ -20,6 +20,7 @@
 package net.william278.huskhomes.hook;
 
 import net.william278.huskhomes.BukkitHuskHomes;
+import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.importer.EssentialsXImporter;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,23 +32,23 @@ public interface BukkitHookProvider extends HookProvider {
     @NotNull
     default List<Hook> getAvailableHooks() {
         final List<Hook> hooks = HookProvider.super.getAvailableHooks();
+        final Settings settings = getPlugin().getSettings();
 
         // Hooks
-        if (getPlugin().getSettings().getEconomy().isEnabled() && isDependencyAvailable("Vault")) {
-            getHooks().add(new VaultEconomyHook(getPlugin()));
+        if (isDependencyAvailable("Vault") && settings.getEconomy().isEnabled()) {
+            hooks.add(new VaultEconomyHook(getPlugin()));
         }
         if (isDependencyAvailable("PlaceholderAPI")) {
-            getHooks().add(new PlaceholderAPIHook(getPlugin()));
+            hooks.add(new PlaceholderAPIHook(getPlugin()));
         }
 
-        // Importers todo TOO EARLY, race condition as we OMIT EssX on Paper for compat reasons...
+        // Importers
         if (isDependencyAvailable("Essentials")) {
-            getHooks().add(new EssentialsXImporter(getPlugin()));
+            hooks.add(new EssentialsXImporter(getPlugin()));
         }
 
         return hooks;
     }
-
 
     @Override
     default boolean isDependencyAvailable(@NotNull String name) {

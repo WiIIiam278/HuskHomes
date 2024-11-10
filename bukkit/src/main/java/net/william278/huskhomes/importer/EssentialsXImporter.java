@@ -36,7 +36,7 @@ import java.util.logging.Level;
 
 @PluginHook(
         name = "EssentialsX",
-        register = PluginHook.Register.ON_LOAD
+        register = PluginHook.Register.AFTER_LOAD
 )
 public class EssentialsXImporter extends Importer {
 

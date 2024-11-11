@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.network;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.william278.huskhomes.position.Position;
@@ -39,37 +40,32 @@ public class MessageSerializationTests {
 
     private static final List<Message> TEST_MESSAGES = List.of(
             Message.builder()
-                    .type(Message.Type.REQUEST_PLAYER_LIST)
-                    .target("TestTarget")
+                    .type(Message.MessageType.REQUEST_USER_LIST)
+                    .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.empty())
                     .build(),
             Message.builder()
-                    .type(Message.Type.TELEPORT_REQUEST)
-                    .target("TestTarget")
-                    .payload(Payload.withPosition(
+                    .type(Message.MessageType.TELEPORT_REQUEST)
+                    .target("TestTarget", Message.TargetType.PLAYER)
+                    .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build(),
             Message.builder()
-                    .type(Message.Type.TELEPORT_TO_NETWORKED_USER)
-                    .target("TestTarget")
-                    .payload(Payload.withString("TestString"))
+                    .type(Message.MessageType.TELEPORT_TO_NETWORKED_USER)
+                    .target("TestTarget", Message.TargetType.PLAYER)
+                    .payload(Payload.string("TestString"))
                     .build(),
             Message.builder()
-                    .type(Message.Type.PLAYER_LIST)
-                    .target("TestTarget")
-                    .payload(Payload.withStringList(List.of("TestString1", "TestString2", "TestString3")))
-                    .build(),
-            Message.builder()
-                    .type(Message.Type.TELEPORT_TO_POSITION)
-                    .target("TestTarget")
-                    .payload(Payload.withPosition(
+                    .type(Message.MessageType.TELEPORT_TO_POSITION)
+                    .target("TestTarget", Message.TargetType.PLAYER)
+                    .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
                                     World.from("TestWorld", UUID.randomUUID()), "TestServer")))
                     .build()
     );
 
-    // Parameterized test for Message serialization
+    // Parameterized 0-mariadb-add_metadata_table.sql for Message serialization
     @DisplayName("Test Message Serialization/Deserialization")
     @ParameterizedTest(name = "{1} Message")
     @MethodSource("provideMessages")
@@ -80,7 +76,7 @@ public class MessageSerializationTests {
         final Message deserialized = gson.fromJson(serializedMessage, Message.class);
         Assertions.assertNotNull(deserialized);
         Assertions.assertEquals(message.getType(), deserialized.getType());
-        Assertions.assertEquals(message.getScope(), deserialized.getScope());
+        Assertions.assertEquals(message.getTargetType(), deserialized.getTargetType());
         Assertions.assertEquals(message.getTarget(), deserialized.getTarget());
         Assertions.assertEquals(
                 message.getPayload().getPosition().isPresent(),
@@ -90,19 +86,13 @@ public class MessageSerializationTests {
                 message.getPayload().getString().isPresent(),
                 deserialized.getPayload().getString().isPresent()
         );
-        Assertions.assertEquals(
-                message.getPayload().getStringList().isPresent(),
-                deserialized.getPayload().getStringList().isPresent())
-        ;
-        Assertions.assertEquals(
-                message.getPayload().getStringList().isPresent(),
-                deserialized.getPayload().getStringList().isPresent()
-        );
     }
 
     @NotNull
     private static Gson createGson() {
-        return new GsonBuilder().create();
+        return Converters.registerOffsetDateTime(new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+        ).create();
     }
 
     private static Stream<Arguments> provideMessages() {

@@ -15,7 +15,4 @@ include(
 
         // Fabric
         'fabric',
-
-        // Sponge
-        'sponge'
 )

@@ -26,6 +26,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Path;
+
 @Getter
 @Configuration
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -41,11 +43,29 @@ public class Server {
             ┣╸ If you join it using /server alpha, then set it to 'alpha' (case-sensitive)
             ┗╸ You only need to touch this if you're using cross-server mode.""";
 
-    private String name = "server";
+    private String name = getDefault();
 
     @NotNull
     public static Server of(@NotNull String name) {
         return new Server(name);
+    }
+
+    /**
+     * Find a sensible default name for the server name property
+     */
+    @NotNull
+    private static String getDefault() {
+        final String serverFolder = System.getProperty("user.dir");
+        return serverFolder == null ? "server" : Path.of(serverFolder).getFileName().toString().trim();
+    }
+
+    @Override
+    public boolean equals(@NotNull Object other) {
+        // If the name of this server matches another, the servers are the same.
+        if (other instanceof Server server) {
+            return server.getName().equalsIgnoreCase(this.getName());
+        }
+        return super.equals(other);
     }
 
 }

@@ -1,6 +1,5 @@
-> **Please Note:** The HuskHomes API itself is only available on Bukkit, but Fabric and Sponge do support [API events](api-events).
-
 The HuskHomes API provides methods and classes for:
+
 * getting, creating and updating `Home`s and `Warp`s
 * getting information about `SavedUser` data
 * building and executing (timed) `Teleport`s, including cross-server teleports

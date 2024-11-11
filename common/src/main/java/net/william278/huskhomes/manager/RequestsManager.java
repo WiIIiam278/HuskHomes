@@ -117,23 +117,21 @@ public class RequestsManager {
 
     public void sendTeleportAllRequest(@NotNull OnlineUser requester) {
         final long expiry = Instant.now().getEpochSecond()
-                + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
+                            + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
         for (OnlineUser onlineUser : plugin.getOnlineUsers()) {
             if (onlineUser.equals(requester)) {
                 continue;
             }
-            request.setRecipientName(onlineUser.getUsername());
+            request.setRecipientName(onlineUser.getName());
             sendLocalTeleportRequest(request, onlineUser);
         }
 
-        if (plugin.getSettings().getCrossServer().isEnabled()) {
-            Message.builder()
-                    .type(Message.Type.TELEPORT_REQUEST)
-                    .payload(Payload.withTeleportRequest(request))
-                    .target(Message.TARGET_ALL)
-                    .build().send(plugin.getMessenger(), requester);
-        }
+        plugin.getBroker().ifPresent(b -> Message.builder()
+                .type(Message.MessageType.TELEPORT_REQUEST)
+                .payload(Payload.teleportRequest(request))
+                .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
+                .build().send(b, requester));
     }
 
     /**
@@ -146,9 +144,12 @@ public class RequestsManager {
     public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
                                     @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond()
-                + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
+                            + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
-        final Optional<OnlineUser> localTarget = plugin.getOnlineUser(targetUser);
+
+        // Lookup the user locally first. If there's a username match globally, perform an exact local check
+        final Optional<OnlineUser> localTarget = plugin.isUserOnlineGlobally(targetUser)
+                ? plugin.getOnlineUserExact(targetUser) : plugin.getOnlineUser(targetUser);
         if (localTarget.isPresent()) {
             if (localTarget.get().equals(requester)) {
                 throw new IllegalArgumentException("Cannot send a teleport request to yourself");
@@ -164,11 +165,14 @@ public class RequestsManager {
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().getCrossServer().isEnabled()) {
             request.setRecipientName(targetUser);
-            plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request), (event -> Message.builder()
-                    .type(Message.Type.TELEPORT_REQUEST)
-                    .payload(Payload.withTeleportRequest(request))
-                    .target(targetUser)
-                    .build().send(plugin.getMessenger(), requester)));
+            plugin.fireEvent(
+                    plugin.getSendTeleportRequestEvent(requester, request),
+                    (event -> plugin.getBroker().ifPresent(b -> Message.builder()
+                            .type(Message.MessageType.TELEPORT_REQUEST)
+                            .payload(Payload.teleportRequest(request))
+                            .target(targetUser, Message.TargetType.PLAYER)
+                            .build().send(b, requester)))
+            );
             return;
         }
         throw new IllegalArgumentException("Player not found");
@@ -181,7 +185,7 @@ public class RequestsManager {
      * @param recipient The online recipient of the request
      */
     public void sendLocalTeleportRequest(@NotNull TeleportRequest request, @NotNull OnlineUser recipient) {
-        request.setRecipientName(recipient.getUsername());
+        request.setRecipientName(recipient.getName());
 
         // Silently ignore the request if the recipient is ignoring requests or is vanished
         if (isIgnoringRequests(recipient) || recipient.isVanished()) {
@@ -201,7 +205,7 @@ public class RequestsManager {
         plugin.fireEvent(plugin.getReceiveTeleportRequestEvent(recipient, request), (event -> {
             addTeleportRequest(request, recipient);
             plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                            + "_request_received", request.getRequesterName())
+                                          + "_request_received", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
             plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
@@ -298,12 +302,11 @@ public class RequestsManager {
             if (localRequester.isPresent()) {
                 handleLocalRequestResponse(localRequester.get(), request);
             } else if (plugin.getSettings().getCrossServer().isEnabled()) {
-                Message.builder()
-                        .type(Message.Type.TELEPORT_REQUEST_RESPONSE)
-                        .payload(Payload.withTeleportRequest(request))
-                        .target(request.getRequesterName())
-                        .build()
-                        .send(plugin.getMessenger(), recipient);
+                plugin.getBroker().ifPresent(b -> Message.builder()
+                        .type(Message.MessageType.TELEPORT_REQUEST_RESPONSE)
+                        .payload(Payload.teleportRequest(request))
+                        .target(request.getRequesterName(), Message.TargetType.PLAYER)
+                        .build().send(b, recipient));
             } else {
                 plugin.getLocales().getLocale("error_teleport_request_sender_not_online")
                         .ifPresent(recipient::sendMessage);

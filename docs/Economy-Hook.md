@@ -17,14 +17,6 @@ To enable the Economy Hook on a Spigot/Paper server, install both [Vault](https:
 To enable the Economy Hook on a Fabric server, the [Impactor Economy](https://modrinth.com/mod/impactor) mod must be installed to provide an API for plugins to perform economy operations. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
 </details>
 
-<details>
-<summary>Sponge setup</summary>
-
-> **Applies to:** Sponge
-
-To enable the Economy Hook on a Sponge server, you require a mod installed for managing player economy accounts through the Sponge economy API. Then, set `enabled` to `true` under the `economy` section of [`config.yml`](config-files).
-</details>
-
 ### Bypassing economy checks
 Players with the `huskhomes.bypass_economy_checks` [permission node](commands) bypass economy checks and can perform economy actions without paying.
 

@@ -361,7 +361,7 @@ This is a table of HuskHomes commands, how to use them, and their required permi
         <!-- /huskhomes command -->
         <tr><th colspan="5">Plugin management command</th></tr>
         <tr>
-            <td rowspan="9"><code>/huskhomes</code></td>
+            <td rowspan="10"><code>/huskhomes</code></td>
             <td><code>/huskhomes</code></td>
             <td>Use plugin management commands</td>
             <td><code>huskhomes.command.huskhomes</code></td>
@@ -411,6 +411,12 @@ This is a table of HuskHomes commands, how to use them, and their required permi
             <td><code>/huskhomes delete warps &lt;world_name&gt; [server_name] [confirm]</code></td>
             <td>Delete all warps on a specific world and/or server</td>
         </tr>
+        <tr>
+            <td><code>/huskhomes status</code></td>
+            <td>View the system status debug info screen.</td>
+            <td><code>huskhomes.command.huskhomes.status</code></td>
+            <td align="center">❌</td>
+        </tr>
     </tbody>
 </table>
 
@@ -459,6 +465,13 @@ If users have multiple permission nodes (i.e. from being in multiple permission 
 
 Note that these permission-set values override the values set in the plugin config (`max_homes`, `max_public_homes` under `general` and `free_homes` under `economy`).
 
+## Teleport warmup times
+You can change the teleport warmup time based on a permission node:
+
+* `huskhomes.teleport_warmup.<seconds>` — Determines how long this player has to wait before teleporting.
+
+HuskHomes will always take the highest node value present for this, regardless of the `stack_permission_limits` value.
+
 ## Bypass permission nodes
 
 These permissions let you bypass teleportation warmup checks, cooldown, and economy checks
@@ -469,4 +482,4 @@ These permissions let you bypass teleportation warmup checks, cooldown, and econ
 | Bypass [cooldown checks](cooldowns)        | `huskhomes.bypass_cooldowns`       | Not set |
 | Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
-&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file.
+&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file. This permission also bypasses the numerical teleport warmup time permission detailed above.

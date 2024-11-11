@@ -53,12 +53,12 @@ public class SavedPositionTests {
     public void testHomeIdentifiers(@NotNull Home home, @NotNull String name, boolean isUnsafeName) {
         Assertions.assertEquals(
                 home.getIdentifier(),
-                home.getOwner().getUsername() + Home.IDENTIFIER_DELIMITER + home.getName()
+                home.getOwner().getName() + Home.IDENTIFIER_DELIMITER + home.getName()
         );
         Assertions.assertEquals(
                 home.getSafeIdentifier(),
                 isUnsafeName
-                        ? home.getOwner().getUsername() + Home.IDENTIFIER_DELIMITER + home.getUuid()
+                        ? home.getOwner().getName() + Home.IDENTIFIER_DELIMITER + home.getUuid()
                         : home.getIdentifier()
         );
     }

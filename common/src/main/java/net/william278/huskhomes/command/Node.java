@@ -27,42 +27,29 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.SavedUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class Node implements Executable {
 
     protected static final String PERMISSION_PREFIX = "huskhomes.command";
 
     protected final HuskHomes plugin;
-    private final String name;
-    private final List<String> aliases;
-
-    @Setter
     @Getter
+    private final List<String> aliases;
+    @Getter
+    @Setter
     private boolean operatorCommand = false;
 
-    protected Node(@NotNull String name, @NotNull List<String> aliases, @NotNull HuskHomes plugin) {
-        if (name.isBlank()) {
+    protected Node(@NotNull List<String> aliases, @NotNull HuskHomes plugin) {
+        if (aliases.isEmpty()) {
             throw new IllegalArgumentException("Command name cannot be blank");
         }
-        this.name = name;
         this.aliases = aliases;
         this.plugin = plugin;
-    }
-
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
-    @NotNull
-    public List<String> getAliases() {
-        return aliases;
     }
 
     @NotNull
@@ -70,12 +57,34 @@ public abstract class Node implements Executable {
         final StringJoiner joiner = new StringJoiner(".")
                 .add(PERMISSION_PREFIX)
                 .add(getName());
-        for (final String node : child) {
+        for (String node : child) {
             joiner.add(node);
         }
         return joiner.toString().trim();
     }
 
+    public boolean hasPermission(@NotNull CommandUser executor, @NotNull String... child) {
+        return executor.hasPermission(getPermission(child)) || executor.hasPermission(getPermission("*"));
+    }
+
+    @NotNull
+    public String getName() {
+        if (aliases.isEmpty()) {
+            throw new IllegalStateException("Primary alias of command node is blank");
+        }
+        return aliases.get(0);
+    }
+
+    protected Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
+        return parseStringArg(args, 0)
+                .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::getUser)
+                .or(() -> {
+                    if (executor instanceof OnlineUser online) {
+                        return Optional.of(online);
+                    }
+                    return Optional.empty();
+                });
+    }
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
         try {
             if (args.length > index) {
@@ -183,5 +192,18 @@ public abstract class Node implements Executable {
                 .or(() -> executor instanceof Teleportable ? Optional.of((Teleportable) executor) : Optional.empty());
     }
 
+
+    protected Optional<Boolean> parseBooleanArg(@NotNull String[] args, int index) {
+        if (args.length <= index) {
+            return Optional.empty();
+        }
+        final String arg = args[index].toLowerCase(Locale.ENGLISH);
+        if (arg.equals("true") || arg.equals("enable") || arg.equals("on")) {
+            return Optional.of(true);
+        } else if (arg.equals("false") || arg.equals("disable") || arg.equals("off")) {
+            return Optional.of(false);
+        }
+        return Optional.empty();
+    }
 
 }

@@ -6,6 +6,10 @@ apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 repositories {
+    maven {
+        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        mavenContent { snapshotsOnly() }
+    }
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
 }
@@ -21,14 +25,14 @@ dependencies {
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
+    implementation include('org.apache.commons:commons-pool2:2.12.0')
     implementation include("redis.clients:jedis:$jedis_version")
-    implementation include("org.apache.commons:commons-pool2:$commons_pool_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.h2database:h2:$h2_driver_version")
 
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.34'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.34'

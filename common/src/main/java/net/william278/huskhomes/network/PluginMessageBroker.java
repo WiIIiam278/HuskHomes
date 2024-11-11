@@ -38,18 +38,21 @@ public class PluginMessageBroker extends Broker {
     /**
      * The name of BungeeCord's provided plugin channel.
      *
-     * <p>Internally, this is <a href="https://wiki.vg/Plugin_channels#bungeecord:main">{@code bungeecord:main}</a>,
-     * but Spigot remaps {@code BungeeCord} automatically to the new one (hence BungeeCord is kept for back-compat).
+     * @implNote Technically, the effective identifier of this channel is {@code bungeecord:main},  but Spigot remaps
+     * {@code BungeeCord} automatically to the new one (<a href="https://wiki.vg/Plugin_channels#bungeecord:main">source</a>).
+     * Spigot's <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">official documentation</a>
+     * still instructs usage of {@code BungeeCord} as the name to use, however. It's all a bit inconsistent, so just in case
+     * it's best to leave it how it is for to maintain backwards compatibility.
      */
     public static final String BUNGEE_CHANNEL_ID = "BungeeCord";
 
-    public PluginMessageBroker(@NotNull HuskHomes plugin) {
+    protected PluginMessageBroker(@NotNull HuskHomes plugin) {
         super(plugin);
     }
 
     @Override
-    public void initialize() throws IllegalStateException {
-        plugin.initializePluginChannels();
+    public void initialize() throws RuntimeException {
+        plugin.setupPluginMessagingChannels();
     }
 
     public final void onReceive(@NotNull String channel, @NotNull OnlineUser user, byte[] message) {
@@ -68,7 +71,7 @@ public class PluginMessageBroker extends Broker {
         inputStream.readFully(messageBody);
 
         try (final DataInputStream messageReader = new DataInputStream(new ByteArrayInputStream(messageBody))) {
-            super.handle(user, plugin.getGson().fromJson(messageReader.readUTF(), Message.class));
+            super.handle(user, plugin.getMessageFromJson(messageReader.readUTF()));
         } catch (IOException e) {
             plugin.log(Level.SEVERE, "Failed to fully read plugin message", e);
         }
@@ -77,7 +80,7 @@ public class PluginMessageBroker extends Broker {
     @Override
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
-        messageWriter.writeUTF(message.getScope().getPluginMessageChannel());
+        messageWriter.writeUTF(message.getTargetType().getPluginMessageChannel());
         messageWriter.writeUTF(message.getTarget());
         messageWriter.writeUTF(getSubChannelId());
 
@@ -96,17 +99,6 @@ public class PluginMessageBroker extends Broker {
         sender.sendPluginMessage(messageWriter.toByteArray());
     }
 
-    /**
-     * Send a message to the broker. (For Redis Only)
-     *
-     * @param message the message to send
-     */
-    @Override
-    protected void send(@NotNull Message message) {
-        throw new IllegalStateException("Tried to send a plugin message without a sender!");
-    }
-
-    @Override
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         user.dismount().thenRun(() -> {
             final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();

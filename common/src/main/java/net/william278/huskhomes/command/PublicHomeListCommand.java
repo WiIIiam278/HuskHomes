@@ -35,7 +35,11 @@ import java.util.stream.Collectors;
 public class PublicHomeListCommand extends ListCommand {
 
     protected PublicHomeListCommand(@NotNull HuskHomes plugin) {
-        super("phomelist", List.of("phomes", "publichomelist"), "[page]", plugin);
+        super(
+                List.of("phomelist", "phomes", "publichomelist"),
+                "[page]",
+                plugin
+        );
     }
 
     @Override
@@ -75,7 +79,7 @@ public class PublicHomeListCommand extends ListCommand {
                                                 .filter(h -> h.getName().equals(home.getName())).count() > 1
                                                 ? home.getSafeIdentifier() : Locales.escapeText(home.getName()),
                                         home.getSafeIdentifier(),
-                                        Locales.escapeText(home.getOwner().getUsername()),
+                                        Locales.escapeText(home.getOwner().getName()),
                                         home.getMeta().getDescription().isBlank()
                                                 ? plugin.getLocales().getNone()
                                                 : Locales.escapeText(home.getMeta().getDescription())

@@ -39,20 +39,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/**
- * Hooks into Plan to provide the {@link PlanDataExtension} with stats on the web panel.
- */
+@PluginHook(
+        name = "Plan",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class PlanHook extends Hook {
 
-    private final HuskHomes plugin;
-
     public PlanHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Plan");
-        this.plugin = plugin;
+        super(plugin);
     }
-
     @Override
-    public void initialize()  {
+    public void load() {
         if (!areAllCapabilitiesAvailable()) {
             return;
         }
@@ -60,6 +57,9 @@ public class PlanHook extends Hook {
         handlePlanReload();
     }
 
+    @Override
+    public void unload() {
+    }
 
     private boolean areAllCapabilitiesAvailable() {
         CapabilityService capabilities = CapabilityService.getInstance();
@@ -114,7 +114,7 @@ public class PlanHook extends Hook {
                 hidden = true
         )
         public boolean getHasUserData(@NotNull UUID uuid) {
-            return database.getUserData(uuid).isPresent();
+            return database.getUser(uuid).isPresent();
         }
 
         @NumberProvider(
@@ -126,7 +126,7 @@ public class PlanHook extends Hook {
         )
         @Conditional("hasData")
         public long getHomeCount(@NotNull UUID uuid) {
-            return database.getUserData(uuid)
+            return database.getUser(uuid)
                     .map(userData -> (long) database.getHomes(userData.getUser()).size())
                     .orElse(0L);
         }
@@ -140,7 +140,7 @@ public class PlanHook extends Hook {
         )
         @Conditional("hasData")
         public long getPublicHomeCount(@NotNull UUID uuid) {
-            return database.getUserData(uuid)
+            return database.getUser(uuid)
                     .map(userData -> database.getHomes(userData.getUser()).stream()
                             .filter(Home::isPublic).count())
                     .orElse(0L);
@@ -155,7 +155,7 @@ public class PlanHook extends Hook {
         )
         @Conditional("hasData")
         public long getPurchasedHomeSlots(@NotNull UUID uuid) {
-            return database.getUserData(uuid)
+            return database.getUser(uuid)
                     .map(userData -> (long) userData.getHomeSlots())
                     .orElse(0L);
         }
@@ -169,7 +169,7 @@ public class PlanHook extends Hook {
         )
         @Conditional("hasData")
         public boolean isIgnoringTeleportRequests(@NotNull UUID uuid) {
-            return database.getUserData(uuid)
+            return database.getUser(uuid)
                     .map(SavedUser::isIgnoringTeleports)
                     .orElse(false);
         }
@@ -183,7 +183,7 @@ public class PlanHook extends Hook {
         )
         @Conditional("hasData")
         public String getOfflinePosition(@NotNull UUID uuid) {
-            return database.getUserData(uuid)
+            return database.getUser(uuid)
                     .map(userData -> database.getOfflinePosition(userData.getUser())
                             .map(Position::toString)
                             .orElse(UNKNOWN_STRING))

@@ -38,8 +38,7 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
 
     public EditWarpCommand(@NotNull HuskHomes plugin) {
         super(
-                "editwarp",
-                List.of(),
+                List.of("editwarp"),
                 PositionCommandType.WARP,
                 List.of("rename", "description", "relocate"),
                 plugin

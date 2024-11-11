@@ -24,6 +24,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.util.Pool;
@@ -58,7 +59,7 @@ public class RedisBroker extends PluginMessageBroker {
             jedisPool.getResource().ping();
         } catch (JedisException e) {
             throw new IllegalStateException("Failed to establish connection with Redis. "
-                    + "Please check the supplied credentials in the config file", e);
+                                            + "Please check the supplied credentials in the config file", e);
         }
 
         // Subscribe using a thread (rather than a task)
@@ -98,12 +99,7 @@ public class RedisBroker extends PluginMessageBroker {
     }
 
     @Override
-    protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
-        plugin.runAsync(() -> subscriber.send(message));
-    }
-
-    @Override
-    protected void send(@NotNull Message message) {
+    protected void send(@NotNull Message message, @Nullable OnlineUser sender) {
         plugin.runAsync(() -> subscriber.send(message));
     }
 
@@ -200,27 +196,27 @@ public class RedisBroker extends PluginMessageBroker {
         public void onMessage(@NotNull String channel, @NotNull String encoded) {
             final Message message;
             try {
-                message = broker.plugin.getGson().fromJson(encoded, Message.class);
+                message = broker.plugin.getMessageFromJson(encoded);
             } catch (Exception e) {
                 broker.plugin.log(Level.WARNING, "Failed to decode message from Redis: " + e.getMessage());
                 return;
             }
 
-            if (message.getType() == Message.Type.REQUEST_RTP_LOCATION) {
-                broker.handleRTPRequest(message);
+            if (message.getType() == Message.MessageType.REQUEST_RTP_LOCATION) {
+                broker.handleRtpRequestLocation(message);
                 return;
             }
 
-            if (message.getScope() == Message.Scope.PLAYER) {
+            if (message.getTargetType() == Message.TargetType.PLAYER) {
                 broker.plugin.getOnlineUsers().stream()
                         .filter(online -> message.getTarget().equals(Message.TARGET_ALL)
-                                || online.getUsername().equals(message.getTarget()))
+                                          || online.getName().equals(message.getTarget()))
                         .forEach(receiver -> broker.handle(receiver, message));
                 return;
             }
 
             if (message.getTarget().equals(broker.plugin.getServerName())
-                    || message.getTarget().equals(Message.TARGET_ALL)) {
+                || message.getTarget().equals(Message.TARGET_ALL)) {
                 broker.plugin.getOnlineUsers().stream()
                         .findAny()
                         .ifPresent(receiver -> broker.handle(receiver, message));

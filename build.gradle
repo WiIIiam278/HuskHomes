@@ -4,8 +4,7 @@ plugins {
     id 'io.github.goooler.shadow' version '8.1.8'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'fabric-loom' version "$fabric_loom_version" apply false
-    id 'org.ajoberstar.grgit' version '5.2.2'
-    id 'checkstyle'
+    id 'org.ajoberstar.grgit' version '5.3.0'
     id 'maven-publish'
     id 'java'
 }
@@ -13,7 +12,7 @@ plugins {
 group 'net.william278'
 version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
-defaultTasks 'licenseFormat', 'check', 'build'
+defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
@@ -60,7 +59,6 @@ publishing {
 allprojects {
     apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'org.cadixdev.licenser'
-    apply plugin: 'checkstyle'
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
@@ -78,7 +76,6 @@ allprojects {
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://mvn-repo.arim.space/lesser-gpl3/' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
         maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://repo.alessiodp.com/releases/' }
@@ -89,21 +86,17 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
 
-        testCompileOnly 'org.jetbrains:annotations:24.1.0'
+        testCompileOnly 'org.jetbrains:annotations:26.0.1'
     }
 
     license {
         header = rootProject.file('HEADER')
         include '**/*.java'
         newLine = true
-    }
-
-    checkstyle {
-        toolVersion = '10.12.0'
     }
 
     test {
@@ -139,7 +132,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common', 'bukkit', 'fabric', 'sponge'].contains(project.name)) {
+    if (['common', 'bukkit', 'fabric'].contains(project.name)) {
         java {
             withSourcesJar()
             withJavadocJar()
@@ -191,19 +184,6 @@ subprojects {
                     }
                 }
             }
-
-            if (['sponge'].contains(project.name)) {
-                publications {
-                    mavenJavaSponge(MavenPublication) {
-                        groupId = 'net.william278.huskhomes'
-                        artifactId = 'huskhomes-sponge'
-                        version = "$rootProject.version"
-                        artifact shadowJar
-                        artifact sourcesJar
-                        artifact javadocJar
-                    }
-                }
-            }
         }
     }
 
@@ -222,7 +202,7 @@ def versionMetadata() {
 
     // If unclean, return the last commit hash with -indev
     if (!grgit.status().clean) {
-        return '-' + grgit.head().abbreviatedId  + '-indev'
+        return '-' + grgit.head().abbreviatedId + '-indev'
     }
 
     // Otherwise if this matches a tag, return nothing

@@ -33,13 +33,17 @@ import java.util.List;
 public class TpAllCommand extends InGameCommand {
 
     protected TpAllCommand(@NotNull HuskHomes plugin) {
-        super("tpall", List.of(), "", plugin);
+        super(
+                List.of("tpall"),
+                "",
+                plugin
+        );
         setOperatorCommand(true);
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        if (plugin.getGlobalPlayerList().size() <= 1) {
+        if (plugin.getGlobalUserList().size() <= 1) {
             plugin.getLocales().getLocale("error_no_players_online")
                     .ifPresent(executor::sendMessage);
             return;
@@ -58,13 +62,11 @@ public class TpAllCommand extends InGameCommand {
             return;
         }
 
-        if (plugin.getSettings().getCrossServer().isEnabled()) {
-            Message.builder()
-                    .target(Message.TARGET_ALL)
-                    .type(Message.Type.TELEPORT_TO_POSITION)
-                    .payload(Payload.withPosition(targetPosition))
-                    .build().send(plugin.getMessenger(), executor);
-        }
+        plugin.getBroker().ifPresent(b -> Message.builder()
+                .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
+                .type(Message.MessageType.TELEPORT_TO_POSITION)
+                .payload(Payload.position(targetPosition))
+                .build().send(b, executor));
 
         plugin.getLocales().getLocale("teleporting_all_players")
                 .ifPresent(executor::sendMessage);

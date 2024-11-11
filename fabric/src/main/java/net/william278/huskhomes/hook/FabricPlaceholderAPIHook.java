@@ -23,17 +23,20 @@ import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
 import net.minecraft.util.Identifier;
 import net.william278.huskhomes.FabricHuskHomes;
-import net.william278.huskhomes.user.FabricUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@PluginHook(
+        name = "Fabric PlaceholderAPI",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class FabricPlaceholderAPIHook extends Hook {
 
     public FabricPlaceholderAPIHook(@NotNull FabricHuskHomes plugin) {
-        super(plugin, "Fabric PlaceholderAPI");
+        super(plugin);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -43,7 +46,7 @@ public class FabricPlaceholderAPIHook extends Hook {
     }
 
     @Override
-    public void initialize() {
+    public void load() {
         Placeholders.register(createIdentifier("player"), (ctx, arg) -> {
             if (!ctx.hasPlayer()) {
                 return PlaceholderResult.invalid("No player!");
@@ -54,12 +57,12 @@ public class FabricPlaceholderAPIHook extends Hook {
             }
 
             assert ctx.player() != null;
-            final OnlineUser player = FabricUser.adapt(ctx.player(), (FabricHuskHomes) plugin);
+            final OnlineUser player = ((FabricHuskHomes) plugin).getOnlineUser(ctx.player());
 
             final String response = switch (arg) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "max_homes" -> String.valueOf(plugin.getManager().homes().getMaxHomes(player));
                 case "max_public_homes" -> String.valueOf(plugin.getManager().homes().getMaxPublicHomes(player));
                 case "free_home_slots" -> String.valueOf(plugin.getManager().homes().getFreeHomes(player));
@@ -67,13 +70,13 @@ public class FabricPlaceholderAPIHook extends Hook {
                         .map(SavedUser::getHomeSlots).orElse(0));
                 case "homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getUserHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "public_homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()).size());
+                        .getOrDefault(player.getName(), List.of()).size());
                 case "public_homes_list" -> String.join(", ", plugin.getManager().homes()
                         .getPublicHomes()
-                        .getOrDefault(player.getUsername(), List.of()));
+                        .getOrDefault(player.getName(), List.of()));
                 case "ignoring_tp_requests" -> String.valueOf(plugin.getManager().requests()
                         .isIgnoringRequests(player));
                 default -> null;
@@ -86,4 +89,10 @@ public class FabricPlaceholderAPIHook extends Hook {
             return PlaceholderResult.value(response);
         });
     }
+
+    @Override
+    public void unload() {
+        Placeholders.remove(createIdentifier("player"));
+    }
+
 }

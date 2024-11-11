@@ -32,7 +32,7 @@ jobs:
           SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v5
         if: success() || failure() # Continue on failure
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
@@ -53,20 +53,16 @@ jobs:
           changelog: ${{ github.event.head_commit.message }}
           distro-names: |
             paper
-            sponge-10
-            fabric-1.21.1
+            fabric-1.21.3
           distro-groups: |
             paper
-            sponge
             fabric
           distro-descriptions: |
             Paper
-            Sponge API 10
-            Fabric 1.21.1
+            Fabric 1.21.3
           files: |
             target/HuskHomes-Paper-${{ env.version_name }}.jar
-            target/HuskHomes-Sponge-${{ env.version_name }}.jar
-            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.3.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -109,26 +105,8 @@ jobs:
             1.20.6
             1.21
             1.21.1
-          java: 17
-      - name: 'Sponge: Publish to Modrinth 🧽'
-        uses: WiIIiam278/mc-publish@hangar
-        if: success() || failure()
-        with:
-          modrinth-id: J6U9o3JG
-          modrinth-featured: false
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-dependencies: |
-            bluemap | suggests | *
-            plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-${{ env.version_name }}.jar
-          name: HuskHomes (Sponge) v${{ env.version_name }}
-          version: ${{ env.version_name }}
-          version-type: alpha
-          changelog: ${{ github.event.head_commit.message }}
-          loaders: |
-            sponge
-          game-versions: |
-            1.19.4
+            1.21.2
+            1.21.3
           java: 17
       - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -148,7 +126,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.3.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -156,5 +134,5 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.21.1
+            1.21.3
           java: 21

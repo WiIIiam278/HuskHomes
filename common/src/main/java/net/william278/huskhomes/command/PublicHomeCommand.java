@@ -26,10 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PublicHomeCommand extends HomeCommand implements TabProvider {
+public class PublicHomeCommand extends HomeCommand implements TabCompletable {
 
     protected PublicHomeCommand(@NotNull HuskHomes plugin) {
-        super("phome", List.of("publichome"), PositionCommandType.PUBLIC_HOME, plugin);
+        super(
+                List.of("phome", "publichome"),
+                PositionCommandType.PUBLIC_HOME,
+                plugin
+        );
     }
 
     @Override

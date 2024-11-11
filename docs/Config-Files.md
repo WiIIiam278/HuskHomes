@@ -1,7 +1,7 @@
 This page contains the configuration structure for HuskHomes.
 
 ## Configuration structure
-📁 `plugins/HuskHomes/` (Spigot) OR `config/huskhomes/` (Fabric, Sponge)
+📁 `plugins/HuskHomes/` (Spigot) OR `config/huskhomes/` (Fabric)
   - 📄 `config.yml`: General plugin configuration
   - 📄 `server.yml`: (Cross-server setups only) Server ID configuration
   - 📄 `spawn.yml`: Local saved server spawn position. Use /setspawn to generate this file

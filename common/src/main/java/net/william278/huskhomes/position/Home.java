@@ -134,7 +134,7 @@ public class Home extends SavedPosition {
     @NotNull
     @Override
     public String getSafeIdentifier() {
-        return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
+        return getOwner().getName() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
     }
 
     /**
@@ -148,7 +148,7 @@ public class Home extends SavedPosition {
     @NotNull
     @Override
     public String getIdentifier() {
-        return getOwner().getUsername() + IDENTIFIER_DELIMITER + super.getIdentifier();
+        return getOwner().getName() + IDENTIFIER_DELIMITER + super.getIdentifier();
     }
 
 }

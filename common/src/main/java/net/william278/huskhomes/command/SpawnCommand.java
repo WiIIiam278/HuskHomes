@@ -34,7 +34,11 @@ import java.util.Optional;
 public class SpawnCommand extends Command {
 
     protected SpawnCommand(@NotNull HuskHomes plugin) {
-        super("spawn", List.of(), "[player]", plugin);
+        super(
+                List.of("spawn"),
+                "[player]",
+                plugin
+        );
         addAdditionalPermissions(Map.of("other", true));
     }
 

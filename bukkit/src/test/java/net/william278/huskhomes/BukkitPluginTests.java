@@ -23,7 +23,6 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.huskhomes.command.BukkitCommand;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.user.BukkitUser;
@@ -47,7 +46,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit 1.17 API.
+ * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit API.
  */
 @DisplayName("Bukkit Plugin Tests (1.17.1)")
 public class BukkitPluginTests {
@@ -76,14 +75,14 @@ public class BukkitPluginTests {
         @Test
         @DisplayName("Test Command Registration")
         public void testCommandRegistration() {
-            Assertions.assertEquals(BukkitCommand.Type.values().length, plugin.getCommands().size());
+            Assertions.assertFalse(plugin.getCommands().isEmpty());
         }
 
         @Test
         @DisplayName("Test Player Adapter")
         public void testPlayerAdaption() {
             PlayerMock player = server.addPlayer();
-            Assertions.assertNotNull(BukkitUser.adapt(player, plugin));
+            Assertions.assertNotNull(plugin.getOnlineUser(player));
         }
 
         @Test
@@ -109,14 +108,14 @@ public class BukkitPluginTests {
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
             final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
                     .orElseThrow(() -> new IllegalStateException("Failed to load raw locale"));
-            BukkitUser.adapt(player, plugin).sendMessage(simpleLocale);
+            plugin.getOnlineUser(player).sendMessage(simpleLocale);
             player.assertSaid(simpleLocaleText);
         }
 
         @Test
         @DisplayName("Test Message Dispatching")
         public void testMessageDispatching() {
-            final BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
+            final BukkitUser user = plugin.getOnlineUser(server.addPlayer());
 
             final MineDown locale = plugin.getLocales()
                     .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
@@ -139,7 +138,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Locale Parsing")
         public void testLocaleParsing() {
             final Map<String, String> rawLocales = plugin.getLocales().getRawLocales();
-            BukkitUser user = BukkitUser.adapt(server.addPlayer(), plugin);
+            BukkitUser user = plugin.getOnlineUser(server.addPlayer());
             rawLocales.forEach((key, value) -> {
                 Optional<MineDown> locale = plugin.getLocales().getLocale(key);
                 Assertions.assertTrue(locale.isPresent());
@@ -178,7 +177,7 @@ public class BukkitPluginTests {
             final PlayerMock player = server.addPlayer();
             player.setOp(true);
 
-            final BukkitUser playerUser = BukkitUser.adapt(player, plugin);
+            final OnlineUser playerUser = (plugin).getOnlineUser(player);
             return commands.stream()
                     .flatMap(command -> Stream.of(Arguments.of(command, playerUser, command.getName())));
         }
@@ -194,7 +193,7 @@ public class BukkitPluginTests {
 
     @Nested
     @DisplayName("Validator Tests")
-    public class ValidatorTests {
+    public class TextValidatorTests {
 
         @DisplayName("Test Validator Accepts Valid Names")
         @ParameterizedTest(name = "Valid Name: \"{0}\"")
@@ -202,7 +201,7 @@ public class BukkitPluginTests {
                 "ValidName", "Valid_Name", "Valid-Name", "ValidN4me", "ValidName123", "VN-123", "ValidName_123", "V"
         })
         public void testValidNameIsValid(@NotNull String name) {
-            Assertions.assertDoesNotThrow(() -> plugin.getValidator().validateName(name));
+            Assertions.assertDoesNotThrow(() -> plugin.validateName(name));
         }
 
         @DisplayName("Test Validator Rejects Invalid Names")
@@ -213,7 +212,7 @@ public class BukkitPluginTests {
         public void testInvalidNameIsInvalid(@NotNull String name) {
             Assertions.assertThrows(
                     ValidationException.class,
-                    () -> plugin.getValidator().validateName(name)
+                    () -> plugin.validateName(name)
             );
         }
 
@@ -227,7 +226,7 @@ public class BukkitPluginTests {
                         + " description that is 255 characters long and should be accepted by the validator"
         })
         public void testValidDescriptionIsValid(@NotNull String description) {
-            Assertions.assertDoesNotThrow(() -> plugin.getValidator().validateDescription(description));
+            Assertions.assertDoesNotThrow(() -> plugin.validateDescription(description));
         }
 
         @DisplayName("Test Validator Rejects Invalid Descriptions")
@@ -241,7 +240,7 @@ public class BukkitPluginTests {
         public void testInvalidDescriptionIsInvalid(@NotNull String description) {
             Assertions.assertThrows(
                     ValidationException.class,
-                    () -> plugin.getValidator().validateDescription(description)
+                    () -> plugin.validateDescription(description)
             );
 
         }
@@ -256,7 +255,7 @@ public class BukkitPluginTests {
 
             @BeforeAll
             public static void setup() {
-                player = BukkitUser.adapt(server.addPlayer(), plugin);
+                player = plugin.getOnlineUser(server.addPlayer());
             }
 
             @DisplayName("Test Applying Cooldown")
@@ -264,7 +263,7 @@ public class BukkitPluginTests {
             @Test
             public void testApplyingCooldown() {
                 plugin.getDatabase().ensureUser(player);
-                Assertions.assertTrue(plugin.getDatabase().getUserData(player.getUuid()).isPresent());
+                Assertions.assertTrue(plugin.getDatabase().getUser(player.getUuid()).isPresent());
 
                 plugin.getDatabase().setCooldown(ACTION, player, Instant.now().plus(DURATION));
                 Assertions.assertTrue(plugin.getDatabase().getCooldown(ACTION, player).isPresent());
@@ -319,7 +318,7 @@ public class BukkitPluginTests {
                         .anyMatch(warp -> warp.equals(name)));
             }
 
-            // test warp renaming
+            // Test warp renaming
             @DisplayName("Test Warp Renaming")
             @ParameterizedTest(name = "Rename: \"{0}\" > \"{0}2\"")
             @MethodSource("provideWarpData")
@@ -465,9 +464,9 @@ public class BukkitPluginTests {
             @DisplayName("Ensure User Data")
             @BeforeAll
             public static void createHomeUser() {
-                homeOwner = BukkitUser.adapt(server.addPlayer("TestUser278"), plugin);
+                homeOwner = plugin.getOnlineUser(server.addPlayer("TestUser278"));
                 plugin.getDatabase().ensureUser(homeOwner);
-                Assertions.assertTrue(plugin.getDatabase().getUserData(homeOwner.getUuid()).isPresent());
+                Assertions.assertTrue(plugin.getDatabase().getUser(homeOwner.getUuid()).isPresent());
             }
 
             @DisplayName("Test Home Creation")
@@ -479,7 +478,7 @@ public class BukkitPluginTests {
                 Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
                 Assertions.assertTrue(plugin.getManager().homes()
                         .getUserHomes()
-                        .get(owner.getUsername()).stream()
+                        .get(owner.getName()).stream()
                         .anyMatch(home -> home.equals(name)));
             }
 
@@ -495,11 +494,11 @@ public class BukkitPluginTests {
                 Assertions.assertFalse(plugin.getDatabase().getHome(owner, name).isPresent());
                 Assertions.assertTrue(plugin.getManager().homes()
                         .getUserHomes()
-                        .get(owner.getUsername()).stream()
+                        .get(owner.getName()).stream()
                         .anyMatch(home -> home.equals(newName)));
                 Assertions.assertFalse(plugin.getManager().homes()
                         .getUserHomes()
-                        .get(owner.getUsername()).stream()
+                        .get(owner.getName()).stream()
                         .anyMatch(home -> home.equals(name)));
 
                 // Rename back to original name
@@ -507,7 +506,7 @@ public class BukkitPluginTests {
                 Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
                 Assertions.assertTrue(plugin.getManager().homes()
                         .getUserHomes()
-                        .get(owner.getUsername()).stream()
+                        .get(owner.getName()).stream()
                         .anyMatch(home -> home.equals(name)));
             }
 
@@ -518,7 +517,7 @@ public class BukkitPluginTests {
             @SuppressWarnings("unused")
             public void testHomeDescription(@NotNull OnlineUser owner, @NotNull String name,
                                             @NotNull Position position) {
-                final String description = "This is a test description for the home " + name + "!";
+                final String description = "This is a  description for the home " + name + "!";
                 plugin.getManager().homes().setHomeDescription(owner, name, description);
                 Assertions.assertTrue(plugin.getDatabase().getHome(owner, name).isPresent());
 
@@ -585,7 +584,7 @@ public class BukkitPluginTests {
                 Assertions.assertTrue(homePrivacy.isPresent());
                 Assertions.assertTrue(homePrivacy.get());
                 Assertions.assertTrue(plugin.getManager().homes().getPublicHomes()
-                        .get(owner.getUsername()).contains(name));
+                        .get(owner.getName()).contains(name));
             }
 
             @DisplayName("Test Making Home Private")
@@ -601,7 +600,7 @@ public class BukkitPluginTests {
                 Assertions.assertTrue(homePrivacy.isPresent());
                 Assertions.assertFalse(homePrivacy.get());
                 Assertions.assertFalse(plugin.getManager().homes().getPublicHomes()
-                        .getOrDefault(owner.getUsername(), List.of())
+                        .getOrDefault(owner.getName(), List.of())
                         .contains(name));
             }
 
@@ -631,7 +630,7 @@ public class BukkitPluginTests {
                 plugin.getManager().homes().deleteHome(owner, name);
                 Assertions.assertFalse(plugin.getDatabase().getHome(owner, name).isPresent());
                 Assertions.assertFalse(plugin.getManager().homes().getUserHomes()
-                        .getOrDefault(owner.getUsername(), List.of())
+                        .getOrDefault(owner.getName(), List.of())
                         .contains(name));
 
                 plugin.getManager().homes().createHome(owner, name, position);
@@ -644,7 +643,7 @@ public class BukkitPluginTests {
                 final int deleted = plugin.getManager().homes().deleteAllHomes(homeOwner);
                 Assertions.assertTrue(plugin.getDatabase().getHomes(homeOwner).isEmpty());
                 Assertions.assertTrue(plugin.getManager().homes().getUserHomes()
-                        .get(homeOwner.getUsername()).isEmpty());
+                        .get(homeOwner.getName()).isEmpty());
                 Assertions.assertEquals(HOME_NAMES.size(), deleted);
             }
 

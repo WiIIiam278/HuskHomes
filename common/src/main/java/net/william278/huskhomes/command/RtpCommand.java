@@ -41,7 +41,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super(
                 List.of("rtp"),
-                "[player] [world/server] [server]",
+                "[player] [world/server] [server (optional)]",
                 plugin
         );
 

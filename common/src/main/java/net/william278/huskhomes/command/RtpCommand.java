@@ -41,7 +41,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super(
                 List.of("rtp"),
-                "[player] [world/server] [server (optional)]",
+                "[player] [<world> [server]|<world>]",
                 plugin
         );
 
@@ -126,8 +126,8 @@ public class RtpCommand extends Command implements UserListTabCompletable {
                 yield possibleSuggestions;
             }
             case 3 -> {
-                // If argTwo is a world, suggest servers that contain the world
-                String argTwo = args[1];
+                // If worldName is a world, suggest servers that contain the world
+                String worldName = args[1];
 
                 List<String> possibleSuggestions = new ArrayList<>(plugin.getWorlds().stream()
                         .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
@@ -135,9 +135,9 @@ public class RtpCommand extends Command implements UserListTabCompletable {
                         .filter(world -> user.hasPermission(getPermission(world)))
                         .toList());
 
-                if (possibleSuggestions.contains(argTwo)) {
+                if (possibleSuggestions.contains(worldName)) {
                     yield plugin.getSettings().getRtp().getRandomTargetServers().entrySet().stream()
-                            .filter(entry -> entry.getValue().contains(argTwo))
+                            .filter(entry -> entry.getValue().contains(worldName))
                             .map(Map.Entry::getKey)
                             .toList();
                 }

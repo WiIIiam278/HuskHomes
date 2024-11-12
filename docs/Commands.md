@@ -1,7 +1,10 @@
-HuskHomes provides a range of commands for you to use. This page will detail the permissions for each command to [let you manage access](managing-access) to the plugin's different features.
+HuskHomes provides a range of commands for you to use. This page will detail the permissions for each command
+to [let you manage access](managing-access) to the plugin's different features.
 
 ## Commands & Permissions Table
-> **Command Conflicts:** If you have multiple plugins providing similar commands, you may need to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
+
+> **Command Conflicts:** If you have multiple plugins providing similar commands, you may need
+> to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
 
 <table align="right">
     <thead>
@@ -13,7 +16,8 @@ HuskHomes provides a range of commands for you to use. This page will detail the
     </tbody>
 </table>
 
-This is a table of HuskHomes commands, how to use them, and their required permission nodes. Additional permissions for bypassing teleport warmup and economy checks are detailed below.
+This is a table of HuskHomes commands, how to use them, and their required permission nodes. Additional permissions for
+bypassing teleport warmup and economy checks are detailed below.
 
 <table>
     <thead>
@@ -322,21 +326,33 @@ This is a table of HuskHomes commands, how to use them, and their required permi
         <!-- /rtp command -->
         <tr><th colspan="5">Random teleport command</th></tr>
         <tr>
-            <td rowspan="3"><code>/rtp</code></td>
+            <td rowspan="5"><code>/rtp</code></td>
             <td><code>/rtp</code></td>
-            <td>Teleport randomly into the wild</td>
+            <td>Teleport randomly into the wild in the current world</td>
             <td><code>huskhomes.command.rtp</code></td>
             <td align="center">✅</td>
         </tr>
         <tr>
             <td><code>/rtp &lt;player&gt;</code></td>
-            <td>Teleport another user randomly into the wild</td>
+            <td>Teleport another player randomly into the wild</td>
             <td><code>huskhomes.command.rtp.other</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td><code>/rtp &lt;player&gt; &lt;world&gt;</code></td>
-            <td>Teleport randomly in a specific world</td>
+            <td><code>/rtp &lt;world&gt;</code></td>
+            <td>Teleport randomly in a specified world</td>
+            <td><code>huskhomes.command.rtp.world</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/rtp &lt;world&gt; &lt;server&gt;</code></td>
+            <td>Teleport randomly in a specified world on a specified server</td>
+            <td><code>huskhomes.command.rtp.world</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/rtp &lt;server&gt;</code></td>
+            <td>Teleport randomly in the current world on a specified server</td>
             <td><code>huskhomes.command.rtp.world</code></td>
             <td align="center">❌</td>
         </tr>
@@ -421,11 +437,14 @@ This is a table of HuskHomes commands, how to use them, and their required permi
 </table>
 
 ### Notes
-&dagger; &mdash; If [Permission Restricted Warps](restricted-warps) are in use, the  `huskhomes.command.warp.(warp_name)` permission node will also be required to be able to view and use warps.
+
+&dagger; &mdash; If [Permission Restricted Warps](restricted-warps) are in use, the
+`huskhomes.command.warp.(warp_name)` permission node will also be required to be able to view and use warps.
 
 &ddagger; &mdash; Requires `return_by_death` to be enabled in [`config.yml`](config-files).
 
 ### Command Aliases
+
 The following commands have aliases that can also be used for convenience:
 
 | Command      | Aliases                      |
@@ -440,7 +459,8 @@ The following commands have aliases that can also be used for convenience:
 
 ## Disabling commands
 
-If you'd like to disable a command, add it to the `disabled_commands` section of your config file as detailed below and the command will not be registered.
+If you'd like to disable a command, add it to the `disabled_commands` section of your config file as detailed below and
+the command will not be registered.
 
 <details>
 <summary>Disabling a command in config.yml</summary>
@@ -453,19 +473,26 @@ disabled_commands: [ '/rtp' ]
 </details>
 
 ## Home limits
-You can modify the maximum number of homes, the allotment of free homes and the number of public homes a user can set through permission nodes.
+
+You can modify the maximum number of homes, the allotment of free homes and the number of public homes a user can set
+through permission nodes.
 
 * `huskhomes.max_homes.<amount>` — Determines the max number of homes a user can set
-* `huskhomes.free_homes.<amount>` — Determines the allotment of homes the user can set for free, before they have to pay&dagger;
+* `huskhomes.free_homes.<amount>` — Determines the allotment of homes the user can set for free, before they have to
+  pay&dagger;
 * `huskhomes.max_public_homes.<amount>` — Determines the maximum number of homes a user can make public
 
 &dagger;Only effective on servers that make use of the economy hook.
 
-If users have multiple permission nodes (i.e. from being in multiple permission groups), HuskHomes will accept the highest. If you prefer that the nodes _stack_, you can set the `stack_permission_limits` setting in the plugin config file to `true` (under `general`).
+If users have multiple permission nodes (i.e. from being in multiple permission groups), HuskHomes will accept the
+highest. If you prefer that the nodes _stack_, you can set the `stack_permission_limits` setting in the plugin config
+file to `true` (under `general`).
 
-Note that these permission-set values override the values set in the plugin config (`max_homes`, `max_public_homes` under `general` and `free_homes` under `economy`).
+Note that these permission-set values override the values set in the plugin config (`max_homes`, `max_public_homes`
+under `general` and `free_homes` under `economy`).
 
 ## Teleport warmup times
+
 You can change the teleport warmup time based on a permission node:
 
 * `huskhomes.teleport_warmup.<seconds>` — Determines how long this player has to wait before teleporting.
@@ -482,4 +509,5 @@ These permissions let you bypass teleportation warmup checks, cooldown, and econ
 | Bypass [cooldown checks](cooldowns)        | `huskhomes.bypass_cooldowns`       | Not set |
 | Bypass [economy checks](economy-hook)      | `huskhomes.bypass_economy_checks`  | Not set |
 
-&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file. This permission also bypasses the numerical teleport warmup time permission detailed above.
+&dagger;This is not effective when the teleport warmup time is set to `<= 0` in the config file. This permission also
+bypasses the numerical teleport warmup time permission detailed above.

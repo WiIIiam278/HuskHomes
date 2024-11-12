@@ -11,7 +11,7 @@ dependencies {
     api 'com.google.code.gson:gson:2.11.0'
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     api 'com.github.Exlll.ConfigLib:configlib-yaml:v4.5.0'
-    api('com.zaxxer:HikariCP:6.0.0') {
+    api('com.zaxxer:HikariCP:6.1.0') {
         exclude module: 'slf4j-api'
     }
 

@@ -130,6 +130,7 @@ public interface MessageHandler {
                 .orElse(CompletableFuture.completedFuture(Optional.empty()))
                 .thenAccept(
                         (teleport) -> Message.builder()
+                                .type(Message.MessageType.RTP_LOCATION)
                                 .target(message.getSender(), Message.TargetType.PLAYER)
                                 .payload(Payload.position(teleport.orElse(null)))
                                 .build().send(getBroker(), null)

@@ -32,10 +32,7 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class RtpCommand extends Command implements UserListTabCompletable {
 
@@ -44,7 +41,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super(
                 List.of("rtp"),
-                "[player] [world]",
+                "[player] [<world> [server]|<world>]",
                 plugin
         );
 
@@ -69,10 +66,29 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             return;
         }
 
-        // Validate, then execute the RTP
         final OnlineUser teleporter = optionalTeleporter.get();
-        this.validateRtp(teleporter, executor, args.length > 1 ? removeFirstArg(args) : args)
-                .ifPresent(world -> this.executeRtp(teleporter, executor, world, args));
+
+        // Determine the target world and server based on the command arguments
+        String worldName = teleporter.getPosition().getWorld().getName();
+        String targetServer = null;
+
+        if (args.length == 2) {
+            // If there's only one argument after the player name, it could be either a world or a server
+            if (plugin.getSettings().getRtp().getRandomTargetServers().containsKey(args[1])) {
+                targetServer = args[1];
+                worldName = teleporter.getPosition().getWorld().getName();
+            } else {
+                worldName = args[1];
+            }
+        } else if (args.length > 2) {
+            // If two arguments are provided after the player name, treat them as world and server
+            worldName = args[1];
+            targetServer = args[2];
+        }
+
+        // Validate world and server, and execute RTP
+        Optional<Map.Entry<World, String>> validatedTarget = validateRtp(teleporter, executor, worldName, targetServer);
+        validatedTarget.ifPresent(entry -> executeRtp(teleporter, executor, entry.getKey(), entry.getValue(), args));
     }
 
     @Nullable
@@ -82,24 +98,72 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             case 0, 1 -> user.hasPermission(getPermission("other"))
                     ? UserListTabCompletable.super.suggest(user, args)
                     : user instanceof OnlineUser online ? List.of(online.getName()) : List.of();
-            case 2 -> plugin.getWorlds().stream()
-                    .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
-                    .map(World::getName)
-                    .filter(world -> user.hasPermission(getPermission(world))).toList();
+
+            case 2 -> {
+                String input = args[1].toLowerCase();
+
+                // Check if the input could be a world or a server name
+                List<String> possibleSuggestions = new ArrayList<>();
+
+                // Suggest available servers if user has permission
+                possibleSuggestions.addAll(plugin.getSettings().getRtp().getRandomTargetServers().keySet().stream()
+                        .filter(server -> user.hasPermission(getPermission(server)))
+                        .toList());
+
+                // Additionally suggest worlds that the user has permission to RTP into
+                possibleSuggestions.addAll(plugin.getWorlds().stream()
+                        .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
+                        .map(World::getName)
+                        .filter(world -> user.hasPermission(getPermission(world)))
+                        .toList());
+
+                if (!input.isEmpty()) {
+                    yield possibleSuggestions.stream()
+                            .filter(suggestion -> suggestion.toLowerCase().startsWith(input))
+                            .toList();
+                }
+
+                yield possibleSuggestions;
+            }
+            case 3 -> {
+                // If worldName is a world, suggest servers that contain the world
+                String worldName = args[1];
+
+                List<String> possibleSuggestions = new ArrayList<>(plugin.getWorlds().stream()
+                        .filter(world -> !plugin.getSettings().getRtp().isWorldRtpRestricted(world))
+                        .map(World::getName)
+                        .filter(world -> user.hasPermission(getPermission(world)))
+                        .toList());
+
+                if (possibleSuggestions.contains(worldName)) {
+                    yield plugin.getSettings().getRtp().getRandomTargetServers().entrySet().stream()
+                            .filter(entry -> entry.getValue().contains(worldName))
+                            .map(Map.Entry::getKey)
+                            .toList();
+                }
+
+                yield List.of();
+            }
+
             default -> null;
         };
     }
 
+
+
     /**
-     * Validates the RTP command, returning the world to randomly teleport in if successful.
+     * Validates the RTP target world and server based on arguments, ensuring the server contains the target world.
+     * - If no server is specified, randomly selects a server containing the world.
+     * - Returns both the validated world and server as a pair.
      *
-     * @param teleporter The user to teleport
-     * @param executor   The user executing the command
-     * @param args       The command arguments
-     * @return The world to randomly teleport in, if successful
+     * @param teleporter   The player to teleport
+     * @param executor     The player executing the command
+     * @param worldName    The world name to teleport to
+     * @param targetServer The server name to teleport to (optional)
+     * @return A pair of the target world and server to use for teleportation, if valid
      */
-    private Optional<World> validateRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor,
-                                        @NotNull String[] args) {
+    private Optional<Map.Entry<World, String>> validateRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor,
+                                                           @NotNull String worldName, @Nullable String targetServer) {
         // Check permissions if the user is being teleported by another player
         if (!executor.equals(teleporter) && !executor.hasPermission(getPermission("other"))) {
             plugin.getLocales().getLocale("error_no_permission")
@@ -112,58 +176,59 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             return Optional.empty();
         }
 
-        // Determine the world to carry out the RTP in
-        final World teleporterWorld = teleporter.getPosition().getWorld();
-        final Optional<World> optionalWorld = args.length >= 1 ? plugin.getWorlds().stream().filter(w -> w.getName()
-                .equalsIgnoreCase(args[0])).findFirst() : Optional.of(teleporterWorld);
-        if (optionalWorld.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_world", args[0])
+        Map<String, List<String>> randomTargetServers = plugin.getSettings().getRtp().getRandomTargetServers();
+
+        // Get a list of servers that have the specified world
+        List<String> eligibleServers = randomTargetServers.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(worldName))
+                .map(Map.Entry::getKey)
+                .toList();
+
+        // If targetServer is specified, validate it; otherwise, pick a random eligible server
+        String selectedServer = targetServer != null ? targetServer :
+                (!eligibleServers.isEmpty() ? eligibleServers.get(random.nextInt(eligibleServers.size())) : null);
+
+        // If no server found or the specified server is invalid, return an error
+        if (selectedServer == null || (targetServer != null && !eligibleServers.contains(targetServer))) {
+            plugin.getLocales().getLocale("error_invalid_world", worldName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
 
-        // Ensure the user has permission to randomly teleport in the world
-        final World world = optionalWorld.get();
-        if (!world.equals(teleporterWorld) && !executor.hasPermission(getPermission(world.getName()))) {
-            plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
-            return Optional.empty();
-        }
-        if (plugin.getSettings().getRtp().isWorldRtpRestricted(world)) {
-            plugin.getLocales().getLocale("error_rtp_restricted_world")
-                    .ifPresent(executor::sendMessage);
-            return Optional.empty();
-        }
+        Optional<World> targetWorld = plugin.getWorlds().stream()
+                .filter(world -> world.getName().equalsIgnoreCase(worldName))
+                .findFirst()
+                .or(() -> Optional.of(World.from(worldName, UUID.randomUUID())));
 
-        return Optional.of(world);
+        return targetWorld.map(world -> new AbstractMap.SimpleEntry<>(world, selectedServer));
     }
 
     /**
-     * Executes the random teleport.
+     * Executes the RTP, handling both local and cross-server teleportation.
+     * Uses the validated world-server pair from validateRtp.
      *
-     * @param teleporter The player to teleport
-     * @param executor   The player executing the command
-     * @param world      The world to teleport in
+     * @param teleporter   The player to teleport
+     * @param executor     The player executing the command
+     * @param world        The validated world to teleport to
+     * @param targetServer The validated server to teleport to
      * @param args       Arguments to pass to the RTP engine
      */
-    private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
-                            @NotNull String[] args) {
+    private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor,
+                            @NotNull World world, @NotNull String targetServer, @NotNull String[] args) {
         // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
 
         if (plugin.getSettings().getRtp().isCrossServer() && plugin.getSettings().getCrossServer().isEnabled()
-            && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
-            List<String> allowedServers = plugin.getSettings().getRtp().getRandomTargetServers();
-            String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
-            if (randomServer.equals(plugin.getServerName())) {
+                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
+            if (targetServer.equals(plugin.getServerName())) {
                 performLocalRTP(teleporter, executor, world, args);
                 return;
             }
 
             plugin.getBroker().ifPresent(b -> Message.builder()
                     .type(Message.MessageType.REQUEST_RTP_LOCATION)
-                    .target(randomServer, Message.TargetType.SERVER)
+                    .target(targetServer, Message.TargetType.SERVER)
                     .payload(Payload.string(world.getName()))
                     .build().send(b, teleporter));
             return;

@@ -346,7 +346,9 @@ public final class Settings {
 
         @Comment({"List of server in which /rtp is allowed. (Only relevant when using cross server mode WITH REDIS)",
                 "If a server is not defined here the RTP logic has no way of knowing its existence."})
-        private List<String> randomTargetServers = List.of("server-01", "server-02");
+        private Map<String, List<String>> randomTargetServers = new HashMap<>(
+                Map.of("survival_server", List.of("world", "world_nether", "world_the_end"))
+        );
     }
 
     @Comment("Action cooldown settings. Docs: https://william278.net/docs/huskhomes/cooldowns")

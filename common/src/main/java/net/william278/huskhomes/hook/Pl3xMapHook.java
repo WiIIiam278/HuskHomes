@@ -53,6 +53,10 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
+@PluginHook(
+        name = "Pl3xMap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class Pl3xMapHook extends MapHook implements EventListener {
 
     private static final String ICON_PATH = "/images/icon/registered/";

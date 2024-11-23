@@ -23,7 +23,6 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful & intuitiv
 * 🛏️ [[Global Respawning]]
 * 🌎 [[Global Spawn]]
 * ✍️ [[Placeholders]]
-* ⭐ [[GUI Add-on]]
 * 🕸️ [[Legacy Migration]] (*v2 → v3*)
 * 📦 [[API]]
   * 💡 [[API Examples]]

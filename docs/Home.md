@@ -8,6 +8,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful & intuitiv
 * ⛔ [[Managing Access]]
 * 🖥️ [[Commands]]
 * 📜 [[Command Conflicts]]
+* ⚙️ [[Troubleshooting]]
 * ❓ [[FAQs]]
 
 ## Documentation

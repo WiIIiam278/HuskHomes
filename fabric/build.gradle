@@ -33,9 +33,9 @@ dependencies {
     implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:26.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.34'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
     shadow project(path: ":common")
 }

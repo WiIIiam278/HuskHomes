@@ -21,11 +21,11 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.data.client.BlockStateVariantMap.QuadFunction;
 import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.util.QuadFunction;
 import org.jetbrains.annotations.NotNull;
 
 public interface HomeCreateCallback extends FabricEventCallback<IHomeCreateEvent> {

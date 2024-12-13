@@ -254,7 +254,7 @@ public final class Settings {
                 "Do not change unless you know what you're doing"})
         private String clusterId = "main";
 
-        @Comment("Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)")
+        @Comment("Type of network message broker to ues for cross-server networking (PLUGIN_MESSAGE or REDIS)")
         private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
         @Comment("Settings for if you're using REDIS as your message broker")

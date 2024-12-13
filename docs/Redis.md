@@ -12,7 +12,7 @@ To configure Redis, navigate to your [`config.yml`](Config-Files) file and modif
 <summary>Database options (config.yml)</summary>
 
 ```yaml
-# Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)
+# Type of network message broker to ues for cross-server networking (PLUGIN_MESSAGE or REDIS)
 broker_type: REDIS
 # Settings for if you're using REDIS as your message broker
 redis:

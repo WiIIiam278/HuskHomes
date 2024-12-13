@@ -122,7 +122,7 @@ cross_server:
   # The cluster ID, for if you're networking multiple separate groups of HuskHomes-enabled servers.
   # Do not change unless you know what you're doing
   cluster_id: main
-  # Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)
+  # Type of network message broker to ues for cross-server networking (PLUGIN_MESSAGE or REDIS)
   broker_type: PLUGIN_MESSAGE
   # Settings for if you're using REDIS as your message broker
   redis:

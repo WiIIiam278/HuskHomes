@@ -347,7 +347,7 @@ public final class Settings {
         @Comment({"List of server in which /rtp is allowed. (Only relevant when using cross server mode WITH REDIS)",
                 "If a server is not defined here the RTP logic has no way of knowing its existence."})
         private Map<String, List<String>> randomTargetServers = new HashMap<>(
-                Map.of("survival_server", List.of("world", "world_nether", "world_the_end"))
+                Map.of("server", List.of("world", "world_nether", "world_the_end"))
         );
     }
 

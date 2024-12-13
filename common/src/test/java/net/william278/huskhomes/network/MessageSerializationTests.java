@@ -49,7 +49,7 @@ public class MessageSerializationTests {
                     .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
-                                    World.from("TestWorld", UUID.randomUUID()), "TestServer")))
+                                    World.from("TestWorld"), "TestServer")))
                     .build(),
             Message.builder()
                     .type(Message.MessageType.TELEPORT_TO_NETWORKED_USER)
@@ -61,7 +61,7 @@ public class MessageSerializationTests {
                     .target("TestTarget", Message.TargetType.PLAYER)
                     .payload(Payload.position(
                             Position.at(63.25, 127.43, -32, 180f, -94.3f,
-                                    World.from("TestWorld", UUID.randomUUID()), "TestServer")))
+                                    World.from("TestWorld"), "TestServer")))
                     .build()
     );
 

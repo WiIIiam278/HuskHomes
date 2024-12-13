@@ -87,8 +87,8 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         }
 
         // Validate world and server, and execute RTP
-        Optional<Map.Entry<World, String>> validatedTarget = validateRtp(teleporter, executor, worldName, targetServer);
-        validatedTarget.ifPresent(entry -> executeRtp(teleporter, executor, entry.getKey(), entry.getValue(), args));
+        validateRtp(teleporter, executor, worldName.replace("minecraft:", ""), targetServer)
+                .ifPresent(entry -> executeRtp(teleporter, executor, entry.getKey(), entry.getValue(), args));
     }
 
     @Nullable
@@ -149,14 +149,10 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         };
     }
 
-
-
     /**
-     * Validates the RTP target world and server based on arguments, ensuring the server contains the target world.
-     * - If no server is specified, randomly selects a server containing the world.
-     * - Returns both the validated world and server as a pair.
+     * Validates that a random teleport operation is valid.
      *
-     * @param teleporter   The player to teleport
+     * @param teleporter   The player being teleported
      * @param executor     The player executing the command
      * @param worldName    The world name to teleport to
      * @param targetServer The server name to teleport to (optional)
@@ -176,9 +172,43 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             return Optional.empty();
         }
 
-        Map<String, List<String>> randomTargetServers = plugin.getSettings().getRtp().getRandomTargetServers();
+        // Validate a cross-server RTP, if applicable
+        if (plugin.getSettings().getRtp().isCrossServer() && !plugin.getServerName().equals(targetServer)) {
+            return validateCrossServerRtp(executor, worldName, targetServer);
+        }
 
+        // Find the local world
+        final Optional<World> localWorld = plugin.getWorlds().stream().filter((world) -> world
+                .getName().replace("minecraft:", "")
+                .equalsIgnoreCase(worldName)).findFirst();
+        if (localWorld.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_world", worldName)
+                    .ifPresent(executor::sendMessage);
+            return Optional.empty();
+        }
+
+        // Check the local world is not restricted
+        if (plugin.getSettings().getRtp().isWorldRtpRestricted(localWorld.get())) {
+            plugin.getLocales().getLocale("error_rtp_restricted_world")
+                    .ifPresent(executor::sendMessage);
+            return Optional.empty();
+        }
+        return localWorld.map(world -> new AbstractMap.SimpleImmutableEntry<>(world, worldName));
+    }
+
+    /**
+     * Validates the RTP target world and server based on arguments, ensuring the server contains the target world.
+     * - If no server is specified, randomly selects a server containing the world.
+     * - Returns both the validated world and server as a pair.
+     *
+     * @param executor     The player executing the command
+     * @param worldName    The world name to teleport to
+     * @param targetServer The server name to teleport to (optional)
+     * @return A pair of the target world and server to use for teleportation, if valid
+     */
+    private Optional<Map.Entry<World, String>> validateCrossServerRtp(CommandUser executor, String worldName, String targetServer) {
         // Get a list of servers that have the specified world
+        Map<String, List<String>> randomTargetServers = plugin.getSettings().getRtp().getRandomTargetServers();
         List<String> eligibleServers = randomTargetServers.entrySet().stream()
                 .filter(entry -> entry.getValue().contains(worldName))
                 .map(Map.Entry::getKey)
@@ -196,11 +226,12 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         }
 
         Optional<World> targetWorld = plugin.getWorlds().stream()
-                .filter(world -> world.getName().equalsIgnoreCase(worldName))
+                .filter(world -> world.getName().replace("minecraft:", "")
+                        .equalsIgnoreCase(worldName))
                 .findFirst()
-                .or(() -> Optional.of(World.from(worldName, UUID.randomUUID())));
+                .or(() -> Optional.of(World.from(worldName)));
 
-        return targetWorld.map(world -> new AbstractMap.SimpleEntry<>(world, selectedServer));
+        return targetWorld.map(world -> new AbstractMap.SimpleImmutableEntry<>(world, selectedServer));
     }
 
     /**
@@ -211,7 +242,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
      * @param executor     The player executing the command
      * @param world        The validated world to teleport to
      * @param targetServer The validated server to teleport to
-     * @param args       Arguments to pass to the RTP engine
+     * @param args         Arguments to pass to the RTP engine
      */
     private void executeRtp(@NotNull OnlineUser teleporter, @NotNull CommandUser executor,
                             @NotNull World world, @NotNull String targetServer, @NotNull String[] args) {
@@ -220,7 +251,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
                 .ifPresent(teleporter::sendMessage);
 
         if (plugin.getSettings().getRtp().isCrossServer() && plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
+            && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
             if (targetServer.equals(plugin.getServerName())) {
                 performLocalRTP(teleporter, executor, world, args);
                 return;

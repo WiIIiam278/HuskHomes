@@ -51,6 +51,11 @@ public class World {
     }
 
     @NotNull
+    public static World from(@NotNull String name) {
+        return from(name, UUID.randomUUID());
+    }
+
+    @NotNull
     @SuppressWarnings("unused")
     public Environment getEnvironment() {
         return environment == null ? Environment.OVERWORLD : environment;

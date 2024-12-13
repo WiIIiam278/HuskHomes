@@ -47,6 +47,7 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
         super.handlePlayerJoin(getPlugin().getOnlineUser(event.getPlayer()));
     }
 

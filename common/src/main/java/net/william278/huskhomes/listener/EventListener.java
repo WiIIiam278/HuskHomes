@@ -104,8 +104,8 @@ public abstract class EventListener {
      * @param online the leaving {@link OnlineUser}
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser online) {
-        online.removeInvulnerabilityIfPermitted();
         plugin.getOnlineUserMap().remove(online.getUuid());
+        online.removeInvulnerabilityIfPermitted();
 
         plugin.runAsync(() -> {
            // Set offline position

@@ -37,26 +37,27 @@ public class FabricEventListener extends EventListener {
     @Override
     public void register() {
         // Join event
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> handlePlayerJoin(
-                getPlugin().getOnlineUser(handler.player)
-        ));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            getPlugin().getOnlineUserMap().remove(handler.getPlayer().getUuid());
+            super.handlePlayerJoin(getPlugin().getOnlineUser(handler.getPlayer()));
+        });
 
         // Quit event
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> handlePlayerLeave(
-                getPlugin().getOnlineUser(handler.player)
+                getPlugin().getOnlineUser(handler.getPlayer())
         ));
 
         // Death event
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             if (entity instanceof ServerPlayerEntity player) {
-                handlePlayerDeath(getPlugin().getOnlineUser(player));
+                super.handlePlayerDeath(getPlugin().getOnlineUser(player));
             }
         });
 
         // Respawn event
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             getPlugin().getOnlineUserMap().remove(oldPlayer.getUuid());
-            handlePlayerRespawn(getPlugin().getOnlineUser(newPlayer));
+            super.handlePlayerRespawn(getPlugin().getOnlineUser(newPlayer));
         });
     }
 

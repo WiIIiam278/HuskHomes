@@ -3,7 +3,7 @@ HuskHomes provides a range of commands for you to use. This page will detail the
 ## Commands & Permissions Table
 > **Command Conflicts:** If you have multiple plugins providing similar commands, you may need to [create aliases](command-conflicts) to ensure HuskHomes' commands take priority.
 
-<table align="right">
+<table align="right" style="width: max-content">
     <thead>
         <tr><th colspan="2">Key</th></tr>
     </thead>

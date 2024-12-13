@@ -34,6 +34,6 @@ dependencies:
       required: false
       join-classpath: true
     Essentials:
-      load: AFTER
+      load: OMIT # Important - Avoid changing this due to circular dependency issues
       required: false
       join-classpath: true

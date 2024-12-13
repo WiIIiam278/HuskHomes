@@ -167,7 +167,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasInvulnerability() {
-        return player.getCommandTags().contains(INVULNERABLE_TAG);
+        return markedAsInvulnerable || player.getCommandTags().contains(INVULNERABLE_TAG);
     }
 
     @Override
@@ -178,6 +178,7 @@ public class FabricUser extends OnlineUser {
         }
         player.setInvulnerable(true);
         player.getCommandTags().add(INVULNERABLE_TAG);
+        markedAsInvulnerable = true;
         plugin.runSyncDelayed(this::removeInvulnerabilityIfPermitted, this, invulnerableTicks);
     }
 
@@ -187,6 +188,7 @@ public class FabricUser extends OnlineUser {
             player.setInvulnerable(false);
         }
         player.removeCommandTag(INVULNERABLE_TAG);
+        markedAsInvulnerable = false;
     }
 
     @NotNull

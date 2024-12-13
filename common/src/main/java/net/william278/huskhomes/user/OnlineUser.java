@@ -45,6 +45,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class OnlineUser extends User implements Teleportable, CommandUser {
 
     protected final HuskHomes plugin;
+    protected boolean markedAsInvulnerable = false;
 
     protected OnlineUser(@NotNull UUID uuid, @NotNull String username, @NotNull HuskHomes plugin) {
         super(uuid, username);

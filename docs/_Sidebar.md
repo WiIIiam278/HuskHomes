@@ -22,7 +22,6 @@
 * 📊 [[Importing Data]]
 * ⛔ [[Managing Access]]
 * 📜 [[Command Conflicts]]
-* 📝 [[Translations]]
 * ✍️ [[Placeholders]]
 * 🎏 [[Translations]]
 

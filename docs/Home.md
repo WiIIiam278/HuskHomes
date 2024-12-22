@@ -25,7 +25,6 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful & intuitiv
 * 📊 [[Importing Data]]
 * ⛔ [[Managing Access]]
 * 📜 [[Command Conflicts]]
-* 📝 [[Translations]]
 * ✍️ [[Placeholders]]
 * 🎏 [[Translations]]
 

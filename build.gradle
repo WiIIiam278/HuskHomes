@@ -4,6 +4,7 @@ plugins {
     id 'io.github.goooler.shadow' version '8.1.8'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'fabric-loom' version "$fabric_loom_version" apply false
+    id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.0'
     id 'maven-publish'
     id 'java'
@@ -57,6 +58,10 @@ publishing {
 }
 
 allprojects {
+    if (project.name == 'fabric') {
+        return
+    }
+
     apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
@@ -90,7 +95,6 @@ allprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
-
         testCompileOnly 'org.jetbrains:annotations:26.0.1'
     }
 
@@ -113,14 +117,26 @@ allprojects {
 }
 
 subprojects {
+    // Ignore root fabric project (no jars)
+    if (project.name == 'fabric') {
+        return
+    }
+
+    // Project naming
     version rootProject.version
-    archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+    def name = "$rootProject.name"
+    if (rootProject != project.parent) {
+        name += "-${project.parent.name.capitalize()}"
+    } else {
+        name += "-${project.name.capitalize()}"
+    }
+    archivesBaseName = name
 
     // Fabric-specific configuration
-    if (['fabric'].contains(project.name)) {
+    if (project.parent?.name?.equals('fabric')) {
         apply plugin: 'fabric-loom'
         compileJava.options.release.set 21
-        version += "+mc.${fabric_minecraft_version}"
+        version += "+mc.${project.name}"
     }
 
     jar {
@@ -133,7 +149,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common', 'bukkit', 'fabric'].contains(project.name)) {
+    if (['common', 'bukkit'].contains(project.name) || project.parent?.name?.equals('fabric')) {
         java {
             withSourcesJar()
             withJavadocJar()
@@ -173,12 +189,12 @@ subprojects {
                 }
             }
 
-            if (['fabric'].contains(project.name)) {
+            if (project.parent?.name?.equals('fabric')) {
                 publications {
-                    mavenJavaFabric(MavenPublication) {
+                    "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
                         groupId = 'net.william278.huskhomes'
                         artifactId = 'huskhomes-fabric'
-                        version = "$rootProject.version+${fabric_minecraft_version}"
+                        version = "$rootProject.version+$project.name"
                         artifact remapJar
                         artifact sourcesJar
                         artifact javadocJar

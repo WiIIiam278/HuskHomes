@@ -33,7 +33,11 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
+//#if MC==12104
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
+//#else
+//$$ import net.kyori.adventure.platform.fabric.FabricServerAudiences;
+//#endif
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -95,8 +99,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
 
-    private MinecraftServer minecraftServer;
+    //#if MC==12104
     private MinecraftServerAudiences audiences;
+    //#else
+    //$$ private FabricServerAudiences audiences;
+    //#endif
+    private MinecraftServer minecraftServer;
 
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
@@ -140,7 +148,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private void onEnable(@NotNull MinecraftServer server) {
         this.minecraftServer = server;
+        //#if MC==12104
         this.audiences = MinecraftServerAudiences.of(minecraftServer);
+        //#else
+        //$$ this.audiences = FabricServerAudiences.of(minecraftServer);
+        //#endif
         this.enable();
     }
 

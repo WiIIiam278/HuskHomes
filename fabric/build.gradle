@@ -1,8 +1,8 @@
 plugins {
-    id 'fabric-loom' version "$fabric_loom_version"
+    id 'gg.essential.multi-version'
+    id 'gg.essential.defaults'
 }
 
-apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 repositories {
@@ -12,21 +12,17 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
-    mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-
     modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     implementation include('org.apache.commons:commons-pool2:2.12.0')
-    implementation include("redis.clients:jedis:$jedis_version")
+    implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
-    implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
+    implementation include("redis.clients:jedis:$jedis_version")
     implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:26.0.1'
@@ -34,7 +30,23 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
-    shadow project(path: ":common")
+    implementation include(project(path: ":common"))
+    project(":common").configurations.api.dependencies.each { dependency ->
+        if (dependency.name in ['cloplib-common', 'gson']) { // skip because it already exists (e.g. in cloplib-fabric)
+            return
+        }
+        include(dependency)
+    }
+}
+
+processResources {
+    filesMatching(Arrays.asList("fabric.mod.json")) {
+        expand([
+                version: version,
+                fabric_loader_version: fabric_loader_version,
+                fabric_minecraft_version: project.name,
+        ])
+    }
 }
 
 shadowJar {
@@ -44,19 +56,6 @@ shadowJar {
     exclude('net.fabricmc:.*')
     exclude('net.kyori:.*')
     exclude '/mappings/*'
-
-    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
-    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
-    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
-    relocate 'de.themoep', 'net.william278.huskhomes.libraries'
-    relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
-    relocate 'org.intellij', 'net.william278.huskhomes.libraries'
-    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
-    relocate 'net.william278.paginedown', 'net.william278.huskhomes.libraries.paginedown'
-    relocate 'net.william278.desertwell', 'net.william278.huskhomes.libraries.desertwell'
-    relocate 'de.exlll', 'net.william278.huskhomes.libraries'
-    relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
-    relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
 }
 
 remapJar {

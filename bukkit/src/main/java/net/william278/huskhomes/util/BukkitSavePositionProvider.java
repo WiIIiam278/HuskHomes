@@ -25,6 +25,7 @@ import net.william278.huskhomes.position.Location;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -50,7 +51,8 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
                 .thenApply(snapshot -> findSafeLocationNear(
                         location,
                         snapshot,
-                        bukkitLocation.getWorld().getMinHeight()
+                        getMinHeight(bukkitLocation.getWorld()),
+                        getMaxHeight(bukkitLocation.getWorld())
                 ));
     }
 
@@ -60,10 +62,11 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
      * @param location The location to search around
      * @param chunk    The chunk snapshot to search
      * @param minY     The minimum Y value of the world
+     * @param maxY     The maximum Y value of the world
      * @return An optional safe location, within 4 blocks of the given location
      */
     private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ChunkSnapshot chunk,
-                                                    int minY) {
+                                                    int minY, int maxY) {
         final int chunkX = ((int) location.getX()) & 0xF;
         final int chunkZ = ((int) location.getZ()) & 0xF;
 
@@ -74,7 +77,7 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
                 if (x < 0 || x >= 16 || z < 0 || z >= 16) {
                     continue;
                 }
-                final int y = Math.max((minY + 1), chunk.getHighestBlockYAt(x, z)) + 1;
+                final int y = Math.max((minY + 1), Math.min(chunk.getHighestBlockYAt(x, z), maxY)) + 1;
                 final Material blockType = chunk.getBlockType(x, y - 1, z);
                 final Material bodyBlockType = chunk.getBlockType(x, y, z);
                 final Material headBlockType = chunk.getBlockType(x, y + 1, z);
@@ -104,5 +107,31 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
         }
         return Optional.empty();
     }
+
+    private int getMinHeight(World world) {
+        int minHeight = world.getMinHeight();
+        for (String pair : getPlugin().getSettings().getRtp().getMinHeight()) {
+            String worldName = pair.split(":")[0];
+            int settingsHeight = Integer.parseInt(pair.split(":")[1]);
+            if (world.getName().equals(worldName) & settingsHeight >= minHeight) {
+                minHeight = settingsHeight;
+            }
+        }
+        return minHeight;
+    }
+
+    private int getMaxHeight(World world) {
+        int maxHeight = world.getMaxHeight();
+        for (String pair : getPlugin().getSettings().getRtp().getMaxHeight()) {
+            String worldName = pair.split(":")[0];
+            int settingsHeight = Integer.parseInt(pair.split(":")[1]);
+            if (world.getName().equals(worldName) & settingsHeight >= maxHeight) {
+                maxHeight = settingsHeight;
+            }
+        }
+        return maxHeight;
+    }
+
+    
 
 }

@@ -29,6 +29,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +58,7 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
-        return CompletableFuture.completedFuture(findSafeLocationNear(location, world));
+        return CompletableFuture.completedFuture(findSafeLocationNear(location, world, location.getWorld().getName()));
     }
 
     /**
@@ -66,12 +67,13 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
      * @param location The location to search around
      * @return An optional safe location, within 4 blocks of the given location
      */
-    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ServerWorld world) {
+    private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ServerWorld world, @NotNull String worldName) {
         final BlockPos.Mutable blockPos = new BlockPos.Mutable(location.getX(), location.getY(), location.getZ());
         for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
                 blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
-                final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ()) + 1;
+                final int highestY = Math.max(getMinHeight(world, worldName), Math.min(getHighestYAt(world, blockPos.getX(),
+                                blockPos.getY(), blockPos.getZ()) + 1, getMaxHeight(world, worldName)));
 
                 final Block block = world.getBlockState(blockPos.withY(highestY - 1)).getBlock();
                 final Identifier id = Registries.BLOCK.getId(block);
@@ -124,6 +126,30 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
             cursor.move(Direction.DOWN);
         }
         return cursor.getY();
+    }
+
+    private int getMinHeight(ServerWorld world, String worldName) {
+        int minHeight = world.getDimension().minY();
+        for (String pair : getPlugin().getSettings().getRtp().getMinHeight()) {
+            String settingsWorldName = pair.split(":")[0];
+            int settingsHeight = Integer.parseInt(pair.split(":")[1]);
+            if (settingsWorldName.equals(worldName) & settingsHeight >= minHeight) {
+                minHeight = settingsHeight;
+            }
+        }
+        return minHeight;
+    }
+
+    private int getMaxHeight(ServerWorld world, String worldName) {
+        int maxHeight = world.getDimension().height() + world.getDimension().minY();
+        for (String pair : getPlugin().getSettings().getRtp().getMaxHeight()) {
+            String settingsWorldName = pair.split(":")[0];
+            int settingsHeight = Integer.parseInt(pair.split(":")[1]);
+            if (settingsWorldName.equals(worldName) & settingsHeight >= maxHeight) {
+                maxHeight = settingsHeight;
+            }
+        }
+        return maxHeight;
     }
 
 }

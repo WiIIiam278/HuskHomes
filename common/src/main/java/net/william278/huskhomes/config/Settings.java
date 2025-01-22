@@ -330,6 +330,12 @@ public final class Settings {
         @Comment("Standard deviation of the normal distribution for distributing players randomly")
         private float distributionStandardDeviation = 2.0f;
 
+        @Comment({"Set the minimum random teleportation height for each world", "List of world_name:height pairs"})
+        private List<String> minHeight = Lists.newArrayList();
+
+        @Comment({"Set the maximum random teleportation height for each world", "List of world_name:height pairs"})
+        private List<String> maxHeight = Lists.newArrayList();
+
         @Comment("List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.")
         private List<String> restrictedWorlds = List.of("world_nether", "world_the_end");
 

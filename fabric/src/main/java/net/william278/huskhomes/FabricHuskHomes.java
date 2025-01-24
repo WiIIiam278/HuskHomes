@@ -30,6 +30,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.impl.networking.PayloadTypeRegistryImpl;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
@@ -39,6 +40,7 @@ import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 //$$ import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 //#endif
 import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -86,6 +88,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+
+import static net.william278.huskhomes.network.FabricPluginMessage.CHANNEL_ID;
 
 
 @Getter
@@ -285,17 +289,23 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
+    @SuppressWarnings("UnstableApiUsage")
     public void setupPluginMessagingChannels() {
-        PayloadTypeRegistry.playC2S().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
-        PayloadTypeRegistry.playS2C().register(FabricPluginMessage.CHANNEL_ID, FabricPluginMessage.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(FabricPluginMessage.CHANNEL_ID, this);
+        // Don't re-register payload types if another plugin service has done so.
+        if (((PayloadTypeRegistryImpl<? extends PacketByteBuf>) PayloadTypeRegistry.playC2S()).get(CHANNEL_ID) != null) {
+            PayloadTypeRegistry.playC2S().register(CHANNEL_ID, FabricPluginMessage.CODEC);
+        }
+        if (((PayloadTypeRegistryImpl<? extends PacketByteBuf>) PayloadTypeRegistry.playS2C()).get(CHANNEL_ID) != null) {
+            PayloadTypeRegistry.playS2C().register(CHANNEL_ID, FabricPluginMessage.CODEC);
+        }
+        ServerPlayNetworking.registerGlobalReceiver(CHANNEL_ID, this);
     }
 
     // When the server receives a plugin message
     @Override
     public void receive(@NotNull FabricPluginMessage payload, @NotNull ServerPlayNetworking.Context context) {
         if (broker instanceof PluginMessageBroker messenger
-            && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
                     getOnlineUser(context.player()),

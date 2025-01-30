@@ -196,4 +196,13 @@ public class FabricUser extends OnlineUser {
         return player;
     }
 
+    /**
+     * Check if the teleporter can be teleported to.
+     *
+     * @return true if the teleport may complete.
+     */
+    @Override
+    public boolean isValid() {
+        return player.isAlive();
+    }
 }

@@ -66,7 +66,7 @@ public record Username(@NotNull String name) implements Teleportable, Target {
     }
 
     /**
-     * Check if the teleporter can be teleported to.
+     * Check if the teleporter can teleport.
      *
      * @return true if the teleport may complete.
      */

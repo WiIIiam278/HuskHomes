@@ -175,4 +175,13 @@ public class BukkitUser extends OnlineUser {
         markedAsInvulnerable = false;
     }
 
+    /**
+     * Check if the teleporter can teleport.
+     *
+     * @return true if the teleport may complete.
+     */
+    @Override
+    public boolean isValid() {
+        return getHealth() > 0;
+    }
 }

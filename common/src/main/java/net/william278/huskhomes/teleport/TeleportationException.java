@@ -80,7 +80,8 @@ public class TeleportationException extends IllegalStateException {
         WARMUP_ALREADY_MOVING,
         WORLD_NOT_FOUND,
         ILLEGAL_TARGET_COORDINATES,
-        CANNOT_TELEPORT_TO_SELF
+        CANNOT_TELEPORT_TO_SELF,
+        TELEPORTER_INVALID
     }
 
 }

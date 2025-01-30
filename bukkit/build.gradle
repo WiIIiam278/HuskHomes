@@ -1,13 +1,13 @@
 dependencies {
     implementation project(':common')
 
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    implementation 'org.bstats:bstats-bukkit:3.1.0'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.3'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
 
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'net.william278:minedown:1.8.2'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
@@ -15,17 +15,17 @@ dependencies {
     compileOnly('net.essentialsx:EssentialsX:2.20.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
-    compileOnly 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
     testImplementation 'net.william278:minedown:1.8.2'
-    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.3'
-    testImplementation 'org.apache.commons:commons-text:1.12.0'
+    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.4'
+    testImplementation 'org.apache.commons:commons-text:1.13.0'
     testImplementation "redis.clients:jedis:${jedis_version}"
     testImplementation "org.xerial:sqlite-jdbc:${sqlite_driver_version}"
     testImplementation "com.mysql:mysql-connector-j:${mysql_driver_version}"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
 
 shadowJar {

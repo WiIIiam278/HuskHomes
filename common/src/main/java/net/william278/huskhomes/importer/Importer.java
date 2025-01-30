@@ -35,24 +35,27 @@ import java.util.logging.Level;
 public abstract class Importer extends Hook {
 
     protected final HuskHomes plugin;
-    private final String name;
     private final List<ImportData> supportedImportData;
 
-    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData, @NotNull HuskHomes plugin) {
-        super(plugin, name + " Importer");
-        this.name = name;
+    protected Importer(@NotNull List<ImportData> supportedData, @NotNull HuskHomes plugin) {
+        super(plugin);
         this.supportedImportData = supportedData;
         this.plugin = plugin;
     }
 
     @Override
-    public void initialize() {
-        // No initialization required
+    public void load() {
+        // Empty
+    }
+
+    @Override
+    public void unload() {
+        // Empty
     }
 
     public final void start(@NotNull CommandUser user) {
         final LocalDateTime startTime = LocalDateTime.now();
-        log(user, Level.INFO, "⌚ Starting " + name + " data import...");
+        log(user, Level.INFO, "⌚ Starting " + getName() + " data import...");
 
         for (ImportData data : supportedImportData) {
             try {
@@ -66,7 +69,7 @@ public abstract class Importer extends Hook {
         }
 
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
-        log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
+        log(user, Level.INFO, "✔ Completed import from " + getName() + " (took " + timeTaken + "s)");
     }
 
     protected abstract int importData(@NotNull ImportData importData) throws Throwable;
@@ -81,11 +84,6 @@ public abstract class Importer extends Hook {
             online.sendMessage(Component.text(message, color));
         }
         plugin.log(level, message, e);
-    }
-
-    @NotNull
-    public String getImporterName() {
-        return name;
     }
 
     @NotNull

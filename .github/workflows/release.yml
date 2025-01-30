@@ -28,7 +28,7 @@ jobs:
           RELEASES_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           RELEASES_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v5
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
@@ -42,20 +42,20 @@ jobs:
           changelog: ${{ github.event.release.body }}
           distro-names: |
             paper
-            sponge-10
-            fabric-1.21
+            fabric-1.21.1
+            fabric-1.21.4
           distro-groups: |
             paper
-            sponge
+            fabric
             fabric
           distro-descriptions: |
             Paper
-            Sponge API 10
-            Fabric 1.21
+            Fabric 1.21.1
+            Fabric 1.21.4
           files: |
             target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
-            target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
-            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -96,27 +96,11 @@ jobs:
             1.20.5
             1.20.6
             1.21
+            1.21.1
+            1.21.2
+            1.21.4
           java: 17
-      - name: 'Sponge: Publish to Modrinth 🧽'
-        uses: WiIIiam278/mc-publish@hangar
-        with:
-          modrinth-id: J6U9o3JG
-          modrinth-featured: false
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-dependencies: |
-            bluemap | suggests | *
-            plan | suggests | *
-          files-primary: target/HuskHomes-Sponge-${{ github.event.release.tag_name }}.jar
-          name: HuskHomes (Sponge) v${{ github.event.release.tag_name }}
-          version: ${{ env.version_name }}
-          version-type: release
-          changelog: ${{ github.event.release.body }}
-          loaders: |
-            sponge
-          game-versions: |
-            1.19.4
-          java: 17
-      - name: 'Fabric: Publish to Modrinth & CurseForge 🧵'
+      - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
@@ -133,7 +117,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.jar
+          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -141,5 +125,32 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.21
+            1.21.1
+          java: 21
+      - name: 'Fabric 1.21.4: Publish to Modrinth & CurseForge 🧵'
+        uses: WiIIiam278/mc-publish@hangar
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            dynmap | suggests | *
+            bluemap | suggests | *
+            pl3xmap | suggests | *
+            luckperms | suggests | *
+            plan | suggests | *
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
+          name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          version-type: release
+          changelog: ${{ github.event.release.body }}
+          loaders: |
+            fabric
+          game-versions: |
+            1.21.4
           java: 21

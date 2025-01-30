@@ -28,7 +28,7 @@
 
 **HuskHomes** is a powerful, intuitive and flexible teleportation plugin for _Minecraft: Java Edition_ servers. HuskHomes contains a meaty&mdash;but not bloated&mdash;set of player teleportation features, including set homes, warps, public homes, teleport requests, previous and offline position teleporting&mdash;and more. 
 
-HuskHomes can be used on your Spigot, Sponge or Fabric server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!  
+HuskHomes can be used on your Spigot or Fabric server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!  
 
 ## Features
 **⭐ Works cross-server** &mdash; Let players seamlessly teleport and set homes across your proxies network of servers using MySQL/MariaDB.
@@ -43,8 +43,8 @@ HuskHomes can be used on your Spigot, Sponge or Fabric server, and with a MySQL 
 
 **⭐ Extensible API & open-source** &mdash; Still not enough? Extend the plugin with the HuskHomes API. Or, submit a pull request—we're open-source!
 
-## Building
-HuskHomes requires Java 17 to build. To build for all platforms, simply run the following in the root of the repository:
+## Development
+To build HuskHomes, simply run the following in the root of the repository (building requires Java 21):
 
 ```bash
 ./gradlew clean build
@@ -66,7 +66,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [Modrinth](https://modrinth.com/plugin/huskhomes) &mdash; View the plugin Modrinth page (Also: [Spigot](https://www.spigotmc.org/resources/huskhomes.83767/), [Polymart](https://polymart.org/resource/huskhomes.284/), [Hangar](https://hangar.papermc.io/William278/HuskHomes), & [CurseForge](https://www.curseforge.com/minecraft/mc-mods/huskhomes/))
 - [Issues](https://github.com/WiIIiam278/HuskHomes/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions
-- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics (Also: [Sponge](https://bstats.org/plugin/sponge/HuskHomes/18423))
+- [bStats](https://bstats.org/plugin/bukkit/HuskHomes/8430) &mdash; View plugin metrics
 
 ---
-&copy; [William278](https://william278.net/), 2023. Licensed under the Apache-2.0 License.
+&copy; [William278](https://william278.net/), 2025. Licensed under the Apache-2.0 License.

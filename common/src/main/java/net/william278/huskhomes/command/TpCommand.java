@@ -25,16 +25,22 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.*;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
+import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TpCommand extends Command implements TabProvider {
+public class TpCommand extends Command implements TabCompletable {
 
     protected TpCommand(@NotNull HuskHomes plugin) {
-        super("tp", List.of("tpo"), "[<player|position>] [target]", plugin);
+        super(
+                List.of("tp", "tpo"),
+                "[<player|position>] [target]",
+                plugin
+        );
+
         addAdditionalPermissions(Map.of("coordinates", true, "other", true));
         setOperatorCommand(true);
     }
@@ -89,10 +95,10 @@ public class TpCommand extends Command implements TabProvider {
 
         // Determine teleporter and target names, validate permissions
         final @Nullable String targetName = target instanceof Username username ? username.name()
-                : target instanceof OnlineUser online ? online.getUsername() : null;
+                : target instanceof OnlineUser online ? online.getName() : null;
         if (executor instanceof OnlineUser online) {
             if (online.equals(teleporter)) {
-                if (teleporter.getUsername().equalsIgnoreCase(targetName)) {
+                if (teleporter.getName().equalsIgnoreCase(targetName)) {
                     plugin.getLocales().getLocale("error_cannot_teleport_self")
                             .ifPresent(executor::sendMessage);
                     return;
@@ -112,14 +118,14 @@ public class TpCommand extends Command implements TabProvider {
 
         // Display the teleport completion message
         if (target instanceof Position position) {
-            plugin.getLocales().getLocale("teleporting_other_complete_position", teleporter.getUsername(),
+            plugin.getLocales().getLocale("teleporting_other_complete_position", teleporter.getName(),
                             Integer.toString((int) position.getX()), Integer.toString((int) position.getY()),
                             Integer.toString((int) position.getZ()))
                     .ifPresent(executor::sendMessage);
             return;
         }
         plugin.getLocales().getLocale("teleporting_other_complete",
-                        teleporter.getUsername(), Objects.requireNonNull(targetName))
+                        teleporter.getName(), Objects.requireNonNull(targetName))
                 .ifPresent(executor::sendMessage);
     }
 
@@ -128,7 +134,6 @@ public class TpCommand extends Command implements TabProvider {
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final Position relative = getBasePosition(user);
         final boolean serveCoordinateCompletions = user.hasPermission(getPermission("coordinates"));
-        final boolean servePlayerCompletions = user.hasPermission(getPermission("other"));
         switch (args.length) {
             case 0, 1 -> {
                 final ArrayList<String> completions = Lists.newArrayList(serveCoordinateCompletions
@@ -137,9 +142,7 @@ public class TpCommand extends Command implements TabProvider {
                         ((int) relative.getX() + " " + (int) relative.getY()),
                         ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                         : List.of());
-                if (servePlayerCompletions) {
-                    completions.addAll(plugin.getPlayerList(false));
-                }
+                plugin.getUserList().stream().map(User::getName).forEach(completions::add);
                 return completions.stream()
                         .filter(s -> s.toLowerCase().startsWith(args.length == 1 ? args[0].toLowerCase() : ""))
                         .sorted().collect(Collectors.toList());
@@ -157,8 +160,8 @@ public class TpCommand extends Command implements TabProvider {
                             ((int) relative.getX() + " " + (int) relative.getY() + " " + (int) relative.getZ()))
                             : List.of()
                     );
-                    if (servePlayerCompletions) {
-                        completions.addAll(plugin.getPlayerList(false));
+                    if (user.hasPermission(getPermission("other"))) {
+                        plugin.getUserList().stream().map(User::getName).forEach(completions::add);
                     }
                 }
                 return completions.stream()

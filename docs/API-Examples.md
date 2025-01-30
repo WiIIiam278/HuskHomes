@@ -1,6 +1,5 @@
-> **Please Note:** The HuskHomes API itself is only available on Bukkit, but Fabric and Sponge do support [API events](api-events).
-
 The HuskHomes API provides methods and classes for:
+
 * getting, creating and updating `Home`s and `Warp`s
 * getting information about `SavedUser` data
 * building and executing (timed) `Teleport`s, including cross-server teleports
@@ -75,6 +74,30 @@ A number of methods from the HuskHomesAPI return asynchronously-executing [Compl
 
 > **Warning:** You should never call `#join()` on futures returned from the HuskHomesAPI as futures are processed on server asynchronous tasks, which could lead to thread deadlock and crash your server if you attempt to lock the main thread to process them.
 
+## Getting a player
+You can get an OnlineUser object, which represents a player currently connected to a server, by calling `HuskHomesAPI#adaptUser`.
+
+Alternatively (if you're compiling against the common module) you could use `HuskHomesAPI#getOnlineUser(UUID)` to get an `Optional` online user by UUID; the optional will contain the user if they are present and online.
+
+<details>
+<summary>Getting an OnlineUser</summary>
+
+```java
+public class HuskHomesAPIHook {
+
+    private final HuskHomesAPI huskHomesAPI;
+
+    // This method prints out a player's homes into console using stdout
+    public void getAnOnlineUser(UUID uuid) {
+        OnlineUser user = huskHomesAPI.adaptUser(Bukkit.getPlayer(uuid));
+        System.out.println("Found " + user.getUsername() + "!");
+        Optional<OnlineUser> otherMethod = huskHomesAPI.getOnlineUser(uuid);
+    }
+
+}
+```
+</details>
+
 ## Getting a player's homes
 To get a list of a player's homes, you can call `#getUserHomes(user)` on the API instance. This method requires a `User` object, which can be constructed from a UUID and username, or adapted from an online player using `#adaptUser(player)`. The method returns a `CompletableFuture<List<Home>>`, which can be accepted with `#thenAccept()`.
 
@@ -106,7 +129,7 @@ public class HuskHomesAPIHook {
         huskHomesAPI.getUserHome(user, "example").thenAccept(optionalHome -> {
             // #getUserHome returns an Optional wrapper, so we need to run #ifPresent() first and call #get() to retrieve it if it exists
             if (optionalHome.isPresent()) {
-                System.out.println("Found " + user.getUsername() + "'s home: " optionalHome.get().getName());
+                System.out.println("Found " + user.getUsername() + "'s home: " + optionalHome.get().getName());
             } else {
                 System.out.println("Home not found");
             }

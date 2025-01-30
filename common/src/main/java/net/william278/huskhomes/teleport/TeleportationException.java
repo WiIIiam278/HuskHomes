@@ -23,6 +23,7 @@ import lombok.Getter;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class TeleportationException extends IllegalStateException {
 
@@ -36,7 +37,10 @@ public class TeleportationException extends IllegalStateException {
         this.plugin = plugin;
     }
 
-    public void displayMessage(@NotNull CommandUser user, @NotNull String... args) {
+    public void displayMessage(@Nullable CommandUser user, @NotNull String... args) {
+        if (user == null) {
+            user = plugin.getConsole();
+        }
         switch (type) {
             case TELEPORTER_NOT_FOUND -> plugin.getLocales()
                     .getLocale("error_player_not_found", args)

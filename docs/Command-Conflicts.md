@@ -48,7 +48,7 @@ disabled-commands:
 </details>
 
 ## Fallback namespace
-> **Applies to:** Spigot, Paper, Fabric, Sponge
+> **Applies to:** Spigot, Paper, or Fabric
 
 All commands are registered with a fallback namespace, so that you can still access them. For instance, `/minecraft:tp` will run the default Minecraft teleport command, while `/huskhomes:tp` will run HuskHomes' tp command.
 

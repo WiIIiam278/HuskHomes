@@ -33,6 +33,7 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleportable;
 import net.william278.huskhomes.teleport.TeleportationException;
 import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,6 +45,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class OnlineUser extends User implements Teleportable, CommandUser {
 
     protected final HuskHomes plugin;
+    protected boolean markedAsInvulnerable = false;
 
     protected OnlineUser(@NotNull UUID uuid, @NotNull String username, @NotNull HuskHomes plugin) {
         super(uuid, username);
@@ -213,13 +215,13 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      */
     public abstract boolean isVanished();
 
-    /**
-     * Handles player invulnerability after teleporting.
-     *
-     * @since 4.6.2
-     */
+    @ApiStatus.Internal
+    public abstract boolean hasInvulnerability();
+
+    @ApiStatus.Internal
     public abstract void handleInvulnerability();
 
+    @ApiStatus.Internal
     public abstract void removeInvulnerabilityIfPermitted();
 
     /**
@@ -258,6 +260,20 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
         } else {
             return homes.get(0);
         }
+    }
+
+    /**
+     * Get the largest permission node value for teleport warmup.
+     *
+     * @param defaultTeleportWarmup the default teleport warmup time, if no perms are set
+     * @return the largest permission node value for teleport warmup
+     */
+    public int getMaxTeleportWarmup(final int defaultTeleportWarmup) {
+        final List<Integer> homes = getNumericalPermissions("huskhomes.teleport_warmup.");
+        if (homes.isEmpty()) {
+            return defaultTeleportWarmup;
+        }
+        return homes.get(0);
     }
 
     /**

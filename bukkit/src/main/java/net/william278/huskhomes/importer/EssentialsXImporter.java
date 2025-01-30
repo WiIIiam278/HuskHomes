@@ -24,6 +24,7 @@ import com.earth2me.essentials.Warps;
 import com.earth2me.essentials.commands.WarpNotFoundException;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
@@ -33,12 +34,16 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+@PluginHook(
+        name = "EssentialsX",
+        register = PluginHook.Register.AFTER_LOAD
+)
 public class EssentialsXImporter extends Importer {
 
     private final Essentials essentials;
 
     public EssentialsXImporter(@NotNull HuskHomes plugin) {
-        super("EssentialsX", List.of(ImportData.HOMES, ImportData.WARPS), plugin);
+        super(List.of(ImportData.HOMES, ImportData.WARPS), plugin);
         this.essentials = (Essentials) ((BukkitHuskHomes) plugin).getServer()
                 .getPluginManager().getPlugin("Essentials");
     }
@@ -64,6 +69,7 @@ public class EssentialsXImporter extends Importer {
                         this.normalizeName(homeName),
                         BukkitHuskHomes.Adapter.adapt(essentialsUser.getHome(homeName), plugin.getServerName()),
                         true,
+                        false,
                         true,
                         true
                 );
@@ -96,7 +102,7 @@ public class EssentialsXImporter extends Importer {
     @NotNull
     private String normalizeName(@NotNull String name) {
         try {
-            plugin.getValidator().validateName(name);
+            plugin.validateName(name);
             return name;
         } catch (ValidationException e) {
             // Remove spaces

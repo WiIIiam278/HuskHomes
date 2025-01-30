@@ -1,5 +1,5 @@
 plugins {
-    id 'xyz.jpenilla.run-paper' version '2.3.0'
+    id 'xyz.jpenilla.run-paper' version '2.3.1'
 }
 
 dependencies {
@@ -7,15 +7,15 @@ dependencies {
     compileOnly project(':common')
 
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
-    compileOnly 'org.bstats:bstats-bukkit:3.0.2'
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    compileOnly 'org.bstats:bstats-bukkit:3.1.0'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'net.william278:minedown:1.8.2'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
-    compileOnly 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
 
 shadowJar {
@@ -45,16 +45,10 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion('1.21')
+        minecraftVersion('1.21.4')
 
         downloadPlugins {
-//            url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")
-//            url("https://ci.lucko.me/job/spark/399/artifact/spark-bukkit/build/libs/spark-1.10.58-bukkit.jar")
-//            hangar("Plan-Player-Analytics", "5.6+build.2614")
-
-//        modrinth("dynmap", "5F9fwzR1")
-//            modrinth("pl3xmap", "1.20.4-489")
-//        modrinth("bluemap", "3.20-paper")
+            url("https://download.luckperms.net/1569/bukkit/loader/LuckPerms-Bukkit-5.4.152.jar")
         }
     }
 }

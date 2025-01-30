@@ -33,15 +33,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabProvider {
+public abstract class SavedPositionCommand<T extends SavedPosition> extends Command implements TabCompletable {
 
     protected final List<String> arguments;
     protected final PositionCommandType positionType;
 
-    protected SavedPositionCommand(@NotNull String name, @NotNull List<String> aliases,
+    protected SavedPositionCommand(@NotNull List<String> aliases,
                                    @NotNull PositionCommandType positionType,
                                    @NotNull List<String> arguments, @NotNull HuskHomes plugin) {
-        super(name, aliases, "<name>" + formatUsage(arguments), plugin);
+        super(aliases, "<name>" + formatUsage(arguments), plugin);
         this.positionType = positionType;
         this.arguments = arguments;
 
@@ -98,7 +98,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
             return Optional.empty();
         }
 
-        final Optional<Home> optionalHome = plugin.getDatabase().getUserDataByName(ownerUsername)
+        final Optional<Home> optionalHome = plugin.getDatabase().getUser(ownerUsername)
                 .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHome));
         if (optionalHome.isEmpty()) {
             plugin.getLocales().getLocale(executor.hasPermission(getOtherPermission())
@@ -194,7 +194,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                 .teleporter(teleporter)
                 .actions(actions)
                 .target(position)
-                .buildAndComplete(executor.equals(teleporter), teleporter.getUsername());
+                .buildAndComplete(executor.equals(teleporter), teleporter.getName());
     }
 
     protected boolean isInvalidOperation(String operation, CommandUser executor) {
@@ -238,14 +238,12 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private List<String> suggestHome(@NotNull CommandUser executor, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> {
-                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)) {
-                    if (executor.hasPermission(getOtherPermission())) {
-                        yield plugin.getManager().homes().getUserHomeIdentifiers();
-                    }
+                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)
+                        && executor.hasPermission(getOtherPermission())) {
                     yield plugin.getManager().homes().getUserHomeIdentifiers();
                 }
                 if (executor instanceof OnlineUser user) {
-                    yield plugin.getManager().homes().getUserHomes().get(user.getUsername());
+                    yield plugin.getManager().homes().getUserHomes().get(user.getName());
                 }
                 yield plugin.getManager().homes().getUserHomeIdentifiers();
             }

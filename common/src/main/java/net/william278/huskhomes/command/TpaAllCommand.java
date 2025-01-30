@@ -28,13 +28,13 @@ import java.util.List;
 public class TpaAllCommand extends InGameCommand {
 
     protected TpaAllCommand(@NotNull HuskHomes plugin) {
-        super("tpaall", List.of(), "", plugin);
+        super(List.of("tpaall"), "", plugin);
         setOperatorCommand(true);
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        if (plugin.getGlobalPlayerList().size() <= 1) {
+        if (plugin.getGlobalUserList().size() <= 1) {
             plugin.getLocales().getLocale("error_no_players_online")
                     .ifPresent(executor::sendMessage);
             return;

@@ -87,7 +87,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(@NotNull ServerPlayerEntity player) {
-        return FabricUser.adapt(player, (FabricHuskHomes) plugin);
+        return ((FabricHuskHomes) plugin).getOnlineUser(player);
     }
 
     /**

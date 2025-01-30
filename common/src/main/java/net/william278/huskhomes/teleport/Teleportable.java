@@ -47,6 +47,12 @@ public interface Teleportable {
      * @return the username string
      */
     @NotNull
-    String getUsername();
+    String getName();
+
+    @NotNull
+    @Deprecated(since = "4.8")
+    default String getUsername() {
+        return getName();
+    }
 
 }

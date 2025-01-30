@@ -83,7 +83,7 @@ public class HomesManager {
     public Map<String, List<String>> getPublicHomes() {
         return publicHomes.stream().collect(
                 HashMap::new,
-                (m, e) -> m.put(e.getOwner().getUsername(), List.of(e.getName())),
+                (m, e) -> m.put(e.getOwner().getName(), List.of(e.getName())),
                 HashMap::putAll
         );
     }
@@ -123,7 +123,7 @@ public class HomesManager {
      * @param user the user to cache homes for
      */
     public void cacheUserHomes(@NotNull User user) {
-        userHomes.put(user.getUsername(), new ConcurrentLinkedQueue<>(plugin.getDatabase().getHomes(user)));
+        userHomes.put(user.getName(), new ConcurrentLinkedQueue<>(plugin.getDatabase().getHomes(user)));
     }
 
     /**
@@ -133,17 +133,17 @@ public class HomesManager {
      * @param propagate whether to propagate the cache update to other servers (if cross-server is enabled)
      */
     public void cacheHome(@NotNull Home home, boolean propagate) {
-        userHomes.computeIfPresent(home.getOwner().getUsername(), (k, v) -> {
+        userHomes.computeIfPresent(home.getOwner().getName(), (k, v) -> {
             v.remove(home);
             v.add(home);
             return v;
         });
         if (publicHomes.remove(home) && !home.isPublic()) {
-            plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+            plugin.removeMappedHome(home);
         }
         if (home.isPublic()) {
             publicHomes.add(home);
-            plugin.getMapHook().ifPresent(hook -> hook.updateHome(home));
+            plugin.addMappedHome(home);
         }
 
         plugin.getCommands().stream()
@@ -159,7 +159,7 @@ public class HomesManager {
         userHomes.values().forEach(homes -> homes.removeIf(home -> home.getUuid().equals(homeId)));
         publicHomes.removeIf(home -> {
             if (home.getUuid().equals(homeId)) {
-                plugin.getMapHook().ifPresent(hook -> hook.removeHome(home));
+                plugin.removeMappedHome(home);
                 return true;
             }
             return false;
@@ -182,14 +182,12 @@ public class HomesManager {
      * @param homeId the UUID of the home/warp to update
      */
     private void propagateCacheUpdate(@NotNull UUID homeId) {
-        if (plugin.getSettings().getCrossServer().isEnabled()) {
-            plugin.getOnlineUsers().stream().findAny().ifPresent(user -> Message.builder()
-                    .type(Message.Type.UPDATE_HOME)
-                    .scope(Message.Scope.SERVER)
-                    .target(Message.TARGET_ALL)
-                    .payload(Payload.withString(homeId.toString()))
-                    .build().send(plugin.getMessenger(), user));
-        }
+        plugin.getBroker().ifPresent(b -> plugin.getOnlineUsers().stream().findAny()
+                .ifPresent(user -> Message.builder()
+                        .type(Message.MessageType.UPDATE_HOME)
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .payload(Payload.string(homeId.toString()))
+                        .build().send(b, user)));
     }
 
     public void updatePublicHomeCache() {
@@ -202,7 +200,8 @@ public class HomesManager {
 
     @NotNull
     public Home createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
-                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes)
+                           boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes,
+                           boolean ignoreHomeSlots)
             throws ValidationException {
         final Optional<Home> existingHome = plugin.getDatabase().getHome(owner, name);
         if (existingHome.isPresent() && !overwrite) {
@@ -210,7 +209,7 @@ public class HomesManager {
         }
 
         // Validate the home name; throw an exception if invalid
-        plugin.getValidator().validateName(name);
+        plugin.validateName(name);
 
         // Determine what the new home count would be & validate against user max homes
         int homes = plugin.getDatabase().getHomes(owner).size() + (existingHome.isPresent() ? 0 : 1);
@@ -220,10 +219,10 @@ public class HomesManager {
 
         // Validate against user home slots
         final SavedUser savedOwner = plugin.getSavedUser(owner)
-                .or(() -> plugin.getDatabase().getUserData(owner.getUuid()))
+                .or(() -> plugin.getDatabase().getUser(owner.getUuid()))
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
-        if (plugin.getSettings().getEconomy().isEnabled()
-                && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
+        if (!ignoreHomeSlots && plugin.getSettings().getEconomy().isEnabled()
+            && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
             if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
             }
@@ -233,7 +232,7 @@ public class HomesManager {
                 throw new ValidationException(ValidationException.Type.TRANSACTION_FAILED);
             }
             plugin.performTransaction(online, TransactionResolver.Action.ADDITIONAL_HOME_SLOT);
-            plugin.editUserData(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
+            plugin.editSavedUser(online, (SavedUser saved) -> saved.setHomeSlots(saved.getHomeSlots() + 1));
         }
 
         final Home home = existingHome
@@ -252,7 +251,7 @@ public class HomesManager {
             throws ValidationException {
         this.createHome(
                 owner, name, position, plugin.getSettings().getGeneral().getNames().isOverwriteExisting(),
-                true, false
+                true, false, false
         );
     }
 
@@ -272,12 +271,12 @@ public class HomesManager {
 
     public int deleteAllHomes(@NotNull User owner) {
         final int deleted = plugin.getDatabase().deleteAllHomes(owner);
-        userHomes.computeIfPresent(owner.getUsername(), (k, v) -> {
+        userHomes.computeIfPresent(owner.getName(), (k, v) -> {
             v.clear();
             return v;
         });
         publicHomes.removeIf(h -> h.getOwner().getUuid().equals(owner.getUuid()));
-        plugin.getMapHook().ifPresent(hook -> hook.clearHomes(owner));
+        plugin.removeAllMappedHomes(owner);
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
                 .map(command -> (ListCommand) command)
@@ -293,7 +292,7 @@ public class HomesManager {
         ));
         publicHomes.removeIf(h -> h.getWorld().getName().equals(worldName) && h.getServer().equals(serverName));
         if (plugin.getSettings().getCrossServer().isEnabled() && serverName.equals(plugin.getServerName())) {
-            plugin.getMapHook().ifPresent(hook -> hook.clearHomes(worldName));
+            plugin.removeAllMappedHomes(worldName);
         }
         plugin.getCommands().stream()
                 .filter(command -> command instanceof ListCommand)
@@ -333,7 +332,7 @@ public class HomesManager {
         if (plugin.getDatabase().getHome(home.getOwner(), newName).isPresent()) {
             throw new ValidationException(ValidationException.Type.NAME_TAKEN);
         }
-        plugin.getValidator().validateName(newName);
+        plugin.validateName(newName);
         home.getMeta().setName(newName);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);
@@ -350,7 +349,7 @@ public class HomesManager {
     }
 
     public void setHomeDescription(@NotNull Home home, @NotNull String description) {
-        plugin.getValidator().validateDescription(description);
+        plugin.validateDescription(description);
         home.getMeta().setDescription(description);
         plugin.getDatabase().saveHome(home);
         this.cacheHome(home, true);

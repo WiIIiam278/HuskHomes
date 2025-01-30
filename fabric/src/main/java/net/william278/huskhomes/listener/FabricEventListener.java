@@ -24,7 +24,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.william278.huskhomes.FabricHuskHomes;
-import net.william278.huskhomes.user.FabricUser;
 import org.jetbrains.annotations.NotNull;
 
 // Note that the teleport event and update player respawn position events are not handled on Fabric.
@@ -33,32 +32,39 @@ public class FabricEventListener extends EventListener {
 
     public FabricEventListener(@NotNull FabricHuskHomes plugin) {
         super(plugin);
-        this.registerEvents(plugin);
     }
 
-    // Register fabric event callback listeners to internal handlers
-    private void registerEvents(@NotNull FabricHuskHomes plugin) {
+    @Override
+    public void register() {
         // Join event
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> handlePlayerJoin(
-                FabricUser.adapt(handler.player, plugin)
-        ));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            getPlugin().getOnlineUserMap().remove(handler.getPlayer().getUuid());
+            super.handlePlayerJoin(getPlugin().getOnlineUser(handler.getPlayer()));
+        });
 
         // Quit event
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> handlePlayerLeave(
-                FabricUser.adapt(handler.player, plugin)
+                getPlugin().getOnlineUser(handler.getPlayer())
         ));
 
         // Death event
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             if (entity instanceof ServerPlayerEntity player) {
-                handlePlayerDeath(FabricUser.adapt(player, plugin));
+                super.handlePlayerDeath(getPlugin().getOnlineUser(player));
             }
         });
 
         // Respawn event
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> handlePlayerRespawn(
-                FabricUser.adapt(newPlayer, plugin)
-        ));
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            getPlugin().getOnlineUserMap().remove(oldPlayer.getUuid());
+            super.handlePlayerRespawn(getPlugin().getOnlineUser(newPlayer));
+        });
+    }
+
+    @NotNull
+    @Override
+    protected FabricHuskHomes getPlugin() {
+        return (FabricHuskHomes) super.getPlugin();
     }
 
 }

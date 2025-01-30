@@ -30,7 +30,12 @@ import java.util.List;
 public class DelWarpCommand extends SavedPositionCommand<Warp> {
 
     public DelWarpCommand(@NotNull HuskHomes plugin) {
-        super("delwarp", List.of(), PositionCommandType.WARP, List.of(), plugin);
+        super(
+                List.of("delwarp"),
+                PositionCommandType.WARP,
+                List.of(),
+                plugin
+        );
         setOperatorCommand(true);
     }
 

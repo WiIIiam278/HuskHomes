@@ -88,6 +88,22 @@ public class BaseHuskHomesAPI {
     }
 
     /**
+     * Get an {@link OnlineUser} by their UUID
+     *
+     * @param uuid the UUID of the user to get
+     * @return The {@link OnlineUser} wrapped in an optional, if they are online on <i>this</i> server.
+     * @since 4.8.3
+     */
+    @NotNull
+    public Optional<OnlineUser> getOnlineUser(@NotNull UUID uuid) {
+        try {
+            return Optional.of(plugin.getOnlineUser(uuid));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Returns saved {@link SavedUser} for the given player's account {@link UUID}, if they exist.
      *
      * @param uuid The {@link UUID} of the user to get data for.
@@ -95,7 +111,7 @@ public class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull UUID uuid) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getUserData(uuid));
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUser(uuid));
     }
 
     /**
@@ -106,7 +122,7 @@ public class BaseHuskHomesAPI {
      * @since 3.0
      */
     public final CompletableFuture<Optional<SavedUser>> getUserData(@NotNull String username) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getUserDataByName(username));
+        return plugin.supplyAsync(() -> plugin.getDatabase().getUser(username));
     }
 
     /**
@@ -370,7 +386,30 @@ public class BaseHuskHomesAPI {
     public CompletableFuture<Home> createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
                                               boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes) {
         return plugin.supplyAsync(() -> plugin.getManager().homes().createHome(
-                owner, name, position, overwrite, buyAdditionalSlots, ignoreMaxHomes
+                owner, name, position, overwrite, buyAdditionalSlots, ignoreMaxHomes, false
+        ));
+    }
+
+    /**
+     * Create a home for a given user with the specified name and position.
+     * The returned future may complete exceptionally with a {@link net.william278.huskhomes.util.ValidationException}
+     * if the home could not be created.
+     *
+     * @param owner              The {@link User} to create the home for
+     * @param name               The name of the home
+     * @param position           The {@link Position} of the home
+     * @param overwrite          Whether to overwrite an existing home with the same name
+     * @param buyAdditionalSlots Whether to buy additional home slots if the user has reached their maximum
+     * @param ignoreMaxHomes     Whether to ignore the maximum number of homes a user can have
+     * @param ignoreHomeSlots    Whether to ignore the number of home slots a user has
+     * @return a {@link CompletableFuture} that will complete with the created {@link Home}.
+     * @since 4.8
+     */
+    public CompletableFuture<Home> createHome(@NotNull User owner, @NotNull String name, @NotNull Position position,
+                                              boolean overwrite, boolean buyAdditionalSlots, boolean ignoreMaxHomes,
+                                              boolean ignoreHomeSlots) {
+        return plugin.supplyAsync(() -> plugin.getManager().homes().createHome(
+                owner, name, position, overwrite, buyAdditionalSlots, ignoreMaxHomes, ignoreHomeSlots
         ));
     }
 
@@ -779,27 +818,26 @@ public class BaseHuskHomesAPI {
      * @param timedTeleport Whether the teleport should be timed or not (requiring a warmup where they must stand still
      *                      for a period of time)
      * @param rtpArgs       Arguments that will be passed to the implementing {@link RandomTeleportEngine}
-     * @since 3.0
      * @apiNote This method was updated in version 4.6.3 to support the new Cross-Server RTP function,
-     *     for the original function use {@link #randomlyTeleportPlayerLocally(OnlineUser, boolean, String...)}
+     * for the original function use {@link #randomlyTeleportPlayerLocally(OnlineUser, boolean, String...)}
+     * @since 3.0
      */
     public final void randomlyTeleportPlayer(@NotNull OnlineUser user, boolean timedTeleport,
                                              @NotNull String... rtpArgs) {
-        if (plugin.getSettings().getRtp().isCrossServer() && (plugin.getSettings().getCrossServer().isEnabled()
-                && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS)) {
-            List<String> allowedServers = plugin.getSettings().getRtp().getRandomTargetServers();
+        if (plugin.getSettings().getRtp().isCrossServer() && (plugin.getSettings().getCrossServer().isEnabled() &&
+                                                              plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS)) {
+            List<String> allowedServers = new ArrayList<>(plugin.getSettings().getRtp().getRandomTargetServers().keySet());
             String randomServer = allowedServers.get(random.nextInt(allowedServers.size()));
             if (randomServer.equals(plugin.getServerName())) {
                 randomlyTeleportPlayerLocally(user, timedTeleport, rtpArgs);
                 return;
             }
-            Message.builder()
-                    .scope(Message.Scope.SERVER)
-                    .target(randomServer)
-                    .type(Message.Type.REQUEST_RTP_LOCATION)
-                    .payload(Payload.withStringList(
-                            List.of(user.getPosition().getWorld().getName(), user.getUsername())))
-                    .build().send(plugin.getMessenger(), user);
+
+            plugin.getBroker().ifPresent(b -> Message.builder()
+                    .target(randomServer, Message.TargetType.SERVER)
+                    .type(Message.MessageType.REQUEST_RTP_LOCATION)
+                    .payload(Payload.world(user.getPosition().getWorld()))
+                    .build().send(b, user));
             return;
         }
         randomlyTeleportPlayerLocally(user, timedTeleport, rtpArgs);
@@ -810,9 +848,9 @@ public class BaseHuskHomesAPI {
      * generated by the current {@link RandomTeleportEngine}.
      *
      * @param user The {@link OnlineUser} to teleport
-     * @since 3.0
      * @apiNote This method was updated in version 4.6.3 to support the new Cross-Server RTP function,
-     *     for the original function use {@link #randomlyTeleportPlayerLocally(OnlineUser)}
+     * for the original function use {@link #randomlyTeleportPlayerLocally(OnlineUser)}
+     * @since 3.0
      */
     public final void randomlyTeleportPlayer(@NotNull OnlineUser user) {
         this.randomlyTeleportPlayer(user, false);
@@ -831,7 +869,7 @@ public class BaseHuskHomesAPI {
      * @since 4.6.3
      */
     public final void randomlyTeleportPlayerLocally(@NotNull OnlineUser user, boolean timedTeleport,
-                                             @NotNull String... rtpArgs) {
+                                                    @NotNull String... rtpArgs) {
         plugin.getRandomTeleportEngine()
                 .getRandomPosition(user.getPosition().getWorld(), rtpArgs)
                 .thenAccept(position -> {
@@ -904,7 +942,7 @@ public class BaseHuskHomesAPI {
      *
      * @return instance of the HuskHomes API
      * @throws NotRegisteredException if the API has not yet been registered.
-     * @since 1.0
+     * @since 4.8
      */
     @NotNull
     public static BaseHuskHomesAPI getInstance() throws NotRegisteredException {
@@ -917,7 +955,7 @@ public class BaseHuskHomesAPI {
     /**
      * <b>(Internal use only)</b> - Unregister the API instance.
      *
-     * @since 1.0
+     * @since 4.8
      */
     @ApiStatus.Internal
     public static void unregister() {

@@ -47,7 +47,7 @@ public class Locales {
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ See plugin about menu for international locale credits
-            ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+            ┣╸ Formatted in MineDown: https://github.com/WiIIiam278/MineDown
             ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/translations""";
 
     protected static final String DEFAULT_LOCALE = "en-gb";

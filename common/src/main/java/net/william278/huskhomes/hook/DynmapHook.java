@@ -34,9 +34,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-/**
- * Hook to display warps and public homes on Dynmap.
- */
+@PluginHook(
+        name = "Dynmap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class DynmapHook extends MapHook {
 
     private static final String ICON_PATH = "/tiles/_markers_/";
@@ -48,11 +49,11 @@ public class DynmapHook extends MapHook {
     private MarkerSet warpsMarkers;
 
     public DynmapHook(@NotNull HuskHomes plugin) {
-        super(plugin, "Dynmap");
+        super(plugin);
     }
 
     @Override
-    public void initialize() {
+    public void load() {
         DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
             @Override
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
@@ -76,7 +77,7 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
-    public void updateHome(@NotNull Home home) {
+    public void addHome(@NotNull Home home) {
         if (!isValidPosition(home)) {
             return;
         }
@@ -122,7 +123,7 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
-    public void updateWarp(@NotNull Warp warp) {
+    public void addWarp(@NotNull Warp warp) {
         if (!isValidPosition(warp)) {
             return;
         }

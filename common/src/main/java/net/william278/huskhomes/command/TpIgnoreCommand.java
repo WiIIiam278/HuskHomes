@@ -31,7 +31,11 @@ import java.util.List;
 public class TpIgnoreCommand extends InGameCommand {
 
     protected TpIgnoreCommand(@NotNull HuskHomes plugin) {
-        super("tpignore", List.of(), "", plugin);
+        super(
+                List.of("tpignore"),
+                "",
+                plugin
+        );
     }
 
     @Override
@@ -39,7 +43,7 @@ public class TpIgnoreCommand extends InGameCommand {
         final RequestsManager manager = plugin.getManager().requests();
         final boolean isIgnoringRequests = !manager.isIgnoringRequests(onlineUser);
 
-        plugin.editUserData(onlineUser, (SavedUser user) -> user.setIgnoringTeleports(isIgnoringRequests));
+        plugin.editSavedUser(onlineUser, (SavedUser user) -> user.setIgnoringTeleports(isIgnoringRequests));
 
         plugin.getLocales().getRawLocale("tpignore_toggle_" + (isIgnoringRequests ? "on" : "off"),
                         plugin.getLocales().getRawLocale("tpignore_toggle_button").orElse(""))

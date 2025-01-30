@@ -33,9 +33,9 @@ import java.util.Optional;
 
 public abstract class HomeCommand extends SavedPositionCommand<Home> {
 
-    protected HomeCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull PositionCommandType type,
+    protected HomeCommand(@NotNull List<String> aliases, @NotNull PositionCommandType type,
                           @NotNull HuskHomes plugin) {
-        super(name, aliases, type, List.of(), plugin);
+        super(aliases, type, List.of(), plugin);
         addAdditionalPermissions(Map.of("player", true));
     }
 
@@ -51,7 +51,7 @@ public abstract class HomeCommand extends SavedPositionCommand<Home> {
         if (executor instanceof OnlineUser user && !user.hasPermission(getOtherPermission())
                 && (!home.getOwner().equals(user) && !home.isPublic())) {
             plugin.getLocales().getLocale("error_public_home_invalid",
-                            home.getOwner().getUsername(), home.getName())
+                            home.getOwner().getName(), home.getName())
                     .ifPresent(executor::sendMessage);
             return;
         }

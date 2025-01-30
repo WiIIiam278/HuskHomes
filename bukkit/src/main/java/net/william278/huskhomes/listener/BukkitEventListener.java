@@ -21,7 +21,6 @@ package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
@@ -41,25 +40,25 @@ public class BukkitEventListener extends EventListener implements Listener {
         super(plugin);
     }
 
-    @NotNull
-    public BukkitEventListener register(@NotNull BukkitHuskHomes plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        return this;
+    @Override
+    public void register() {
+        getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        super.handlePlayerJoin(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
+        getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
+        super.handlePlayerJoin(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLeave(PlayerQuitEvent event) {
-        super.handlePlayerLeave(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
+        super.handlePlayerLeave(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        super.handlePlayerDeath(BukkitUser.adapt(event.getEntity(), (BukkitHuskHomes) plugin));
+        super.handlePlayerDeath(getPlugin().getOnlineUser(event.getEntity()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -67,7 +66,8 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (usePaperEvents) {
             return;
         }
-        super.handlePlayerRespawn(BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin));
+        getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
+        super.handlePlayerRespawn(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -78,25 +78,25 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (player.hasMetadata("NPC")) {
             return;
         }
-        if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND
-                || event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) {
+        if (!(event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND ||
+              event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN)) {
             return;
         }
 
         this.handlePlayerTeleport(
-                BukkitUser.adapt(player, (BukkitHuskHomes) plugin),
-                BukkitHuskHomes.Adapter.adapt(event.getFrom(), plugin.getServerName())
+                getPlugin().getOnlineUser(player),
+                BukkitHuskHomes.Adapter.adapt(event.getFrom(), getPlugin().getServerName())
         );
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerUpdateRespawnLocation(PlayerInteractEvent event) {
-        final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
+        final Settings.CrossServerSettings crossServer = getPlugin().getSettings().getCrossServer();
         if (usePaperEvents || !(crossServer.isEnabled()) && crossServer.isGlobalRespawning()) {
             return;
         }
         if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed
-                || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) {
+                                                 || event.getClickedBlock().getBlockData() instanceof RespawnAnchor)) {
             return;
         }
 
@@ -107,9 +107,15 @@ public class BukkitEventListener extends EventListener implements Listener {
 
         // Update the player's respawn location
         this.handlePlayerUpdateSpawnPoint(
-                BukkitUser.adapt(event.getPlayer(), (BukkitHuskHomes) plugin),
-                BukkitHuskHomes.Adapter.adapt(location, plugin.getServerName())
+                getPlugin().getOnlineUser(event.getPlayer()),
+                BukkitHuskHomes.Adapter.adapt(location, getPlugin().getServerName())
         );
+    }
+
+    @Override
+    @NotNull
+    protected BukkitHuskHomes getPlugin() {
+        return (BukkitHuskHomes) super.getPlugin();
     }
 
 

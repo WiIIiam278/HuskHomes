@@ -53,12 +53,12 @@ public class SavedPositionTests {
     public void testHomeIdentifiers(@NotNull Home home, @NotNull String name, boolean isUnsafeName) {
         Assertions.assertEquals(
                 home.getIdentifier(),
-                home.getOwner().getUsername() + Home.IDENTIFIER_DELIMITER + home.getName()
+                home.getOwner().getName() + Home.IDENTIFIER_DELIMITER + home.getName()
         );
         Assertions.assertEquals(
                 home.getSafeIdentifier(),
                 isUnsafeName
-                        ? home.getOwner().getUsername() + Home.IDENTIFIER_DELIMITER + home.getUuid()
+                        ? home.getOwner().getName() + Home.IDENTIFIER_DELIMITER + home.getUuid()
                         : home.getIdentifier()
         );
     }
@@ -81,7 +81,7 @@ public class SavedPositionTests {
     @NotNull
     private static Stream<Arguments> provideWarpData() {
         final Position position = Position.at(63.25, 127.43, -32, 180f, -94.3f,
-                World.from("TestWorld", UUID.randomUUID()), "TestServer");
+                World.from("TestWorld"), "TestServer");
         return POSITION_UNSAFE_NAMES.entrySet().stream()
                 .map(entry -> Arguments.of(
                         Warp.from(position, PositionMeta.create(entry.getKey(), "")),
@@ -93,7 +93,7 @@ public class SavedPositionTests {
     @NotNull
     private static Stream<Arguments> provideHomeData() {
         final Position position = Position.at(63.25, 127.43, -32, 180f, -94.3f,
-                World.from("TestWorld", UUID.randomUUID()), "TestServer");
+                World.from("TestWorld"), "TestServer");
         return POSITION_UNSAFE_NAMES.entrySet().stream()
                 .map(entry -> Arguments.of(
                         Home.from(

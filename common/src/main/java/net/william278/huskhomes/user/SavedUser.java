@@ -63,7 +63,7 @@ public class SavedUser {
 
     @NotNull
     public String getUsername() {
-        return getUser().getUsername();
+        return getUser().getName();
     }
 
 

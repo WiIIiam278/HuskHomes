@@ -24,10 +24,15 @@ import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.ValidationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class SetWarpCommand extends SetPositionCommand {
 
     protected SetWarpCommand(@NotNull HuskHomes plugin) {
-        super("setwarp", plugin);
+        super(
+                List.of("setwarp"),
+                plugin
+        );
         setOperatorCommand(true);
     }
 

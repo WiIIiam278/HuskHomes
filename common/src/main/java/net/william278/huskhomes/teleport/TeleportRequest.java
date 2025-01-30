@@ -64,7 +64,7 @@ public class TeleportRequest {
      * @param requester The user making the request
      */
     public TeleportRequest(@NotNull OnlineUser requester, @NotNull TeleportRequest.Type type, final long expiryTime) {
-        this.setRequesterName(requester.getUsername());
+        this.setRequesterName(requester.getName());
         this.setRequesterPosition(requester.getPosition());
         this.setType(type);
         this.setStatus(Status.PENDING);

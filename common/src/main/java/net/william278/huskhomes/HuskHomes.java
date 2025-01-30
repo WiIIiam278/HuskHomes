@@ -19,51 +19,141 @@
 
 package net.william278.huskhomes;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
-import net.william278.desertwell.util.ThrowingConsumer;
-import net.william278.desertwell.util.UpdateChecker;
-import net.william278.desertwell.util.Version;
+import net.william278.huskhomes.api.BaseHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
+import net.william278.huskhomes.command.CommandProvider;
 import net.william278.huskhomes.config.ConfigProvider;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.config.Settings;
-import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.DatabaseProvider;
 import net.william278.huskhomes.event.EventDispatcher;
-import net.william278.huskhomes.hook.*;
-import net.william278.huskhomes.importer.Importer;
-import net.william278.huskhomes.manager.Manager;
-import net.william278.huskhomes.network.Broker;
+import net.william278.huskhomes.hook.HookProvider;
+import net.william278.huskhomes.hook.PluginHook;
+import net.william278.huskhomes.listener.ListenerProvider;
+import net.william278.huskhomes.manager.ManagerProvider;
+import net.william278.huskhomes.network.BrokerProvider;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
-import net.william278.huskhomes.random.RandomTeleportEngine;
+import net.william278.huskhomes.random.RandomTeleportProvider;
 import net.william278.huskhomes.user.ConsoleUser;
-import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.SavedUser;
-import net.william278.huskhomes.user.User;
+import net.william278.huskhomes.user.UserProvider;
 import net.william278.huskhomes.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Represents a cross-platform instance of the plugin.
  */
-public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolver, TransactionResolver, ConfigProvider {
+public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionProvider, TransactionResolver,
+        ConfigProvider, DatabaseProvider, BrokerProvider, MetaProvider, HookProvider, RandomTeleportProvider,
+        AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider,
+        GsonProvider {
+
+    int BSTATS_BUKKIT_PLUGIN_ID = 8430;
 
     /**
-     * The spigot resource ID, used for update checking.
+     * Load plugin systems.
+     *
+     * @since 4.8
      */
-    int SPIGOT_RESOURCE_ID = 83767;
+    default void load() {
+        try {
+            loadConfigs();
+            loadHooks(PluginHook.Register.ON_LOAD);
+            registerHooks(PluginHook.Register.ON_LOAD);
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst loading HuskHomes", e);
+            disablePlugin();
+            return;
+        }
+        log(Level.INFO, String.format("Successfully loaded HuskHomes v%s", getPluginVersion()));
+    }
+
+    /**
+     * Enable all plugin systems.
+     *
+     * @since 4.8
+     */
+    default void enable() {
+        try {
+            loadDatabase();
+            loadBroker();
+            loadManager();
+            loadRandomTeleportEngine();
+            loadListeners();
+            loadHooks(PluginHook.Register.ON_ENABLE);
+            registerHooks(PluginHook.Register.ON_ENABLE);
+            loadAPI();
+            if (getPluginVersion().getMetadata().isBlank()) {
+                loadMetrics();
+            }
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst enabling HuskHomes", e);
+            disablePlugin();
+            return;
+        }
+        log(Level.INFO, String.format("Successfully enabled HuskHomes v%s", getPluginVersion()));
+        checkForUpdates();
+        loadAfterLoadHooks();
+    }
+
+    /**
+     * Shutdown plugin subsystems.
+     *
+     * @since 4.8
+     */
+    default void shutdown() {
+        log(Level.INFO, String.format("Disabling HuskHomes v%s...", getPluginVersion()));
+        try {
+            unloadHooks(PluginHook.Register.values());
+            closeDatabase();
+            closeBroker();
+            cancelTasks();
+            unloadAPI();
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst disabling HuskHomes", e);
+        }
+        log(Level.INFO, String.format("Successfully disabled HuskHomes v%s", getPluginVersion()));
+    }
+
+    /**
+     * Register the API instance.
+     *
+     * @since 4.8
+     */
+    void loadAPI();
+
+    /**
+     * Unregister the API instance.
+     *
+     * @since 4.8
+     */
+    default void unloadAPI() {
+        BaseHuskHomesAPI.unregister();
+    }
+
+    /**
+     * Load plugin metrics.
+     *
+     * @since 4.8
+     */
+    void loadMetrics();
+
+    /**
+     * Disable the plugin.
+     *
+     * @since 4.8
+     */
+    void disablePlugin();
 
     /**
      * Get the user representing the server console.
@@ -72,82 +162,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
      */
     @NotNull
     ConsoleUser getConsole();
-
-    /**
-     * The {@link Set} of online {@link OnlineUser}s on this server.
-     *
-     * @return a {@link Set} of currently online {@link OnlineUser}s
-     */
-    @NotNull
-    List<OnlineUser> getOnlineUsers();
-
-
-    /**
-     * Get the adventure {@link Audience} for a given {@link UUID}.
-     *
-     * @param user The {@link UUID} of the user to get the {@link Audience} for.
-     * @return The {@link Audience} for the given {@link UUID}.
-     */
-    @NotNull
-    Audience getAudience(@NotNull UUID user);
-
-    /**
-     * Finds a local {@link OnlineUser} by their name. Auto-completes partially typed names for the closest match
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    default Optional<OnlineUser> getOnlineUser(@NotNull String playerName) {
-        return getOnlineUserExact(playerName)
-                .or(() -> getOnlineUsers().stream()
-                        .filter(user -> user.getUsername().toLowerCase().startsWith(playerName.toLowerCase()))
-                        .findFirst());
-    }
-
-    /**
-     * Finds a local {@link OnlineUser} by their name.
-     *
-     * @param playerName the name of the player to find
-     * @return an {@link Optional} containing the {@link OnlineUser} if found, or an empty {@link Optional} if not found
-     */
-    default Optional<OnlineUser> getOnlineUserExact(@NotNull String playerName) {
-        return getOnlineUsers().stream()
-                .filter(user -> user.getUsername().equalsIgnoreCase(playerName))
-                .findFirst();
-    }
-
-    @NotNull
-    Set<SavedUser> getSavedUsers();
-
-    default Optional<SavedUser> getSavedUser(@NotNull User user) {
-        return getSavedUsers().stream()
-                .filter(savedUser -> savedUser.getUser().equals(user))
-                .findFirst();
-    }
-
-    default void editUserData(@NotNull User user, @NotNull Consumer<SavedUser> editor) {
-        runAsync(() -> getSavedUser(user)
-                .ifPresent(result -> {
-                    editor.accept(result);
-                    getDatabase().updateUserData(result);
-                }));
-    }
-
-    /**
-     * Initialize a faucet of the plugin.
-     *
-     * @param name   the name of the faucet
-     * @param runner a runnable for initializing the faucet
-     */
-    default void initialize(@NotNull String name, @NotNull ThrowingConsumer<HuskHomes> runner) {
-        log(Level.INFO, "Initializing " + name + "...");
-        try {
-            runner.accept(this);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to initialize " + name, e);
-        }
-        log(Level.INFO, "Successfully initialized " + name);
-    }
 
     /**
      * The canonical spawn {@link Position} of this server, if it has been set.
@@ -168,96 +182,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
      */
     void setWorldSpawn(@NotNull Position position);
 
-    /**
-     * Returns the {@link Server} the plugin is on.
-     *
-     * @return The {@link Server} object
-     */
-    @NotNull
-    String getServerName();
-
-    void setServer(@NotNull Server server);
-
-    void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks);
-
-    @NotNull
-    UnsafeBlocks getUnsafeBlocks();
-
-    /**
-     * The {@link Database} that store persistent plugin data.
-     *
-     * @return the {@link Database} implementation for accessing data
-     */
-    @NotNull
-    Database getDatabase();
-
-    /**
-     * The {@link Validator} for validating home names and descriptions.
-     *
-     * @return the {@link Validator} instance
-     */
-    @NotNull
-    Validator getValidator();
-
-    /**
-     * The {@link Manager} that manages home, warp and user data.
-     *
-     * @return the {@link Manager} implementation
-     */
-    @NotNull
-    Manager getManager();
-
-    /**
-     * The {@link Broker} that sends cross-network messages.
-     *
-     * @return the {@link Broker} implementation
-     */
-    @NotNull
-    Broker getMessenger();
-
-    /**
-     * The {@link RandomTeleportEngine} that manages random teleports.
-     *
-     * @return the {@link RandomTeleportEngine} implementation
-     */
-    @NotNull
-    RandomTeleportEngine getRandomTeleportEngine();
-
-    /**
-     * Sets the {@link RandomTeleportEngine} to be used for processing random teleports.
-     *
-     * @param randomTeleportEngine the {@link RandomTeleportEngine} to use
-     */
-    void setRandomTeleportEngine(@NotNull RandomTeleportEngine randomTeleportEngine);
-
-    /**
-     * Set of active {@link Hook}s running on the server.
-     *
-     * @return the {@link Set} of active {@link Hook}s
-     */
-    @NotNull
-    List<Hook> getHooks();
-
-    void setHooks(@NotNull List<Hook> hooks);
-
-    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
-        return getHooks().stream()
-                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
-                .map(hookClass::cast)
-                .findFirst();
-    }
-
-    default Optional<MapHook> getMapHook() {
-        return getHook(MapHook.class);
-    }
-
-    @NotNull
-    default List<Importer> getImporters() {
-        return getHooks().stream()
-                .filter(hook -> Importer.class.isAssignableFrom(hook.getClass()))
-                .map(Importer.class::cast)
-                .collect(Collectors.toList());
-    }
+    void setServerName(@NotNull Server serverName);
 
     /**
      * Returns a resource read from the plugin resources folder.
@@ -277,14 +202,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
     List<World> getWorlds();
 
     /**
-     * Returns the plugin version.
-     *
-     * @return the plugin {@link Version}
-     */
-    @NotNull
-    Version getVersion();
-
-    /**
      * Returns a list of enabled commands.
      *
      * @return A list of registered and enabled {@link Command}s
@@ -299,64 +216,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
                 .map(type::cast);
     }
 
-    default void registerHooks() {
-        setHooks(new ArrayList<>());
-
-        if (getSettings().getMapHook().isEnabled()) {
-            if (isDependencyLoaded("Dynmap")) {
-                getHooks().add(new DynmapHook(this));
-            } else if (isDependencyLoaded("BlueMap")) {
-                getHooks().add(new BlueMapHook(this));
-            } else if (isDependencyLoaded("Pl3xMap")) {
-                getHooks().add(new Pl3xMapHook(this));
-            }
-        }
-        if (isDependencyLoaded("Plan")) {
-            getHooks().add(new PlanHook(this));
-        }
-    }
-
-    default void registerImporters() {
-    }
-
-    boolean isDependencyLoaded(@NotNull String name);
-
-    @NotNull
-    Map<String, List<String>> getGlobalPlayerList();
-
-    default List<String> getPlayerList(boolean includeVanished) {
-        return Stream.concat(
-                getGlobalPlayerList().values().stream().flatMap(Collection::stream),
-                getLocalPlayerList(includeVanished).stream()
-        ).distinct().sorted().toList();
-    }
-
-    @NotNull
-    @SuppressWarnings("unused")
-    default List<String> getPlayerList() {
-        return getPlayerList(true);
-    }
-
-    default void setPlayerList(@NotNull String server, @NotNull List<String> players) {
-        getGlobalPlayerList().values().forEach(list -> {
-            list.removeAll(players);
-            list.removeAll(getLocalPlayerList());
-        });
-        getGlobalPlayerList().put(server, players);
-    }
-
-    @NotNull
-    default List<String> getLocalPlayerList(boolean includeVanished) {
-        return getOnlineUsers().stream()
-                .filter(user -> includeVanished || !user.isVanished())
-                .map(OnlineUser::getUsername)
-                .toList();
-    }
-
-    default List<String> getLocalPlayerList() {
-        return getLocalPlayerList(true);
-    }
-
     @NotNull
     Set<UUID> getCurrentlyOnWarmup();
 
@@ -369,51 +228,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
     default boolean isWarmingUp(@NotNull UUID userUuid) {
         return this.getCurrentlyOnWarmup().contains(userUuid);
     }
-
-    @NotNull
-    Set<UUID> getCurrentlyInvulnerable();
-
-    /**
-     * Returns if the given user is currently invulnerable and if it should be removed.
-     *
-     * @param uuid the user to check.
-     * @return if the user is currently invulnerable.
-     */
-    default boolean isInvulnerable(@NotNull UUID uuid) {
-        return this.getCurrentlyInvulnerable().contains(uuid);
-    }
-
-    @NotNull
-    default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.builder()
-                .currentVersion(getVersion())
-                .endpoint(UpdateChecker.Endpoint.SPIGOT)
-                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
-                .build();
-    }
-
-    default void checkForUpdates() {
-        if (getSettings().isCheckForUpdates()) {
-            getUpdateChecker().check().thenAccept(checked -> {
-                if (!checked.isUpToDate()) {
-                    log(Level.WARNING, "A new version of HuskHomes is available: v"
-                            + checked.getLatestVersion() + " (running v" + getVersion() + ")");
-                }
-            });
-        }
-    }
-
-    /**
-     * Registers the plugin with bStats metrics.
-     *
-     * @param metricsId the bStats id for the plugin
-     */
-    void registerMetrics(int metricsId);
-
-    /**
-     * Initialize plugin messaging channels.
-     */
-    void initializePluginChannels();
 
     /**
      * Log a message to the console.
@@ -437,11 +251,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SafetyResolve
         }
         @Subst("foo") final String joined = String.join("/", data);
         return Key.key("huskhomes", joined);
-    }
-
-    @NotNull
-    default Gson getGson() {
-        return new GsonBuilder().create();
     }
 
 }

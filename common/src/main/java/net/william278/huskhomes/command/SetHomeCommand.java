@@ -32,7 +32,10 @@ import java.util.Optional;
 public class SetHomeCommand extends SetPositionCommand {
 
     protected SetHomeCommand(@NotNull HuskHomes plugin) {
-        super("sethome", plugin);
+        super(
+                List.of("sethome"),
+                plugin
+        );
     }
 
     @Override

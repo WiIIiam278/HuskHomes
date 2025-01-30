@@ -105,7 +105,7 @@ public class NormalDistributionTests {
         final List<Location> locations = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             locations.add(NormalDistributionEngine.generateLocation(
-                    Location.at(0, 0, 0, 0, 0, World.from("TestWorld", UUID.randomUUID())),
+                    Location.at(0, 0, 0, 0, 0, World.from("TestWorld")),
                     MEAN, STANDARD_DEVIATION, SPAWN_RADIUS, MAX_RADIUS));
         }
         return locations;

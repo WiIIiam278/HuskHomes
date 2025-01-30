@@ -28,9 +28,9 @@ import java.util.List;
 
 public abstract class InGameCommand extends Command {
 
-    protected InGameCommand(@NotNull String name, @NotNull List<String> aliases, @NotNull String usage,
+    protected InGameCommand(@NotNull List<String> aliases, @NotNull String usage,
                             @NotNull HuskHomes plugin) {
-        super(name, aliases, usage, plugin);
+        super(aliases, usage, plugin);
     }
 
     @Override

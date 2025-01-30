@@ -36,7 +36,7 @@ public record Username(@NotNull String name) implements Teleportable, Target {
     /**
      * Search for a local {@link OnlineUser} by their name.
      *
-     * <p>If a user by the name provided is on the {@link HuskHomes#getPlayerList() player list}, then this
+     * <p>If a user by the name provided is on the {@link HuskHomes#getUserList() player list}, then this
      * method will search for the user by exact name.
      *
      * <p>Otherwise, the lookup will first attempt to find the user by exact name, and if that fails, it will search for
@@ -48,18 +48,20 @@ public record Username(@NotNull String name) implements Teleportable, Target {
      */
     @NotNull
     public Optional<OnlineUser> findLocally(@NotNull HuskHomes plugin) {
-        return plugin.getPlayerList(true).stream().anyMatch(listedName -> listedName.equalsIgnoreCase(name))
+        return plugin.getUserList().stream()
+                .anyMatch((user) -> user.getName().equalsIgnoreCase(name))
                 ? plugin.getOnlineUserExact(name) : plugin.getOnlineUser(name);
     }
 
     /**
      * Get the username {@link String} being represented by this object.
      *
-     * @return the username
+     * @return the name
+     * @since 4.8
      */
-    @NotNull
     @Override
-    public String getUsername() {
+    @NotNull
+    public String getName() {
         return name;
     }
 

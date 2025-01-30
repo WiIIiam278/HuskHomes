@@ -82,6 +82,10 @@ public class Teleport implements Completable {
      * @throws TeleportationException if the teleport fails for some reason.
      */
     public void execute() throws TeleportationException {
+        if (!teleporter.isValid()) {
+            throw new TeleportationException(TeleportationException.Type.TELEPORTER_INVALID, plugin);
+        }
+
         validateTransactions();
         resolveLocalTeleporter().ifPresentOrElse(this::executeLocal, this::executeRemote);
     }

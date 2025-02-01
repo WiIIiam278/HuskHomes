@@ -32,9 +32,6 @@ dependencies {
 
     implementation include(project(path: ":common"))
     project(":common").configurations.api.dependencies.each { dependency ->
-        if (dependency.name in ['cloplib-common', 'gson']) { // skip because it already exists (e.g. in cloplib-fabric)
-            return
-        }
         include(dependency)
     }
 }

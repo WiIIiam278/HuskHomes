@@ -18,6 +18,8 @@ dependencies {
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
+    // Including configlib-yaml from the common module doesn't include this, so we manually do so here
+    implementation include("de.exlll:configlib-core:4.5.0")
     implementation include('org.apache.commons:commons-pool2:2.12.0')
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")

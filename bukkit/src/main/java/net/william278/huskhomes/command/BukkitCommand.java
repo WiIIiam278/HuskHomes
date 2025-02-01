@@ -38,6 +38,8 @@ public class BukkitCommand extends org.bukkit.command.Command {
 
     public BukkitCommand(@NotNull Command command, @NotNull BukkitHuskHomes plugin) {
         super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
+        this.setPermission(command.getPermission());
+
         this.command = command;
         this.plugin = plugin;
     }
@@ -71,6 +73,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
                 command.getUsage(),
                 BukkitCommand.getPermissionDefault(command.isOperatorCommand())
         );
+        this.setPermission(command.getPermission());
         final List<Permission> childNodes = command.getAdditionalPermissions()
                 .entrySet().stream()
                 .map((entry) -> BukkitCommand.addPermission(

@@ -61,7 +61,7 @@ general:
   max_public_homes: 10
   # Whether permission limits (i.e. huskhomes.max_homes.<number>) should stack if the user inherits multiple nodes.
   stack_permission_limits: false
-  # Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps
+  # Whether users require a permission (huskhomes.warp.<warp_name>) to use warps
   permission_restrict_warps: false
   # How long a player has to stand still and not take damage for when teleporting (in seconds) 
   teleport_warmup_time: 5

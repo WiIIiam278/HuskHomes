@@ -100,12 +100,11 @@ public class WarpsManager {
 
     @NotNull
     public List<String> getUsableWarps(@NotNull CommandUser user) {
-        if (!plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-            || user.hasPermission(Warp.getWildcardPermission())) {
+        if (!plugin.getSettings().getGeneral().isPermissionRestrictWarps()) {
             return getWarps();
         }
         return warps.stream()
-                .filter(warp -> user.hasPermission(warp.getPermission()))
+                .filter(warp -> warp.hasPermission(user))
                 .map(Warp::getName)
                 .toList();
     }

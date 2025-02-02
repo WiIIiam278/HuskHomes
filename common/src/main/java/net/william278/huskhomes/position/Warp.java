@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.position;
 
+import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -28,7 +29,8 @@ import java.util.UUID;
  */
 public class Warp extends SavedPosition {
 
-    private static final String PERMISSION_PREFIX = "huskhomes.command.warp.";
+    private static final String USE_PERMISSION_FORMAT = "huskhomes.warp.%s";
+    private static final String USE_PERMISSION_WILDCARD = "huskhomes.warp.*";
 
     private Warp(double x, double y, double z, float yaw, float pitch, @NotNull World world, @NotNull String server,
                  @NotNull PositionMeta positionMeta, @NotNull UUID uuid) {
@@ -67,17 +69,21 @@ public class Warp extends SavedPosition {
 
     @NotNull
     public static String getPermission(@NotNull String warpName) {
-        return PERMISSION_PREFIX + warpName.toLowerCase();
-    }
-
-    @NotNull
-    public String getPermission() {
-        return getPermission(getName());
+        return USE_PERMISSION_FORMAT.formatted(warpName);
     }
 
     @NotNull
     public static String getWildcardPermission() {
-        return PERMISSION_PREFIX + "*";
+        return USE_PERMISSION_WILDCARD;
+    }
+
+    @NotNull
+    public String getPermission() {
+        return Warp.getPermission(getName());
+    }
+
+    public boolean hasPermission(@NotNull CommandUser user) {
+        return user.hasPermission(Warp.getWildcardPermission()) || user.hasPermission(getPermission());
     }
 
 }

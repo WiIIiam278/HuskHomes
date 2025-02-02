@@ -433,7 +433,7 @@ This is a table of HuskHomes commands, how to use them, and their required permi
 </table>
 
 ### Notes
-&dagger; &mdash; If [Permission Restricted Warps](restricted-warps) are in use, the  `huskhomes.command.warp.(warp_name)` permission node will also be required to be able to view and use warps.
+&dagger; &mdash; If [Permission Restricted Warps](restricted-warps) are in use, the  `huskhomes.warp.<name>` permission node will also be required to be able to list, use, edit and delete (but not set) warps. The `huskhomes.warp.*` wildcard permission grants the ability to access all warps.
 
 &ddagger; &mdash; Requires `return_by_death` to be enabled in [`config.yml`](config-files).
 

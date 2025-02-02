@@ -92,9 +92,8 @@ public class WarpListCommand extends ListCommand {
     @NotNull
     private List<Warp> getItems(@NotNull CommandUser executor) {
         List<Warp> warps = plugin.getDatabase().getWarps();
-        if (plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-            && !executor.hasPermission(Warp.getWildcardPermission())) {
-            warps = warps.stream().filter(warp -> executor.hasPermission(warp.getPermission())).toList();
+        if (plugin.getSettings().getGeneral().isPermissionRestrictWarps()) {
+            warps = warps.stream().filter(warp -> warp.hasPermission(executor)).toList();
         }
         return warps;
     }

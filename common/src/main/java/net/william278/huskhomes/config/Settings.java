@@ -131,7 +131,7 @@ public final class Settings {
                  + "if the user inherits multiple nodes.")
         private boolean stackPermissionLimits = false;
 
-        @Comment("Whether users require a permission (huskhomes.command.warp.<warp_name>) to use warps")
+        @Comment("Whether users require a permission (huskhomes.warp.<warp_name>) to use warps")
         private boolean permissionRestrictWarps = false;
 
         @Comment("How long a player has to stand still and not take damage for when teleporting (in seconds) ")

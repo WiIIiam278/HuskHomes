@@ -219,10 +219,13 @@ public abstract class EventListener {
      * @param onlineUser the {@link OnlineUser} who died
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
-        if (plugin.getSettings().getGeneral().getBackCommand().isReturnByDeath() && plugin.getCommand(BackCommand.class)
-                .map(Command::getPermission).map(onlineUser::hasPermission).orElse(false)) {
-            plugin.getDatabase().setLastPosition(onlineUser, onlineUser.getPosition());
-        }
+        final Position lastPosition = onlineUser.getPosition();
+        plugin.runAsync(() -> {
+            if (plugin.getSettings().getGeneral().getBackCommand().isReturnByDeath() && plugin.getCommand(BackCommand.class)
+                    .map(Command::getPermission).map(onlineUser::hasPermission).orElse(false)) {
+                plugin.getDatabase().setLastPosition(onlineUser, lastPosition);
+            }
+        });
     }
 
     /**

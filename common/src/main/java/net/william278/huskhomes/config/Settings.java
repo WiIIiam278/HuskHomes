@@ -386,7 +386,7 @@ public final class Settings {
     public static class EconomySettings {
 
         @Comment("Enable economy plugin integration (requires Vault and a compatible Economy plugin)")
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         @Comment("Map of economy actions to costs.")
         private Map<TransactionResolver.Action, Double> economyCosts = TransactionResolver.Action.getEconomyCosts();

@@ -32,7 +32,12 @@ public interface UserListTabCompletable extends TabCompletable {
     @Override
     @Nullable
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length < 2 ? getPlugin().getUserList().stream().map(User::getName).toList() : null;
+        return args.length < 2 ? getUsernameList() : null;
+    }
+
+    @NotNull
+    default List<String> getUsernameList() {
+        return getPlugin().getUserList().stream().map(User::getName).toList();
     }
 
     @NotNull

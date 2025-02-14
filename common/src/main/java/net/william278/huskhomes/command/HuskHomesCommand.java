@@ -30,6 +30,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.importer.Importer;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
@@ -44,13 +45,14 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class HuskHomesCommand extends Command implements TabCompletable {
+public class HuskHomesCommand extends Command implements UserListTabCompletable {
 
     private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
             "about", false,
             "help", false,
             "reload", true,
             "status", true,
+            "homeslots", false,
             "import", true,
             "delete", true,
             "update", true
@@ -122,6 +124,14 @@ public class HuskHomesCommand extends Command implements TabCompletable {
                         Arrays.stream(StatusLine.values()).map(s -> s.get(plugin)).toList()
                 ));
             }
+            case "homeslots" -> {
+                if (!plugin.isUsingEconomy() || args.length <= 1) {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                this.manageHomeSlots(executor, removeFirstArg(args));
+            }
             case "import" -> {
                 if (plugin.getImporters().isEmpty()) {
                     plugin.getLocales().getLocale("error_no_importers_available")
@@ -170,6 +180,64 @@ public class HuskHomesCommand extends Command implements TabCompletable {
                         plugin.getPluginVersion().toString()).ifPresent(executor::sendMessage);
             });
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    // Manage a user's home slots
+    private void manageHomeSlots(@NotNull CommandUser executor, @NotNull String[] args) {
+        // Parse args
+        final Optional<SavedUser> savedUser = parseStringArg(args, 0)
+                .flatMap(u -> plugin.getDatabase().getUser(u));
+        final String actionArg = parseStringArg(args, 1).orElse("view").toLowerCase(Locale.ENGLISH);
+        final Optional<Integer> valueArg = parseIntArg(args, 2);
+
+        // Resolve user
+        if (savedUser.isEmpty()) {
+            plugin.getLocales().getLocale("error_player_not_found", args[0])
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Perform actions
+        final SavedUser user = savedUser.get();
+        switch (actionArg) {
+            case "view" -> {
+                final List<Home> homes = plugin.getDatabase().getHomes(user.getUser());
+                plugin.getLocales().getLocale("user_home_slots_status", user.getUsername(),
+                                Integer.toString(user.getHomeSlots()), Integer.toString(homes.size()))
+                        .ifPresent(executor::sendMessage);
+            }
+            case "set", "add", "remove" -> {
+                if (valueArg.isEmpty()) {
+                    plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/%s homeslots <set|add|remove> <value>".formatted(getName()))
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                // Calculate new slots and apply
+                int value = valueArg.orElseThrow();
+                if (actionArg.equals("add")) {
+                    value = user.getHomeSlots() + value;
+                } else if (actionArg.equals("remove")) {
+                    value = user.getHomeSlots() - value;
+                }
+                if (value < 0) {
+                    plugin.getLocales().getLocale("error_invalid_syntax",
+                                    "/%s homeslots [view|set|add|remove]".formatted(getName()))
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                user.setHomeSlots(value);
+                plugin.getDatabase().updateUserData(user);
+                plugin.getLocales().getLocale("user_home_slots_updated",
+                                user.getUsername(), Integer.toString(user.getHomeSlots()))
+                        .ifPresent(executor::sendMessage);
+            }
+            default -> plugin.getLocales().getLocale("error_invalid_syntax",
+                            "/%s homeslots [view|set|add|remove]".formatted(getName()))
                     .ifPresent(executor::sendMessage);
         }
     }
@@ -347,16 +415,21 @@ public class HuskHomesCommand extends Command implements TabCompletable {
             case 2 -> switch (args[0].toLowerCase()) {
                 case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
                         .mapToObj(Integer::toString).toList();
+                case "homeslots" -> UserListTabCompletable.super.getUsernameList();
                 case "import" -> List.of("start", "list");
                 case "delete" -> List.of("player", "homes", "warps");
                 default -> null;
             };
-            case 3 -> {
-                if (!args[0].equalsIgnoreCase("import") && !args[1].equalsIgnoreCase("start")) {
-                    yield null;
+            case 3 -> switch (args[0].toLowerCase()) {
+                case "homeslots" -> List.of("view", "add", "remove", "set");
+                case "import" -> {
+                    if (!args[1].equalsIgnoreCase("start")) {
+                        yield null;
+                    }
+                    yield plugin.getImporters().stream().map(Importer::getName).toList();
                 }
-                yield plugin.getImporters().stream().map(Importer::getName).toList();
-            }
+                default -> null;
+            };
             default -> null;
         };
     }
@@ -416,7 +489,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
         @NotNull
         private static Component getLocalhostBoolean(@NotNull String value) {
             return getBoolean(value.equals("127.0.0.1") || value.equals("0.0.0.0")
-                              || value.equals("localhost") || value.equals("::1"));
+                    || value.equals("localhost") || value.equals("::1"));
         }
     }
 

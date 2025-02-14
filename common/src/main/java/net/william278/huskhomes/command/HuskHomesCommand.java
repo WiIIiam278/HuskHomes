@@ -379,6 +379,7 @@ public class HuskHomesCommand extends Command implements TabCompletable {
                 .isBlank())),
         REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSsl())),
         IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
+        ECONOMY_MODE(plugin -> getBoolean(plugin.isUsingEconomy())),
         LOADED_HOOKS(plugin -> Component.join(
                 JoinConfiguration.commas(true),
                 plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))

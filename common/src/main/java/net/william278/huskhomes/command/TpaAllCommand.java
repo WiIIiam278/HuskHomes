@@ -34,7 +34,7 @@ public class TpaAllCommand extends InGameCommand {
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        if (plugin.getGlobalUserList().size() <= 1) {
+        if (plugin.getUserList().size() <= 1) {
             plugin.getLocales().getLocale("error_no_players_online")
                     .ifPresent(executor::sendMessage);
             return;

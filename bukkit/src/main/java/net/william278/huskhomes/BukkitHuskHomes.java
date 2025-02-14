@@ -163,7 +163,7 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
                     () -> getSettings().getDatabase().getType().getDisplayName())
             );
             metrics.addCustomChart(new SimplePie("using_economy",
-                    () -> Boolean.toString(getSettings().getEconomy().isEnabled()))
+                    () -> Boolean.toString(isUsingEconomy()))
             );
             metrics.addCustomChart(new SimplePie("using_map",
                     () -> Boolean.toString(getSettings().getMapHook().isEnabled()))

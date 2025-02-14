@@ -30,6 +30,10 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.util.concurrent.ExecutionException;
 
+@PluginHook(
+        name = "Impactor Economy",
+        register = PluginHook.Register.ON_LOAD
+)
 public class FabricImpactorEconomyHook extends EconomyHook {
     private EconomyService economyService;
     private Currency currency;

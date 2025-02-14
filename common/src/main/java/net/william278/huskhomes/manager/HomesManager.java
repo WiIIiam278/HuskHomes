@@ -221,9 +221,9 @@ public class HomesManager {
         final SavedUser savedOwner = plugin.getSavedUser(owner)
                 .or(() -> plugin.getDatabase().getUser(owner.getUuid()))
                 .orElseThrow(() -> new IllegalStateException("User data not found for " + owner.getUuid()));
-        if (!ignoreHomeSlots && plugin.getSettings().getEconomy().isEnabled()
-            && homes > getFreeHomes(owner) && homes > savedOwner.getHomeSlots()) {
-            if (!buyAdditionalSlots || plugin.getEconomyHook().isEmpty() || !(owner instanceof OnlineUser online)) {
+        if (plugin.isUsingEconomy() && !ignoreHomeSlots && homes > getFreeHomes(owner)
+                && homes > savedOwner.getHomeSlots()) {
+            if (!buyAdditionalSlots || !(owner instanceof OnlineUser online)) {
                 throw new ValidationException(ValidationException.Type.NOT_ENOUGH_HOME_SLOTS);
             }
 

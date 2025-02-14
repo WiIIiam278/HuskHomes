@@ -168,6 +168,15 @@ public interface TransactionResolver {
         return getPlugin().getHook(EconomyHook.class);
     }
 
+    /**
+     * Return whether to use the economy hook
+     *
+     * @return {@code true} if the economy hook is in use
+     */
+    default boolean isUsingEconomy() {
+        return getPlugin().getSettings().getEconomy().isEnabled() && getEconomyHook().isPresent();
+    }
+
     @NotNull
     HuskHomes getPlugin();
 

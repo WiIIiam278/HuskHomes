@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
  */
 public class BukkitUser extends OnlineUser {
 
+    private static final String VANISHED_META_KEY = "vanished";
     private final NamespacedKey INVULNERABLE_KEY = new NamespacedKey((BukkitHuskHomes) plugin, "invulnerable");
     private final Player bukkitPlayer;
 
@@ -141,11 +142,8 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public boolean isVanished() {
-        return bukkitPlayer.getMetadata("vanished")
-                .stream()
-                .map(MetadataValue::asBoolean)
-                .findFirst()
-                .orElse(false);
+        return bukkitPlayer.hasMetadata(VANISHED_META_KEY) && bukkitPlayer.getMetadata(VANISHED_META_KEY).stream()
+                .map(MetadataValue::asBoolean).findFirst().orElse(false);
     }
 
     @Override

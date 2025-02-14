@@ -27,6 +27,8 @@ The price will be levied against the player when they attempt to set home and ha
 
 You can configure the number of 'free home slots' a user gets using the `free_home_slots` setting in the `economy` section of the config. The default is `5`.
 
+You can also view and manually adjust a user's home slots in game with the `/huskhomes homeslots <username> [view|add|remove|set]` [command](commands) (permission node: `huskhomes.command.huskhomes.homeslots`).
+
 ## Economy actions
 You can set the economy cost for the following actions in the `costs` section of the `config.yml` file. Note that this section by default only has the `additional_home_slot`, `make_home_public` and `random_teleport` actions defined. Add the other actions to this section of the file and associate a price with them to enable them.
 

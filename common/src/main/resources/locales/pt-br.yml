@@ -158,6 +158,7 @@ locales:
   error_teleport_request_self: '[Erro:](#ff3300) [Você não pode enviar um pedido de teleporte para si mesmo.](#ff7e5e)'
   error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[Erro:](#ff3300) [Não foi possível encontrar o jogador %1%.](#ff7e5e)'
+  error_player_not_teleportable: '[Error:](#ff3300) [The target player, %1%, cannot be teleported right now.](#ff7e5e)'
   error_rtp_restricted_world: '[Erro:](#ff3300) [Você não pode se teleportar aleatoriamente neste mundo.](#ff7e5e)'
   error_on_cooldown: '[Erro:](#ff3300) [Você deve esperar %1% antes de fazer isso novamente.](#ff7e5e)'
   error_console_command_only: '[Erro:](#ff3300) [Esse comando só pode ser executado pelo console do servidor.](#ff7e5e)'

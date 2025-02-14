@@ -158,6 +158,7 @@ locales:
   error_teleport_request_self: '[錯誤：](#ff3300)[您不能向自己發送傳送請求。](#ff7e5e)'
   error_target_not_found: '[錯誤：](#ff3300)[找不到目標玩家！](#ff7e5e)'
   error_player_not_found: '[錯誤：](#ff3300)[沒有找到玩家 %1%。](#ff7e5e)'
+  error_player_not_teleportable: '[Error:](#ff3300) [The target player, %1%, cannot be teleported right now.](#ff7e5e)'
   error_rtp_restricted_world: '[錯誤：](#ff3300)[您不能在這個世界隨機傳送。](#ff7e5e)'
   error_on_cooldown: '[錯誤：](#ff3300)[您必須等待 %1% 後才能再次執行此操作。](#ff7e5e)'
   error_console_command_only: '[錯誤：](#ff3300)[該指令只能從伺服器控制台執行。](#ff7e5e)'

@@ -158,6 +158,7 @@ locales:
   error_teleport_request_self: '[Lỗi:](#ff3300) [Bạn không thể gửi yêu cầu dịch chuyển cho bản thân, bạn có nhầm không?](#ff7e5e)'
   error_target_not_found: '[Lỗi:](#ff3300) [Không thể tìm thấy người chơi được chỉ định.](#ff7e5e)'
   error_player_not_found: '[Lỗi:](#ff3300) [Không thể tìm thấy người chơi %1%.](#ff7e5e)'
+  error_player_not_teleportable: '[Error:](#ff3300) [The target player, %1%, cannot be teleported right now.](#ff7e5e)'
   error_rtp_restricted_world: '[Lỗi:](#ff3300) [Bạn không thể dịch chuyển ngẫu nhiên trong thế giới này.](#ff7e5e)'
   error_on_cooldown: '[Lỗi:](#ff3300) [Bạn phải đợi %1% trước khi làm lại điều đó.](#ff7e5e)'
   error_console_command_only: '[Lỗi:](#ff3300) [Lệnh đó chỉ có thể được dùng từ bảng điều khiển máy chủ.](#ff7e5e)'

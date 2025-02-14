@@ -72,6 +72,6 @@ public record Username(@NotNull String name) implements Teleportable, Target {
      */
     @Override
     public boolean isValid() {
-        return false;
+        return true;
     }
 }

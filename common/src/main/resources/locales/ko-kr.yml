@@ -158,6 +158,7 @@ locales:
   error_teleport_request_self: '[오류:](#ff3300) [자신에게 이동 요청을 보낼 수 없습니다.](#ff7e5e)'
   error_target_not_found: '[Error:](#ff3300) [Could not find the target player.](#ff7e5e)'
   error_player_not_found: '[오류:](#ff3300) [%1%님을 찾을 수 없습니다.](#ff7e5e)'
+  error_player_not_teleportable: '[Error:](#ff3300) [The target player, %1%, cannot be teleported right now.](#ff7e5e)'
   error_rtp_restricted_world: '[오류:](#ff3300) [이 세계에서는 랜덤 이동할 수 없습니다.](#ff7e5e)'
   error_on_cooldown: '[오류:](#ff3300) [다시 하기 위해서는 %1%를 기다려야 합니다.](#ff7e5e)'
   error_console_command_only: '[오류:](#ff3300) [이 명령어는 콘솔에서만 실행할 수 있습니다.](#ff7e5e)'

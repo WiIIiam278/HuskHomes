@@ -55,7 +55,8 @@ public class TpHereCommand extends InGameCommand implements UserListTabCompletab
                 .target(executor.getPosition())
                 .buildAndComplete(false, target);
 
-        plugin.getLocales().getLocale("teleporting_other_complete", target, executor.getName());
+        plugin.getLocales().getLocale("teleporting_other_complete", target, executor.getName())
+                .ifPresent(executor::sendMessage);
     }
 
 }

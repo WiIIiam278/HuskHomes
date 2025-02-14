@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes;
 
+import com.google.common.collect.Sets;
 import net.kyori.adventure.key.Key;
 import net.william278.huskhomes.api.BaseHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -68,6 +69,7 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     default void load() {
         try {
             loadConfigs();
+            setHooks(Sets.newHashSet());
             loadHooks(PluginHook.Register.ON_LOAD);
             registerHooks(PluginHook.Register.ON_LOAD);
         } catch (Throwable e) {

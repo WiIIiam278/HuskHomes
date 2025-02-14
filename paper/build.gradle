@@ -48,7 +48,9 @@ tasks {
         minecraftVersion('1.21.4')
 
         downloadPlugins {
-            url("https://download.luckperms.net/1569/bukkit/loader/LuckPerms-Bukkit-5.4.152.jar")
+            url("https://download.luckperms.net/1571/bukkit/loader/LuckPerms-Bukkit-5.4.154.jar")
+            github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
+            github("YiC200333", "XConomy", "2.26.3", "XConomy-Paper-2.26.3.jar")
         }
     }
 }

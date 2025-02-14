@@ -63,7 +63,7 @@ public interface HookProvider extends MapHookProvider {
     default void loadHooks(@NotNull PluginHook.Register... register) {
         final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
         final List<Hook> load = getAvailableHooks().stream().filter(h -> registers.contains(h.getRegister())).toList();
-        setHooks(Sets.newHashSet(load));
+        getHooks().addAll(load);
     }
 
     default void registerHooks(@NotNull PluginHook.Register... register) {

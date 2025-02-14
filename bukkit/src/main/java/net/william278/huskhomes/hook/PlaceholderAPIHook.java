@@ -35,7 +35,7 @@ import java.util.List;
 
 @PluginHook(
         name = "PlaceholderAPI",
-        register = PluginHook.Register.ON_LOAD
+        register = PluginHook.Register.ON_ENABLE
 )
 public class PlaceholderAPIHook extends Hook {
 

@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @PluginHook(
         name = "Vault",
-        register = PluginHook.Register.ON_LOAD
+        register = PluginHook.Register.ON_ENABLE
 )
 public class VaultEconomyHook extends EconomyHook {
 

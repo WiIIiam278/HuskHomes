@@ -20,6 +20,7 @@
 package net.william278.huskhomes.user;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.util.TriState;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
@@ -86,6 +87,11 @@ public class FabricUser extends OnlineUser {
     @Override
     public double getHealth() {
         return player.getHealth();
+    }
+
+    @Override
+    public boolean isPermissionSet(@NotNull String permission) {
+        return Permissions.getPermissionValue(player, permission) != TriState.DEFAULT;
     }
 
     @Override

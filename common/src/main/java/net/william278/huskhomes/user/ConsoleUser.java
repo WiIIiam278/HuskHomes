@@ -37,6 +37,11 @@ public final class ConsoleUser implements CommandUser {
     }
 
     @Override
+    public boolean isPermissionSet(@NotNull String permission) {
+        return true;
+    }
+
+    @Override
     public boolean hasPermission(@NotNull String permission) {
         return true;
     }

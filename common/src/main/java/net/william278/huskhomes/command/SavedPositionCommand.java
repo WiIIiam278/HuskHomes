@@ -161,9 +161,9 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
-        if (executor instanceof OnlineUser user && plugin.getSettings().getGeneral().isPermissionRestrictWarps()
-                && !user.hasPermission(Warp.getWildcardPermission())
-                && !user.hasPermission(Warp.getPermission(warpName))) {
+        if (executor instanceof OnlineUser user
+                && plugin.getSettings().getGeneral().isPermissionRestrictWarps()
+                && !Warp.hasPermission(user, warpName)) {
             plugin.getLocales().getLocale("error_warp_invalid", warpName)
                     .ifPresent(executor::sendMessage);
             return Optional.empty();

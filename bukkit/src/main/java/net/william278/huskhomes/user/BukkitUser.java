@@ -81,10 +81,14 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public boolean isPermissionSet(@NotNull String node) {
+        return bukkitPlayer.isPermissionSet(node);
+    }
+
+    @Override
     public boolean hasPermission(@NotNull String node) {
         return bukkitPlayer.hasPermission(node);
     }
-
 
     @Override
     @NotNull

@@ -116,10 +116,12 @@ public class RequestsManager {
     }
 
     public void sendTeleportAllRequest(@NotNull OnlineUser requester) {
-        final long expiry = Instant.now().getEpochSecond()
-                            + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
-        final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
+        final long expiry = Instant.now().getEpochSecond() + plugin.getSettings()
+                .getGeneral().getTeleportRequestExpiryTime();
+
+        // Send requests locally
         for (OnlineUser onlineUser : plugin.getOnlineUsers()) {
+            final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
             if (onlineUser.equals(requester)) {
                 continue;
             }
@@ -127,6 +129,8 @@ public class RequestsManager {
             sendLocalTeleportRequest(request, onlineUser);
         }
 
+        // Send a request globally
+        final TeleportRequest request = new TeleportRequest(requester, TeleportRequest.Type.TPA_HERE, expiry);
         plugin.getBroker().ifPresent(b -> Message.builder()
                 .type(Message.MessageType.TELEPORT_REQUEST)
                 .payload(Payload.teleportRequest(request))
@@ -144,7 +148,7 @@ public class RequestsManager {
     public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
                                     @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond()
-                            + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
+                + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
 
         // Lookup the user locally first. If there's a username match globally, perform an exact local check
@@ -205,7 +209,7 @@ public class RequestsManager {
         plugin.fireEvent(plugin.getReceiveTeleportRequestEvent(recipient, request), (event -> {
             addTeleportRequest(request, recipient);
             plugin.getLocales().getLocale((request.getType() == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                                          + "_request_received", request.getRequesterName())
+                            + "_request_received", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);
             plugin.getLocales().getLocale("teleport_request_buttons", request.getRequesterName())
                     .ifPresent(recipient::sendMessage);

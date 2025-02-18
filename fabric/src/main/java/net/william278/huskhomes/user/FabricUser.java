@@ -152,7 +152,19 @@ public class FabricUser extends OnlineUser {
         plugin.runSync(() -> {
             player.stopRiding();
             player.getPassengerList().forEach(Entity::stopRiding);
-            player.teleportTo(FabricHuskHomes.Adapter.adapt(location, server, entity -> handleInvulnerability()));
+            //#if MC==12104
+            player.teleport(
+                    world, location.getX(), location.getY(), location.getZ(),
+                    Set.of(),
+                    location.getYaw(), location.getPitch(),
+                    true
+            );
+            //#else
+            //$$ player.teleport(
+            //$$         world, location.getX(), location.getY(), location.getZ(),
+            //$$         location.getYaw(), location.getPitch()
+            //$$ );
+            //#endif
         }, this);
     }
 

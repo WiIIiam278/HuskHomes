@@ -20,7 +20,6 @@
 package net.william278.huskhomes.hook;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.importer.Importer;

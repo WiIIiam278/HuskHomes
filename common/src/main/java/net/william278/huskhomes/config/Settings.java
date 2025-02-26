@@ -124,11 +124,11 @@ public final class Settings {
         private int maxHomes = 10;
 
         @Comment("The maximum public homes a user can create. "
-                 + "Override with the huskhomes.max_public_homes.<number> permission.")
+                + "Override with the huskhomes.max_public_homes.<number> permission.")
         private int maxPublicHomes = 10;
 
         @Comment("Whether permission limits (i.e. huskhomes.max_homes.<number>) should stack "
-                 + "if the user inherits multiple nodes.")
+                + "if the user inherits multiple nodes.")
         private boolean stackPermissionLimits = false;
 
         @Comment("Whether users require a permission (huskhomes.warp.<warp_name>) to use warps")
@@ -153,14 +153,14 @@ public final class Settings {
         private int teleportRequestExpiryTime = 60;
 
         @Comment("Whether /tpahere should use the location of the sender when sent. "
-                 + "Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
+                + "Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
         private boolean strictTpaHereRequests = true;
 
         @Comment("How many items should be displayed per-page in chat menu lists")
         private int listItemsPerPage = 12;
 
         @Comment("Whether the user should always be put back at the /spawn point when they die "
-                 + "(ignores beds/respawn anchors)")
+                + "(ignores beds/respawn anchors)")
         private boolean alwaysRespawnAtSpawn = false;
 
         @Comment("Whether teleportation should be carried out async (ensuring chunks load before teleporting)")
@@ -180,7 +180,7 @@ public final class Settings {
             private boolean caseInsensitive = false;
 
             @Comment("Whether home and warp names should be restricted to a regex filter."
-                     + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
+                    + "Set this to false to allow full UTF-8 names (i.e. allow /home 你好).")
             private boolean restrict = true;
 
             @Comment("Regex which home and warp names must match. Names have a max length of 16 characters")
@@ -195,11 +195,11 @@ public final class Settings {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class DescriptionSettings {
             @Comment("Whether home/warp descriptions should be restricted to a regex filter. "
-                     + "Set this to true to restrict UTF-8 usage.")
+                    + "Set this to true to restrict UTF-8 usage.")
             private boolean restrict = false;
 
             @Comment("Regex which home and warp descriptions must match. "
-                     + "A hard max length of 256 characters is enforced")
+                    + "A hard max length of 256 characters is enforced")
             private String regex = "\\A\\p{ASCII}*\\z";
         }
 
@@ -215,6 +215,19 @@ public final class Settings {
 
             @Comment("Whether /back should work with other plugins that use the PlayerTeleportEvent (can conflict)")
             private boolean saveOnTeleportEvent = false;
+
+            @Comment({"List of world names where the /back command cannot RETURN the player to. ",
+                    "A user's last position won't be updated if they die or teleport from these worlds, but they still "
+                            + "will be able to use the command while IN the world."})
+            private List<String> restrictedWorlds = new ArrayList<>();
+
+            public boolean canReturnToWorld(@NotNull World world) {
+                final String name = world.getName();
+                final String formattedName = name.replace("minecraft:", "");
+                return restrictedWorlds.stream()
+                        .map(n -> n.replace("minecraft:", ""))
+                        .anyMatch(n -> n.equalsIgnoreCase(formattedName));
+            }
         }
 
         @Comment("Settings for sound effects")
@@ -286,7 +299,7 @@ public final class Settings {
         }
 
         @Comment("Define a single global /spawn for your network via a warp. "
-                 + "Docs: https://william278.net/docs/huskhomes/global-spawn/")
+                + "Docs: https://william278.net/docs/huskhomes/global-spawn/")
         private GlobalSpawnSettings globalSpawn = new GlobalSpawnSettings();
 
         @Getter
@@ -300,7 +313,7 @@ public final class Settings {
         }
 
         @Comment("Whether player respawn positions should work cross-server. "
-                 + "Docs: https://william278.net/docs/huskhomes/global-respawning/")
+                + "Docs: https://william278.net/docs/huskhomes/global-respawning/")
         private boolean globalRespawning = false;
     }
 
@@ -428,7 +441,7 @@ public final class Settings {
                 .anyMatch(disabled -> {
                     final String command = (disabled.startsWith("/") ? disabled.substring(1) : disabled);
                     return command.equalsIgnoreCase(type.getName())
-                           || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
+                            || type.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(command));
                 });
     }
 

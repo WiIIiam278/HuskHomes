@@ -15,6 +15,7 @@ Welcome to the plugin documentation for HuskHomes v4.x+, the powerful & intuitiv
 * 🗺️ [[Map Hooks]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
+* 🔙 [[Back Command]]
 * 🚫 [[Restricted Warps]]
 * ⏰ [[Cooldowns]]
 * 🌎 [[Global Spawn]]

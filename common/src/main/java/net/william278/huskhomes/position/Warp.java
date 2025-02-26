@@ -20,7 +20,6 @@
 package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.user.CommandUser;
-import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

@@ -67,7 +67,7 @@ public class Teleport implements Completable {
         this.async = plugin.getSettings().getGeneral().isTeleportAsync();
         this.updateLastPosition = updateLastPosition && plugin.getCommand(BackCommand.class)
                 .map(command -> executor.hasPermission(command.getPermission())
-                                && executor.hasPermission(command.getPermission("previous")))
+                        && executor.hasPermission(command.getPermission("previous")))
                 .orElse(false);
     }
 
@@ -97,7 +97,7 @@ public class Teleport implements Completable {
             if (localTarget.isPresent()) {
                 fireEvent((event) -> {
                     performTransactions();
-                    if (updateLastPosition) {
+                    if (updateLastPosition && canReturnToWorld(teleporter)) {
                         plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
                     }
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
@@ -123,13 +123,13 @@ public class Teleport implements Completable {
 
         fireEvent((event) -> {
             performTransactions();
-            if (updateLastPosition) {
+            if (updateLastPosition && canReturnToWorld(teleporter)) {
                 plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
             }
 
             final Position target = (Position) this.target;
             if (!plugin.getSettings().getCrossServer().isEnabled()
-                || target.getServer().equals(plugin.getServerName())) {
+                    || target.getServer().equals(plugin.getServerName())) {
                 teleporter.teleportLocally(target, async);
                 this.displayTeleportingComplete(teleporter);
                 teleporter.handleInvulnerability();
@@ -164,6 +164,10 @@ public class Teleport implements Completable {
                     .payload(Payload.position((Position) target))
                     .build().send(b, executor);
         }));
+    }
+
+    private boolean canReturnToWorld(@NotNull OnlineUser user) {
+        return plugin.getSettings().getGeneral().getBackCommand().canReturnToWorld(user.getPosition().getWorld());
     }
 
     @NotNull

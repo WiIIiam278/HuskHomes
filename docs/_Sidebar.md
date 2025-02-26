@@ -12,6 +12,7 @@
 * 🗺️ [[Map Hooks]]
 * 💵 [[Economy Hook]]
 * ⚠️ [[Strict Tpahere]]
+* 🔙 [[Back Command]]
 * 🚫 [[Restricted Warps]]
 * ⏰ [[Cooldowns]]
 * 🌎 [[Global Spawn]]

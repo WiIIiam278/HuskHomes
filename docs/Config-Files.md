@@ -105,6 +105,9 @@ general:
     return_by_death: true
     # Whether /back should work with other plugins that use the PlayerTeleportEvent (can conflict)
     save_on_teleport_event: false
+    # List of world names where the /back command cannot RETURN the player to.
+    # A user's last position won't be updated if they die or teleport from these worlds, but they still will be able to use the command while IN the world
+    restricted_worlds: []
   # Settings for sound effects
   sound_effects:
     # Whether to play sound effects

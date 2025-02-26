@@ -24,17 +24,18 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
-import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.position.Position;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.User;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -68,8 +69,8 @@ public abstract class EventListener {
 
                 // Synchronize the global player list
                 plugin.runSyncDelayed(() -> this.updateUserList(
-                        onlineUser,
-                        plugin.getOnlineUsers().stream().map(u -> (User) u).toList()),
+                                onlineUser,
+                                plugin.getOnlineUsers().stream().map(u -> (User) u).toList()),
                         onlineUser,
                         40L
                 );
@@ -108,7 +109,7 @@ public abstract class EventListener {
         online.removeInvulnerabilityIfPermitted();
 
         plugin.runAsync(() -> {
-           // Set offline position
+            // Set offline position
             plugin.getDatabase().setOfflinePosition(online, online.getPosition());
 
             // Remove this user's home cache
@@ -166,7 +167,7 @@ public abstract class EventListener {
         if (bedPosition.isEmpty()) {
             plugin.getSpawn().ifPresent(spawn -> {
                 if (plugin.getSettings().getCrossServer().isEnabled()
-                    && !spawn.getServer().equals(plugin.getServerName())) {
+                        && !spawn.getServer().equals(plugin.getServerName())) {
                     plugin.runSyncDelayed(() -> Teleport.builder(plugin)
                             .teleporter(teleporter)
                             .target(spawn)
@@ -220,11 +221,24 @@ public abstract class EventListener {
      */
     protected final void handlePlayerDeath(@NotNull OnlineUser onlineUser) {
         final Position lastPosition = onlineUser.getPosition();
+        final World lastWorld = lastPosition.getWorld();
+
+        // Check the user can use /back to return here
+        final BackCommand command = plugin.getCommand(BackCommand.class).orElse(null);
+        if (command == null || !onlineUser.hasPermission(command.getPermission()) ||
+                !onlineUser.hasPermission(command.getPermission("back"))) {
+            return;
+        }
+        final Settings.GeneralSettings.BackCommandSettings back = plugin.getSettings().getGeneral().getBackCommand();
+        if (!back.isReturnByDeath() || !back.canReturnToWorld(lastWorld)) {
+            return;
+        }
+
+        // Update the player's last position
         plugin.runAsync(() -> {
-            if (plugin.getSettings().getGeneral().getBackCommand().isReturnByDeath() && plugin.getCommand(BackCommand.class)
-                    .map(Command::getPermission).map(onlineUser::hasPermission).orElse(false)) {
-                plugin.getDatabase().setLastPosition(onlineUser, lastPosition);
-            }
+            plugin.getDatabase().setLastPosition(onlineUser, lastPosition);
+            plugin.getLocales().getLocale("return_by_death_notification")
+                    .ifPresent(onlineUser::sendMessage);
         });
     }
 
@@ -234,26 +248,15 @@ public abstract class EventListener {
      * @param onlineUser the respawning {@link OnlineUser}
      */
     protected final void handlePlayerRespawn(@NotNull OnlineUser onlineUser) {
-        plugin.runAsync(() -> {
-            // Display the return by death via /back notification
-            final boolean canReturnByDeath = plugin.getCommand(BackCommand.class)
-                    .map(command -> onlineUser.hasPermission(command.getPermission())
-                                    && onlineUser.hasPermission(command.getPermission("death")))
-                    .orElse(false);
-            if (plugin.getSettings().getGeneral().getBackCommand().isReturnByDeath() && canReturnByDeath) {
-                plugin.getLocales().getLocale("return_by_death_notification")
-                        .ifPresent(onlineUser::sendMessage);
-            }
-
-            // Respawn the player via the global respawn system
-            final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
-            if (crossServer.isEnabled() && crossServer.isGlobalRespawning()) {
-                this.respawnGlobally(onlineUser);
-            }
-        });
+        final Settings.CrossServerSettings crossServer = plugin.getSettings().getCrossServer();
+        if (!crossServer.isEnabled() || !crossServer.isGlobalRespawning()) {
+            return;
+        }
+        plugin.runAsync(() -> this.respawnGlobally(onlineUser));
     }
 
     // Respawn a player to where they should be
+    @Blocking
     private void respawnGlobally(@NotNull OnlineUser onlineUser) {
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(onlineUser)
@@ -289,12 +292,13 @@ public abstract class EventListener {
      * @param sourcePosition the source {@link Position} they came from
      */
     protected final void handlePlayerTeleport(@NotNull OnlineUser onlineUser, @NotNull Position sourcePosition) {
-        if (!plugin.getSettings().getGeneral().getBackCommand().isSaveOnTeleportEvent()) {
+        final Settings.GeneralSettings.BackCommandSettings back = plugin.getSettings().getGeneral().getBackCommand();
+        if (!back.isSaveOnTeleportEvent() || back.canReturnToWorld(sourcePosition.getWorld())) {
             return;
         }
 
-        plugin.runAsync(() -> plugin.getDatabase().getUser(onlineUser.getUuid())
-                .ifPresent(data -> plugin.getDatabase().setLastPosition(data.getUser(), sourcePosition)));
+        // Set the player's last position
+        plugin.runAsync(() -> plugin.getDatabase().setLastPosition(onlineUser, sourcePosition));
     }
 
     /**
@@ -305,8 +309,8 @@ public abstract class EventListener {
      */
     protected final void handlePlayerUpdateSpawnPoint(@NotNull OnlineUser onlineUser, @NotNull Position position) {
         if (!plugin.getSettings().getGeneral().isAlwaysRespawnAtSpawn()
-            && plugin.getSettings().getCrossServer().isEnabled()
-            && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
+                && plugin.getSettings().getCrossServer().isEnabled()
+                && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
             plugin.getDatabase().setRespawnPosition(onlineUser, position);
         }
     }

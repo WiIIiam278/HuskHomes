@@ -127,7 +127,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                 ));
             }
             case "dump" -> {
-                if (!parseStringArg(args, 0).map(s -> s.equals("confirm")).orElse(false)) {
+                if (!parseStringArg(args, 1).map(s -> s.equals("confirm")).orElse(false)) {
                     getPlugin().getLocales().getLocale("system_dump_confirm").ifPresent(executor::sendMessage);
                     return;
                 }

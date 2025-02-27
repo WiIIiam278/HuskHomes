@@ -73,6 +73,8 @@ import net.william278.huskhomes.user.*;
 import net.william278.huskhomes.util.FabricSavePositionProvider;
 import net.william278.huskhomes.util.FabricTask;
 import net.william278.huskhomes.util.UnsafeBlocks;
+import net.william278.toilet.Toilet;
+import net.william278.toilet.fabric.FabricToilet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -105,6 +107,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     //$$ private FabricServerAudiences audiences;
     //#endif
     private MinecraftServer minecraftServer;
+    private Toilet toilet;
 
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
@@ -148,6 +151,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private void onEnable(@NotNull MinecraftServer server) {
         this.minecraftServer = server;
+        this.toilet = FabricToilet.create(getDumpOptions(), server);
         //#if MC==12104
         this.audiences = MinecraftServerAudiences.of(minecraftServer);
         //#else

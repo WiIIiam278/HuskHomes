@@ -20,6 +20,7 @@
 package net.william278.huskhomes;
 
 import com.google.common.collect.Sets;
+import de.exlll.configlib.ConfigurationException;
 import net.kyori.adventure.key.Key;
 import net.william278.huskhomes.api.BaseHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -57,7 +58,7 @@ import java.util.logging.Level;
 public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionProvider, TransactionResolver,
         ConfigProvider, DatabaseProvider, BrokerProvider, MetaProvider, HookProvider, RandomTeleportProvider,
         AudiencesProvider, UserProvider, TextValidator, ManagerProvider, ListenerProvider, CommandProvider,
-        GsonProvider {
+        GsonProvider, DumpProvider {
 
     int BSTATS_BUKKIT_PLUGIN_ID = 8430;
 
@@ -72,6 +73,11 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
             setHooks(Sets.newHashSet());
             loadHooks(PluginHook.Register.ON_LOAD);
             registerHooks(PluginHook.Register.ON_LOAD);
+        } catch (ConfigurationException e) {
+            log(Level.SEVERE, "Failed to load the HuskHomes config.yml file! HuskHomes will be disabled.\n" +
+                    "Please regenerate your HuskHomes config.yml file (delete it and restart your server.)", e);
+            disablePlugin();
+            return;
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst loading HuskHomes", e);
             disablePlugin();

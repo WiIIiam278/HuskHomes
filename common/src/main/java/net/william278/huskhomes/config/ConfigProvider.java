@@ -19,10 +19,7 @@
 
 package net.william278.huskhomes.config;
 
-import de.exlll.configlib.NameFormatters;
-import de.exlll.configlib.YamlConfigurationProperties;
-import de.exlll.configlib.YamlConfigurationStore;
-import de.exlll.configlib.YamlConfigurations;
+import de.exlll.configlib.*;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.util.UnsafeBlocks;

@@ -21,6 +21,8 @@ package net.william278.huskhomes.util;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.hook.Hook;
+import net.william278.huskhomes.position.Home;
+import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.toilet.DumpOptions;
@@ -36,6 +38,8 @@ import static net.william278.toilet.DumpOptions.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface DumpProvider {
 
@@ -85,7 +89,7 @@ public interface DumpProvider {
     @Blocking
     private PluginStatus getPluginStatus() {
         return PluginStatus.builder()
-                .blocks(List.of(getSystemStatus(), getHookStatus()))
+                .blocks(List.of(getSystemStatus(), getHookStatus(), getPublicHomes(), getWarps()))
                 .build();
     }
 
@@ -107,6 +111,36 @@ public interface DumpProvider {
                         Map.entry("Redis SSL", StatusLine.REDIS_USING_SSL.getValue(getPlugin())),
                         Map.entry("Redis Local", StatusLine.IS_REDIS_LOCAL.getValue(getPlugin()))
                 ), "Plugin Status", "fa6-solid:wrench"
+        );
+    }
+
+    @NotNull
+    @Blocking
+    private PluginStatus.ChartStatusBlock getPublicHomes() {
+        final List<Home> homes = getPlugin().getDatabase().getLocalPublicHomes(getPlugin());
+        final Set<String> worlds = homes.stream().map(l -> l.getWorld().getName()).collect(Collectors.toSet());
+        return new PluginStatus.ChartStatusBlock(
+                worlds.stream().collect(Collectors.toMap(
+                        PluginStatus.ChartKey::new,
+                        (w) -> (int) homes.stream().filter(h -> h.getWorld().getName().equals(w)).count(),
+                        Integer::sum
+                )),
+                PluginStatus.ChartType.BAR, "Public Homes by World", "ic:round-home"
+        );
+    }
+
+    @NotNull
+    @Blocking
+    private PluginStatus.ChartStatusBlock getWarps() {
+        final List<Warp> warps = getPlugin().getDatabase().getLocalWarps(getPlugin());
+        final Set<String> worlds = warps.stream().map(l -> l.getWorld().getName()).collect(Collectors.toSet());
+        return new PluginStatus.ChartStatusBlock(
+                worlds.stream().collect(Collectors.toMap(
+                        PluginStatus.ChartKey::new,
+                        (w) -> (int) warps.stream().filter(h -> h.getWorld().getName().equals(w)).count(),
+                        Integer::sum
+                )),
+                PluginStatus.ChartType.BAR, "Warps by World", "mdi:location"
         );
     }
 

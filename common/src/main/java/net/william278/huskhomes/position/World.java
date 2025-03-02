@@ -89,4 +89,8 @@ public class World {
         return super.equals(obj);
     }
 
+    @Override
+    public int hashCode() {
+        return uuid.hashCode();
+    }
 }

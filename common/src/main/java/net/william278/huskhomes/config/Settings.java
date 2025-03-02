@@ -419,6 +419,33 @@ public final class Settings {
         }
     }
 
+    @Comment("Plan hook settings. Docs: https://william278.net/docs/huskhomes/plan-hook")
+    private PlanHookSettings plan = new PlanHookSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class PlanHookSettings {
+
+        @Comment("Hook into Player Analytics to provide HuskHomes statistics in your web dashboard.")
+        private boolean enabled = true;
+
+    }
+
+
+    @Comment("LuckPerms hook settings. Docs: https://william278.net/docs/huskhomes/luckperms-hook")
+    private LuckPermsHookSettings luckperms = new LuckPermsHookSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor
+    public static class LuckPermsHookSettings {
+
+        @Comment("Hook into LuckPerms for more accurate numerical permission calculations")
+        private boolean enabled = true;
+
+    }
+
     @Comment("Web map hook settings. Docs: https://william278.net/docs/huskhomes/map-hooks")
     private MapHookSettings mapHook = new MapHookSettings();
 

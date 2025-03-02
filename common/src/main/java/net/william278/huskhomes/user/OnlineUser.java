@@ -28,6 +28,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.hook.LuckPermsHook;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleportable;
@@ -231,7 +232,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param stack           whether to stack numerical permissions that grant the user extra max homes
      * @return the maximum number of homes this user may set
      */
-    public final int getMaxHomes(final int defaultMaxHomes, final boolean stack) {
+    public final int getMaxHomes(int defaultMaxHomes, boolean stack) {
         final List<Integer> homes = getNumericalPermissions("huskhomes.max_homes.");
         if (homes.isEmpty()) {
             return defaultMaxHomes;
@@ -250,7 +251,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param stack              whether to stack numerical permissions that grant the user extra public homes
      * @return the number of public home slots this user may set
      */
-    public int getMaxPublicHomes(final int defaultPublicHomes, final boolean stack) {
+    public int getMaxPublicHomes(int defaultPublicHomes, boolean stack) {
         final List<Integer> homes = getNumericalPermissions("huskhomes.max_public_homes.");
         if (homes.isEmpty()) {
             return defaultPublicHomes;
@@ -268,7 +269,7 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param defaultTeleportWarmup the default teleport warmup time, if no perms are set
      * @return the largest permission node value for teleport warmup
      */
-    public int getMaxTeleportWarmup(final int defaultTeleportWarmup) {
+    public int getMaxTeleportWarmup(int defaultTeleportWarmup) {
         final List<Integer> homes = getNumericalPermissions("huskhomes.teleport_warmup.");
         if (homes.isEmpty()) {
             return defaultTeleportWarmup;
@@ -303,20 +304,23 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      */
     @NotNull
     protected List<Integer> getNumericalPermissions(@NotNull String nodePrefix) {
-        return getPermissions().entrySet().stream()
-                .filter(Map.Entry::getValue)
-                .filter(permission -> permission.getKey().startsWith(nodePrefix))
-                .filter(permission -> {
-                    try {
-                        // Remove node prefix from the permission and parse as an integer
-                        Integer.parseInt(permission.getKey().substring(nodePrefix.length()));
-                    } catch (final NumberFormatException e) {
-                        return false;
-                    }
-                    return true;
-                })
-                .map(permission -> Integer.parseInt(permission.getKey().substring(nodePrefix.length())))
-                .sorted(Collections.reverseOrder())
-                .toList();
+        return plugin.getHook(LuckPermsHook.class)
+                .map(hook -> hook.getNumericalPermissions(this, nodePrefix))
+                .orElseGet(() -> getPermissions().entrySet().stream().filter(Map.Entry::getValue)
+                        .filter(perm -> perm.getKey().startsWith(nodePrefix))
+                        .filter(perm -> canParse(perm.getKey(), nodePrefix))
+                        .map(p -> Integer.parseInt(p.getKey().substring(nodePrefix.length())))
+                        .sorted(Collections.reverseOrder()).toList());
     }
+
+    // Remove node prefix from the permission and parse as an integer
+    private static boolean canParse(@NotNull String perm, @NotNull String nodePrefix) {
+        try {
+            Integer.parseInt(perm.substring(nodePrefix.length()));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 }

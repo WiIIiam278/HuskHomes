@@ -55,7 +55,7 @@ public interface TextValidator {
         return (name.matches(config.getRegex()) || !config.isRestrict())
                 && !name.contains("\u0000")
                 && !containsWhitespace(name)
-                && !name.contains(Home.IDENTIFIER_DELIMITER);
+                && !name.contains(Home.getDelimiter());
     }
 
     // Check a home/warp name is of a valid length

@@ -21,6 +21,7 @@ package net.william278.huskhomes.config;
 
 import de.exlll.configlib.*;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import org.jetbrains.annotations.NotNull;
@@ -71,6 +72,7 @@ public interface ConfigProvider {
                 Settings.class,
                 YAML_CONFIGURATION_PROPERTIES.header(Settings.CONFIG_HEADER).build()
         ));
+        Home.setDelimiter(getSettings().getGeneral().getHomeDelimiter());
     }
 
     /**

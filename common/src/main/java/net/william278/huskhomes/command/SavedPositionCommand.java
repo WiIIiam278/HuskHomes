@@ -77,7 +77,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     public abstract void execute(@NotNull CommandUser executor, @NotNull T position, @NotNull String[] arguments);
 
     private Optional<Home> resolveHome(@NotNull CommandUser executor, @NotNull String homeName) {
-        if (homeName.contains(Home.IDENTIFIER_DELIMITER)) {
+        if (homeName.contains(Home.getDelimiter())) {
             return resolveDelimitedHome(executor, homeName);
         } else if (positionType == PositionCommandType.PUBLIC_HOME) {
             return resolvePublicHome(executor, homeName);
@@ -90,8 +90,8 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     }
 
     private Optional<Home> resolveDelimitedHome(@NotNull CommandUser executor, @NotNull String homeName) {
-        final String ownerUsername = homeName.substring(0, homeName.indexOf(Home.IDENTIFIER_DELIMITER));
-        final String ownerHome = homeName.substring(homeName.indexOf(Home.IDENTIFIER_DELIMITER) + 1);
+        final String ownerUsername = homeName.substring(0, homeName.indexOf(Home.getDelimiter()));
+        final String ownerHome = homeName.substring(homeName.indexOf(Home.getDelimiter()) + 1);
         if (ownerUsername.isBlank() || ownerHome.isBlank()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -238,7 +238,7 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
     private List<String> suggestHome(@NotNull CommandUser executor, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> {
-                if (args.length == 1 && args[0].contains(Home.IDENTIFIER_DELIMITER)
+                if (args.length == 1 && args[0].contains(Home.getDelimiter())
                         && executor.hasPermission(getOtherPermission())) {
                     yield plugin.getManager().homes().getUserHomeIdentifiers();
                 }

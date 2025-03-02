@@ -20,6 +20,7 @@
 package net.william278.huskhomes.position;
 
 import net.william278.huskhomes.user.User;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -29,10 +30,9 @@ import java.util.UUID;
  */
 public class Home extends SavedPosition {
 
-    /**
-     * The delimiter used to separate the owner's name from the home name in the home identifier.
-     */
-    public static final String IDENTIFIER_DELIMITER = ".";
+    // The delimiter used to separate the owner's name from the home name in the home identifier.
+    private static String delimiter = ".";
+
     private final User owner;
     private boolean isPublic;
 
@@ -47,6 +47,17 @@ public class Home extends SavedPosition {
         super(position, meta);
         this.owner = owner;
         this.setPublic(false);
+    }
+
+    @ApiStatus.Internal
+    public static void setDelimiter(@NotNull String delimiter) {
+        Home.delimiter = delimiter;
+    }
+
+    @NotNull
+    @ApiStatus.Internal
+    public static String getDelimiter() {
+        return delimiter;
     }
 
     /**
@@ -134,7 +145,7 @@ public class Home extends SavedPosition {
     @NotNull
     @Override
     public String getSafeIdentifier() {
-        return getOwner().getName() + IDENTIFIER_DELIMITER + super.getSafeIdentifier();
+        return getOwner().getName() + getDelimiter() + super.getSafeIdentifier();
     }
 
     /**
@@ -148,7 +159,7 @@ public class Home extends SavedPosition {
     @NotNull
     @Override
     public String getIdentifier() {
-        return getOwner().getName() + IDENTIFIER_DELIMITER + super.getIdentifier();
+        return getOwner().getName() + getDelimiter() + super.getIdentifier();
     }
 
 }

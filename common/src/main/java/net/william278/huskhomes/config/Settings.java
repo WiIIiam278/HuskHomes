@@ -127,6 +127,10 @@ public final class Settings {
                 + "Override with the huskhomes.max_public_homes.<number> permission.")
         private int maxPublicHomes = 10;
 
+        @Comment({"What character to use between owner usernames and home names when specifying a home or public home.",
+                "(e.g. the '.' in: /phome username.home_name). Change if you're using '.' as the Bedrock user prefix."})
+        private String homeDelimiter = ".";
+
         @Comment("Whether permission limits (i.e. huskhomes.max_homes.<number>) should stack "
                 + "if the user inherits multiple nodes.")
         private boolean stackPermissionLimits = false;

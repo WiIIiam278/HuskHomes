@@ -79,6 +79,8 @@ public interface DumpProvider {
                 .compatibilityRules(List.of(
                         getCompatibilityWarning("CMI", "CMI may cause compatibility issues with " +
                                 "HuskHomes. If you're using Vault, ensure the CMI-compatible version is in use."),
+                        getCompatibilityWarning("Essentials", "Command conflicts likely. " +
+                                "Check to resolve: https://william278.net/docs/huskhomes/command-conflicts"),
                         getCompatibilityWarning("floodgate", "Ensure the home_delimiter is set to" +
                                 "a different value from the Bedrock user prefix in Floodgate/Geyser!")
                 ))

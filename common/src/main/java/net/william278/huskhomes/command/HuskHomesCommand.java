@@ -54,7 +54,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
             "reload", true,
             "status", true,
             "dump", true,
-            "homeslots", false,
+            "homeslots", true,
             "import", true,
             "delete", true,
             "update", true

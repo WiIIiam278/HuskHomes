@@ -26,6 +26,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.importer.Importer;
+import net.william278.huskhomes.position.Home;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,7 @@ public enum StatusLine {
     REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSsl())),
     IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
     ECONOMY_MODE(plugin -> getBoolean(plugin.isUsingEconomy())),
+    HOME_DELIMITER(plugin -> Component.text(Home.getDelimiter())),
     LOADED_HOOKS(plugin -> Component.join(
             JoinConfiguration.commas(true),
             plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))

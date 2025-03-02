@@ -96,6 +96,7 @@ public interface DumpProvider {
                         Map.entry("Database Type", StatusLine.DATABASE_TYPE.getValue(getPlugin())),
                         Map.entry("Database Local", StatusLine.IS_DATABASE_LOCAL.getValue(getPlugin())),
                         Map.entry("Economy Mode", StatusLine.ECONOMY_MODE.getValue(getPlugin())),
+                        Map.entry("Home Delimiter", StatusLine.HOME_DELIMITER.getValue(getPlugin())),
                         Map.entry("Cross Server", StatusLine.IS_CROSS_SERVER.getValue(getPlugin())),
                         Map.entry("Server Name", StatusLine.SERVER_NAME.getValue(getPlugin())),
                         Map.entry("Message Broker", StatusLine.MESSAGE_BROKER_TYPE.getValue(getPlugin())),

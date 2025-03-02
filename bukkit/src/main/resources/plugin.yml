@@ -6,6 +6,7 @@ main: 'net.william278.huskhomes.BukkitHuskHomes'
 version: '${version}'
 api-version: '1.17'
 softdepend:
+  - LuckPerms
   - Vault
   - PlaceholderAPI
   - dynmap

@@ -9,6 +9,10 @@ api-version: '1.19'
 folia-supported: true
 dependencies:
   server:
+    LuckPerms:
+      load: BEFORE
+      required: false
+      join-classpath: true
     Vault:
       load: BEFORE
       required: false

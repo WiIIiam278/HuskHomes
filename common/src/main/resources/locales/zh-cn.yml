@@ -49,7 +49,7 @@ locales:
   edit_home_update_name: '[成功重命名 %1% →](#00fb9a) [%2%](#00fb9a bold)'
   edit_home_update_name_other: '[成功重命名 %1% 的家 %2% →](#00fb9a) [%3%](#00fb9a bold)'
   edit_warp_menu_title: '[查看地标](#00fb9a) [%1%](#00fb9a bold) [的详细信息:](#00fb9a)'
-  edit_home_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7时间:\n&8设置地标的时间)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7地标ID:\n&8%3%)'
+  edit_warp_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7时间:\n&8设置地标的时间)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7地标ID:\n&8%3%)'
   edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&描述:\n&8%2%)\n'
   edit_warp_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#3b76ff&世界:\n&8设置地标的世界)'
   edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#3b76ff&世界:\n&8设置地标的世界)   [☁ %2%](#477fff-#5286ff show_text=&#3b76ff&服务器:\n&8设置地标的服务器)'

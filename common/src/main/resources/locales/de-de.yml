@@ -49,7 +49,7 @@ locales:
   edit_home_update_name: '[Du hast dein Home "%1%" erfolgreich umbenannt →](#00fb9a) [%2%](#00fb9a bold)'
   edit_home_update_name_other: '[Du hast das Home "%2%" von %1% erfolgreich umbenannt →](#00fb9a) [%3%](#00fb9a bold)'
   edit_warp_menu_title: '[Informationen zum Warp](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a)'
-  edit_home_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7Zeitstempel:\n&8Wann der Warp gesetzt wurde)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Warp-ID:\n&8%3%)'
+  edit_warp_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7Zeitstempel:\n&8Wann der Warp gesetzt wurde)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7Warp-ID:\n&8%3%)'
   edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&Beschreibung:\n&8%2%)\n'
   edit_warp_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#3b76ff&Welt:\n&8Die Welt in der der Warp gesetzt ist)'
   edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#3b76ff&Welt:\n&8Die Welt in der der Warp gesetzt ist)   [☁ %2%](#477fff-#5286ff show_text=&#3b76ff&Server:\n&8Der Server auf dem der Warp gesetzt ist)'

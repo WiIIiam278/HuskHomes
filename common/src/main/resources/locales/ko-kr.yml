@@ -49,7 +49,7 @@ locales:
   edit_home_update_name: '[성공적으로 당신의 집의 이름을 변경하였습니다: %1% →](#00fb9a) [%2%](#00fb9a bold)'
   edit_home_update_name_other: '[성공적으로 %1%님의 집 이름을 변경하였습니다: %2% →](#00fb9a) [%3%](#00fb9a bold)'
   edit_warp_menu_title: '[워프](#00fb9a) [%1%](#00fb9a bold) [의 세부정보:](#00fb9a)'
-  edit_home_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7설정 시간:\n&8워프가 생성된 시간입니다)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7워프 ID:\n&8%3%)'
+  edit_warp_menu_metadata: '[⌚ %1%](#999999-#ababab show_text=&7설정 시간:\n&8워프가 생성된 시간입니다)   [⚡ %2%](#ababab-#c7c7c7 show_text=&7워프 ID:\n&8%3%)'
   edit_warp_menu_description: '[ℹ %1%](#c160ff-#b43fff show_text=&#c160ff&설명:\n&8%2%)\n'
   edit_warp_menu_world: '[⭘ %1%](#3b76ff-#5286ff show_text=&#3b76ff&세계:\n&8워프가 설정된 세계입니다)'
   edit_warp_menu_world_server: '[⭘ %1%](#3b76ff-#477fff show_text=&#3b76ff&세계:\n&8워프가 설정된 세계입니다)   [☁ %2%](#477fff-#5286ff show_text=&#3b76ff&서버:\n&8워프가 설정된 서버입니다)'

@@ -15,7 +15,7 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.12'
+    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.12-3509d3d'
 
     compileOnly 'org.jetbrains:annotations:26.0.2'
     compileOnly 'com.google.guava:guava:33.4.0-jre'

@@ -230,7 +230,7 @@ public final class Settings {
                 final String formattedName = name.replace("minecraft:", "");
                 return restrictedWorlds.stream()
                         .map(n -> n.replace("minecraft:", ""))
-                        .anyMatch(n -> n.equalsIgnoreCase(formattedName));
+                        .noneMatch(n -> n.equalsIgnoreCase(formattedName));
             }
         }
 

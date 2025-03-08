@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Manages {@link TeleportRequest}s between players.
@@ -68,7 +69,7 @@ public class RequestsManager {
      * @param recipient the {@link User} recipient of the request
      */
     public void addTeleportRequest(@NotNull TeleportRequest request, @NotNull User recipient) {
-        this.requests.computeIfAbsent(recipient.getUuid(), uuid -> new LinkedList<>()).addFirst(request);
+        this.requests.computeIfAbsent(recipient.getUuid(), uuid -> new ConcurrentLinkedDeque<>()).addFirst(request);
     }
 
     /**
@@ -91,7 +92,7 @@ public class RequestsManager {
      * @return the last received request, if present
      */
     public Optional<TeleportRequest> getLastTeleportRequest(@NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream().findFirst();
+        return this.requests.getOrDefault(recipient.getUuid(), new ConcurrentLinkedDeque<>()).stream().findFirst();
     }
 
     /**
@@ -106,11 +107,11 @@ public class RequestsManager {
      * @return the last unexpired teleport request received from the requester, if present
      */
     public Optional<TeleportRequest> getTeleportRequest(@NotNull String requesterName, @NotNull User recipient) {
-        return this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream()
+        return this.requests.getOrDefault(recipient.getUuid(), new ConcurrentLinkedDeque<>()).stream()
                 .filter(request -> request.getRequesterName().equalsIgnoreCase(requesterName))
                 .filter(request -> !request.hasExpired())
                 .findFirst()
-                .or(() -> this.requests.getOrDefault(recipient.getUuid(), new LinkedList<>()).stream()
+                .or(() -> this.requests.getOrDefault(recipient.getUuid(), new ConcurrentLinkedDeque<>()).stream()
                         .filter(request -> request.getRequesterName().equalsIgnoreCase(requesterName))
                         .findFirst());
     }

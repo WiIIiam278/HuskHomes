@@ -912,7 +912,10 @@ public class MySqlDatabase extends Database {
             if (teleport != null) {
                 try (PreparedStatement statement = connection.prepareStatement(format("""
                         INSERT INTO `%teleport_data%` (`player_uuid`, `destination_id`, `type`)
-                        VALUES (?,?,?);"""))) {
+                        VALUES (?,?,?)
+                        ON DUPLICATE KEY UPDATE
+                          `destination_id` = VALUES(`destination_id`),
+                          `type` = VALUES(`type`);"""))) {
                     statement.setString(1, user.getUuid().toString());
                     statement.setInt(2, setPosition((Position) teleport.getTarget(), connection));
                     statement.setInt(3, teleport.getType().getTypeId());

@@ -23,6 +23,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
+import net.luckperms.api.query.QueryOptions;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,8 @@ public class LuckPermsHook extends Hook {
         if (user == null) {
             return List.of();
         }
-        return user.getNodes().stream().filter(Node::getValue).filter(n -> n.getKey().startsWith(nodePrefix))
+        return user.resolveInheritedNodes(QueryOptions.defaultContextualOptions()).stream().filter(Node::getValue)
+                .filter(n -> n.getKey().startsWith(nodePrefix))
                 .filter(perm -> canParse(perm, nodePrefix))
                 .map(perm -> Integer.parseInt(perm.getKey().substring(nodePrefix.length())))
                 .sorted(Collections.reverseOrder()).toList();

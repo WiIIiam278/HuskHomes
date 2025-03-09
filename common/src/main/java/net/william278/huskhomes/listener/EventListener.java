@@ -226,7 +226,7 @@ public abstract class EventListener {
         // Check the user can use /back to return here
         final BackCommand command = plugin.getCommand(BackCommand.class).orElse(null);
         if (command == null || !onlineUser.hasPermission(command.getPermission()) ||
-                !onlineUser.hasPermission(command.getPermission("back"))) {
+                !onlineUser.hasPermission(command.getPermission("death"))) {
             return;
         }
         final Settings.GeneralSettings.BackCommandSettings back = plugin.getSettings().getGeneral().getBackCommand();

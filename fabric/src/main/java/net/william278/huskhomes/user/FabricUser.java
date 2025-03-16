@@ -19,17 +19,17 @@
 
 package net.william278.huskhomes.user;
 
+import com.pokeskies.fabricpluginmessaging.PluginMessagePacket;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
 import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.william278.huskhomes.FabricHuskHomes;
-import net.william278.huskhomes.network.FabricPluginMessage;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.World;
@@ -170,7 +170,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(byte[] message) {
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
+        ServerPlayNetworking.send(player, new PluginMessagePacket(message));
     }
 
     @Override

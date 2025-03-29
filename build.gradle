@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'io.github.goooler.shadow' version '8.1.8'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'fabric-loom' version "$fabric_loom_version" apply false
+    id 'dev.architectury.loom' version '1.9-SNAPSHOT' apply false
     id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.0'
     id 'maven-publish'
@@ -134,7 +134,7 @@ subprojects {
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        apply plugin: 'fabric-loom'
+        apply plugin: 'dev.architectury.loom'
         compileJava.options.release.set 21
         version += "+mc.${project.name}"
     }

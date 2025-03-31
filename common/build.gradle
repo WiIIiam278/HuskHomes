@@ -26,7 +26,7 @@ dependencies {
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
     compileOnly 'maven.modrinth:pl3xmap:1.20.4-489'
     compileOnly 'net.luckperms:api:5.4'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
 
     compileOnly "redis.clients:jedis:${jedis_version}"
     compileOnly "org.xerial:sqlite-jdbc:${sqlite_driver_version}"
@@ -39,5 +39,5 @@ dependencies {
     testImplementation 'com.github.yuriy-g:simple-java-plot:5c502c2e98'
     testImplementation 'com.google.guava:guava:33.4.0-jre'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 }

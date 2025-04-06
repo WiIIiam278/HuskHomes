@@ -16,7 +16,7 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.toilet:toilet-fabric:1.0.12+$project.name")
+    modImplementation include("net.william278.toilet:toilet-fabric:1.0.13+$project.name")
     modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
@@ -33,9 +33,9 @@ dependencies {
     implementation include("com.h2database:h2:$h2_driver_version")
 
     compileOnly 'org.jetbrains:annotations:26.0.2'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
     implementation include(project(path: ":common"))
     project(":common").configurations.api.dependencies.each { dependency ->

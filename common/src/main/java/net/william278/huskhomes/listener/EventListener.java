@@ -287,18 +287,18 @@ public abstract class EventListener {
 
     /**
      * Handle when a player teleports.
+     * When save_on_teleport_event in config is true and the world can be return, set user's last position.
      *
      * @param onlineUser     the {@link OnlineUser} who teleported
      * @param sourcePosition the source {@link Position} they came from
      */
     protected final void handlePlayerTeleport(@NotNull OnlineUser onlineUser, @NotNull Position sourcePosition) {
         final Settings.GeneralSettings.BackCommandSettings back = plugin.getSettings().getGeneral().getBackCommand();
-        if (!back.isSaveOnTeleportEvent() || back.canReturnToWorld(sourcePosition.getWorld())) {
-            return;
-        }
-
+        if (back.isSaveOnTeleportEvent() && back.canReturnToWorld(sourcePosition.getWorld())) {
         // Set the player's last position
         plugin.runAsync(() -> plugin.getDatabase().setLastPosition(onlineUser, sourcePosition));
+        }
+
     }
 
     /**

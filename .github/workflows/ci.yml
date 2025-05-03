@@ -55,18 +55,22 @@ jobs:
             paper
             fabric-1.21.1
             fabric-1.21.4
+            fabric-1.21.5
           distro-groups: |
             paper
+            fabric
             fabric
             fabric
           distro-descriptions: |
             Paper
             Fabric 1.21.1
             Fabric 1.21.4
+            Fabric 1.21.5
           files: |
             target/HuskHomes-Paper-${{ env.version_name }}.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.4.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.5.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -111,6 +115,7 @@ jobs:
             1.21.1
             1.21.2
             1.21.4
+            1.21.5
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -167,4 +172,32 @@ jobs:
             fabric
           game-versions: |
             1.21.4
+          java: 21
+      - name: 'Fabric 1.21.5: Publish to Modrinth & CurseForge 🧵'
+        uses: WiIIiam278/mc-publish@hangar
+        if: success() || failure()
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            dynmap | suggests | *
+            bluemap | suggests | *
+            pl3xmap | suggests | *
+            luckperms | suggests | *
+            plan | suggests | *
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.5.jar
+          name: HuskHomes (Fabric) v${{ env.version_name }}
+          version: ${{ env.version_name }}
+          version-type: alpha
+          changelog: ${{ github.event.head_commit.message }}
+          loaders: |
+            fabric
+          game-versions: |
+            1.21.5
           java: 21

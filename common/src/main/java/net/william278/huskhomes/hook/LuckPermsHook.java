@@ -21,15 +21,19 @@ package net.william278.huskhomes.hook;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.context.DefaultContextKeys;
+import net.luckperms.api.context.ImmutableContextSet;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.query.QueryOptions;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 @PluginHook(
         name = "LuckPerms",
@@ -59,12 +63,23 @@ public class LuckPermsHook extends Hook {
         if (user == null) {
             return List.of();
         }
-        return user.resolveInheritedNodes(QueryOptions.defaultContextualOptions()).stream().filter(Node::getValue)
+        return user.resolveInheritedNodes(QueryOptions.contextual(getContexts(online))).stream().filter(Node::getValue)
                 .filter(n -> n.getKey().startsWith(nodePrefix))
                 .filter(perm -> canParse(perm, nodePrefix))
                 .map(perm -> Integer.parseInt(perm.getKey().substring(nodePrefix.length())))
                 .sorted(Collections.reverseOrder()).toList();
 
+    }
+
+    // Get basic contexts for a user
+    @NotNull
+    private static ImmutableContextSet getContexts(@NotNull OnlineUser user) {
+        final World world = user.getPosition().getWorld();
+        return ImmutableContextSet.builder()
+                .add(DefaultContextKeys.WORLD_KEY, world.getName())
+                .add(DefaultContextKeys.SERVER_KEY, user.getPosition().getServer())
+                .add(DefaultContextKeys.DIMENSION_TYPE_KEY, world.getEnvironment().name().toLowerCase(Locale.ENGLISH))
+                .build();
     }
 
     // Remove node prefix from the permission and parse as an integer

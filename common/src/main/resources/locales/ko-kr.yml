@@ -202,4 +202,4 @@ locales:
   tpaall_command_description: '모든 사람에게 당신의 위치로 오기를 요청합니다'
   tpall_command_description: '모든 사람을 당신의 위치로 이동시킵니다'
   huskhomes_command_description: '플러그인 설명과 콘피그 파일을 다시 불러옵니다.'
-  teleporting_back_location_saved: 'Back location saved'
+  teleporting_back_location_saved: '이동 위치가 저장되었습니다.'

@@ -202,5 +202,5 @@ locales:
   tpaall_command_description: '請求所有人都傳送過來'
   tpall_command_description: '將所有人傳送過來'
   huskhomes_command_description: '查看插件資訊並重新載入設定'
-  teleporting_back_location_saved: '返回傳點已記錄'
+  teleporting_back_location_saved: 'back點變動已儲存'
 

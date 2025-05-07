@@ -202,4 +202,4 @@ locales:
   tpaall_command_description: 'Отправить всем запрос на телепортацию ко мне'
   tpall_command_description: 'Телепортировать всех ко мне'
   huskhomes_command_description: 'Просмотреть информацию о плагине и перезагрузить конфигурации'
-  teleporting_back_location_saved: 'Back location saved'
+  teleporting_back_location_saved: 'Местоположение для возврата сохранено.'

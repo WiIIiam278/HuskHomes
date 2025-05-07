@@ -202,5 +202,5 @@ locales:
   tpaall_command_description: '全員が自分のところにテレポートするように要求する'
   tpall_command_description: '全員を自分のところまでテレポートさせる'
   huskhomes_command_description: 'プラグイン情報の表示と設定のリロード'
-  teleporting_back_location_saved: 'Back location saved'
+  teleporting_back_location_saved: '前回の場所が保存されました。'
 

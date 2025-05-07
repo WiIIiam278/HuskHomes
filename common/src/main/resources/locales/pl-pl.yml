@@ -202,3 +202,4 @@ locales:
   tpaall_command_description: 'Poproś, aby wszyscy się teleportowali do Ciebie'
   tpall_command_description: 'Teleportuj wszystkich na Twoją pozycję'
   huskhomes_command_description: 'Wyświetl informacje o wtyczce i przeładuj konfiguracje'
+  teleporting_back_location_saved: 'Back location saved'

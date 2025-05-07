@@ -202,3 +202,4 @@ locales:
   tpaall_command_description: 'Frage alle Spieler sich zu dir zu teleportieren'
   tpall_command_description: 'Teleportiere alle Spieler zu dir'
   huskhomes_command_description: 'Siehe Plugin-Information und lade die Config-Dateien neu'
+  teleporting_back_location_saved: 'Back location saved'

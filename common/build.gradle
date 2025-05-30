@@ -25,7 +25,7 @@ dependencies {
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
     compileOnly 'maven.modrinth:pl3xmap:1.20.4-489'
-    compileOnly 'net.luckperms:api:5.4'
+    compileOnly 'net.luckperms:api:5.5'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
     compileOnly "redis.clients:jedis:${jedis_version}"

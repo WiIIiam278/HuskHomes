@@ -24,6 +24,7 @@ dependencies {
     implementation include("de.exlll:configlib-core:4.6.1")
     implementation include("org.snakeyaml:snakeyaml-engine:2.7")
     implementation include('org.apache.commons:commons-pool2:2.12.1')
+    implementation include("redis.clients.authentication:redis-authx-core:0.1.1-beta2")
 
     // Include driver deps due to no runtime dep loading support
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")

@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
-    compileOnly('net.essentialsx:EssentialsX:2.21.0') {
+    compileOnly('net.essentialsx:EssentialsX:2.21.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
     compileOnly 'org.projectlombok:lombok:1.18.38'

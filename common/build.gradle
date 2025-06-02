@@ -10,7 +10,7 @@ dependencies {
     api 'org.apache.commons:commons-text:1.13.1'
     api 'com.google.code.gson:gson:2.13.1'
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
-    api 'de.exlll:configlib-yaml:4.6.0'
+    api 'de.exlll:configlib-yaml:4.6.1'
     api('com.zaxxer:HikariCP:6.3.0') {
         exclude module: 'slf4j-api'
     }

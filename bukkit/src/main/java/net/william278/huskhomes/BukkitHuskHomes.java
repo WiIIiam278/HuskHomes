@@ -266,6 +266,12 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     @NotNull
+    public Path getDatabaseDirectory() {
+        return getConfigDirectory();
+    }
+
+    @Override
+    @NotNull
     public List<World> getWorlds() {
         return getServer().getWorlds().stream().map(Adapter::adapt).toList();
     }

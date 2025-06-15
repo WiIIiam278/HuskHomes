@@ -3,7 +3,17 @@ plugins {
     id 'gg.essential.defaults'
 }
 
-loom.serverOnlyMinecraftJar()
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "huskhomes" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
+}
 
 repositories {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
@@ -12,7 +22,8 @@ repositories {
 }
 
 dependencies {
-    modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
+    modCompileOnly("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
+
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")

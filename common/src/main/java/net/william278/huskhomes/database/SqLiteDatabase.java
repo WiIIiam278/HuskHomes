@@ -61,7 +61,7 @@ public class SqLiteDatabase extends Database {
 
     public SqLiteDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.databaseFile = plugin.getConfigDirectory().resolve(DATABASE_FILE_NAME);
+        this.databaseFile = plugin.getDatabaseDirectory().resolve(DATABASE_FILE_NAME);
     }
 
     @NotNull

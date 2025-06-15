@@ -23,7 +23,6 @@ import com.pokeskies.fabricpluginmessaging.PluginMessagePacket;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
-import net.kyori.adventure.audience.Audience;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -86,8 +85,8 @@ public class FabricUser extends OnlineUser {
                 spawn.getX(), spawn.getY(), spawn.getZ(),
                 angle, 0,
                 World.from(
-                        world.getValue().asString(),
-                        UUID.nameUUIDFromBytes(world.getValue().asString().getBytes())
+                        world.getValue().toString(),
+                        UUID.nameUUIDFromBytes(world.getValue().toString().getBytes())
                 ),
                 plugin.getServerName()
         ));
@@ -127,12 +126,6 @@ public class FabricUser extends OnlineUser {
             }
         }
         return permissions.stream().sorted(Collections.reverseOrder()).toList();
-    }
-
-    @Override
-    @NotNull
-    public Audience getAudience() {
-        return player;
     }
 
     @Override

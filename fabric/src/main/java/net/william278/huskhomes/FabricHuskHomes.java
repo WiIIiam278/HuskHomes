@@ -26,21 +26,23 @@ import com.pokeskies.fabricpluginmessaging.PluginMessageEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
-//#if MC>=12104
-import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
-//#else
+//#if MC<12104
 //$$ import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 //#endif
+import net.kyori.adventure.platform.AudienceProvider;
+import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences;
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -90,7 +92,7 @@ import java.util.logging.Level;
 
 @Getter
 @NoArgsConstructor
-public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes, FabricTask.Supplier,
+public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Supplier,
         FabricEventDispatcher, FabricSavePositionProvider, FabricUserProvider, FabricHookProvider {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
@@ -98,9 +100,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
 
-    //#if MC>=12104
-    private MinecraftServerAudiences audiences;
-    //#else
+    //#if MC<12104
     //$$ private FabricServerAudiences audiences;
     //#endif
     private MinecraftServer minecraftServer;
@@ -138,7 +138,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private Server serverName;
 
     @Override
-    public void onInitializeServer() {
+    public void onInitialize() {
         this.load();
         this.loadCommands();
 
@@ -149,9 +149,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private void onEnable(@NotNull MinecraftServer server) {
         this.minecraftServer = server;
         this.toilet = FabricToilet.create(getDumpOptions(), server);
-        //#if MC>=12104
-        this.audiences = MinecraftServerAudiences.of(minecraftServer);
-        //#else
+        //#if MC<12104
         //$$ this.audiences = FabricServerAudiences.of(minecraftServer);
         //#endif
         this.enable();
@@ -159,10 +157,9 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private void onDisable(@NotNull MinecraftServer server) {
         this.shutdown();
-        if (audiences != null) {
-            audiences.close();
-            audiences = null;
-        }
+        //#if MC<12104
+        //$$ this.audiences = null;
+        //#endif
     }
 
     @Override
@@ -180,16 +177,32 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         onDisable(minecraftServer);
     }
 
-    @Override
     @NotNull
     public ConsoleUser getConsole() {
-        return new ConsoleUser(audiences.console());
+        return new ConsoleUser(getAudiences().console());
+    }
+
+    @Override
+    @NotNull
+    public AudienceProvider getAudiences() {
+        System.out.println("TEST1");
+        if (minecraftServer.getOverworld().isClient()) {
+            return null;
+        }
+        System.out.println("TEST2");
+        return MinecraftServerAudiences.of(minecraftServer);
     }
 
     @NotNull
     @Override
     public Audience getAudience(@NotNull UUID user) {
-        return audiences.player(user);
+        System.out.println("TEST3");
+        final ServerPlayerEntity player = minecraftServer.getPlayerManager().getPlayer(user);
+//        if (player == null || player.getWorld() == null || player.getWorld().isClient()) {
+            return MinecraftClientAudiences.of().audience();
+//        }
+//        System.out.println("TEST4");
+//        return (Audience) player;
     }
 
     @Override
@@ -242,6 +255,12 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     @NotNull
+    public Path getDatabaseDirectory() {
+        return minecraftServer.isDedicated() ? getConfigDirectory() : minecraftServer.getRunDirectory();
+    }
+
+    @Override
+    @NotNull
     public List<World> getWorlds() {
         final List<World> worlds = Lists.newArrayList();
         minecraftServer.getWorlds().forEach(world -> worlds.add(Adapter.adapt(world)));
@@ -270,7 +289,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void registerCommands(@NotNull List<Command> toRegister) {
-        CommandRegistrationCallback.EVENT.register((dispatcher, i1, i2) -> toRegister.stream().peek(commands::add)
+        CommandRegistrationCallback.EVENT
+                .register((dispatcher, i1, i2) -> toRegister.stream().peek(commands::add)
                 .forEach((command) -> new FabricCommand(command, this).register(dispatcher)));
     }
 
@@ -378,8 +398,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         @NotNull
         public static World adapt(@NotNull net.minecraft.world.World world) {
             return World.from(
-                    world.getRegistryKey().getValue().asMinimalString(),
-                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
+                    world.getRegistryKey().getValue().toString(),
+                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().toString().getBytes())
             );
         }
 

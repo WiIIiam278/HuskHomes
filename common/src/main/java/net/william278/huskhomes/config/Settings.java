@@ -70,7 +70,7 @@ public final class Settings {
     public static class DatabaseSettings {
 
         @Comment("Type of database to use (SQLITE, H2, MYSQL, MARIADB, or POSTGRESQL)")
-        private Database.Type type = Database.Type.SQLITE;
+        private Database.Type type = Database.Type.H2;
 
         @Comment("Specify credentials here if you are using MYSQL, MARIADB, or POSTGRESQL")
         private DatabaseCredentials credentials = new DatabaseCredentials();

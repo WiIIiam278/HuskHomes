@@ -143,7 +143,7 @@ public class H2Database extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.WARNING, "The database schema version could not be fetched; "
-                                      + "migrations will be carried out.");
+                    + "migrations will be carried out.");
         }
         return -1;
     }
@@ -298,8 +298,8 @@ public class H2Database extends Database {
                                 statement.executeUpdate();
                             }
                             plugin.log(Level.INFO, "Updated " + onlineUser.getName()
-                                                   + "'s name in the database (" + existingUserData.getUsername()
-                                                   + " -> " + onlineUser.getName() + ")");
+                                    + "'s name in the database (" + existingUserData.getUsername()
+                                    + " -> " + onlineUser.getName() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -1220,7 +1220,7 @@ public class H2Database extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete homes in the world " + worldName + " on the server "
-                                     + serverName + " from the database", e);
+                    + serverName + " from the database", e);
         }
         return 0;
     }
@@ -1291,7 +1291,7 @@ public class H2Database extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete warps in the world " + worldName + " on the server "
-                                     + serverName + " from the database", e);
+                    + serverName + " from the database", e);
         }
         return 0;
     }

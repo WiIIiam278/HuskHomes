@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'io.github.goooler.shadow' version '8.1.8'
+    id 'com.gradleup.shadow' version '9.0.0-beta17'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'dev.architectury.loom' version '1.9-SNAPSHOT' apply false
     id 'gg.essential.multi-version.root' apply false
@@ -62,7 +62,7 @@ allprojects {
         return
     }
 
-    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'com.gradleup.shadow'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
 

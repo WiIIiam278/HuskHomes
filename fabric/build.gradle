@@ -16,7 +16,7 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.toilet:toilet-fabric:1.0.13+$project.name")
+    modImplementation include("net.william278.toilet:toilet-fabric:1.0.14+$project.name")
     modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 

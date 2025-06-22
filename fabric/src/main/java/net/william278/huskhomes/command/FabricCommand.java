@@ -65,7 +65,8 @@ public class FabricCommand {
         final Map<String, Boolean> permissions = command.getAdditionalPermissions();
         permissions.forEach((permission, isOp) -> plugin.getPermissions().put(permission, isOp));
         PermissionCheckEvent.EVENT.register((player, node) -> {
-            if (permissions.containsKey(node) && permissions.get(node) && player.hasPermissionLevel(3)) {
+            if (permissions.containsKey(node) && permissions.get(node) &&
+                    (!(player instanceof ServerCommandSource source) || source.hasPermissionLevel(3))) {
                 return TriState.TRUE;
             }
             return TriState.DEFAULT;

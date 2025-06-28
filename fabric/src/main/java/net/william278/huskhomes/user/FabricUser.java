@@ -61,10 +61,19 @@ public class FabricUser extends OnlineUser {
     public Position getPosition() {
         return FabricHuskHomes.Adapter.adapt(
                 player.getPos(),
-                player.getServerWorld(),
+                getServerWorld(player),
                 player.getYaw(), player.getPitch(),
                 plugin.getServerName()
         );
+    }
+
+    @NotNull
+    private ServerWorld getServerWorld(ServerPlayerEntity player) {
+        //#if MC <=12104
+        //$$ return player.getServerWorld();
+        //#else
+        return player.getWorld();
+        //#endif
     }
 
     @Override

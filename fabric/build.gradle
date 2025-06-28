@@ -16,14 +16,15 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.toilet:toilet-fabric:1.0.13+$project.name")
+    modImplementation include("net.william278.toilet:toilet-fabric:1.0.14+$project.name")
     modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Manually include config deps due to the way including api deps works
-    implementation include("de.exlll:configlib-core:4.5.0")
+    implementation include("de.exlll:configlib-core:4.6.1")
     implementation include("org.snakeyaml:snakeyaml-engine:2.7")
     implementation include('org.apache.commons:commons-pool2:2.12.1')
+    implementation include("redis.clients.authentication:redis-authx-core:0.1.1-beta2")
 
     // Include driver deps due to no runtime dep loading support
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")

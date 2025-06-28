@@ -4,8 +4,8 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.1.0'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
-    implementation 'net.william278.toilet:toilet-bukkit:1.0.13'
+    implementation 'net.kyori:adventure-platform-bukkit:4.4.0'
+    implementation 'net.william278.toilet:toilet-bukkit:1.0.14'
 
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:26.0.2'
@@ -13,15 +13,15 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
-    compileOnly('net.essentialsx:EssentialsX:2.21.0') {
+    compileOnly('net.essentialsx:EssentialsX:2.21.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
     testImplementation 'net.william278:minedown:1.8.2'
-    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.4'
-    testImplementation 'org.apache.commons:commons-text:1.13.0'
+    testImplementation 'net.kyori:adventure-platform-bukkit:4.4.0'
+    testImplementation 'org.apache.commons:commons-text:1.13.1'
     testImplementation "redis.clients:jedis:${jedis_version}"
     testImplementation "org.xerial:sqlite-jdbc:${sqlite_driver_version}"
     testImplementation "com.mysql:mysql-connector-j:${mysql_driver_version}"

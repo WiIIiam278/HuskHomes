@@ -56,7 +56,7 @@ jobs:
             fabric-1.21.1
             fabric-1.21.4
             fabric-1.21.5
-            fabric-1.21.6
+            fabric-1.21.7
           distro-groups: |
             paper
             fabric
@@ -68,13 +68,13 @@ jobs:
             Fabric 1.21.1
             Fabric 1.21.4
             Fabric 1.21.5
-            Fabric 1.21.6
+            Fabric 1.21.7
           files: |
             target/HuskHomes-Paper-${{ env.version_name }}.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.4.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.5.jar
-            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.6.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.7.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -121,6 +121,7 @@ jobs:
             1.21.4
             1.21.5
             1.21.6
+            1.21.7
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -206,7 +207,7 @@ jobs:
           game-versions: |
             1.21.5
           java: 21
-      - name: 'Fabric 1.21.6: Publish to Modrinth & CurseForge 🧵'
+      - name: 'Fabric 1.21.7: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         if: success() || failure()
         with:
@@ -224,7 +225,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.6.jar
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.7.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -232,5 +233,5 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.21.6
+            1.21.7
           java: 21

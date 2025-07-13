@@ -270,9 +270,10 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     @Override
     @NotNull
     public String getServerType() {
-        return String.format("fabric %s/%s", FabricLoader.getInstance()
-                .getModContainer("fabricloader").map(l -> l.getMetadata().getVersion().getFriendlyString())
-                .orElse("unknown"), minecraftServer.getVersion());
+        return String.format("fabric %s server %s/%s", minecraftServer.isDedicated() ? "dedicated" : "integrated",
+                FabricLoader.getInstance().getModContainer("fabricloader")
+                        .map(l -> l.getMetadata().getVersion().getFriendlyString())
+                        .orElse("unknown"), minecraftServer.getVersion());
     }
 
     @Override
@@ -301,6 +302,9 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
 
     @Override
     public void setupPluginMessagingChannels() {
+        if (!minecraftServer.isDedicated()) {
+            return;
+        }
         PluginMessageEvent.EVENT.register((payload, context) -> {
             if (broker instanceof PluginMessageBroker messenger
                     && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {

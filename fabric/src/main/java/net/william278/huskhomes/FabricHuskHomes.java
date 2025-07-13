@@ -95,8 +95,9 @@ import java.util.logging.Level;
 public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Supplier,
         FabricEventDispatcher, FabricSavePositionProvider, FabricUserProvider, FabricHookProvider {
 
+    public static final String MOD_ID = "huskhomes";
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskHomes");
-    private final ModContainer modContainer = FabricLoader.getInstance().getModContainer("huskhomes")
+    private final ModContainer modContainer = FabricLoader.getInstance().getModContainer(MOD_ID)
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
 
@@ -244,7 +245,7 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     @Override
     @NotNull
     public Path getConfigDirectory() {
-        return FabricLoader.getInstance().getConfigDir().resolve("huskhomes");
+        return FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
     }
 
     @Override

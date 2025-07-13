@@ -30,6 +30,10 @@ dependencies {
     modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
+    // UI library
+    modImplementation "io.wispforest:owo-lib:${fabric_owo_version}"
+    include "io.wispforest:owo-sentinel:${fabric_owo_version}"
+
     // Manually include config deps due to the way including api deps works
     implementation include("de.exlll:configlib-core:4.6.1")
     implementation include("org.snakeyaml:snakeyaml-engine:2.7")

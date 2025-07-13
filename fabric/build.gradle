@@ -3,7 +3,17 @@ plugins {
     id 'gg.essential.defaults'
 }
 
-loom.serverOnlyMinecraftJar()
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "huskhomes" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
+}
 
 repositories {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }

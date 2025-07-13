@@ -213,6 +213,14 @@ public interface ConfigProvider {
     @NotNull
     Path getConfigDirectory();
 
+    /**
+     * Get the plugin database directory.
+     *
+     * @return the plugin database directory
+     */
+    @NotNull
+    Path getDatabaseDirectory();
+
     @NotNull
     HuskHomes getPlugin();
 

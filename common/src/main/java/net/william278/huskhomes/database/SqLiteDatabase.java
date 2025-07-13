@@ -30,6 +30,7 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteOpenMode;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -61,13 +62,15 @@ public class SqLiteDatabase extends Database {
 
     public SqLiteDatabase(@NotNull HuskHomes plugin) {
         super(plugin);
-        this.databaseFile = plugin.getConfigDirectory().resolve(DATABASE_FILE_NAME);
+        this.databaseFile = plugin.getDatabaseDirectory().resolve(DATABASE_FILE_NAME);
     }
 
     @NotNull
     private Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
+            plugin.log(Level.SEVERE, "Database connection is closed; attempting to restore.");
             setConnection();
+            return getConnection();
         }
         return connection;
     }
@@ -79,14 +82,14 @@ public class SqLiteDatabase extends Database {
                 plugin.log(Level.INFO, "Created the SQLite database file");
             }
 
-            // Specify use of the JDBC SQLite driver for legacy compatibility
-            Class.forName("org.sqlite.JDBC");
-
             // Set SQLite database properties
             SQLiteConfig config = new SQLiteConfig();
             config.enforceForeignKeys(true);
             config.setEncoding(SQLiteConfig.Encoding.UTF8);
-            config.setSynchronous(SQLiteConfig.SynchronousMode.FULL);
+            config.setOpenMode(SQLiteOpenMode.OPEN_URI);
+            config.setExplicitReadOnly(false);
+            config.setBusyTimeout(3000);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.NORMAL);
 
             // Establish the connection
             connection = DriverManager.getConnection(
@@ -97,8 +100,6 @@ public class SqLiteDatabase extends Database {
             plugin.log(Level.SEVERE, "An exception occurred creating the database file", e);
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "An SQL exception occurred initializing the SQLite database", e);
-        } catch (ClassNotFoundException e) {
-            plugin.log(Level.SEVERE, "Failed to load the necessary SQLite driver", e);
         }
     }
 

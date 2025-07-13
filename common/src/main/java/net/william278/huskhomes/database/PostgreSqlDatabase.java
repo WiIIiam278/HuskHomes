@@ -85,20 +85,24 @@ public class PostgreSqlDatabase extends Database {
         // Set additional connection pool properties
         final Properties properties = new Properties();
         properties.putAll(
-                Map.of("cachePrepStmts", "true",
+                Map.of(
+                        "cachePrepStmts", "true",
                         "prepStmtCacheSize", "250",
                         "prepStmtCacheSqlLimit", "2048",
                         "useServerPrepStmts", "true",
                         "useLocalSessionState", "true",
                         "useLocalTransactionState", "true"
-                ));
+                )
+        );
         properties.putAll(
                 Map.of(
                         "rewriteBatchedStatements", "true",
                         "cacheResultSetMetadata", "true",
                         "cacheServerConfiguration", "true",
                         "elideSetAutoCommits", "true",
-                        "maintainTimeStats", "false")
+                        "maintainTimeStats", "false",
+                        "tcpKeepAlive", "true"
+                )
         );
         dataSource.setDataSourceProperties(properties);
     }
@@ -173,7 +177,7 @@ public class PostgreSqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.WARNING, "The database schema version could not be fetched; "
-                                      + "migrations will be carried out.");
+                    + "migrations will be carried out.");
         }
         return -1;
     }
@@ -332,8 +336,8 @@ public class PostgreSqlDatabase extends Database {
                                 statement.executeUpdate();
                             }
                             plugin.log(Level.INFO, "Updated " + onlineUser.getName()
-                                                   + "'s name in the database (" + existingUserData.getUsername()
-                                                   + " -> " + onlineUser.getName() + ")");
+                                    + "'s name in the database (" + existingUserData.getUsername()
+                                    + " -> " + onlineUser.getName() + ")");
                         } catch (SQLException e) {
                             plugin.log(Level.SEVERE, "Failed to update a player's name on the database", e);
                         }
@@ -1259,7 +1263,7 @@ public class PostgreSqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete homes in the world " + worldName + " on the server "
-                                     + serverName + " from the database", e);
+                    + serverName + " from the database", e);
         }
         return 0;
     }
@@ -1330,7 +1334,7 @@ public class PostgreSqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete warps in the world " + worldName + " on the server "
-                                     + serverName + " from the database", e);
+                    + serverName + " from the database", e);
         }
         return 0;
     }

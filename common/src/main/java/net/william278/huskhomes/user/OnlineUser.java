@@ -120,7 +120,6 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      * @param mineDown the parsed {@link MineDown} to send
      */
     public void sendMessage(@NotNull MineDown mineDown) {
-        System.out.println("SEND MESSAGE!" + mineDown.toComponent().toString());
         getAudience().sendMessage(mineDown.toComponent());
     }
 

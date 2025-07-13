@@ -44,6 +44,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
@@ -249,7 +250,7 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     @Override
     @NotNull
     public Path getDatabaseDirectory() {
-        return minecraftServer.isDedicated() ? getConfigDirectory() : minecraftServer.getRunDirectory();
+        return minecraftServer.isDedicated() ? getConfigDirectory() : minecraftServer.getSavePath(WorldSavePath.ROOT);
     }
 
     @Override

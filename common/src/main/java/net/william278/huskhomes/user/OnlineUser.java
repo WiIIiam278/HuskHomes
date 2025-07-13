@@ -177,7 +177,6 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
      */
     @NotNull
     public Audience getAudience() {
-        System.out.println("TEST AUDIENCE GET OL");
         return plugin.getAudience(getUuid());
     }
 

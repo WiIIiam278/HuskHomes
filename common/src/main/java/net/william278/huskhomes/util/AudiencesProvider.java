@@ -52,7 +52,6 @@ public interface AudiencesProvider {
      */
     @NotNull
     default Audience getAudience(@NotNull UUID user) {
-        System.out.println("TEST AUDIENCE GET");
         return getAudiences().player(user);
     }
 

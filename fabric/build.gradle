@@ -22,8 +22,7 @@ repositories {
 }
 
 dependencies {
-    modCompileOnly("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
-
+    modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")

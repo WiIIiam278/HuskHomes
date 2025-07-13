@@ -32,17 +32,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
-//#if MC<12104
+//#if MC>=12104
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
+//#else
 //$$ import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 //#endif
 import net.kyori.adventure.platform.AudienceProvider;
-import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences;
-import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -100,7 +99,9 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
 
-    //#if MC<12104
+    //#if MC>=12104
+    private MinecraftServerAudiences audiences;
+    //#else
     //$$ private FabricServerAudiences audiences;
     //#endif
     private MinecraftServer minecraftServer;
@@ -149,17 +150,20 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     private void onEnable(@NotNull MinecraftServer server) {
         this.minecraftServer = server;
         this.toilet = FabricToilet.create(getDumpOptions(), server);
-        //#if MC<12104
+
+        //#if MC>=12104
+        this.audiences = MinecraftServerAudiences.of(minecraftServer);
+        //#else
         //$$ this.audiences = FabricServerAudiences.of(minecraftServer);
         //#endif
+
+        // Enable
         this.enable();
     }
 
     private void onDisable(@NotNull MinecraftServer server) {
         this.shutdown();
-        //#if MC<12104
-        //$$ this.audiences = null;
-        //#endif
+        this.audiences = null;
     }
 
     @Override
@@ -185,24 +189,13 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     @Override
     @NotNull
     public AudienceProvider getAudiences() {
-        System.out.println("TEST1");
-        if (minecraftServer.getOverworld().isClient()) {
-            return null;
-        }
-        System.out.println("TEST2");
         return MinecraftServerAudiences.of(minecraftServer);
     }
 
     @NotNull
     @Override
     public Audience getAudience(@NotNull UUID user) {
-        System.out.println("TEST3");
-        final ServerPlayerEntity player = minecraftServer.getPlayerManager().getPlayer(user);
-//        if (player == null || player.getWorld() == null || player.getWorld().isClient()) {
-            return MinecraftClientAudiences.of().audience();
-//        }
-//        System.out.println("TEST4");
-//        return (Audience) player;
+        return audiences.player(user);
     }
 
     @Override
@@ -291,7 +284,7 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     public void registerCommands(@NotNull List<Command> toRegister) {
         CommandRegistrationCallback.EVENT
                 .register((dispatcher, i1, i2) -> toRegister.stream().peek(commands::add)
-                .forEach((command) -> new FabricCommand(command, this).register(dispatcher)));
+                        .forEach((command) -> new FabricCommand(command, this).register(dispatcher)));
     }
 
     @Override
@@ -309,7 +302,7 @@ public class FabricHuskHomes implements ModInitializer, HuskHomes, FabricTask.Su
     public void setupPluginMessagingChannels() {
         PluginMessageEvent.EVENT.register((payload, context) -> {
             if (broker instanceof PluginMessageBroker messenger
-                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                    && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
                 messenger.onReceive(
                         PluginMessageBroker.BUNGEE_CHANNEL_ID,
                         getOnlineUser(context.player()),

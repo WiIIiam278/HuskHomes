@@ -30,6 +30,12 @@ import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
+import net.william278.huskhomes.database.Database;
+import net.william278.huskhomes.database.DatabaseImporter;
+import net.william278.huskhomes.database.MySqlDatabase;
+import net.william278.huskhomes.database.PostgreSqlDatabase;
+import net.william278.huskhomes.database.SqLiteDatabase;
+import net.william278.huskhomes.database.H2Database;
 import net.william278.huskhomes.hook.PluginHook;
 import net.william278.huskhomes.importer.Importer;
 import net.william278.huskhomes.position.Home;
@@ -56,6 +62,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
             "dump", true,
             "homeslots", true,
             "import", true,
+            "importdb", true,
             "delete", true,
             "update", true
     );
@@ -156,6 +163,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                 }
                 this.importData(executor, removeFirstArg(args));
             }
+            case "importdb" -> this.importDatabase(executor, removeFirstArg(args));
             case "reload" -> plugin.runSync(() -> {
                 try {
                     plugin.unloadHooks(PluginHook.Register.ON_ENABLE, PluginHook.Register.AFTER_LOAD);
@@ -280,6 +288,130 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
             default -> plugin.getLocales().getLocale("error_invalid_syntax",
                             "/" + getName() + " import <start|list>")
                     .ifPresent(executor::sendMessage);
+        }
+    }
+
+    // Import data from one database type to another
+    private void importDatabase(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (args.length < 2) {
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                    "/" + getName() + " importdb <source_type> <target_type> [confirm]")
+                    .ifPresent(executor::sendMessage);
+            plugin.getLocales().getLocale("database_import_invalid_type")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final String sourceTypeStr = args[0].toUpperCase();
+        final String targetTypeStr = args[1].toUpperCase();
+        final boolean confirm = parseStringArg(args, 2).map(s -> s.equalsIgnoreCase("confirm")).orElse(false);
+
+        // Validate database types
+        Database.Type sourceType, targetType;
+        try {
+            sourceType = Database.Type.valueOf(sourceTypeStr);
+            targetType = Database.Type.valueOf(targetTypeStr);
+        } catch (IllegalArgumentException e) {
+            plugin.getLocales().getLocale("database_import_invalid_type")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        if (sourceType == targetType) {
+            plugin.getLocales().getLocale("database_import_same_type")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        if (!confirm) {
+            plugin.getLocales().getLocale("database_import_warning",
+                    sourceType.getDisplayName(), targetType.getDisplayName(),
+                    sourceTypeStr, targetTypeStr)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        plugin.getLocales().getLocale("database_import_started",
+                sourceType.getDisplayName(), targetType.getDisplayName())
+                .ifPresent(executor::sendMessage);
+
+        plugin.runAsync(() -> {
+            try {
+                // Send progress message
+                plugin.getLocales().getLocale("database_import_connecting")
+                        .ifPresent(executor::sendMessage);
+
+                // Create temporary database instances for import
+                Database sourceDb = createDatabaseInstance(sourceType);
+                Database targetDb = createDatabaseInstance(targetType);
+
+                // Initialize databases
+                sourceDb.initialize();
+                targetDb.initialize();
+
+                if (!sourceDb.isLoaded()) {
+                    plugin.getLocales().getLocale("database_import_source_failed", sourceType.getDisplayName())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                if (!targetDb.isLoaded()) {
+                    plugin.getLocales().getLocale("database_import_target_failed", targetType.getDisplayName())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                // Send progress message
+                plugin.getLocales().getLocale("database_import_progress")
+                        .ifPresent(executor::sendMessage);
+
+                // Perform the import with progress updates
+                DatabaseImporter importer = new DatabaseImporter(plugin, sourceDb, targetDb, executor);
+                DatabaseImporter.ImportResult result = importer.importAllData().get();
+
+                // Close temporary database connections
+                sourceDb.close();
+                targetDb.close();
+
+                // Send result to executor
+                if (result.success) {
+                    plugin.getLocales().getLocale("database_import_success")
+                            .ifPresent(executor::sendMessage);
+                    plugin.getLocales().getLocale("database_import_stats",
+                            Integer.toString(result.usersImported),
+                            Integer.toString(result.homesImported),
+                            Integer.toString(result.warpsImported),
+                            Integer.toString(result.positionsImported),
+                            Integer.toString(result.cooldownsImported))
+                            .ifPresent(executor::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("database_import_failed", result.errorMessage)
+                            .ifPresent(executor::sendMessage);
+                }
+
+            } catch (Exception e) {
+                plugin.log(Level.SEVERE, "Database import failed", e);
+                plugin.getLocales().getLocale("database_import_failed", e.getMessage())
+                        .ifPresent(executor::sendMessage);
+            }
+        });
+    }
+
+    private Database createDatabaseInstance(@NotNull Database.Type type) {
+        switch (type) {
+            case MYSQL, MARIADB -> {
+                return new MySqlDatabase(plugin);
+            }
+            case POSTGRESQL -> {
+                return new PostgreSqlDatabase(plugin);
+            }
+            case SQLITE -> {
+                return new SqLiteDatabase(plugin);
+            }
+            case H2 -> {
+                return new H2Database(plugin);
+            }
+            default -> throw new IllegalStateException("Unexpected database type: " + type);
         }
     }
 
@@ -434,6 +566,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                 case "dump" -> List.of("confirm");
                 case "homeslots" -> UserListTabCompletable.super.getUsernameList();
                 case "import" -> List.of("start", "list");
+                case "importdb" -> List.of("SQLITE", "H2", "MYSQL", "MARIADB", "POSTGRESQL");
                 case "delete" -> List.of("player", "homes", "warps");
                 default -> null;
             };
@@ -445,6 +578,11 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                     }
                     yield plugin.getImporters().stream().map(Importer::getName).toList();
                 }
+                case "importdb" -> List.of("SQLITE", "H2", "MYSQL", "MARIADB", "POSTGRESQL");
+                default -> null;
+            };
+            case 4 -> switch (args[0].toLowerCase()) {
+                case "importdb" -> List.of("confirm");
                 default -> null;
             };
             default -> null;

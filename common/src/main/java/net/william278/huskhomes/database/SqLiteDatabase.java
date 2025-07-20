@@ -400,6 +400,29 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
+    public List<SavedUser> getAllUsers() {
+        final List<SavedUser> users = new ArrayList<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `uuid`, `username`, `home_slots`, `ignoring_requests`
+                FROM `%player_data%`
+                ORDER BY `username`"""))) {
+
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                users.add(new SavedUser(
+                        User.of(UUID.fromString(resultSet.getString("uuid")),
+                                resultSet.getString("username")),
+                        resultSet.getInt("home_slots"),
+                        resultSet.getBoolean("ignoring_requests")
+                ));
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch all users from the database", e);
+        }
+        return users;
+    }
+
+    @Override
     public void deleteUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 DELETE FROM `%position_data%`

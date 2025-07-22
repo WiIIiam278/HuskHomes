@@ -145,9 +145,10 @@ public class RequestsManager {
      * @param requester  The user making the request
      * @param targetUser The user to send the request to
      * @param type       The type of request to send
+     * @param callback   A callback to run after the request has been sent (and the event has not been cancelled)
      */
     public void sendTeleportRequest(@NotNull OnlineUser requester, @NotNull String targetUser,
-                                    @NotNull TeleportRequest.Type type) throws IllegalArgumentException {
+                                    @NotNull TeleportRequest.Type type, @NotNull Runnable callback) throws IllegalArgumentException {
         final long expiry = Instant.now().getEpochSecond()
                 + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
@@ -163,7 +164,10 @@ public class RequestsManager {
                 throw new IllegalArgumentException("Cannot send a teleport request to a vanished player");
             }
             plugin.fireEvent(plugin.getSendTeleportRequestEvent(requester, request),
-                    (event -> sendLocalTeleportRequest(request, localTarget.get())));
+                    (event -> {
+                        sendLocalTeleportRequest(request, localTarget.get());
+                        callback.run();
+                    }));
             return;
         }
 
@@ -172,11 +176,14 @@ public class RequestsManager {
             request.setRecipientName(targetUser);
             plugin.fireEvent(
                     plugin.getSendTeleportRequestEvent(requester, request),
-                    (event -> plugin.getBroker().ifPresent(b -> Message.builder()
-                            .type(Message.MessageType.TELEPORT_REQUEST)
-                            .payload(Payload.teleportRequest(request))
-                            .target(targetUser, Message.TargetType.PLAYER)
-                            .build().send(b, requester)))
+                    (event -> {
+                        plugin.getBroker().ifPresent(b -> Message.builder()
+                                .type(Message.MessageType.TELEPORT_REQUEST)
+                                .payload(Payload.teleportRequest(request))
+                                .target(targetUser, Message.TargetType.PLAYER)
+                                .build().send(b, requester));
+                        callback.run();
+                    })
             );
             return;
         }

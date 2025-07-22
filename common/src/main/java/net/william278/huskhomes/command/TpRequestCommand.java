@@ -72,17 +72,18 @@ public class TpRequestCommand extends InGameCommand implements UserListTabComple
         }
 
         try {
-            manager.sendTeleportRequest(onlineUser, target, requestType);
+            manager.sendTeleportRequest(onlineUser, target, requestType, () -> handleSuccessfulRequest(onlineUser, target));
         } catch (IllegalArgumentException e) {
             plugin.getLocales().getLocale("error_player_not_found", target)
                     .ifPresent(onlineUser::sendMessage);
-            return;
         }
+    }
 
+    private void handleSuccessfulRequest(@NotNull OnlineUser onlineUser, @NotNull String target) {
         plugin.performTransaction(onlineUser, TransactionResolver.Action.SEND_TELEPORT_REQUEST);
         plugin.getLocales()
                 .getLocale((requestType == TeleportRequest.Type.TPA ? "tpa" : "tpahere")
-                           + "_request_sent", target)
+                        + "_request_sent", target)
                 .ifPresent(onlineUser::sendMessage);
     }
 

@@ -152,6 +152,7 @@ public class RequestsManager {
         final long expiry = Instant.now().getEpochSecond()
                 + plugin.getSettings().getGeneral().getTeleportRequestExpiryTime();
         final TeleportRequest request = new TeleportRequest(requester, type, expiry);
+        request.setRecipientName(targetUser);
 
         // Lookup the user locally first. If there's a username match globally, perform an exact local check
         final Optional<OnlineUser> localTarget = plugin.isUserOnlineGlobally(targetUser)
@@ -173,7 +174,6 @@ public class RequestsManager {
 
         // If the player couldn't be found locally, send the request cross-server
         if (plugin.getSettings().getCrossServer().isEnabled()) {
-            request.setRecipientName(targetUser);
             plugin.fireEvent(
                     plugin.getSendTeleportRequestEvent(requester, request),
                     (event -> {

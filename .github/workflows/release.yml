@@ -45,7 +45,7 @@ jobs:
             fabric-1.21.1
             fabric-1.21.4
             fabric-1.21.5
-            fabric-1.21.7
+            fabric-1.21.8
           distro-groups: |
             paper
             fabric
@@ -57,13 +57,13 @@ jobs:
             Fabric 1.21.1
             Fabric 1.21.4
             Fabric 1.21.5
-            Fabric 1.21.7
+            Fabric 1.21.8
           files: |
             target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.5.jar
-            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.7.jar
+            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.8.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -109,7 +109,7 @@ jobs:
             1.21.4
             1.21.5
             1.21.6
-            1.21.7
+            1.21.8
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -192,7 +192,7 @@ jobs:
           game-versions: |
             1.21.5
           java: 21
-      - name: 'Fabric 1.21.7: Publish to Modrinth & CurseForge 🧵'
+      - name: 'Fabric 1.21.8: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
         with:
           modrinth-id: J6U9o3JG
@@ -209,7 +209,7 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.7.jar
+          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.8.jar
           name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
           version-type: release
@@ -217,5 +217,5 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            1.21.7
+            1.21.8
           java: 21

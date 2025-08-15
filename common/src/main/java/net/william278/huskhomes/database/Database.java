@@ -260,6 +260,13 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUser(@NotNull UUID uuid);
 
     /**
+     * Get all {@link SavedUser}s from the database.
+     *
+     * @return A list containing all {@link SavedUser}s in the database
+     */
+    public abstract List<SavedUser> getAllUsers();
+
+    /**
      * Delete a {@link SavedUser} from the database.
      *
      * @param uuid The {@link UUID} of the {@link SavedUser} to delete

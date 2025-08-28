@@ -72,7 +72,7 @@ public class RedisBroker extends PluginMessageBroker {
     @NotNull
     private static Pool<Jedis> getJedisPool(@NotNull RedisSettings settings) {
         // Get the Redis connection settings
-        String password = settings.getPassword();
+        final String password = settings.getPassword();
         final String host = settings.getHost();
         final int port = settings.getPort();
         final int database = settings.getDatabase();
@@ -102,10 +102,15 @@ public class RedisBroker extends PluginMessageBroker {
         }
 
         // Otherwise, use the standard Jedis pool
-        if (password.isEmpty()) {
-            password = null;
-        }
-        return new JedisPool(config, host, port, timeout, password, database, useSSL);
+        return new JedisPool(
+                config,
+                host,
+                port,
+                timeout,
+                password.isEmpty() ? null : password,
+                database,
+                useSSL
+        );
     }
 
     @Override

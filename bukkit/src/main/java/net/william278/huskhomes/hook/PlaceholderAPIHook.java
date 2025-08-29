@@ -100,6 +100,11 @@ public class PlaceholderAPIHook extends Hook {
             };
         }
 
+        @Override
+        public boolean persist() {
+            return true;
+        }
+
         @NotNull
         private String getBooleanValue(final boolean bool) {
             return bool ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();

@@ -75,6 +75,8 @@ public class RedisBroker extends PluginMessageBroker {
         final String password = settings.getPassword();
         final String host = settings.getHost();
         final int port = settings.getPort();
+        final int database = settings.getDatabase();
+        final int timeout = settings.getTimeout();
         final boolean useSSL = settings.isUseSsl();
 
         // Create the jedis pool
@@ -88,14 +90,27 @@ public class RedisBroker extends PluginMessageBroker {
         Set<String> redisSentinelNodes = new HashSet<>(sentinel.getNodes());
         if (!redisSentinelNodes.isEmpty()) {
             final String sentinelPassword = sentinel.getPassword();
-            return new JedisSentinelPool(sentinel.getMasterName(), redisSentinelNodes, password.isEmpty()
-                    ? null : password, sentinelPassword.isEmpty() ? null : sentinelPassword);
+            return new JedisSentinelPool(
+                    sentinel.getMasterName(),
+                    redisSentinelNodes,
+                    config,
+                    timeout,
+                    password.isEmpty() ? null : password,
+                    sentinelPassword.isEmpty() ? null : sentinelPassword,
+                    database
+            );
         }
 
         // Otherwise, use the standard Jedis pool
-        return password.isEmpty()
-                ? new JedisPool(config, host, port, 0, useSSL)
-                : new JedisPool(config, host, port, 0, password, useSSL);
+        return new JedisPool(
+                config,
+                host,
+                port,
+                timeout,
+                password.isEmpty() ? null : password,
+                database,
+                useSSL
+        );
     }
 
     @Override

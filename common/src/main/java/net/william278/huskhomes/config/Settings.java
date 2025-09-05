@@ -31,6 +31,7 @@ import net.william278.huskhomes.network.Broker;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.Protocol;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -283,8 +284,12 @@ public final class Settings {
         public static class RedisSettings {
             private String host = "localhost";
             private int port = 6379;
+            @Comment("Only change this if you know what you are doing. The default value is 0.")
+            private int database = 0;
             @Comment("Password for your Redis server. Leave blank if you're not using a password.")
             private String password = "";
+            @Comment("Timeout for connecting to the Redis server (in milliseconds)")
+            private int timeout = Protocol.DEFAULT_TIMEOUT;
             private boolean useSsl = false;
 
             @Comment({"Settings for if you're using Redis Sentinels.",

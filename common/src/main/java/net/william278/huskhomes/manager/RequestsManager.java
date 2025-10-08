@@ -304,6 +304,10 @@ public class RequestsManager {
 
         // Fire event and send request response confirmation to the recipient
         plugin.fireEvent(plugin.getReplyTeleportRequestEvent(recipient, request), (event -> {
+            plugin.getLocales().getLocale(
+                    "teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
+                    request.getRequesterName()
+            ).ifPresent(recipient::sendMessage);
             // snapshot the recipient's position if the request is a strict tpa request
             if (accepted && request.getType() == TeleportRequest.Type.TPA) {
                 if (plugin.getSettings().getGeneral().isStrictTpaRequests()) {

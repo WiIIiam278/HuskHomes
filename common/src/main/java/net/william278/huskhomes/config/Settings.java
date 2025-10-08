@@ -161,6 +161,9 @@ public final class Settings {
                 + "Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
         private boolean strictTpaHereRequests = true;
 
+        @Comment("Whether /tpa should use the location of the sender when sent. ")
+        private boolean strictTpaRequests = false;
+
         @Comment("How many items should be displayed per-page in chat menu lists")
         private int listItemsPerPage = 12;
 

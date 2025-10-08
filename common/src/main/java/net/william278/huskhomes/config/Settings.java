@@ -157,12 +157,12 @@ public final class Settings {
         @Comment("How long before received teleport requests expire (in seconds)")
         private int teleportRequestExpiryTime = 60;
 
+        @Comment("Whether /tpa should use the location of the sender when accepted. ")
+        private boolean strictTpaRequests = false;
+
         @Comment("Whether /tpahere should use the location of the sender when sent. "
                 + "Docs: https://william278.net/docs/huskhomes/strict-tpahere/")
         private boolean strictTpaHereRequests = true;
-
-        @Comment("Whether /tpa should use the location of the sender when sent. ")
-        private boolean strictTpaRequests = false;
 
         @Comment("How many items should be displayed per-page in chat menu lists")
         private int listItemsPerPage = 12;

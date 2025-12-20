@@ -24,6 +24,10 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
 import net.kyori.adventure.audience.Audience;
+//#if MC>=12111
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
+//#endif
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -47,7 +51,11 @@ public class FabricUser extends OnlineUser {
     private final ServerPlayerEntity player;
 
     private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
-        super(player.getUuid(), player.getGameProfile().getName(), plugin);
+        //#if MC>=12111
+        super(player.getUuid(), player.getGameProfile().name(), plugin);
+        //#else
+        //$$ super(player.getUuid(), player.getGameProfile().getName(), plugin);
+        //#endif
         this.player = player;
     }
 
@@ -60,7 +68,11 @@ public class FabricUser extends OnlineUser {
     @Override
     public Position getPosition() {
         return FabricHuskHomes.Adapter.adapt(
-                player.getPos(),
+                //#if MC>=12111
+                player.getEntityPos(),
+                //#else
+                //$$ player.getPos(),
+                //#endif
                 getServerWorld(player),
                 player.getYaw(), player.getPitch(),
                 plugin.getServerName()
@@ -69,10 +81,12 @@ public class FabricUser extends OnlineUser {
 
     @NotNull
     private ServerWorld getServerWorld(ServerPlayerEntity player) {
-        //#if MC <=12104
+        //#if MC <=12105
         //$$ return player.getServerWorld();
+        //#elseif MC >=12111
+        return player.getEntityWorld();
         //#else
-        return player.getWorld();
+        //$$ return player.getWorld();
         //#endif
     }
 
@@ -82,10 +96,14 @@ public class FabricUser extends OnlineUser {
         //$$ final BlockPos spawn = player.getSpawnPointPosition();
         //$$ final float angle = player.getSpawnAngle();
         //$$ final RegistryKey<net.minecraft.world.World> world = player.getSpawnPointDimension();
+        //#elseif MC>=12111
+        final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().respawnData().getPos();
+        final float angle = player.getRespawn() == null ? 0 : player.getRespawn().respawnData().yaw();
+        final RegistryKey<net.minecraft.world.World> world = player.getRespawn() == null ? null : player.getRespawn().respawnData().getDimension();
         //#else
-        final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().pos();
-        final float angle = player.getRespawn() == null ? 0 : player.getRespawn().angle();
-        final RegistryKey<net.minecraft.world.World> world = player.getRespawn() == null ? null : player.getRespawn().dimension();
+        //$$ final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().pos();
+        //$$ final float angle = player.getRespawn() == null ? 0 : player.getRespawn().angle();
+        //$$ final RegistryKey<net.minecraft.world.World> world = player.getRespawn() == null ? null : player.getRespawn().dimension();
         //#endif
         if (spawn == null || world == null) {
             return Optional.empty();
@@ -115,7 +133,12 @@ public class FabricUser extends OnlineUser {
     @Override
     public boolean hasPermission(@NotNull String node) {
         boolean op = Boolean.TRUE.equals(((FabricHuskHomes) plugin).getPermissions().getOrDefault(node, true));
-        return Permissions.check(player, node, !op || player.hasPermissionLevel(3));
+        //#if MC>=12111
+        boolean hasPermission = player.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(3)));
+        //#else
+        //$$ boolean hasPermission = player.hasPermissionLevel(3);
+        //#endif
+        return Permissions.check(player, node, !op || hasPermission);
     }
 
     @Override
@@ -157,7 +180,12 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
-        final MinecraftServer server = player.getServer();
+        //#if MC>=12111
+        final MinecraftServer server = player.getEntityWorld().getServer();
+        //#else
+        //$$ final MinecraftServer server = player.getServer();
+        //#endif
+
         if (server == null) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }

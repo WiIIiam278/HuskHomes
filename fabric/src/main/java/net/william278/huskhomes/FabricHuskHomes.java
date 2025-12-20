@@ -46,6 +46,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.WorldProperties;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.api.FabricHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -196,10 +197,19 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public void setWorldSpawn(@NotNull Position position) {
         final ServerWorld world = Adapter.adapt(position, minecraftServer);
         if (world != null) {
-            world.setSpawnPos(
+            //#if MC>=12111
+            world.setSpawnPoint(WorldProperties.SpawnPoint.create(
+                    world.getRegistryKey(),
                     BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
-                    position.getYaw()
-            );
+                    position.getYaw(),
+                    0
+            ));
+            //#else
+            //$$ world.setSpawnPos(
+            //$$        BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
+            //$$        position.getYaw()
+            //$$ );
+            //#endif
         }
     }
 

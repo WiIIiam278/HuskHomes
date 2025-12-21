@@ -43,7 +43,6 @@ jobs:
           distro-names: |
             paper
             fabric-1.21.1
-            fabric-1.21.4
             fabric-1.21.5
             fabric-1.21.8
             fabric-1.21.11
@@ -53,18 +52,15 @@ jobs:
             fabric
             fabric
             fabric
-            fabric
           distro-descriptions: |
             Paper
             Fabric 1.21.1
-            Fabric 1.21.4
             Fabric 1.21.5
             Fabric 1.21.8
             Fabric 1.21.11
           files: |
             target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
-            target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.5.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.8.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.11.jar
@@ -142,33 +138,6 @@ jobs:
             fabric
           game-versions: |
             1.21.1
-          java: 21
-      - name: 'Fabric 1.21.4: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
-        with:
-          modrinth-id: J6U9o3JG
-          modrinth-featured: false
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: 849217
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          dependencies: |
-            fabric-api | requires | *
-            dynmap | suggests | *
-            bluemap | suggests | *
-            pl3xmap | suggests | *
-            luckperms | suggests | *
-            plan | suggests | *
-            impactor | suggests | *
-            placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
-          name: HuskHomes (Fabric) v${{ github.event.release.tag_name }}
-          version: ${{ github.event.release.tag_name }}
-          version-type: release
-          changelog: ${{ github.event.release.body }}
-          loaders: |
-            fabric
-          game-versions: |
-            1.21.4
           java: 21
       - name: 'Fabric 1.21.5: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar

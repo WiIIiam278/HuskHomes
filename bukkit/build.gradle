@@ -21,7 +21,7 @@ dependencies {
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
     testImplementation 'net.william278:minedown:1.8.2'
     testImplementation 'net.kyori:adventure-platform-bukkit:4.4.1'
-    testImplementation 'org.apache.commons:commons-text:1.13.1'
+    testImplementation 'org.apache.commons:commons-text:1.15.0'
     testImplementation "redis.clients:jedis:${jedis_version}"
     testImplementation "org.xerial:sqlite-jdbc:${sqlite_driver_version}"
     testImplementation "com.mysql:mysql-connector-j:${mysql_driver_version}"

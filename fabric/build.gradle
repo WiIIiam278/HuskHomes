@@ -33,7 +33,7 @@ dependencies {
     implementation include("redis.clients:jedis:$jedis_version")
     implementation include("com.h2database:h2:$h2_driver_version")
 
-    compileOnly 'org.jetbrains:annotations:26.0.2'
+    compileOnly 'org.jetbrains:annotations:26.0.2-1'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.38'

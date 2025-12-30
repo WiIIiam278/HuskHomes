@@ -89,14 +89,41 @@ public abstract class SavedPositionCommand<T extends SavedPosition> extends Comm
         return Optional.empty();
     }
 
-    private Optional<Home> resolveDelimitedHome(@NotNull CommandUser executor, @NotNull String homeName) {
-        final String ownerUsername = homeName.substring(0, homeName.indexOf(Home.getDelimiter()));
-        final String ownerHome = homeName.substring(homeName.indexOf(Home.getDelimiter()) + 1);
+    /**
+     * Parses a delimited home identifier of the form {@code owner + delimiter + homeName}.
+     * Uses the <b>last</b> delimiter occurrence to support owners whose names begin with the delimiter
+     * (e.g., Bedrock usernames like ".ciro123").
+     */
+    @NotNull
+    private static Optional<String[]> parseDelimitedHomeIdentifier(@NotNull String homeName) {
+        final String delimiter = Home.getDelimiter();
+        final int last = homeName.lastIndexOf(delimiter);
+
+        // No delimiter, delimiter at start (owner empty), or delimiter at end (home empty)
+        if (last < 0 || last == 0 || last == homeName.length() - delimiter.length()) {
+            return Optional.empty();
+        }
+
+        final String ownerUsername = homeName.substring(0, last);
+        final String ownerHome = homeName.substring(last + delimiter.length());
+
         if (ownerUsername.isBlank() || ownerHome.isBlank()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new String[]{ownerUsername, ownerHome});
+    }
+
+    private Optional<Home> resolveDelimitedHome(@NotNull CommandUser executor, @NotNull String homeName) {
+        final Optional<String[]> parsed = parseDelimitedHomeIdentifier(homeName);
+        if (parsed.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
+
+        final String ownerUsername = parsed.get()[0];
+        final String ownerHome = parsed.get()[1];
 
         final Optional<Home> optionalHome = plugin.getDatabase().getUser(ownerUsername)
                 .flatMap(owner -> resolveHomeByName(owner.getUser(), ownerHome));

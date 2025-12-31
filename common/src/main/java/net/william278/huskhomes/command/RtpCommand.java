@@ -44,7 +44,6 @@ public class RtpCommand extends Command implements UserListTabCompletable {
                 "[player] [world] [server]",
                 plugin
         );
-        setDescription("Randomly teleport. Use: /rtp [world] for local RTP, /rtp [world] [server] for cross-server");
         
         addAdditionalPermissions(Map.of(
                 "other", true
@@ -88,8 +87,12 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         }
 
         // Validate world and server, and execute RTP
+        plugin.log(java.util.logging.Level.INFO, "RTP: Before validateRtp - worldName: '" + worldName + "', targetServer: '" + targetServer + "', args.length: " + args.length);
         validateRtp(teleporter, executor, worldName.replace("minecraft:", ""), targetServer)
-                .ifPresent(entry -> executeRtp(teleporter, executor, entry.getKey(), entry.getValue(), args));
+                .ifPresent(entry -> {
+                    plugin.log(java.util.logging.Level.INFO, "RTP: After validateRtp - world: '" + entry.getKey().getName() + "', server: '" + entry.getValue() + "'");
+                    executeRtp(teleporter, executor, entry.getKey(), entry.getValue(), args);
+                });
     }
 
     @Nullable
@@ -194,7 +197,7 @@ public class RtpCommand extends Command implements UserListTabCompletable {
                     .ifPresent(executor::sendMessage);
             return Optional.empty();
         }
-        return localWorld.map(world -> new AbstractMap.SimpleImmutableEntry<>(world, worldName));
+        return localWorld.map(world -> new AbstractMap.SimpleImmutableEntry<>(world, plugin.getServerName()));
     }
 
     /**

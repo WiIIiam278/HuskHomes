@@ -41,6 +41,9 @@ public class UnsafeBlocks {
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
      */
     public boolean isUnsafe(@NotNull String blockId) {
+        if (unsafeBlocks == null || unsafeBlocks.isEmpty()) {
+            return false;
+        }
         return unsafeBlocks.contains(this.formatBlockId(blockId));
     }
 
@@ -51,6 +54,9 @@ public class UnsafeBlocks {
      * @return {@code true} if the block is on the unsafe blocks list, {@code false} otherwise
      */
     public boolean isUnsafeToOccupy(@NotNull String blockId) {
+        if (safeOccupationBlocks == null || safeOccupationBlocks.isEmpty()) {
+            return false;
+        }
         return !safeOccupationBlocks.contains(this.formatBlockId(blockId));
     }
 

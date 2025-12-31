@@ -55,7 +55,7 @@ public class UnsafeBlocks {
      */
     public boolean isUnsafeToOccupy(@NotNull String blockId) {
         if (safeOccupationBlocks == null || safeOccupationBlocks.isEmpty()) {
-            return false;
+            return true; // If no safe blocks defined, consider all blocks unsafe
         }
         return !safeOccupationBlocks.contains(this.formatBlockId(blockId));
     }

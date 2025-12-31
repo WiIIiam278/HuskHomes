@@ -375,11 +375,16 @@ public final class Settings {
         @Comment("Whether or not RTP should perform cross-server.")
         private boolean crossServer = false;
 
-        @Comment({"List of server in which /rtp is allowed. (Only relevant when using cross server mode WITH REDIS)",
-                "If a server is not defined here the RTP logic has no way of knowing its existence.",
-        "Unless specified, the default world name used as targeted world is the name of the world the player currently standing in."})
+        @Comment({"Map of server names to their available RTP worlds. (Only relevant when using cross server mode WITH REDIS)",
+                "IMPORTANT: Server names MUST match the names defined in server.yml AND your proxy configuration.",
+                "Format: 'server_name: [world1, world2, ...]'",
+                "Example for a network with 'lobby', 'survival', and 'creative' servers:",
+                "  lobby: [world]",
+                "  survival: [world, world_nether, world_the_end]",
+                "  creative: [creative_world]"})
         private Map<String, List<String>> randomTargetServers = new HashMap<>(
-                Map.of("server", List.of("world", "world_nether", "world_the_end"))
+                Map.of("lobby", List.of("world"),
+                       "survival", List.of("world", "world_nether", "world_the_end"))
         );
     }
 

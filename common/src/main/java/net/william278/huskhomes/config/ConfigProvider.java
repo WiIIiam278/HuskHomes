@@ -186,12 +186,27 @@ public interface ConfigProvider {
      * Load the unsafe blocks from the internal resource file.
      */
     default void loadUnsafeBlocks() {
+        final YamlConfigurationStore<UnsafeBlocks> store = new YamlConfigurationStore<>(
+                UnsafeBlocks.class, YAML_CONFIGURATION_PROPERTIES.build()
+        );
         try (InputStream input = getResource("safety/unsafe_blocks.yml")) {
-            setUnsafeBlocks(YamlConfigurations.read(
-                    input,
-                    UnsafeBlocks.class,
-                    YAML_CONFIGURATION_PROPERTIES.build()
-            ));
+            if (input == null) {
+                throw new IllegalStateException("Could not find safety/unsafe_blocks.yml resource");
+            }
+            final UnsafeBlocks blocks = store.read(input);
+            
+            // Validate that the lists are not null or empty
+            if (blocks.unsafeBlocks == null || blocks.unsafeBlocks.isEmpty()) {
+                throw new IllegalStateException("Unsafe blocks list is empty or null - cannot safely validate RTP positions");
+            }
+            if (blocks.safeOccupationBlocks == null || blocks.safeOccupationBlocks.isEmpty()) {
+                throw new IllegalStateException("Safe occupation blocks list is empty or null - cannot safely validate RTP positions");
+            }
+            
+            setUnsafeBlocks(blocks);
+            getPlugin().log(java.util.logging.Level.INFO, "Loaded " + 
+                blocks.unsafeBlocks.size() + " unsafe blocks and " +
+                blocks.safeOccupationBlocks.size() + " safe occupation blocks");
         } catch (Throwable e) {
             throw new IllegalStateException("An error occurred loading the unsafe blocks", e);
         }

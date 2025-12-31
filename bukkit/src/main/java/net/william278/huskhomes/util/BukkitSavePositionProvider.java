@@ -37,11 +37,13 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
         final org.bukkit.Location bukkitLocation = BukkitHuskHomes.Adapter.adapt(location);
         if (bukkitLocation == null || bukkitLocation.getWorld() == null) {
+            getPlugin().log(java.util.logging.Level.WARNING, "RTP Safety: Failed to adapt location, world is null");
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
         // Ensure the location is within the world border
         if (!bukkitLocation.getWorld().getWorldBorder().isInside(bukkitLocation)) {
+            getPlugin().log(java.util.logging.Level.INFO, "RTP Safety: Location outside world border at " + location.getX() + ", " + location.getZ());
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
@@ -81,9 +83,16 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
                 final Material blockType = chunk.getBlockType(x, y - 1, z);
                 final Material bodyBlockType = chunk.getBlockType(x, y, z);
                 final Material headBlockType = chunk.getBlockType(x, y + 1, z);
-                if (isBlockSafeForStanding(blockType.getKey().toString())
-                        && isBlockSafeForOccupation(bodyBlockType.getKey().toString())
-                        && isBlockSafeForOccupation(headBlockType.getKey().toString())) {
+                final boolean safeStanding = isBlockSafeForStanding(blockType.getKey().toString());
+                final boolean safeBody = isBlockSafeForOccupation(bodyBlockType.getKey().toString());
+                final boolean safeHead = isBlockSafeForOccupation(headBlockType.getKey().toString());
+                if (!safeStanding || !safeBody || !safeHead) {
+                    if (dx == 0 && dz == 0) {
+                        getPlugin().log(java.util.logging.Level.INFO, "RTP Safety: Center position unsafe - Standing: " + safeStanding + " (" + blockType.getKey() + "), Body: " + safeBody + " (" + bodyBlockType.getKey() + "), Head: " + safeHead + " (" + headBlockType.getKey() + ")");
+                    }
+                    continue;
+                }
+                if (safeStanding && safeBody && safeHead) {
                     double locx = Math.floor(location.getX()) + dx;
                     if (locx < 0) {
                         locx += 1.5d;

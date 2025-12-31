@@ -249,13 +249,20 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         // Generate a random position
         plugin.getLocales().getLocale("teleporting_random_generation")
                 .ifPresent(teleporter::sendMessage);
+        
+        plugin.log(java.util.logging.Level.INFO, "RTP: User " + teleporter.getName() + " requesting RTP to world '" + world.getName() + "' on server '" + targetServer + "'");
+        plugin.log(java.util.logging.Level.INFO, "RTP: Current server name: '" + plugin.getServerName() + "'");
+        plugin.log(java.util.logging.Level.INFO, "RTP: Cross-server enabled: " + plugin.getSettings().getRtp().isCrossServer() + ", Cross-server settings enabled: " + plugin.getSettings().getCrossServer().isEnabled());
 
         if (plugin.getSettings().getRtp().isCrossServer() && plugin.getSettings().getCrossServer().isEnabled()
             && plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
+            plugin.log(java.util.logging.Level.INFO, "RTP: Entering cross-server logic, comparing targetServer '" + targetServer + "' with currentServer '" + plugin.getServerName() + "'");
             if (targetServer.equals(plugin.getServerName())) {
+                plugin.log(java.util.logging.Level.INFO, "RTP: Target server matches current server, performing local RTP");
                 performLocalRTP(teleporter, executor, world, args);
                 return;
             }
+            plugin.log(java.util.logging.Level.INFO, "RTP: Cross-server RTP to " + targetServer + ", sending broker message");
 
             plugin.getBroker().ifPresent(b -> Message.builder()
                     .type(Message.MessageType.REQUEST_RTP_LOCATION)
@@ -278,14 +285,17 @@ public class RtpCommand extends Command implements UserListTabCompletable {
      */
     private void performLocalRTP(@NotNull OnlineUser teleporter, @NotNull CommandUser executor, @NotNull World world,
                                  @NotNull String[] args) {
+        plugin.log(java.util.logging.Level.INFO, "RTP: Starting local RTP for " + teleporter.getName() + " in world " + world.getName());
         plugin.getRandomTeleportEngine()
                 .getRandomPosition(world, args.length > 1 ? removeFirstArg(args) : args)
                 .thenAccept(position -> {
                     if (position.isEmpty()) {
+                        plugin.log(java.util.logging.Level.WARNING, "RTP: Failed to find safe position for " + teleporter.getName() + " after max attempts");
                         plugin.getLocales().getLocale("error_rtp_randomization_timeout")
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
+                    plugin.log(java.util.logging.Level.INFO, "RTP: Found safe position at " + position.get().getX() + ", " + position.get().getY() + ", " + position.get().getZ());
 
                     // Build and execute the teleport
                     final TeleportBuilder builder = Teleport.builder(plugin)

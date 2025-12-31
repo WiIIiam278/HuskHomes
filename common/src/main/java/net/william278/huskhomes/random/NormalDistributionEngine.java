@@ -132,15 +132,19 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
     @Override
     public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {
         return plugin.supplyAsync(() -> {
+            plugin.log(Level.INFO, "RTP Engine: Starting position search in world " + world.getName() + " with max attempts: " + maxAttempts);
             Optional<Location> location = generateSafeLocation(world).join();
             int attempts = 0;
             while (location.isEmpty()) {
+                attempts++;
+                plugin.log(Level.INFO, "RTP Engine: Attempt " + attempts + " failed, retrying...");
                 location = generateSafeLocation(world).join();
                 if (attempts >= maxAttempts) {
+                    plugin.log(Level.WARNING, "RTP Engine: Reached max attempts (" + maxAttempts + ") without finding safe location");
                     return Optional.empty();
                 }
-                attempts++;
             }
+            plugin.log(Level.INFO, "RTP Engine: Found safe location after " + (attempts + 1) + " attempts");
             return location.map(resolved -> Position.at(resolved, plugin.getServerName()));
         });
     }

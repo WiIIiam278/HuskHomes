@@ -124,28 +124,35 @@ public interface MessageHandler {
     }
 
     default void handleRtpRequestLocation(@NotNull Message message) {
+        getPlugin().log(java.util.logging.Level.INFO, "RTP Broker: Received REQUEST_RTP_LOCATION from " + message.getSender());
         final Optional<World> requested = message.getPayload().getString().flatMap(
                 name -> getPlugin().getWorlds().stream().filter(w -> w.getName().equalsIgnoreCase(name)).findFirst());
         requested.map(world -> getPlugin().getRandomTeleportEngine().getRandomPosition(world, new String[0]))
                 .orElse(CompletableFuture.completedFuture(Optional.empty()))
                 .thenAccept(
-                        (teleport) -> Message.builder()
+                        (teleport) -> {
+                            getPlugin().log(java.util.logging.Level.INFO, "RTP Broker: Sending RTP_LOCATION response to " + message.getSender() + ", position: " + teleport.map(p -> p.getX() + "," + p.getY() + "," + p.getZ()).orElse("null"));
+                            Message.builder()
                                 .type(Message.MessageType.RTP_LOCATION)
                                 .target(message.getSender(), Message.TargetType.PLAYER)
                                 .payload(Payload.position(teleport.orElse(null)))
-                                .build().send(getBroker(), null)
+                                .build().send(getBroker(), null);
+                        }
                 );
 
     }
 
     default void handleRtpLocation(@NotNull Message message, @NotNull OnlineUser receiver) {
+        getPlugin().log(java.util.logging.Level.INFO, "RTP Broker: Received RTP_LOCATION response for " + receiver.getName());
         final Optional<Position> position = message.getPayload().getPosition();
         if (position.isEmpty()) {
+            getPlugin().log(java.util.logging.Level.WARNING, "RTP Broker: Position is empty, sending timeout message");
             getPlugin().getLocales().getLocale("error_rtp_randomization_timeout")
                     .ifPresent(receiver::sendMessage);
             return;
         }
 
+        getPlugin().log(java.util.logging.Level.INFO, "RTP Broker: Building teleport to " + position.get().getX() + "," + position.get().getY() + "," + position.get().getZ() + " in " + position.get().getWorld().getName() + " on server " + position.get().getServer());
         Teleport.builder(getPlugin())
                 .teleporter(receiver)
                 .actions(TransactionResolver.Action.RANDOM_TELEPORT)

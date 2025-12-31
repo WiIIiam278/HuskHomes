@@ -41,10 +41,11 @@ public class RtpCommand extends Command implements UserListTabCompletable {
     protected RtpCommand(@NotNull HuskHomes plugin) {
         super(
                 List.of("rtp"),
-                "[player] [<world> [server]|<world>]",
+                "[player] [world] [server]",
                 plugin
         );
-
+        setDescription("Randomly teleport. Use: /rtp [world] for local RTP, /rtp [world] [server] for cross-server");
+        
         addAdditionalPermissions(Map.of(
                 "other", true
         ));

@@ -99,7 +99,7 @@ public class BukkitEventListener extends EventListener implements Listener {
         if (!getPlugin().isWarmingUp(player.getUniqueId()) || event.getDamage() <= 0) {
             return;
         }
-        getPlugin().markWarmupDamageTaken(player.getUniqueId());
+        getPlugin().getWarmupDamagedUsers().add(player.getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

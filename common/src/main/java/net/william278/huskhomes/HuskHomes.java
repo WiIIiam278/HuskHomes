@@ -247,16 +247,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     }
 
     /**
-     * Mark a user as having taken damage during their teleport warmup.
-     *
-     * @param userUuid The user to mark as damaged
-     * @since 4.9.11
-     */
-    default void markWarmupDamageTaken(@NotNull UUID userUuid) {
-        getWarmupDamagedUsers().add(userUuid);
-    }
-
-    /**
      * Returns if the given user has taken damage during their teleport warmup.
      *
      * @param userUuid The user to check.
@@ -265,16 +255,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
      */
     default boolean hasTakenWarmupDamage(@NotNull UUID userUuid) {
         return getWarmupDamagedUsers().contains(userUuid);
-    }
-
-    /**
-     * Clear a user's warmup damage state.
-     *
-     * @param userUuid The user to clear.
-     * @since 4.9.11
-     */
-    default void clearWarmupDamage(@NotNull UUID userUuid) {
-        getWarmupDamagedUsers().remove(userUuid);
     }
 
     /**

@@ -85,7 +85,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
     private void process() {
         plugin.fireEvent(plugin.getTeleportWarmupEvent(this, timeLeft), (event) -> {
             plugin.getCurrentlyOnWarmup().add(teleporter.getUuid());
-            plugin.clearWarmupDamage(teleporter.getUuid());
+            plugin.getWarmupDamagedUsers().remove(teleporter.getUuid());
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
@@ -99,9 +99,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
     public void run() {
         // Cancel if they move or take damage during warmup (including on the final second)
         if (shouldCancelWarmup()) {
-            task.cancel();
-            plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-            plugin.clearWarmupDamage(teleporter.getUuid());
+            finishWarmup();
             return;
         }
 
@@ -123,23 +121,25 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
                 super.execute();
             } catch (TeleportationException e) {
                 e.displayMessage(teleporter);
-                task.cancel();
-                plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-                plugin.clearWarmupDamage(teleporter.getUuid());
+                finishWarmup();
                 return;
             }
         }
 
         // Teleport completed
+        finishWarmup();
+    }
+
+    private void finishWarmup() {
         task.cancel();
         plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-        plugin.clearWarmupDamage(teleporter.getUuid());
+        plugin.getWarmupDamagedUsers().remove(teleporter.getUuid());
     }
 
     /**
-     * Ticks a timed teleport, decrementing the time left until the teleport is complete.
+     * Checks if a timed teleport warmup should be cancelled.
      *
-     * <p>A timed teleport will be canceled if certain criteria are met:
+     * <p>A timed teleport warmup will be cancelled if certain criteria are met:
      * <ul>
      *     <li>The player has left the server</li>
      *     <li>The plugin is disabling</li>
@@ -147,7 +147,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
      *     <li>The player has taken damage (though they may heal, have status ailments or lose/gain hunger)</li>
      * </ul>
      *
-     * @return {@code true} if the warmup is complete, {@code false} otherwise
+     * @return {@code true} if the warmup was cancelled, {@code false} otherwise
      */
     private boolean shouldCancelWarmup() {
         // Cancel the timed teleport if the player takes damage

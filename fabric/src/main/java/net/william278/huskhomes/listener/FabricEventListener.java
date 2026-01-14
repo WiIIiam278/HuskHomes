@@ -56,13 +56,14 @@ public class FabricEventListener extends EventListener {
 
         // Damage event (to cancel teleport warmups)
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, amount, damage, blocked) -> {
-            // Cancel warmup on any "hurt" event during warmup, even if damage is blocked/absorbed
-            if (amount <= 0) {
+            if (!(entity instanceof ServerPlayerEntity player)) {
                 return;
             }
-            if (entity instanceof ServerPlayerEntity player && getPlugin().isWarmingUp(player.getUuid())) {
-                getPlugin().markWarmupDamageTaken(player.getUuid());
+            // Cancel warmup on any "hurt" event during warmup, even if damage is blocked/absorbed
+            if (!getPlugin().isWarmingUp(player.getUuid()) || amount <= 0) {
+                return;
             }
+            getPlugin().getWarmupDamagedUsers().add(player.getUuid());
         });
 
         // Respawn event

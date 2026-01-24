@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
@@ -87,6 +88,18 @@ public class BukkitEventListener extends EventListener implements Listener {
                 getPlugin().getOnlineUser(player),
                 BukkitHuskHomes.Adapter.adapt(event.getFrom(), getPlugin().getServerName())
         );
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onPlayerTakeDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        // Cancel warmup on any "hurt" event during warmup, even if damage is cancelled/blocked/absorbed
+        if (!getPlugin().isWarmingUp(player.getUniqueId()) || event.getDamage() <= 0) {
+            return;
+        }
+        getPlugin().getWarmupDamagedUsers().add(player.getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

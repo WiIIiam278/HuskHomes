@@ -31,6 +31,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
+import net.william278.huskhomes.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -71,21 +72,15 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
         for (int x = -SEARCH_RADIUS; x <= SEARCH_RADIUS; x++) {
             for (int z = -SEARCH_RADIUS; z <= SEARCH_RADIUS; z++) {
                 blockPos.set(location.getX() + x, location.getY(), location.getZ() + z);
-                final int highestY = Math.max(getMinHeight(world, worldName), Math.min(getHighestYAt(world, blockPos.getX(),
-                                blockPos.getY(), blockPos.getZ()) + 1, getMaxHeight(world, worldName)));
+                final Optional<Integer> y = getY(
+                        location,
+                        blockPos,
+                        world,
+                        getMinHeight(world, worldName),
+                        getMaxHeight(world, worldName)
+                );
 
-                final Block block = world.getBlockState(blockPos.withY(highestY - 1)).getBlock();
-                final Identifier id = Registries.BLOCK.getId(block);
-
-                final Block bodyBlockType = world.getBlockState(blockPos.withY(highestY)).getBlock();
-                final Identifier bodyBlockId = Registries.BLOCK.getId(bodyBlockType);
-
-                final Block headBlockType = world.getBlockState(blockPos.withY(highestY + 1)).getBlock();
-                final Identifier headBlockId = Registries.BLOCK.getId(headBlockType);
-
-                if (!(block instanceof FluidBlock) && !(block instanceof FireBlock)
-                        && isBlockSafeForStanding(id.toString()) && isBlockSafeForOccupation(bodyBlockId.toString())
-                        && isBlockSafeForOccupation(headBlockId.toString())) {
+                if (y.isPresent()) {
                     double locx = blockPos.getX();
                     if (locx < 0) {
                         locx += 1.5d;
@@ -100,7 +95,7 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
                     }
                     return Optional.of(Location.at(
                             locx,
-                            highestY,
+                            y.get(),
                             locz,
                             location.getWorld()
                     ));
@@ -125,6 +120,38 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
             cursor.move(Direction.DOWN);
         }
         return cursor.getY();
+    }
+
+    private boolean isSafeLocation(@NotNull ServerWorld world, @NotNull BlockPos blockPos, int y) {
+        final Block block = world.getBlockState(blockPos.withY(y - 1)).getBlock();
+        final Identifier id = Registries.BLOCK.getId(block);
+
+        final Block bodyBlockType = world.getBlockState(blockPos.withY(y)).getBlock();
+        final Identifier bodyBlockId = Registries.BLOCK.getId(bodyBlockType);
+
+        final Block headBlockType = world.getBlockState(blockPos.withY(y + 1)).getBlock();
+        final Identifier headBlockId = Registries.BLOCK.getId(headBlockType);
+
+        return !(block instanceof FluidBlock) && !(block instanceof FireBlock)
+                && isBlockSafeForStanding(id.toString()) && isBlockSafeForOccupation(bodyBlockId.toString())
+                && isBlockSafeForOccupation(headBlockId.toString());
+    }
+
+    private Optional<Integer> getY(@NotNull Location location, @NotNull BlockPos blockPos, @NotNull ServerWorld world,
+                                   int minY, int maxY) {
+        final int highestY = getHighestYAt(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        if (location.getWorld().getEnvironment().equals(World.Environment.NETHER)) {
+            for (int y = minY + 1; y < Math.min(highestY, maxY); y++) {
+                if (isSafeLocation(world, blockPos, y)) {
+                    return Optional.of(y);
+                }
+            }
+            return Optional.empty();
+        } else {
+            final String worldName = location.getWorld().getName();
+            final int y = Math.max(getMinHeight(world, worldName), Math.min(highestY + 1, getMaxHeight(world, worldName)));
+            return isSafeLocation(world, blockPos, y) ? Optional.of(y) : Optional.empty();
+        }
     }
 
     private int getMinHeight(ServerWorld world, String worldName) {

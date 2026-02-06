@@ -389,7 +389,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         public static World adapt(@NotNull net.minecraft.world.World world) {
             return World.from(
                     world.getRegistryKey().getValue().asMinimalString(),
-                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
+                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes()),
+                    World.Environment.match(world.getRegistryKey().getValue().asMinimalString())
             );
         }
 

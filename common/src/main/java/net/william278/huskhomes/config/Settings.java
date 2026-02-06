@@ -361,7 +361,7 @@ public final class Settings {
         @Comment({"Set the maximum random teleportation height for each world", "List of world_name:height pairs"})
         private List<String> maxHeight = Lists.newArrayList();
 
-        @Comment("List of worlds in which /rtp is disabled. Please note that /rtp does not work well in the nether.")
+        @Comment("List of worlds in which /rtp is disabled.")
         private List<String> restrictedWorlds = List.of("world_nether", "world_the_end");
 
         public boolean isWorldRtpRestricted(@NotNull World world) {

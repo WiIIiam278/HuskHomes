@@ -362,7 +362,7 @@ public final class Settings {
         private List<String> maxHeight = Lists.newArrayList();
 
         @Comment("List of worlds in which /rtp is disabled.")
-        private List<String> restrictedWorlds = List.of("world_nether", "world_the_end");
+        private List<String> restrictedWorlds = List.of("world_the_end");
 
         public boolean isWorldRtpRestricted(@NotNull World world) {
             final String name = world.getName();

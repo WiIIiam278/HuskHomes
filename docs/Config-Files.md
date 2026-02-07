@@ -6,6 +6,7 @@ This page contains the configuration structure for HuskHomes.
   - 📄 `server.yml`: (Cross-server setups only) Server ID configuration
   - 📄 `spawn.yml`: Local saved server spawn position. Use /setspawn to generate this file
   - 📄 `messages-xx-xx.yml`: Plugin locales, formatted in MineDown (see [[Translations]])
+  - 📄 `safety/unsafe_blocks.yml`: If exists, overrides the built-in unsafe block list
 
 ## Example files
 <details>

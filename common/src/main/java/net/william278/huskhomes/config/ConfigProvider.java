@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public interface ConfigProvider {
 
@@ -183,9 +184,28 @@ public interface ConfigProvider {
     void setUnsafeBlocks(@NotNull UnsafeBlocks unsafeBlocks);
 
     /**
-     * Load the unsafe blocks from the internal resource file.
+     * Load the unsafe blocks from the config directory, falling back to the internal resource file.
      */
     default void loadUnsafeBlocks() {
+        final Path path = getConfigDirectory().resolve("safety/unsafe_blocks.yml");
+        if (Files.exists(path)) {
+            try {
+                setUnsafeBlocks(YamlConfigurations.load(
+                        path,
+                        UnsafeBlocks.class,
+                        YAML_CONFIGURATION_PROPERTIES.build()
+                ));
+                getPlugin().log(Level.INFO, "Loaded custom unsafe blocks");
+                return;
+            } catch (Exception e) {
+                getPlugin().log(
+                        Level.WARNING,
+                        "An error occurred loading custom unsafe blocks. Will load built-in file instead.",
+                        e
+                );
+            }
+        }
+
         try (InputStream input = getResource("safety/unsafe_blocks.yml")) {
             setUnsafeBlocks(YamlConfigurations.read(
                     input,

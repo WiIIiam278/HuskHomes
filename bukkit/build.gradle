@@ -12,7 +12,7 @@ dependencies {
     compileOnly 'net.william278:minedown:1.8.2'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'me.clip:placeholderapi:2.12.0'
+    compileOnly 'me.clip:placeholderapi:2.12.2'
     compileOnly('net.essentialsx:EssentialsX:2.21.1') {
         exclude group: 'org.spigotmc', module: 'spigot-api'
     }

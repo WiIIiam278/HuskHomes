@@ -202,3 +202,5 @@ locales:
   tpaall_command_description: 'Yêu cầu mọi người dịch chuyển đến chỗ bạn'
   tpall_command_description: 'Dịch chuyển mọi người đến vị trí của bạn'
   huskhomes_command_description: 'Xem thông tin về Plugin & tải lại Configs'
+  teleporting_back_location_saved: 'Vị trí trở lại đã được lưu.'
+

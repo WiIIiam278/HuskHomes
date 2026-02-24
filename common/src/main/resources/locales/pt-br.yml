@@ -202,3 +202,4 @@ locales:
   tpaall_command_description: 'Solicite que todos se teleportem até você'
   tpall_command_description: 'Teleporte todos para a sua posição'
   huskhomes_command_description: 'Veja informações do plugin e recarregue as configurações'
+  teleporting_back_location_saved: 'Local de retorno salvo.'

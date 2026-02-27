@@ -198,6 +198,7 @@ public class FabricUser extends OnlineUser {
         plugin.runSync(() -> {
             player.stopRiding();
             player.getPassengerList().forEach(Entity::stopRiding);
+            player.fallDistance = 0f;
             //#if MC>=12104
             player.teleport(
                     world, location.getX(), location.getY(), location.getZ(),

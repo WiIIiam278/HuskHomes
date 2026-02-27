@@ -126,6 +126,7 @@ public class BukkitUser extends OnlineUser {
         plugin.runSync(() -> {
             bukkitPlayer.leaveVehicle();
             bukkitPlayer.eject();
+            bukkitPlayer.setFallDistance(0f);
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
                 PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 return;

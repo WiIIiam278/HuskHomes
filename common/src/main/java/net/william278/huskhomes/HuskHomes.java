@@ -40,7 +40,14 @@ import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.random.RandomTeleportProvider;
 import net.william278.huskhomes.user.ConsoleUser;
 import net.william278.huskhomes.user.UserProvider;
-import net.william278.huskhomes.util.*;
+import net.william278.huskhomes.util.AudiencesProvider;
+import net.william278.huskhomes.util.DumpProvider;
+import net.william278.huskhomes.util.GsonProvider;
+import net.william278.huskhomes.util.MetaProvider;
+import net.william278.huskhomes.util.SavePositionProvider;
+import net.william278.huskhomes.util.Task;
+import net.william278.huskhomes.util.TextValidator;
+import net.william278.huskhomes.util.TransactionResolver;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -101,9 +108,6 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
             loadHooks(PluginHook.Register.ON_ENABLE);
             registerHooks(PluginHook.Register.ON_ENABLE);
             loadAPI();
-            if (getPluginVersion().getMetadata().isBlank()) {
-                loadMetrics();
-            }
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst enabling HuskHomes", e);
             disablePlugin();

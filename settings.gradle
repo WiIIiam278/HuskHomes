@@ -26,16 +26,16 @@ include(
 
 
 // Fabric
-include("fabric")
-project(":fabric").with {
-    projectDir = file("fabric/")
-    buildFileName = "root.gradle"
-}
-
-file('fabric').listFiles((FileFilter) ((File file) -> file.isDirectory() && file.name ==~ /(\d+)\.(\d+)(\.(\d+))?/)).each {
-    include("fabric:$it.name")
-    project(":fabric:$it.name").with {
-        projectDir = file("fabric/${it.name}")
-        buildFileName = '../build.gradle'
-    }
-}
+//include("fabric")
+//project(":fabric").with {
+//    projectDir = file("fabric/")
+//    buildFileName = "root.gradle"
+//}
+//
+//file('fabric').listFiles((FileFilter) ((File file) -> file.isDirectory() && file.name ==~ /(\d+)\.(\d+)(\.(\d+))?/)).each {
+//    include("fabric:$it.name")
+//    project(":fabric:$it.name").with {
+//        projectDir = file("fabric/${it.name}")
+//        buildFileName = '../build.gradle'
+//    }
+//}

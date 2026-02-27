@@ -121,7 +121,8 @@ public abstract class Broker implements MessageHandler {
     @Getter
     public enum Type {
         PLUGIN_MESSAGE("Plugin Messages"),
-        REDIS("Redis");
+        REDIS("Redis"),
+        CUSTOM("Custom");
 
         @NotNull
         private final String displayName;

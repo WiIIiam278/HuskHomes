@@ -20,6 +20,7 @@
 package net.william278.huskhomes.event;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
@@ -123,6 +124,12 @@ public interface EventDispatcher {
 
     @NotNull
     IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter);
+
+    @NotNull
+    IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message);
+
+    @NotNull
+    IBrokerChangeServerEvent getBrokerChangeServerEvent(@NotNull OnlineUser user, @NotNull String server);
 
     @NotNull
     HuskHomes getPlugin();

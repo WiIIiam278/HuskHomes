@@ -19,6 +19,7 @@
 
 package net.william278.huskhomes.event;
 
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
@@ -137,6 +138,16 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     default @NotNull IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter) {
         return new DeleteAllWarpsEvent(deleter);
+    }
+
+    @Override
+    default @NotNull IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message) {
+        return new BrokerMessageSendEvent(user, subChannelId, message);
+    }
+
+    @Override
+    default @NotNull IBrokerChangeServerEvent getBrokerChangeServerEvent(@NotNull OnlineUser user, @NotNull String server) {
+        return new BrokerChangeServerEvent(user, server);
     }
 
 }

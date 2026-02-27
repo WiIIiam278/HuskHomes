@@ -163,6 +163,19 @@ subprojects {
         shadowJar.dependsOn(sourcesJar, javadocJar)
 
         publishing {
+            repositories {
+                maven {
+                    name = "minehut"
+                    url = uri("https://maven.minehut.com/artifactory/minehut")
+
+
+                    credentials {
+                        username = System.getenv("MAVEN_AUTH_USR")
+                        password = System.getenv("MAVEN_AUTH_PSW")
+                    }
+                }
+            }
+
             if (['common'].contains(project.name)) {
                 publications {
                     mavenJavaCommon(MavenPublication) {

@@ -26,6 +26,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.command.BackCommand;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportEvent;
+import net.william278.huskhomes.network.CustomBroker;
 import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.network.Payload;
 import net.william278.huskhomes.network.PluginMessageBroker;
@@ -137,7 +138,13 @@ public class Teleport implements Completable {
             }
 
             plugin.getDatabase().setCurrentTeleport(teleporter, this);
-            plugin.getBroker().ifPresent(b -> ((PluginMessageBroker) b).changeServer(teleporter, target.getServer()));
+            plugin.getBroker().ifPresent(b -> {
+                if (b instanceof final PluginMessageBroker pluginMessageBroker) {
+                    pluginMessageBroker.changeServer(teleporter, target.getServer());
+                } else if (b instanceof CustomBroker customBroker) {
+                    customBroker.changeServer(teleporter, target.getServer());
+                }
+            });
         });
     }
 

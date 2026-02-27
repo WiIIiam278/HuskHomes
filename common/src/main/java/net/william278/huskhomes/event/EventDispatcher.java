@@ -126,7 +126,7 @@ public interface EventDispatcher {
     IDeleteAllWarpsEvent getDeleteAllWarpsEvent(@NotNull CommandUser deleter);
 
     @NotNull
-    IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message);
+    IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull String message);
 
     @NotNull
     IBrokerChangeServerEvent getBrokerChangeServerEvent(@NotNull OnlineUser user, @NotNull String server);

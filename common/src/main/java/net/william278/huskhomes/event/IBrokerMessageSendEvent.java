@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.event;
 
-import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,8 +31,8 @@ public interface IBrokerMessageSendEvent extends Cancellable {
     String getSubChannelId();
 
     @NotNull
-    Message getMessage();
+    String getMessage();
 
-    void setMessage(@NotNull Message message);
+    void setMessage(@NotNull String message);
 
 }

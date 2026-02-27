@@ -34,16 +34,16 @@ public class CustomBroker extends Broker {
         // No setup
     }
 
-    public final void onReceive(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message) {
+    public final void onReceive(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull String message) {
         if (!subChannelId.equals(getSubChannelId())) {
             return;
         }
-        super.handle(user, message);
+        super.handle(user, plugin.getMessageFromJson(message));
     }
 
     @Override
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
-        plugin.fireEvent(plugin.getBrokerMessageSendEvent(sender, getSubChannelId(), message), null);
+        plugin.fireEvent(plugin.getBrokerMessageSendEvent(sender, getSubChannelId(), plugin.getGson().toJson(message)), null);
     }
 
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {

@@ -32,10 +32,10 @@ public class BrokerMessageSendEvent extends Event implements IBrokerMessageSendE
 
     private final OnlineUser user;
     private String subChannelId;
-    private Message message;
+    private String message;
     private boolean cancelled;
 
-    public BrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message) {
+    public BrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull String message) {
         this.user = user;
         this.message = message;
     }
@@ -64,12 +64,12 @@ public class BrokerMessageSendEvent extends Event implements IBrokerMessageSendE
     }
 
     @Override
-    public @NotNull Message getMessage() {
+    public @NotNull String getMessage() {
         return message;
     }
 
     @Override
-    public void setMessage(@NotNull Message message) {
+    public void setMessage(@NotNull String message) {
         this.message = message;
     }
 

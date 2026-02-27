@@ -141,7 +141,7 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     }
 
     @Override
-    default @NotNull IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull Message message) {
+    default @NotNull IBrokerMessageSendEvent getBrokerMessageSendEvent(@NotNull OnlineUser user, @NotNull String subChannelId, @NotNull String message) {
         return new BrokerMessageSendEvent(user, subChannelId, message);
     }
 

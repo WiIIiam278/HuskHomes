@@ -131,17 +131,20 @@ public final class NormalDistributionEngine extends RandomTeleportEngine {
 
     @Override
     public CompletableFuture<Optional<Position>> getRandomPosition(@NotNull World world, @NotNull String[] args) {
-        CompletableFuture<Optional<Position>> future = generateSafeLocation(world)
-                .thenApply(loc -> loc.map(resolved -> Position.at(resolved, plugin.getServerName())));
-        for (int i = 1; i <= maxAttempts; i++) {
-            future = future.thenCompose(result -> {
-                if (result.isPresent()) {
-                    return CompletableFuture.completedFuture(result);
-                }
-                return generateSafeLocation(world)
-                        .thenApply(loc -> loc.map(resolved -> Position.at(resolved, plugin.getServerName())));
-            });
+        return attemptRandomPosition(world, 0);
+    }
+
+    private CompletableFuture<Optional<Position>> attemptRandomPosition(@NotNull World world, int attempt) {
+        if (attempt > maxAttempts) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-        return future;
+        return generateSafeLocation(world).thenCompose(location -> {
+            if (location.isPresent()) {
+                return CompletableFuture.completedFuture(
+                        location.map(resolved -> Position.at(resolved, plugin.getServerName()))
+                );
+            }
+            return attemptRandomPosition(world, attempt + 1);
+        });
     }
 }

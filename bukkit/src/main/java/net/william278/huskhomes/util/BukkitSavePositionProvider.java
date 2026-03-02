@@ -67,8 +67,8 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
      */
     private Optional<Location> findSafeLocationNear(@NotNull Location location, @NotNull ChunkSnapshot chunk,
                                                     int minY, int maxY) {
-        final int chunkX = ((int) location.getX()) & 0xF;
-        final int chunkZ = ((int) location.getZ()) & 0xF;
+        final int chunkX = ((int) Math.floor(location.getX())) & 0xF;
+        final int chunkZ = ((int) Math.floor(location.getZ())) & 0xF;
 
         for (int dx = -SEARCH_RADIUS; dx <= SEARCH_RADIUS; dx++) {
             for (int dz = -SEARCH_RADIUS; dz <= SEARCH_RADIUS; dz++) {
@@ -80,18 +80,8 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
 
                 final Optional<Integer> y = getY(location, chunk, minY, maxY, x, z);
                 if (y.isPresent()) {
-                    double locx = Math.floor(location.getX()) + dx;
-                    if (locx < 0) {
-                        locx += 1.5d;
-                    } else {
-                        locx = locx + 0.5d;
-                    }
-                    double locz = Math.floor(location.getZ()) + dz;
-                    if (locz < 0) {
-                        locz += 1.5d;
-                    } else {
-                        locz = locz + 0.5d;
-                    }
+                    double locx = Math.floor(location.getX()) + dx + 0.5d;
+                    double locz = Math.floor(location.getZ()) + dz + 0.5d;
                     return Optional.of(Location.at(
                             locx,
                             y.get(),

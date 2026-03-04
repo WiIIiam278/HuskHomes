@@ -70,7 +70,7 @@ public abstract class EventListener {
                 // Synchronize the global player list
                 plugin.runSyncDelayed(() -> this.updateUserList(
                                 onlineUser,
-                                plugin.getOnlineUsers().stream().map(u -> (User) u).toList()),
+                                List.copyOf(plugin.getOnlineUsers()).stream().map(u -> (User) u).toList()),
                         onlineUser,
                         40L
                 );
@@ -117,7 +117,7 @@ public abstract class EventListener {
 
             // Update global lists
             if (plugin.getSettings().getCrossServer().isEnabled()) {
-                final List<User> users = plugin.getOnlineUsers().stream().map(u -> (User) u).toList();
+                final List<User> users = List.copyOf(plugin.getOnlineUsers()).stream().map(u -> (User) u).toList();
                 if (plugin.getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
                     this.updateUserList(online, users);
                     return;

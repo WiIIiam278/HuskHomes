@@ -20,6 +20,7 @@
 package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.teleport.Teleport;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,7 @@ public class TpHereCommand extends InGameCommand implements UserListTabCompletab
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Optional<String> optionalTarget = parseStringArg(args, 0);
-        if (optionalTarget.isEmpty()) {
+        if (optionalTarget.isEmpty() || optionalTarget.get().equals(Message.TARGET_ALL)) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return;

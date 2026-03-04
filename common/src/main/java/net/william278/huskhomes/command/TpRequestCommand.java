@@ -21,6 +21,7 @@ package net.william278.huskhomes.command;
 
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.manager.RequestsManager;
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
@@ -52,7 +53,7 @@ public class TpRequestCommand extends InGameCommand implements UserListTabComple
         }
 
         final Optional<String> optionalTarget = parseStringArg(args, 0);
-        if (optionalTarget.isEmpty()) {
+        if (optionalTarget.isEmpty() || optionalTarget.get().equals(Message.TARGET_ALL)) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(onlineUser::sendMessage);
             return;

@@ -21,6 +21,7 @@ package net.william278.huskhomes.command;
 
 import com.google.common.collect.Lists;
 import net.william278.huskhomes.HuskHomes;
+import net.william278.huskhomes.network.Message;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.*;
 import net.william278.huskhomes.user.CommandUser;
@@ -88,6 +89,13 @@ public class TpCommand extends Command implements TabCompletable {
     // Execute a teleport
     private void execute(@NotNull CommandUser executor, @NotNull Teleportable teleporter, @NotNull Target target,
                          @NotNull String[] args) {
+        if (teleporter.getName().equals(Message.TARGET_ALL) ||
+                (target instanceof Username username && username.getName().equals(Message.TARGET_ALL))) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
         // Build and execute the teleport
         final TeleportBuilder builder = Teleport.builder(plugin)
                 .teleporter(teleporter)

@@ -16,14 +16,14 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.toilet:toilet-fabric:1.0.16+$project.name")
+    modImplementation include("net.william278.toilet:toilet-fabric:1.0.17+$project.name")
     modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Manually include config deps due to the way including api deps works
-    implementation include("de.exlll:configlib-core:4.6.1")
-    implementation include("org.snakeyaml:snakeyaml-engine:2.7")
-    implementation include('org.apache.commons:commons-pool2:2.12.1')
+    implementation include("de.exlll:configlib-core:4.8.1")
+    implementation include("org.snakeyaml:snakeyaml-engine:2.10")
+    implementation include('org.apache.commons:commons-pool2:2.13.1')
     implementation include("redis.clients.authentication:redis-authx-core:0.1.1-beta2")
 
     // Include driver deps due to no runtime dep loading support
@@ -33,10 +33,10 @@ dependencies {
     implementation include("redis.clients:jedis:$jedis_version")
     implementation include("com.h2database:h2:$h2_driver_version")
 
-    compileOnly 'org.jetbrains:annotations:26.0.2'
-    compileOnly 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.jetbrains:annotations:26.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
 
     implementation include(project(path: ":common"))
     project(":common").configurations.api.dependencies.each { dependency ->

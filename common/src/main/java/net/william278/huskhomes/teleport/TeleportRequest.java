@@ -46,6 +46,9 @@ public class TeleportRequest {
     @SerializedName("requester_position")
     private Position requesterPosition;
     @Expose
+    @SerializedName("recipient_position")
+    private Position recipientPosition;
+    @Expose
     @SerializedName("expiry_time")
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)

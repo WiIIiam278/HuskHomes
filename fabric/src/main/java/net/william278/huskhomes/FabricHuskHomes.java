@@ -46,6 +46,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.WorldProperties;
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.api.FabricHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -108,6 +109,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
+    private final Set<UUID> warmupDamagedUsers = Sets.newConcurrentHashSet();
     private final Map<UUID, OnlineUser> onlineUserMap = Maps.newHashMap();
     private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
@@ -196,10 +198,19 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public void setWorldSpawn(@NotNull Position position) {
         final ServerWorld world = Adapter.adapt(position, minecraftServer);
         if (world != null) {
-            world.setSpawnPos(
+            //#if MC>=12111
+            world.setSpawnPoint(WorldProperties.SpawnPoint.create(
+                    world.getRegistryKey(),
                     BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
-                    position.getYaw()
-            );
+                    position.getYaw(),
+                    0
+            ));
+            //#else
+            //$$ world.setSpawnPos(
+            //$$        BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
+            //$$        position.getYaw()
+            //$$ );
+            //#endif
         }
     }
 
@@ -379,7 +390,8 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         public static World adapt(@NotNull net.minecraft.world.World world) {
             return World.from(
                     world.getRegistryKey().getValue().asMinimalString(),
-                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes())
+                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes()),
+                    World.Environment.match(world.getRegistryKey().getValue().asMinimalString())
             );
         }
 

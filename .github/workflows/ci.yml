@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout for CI 🛎️'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 'Set up JDK 21 📦'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -32,7 +32,7 @@ jobs:
           SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         if: success() || failure() # Continue on failure
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
@@ -54,9 +54,9 @@ jobs:
           distro-names: |
             paper
             fabric-1.21.1
-            fabric-1.21.4
             fabric-1.21.5
             fabric-1.21.8
+            fabric-1.21.11
           distro-groups: |
             paper
             fabric
@@ -66,15 +66,15 @@ jobs:
           distro-descriptions: |
             Paper
             Fabric 1.21.1
-            Fabric 1.21.4
             Fabric 1.21.5
             Fabric 1.21.8
+            Fabric 1.21.11
           files: |
             target/HuskHomes-Paper-${{ env.version_name }}.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
-            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.4.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.5.jar
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.8.jar
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.11.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         with:
@@ -122,6 +122,7 @@ jobs:
             1.21.5
             1.21.6
             1.21.8
+            1.21.11
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -150,34 +151,6 @@ jobs:
             fabric
           game-versions: |
             1.21.1
-          java: 21
-      - name: 'Fabric 1.21.4: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
-        if: success() || failure()
-        with:
-          modrinth-id: J6U9o3JG
-          modrinth-featured: false
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: 849217
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          dependencies: |
-            fabric-api | requires | *
-            dynmap | suggests | *
-            bluemap | suggests | *
-            pl3xmap | suggests | *
-            luckperms | suggests | *
-            plan | suggests | *
-            impactor | suggests | *
-            placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.4.jar
-          name: HuskHomes (Fabric) v${{ env.version_name }}
-          version: ${{ env.version_name }}
-          version-type: alpha
-          changelog: ${{ github.event.head_commit.message }}
-          loaders: |
-            fabric
-          game-versions: |
-            1.21.4
           java: 21
       - name: 'Fabric 1.21.5: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar
@@ -234,4 +207,32 @@ jobs:
             fabric
           game-versions: |
             1.21.8
+          java: 21
+      - name: 'Fabric 1.21.11: Publish to Modrinth & CurseForge 🧵'
+        uses: WiIIiam278/mc-publish@hangar
+        if: success() || failure()
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            dynmap | suggests | *
+            bluemap | suggests | *
+            pl3xmap | suggests | *
+            luckperms | suggests | *
+            plan | suggests | *
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.11.jar
+          name: HuskHomes (Fabric) v${{ env.version_name }}
+          version: ${{ env.version_name }}
+          version-type: alpha
+          changelog: ${{ github.event.head_commit.message }}
+          loaders: |
+            fabric
+          game-versions: |
+            1.21.11
           java: 21

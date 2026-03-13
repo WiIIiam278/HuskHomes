@@ -74,7 +74,7 @@ public class World {
         public static Environment match(@NotNull String name) {
             return switch (name.toLowerCase(Locale.ENGLISH)) {
                 case "overworld" -> OVERWORLD;
-                case "nether" -> NETHER;
+                case "nether", "the_nether" -> NETHER;
                 case "the_end" -> THE_END;
                 default -> CUSTOM;
             };

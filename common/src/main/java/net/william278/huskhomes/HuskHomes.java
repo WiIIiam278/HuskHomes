@@ -228,6 +228,15 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
     Set<UUID> getCurrentlyOnWarmup();
 
     /**
+     * Returns a set of users who have taken damage during a teleport warmup.
+     *
+     * @return a set of damaged users on warmup
+     * @since 4.9.11
+     */
+    @NotNull
+    Set<UUID> getWarmupDamagedUsers();
+
+    /**
      * Returns if the given user is currently warming up to teleport to a home.
      *
      * @param userUuid The user to check.
@@ -235,6 +244,17 @@ public interface HuskHomes extends Task.Supplier, EventDispatcher, SavePositionP
      */
     default boolean isWarmingUp(@NotNull UUID userUuid) {
         return this.getCurrentlyOnWarmup().contains(userUuid);
+    }
+
+    /**
+     * Returns if the given user has taken damage during their teleport warmup.
+     *
+     * @param userUuid The user to check.
+     * @return {@code true} if the user has taken damage while warming up
+     * @since 4.9.11
+     */
+    default boolean hasTakenWarmupDamage(@NotNull UUID userUuid) {
+        return getWarmupDamagedUsers().contains(userUuid);
     }
 
     /**

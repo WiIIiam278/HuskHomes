@@ -308,6 +308,12 @@ public class RequestsManager {
                     "teleport_request_" + (accepted ? "accepted" : "declined") + "_confirmation",
                     request.getRequesterName()
             ).ifPresent(recipient::sendMessage);
+            // snapshot the recipient's position if the request is a strict tpa request
+            if (accepted && request.getType() == TeleportRequest.Type.TPA) {
+                if (plugin.getSettings().getGeneral().isStrictTpaRequests()) {
+                    request.setRecipientPosition(recipient.getPosition());
+                }
+            }
 
             // Find the requester and inform them of the response
             final Optional<OnlineUser> localRequester = plugin.getOnlineUserExact(request.getRequesterName());
@@ -363,11 +369,17 @@ public class RequestsManager {
 
         // If the request is a tpa request, teleport the requester to the recipient
         if (accepted && (request.getType() == TeleportRequest.Type.TPA)) {
-            Teleport.builder(plugin)
+            final TeleportBuilder builder = Teleport.builder(plugin)
                     .teleporter(requester)
-                    .target(request.getRecipientName())
-                    .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST)
-                    .buildAndComplete(true);
+                    .actions(TransactionResolver.Action.ACCEPT_TELEPORT_REQUEST);
+
+            // strictTPA: use the recipient's position at the time of acceptance
+            if (plugin.getSettings().getGeneral().isStrictTpaRequests() && request.getRecipientPosition() != null) {
+                builder.target(request.getRecipientPosition());
+            } else {
+                builder.target(request.getRecipientName());
+            }
+            builder.buildAndComplete(true);
         }
     }
 

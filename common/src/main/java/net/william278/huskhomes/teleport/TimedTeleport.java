@@ -42,7 +42,6 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
     public static final String BYPASS_PERMISSION = "huskhomes.bypass_teleport_warmup";
     private final OnlineUser teleporter;
     private final Position startLocation;
-    private final double startHealth;
     private final int warmupTime;
     private Task.Repeating task;
     private int timeLeft;
@@ -52,7 +51,6 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
                             @NotNull List<TransactionResolver.Action> actions, @NotNull HuskHomes plugin) {
         super(teleporter, executor, target, type, updateLastPosition, actions, plugin);
         this.startLocation = teleporter.getPosition();
-        this.startHealth = teleporter.getHealth();
         this.warmupTime = warmupTime;
         this.timeLeft = Math.max(warmupTime, 0);
         this.teleporter = teleporter;
@@ -87,6 +85,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
     private void process() {
         plugin.fireEvent(plugin.getTeleportWarmupEvent(this, timeLeft), (event) -> {
             plugin.getCurrentlyOnWarmup().add(teleporter.getUuid());
+            plugin.getWarmupDamagedUsers().remove(teleporter.getUuid());
             plugin.getLocales().getLocale("teleporting_warmup_start", Integer.toString(timeLeft))
                     .ifPresent(teleporter::sendMessage);
 
@@ -98,12 +97,22 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
 
     @Override
     public void run() {
+        // Cancel if they move or take damage during warmup (including on the final second)
+        if (shouldCancelWarmup()) {
+            finishWarmup();
+            return;
+        }
+
         // Display a countdown action bar message
         if (timeLeft > 0) {
             plugin.getSettings().getGeneral().getSoundEffects().get(Settings.SoundEffectAction.TELEPORTATION_WARMUP)
                     .ifPresent(teleporter::playSound);
             plugin.getLocales().getLocale("teleporting_action_bar_warmup", Integer.toString(timeLeft))
                     .ifPresent(this::sendStatusMessage);
+
+            // Decrement the countdown timer (warmup completes when timeLeft reaches 0 on a subsequent tick)
+            timeLeft--;
+            return;
         } else {
             plugin.getLocales().getLocale("teleporting_action_bar_processing")
                     .ifPresent(this::sendStatusMessage);
@@ -112,23 +121,25 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
                 super.execute();
             } catch (TeleportationException e) {
                 e.displayMessage(teleporter);
-                task.cancel();
-                plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
+                finishWarmup();
                 return;
             }
         }
 
-        // Tick (decrement) the timed teleport timer and end it if done
-        if (tickAndGetIfDone()) {
-            task.cancel();
-            plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
-        }
+        // Teleport completed
+        finishWarmup();
+    }
+
+    private void finishWarmup() {
+        task.cancel();
+        plugin.getCurrentlyOnWarmup().remove(teleporter.getUuid());
+        plugin.getWarmupDamagedUsers().remove(teleporter.getUuid());
     }
 
     /**
-     * Ticks a timed teleport, decrementing the time left until the teleport is complete.
+     * Checks if a timed teleport warmup should be cancelled.
      *
-     * <p>A timed teleport will be canceled if certain criteria are met:
+     * <p>A timed teleport warmup will be cancelled if certain criteria are met:
      * <ul>
      *     <li>The player has left the server</li>
      *     <li>The plugin is disabling</li>
@@ -136,15 +147,12 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
      *     <li>The player has taken damage (though they may heal, have status ailments or lose/gain hunger)</li>
      * </ul>
      *
-     * @return {@code true} if the warmup is complete, {@code false} otherwise
+     * @return {@code true} if the warmup was cancelled, {@code false} otherwise
      */
-    private boolean tickAndGetIfDone() {
-        if (timeLeft <= 0) {
-            return true;
-        }
-
+    private boolean shouldCancelWarmup() {
         // Cancel the timed teleport if the player takes damage
-        if (hasTeleporterTakenDamage() && plugin.getSettings().getGeneral().isTeleportWarmupCancelOnDamage()) {
+        if (plugin.getSettings().getGeneral().isTeleportWarmupCancelOnDamage()
+                && plugin.hasTakenWarmupDamage(teleporter.getUuid())) {
             plugin.fireEvent(plugin.getTeleportWarmupCancelledEvent(this, warmupTime,
                     timeLeft, ITeleportWarmupCancelledEvent.CancelReason.PLAYER_DAMAGE), null);
             plugin.getLocales().getLocale("teleporting_cancelled_damage")
@@ -169,8 +177,6 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
             return true;
         }
 
-        // Decrement the countdown timer
-        timeLeft--;
         return false;
     }
 
@@ -184,10 +190,6 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
                 + Math.abs(startLocation.getY() - teleporter.getPosition().getY())
                 + Math.abs(startLocation.getZ() - teleporter.getPosition().getZ());
         return movementDistance > maxMovementDistance;
-    }
-
-    private boolean hasTeleporterTakenDamage() {
-        return teleporter.getHealth() < startHealth;
     }
 
 }

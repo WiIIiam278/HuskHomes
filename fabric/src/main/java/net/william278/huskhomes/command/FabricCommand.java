@@ -25,6 +25,10 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.PermissionCheckEvent;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.util.TriState;
+//#if MC>=12111
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
+//#endif
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.william278.huskhomes.FabricHuskHomes;
@@ -50,8 +54,16 @@ public class FabricCommand {
 
     public void register(@NotNull CommandDispatcher<ServerCommandSource> dispatcher) {
         // Register brigadier command
+        final int permissionLevel = command.isOperatorCommand() ? 3 : 0;
         final Predicate<ServerCommandSource> predicate = Permissions
-                .require(command.getPermission(), command.isOperatorCommand() ? 3 : 0);
+                .require(
+                        command.getPermission(),
+                        //#if MC>=1.21.11
+                        PermissionLevel.fromLevel(permissionLevel)
+                        //#else
+                        //$$ permissionLevel
+                        //#endif
+                );
         final LiteralArgumentBuilder<ServerCommandSource> builder = literal(command.getName())
                 .requires(predicate).executes(getBrigadierExecutor());
         plugin.getPermissions().put(command.getPermission(), command.isOperatorCommand());
@@ -66,7 +78,7 @@ public class FabricCommand {
         permissions.forEach((permission, isOp) -> plugin.getPermissions().put(permission, isOp));
         PermissionCheckEvent.EVENT.register((player, node) -> {
             if (permissions.containsKey(node) && permissions.get(node) &&
-                    (!(player instanceof ServerCommandSource source) || source.hasPermissionLevel(3))) {
+                    (!(player instanceof ServerCommandSource source) || hasPermissionLevel(source, 3))) {
                 return TriState.TRUE;
             }
             return TriState.DEFAULT;
@@ -82,6 +94,14 @@ public class FabricCommand {
             dispatcher.register(literal("huskhomes:%s".formatted(alias)).requires(predicate)
                     .executes(getBrigadierExecutor()).redirect(node));
         });
+    }
+
+    private boolean hasPermissionLevel(ServerCommandSource source, int level) {
+        //#if MC>=12111
+        return source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(level)));
+        //#else
+        //$$ return source.hasPermissionLevel(level);
+        //#endif
     }
 
     private com.mojang.brigadier.Command<ServerCommandSource> getBrigadierExecutor() {

@@ -23,7 +23,19 @@ ext {
     set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
+    set 'h2_driver_version', h2_driver_version.toString()
     set 'postgresql_driver_version', postgresql_driver_version.toString()
+
+    set 'resource_tokens', [
+            version                 : version.toString(),
+            description             : description.toString(),
+            jedis_version           : jedis_version.toString(),
+            sqlite_driver_version   : sqlite_driver_version.toString(),
+            mysql_driver_version    : mysql_driver_version.toString(),
+            mariadb_driver_version  : mariadb_driver_version.toString(),
+            h2_driver_version       : h2_driver_version.toString(),
+            postgresql_driver_version: postgresql_driver_version.toString()
+    ]
 }
 
 publishing {
@@ -111,7 +123,7 @@ allprojects {
     processResources {
         filesMatching(['**/*.json', '**/*.yml']) {
             filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
-                    tokens: rootProject.ext.properties
+                    tokens: rootProject.ext.resource_tokens
         }
     }
 }

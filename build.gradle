@@ -1,9 +1,20 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
+// CadixDev licenser 0.6.1 (plugin portal) stack-overflows on Gradle 9; JitPack build includes the upstream fix.
+buildscript {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+        classpath 'com.github.CadixDev:licenser:8f93eff753'
+    }
+}
 
 plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta17'
-    id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'dev.architectury.loom' version '1.13-SNAPSHOT' apply false
+    id 'gg.essential.loom-no-remap' version '1.15.50' apply false
+    id 'gg.essential.loom' version '1.15.50' apply false
     id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.3'
     id 'maven-publish'
@@ -63,8 +74,11 @@ allprojects {
     }
 
     apply plugin: 'com.gradleup.shadow'
-    apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
+
+    if (!project.parent?.name?.equals('fabric')) {
+        apply plugin: 'org.cadixdev.licenser'
+    }
 
     compileJava.options.encoding = 'UTF-8'
     compileJava.options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
@@ -75,6 +89,7 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
         maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://libraries.minecraft.net/' }
@@ -88,7 +103,6 @@ allprojects {
         maven { url 'https://repo.essentialsx.net/releases/' }
         maven { url 'https://repo.mikeprimm.com/' }
         maven { url 'https://maven.impactdev.net/repository/development' }
-        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
@@ -98,10 +112,12 @@ allprojects {
         testCompileOnly 'org.jetbrains:annotations:26.1.0'
     }
 
-    license {
-        header = rootProject.file('HEADER')
-        include '**/*.java'
-        newLine = true
+    if (plugins.hasPlugin('org.cadixdev.licenser')) {
+        license {
+            header = rootProject.file('HEADER')
+            include '**/*.java'
+            newLine = true
+        }
     }
 
     test {
@@ -130,12 +146,26 @@ subprojects {
     } else {
         name += "-${project.name.capitalize()}"
     }
-    archivesBaseName = name
+    base {
+        archivesName = name
+    }
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        apply plugin: 'dev.architectury.loom'
-        compileJava.options.release.set 21
+        if (project.name == '26.1.2') {
+            apply plugin: 'gg.essential.loom-no-remap'
+        }
+        apply plugin: 'gg.essential.loom'
+        if (project.name == '26.1.2') {
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(25)
+                }
+            }
+            compileJava.options.release.set 25
+        } else {
+            compileJava.options.release.set 21
+        }
         version += "+mc.${project.name}"
     }
 
@@ -190,14 +220,20 @@ subprojects {
             }
 
             if (project.parent?.name?.equals('fabric')) {
-                publications {
-                    "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
-                        groupId = 'net.william278.huskhomes'
-                        artifactId = 'huskhomes-fabric'
-                        version = "$rootProject.version+$project.name"
-                        artifact remapJar
-                        artifact sourcesJar
-                        artifact javadocJar
+                // remapJar is created in fabric/build.gradle; subprojects {} runs first, so wire Maven artifacts late.
+                def fabricMavenName = "mavenJavaFabric_${project.name.replace('.', '_')}"
+                afterEvaluate {
+                    publishing {
+                        publications {
+                            "$fabricMavenName"(MavenPublication) {
+                                groupId = 'net.william278.huskhomes'
+                                artifactId = 'huskhomes-fabric'
+                                version = "$rootProject.version+$project.name"
+                                artifact tasks.named('remapJar')
+                                artifact sourcesJar
+                                artifact javadocJar
+                            }
+                        }
                     }
                 }
             }

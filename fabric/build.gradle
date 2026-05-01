@@ -9,15 +9,23 @@ repositories {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
+    def toiletFabricDep = project.name == '26.1.2'
+            ? 'net.william278.toilet:toilet-fabric:1.0.17-aa8a465-indev+26.1.2'
+            : "net.william278.toilet:toilet-fabric:1.0.17+$project.name"
+    def isUnobfuscatedRuntime = project.name == '26.1.2'
+
     modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.toilet:toilet-fabric:1.0.17+$project.name")
-    modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
+    modImplementation include(toiletFabricDep)
+    if (!isUnobfuscatedRuntime) {
+        modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
+    }
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Manually include config deps due to the way including api deps works
@@ -44,6 +52,30 @@ dependencies {
     }
 }
 
+if (project.name == '26.1.2') {
+    sourceSets {
+        main {
+            java.srcDir('src/main/java')
+        }
+    }
+
+    tasks.named('compileJava', JavaCompile).configure {
+        source = files(
+                fileTree("$buildDir/preprocessed/main/java") {
+                    exclude 'net/william278/huskhomes/hook/FabricPlaceholderAPIHook.java'
+                    exclude 'net/william278/huskhomes/user/FabricUser.java'
+                    exclude 'net/william278/huskhomes/user/FabricUserProvider.java'
+                    exclude 'net/william278/huskhomes/util/FabricTask.java'
+                },
+                fileTree('src/main/java')
+        )
+    }
+
+    tasks.named('sourcesJar').configure {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}
+
 processResources {
     filesMatching(Arrays.asList("fabric.mod.json")) {
         expand([
@@ -63,14 +95,31 @@ shadowJar {
     exclude '/mappings/*'
 }
 
-remapJar {
-    dependsOn tasks.shadowJar
-    mustRunAfter tasks.shadowJar
-    inputFile = shadowJar.archiveFile.get()
-    addNestedDependencies = true
+if (project.name == '26.1.2') {
+    // Unobfuscated runtimes: no Loom remap step — produce the same layout remapJar used to (shadow → target).
+    tasks.register('remapJar', Jar) {
+        dependsOn jar
+        dependsOn shadowJar
+        mustRunAfter jar
+        mustRunAfter shadowJar
+        from(zipTree(shadowJar.archiveFile.get().asFile))
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        destinationDirectory.set(file("$rootDir/target/"))
+        archiveClassifier.set('')
+        archiveBaseName.set(shadowJar.archiveBaseName.get())
+        archiveVersion.set(shadowJar.archiveVersion.get())
+    }
+    shadowJar.finalizedBy(tasks.named('remapJar'))
+} else {
+    remapJar {
+        dependsOn tasks.shadowJar
+        mustRunAfter tasks.shadowJar
+        inputFile = shadowJar.archiveFile.get()
+        addNestedDependencies = true
 
-    destinationDirectory.set(file("$rootDir/target/"))
-    archiveClassifier.set('')
+        destinationDirectory.set(file("$rootDir/target/"))
+        archiveClassifier.set('')
+    }
+
+    shadowJar.finalizedBy(remapJar)
 }
-
-shadowJar.finalizedBy(remapJar)

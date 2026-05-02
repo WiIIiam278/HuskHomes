@@ -111,7 +111,7 @@ allprojects {
         testCompileOnly 'org.jetbrains:annotations:26.1.0'
     }
 
-    if (plugins.hasPlugin('org.cadixdev.licenser')) {
+    pluginManager.withPlugin('org.cadixdev.licenser') {
         license {
             header = rootProject.file('HEADER')
             include '**/*.java'
@@ -151,7 +151,9 @@ subprojects {
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        apply plugin: 'gg.essential.loom'
+        if (project.name != '26.1.2') {
+            apply plugin: 'gg.essential.loom'
+        }
         if (project.name == '26.1.2') {
             java {
                 toolchain {

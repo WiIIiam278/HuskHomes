@@ -218,12 +218,10 @@ subprojects {
             }
 
             if (project.parent?.name?.equals('fabric')) {
-                // remapJar is created in fabric/build.gradle; subprojects {} runs first, so wire Maven artifacts late.
-                def fabricMavenName = "mavenJavaFabric_${project.name.replace('.', '_')}"
                 afterEvaluate {
                     publishing {
                         publications {
-                            "$fabricMavenName"(MavenPublication) {
+                            "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
                                 groupId = 'net.william278.huskhomes'
                                 artifactId = 'huskhomes-fabric'
                                 version = "$rootProject.version+$project.name"

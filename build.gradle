@@ -1,16 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
-// need to make sure licenser pulls from jitpack, not maven central (they stopped updating publishing on maven central)
-buildscript {
-    repositories {
-        maven { url 'https://jitpack.io' }
-    }
-    dependencies {
-        classpath 'com.github.CadixDev:licenser:8f93eff753'
-    }
-}
-
 plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta17'
     id 'gg.essential.loom' version '1.15.50' apply false
@@ -23,7 +13,7 @@ plugins {
 group 'net.william278'
 version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
-defaultTasks 'licenseFormat', 'build'
+defaultTasks 'build'
 
 ext {
     set 'version', version.toString()
@@ -75,10 +65,6 @@ allprojects {
     apply plugin: 'com.gradleup.shadow'
     apply plugin: 'java'
 
-    if (!project.parent?.name?.equals('fabric')) {
-        apply plugin: 'org.cadixdev.licenser'
-    }
-
     compileJava.options.encoding = 'UTF-8'
     compileJava.options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
     compileJava.options.release.set 17
@@ -109,14 +95,6 @@ allprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testCompileOnly 'org.jetbrains:annotations:26.1.0'
-    }
-
-    pluginManager.withPlugin('org.cadixdev.licenser') {
-        license {
-            header = rootProject.file('HEADER')
-            include '**/*.java'
-            newLine = true
-        }
     }
 
     test {
@@ -168,10 +146,11 @@ subprojects {
     }
 
     jar {
-        from '../LICENSE'
+        from(rootProject.file('LICENSE'))
     }
 
     shadowJar {
+        from(rootProject.file('LICENSE'))
         destinationDirectory.set(file("$rootDir/target"))
         archiveClassifier.set('')
     }

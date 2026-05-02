@@ -14,7 +14,6 @@ pluginManagement {
         id("gg.essential.defaults") version egtVersion
         id("gg.essential.multi-version") version egtVersion
         id("gg.essential.multi-version.root") version egtVersion
-        id("gg.essential.loom-no-remap") version loomVersion
         id("gg.essential.loom") version loomVersion
     }
 }

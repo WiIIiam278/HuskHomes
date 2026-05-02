@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
-// CadixDev licenser 0.6.1 (plugin portal) stack-overflows on Gradle 9; JitPack build includes the upstream fix.
+// need to make sure licenser pulls from jitpack, not maven central (they stopped updating publishing on maven central)
 buildscript {
     repositories {
         maven { url 'https://jitpack.io' }
@@ -13,7 +13,6 @@ buildscript {
 
 plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta17'
-    id 'gg.essential.loom-no-remap' version '1.15.50' apply false
     id 'gg.essential.loom' version '1.15.50' apply false
     id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.3'
@@ -152,9 +151,6 @@ subprojects {
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        if (project.name == '26.1.2') {
-            apply plugin: 'gg.essential.loom-no-remap'
-        }
         apply plugin: 'gg.essential.loom'
         if (project.name == '26.1.2') {
             java {

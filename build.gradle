@@ -219,13 +219,14 @@ subprojects {
 
             if (project.parent?.name?.equals('fabric')) {
                 afterEvaluate {
+                    def publishedJarTask = project.name == '26.1.2' ? tasks.named('shadowJar') : tasks.named('remapJar')
                     publishing {
                         publications {
                             "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
                                 groupId = 'net.william278.huskhomes'
                                 artifactId = 'huskhomes-fabric'
                                 version = "$rootProject.version+$project.name"
-                                artifact tasks.named('remapJar')
+                                artifact publishedJarTask
                                 artifact sourcesJar
                                 artifact javadocJar
                             }

@@ -3,6 +3,8 @@ plugins {
     id 'gg.essential.defaults'
 }
 
+def isUnobfuscatedRuntime = project.name == '26.1.2'
+
 loom.serverOnlyMinecraftJar()
 
 repositories {
@@ -13,10 +15,9 @@ repositories {
 }
 
 dependencies {
-    def toiletFabricDep = project.name == '26.1.2'
+    def toiletFabricDep = isUnobfuscatedRuntime
             ? 'net.william278.toilet:toilet-fabric:1.0.17-aa8a465-indev+26.1.2'
             : "net.william278.toilet:toilet-fabric:1.0.17+$project.name"
-    def isUnobfuscatedRuntime = project.name == '26.1.2'
 
     modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
@@ -52,7 +53,7 @@ dependencies {
     }
 }
 
-if (project.name == '26.1.2') {
+if (isUnobfuscatedRuntime) {
     sourceSets {
         main {
             java.srcDir('src/main/java')
@@ -88,29 +89,14 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadow]
-    destinationDirectory.set(file("$projectDir/build/libs"))
+    destinationDirectory.set(file(isUnobfuscatedRuntime ? "$rootDir/target/" : "$projectDir/build/libs"))
 
     exclude('net.fabricmc:.*')
     exclude('net.kyori:.*')
     exclude '/mappings/*'
 }
 
-if (project.name == '26.1.2') {
-    // Unobfuscated runtimes: no Loom remap step — produce the same layout remapJar used to (shadow → target).
-    tasks.register('remapJar', Jar) {
-        dependsOn jar
-        dependsOn shadowJar
-        mustRunAfter jar
-        mustRunAfter shadowJar
-        from(zipTree(shadowJar.archiveFile.get().asFile))
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        destinationDirectory.set(file("$rootDir/target/"))
-        archiveClassifier.set('')
-        archiveBaseName.set(shadowJar.archiveBaseName.get())
-        archiveVersion.set(shadowJar.archiveVersion.get())
-    }
-    shadowJar.finalizedBy(tasks.named('remapJar'))
-} else {
+if (!isUnobfuscatedRuntime) {
     remapJar {
         dependsOn tasks.shadowJar
         mustRunAfter tasks.shadowJar

@@ -1,9 +1,15 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 plugins {
     id 'gg.essential.multi-version'
     id 'gg.essential.defaults'
 }
 
-def isUnobfuscatedRuntime = project.name == '26.1.2'
+def mcVersionParts = project.name.tokenize('.').collect { it as int }
+def mcMajor = mcVersionParts[0]
+def isUnobfuscatedRuntime = mcMajor >= 26
+project.ext.fabricRuntimeJarTaskName = isUnobfuscatedRuntime ? 'packageFabricJar' : 'remapJar'
 
 loom.serverOnlyMinecraftJar()
 
@@ -19,15 +25,22 @@ dependencies {
             ? 'net.william278.toilet:toilet-fabric:1.0.17-aa8a465-indev+26.1.2'
             : "net.william278.toilet:toilet-fabric:1.0.17+$project.name"
 
-    modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
-    modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
-    modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
-    modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include(toiletFabricDep)
-    if (!isUnobfuscatedRuntime) {
-        modImplementation include("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
+    def bundledImplementation = { Object notation ->
+        add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', include(notation))
     }
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    def fabricApiDependency = { Object notation ->
+        add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', notation)
+    }
+
+    bundledImplementation("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
+    bundledImplementation("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
+    bundledImplementation("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
+    bundledImplementation("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
+    bundledImplementation(toiletFabricDep)
+    if (!isUnobfuscatedRuntime) {
+        bundledImplementation("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
+    }
+    fabricApiDependency("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
 
     // Manually include config deps due to the way including api deps works
     implementation include("de.exlll:configlib-core:4.8.1")
@@ -54,21 +67,19 @@ dependencies {
 }
 
 if (isUnobfuscatedRuntime) {
-    sourceSets {
-        main {
-            java.srcDir('src/main/java')
-        }
-    }
+    def versionSpecificJava = file('src/main/java')
+    def overriddenRelativePaths = versionSpecificJava.exists()
+            ? fileTree(versionSpecificJava).matching { include '**/*.java' }.files.collect {
+                versionSpecificJava.toPath().relativize(it.toPath()).toString()
+            } as Set
+            : [] as Set
 
     tasks.named('compileJava', JavaCompile).configure {
         source = files(
                 fileTree("$buildDir/preprocessed/main/java") {
-                    exclude 'net/william278/huskhomes/hook/FabricPlaceholderAPIHook.java'
-                    exclude 'net/william278/huskhomes/user/FabricUser.java'
-                    exclude 'net/william278/huskhomes/user/FabricUserProvider.java'
-                    exclude 'net/william278/huskhomes/util/FabricTask.java'
+                    overriddenRelativePaths.each { exclude it }
                 },
-                fileTree('src/main/java')
+                fileTree(versionSpecificJava)
         )
     }
 
@@ -89,14 +100,53 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadow]
-    destinationDirectory.set(file(isUnobfuscatedRuntime ? "$rootDir/target/" : "$projectDir/build/libs"))
+    destinationDirectory.set(file("$projectDir/build/libs"))
+    archiveClassifier.set('dev-shadow')
 
     exclude('net.fabricmc:.*')
     exclude('net.kyori:.*')
     exclude '/mappings/*'
 }
 
-if (!isUnobfuscatedRuntime) {
+if (isUnobfuscatedRuntime) {
+    tasks.register('packageFabricJar', Jar) {
+        def generatedFabricModJson = layout.buildDirectory.file('tmp/packageFabricJar/fabric.mod.json')
+
+        dependsOn tasks.shadowJar
+        dependsOn tasks.processIncludeJars
+        mustRunAfter tasks.shadowJar
+        mustRunAfter tasks.processIncludeJars
+
+        from(zipTree(shadowJar.archiveFile.get().asFile)) {
+            exclude 'fabric.mod.json'
+        }
+        from(generatedFabricModJson)
+        into('META-INF/jars') {
+            from("$buildDir/processIncludeJars")
+        }
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        destinationDirectory.set(file("$rootDir/target/"))
+        archiveClassifier.set('')
+        archiveBaseName.set(shadowJar.archiveBaseName.get())
+        archiveVersion.set(shadowJar.archiveVersion.get())
+
+        doFirst {
+            def fabricModJson = new JsonSlurper().parse(file("$buildDir/resources/main/fabric.mod.json"))
+            fabricModJson.jars = fileTree("$buildDir/processIncludeJars")
+                    .matching { include '*.jar' }
+                    .files
+                    .sort { it.name }
+                    .collect { [file: "META-INF/jars/${it.name}"] }
+
+            def outputFile = generatedFabricModJson.get().asFile
+            outputFile.parentFile.mkdirs()
+            outputFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(fabricModJson))
+        }
+    }
+
+    assemble.dependsOn(tasks.named('packageFabricJar'))
+} else {
     remapJar {
         dependsOn tasks.shadowJar
         mustRunAfter tasks.shadowJar
@@ -107,5 +157,5 @@ if (!isUnobfuscatedRuntime) {
         archiveClassifier.set('')
     }
 
-    shadowJar.finalizedBy(remapJar)
+    assemble.dependsOn(tasks.named('remapJar'))
 }

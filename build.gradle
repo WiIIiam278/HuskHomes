@@ -201,7 +201,7 @@ subprojects {
 
             if (project.parent?.name?.equals('fabric')) {
                 afterEvaluate {
-                    def publishedJarTask = project.ext.fabricRuntimeJarTask
+                    def publishedJarTask = tasks.named(project.ext.fabricRuntimeJarTaskName as String)
                     publishing {
                         publications {
                             "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {

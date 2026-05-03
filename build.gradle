@@ -129,10 +129,8 @@ subprojects {
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        if (project.name != '26.1.2') {
-            apply plugin: 'gg.essential.loom'
-        }
-        if (project.name == '26.1.2') {
+        def isUnobfuscatedRuntime = isUnobfuscatedMinecraftVersion(project.name)
+        if (isUnobfuscatedRuntime) {
             java {
                 toolchain {
                     languageVersion = JavaLanguageVersion.of(25)
@@ -140,6 +138,11 @@ subprojects {
             }
             compileJava.options.release.set 25
         } else {
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(21)
+                }
+            }
             compileJava.options.release.set 21
         }
         version += "+mc.${project.name}"
@@ -198,7 +201,7 @@ subprojects {
 
             if (project.parent?.name?.equals('fabric')) {
                 afterEvaluate {
-                    def publishedJarTask = project.name == '26.1.2' ? tasks.named('shadowJar') : tasks.named('remapJar')
+                    def publishedJarTask = project.ext.fabricRuntimeJarTask
                     publishing {
                         publications {
                             "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
@@ -240,4 +243,9 @@ def versionMetadata() {
         return ''
     }
     return '-' + grgit.head().abbreviatedId
+}
+
+static boolean isUnobfuscatedMinecraftVersion(String version) {
+    def parts = version.tokenize('.')
+    return !parts.isEmpty() && parts.first().isInteger() && parts.first().toInteger() >= 26
 }

@@ -24,16 +24,30 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
 import net.kyori.adventure.audience.Audience;
-//#if MC>=12111
-import net.minecraft.command.permission.Permission;
-import net.minecraft.command.permission.PermissionLevel;
+//#if MC>=260000
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.world.entity.Entity;
+//#elseif MC>=12108
+//$$ import net.minecraft.command.permission.Permission;
+//$$ import net.minecraft.command.permission.PermissionLevel;
+//$$ import net.minecraft.entity.Entity;
+//$$ import net.minecraft.registry.RegistryKey;
+//$$ import net.minecraft.server.network.ServerPlayerEntity;
+//$$ import net.minecraft.server.world.ServerWorld;
+//$$ import net.minecraft.util.math.BlockPos;
+//#else
+//$$ import net.minecraft.entity.Entity;
+//$$ import net.minecraft.registry.RegistryKey;
+//$$ import net.minecraft.server.network.ServerPlayerEntity;
+//$$ import net.minecraft.server.world.ServerWorld;
+//$$ import net.minecraft.util.math.BlockPos;
 //#endif
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
@@ -47,12 +61,26 @@ import java.util.concurrent.CompletableFuture;
 
 public class FabricUser extends OnlineUser {
 
-    private final String INVULNERABLE_TAG = plugin.getKey("invulnerable").asString();
-    private final ServerPlayerEntity player;
+    private final String invulnerableTag = plugin.getKey("invulnerable").asString();
+    private final
+            //#if MC>=260000
+            ServerPlayer
+            //#else
+            //$$ ServerPlayerEntity
+            //#endif
+            player;
 
-    private FabricUser(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
-        //#if MC>=12111
-        super(player.getUuid(), player.getGameProfile().name(), plugin);
+    private FabricUser(@NotNull
+            //#if MC>=260000
+            ServerPlayer
+            //#else
+            //$$ ServerPlayerEntity
+            //#endif
+            player, @NotNull FabricHuskHomes plugin) {
+        //#if MC>=260000
+        super(player.getUUID(), player.getGameProfile().name(), plugin);
+        //#elseif MC>=12108
+        //$$ super(player.getUuid(), player.getGameProfile().name(), plugin);
         //#else
         //$$ super(player.getUuid(), player.getGameProfile().getName(), plugin);
         //#endif
@@ -61,30 +89,56 @@ public class FabricUser extends OnlineUser {
 
     @NotNull
     @ApiStatus.Internal
-    public static FabricUser adapt(@NotNull ServerPlayerEntity player, @NotNull FabricHuskHomes plugin) {
+    public static FabricUser adapt(@NotNull
+            //#if MC>=260000
+            ServerPlayer
+            //#else
+            //$$ ServerPlayerEntity
+            //#endif
+            player, @NotNull FabricHuskHomes plugin) {
         return new FabricUser(player, plugin);
     }
 
     @Override
     public Position getPosition() {
         return FabricHuskHomes.Adapter.adapt(
-                //#if MC>=12111
-                player.getEntityPos(),
+                //#if MC>=260000
+                player.position(),
+                //#elseif MC>=12108
+                //$$ player.getEntityPos(),
                 //#else
                 //$$ player.getPos(),
                 //#endif
                 getServerWorld(player),
-                player.getYaw(), player.getPitch(),
+                //#if MC>=260000
+                player.getYRot(), player.getXRot(),
+                //#else
+                //$$ player.getYaw(), player.getPitch(),
+                //#endif
                 plugin.getServerName()
         );
     }
 
     @NotNull
-    private ServerWorld getServerWorld(ServerPlayerEntity player) {
-        //#if MC <=12105
+    private
+            //#if MC>=260000
+            ServerLevel
+            //#else
+            //$$ ServerWorld
+            //#endif
+            getServerWorld(@NotNull
+                    //#if MC>=260000
+                    ServerPlayer
+                    //#else
+                    //$$ ServerPlayerEntity
+                    //#endif
+                    player) {
+        //#if MC>=260000
+        return player.level();
+        //#elseif MC <=12105
         //$$ return player.getServerWorld();
-        //#elseif MC >=12111
-        return player.getEntityWorld();
+        //#elseif MC >=12108
+        //$$ return player.getEntityWorld();
         //#else
         //$$ return player.getWorld();
         //#endif
@@ -92,14 +146,23 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public Optional<Position> getBedSpawnPosition() {
-        //#if MC<=12104
+        //#if MC>=260000
+        final var respawnConfig = player.getRespawnConfig();
+        if (respawnConfig == null) {
+            return Optional.empty();
+        }
+
+        final BlockPos spawn = respawnConfig.respawnData().pos();
+        final float angle = respawnConfig.respawnData().yaw();
+        final ResourceKey<net.minecraft.world.level.Level> world = respawnConfig.respawnData().dimension();
+        //#elseif MC<=12104
         //$$ final BlockPos spawn = player.getSpawnPointPosition();
         //$$ final float angle = player.getSpawnAngle();
         //$$ final RegistryKey<net.minecraft.world.World> world = player.getSpawnPointDimension();
-        //#elseif MC>=12111
-        final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().respawnData().getPos();
-        final float angle = player.getRespawn() == null ? 0 : player.getRespawn().respawnData().yaw();
-        final RegistryKey<net.minecraft.world.World> world = player.getRespawn() == null ? null : player.getRespawn().respawnData().getDimension();
+        //#elseif MC>=12108
+        //$$ final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().respawnData().getPos();
+        //$$ final float angle = player.getRespawn() == null ? 0 : player.getRespawn().respawnData().yaw();
+        //$$ final RegistryKey<net.minecraft.world.World> world = player.getRespawn() == null ? null : player.getRespawn().respawnData().getDimension();
         //#else
         //$$ final BlockPos spawn = player.getRespawn() == null ? null : player.getRespawn().pos();
         //$$ final float angle = player.getRespawn() == null ? 0 : player.getRespawn().angle();
@@ -113,8 +176,13 @@ public class FabricUser extends OnlineUser {
                 spawn.getX(), spawn.getY(), spawn.getZ(),
                 angle, 0,
                 World.from(
-                        world.getValue().asString(),
-                        UUID.nameUUIDFromBytes(world.getValue().asString().getBytes())
+                        //#if MC>=260000
+                        world.identifier().asString(),
+                        UUID.nameUUIDFromBytes(world.identifier().asString().getBytes())
+                        //#else
+                        //$$ world.getValue().asString(),
+                        //$$ UUID.nameUUIDFromBytes(world.getValue().asString().getBytes())
+                        //#endif
                 ),
                 plugin.getServerName()
         ));
@@ -132,9 +200,12 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        boolean op = Boolean.TRUE.equals(((FabricHuskHomes) plugin).getPermissions().getOrDefault(node, true));
-        //#if MC>=12111
-        boolean hasPermission = player.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(3)));
+        final boolean op = Boolean.TRUE.equals(((FabricHuskHomes) plugin).getPermissions().getOrDefault(node, true));
+        //#if MC>=260000
+        final boolean hasPermission = player.permissions()
+                .hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(3)));
+        //#elseif MC>=12108
+        //$$ boolean hasPermission = player.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(3)));
         //#else
         //$$ boolean hasPermission = player.hasPermissionLevel(3);
         //#endif
@@ -172,7 +243,11 @@ public class FabricUser extends OnlineUser {
         final CompletableFuture<Void> future = new CompletableFuture<>();
         plugin.runSync(() -> {
             player.stopRiding();
-            player.getPassengerList().forEach(Entity::stopRiding);
+            //#if MC>=260000
+            player.getPassengers().forEach(Entity::stopRiding);
+            //#else
+            //$$ player.getPassengerList().forEach(Entity::stopRiding);
+            //#endif
             future.complete(null);
         }, this);
         return future;
@@ -180,8 +255,10 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void teleportLocally(@NotNull Location location, boolean async) throws TeleportationException {
-        //#if MC>=12111
-        final MinecraftServer server = player.getEntityWorld().getServer();
+        //#if MC>=260000
+        final MinecraftServer server = player.level().getServer();
+        //#elseif MC>=12108
+        //$$ final MinecraftServer server = player.getEntityWorld().getServer();
         //#else
         //$$ final MinecraftServer server = player.getServer();
         //#endif
@@ -189,7 +266,13 @@ public class FabricUser extends OnlineUser {
         if (server == null) {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
-        final ServerWorld world = FabricHuskHomes.Adapter.adapt(location.getWorld(), server);
+        final
+                //#if MC>=260000
+                ServerLevel
+                //#else
+                //$$ ServerWorld
+                //#endif
+                world = FabricHuskHomes.Adapter.adapt(location.getWorld(), server);
         if (world == null) {
             throw new TeleportationException(TeleportationException.Type.WORLD_NOT_FOUND, plugin);
         }
@@ -197,15 +280,30 @@ public class FabricUser extends OnlineUser {
         // Synchronously teleport
         plugin.runSync(() -> {
             player.stopRiding();
-            player.getPassengerList().forEach(Entity::stopRiding);
+            //#if MC>=260000
+            player.getPassengers().forEach(Entity::stopRiding);
+            //#else
+            //$$ player.getPassengerList().forEach(Entity::stopRiding);
+            //#endif
             player.fallDistance = 0f;
-            //#if MC>=12104
-            player.teleport(
-                    world, location.getX(), location.getY(), location.getZ(),
+            //#if MC>=260000
+            player.teleportTo(
+                    world,
+                    location.getX(),
+                    location.getY(),
+                    location.getZ(),
                     Set.of(),
-                    location.getYaw(), location.getPitch(),
+                    location.getYaw(),
+                    location.getPitch(),
                     true
             );
+            //#elseif MC>=12104
+            //$$ player.teleport(
+            //$$         world, location.getX(), location.getY(), location.getZ(),
+            //$$         Set.of(),
+            //$$         location.getYaw(), location.getPitch(),
+            //$$         true
+            //$$ );
             //#else
             //$$ player.teleport(
             //$$         world, location.getX(), location.getY(), location.getZ(),
@@ -222,7 +320,11 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean isMoving() {
-        return player.isTouchingWater() || player.isGliding() || player.isSprinting() || player.isSneaking();
+        //#if MC>=260000
+        return player.isInWater() || player.isFallFlying() || player.isSprinting() || player.isShiftKeyDown();
+        //#else
+        //$$ return player.isTouchingWater() || player.isGliding() || player.isSprinting() || player.isSneaking();
+        //#endif
     }
 
     @Override
@@ -232,7 +334,11 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasInvulnerability() {
-        return markedAsInvulnerable || player.getCommandTags().contains(INVULNERABLE_TAG);
+        //#if MC>=260000
+        return markedAsInvulnerable || player.entityTags().contains(invulnerableTag);
+        //#else
+        //$$ return markedAsInvulnerable || player.getCommandTags().contains(invulnerableTag);
+        //#endif
     }
 
     @Override
@@ -242,7 +348,11 @@ public class FabricUser extends OnlineUser {
             return;
         }
         player.setInvulnerable(true);
-        player.getCommandTags().add(INVULNERABLE_TAG);
+        //#if MC>=260000
+        player.addTag(invulnerableTag);
+        //#else
+        //$$ player.getCommandTags().add(invulnerableTag);
+        //#endif
         markedAsInvulnerable = true;
         plugin.runSyncDelayed(this::removeInvulnerabilityIfPermitted, this, invulnerableTicks);
     }
@@ -252,12 +362,22 @@ public class FabricUser extends OnlineUser {
         if (this.hasInvulnerability()) {
             player.setInvulnerable(false);
         }
-        player.removeCommandTag(INVULNERABLE_TAG);
+        //#if MC>=260000
+        player.removeTag(invulnerableTag);
+        //#else
+        //$$ player.removeCommandTag(invulnerableTag);
+        //#endif
         markedAsInvulnerable = false;
     }
 
     @NotNull
-    public ServerPlayerEntity getPlayer() {
+    public
+            //#if MC>=260000
+            ServerPlayer
+            //#else
+            //$$ ServerPlayerEntity
+            //#endif
+            getPlayer() {
         return player;
     }
 

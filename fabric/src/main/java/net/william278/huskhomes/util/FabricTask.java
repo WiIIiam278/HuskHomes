@@ -51,9 +51,16 @@ public interface FabricTask extends Task {
         @Override
         public void run() {
             if (!cancelled) {
-                ASYNC_EXEC.schedule(() -> ((FabricHuskHomes) getPlugin()).getMinecraftServer().executeSync(runnable),
+                ASYNC_EXEC.schedule(
+                        () -> ((FabricHuskHomes) getPlugin()).getMinecraftServer()
+                                //#if MC>=260000
+                                //$$ .executeIfPossible(runnable),
+                                //#else
+                                .executeSync(runnable),
+                                //#endif
                         delayTicks * 50,
-                        TimeUnit.MILLISECONDS);
+                        TimeUnit.MILLISECONDS
+                );
             }
         }
     }

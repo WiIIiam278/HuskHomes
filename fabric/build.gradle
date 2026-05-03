@@ -25,10 +25,10 @@ dependencies {
             ? 'net.william278.toilet:toilet-fabric:1.0.17-aa8a465-indev+26.1.2'
             : "net.william278.toilet:toilet-fabric:1.0.17+$project.name"
 
-    def bundledImplementation = { Object notation ->
+    def bundledImplementation = { notation ->
         add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', include(notation))
     }
-    def fabricApiDependency = { Object notation ->
+    def fabricApiDependency = { notation ->
         add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', notation)
     }
 

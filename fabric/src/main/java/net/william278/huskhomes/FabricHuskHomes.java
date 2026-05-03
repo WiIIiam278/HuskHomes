@@ -22,6 +22,7 @@ package net.william278.huskhomes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.pokeskies.fabricpluginmessaging.FabricPluginMessaging;
 import com.pokeskies.fabricpluginmessaging.PluginMessageEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -298,6 +299,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void setupPluginMessagingChannels() {
+        try {
+            FabricPluginMessaging.class.getMethod("initialize").invoke(null);
+        } catch (ReflectiveOperationException ignored) {
+            // Older mapped runtimes initialize this dependency via its own ModInitializer.
+        }
         PluginMessageEvent.EVENT.register((payload, context) -> {
             if (broker instanceof PluginMessageBroker messenger
                 && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {

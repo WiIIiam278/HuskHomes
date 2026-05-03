@@ -15,15 +15,14 @@ loom.serverOnlyMinecraftJar()
 
 repositories {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://repo.william278.net/releases/' }
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    def toiletFabricDep = isUnobfuscatedRuntime
-            ? 'net.william278.toilet:toilet-fabric:1.0.17-aa8a465-indev+26.1.2'
-            : "net.william278.toilet:toilet-fabric:1.0.17+$project.name"
+    def toiletFabricDep = "net.william278.toilet:toilet-fabric:1.1.0+$project.name"
 
     def bundledImplementation = { notation ->
         add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', include(notation))

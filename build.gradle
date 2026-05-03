@@ -72,7 +72,6 @@ allprojects {
     javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
     repositories {
-        mavenLocal()
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.william278.net/releases/' }

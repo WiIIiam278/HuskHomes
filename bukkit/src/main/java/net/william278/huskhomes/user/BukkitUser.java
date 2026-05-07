@@ -34,6 +34,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 public class BukkitUser extends OnlineUser {
 
     private static final String VANISHED_META_KEY = "vanished";
+    private static final Method TELEPORT_ASYNC_METHOD = getTeleportAsyncMethod();
     private final NamespacedKey INVULNERABLE_KEY = new NamespacedKey((BukkitHuskHomes) plugin, "invulnerable");
     private final Player bukkitPlayer;
 
@@ -128,11 +131,34 @@ public class BukkitUser extends OnlineUser {
             bukkitPlayer.eject();
             bukkitPlayer.setFallDistance(0f);
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                teleportAsync(location);
                 return;
             }
             bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, this);
+    }
+
+    private void teleportAsync(@NotNull org.bukkit.Location location) {
+        if (TELEPORT_ASYNC_METHOD == null) {
+            PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            return;
+        }
+
+        try {
+            TELEPORT_ASYNC_METHOD.invoke(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("Failed to teleport player asynchronously", e);
+        }
+    }
+
+    private static Method getTeleportAsyncMethod() {
+        try {
+            return Player.class.getMethod(
+                    "teleportAsync", org.bukkit.Location.class, PlayerTeleportEvent.TeleportCause.class
+            );
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     @Override

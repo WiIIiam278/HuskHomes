@@ -49,7 +49,7 @@ shadowJar {
     relocate 'org.yaml.snakeyaml', 'net.william278.huskhomes.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskhomes.libraries.gson'
     relocate 'org.bstats', 'net.william278.huskhomes.libraries.bstats'
-    relocate 'com.github.rvsksle.paperlib', 'net.william278.huskhomes.libraries.paperlib'
+    relocate 'io.github.rvskele.paperlib', 'net.william278.huskhomes.libraries.paperlib'
     relocate 'space.arim.morepaperlib', 'net.william278.huskhomes.libraries.paperlib'
 
     minimize()

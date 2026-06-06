@@ -19,7 +19,7 @@
 
 package net.william278.huskhomes.util;
 
-import io.papermc.lib.PaperLib;
+import io.github.rvskele.paperlib.PaperLib;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.position.Location;
 import org.bukkit.Chunk;

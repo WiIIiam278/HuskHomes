@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +31,8 @@ public interface ReplyTeleportRequestCallback extends FabricEventCallback<IReply
 
     @NotNull
     Event<ReplyTeleportRequestCallback> EVENT = EventFactory.createArrayBacked(ReplyTeleportRequestCallback.class,
-            (listeners) -> (event) -> {
-                for (ReplyTeleportRequestCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) ->
+                    FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     BiFunction<OnlineUser, TeleportRequest, IReplyTeleportRequestEvent> SUPPLIER = (recipient, request) ->

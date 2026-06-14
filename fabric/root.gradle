@@ -4,10 +4,10 @@ plugins {
 
 preprocess {
     def fabric260102 = createNode("26.1.2", 260102, "mojmap")
-    def fabric12111 = createNode("1.21.11", 12108, "yarn")
+    def fabric12111 = createNode("1.21.11", 12111, "yarn")
     def fabric12101 = createNode("1.21.1", 12101, "yarn")
 
     strictExtraMappings.set(true)
-    fabric260102.link(fabric12111, null)
-    fabric12101.link(fabric12111, null)
+    fabric12111.link(fabric260102, null)
+    fabric12101.link(fabric260102, null)
 }

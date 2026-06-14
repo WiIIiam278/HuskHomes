@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +31,8 @@ public interface DeleteAllHomesCallback extends FabricEventCallback<IDeleteAllHo
 
     @NotNull
     Event<DeleteAllHomesCallback> EVENT = EventFactory.createArrayBacked(DeleteAllHomesCallback.class,
-            (listeners) -> (event) -> {
-                for (DeleteAllHomesCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) ->
+                    FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     BiFunction<User, CommandUser, IDeleteAllHomesEvent> SUPPLIER = (owner, deleter) ->

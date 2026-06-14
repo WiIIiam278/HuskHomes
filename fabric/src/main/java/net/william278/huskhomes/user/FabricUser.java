@@ -322,8 +322,10 @@ public class FabricUser extends OnlineUser {
     public boolean isMoving() {
         //#if MC>=260000
         return player.isInWater() || player.isFallFlying() || player.isSprinting() || player.isShiftKeyDown();
-        //#else
+        //#elseif MC>=12103
         //$$ return player.isTouchingWater() || player.isGliding() || player.isSprinting() || player.isSneaking();
+        //#else
+        //$$ return player.isTouchingWater() || player.isSprinting() || player.isSneaking();
         //#endif
     }
 

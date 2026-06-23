@@ -52,6 +52,8 @@ import net.william278.huskhomes.random.RandomTeleportEngine;
 import net.william278.huskhomes.user.*;
 import net.william278.huskhomes.util.BukkitSavePositionProvider;
 import net.william278.huskhomes.util.BukkitTask;
+import net.william278.huskhomes.util.PaperLibPlatformOperations;
+import net.william278.huskhomes.util.PlatformOperations;
 import net.william278.huskhomes.util.UnsafeBlocks;
 import net.william278.toilet.BukkitToilet;
 import net.william278.toilet.Toilet;
@@ -87,6 +89,8 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     private RegionalScheduler regionalScheduler;
     private MorePaperLib morePaperLib;
     private Toilet toilet;
+    @Nullable
+    private PlatformOperations platformOperations;
 
     private final Set<SavedUser> savedUsers = Sets.newHashSet();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
@@ -298,6 +302,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @NotNull
     public GracefulScheduling getScheduler() {
         return morePaperLib.scheduling();
+    }
+
+    @NotNull
+    public PlatformOperations getPlatformOperations() {
+        if (platformOperations == null) {
+            platformOperations = new PaperLibPlatformOperations(this);
+        }
+        return platformOperations;
     }
 
     @NotNull

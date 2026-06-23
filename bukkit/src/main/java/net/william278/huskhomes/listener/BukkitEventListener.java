@@ -21,6 +21,8 @@ package net.william278.huskhomes.listener;
 
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.config.Settings;
+import net.william278.huskhomes.user.OnlineUser;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.RespawnAnchor;
@@ -33,9 +35,16 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class BukkitEventListener extends EventListener implements Listener {
 
+    private static final int MAX_RESPAWN_POLL_ATTEMPTS = 200;
+
     protected boolean usePaperEvents = false;
+    protected final Set<UUID> pendingRespawnTeleport = ConcurrentHashMap.newKeySet();
 
     public BukkitEventListener(@NotNull BukkitHuskHomes plugin) {
         super(plugin);
@@ -48,26 +57,33 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        pendingRespawnTeleport.remove(event.getPlayer().getUniqueId());
         getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
         super.handlePlayerJoin(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLeave(PlayerQuitEvent event) {
+        pendingRespawnTeleport.remove(event.getPlayer().getUniqueId());
         super.handlePlayerLeave(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        super.handlePlayerDeath(getPlugin().getOnlineUser(event.getEntity()));
+        final Player player = event.getEntity();
+        pendingRespawnTeleport.add(player.getUniqueId());
+        startRespawnPolling(player);
+        super.handlePlayerDeath(getPlugin().getOnlineUser(player));
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        pendingRespawnTeleport.remove(event.getPlayer().getUniqueId());
         if (usePaperEvents) {
             return;
         }
         getPlugin().getOnlineUserMap().remove(event.getPlayer().getUniqueId());
+        handleLocalServerRespawn(event);
         super.handlePlayerRespawn(getPlugin().getOnlineUser(event.getPlayer()));
     }
 
@@ -125,11 +141,86 @@ public class BukkitEventListener extends EventListener implements Listener {
         );
     }
 
+    /**
+     * Poll on the entity scheduler until the player has respawned, then teleport to spawn if needed.
+     */
+    private void startRespawnPolling(@NotNull Player player) {
+        pollRespawn(player.getUniqueId(), 0, getPlugin().getOnlineUser(player));
+    }
+
+    private void pollRespawn(@NotNull UUID uuid, int attempt, @NotNull OnlineUser user) {
+        if (!pendingRespawnTeleport.contains(uuid)) {
+            return;
+        }
+        if (attempt >= MAX_RESPAWN_POLL_ATTEMPTS) {
+            pendingRespawnTeleport.remove(uuid);
+            return;
+        }
+
+        getPlugin().runSyncDelayed(() -> {
+            if (!pendingRespawnTeleport.contains(uuid)) {
+                return;
+            }
+            final Player onlinePlayer = Bukkit.getPlayer(uuid);
+            if (onlinePlayer == null || !onlinePlayer.isOnline()) {
+                pendingRespawnTeleport.remove(uuid);
+                return;
+            }
+            if (!onlinePlayer.isDead()) {
+                pendingRespawnTeleport.remove(uuid);
+                teleportToSpawnIfNeeded(onlinePlayer);
+                return;
+            }
+            pollRespawn(uuid, attempt + 1, getPlugin().getOnlineUser(onlinePlayer));
+        }, user, 1L);
+    }
+
+    private void teleportToSpawnIfNeeded(@NotNull Player player) {
+        final Settings.CrossServerSettings crossServer = getPlugin().getSettings().getCrossServer();
+        if (crossServer.isEnabled() && crossServer.isGlobalRespawning()) {
+            return;
+        }
+
+        if (!getPlugin().getSettings().getGeneral().isAlwaysRespawnAtSpawn()
+                && player.getBedSpawnLocation() != null) {
+            return;
+        }
+
+        getPlugin().getSpawn().ifPresent(spawn -> {
+            final Location location = BukkitHuskHomes.Adapter.adapt(spawn);
+            if (location.getWorld() == null) {
+                return;
+            }
+            player.setFallDistance(0f);
+            getPlugin().getPlatformOperations().teleport(
+                    player, location, PlayerTeleportEvent.TeleportCause.PLUGIN, true
+            );
+        });
+    }
+
+    protected final void handleLocalServerRespawn(@NotNull PlayerRespawnEvent event) {
+        final Settings.CrossServerSettings crossServer = getPlugin().getSettings().getCrossServer();
+        if (crossServer.isEnabled() && crossServer.isGlobalRespawning()) {
+            return;
+        }
+
+        if (!getPlugin().getSettings().getGeneral().isAlwaysRespawnAtSpawn()
+                && (event.isBedSpawn() || event.isAnchorSpawn())) {
+            return;
+        }
+
+        getPlugin().getSpawn().ifPresent(spawn -> {
+            final Location location = BukkitHuskHomes.Adapter.adapt(spawn);
+            if (location.getWorld() != null) {
+                event.setRespawnLocation(location);
+            }
+        });
+    }
+
     @Override
     @NotNull
     protected BukkitHuskHomes getPlugin() {
         return (BukkitHuskHomes) super.getPlugin();
     }
-
 
 }

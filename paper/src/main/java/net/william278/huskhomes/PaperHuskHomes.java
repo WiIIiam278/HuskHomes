@@ -21,12 +21,22 @@ package net.william278.huskhomes;
 
 import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.listener.PaperEventListener;
+import net.william278.huskhomes.util.NativePaperPlatformOperations;
+import net.william278.huskhomes.util.PlatformOperations;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public class PaperHuskHomes extends BukkitHuskHomes {
+
+    private final PlatformOperations platformOperations = new NativePaperPlatformOperations(this);
+
+    @NotNull
+    @Override
+    public PlatformOperations getPlatformOperations() {
+        return platformOperations;
+    }
 
     @Override
     @NotNull

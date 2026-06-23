@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.user;
 
-import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Location;
@@ -123,15 +122,15 @@ public class BukkitUser extends OnlineUser {
         }
 
         // Run on the appropriate thread scheduler for this platform
+        final BukkitHuskHomes bukkitPlugin = (BukkitHuskHomes) plugin;
         plugin.runSync(() -> {
             bukkitPlayer.leaveVehicle();
             bukkitPlayer.eject();
             bukkitPlayer.setFallDistance(0f);
-            if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                return;
-            }
-            bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            final boolean preferAsync = async || !bukkitPlugin.getPlatformOperations().supportsSyncTeleport();
+            bukkitPlugin.getPlatformOperations().teleport(
+                    bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN, preferAsync
+            );
         }, this);
     }
 

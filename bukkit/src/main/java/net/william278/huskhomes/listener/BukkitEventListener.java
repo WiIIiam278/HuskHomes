@@ -90,12 +90,12 @@ public class BukkitEventListener extends EventListener implements Listener {
         );
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerTakeDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }
-        // Cancel warmup on any "hurt" event during warmup, even if damage is cancelled/blocked/absorbed
+        // Cancel warmup on any "hurt" event during warmup, even if damage is absorbed
         if (!getPlugin().isWarmingUp(player.getUniqueId()) || event.getDamage() <= 0) {
             return;
         }

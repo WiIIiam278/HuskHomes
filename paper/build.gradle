@@ -10,7 +10,7 @@ dependencies {
     compileOnly 'org.bstats:bstats-bukkit:3.2.1'
     compileOnly 'org.jetbrains:annotations:26.1.0'
     compileOnly 'net.william278:minedown:1.8.2'
-    compileOnly 'net.william278:DesertWell:2.0.4'
+    compileOnly 'net.william278:desertwell:2.0.7'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.12.2'
     compileOnly 'org.projectlombok:lombok:1.18.42'

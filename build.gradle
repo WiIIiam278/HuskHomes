@@ -73,8 +73,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        // TODO: Remove home repo after merging Toilet PR
-        maven { url 'https://repo.home.truewinter.net/releases/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.william278.net/releases/' }
         maven { url 'https://maven.fabricmc.net/' }

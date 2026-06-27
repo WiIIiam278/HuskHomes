@@ -27,11 +27,24 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public interface BukkitSavePositionProvider extends SavePositionProvider {
+
+    // World#getChunkAtAsync(int, int) exists on Paper/Folia but not in spigot-api; resolve once at startup
+    @Nullable Method CHUNK_AT_ASYNC = resolveChunkAtAsync();
+
+    private static @Nullable Method resolveChunkAtAsync() {
+        try {
+            return World.class.getMethod("getChunkAtAsync", int.class, int.class);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
 
     @Override
     default CompletableFuture<Optional<Location>> findSafeGroundLocation(@NotNull Location location) {
@@ -46,7 +59,7 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
         }
 
         // Search nearby blocks for a safe location
-        return PaperLib.getChunkAtAsync(bukkitLocation)
+        return getChunkAtAsync(bukkitLocation)
                 .thenApply(Chunk::getChunkSnapshot)
                 .thenApply(snapshot -> findSafeLocationNear(
                         location,
@@ -54,6 +67,22 @@ public interface BukkitSavePositionProvider extends SavePositionProvider {
                         getMinHeight(bukkitLocation.getWorld()),
                         getMaxHeight(bukkitLocation.getWorld())
                 ));
+    }
+
+    // On Paper/Folia, use the native async API (Folia-safe). Fall back to PaperLib on Spigot.
+    @SuppressWarnings("unchecked")
+    private static CompletableFuture<Chunk> getChunkAtAsync(org.bukkit.Location location) {
+        if (CHUNK_AT_ASYNC != null) {
+            try {
+                return (CompletableFuture<Chunk>) CHUNK_AT_ASYNC.invoke(
+                        location.getWorld(),
+                        location.getBlockX() >> 4,
+                        location.getBlockZ() >> 4
+                );
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        return PaperLib.getChunkAtAsync(location);
     }
 
     /**

@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -128,7 +129,7 @@ public class BukkitUser extends OnlineUser {
             bukkitPlayer.eject();
             bukkitPlayer.setFallDistance(0f);
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                teleportUsingPlatformAsync(location);
                 return;
             }
             bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -186,5 +187,43 @@ public class BukkitUser extends OnlineUser {
     @Override
     public boolean isValid() {
         return getHealth() > 0;
+    }
+
+    /**
+     * Attempts to teleport the player asynchronously using the platform's native async teleport method,
+     * logging a warning if the teleport fails.
+     *
+     * @param location the {@link org.bukkit.Location} to teleport the player to
+     */
+    private void teleportUsingPlatformAsync(@NotNull org.bukkit.Location location) {
+        invokePlatformAsyncTeleport(location).exceptionally(throwable -> {
+            plugin.log(Level.WARNING, String.format("Failed to teleport player %s asynchronously", getName()), throwable);
+            return false;
+        });
+    }
+
+    /**
+     * Invokes the platform's asynchronous teleport method for the player. First attempts to use
+     * the native {@code teleportAsync} method via reflection (available on Paper and Folia), falling
+     * back to {@link PaperLib#teleportAsync} if the method is not found.
+     *
+     * @param location the {@link org.bukkit.Location} to teleport the player to
+     * @return a {@link CompletableFuture} that completes with {@code true} if the teleport succeeded,
+     *         or {@code false} otherwise
+     * @throws IllegalStateException if the reflective invocation fails for a reason other than the
+     *                               method not being present
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    private CompletableFuture<Boolean> invokePlatformAsyncTeleport(@NotNull org.bukkit.Location location) {
+        try {
+            return (CompletableFuture<Boolean>) bukkitPlayer.getClass()
+                    .getMethod("teleportAsync", org.bukkit.Location.class, PlayerTeleportEvent.TeleportCause.class)
+                    .invoke(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } catch (NoSuchMethodException e) {
+            return PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Failed to invoke asynchronous teleport", e);
+        }
     }
 }

@@ -66,6 +66,7 @@ dependencies {
 }
 
 if (isUnobfuscatedRuntime) {
+    def sharedJava = file('../src/main/java')
     def versionSpecificJava = file('src/main/java')
     def overriddenRelativePaths = versionSpecificJava.exists()
             ? fileTree(versionSpecificJava).matching { include '**/*.java' }.files.collect {
@@ -75,7 +76,7 @@ if (isUnobfuscatedRuntime) {
 
     tasks.named('compileJava', JavaCompile).configure {
         source = files(
-                fileTree("$buildDir/preprocessed/main/java") {
+                fileTree(sharedJava) {
                     overriddenRelativePaths.each { exclude it }
                 },
                 fileTree(versionSpecificJava)

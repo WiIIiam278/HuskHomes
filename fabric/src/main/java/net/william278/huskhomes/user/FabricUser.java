@@ -135,9 +135,9 @@ public class FabricUser extends OnlineUser {
                     player) {
         //#if MC>=260000
         return player.level();
-        //#elseif MC <=12105
+        //#elseif MC<=12105
         //$$ return player.getServerWorld();
-        //#elseif MC >=12108
+        //#elseif MC>=12108
         //$$ return player.getEntityWorld();
         //#else
         //$$ return player.getWorld();

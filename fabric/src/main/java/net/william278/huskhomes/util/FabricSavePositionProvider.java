@@ -42,7 +42,6 @@ import net.minecraft.core.Direction;
 //$$ import net.minecraft.util.math.Direction;
 //$$ import net.minecraft.world.BlockView;
 //#endif
-import net.minecraft.world.level.storage.ServerLevelData;
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.World;
@@ -62,7 +61,8 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
         //#if MC>=260102
         final String worldName = location.getWorld().getName();
         final Optional<ServerLevel> locationWorld = StreamSupport.stream(server.getAllLevels().spliterator(), false)
-                .filter(level -> ((ServerLevelData) level.getLevelData()).getLevelName().equals(worldName))
+                .filter(level -> level.getLevel().dimension().identifier().asString().replace("minecraft:", "")
+                        .equals(worldName))
                 .findFirst();
         //#else
         //$$ final Identifier worldId = Identifier.tryParse(location.getWorld().getName());
@@ -181,10 +181,10 @@ public interface FabricSavePositionProvider extends SavePositionProvider {
             //#endif
             @NotNull BlockPos pos, int y) {
         //#if MC>=260102
-        final Block block = world.getBlockState(pos.atY(y - 1)).getBlock();
+        final Block block = world.getBlockState(pos.atY(y)).getBlock();
         return BuiltInRegistries.BLOCK.getKey(block);
         //#else
-        //$$ final Block block = world.getBlockState(pos.withY(y - 1)).getBlock();
+        //$$ final Block block = world.getBlockState(pos.withY(y)).getBlock();
         //$$ return Registries.BLOCK.getId(block);
         //#endif
     }

@@ -47,7 +47,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.LevelData;
@@ -501,8 +500,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
                 //#endif
         ) {
             //#if MC>=260102
-            ServerLevelData serverLevelData = (ServerLevelData) world.getLevel().getLevelData();
-            String name = serverLevelData.getLevelName();
+            String name = world.getLevel().dimension().identifier().asString().replace("minecraft:", "");
             //#else
             //$$ String name = world.getRegistryKey().getValue().asMinimalString();
             //#endif

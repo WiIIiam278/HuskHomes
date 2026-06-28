@@ -36,9 +36,9 @@ dependencies {
     bundledImplementation("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     bundledImplementation("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
     bundledImplementation(toiletFabricDep)
-    //if (!isUnobfuscatedRuntime) {
+    if (!isUnobfuscatedRuntime) {
         bundledImplementation("com.github.PokeSkies:FabricPluginMessaging:f621c4fcf6")
-    //}
+    }
     fabricApiDependency("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
 
     // Manually include config deps due to the way including api deps works

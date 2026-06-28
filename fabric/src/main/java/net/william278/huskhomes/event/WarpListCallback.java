@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
@@ -33,19 +32,7 @@ public interface WarpListCallback extends FabricEventCallback<IWarpListEvent> {
 
     @NotNull
     Event<WarpListCallback> EVENT = EventFactory.createArrayBacked(WarpListCallback.class,
-            (listeners) -> (event) -> {
-                for (WarpListCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) -> FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     BiFunction<List<Warp>, CommandUser, IWarpListEvent> SUPPLIER = (warps, viewer) ->

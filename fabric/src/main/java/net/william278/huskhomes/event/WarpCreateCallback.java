@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.CommandUser;
 import org.apache.commons.lang3.function.TriFunction;
@@ -31,19 +30,8 @@ public interface WarpCreateCallback extends FabricEventCallback<IWarpCreateEvent
 
     @NotNull
     Event<WarpCreateCallback> EVENT = EventFactory.createArrayBacked(WarpCreateCallback.class,
-            (listeners) -> (event) -> {
-                for (WarpCreateCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) ->
+                    FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     TriFunction<String, Position, CommandUser, IWarpCreateEvent> SUPPLIER = (name, position, creator) ->

@@ -19,7 +19,11 @@
 
 package net.william278.huskhomes.user;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+//#if MC>=260000
+import net.minecraft.server.level.ServerPlayer;
+//#else
+//$$ import net.minecraft.server.network.ServerPlayerEntity;
+//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,18 +35,47 @@ public interface FabricUserProvider extends UserProvider {
     @Override
     @NotNull
     default OnlineUser getOnlineUser(@NotNull UUID uuid) {
-        return getOnlineUser(getPlugin().getMinecraftServer().getPlayerManager().getPlayer(uuid));
+        //#if MC>=260000
+        return getOnlineUser(getPlugin().getMinecraftServer().getPlayerList().getPlayer(uuid));
+        //#else
+        //$$ return getOnlineUser(getPlugin().getMinecraftServer().getPlayerManager().getPlayer(uuid));
+        //#endif
     }
 
     @NotNull
-    default FabricUser getOnlineUser(@Nullable ServerPlayerEntity player) {
+    default FabricUser getOnlineUser(
+            //#if MC>=260000
+            @Nullable ServerPlayer player
+            //#else
+            //$$ @Nullable ServerPlayerEntity player
+            //#endif
+    ) {
         if (player == null) {
             throw new IllegalArgumentException("Player is not online");
         }
-        FabricUser user = (FabricUser) getOnlineUserMap().get(player.getUuid());
-        if (user == null || user.getPlayer().isRemoved() || user.getPlayer().isDisconnected()) {
+        FabricUser user = (FabricUser) getOnlineUserMap().get(
+                //#if MC>=260000
+                player.getUUID()
+                //#else
+                //$$ player.getUuid()
+                //#endif
+        );
+        if (user == null || user.getPlayer().isRemoved() ||
+                //#if MC>=260000
+                user.getPlayer().hasDisconnected()
+                //#else
+                //$$ user.getPlayer().isDisconnected()
+                //#endif
+        ) {
             user = FabricUser.adapt(player, getPlugin());
-            getOnlineUserMap().put(player.getUuid(), user);
+            getOnlineUserMap().put(
+                    //#if MC>=260000
+                    player.getUUID(),
+                    //#else
+                    //$$ player.getUuid(),
+                    //#endif
+                    user
+            );
             return user;
         }
         return user;

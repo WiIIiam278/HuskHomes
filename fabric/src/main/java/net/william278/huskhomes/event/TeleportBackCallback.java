@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.Teleport;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +31,8 @@ public interface TeleportBackCallback extends FabricEventCallback<ITeleportBackE
 
     @NotNull
     Event<TeleportBackCallback> EVENT = EventFactory.createArrayBacked(TeleportBackCallback.class,
-            (listeners) -> (event) -> {
-                for (TeleportBackCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.FAIL;
-                    } else if (result == ActionResult.FAIL) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) ->
+                    FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     Function<Teleport, ITeleportBackEvent> SUPPLIER = (teleport) ->

@@ -19,11 +19,20 @@
 
 package net.william278.huskhomes.api;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
+//#if MC>=260102
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.portal.TeleportTransition;
+//#else
+//$$ import net.minecraft.entity.Entity;
+//$$ import net.minecraft.server.network.ServerPlayerEntity;
+//$$ import net.minecraft.server.world.ServerWorld;
+//$$ import net.minecraft.util.math.Vec3d;
+//$$ import net.minecraft.world.TeleportTarget;
+//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.Location;
@@ -79,26 +88,36 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
     }
 
     /**
-     * Returns an {@link OnlineUser} instance for the given Fabric {@link ServerPlayerEntity}.
+     * Returns an {@link OnlineUser} instance for the given Fabric {@link ServerPlayer}.
      *
-     * @param player the Fabric ServerPlayerEntity to get the {@link User} instance for
-     * @return the {@link OnlineUser} instance for the given Fabric {@link ServerPlayerEntity}
+     * @param player the Fabric ServerPlayer to get the {@link User} instance for
+     * @return the {@link OnlineUser} instance for the given Fabric {@link ServerPlayer}
      * @since 4.7
      */
     @NotNull
-    public OnlineUser adaptUser(@NotNull ServerPlayerEntity player) {
+    public OnlineUser adaptUser(
+            //#if MC>=260102
+            @NotNull ServerPlayer player
+            //#else
+            //$$ @NotNull ServerPlayerEntity player
+            //#endif
+    ) {
         return ((FabricHuskHomes) plugin).getOnlineUser(player);
     }
 
     /**
-     * Returns the Fabric {@link ServerPlayerEntity} being represented by the given {@link OnlineUser}.
+     * Returns the Fabric {@link ServerPlayer} being represented by the given {@link OnlineUser}.
      *
-     * @param user {@link OnlineUser} to get the Fabric ServerPlayerEntity from
-     * @return the Fabric {@link ServerPlayerEntity} being represented by the given {@link OnlineUser}
+     * @param user {@link OnlineUser} to get the Fabric ServerPlayer from
+     * @return the Fabric {@link ServerPlayer} being represented by the given {@link OnlineUser}
      * @since 4.7
      */
     @NotNull
-    public ServerPlayerEntity getServerPlayerEntity(@NotNull OnlineUser user) {
+    //#if MC>=260102
+    public ServerPlayer getServerPlayerEntity(@NotNull OnlineUser user) {
+    //#else
+    //$$ public ServerPlayerEntity getServerPlayerEntity(@NotNull OnlineUser user) {
+    //#endif
         return ((FabricUser) user).getPlayer();
     }
 
@@ -106,36 +125,48 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * Returns the Fabric {@link Location} being represented by the given {@link Position}.
      *
      * @param position the {@link Position} to get the Fabric location from
-     * @return the fabric {@link ServerWorld} being represented by the given {@link Position}
+     * @return the fabric {@link ServerLevel} being represented by the given {@link Position}
      * @since 4.7
      */
     @Nullable
-    public ServerWorld getServerWorld(@NotNull World position) {
+    //#if MC>=260102
+    public ServerLevel getServerWorld(@NotNull World position) {
+    //#else    
+    //$$ public ServerWorld getServerWorld(@NotNull World position) {
+    //#endif
         return FabricHuskHomes.Adapter.adapt(position, ((FabricHuskHomes) plugin).getMinecraftServer());
     }
 
     /**
-     * Returns the Fabric {@link TeleportTarget} being represented by the given {@link Location}.
+     * Returns the Fabric {@link TeleportTransition} being represented by the given {@link Location}.
      *
-     * @param location      the {@link Location} to get the {@link TeleportTarget} from
+     * @param location      the {@link Location} to get the {@link TeleportTransition} from
      * @param afterTeleport the {@link Consumer} to run after the teleport completes
-     * @return the {@link TeleportTarget} being represented by the given {@link Location}
+     * @return the {@link TeleportTransition} being represented by the given {@link Location}
      * @since 4.7
      */
     @Nullable
-    public TeleportTarget getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
+    //#if MC>=260102
+    public TeleportTransition getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
+    //#else
+    //$$ public TeleportTarget getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
+    //#endif
         return FabricHuskHomes.Adapter.adapt(location, ((FabricHuskHomes) plugin).getMinecraftServer(), afterTeleport);
     }
 
     /**
-     * Returns the Fabric {@link TeleportTarget} being represented by the given {@link Location}.
+     * Returns the Fabric {@link TeleportTransition} being represented by the given {@link Location}.
      *
-     * @param location the {@link Location} to get the {@link TeleportTarget} from
-     * @return the {@link TeleportTarget} being represented by the given {@link Location}
+     * @param location the {@link Location} to get the {@link TeleportTransition} from
+     * @return the {@link TeleportTransition} being represented by the given {@link Location}
      * @since 4.7
      */
     @Nullable
-    public TeleportTarget getTeleportTarget(@NotNull Location location) {
+    //#if MC>=260102
+    public TeleportTransition getTeleportTarget(@NotNull Location location) {
+    //#else
+    //$$ public TeleportTarget getTeleportTarget(@NotNull Location location) {
+    //#endif
         return getTeleportTarget(location, (entity) -> {
         });
     }
@@ -147,15 +178,23 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @Nullable
-    public Location adaptLocation(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
-                                  float yaw, float pitch) {
+    public Location adaptLocation(
+            //#if MC>=260102
+            @NotNull Vec3 pos,
+            @NotNull ServerLevel world,
+            //#else
+            //$$ @NotNull Vec3d pos,
+            //$$ @NotNull net.minecraft.world.World world,
+            //#endif
+            float yaw, float pitch
+    ) {
         return FabricHuskHomes.Adapter.adapt(pos, world, yaw, pitch);
     }
 
     /**
      * Returns a {@link Position} instance for the given Fabric {@link Location} on the server.
      *
-     * @param pos    the {@link Vec3d} position to get the {@link Position} instance for
+     * @param pos    the {@link Vec3} position to get the {@link Position} instance for
      * @param world  the world the position is on
      * @param yaw    the yaw of the position
      * @param pitch  the pitch of the position
@@ -165,15 +204,24 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @NotNull
-    public Position adaptPosition(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
-                                  float yaw, float pitch, @NotNull String server) {
+    public Position adaptPosition(
+            //#if MC>=260102
+            @NotNull Vec3 pos,
+            @NotNull ServerLevel world,
+            //#else
+            //$$ @NotNull Vec3d pos,
+            //$$ @NotNull net.minecraft.world.World world,
+            //#endif
+            float yaw, float pitch,
+            @NotNull String server
+    ) {
         return FabricHuskHomes.Adapter.adapt(pos, world, yaw, pitch, server);
     }
 
     /**
      * Returns a {@link Position} instance for the given Fabric {@link Location} on the server.
      *
-     * @param pos   the {@link Vec3d} position to get the {@link Position} instance for
+     * @param pos   the {@link Vec3} position to get the {@link Position} instance for
      * @param world the world the position is on
      * @param yaw   the yaw of the position
      * @param pitch the pitch of the position
@@ -182,8 +230,16 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @NotNull
-    public Position adaptPosition(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
-                                  float yaw, float pitch) {
+    public Position adaptPosition(
+            //#if MC>=260102
+            @NotNull Vec3 pos,
+            @NotNull ServerLevel world,
+            //#else
+            //$$ @NotNull Vec3d pos,
+            //$$ @NotNull net.minecraft.world.World world,
+            //#endif
+            float yaw, float pitch
+    ) {
         return FabricHuskHomes.Adapter.adapt(pos, world, yaw, pitch, getServer());
     }
 

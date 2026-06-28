@@ -167,6 +167,13 @@ public class RtpCommand extends Command implements UserListTabCompletable {
             return Optional.empty();
         }
 
+        if (!teleporter.hasPermission(getPermission(worldName)) ||
+                (targetServer != null && !teleporter.hasPermission(getPermission(targetServer)))) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return Optional.empty();
+        }
+
         // Check they have sufficient funds
         if (!plugin.validateTransaction(teleporter, TransactionResolver.Action.RANDOM_TELEPORT)) {
             return Optional.empty();

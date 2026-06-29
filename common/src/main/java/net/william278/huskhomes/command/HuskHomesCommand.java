@@ -78,6 +78,10 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                 .version(plugin.getPluginVersion())
                 .credits("Author",
                         AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
+                .credits("Maintainers",
+                        AboutMenu.Credit.of("QarthO").description("Click to visit their GitHub").url("https://github.com/QarthO"),
+                        AboutMenu.Credit.of("TrueWinter").description("Click to visit their GitHub").url("https://github.com/TrueWinter"))
+                           
                 .credits("Contributors",
                         AboutMenu.Credit.of("imDaniX").description("Code, refactoring"),
                         AboutMenu.Credit.of("Log1x").description("Code"))

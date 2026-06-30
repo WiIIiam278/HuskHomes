@@ -19,12 +19,12 @@
 
 package net.william278.huskhomes.user;
 
-import io.papermc.lib.PaperLib;
 import net.william278.huskhomes.BukkitHuskHomes;
 import net.william278.huskhomes.network.PluginMessageBroker;
 import net.william278.huskhomes.position.Location;
 import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.teleport.TeleportationException;
+import net.william278.huskhomes.util.BukkitPaperCompat;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -122,13 +122,12 @@ public class BukkitUser extends OnlineUser {
             throw new TeleportationException(TeleportationException.Type.ILLEGAL_TARGET_COORDINATES, plugin);
         }
 
-        // Run on the appropriate thread scheduler for this platform
         plugin.runSync(() -> {
             bukkitPlayer.leaveVehicle();
             bukkitPlayer.eject();
             bukkitPlayer.setFallDistance(0f);
             if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
-                PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                BukkitPaperCompat.teleportAsync(bukkitPlayer, location);
                 return;
             }
             bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);

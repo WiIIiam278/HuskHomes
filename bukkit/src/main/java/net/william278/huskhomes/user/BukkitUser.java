@@ -34,6 +34,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +47,8 @@ import java.util.stream.Collectors;
 public class BukkitUser extends OnlineUser {
 
     private static final String VANISHED_META_KEY = "vanished";
+    private static final Method PLAYER_TELEPORT_ASYNC_METHOD = getPlayerTeleportAsyncMethod();
+
     private final NamespacedKey INVULNERABLE_KEY = new NamespacedKey((BukkitHuskHomes) plugin, "invulnerable");
     private final Player bukkitPlayer;
 
@@ -127,12 +131,40 @@ public class BukkitUser extends OnlineUser {
             bukkitPlayer.leaveVehicle();
             bukkitPlayer.eject();
             bukkitPlayer.setFallDistance(0f);
-            if (async || ((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
+            if (((BukkitHuskHomes) plugin).getScheduler().isUsingFolia()) {
+                teleportAsync(location);
+                return;
+            }
+            if (async) {
                 PaperLib.teleportAsync(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 return;
             }
             bukkitPlayer.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, this);
+    }
+
+    private void teleportAsync(@NotNull org.bukkit.Location location) {
+        if (PLAYER_TELEPORT_ASYNC_METHOD == null) {
+            throw new IllegalStateException("Folia requires Player#teleportAsync(Location, TeleportCause)");
+        }
+
+        try {
+            PLAYER_TELEPORT_ASYNC_METHOD.invoke(bukkitPlayer, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Could not access Player#teleportAsync(Location, TeleportCause)", e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException("Failed to teleport player asynchronously", e.getCause());
+        }
+    }
+
+    private static Method getPlayerTeleportAsyncMethod() {
+        try {
+            return Player.class.getMethod(
+                    "teleportAsync", org.bukkit.Location.class, PlayerTeleportEvent.TeleportCause.class
+            );
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     @Override

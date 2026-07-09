@@ -134,11 +134,19 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
 
     @Override
     public void onEnable() {
-        this.audiences = BukkitAudiences.create(this);
+        this.createAudiences();
         this.morePaperLib = new MorePaperLib(this);
         this.toilet = BukkitToilet.create(getDumpOptions());
         this.enable();
         this.loadCommands();
+    }
+
+    /**
+     * Create the Adventure audience provider used on Spigot.
+     * Paper overrides this as a no-op and uses the server's native Adventure instead.
+     */
+    protected void createAudiences() {
+        this.audiences = BukkitAudiences.create(this);
     }
 
     @Override

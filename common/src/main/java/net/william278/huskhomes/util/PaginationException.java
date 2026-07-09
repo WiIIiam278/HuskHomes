@@ -17,29 +17,12 @@
  *  limitations under the License.
  */
 
-package net.william278.huskhomes.command;
+package net.william278.huskhomes.util;
 
-import net.william278.huskhomes.HuskHomes;
-import net.william278.huskhomes.util.PaginatedList;
-import org.jetbrains.annotations.NotNull;
+public class PaginationException extends RuntimeException {
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-public abstract class ListCommand extends Command {
-
-    protected final Map<UUID, PaginatedList> cachedLists;
-
-    protected ListCommand(@NotNull List<String> aliases, @NotNull String usage,
-                          @NotNull HuskHomes plugin) {
-        super(aliases, usage, plugin);
-        this.cachedLists = new HashMap<>();
-    }
-
-    public void invalidateCaches() {
-        cachedLists.clear();
+    public PaginationException(String message) {
+        super(message);
     }
 
 }

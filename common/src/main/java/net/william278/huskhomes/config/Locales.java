@@ -21,10 +21,11 @@ package net.william278.huskhomes.config;
 
 import com.google.common.collect.Maps;
 import de.exlll.configlib.Configuration;
-import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.william278.paginedown.ListOptions;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.william278.huskhomes.util.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
@@ -47,10 +48,12 @@ public class Locales {
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ See plugin about menu for international locale credits
-            ┣╸ Formatted in MineDown: https://github.com/WiIIiam278/MineDown
+            ┣╸ Formatted in MiniMessage: https://docs.papermc.io/adventure/minimessage/
             ┗╸ Translate HuskHomes: https://william278.net/docs/huskhomes/translations""";
 
     protected static final String DEFAULT_LOCALE = "en-gb";
+
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     // The raw set of locales loaded from yaml
     private Map<String, String> locales = Maps.newTreeMap();
@@ -74,7 +77,7 @@ public class Locales {
     /**
      * Returns a raw, un-formatted locale loaded from the locales file, with replacements applied.
      *
-     * <p>Note that replacements will not be MineDown-escaped; use {@link #escapeText(String)} to escape replacements
+     * <p>Note that replacements will not be MiniMessage-escaped; use {@link #escapeText(String)} to escape replacements
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
@@ -85,38 +88,38 @@ public class Locales {
     }
 
     /**
-     * Returns a MineDown-formatted locale from the locales file.
+     * Returns a MiniMessage-formatted locale from the locales file.
      *
      * @param localeId String identifier of the locale, corresponding to a key in the file
      * @return An {@link Optional} containing the formatted locale corresponding to the id, if it exists
      */
-    public Optional<MineDown> getLocale(@NotNull String localeId) {
+    public Optional<Component> getLocale(@NotNull String localeId) {
         return getRawLocale(localeId).map(this::format);
     }
 
     /**
-     * Returns a MineDown-formatted locale from the locales file, with replacements applied.
+     * Returns a MiniMessage-formatted locale from the locales file, with replacements applied.
      *
-     * <p>Note that replacements will be MineDown-escaped before application
+     * <p>Note that replacements will be MiniMessage-escaped before application
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
      * @return An {@link Optional} containing the replacement-applied, formatted locale corresponding to the id
      */
-    public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
+    public Optional<Component> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
                 .toArray(String[]::new)).map(this::format);
     }
 
     /**
-     * Returns a MineDown-formatted string.
+     * Returns a MiniMessage-formatted component.
      *
-     * @param text The text to format
-     * @return A {@link MineDown} object containing the formatted text
+     * @param text The MiniMessage text to format
+     * @return A {@link Component} containing the formatted text
      */
     @NotNull
-    public MineDown format(@NotNull String text) {
-        return new MineDown(text);
+    public Component format(@NotNull String text) {
+        return MINI_MESSAGE.deserialize(text);
     }
 
     /**
@@ -138,26 +141,14 @@ public class Locales {
     }
 
     /**
-     * Escape a string from {@link MineDown} formatting for use in a MineDown-formatted locale.
+     * Escape a string from MiniMessage formatting for use in a MiniMessage-formatted locale.
      *
      * @param string The string to escape
      * @return The escaped string
      */
     @NotNull
     public static String escapeText(@NotNull String string) {
-        final StringBuilder value = new StringBuilder();
-        for (int i = 0; i < string.length(); ++i) {
-            char c = string.charAt(i);
-            boolean isEscape = c == '\\';
-            boolean isColorCode = i + 1 < string.length() && (c == 167 || c == '&');
-            boolean isEvent = c == '[' || c == ']' || c == '(' || c == ')';
-            if (isEscape || isColorCode || isEvent) {
-                value.append('\\');
-            }
-
-            value.append(c);
-        }
-        return value.toString();
+        return MINI_MESSAGE.escapeTags(string);
     }
 
     @NotNull
@@ -202,10 +193,10 @@ public class Locales {
                 .setPageJumperPageSeparator(getRawLocale("list_page_jumper_separator").orElse(""))
                 .setPageJumperGroupSeparator(getRawLocale("list_page_jumper_group_separator").orElse(""))
                 .setItemSeparator(getRawLocale("list_item_divider").orElse(" "))
-                .setItemsPerPage(itemsPerPage)
-                .setEscapeItemsMineDown(false)
+                .setEscapeItems(false)
                 .setSpaceAfterHeader(false)
-                .setSpaceBeforeFooter(false);
+                .setSpaceBeforeFooter(false)
+                .setItemsPerPage(itemsPerPage);
     }
 
     /**

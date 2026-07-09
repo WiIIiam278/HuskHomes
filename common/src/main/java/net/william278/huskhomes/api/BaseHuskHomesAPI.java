@@ -19,7 +19,7 @@
 
 package net.william278.huskhomes.api;
 
-import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.config.Settings;
@@ -913,15 +913,15 @@ public class BaseHuskHomesAPI {
     }
 
     /**
-     * Get a {@link MineDown}-formatted locale by key from the plugin {@link Locales} file.
+     * Get a MiniMessage-formatted locale by key from the plugin {@link Locales} file.
      *
      * @param localeKey    The key of the locale to get
      * @param replacements Replacement strings to apply to the locale
-     * @return The {@link MineDown}-formatted locale
-     * @apiNote Since v3.0.4, this returns MineDown-<a href="https://docs.adventure.kyori.net/">Adventure</a> components
+     * @return The MiniMessage-formatted {@link Component}
+     * @apiNote Returns Adventure {@link Component}s parsed via MiniMessage
      * @since 3.0
      */
-    public final Optional<MineDown> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
+    public final Optional<Component> getLocale(@NotNull String localeKey, @NotNull String... replacements) {
         return plugin.getLocales().getLocale(localeKey, replacements);
     }
 

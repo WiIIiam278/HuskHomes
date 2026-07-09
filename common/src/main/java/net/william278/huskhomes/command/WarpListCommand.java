@@ -24,7 +24,7 @@ import net.william278.huskhomes.config.Locales;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.paginedown.PaginatedList;
+import net.william278.huskhomes.util.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

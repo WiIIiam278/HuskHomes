@@ -59,6 +59,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -75,6 +76,7 @@ import space.arim.morepaperlib.scheduling.RegionalScheduler;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 @Getter
@@ -315,6 +317,20 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
     @NotNull
     public AttachedScheduler getUserSyncScheduler(@NotNull OnlineUser user) {
         return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
+    }
+
+    public boolean isUsingFolia() {
+        return getScheduler().isUsingFolia();
+    }
+
+    @NotNull
+    public CompletableFuture<Boolean> teleportPlayer(@NotNull Player player, @NotNull org.bukkit.Location location,
+                                                     @NotNull PlayerTeleportEvent.TeleportCause cause,
+                                                     boolean async) {
+        if (async || isUsingFolia()) {
+            return io.papermc.lib.PaperLib.teleportAsync(player, location, cause);
+        }
+        return CompletableFuture.completedFuture(player.teleport(location, cause));
     }
 
     @Override

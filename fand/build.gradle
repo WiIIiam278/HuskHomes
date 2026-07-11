@@ -15,10 +15,10 @@ dependencies {
     implementation project(':common')
     implementation 'net.william278.toilet:toilet-common:1.1.0'
 
-    compileOnly 'io.fand:fand-api:0.7.2+build.1'
+    compileOnly 'io.fand:fand-api:0.7.4+build.1'
     compileOnly 'org.jetbrains:annotations:26.1.0'
 
-    testImplementation 'io.fand:fand-api:0.7.2+build.1'
+    testImplementation 'io.fand:fand-api:0.7.4+build.1'
 }
 
 shadowJar {

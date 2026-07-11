@@ -3,7 +3,7 @@ This will walk you through installing HuskHomes on your Spigot, Fabric, or Fand 
 ## Requirements
 > **Note:** If the plugin fails to load, please check that you are not running an [incompatible version combination](Compatibility)
 
-* A Spigot (1.17.1+), Fabric (latest Minecraft version), or Fand 0.7.2+ _Minecraft: Java Edition_ server. Fand requires Java 25.
+* A Spigot (1.17.1+), Fabric (latest Minecraft version), or Fand 0.7.4+ _Minecraft: Java Edition_ server. Fand requires Java 25.
 * (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB/PostgreSQL database
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 

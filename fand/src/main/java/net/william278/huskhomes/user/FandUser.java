@@ -32,6 +32,7 @@ import java.util.logging.Level;
 public final class FandUser extends OnlineUser {
 
     private static final Key BUNGEE_CHANNEL = Key.key("bungeecord", "main");
+    private static final double MOVEMENT_THRESHOLD_SQUARED = 0.01D;
 
     private final Player player;
     private final String invulnerableTag;
@@ -131,10 +132,11 @@ public final class FandUser extends OnlineUser {
 
     @Override
     public boolean isMoving() {
-        final Vector3 velocity = player.velocity();
-        return Math.abs(velocity.x()) > 0.001D
-                || Math.abs(velocity.y()) > 0.001D
-                || Math.abs(velocity.z()) > 0.001D;
+        return isMoving(player.velocity());
+    }
+
+    static boolean isMoving(@NotNull Vector3 velocity) {
+        return velocity.lengthSquared() >= MOVEMENT_THRESHOLD_SQUARED;
     }
 
     @Override

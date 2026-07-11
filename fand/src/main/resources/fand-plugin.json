@@ -1,0 +1,14 @@
+{
+  "id": "huskhomes",
+  "version": "${version}",
+  "mainClass": "net.william278.huskhomes.FandHuskHomes",
+  "description": "${description}",
+  "website": "https://william278.net/project/huskhomes/",
+  "license": "Apache-2.0",
+  "apiVersion": "0.1.1",
+  "authors": ["William278"],
+  "depends": [],
+  "loadAfter": [],
+  "loadBefore": [],
+  "permissions": []
+}

@@ -21,6 +21,7 @@ The HuskHomes API is available for the following platforms:
 
 * `bukkit` - Bukkit, Spigot, Paper, etc. Provides Bukkit API event listeners and adapters to `org.bukkit` objects.
 * `fabric` - Fabric, Quilt, etc. Provides Fabric API event callbacks and adapters to `net.minecraft` objects.
+* `fand` - Fand Server. Provides Fand event-bus integration and adapters to `io.fand.api` objects.
 * `common` - Common API for all platforms.
 
 <details>
@@ -84,7 +85,7 @@ dependencies {
 </details>
 
 ## 2 Adding HuskHomes as a dependency
-Add HuskHomes to your `softdepend` (if you want to optionally use HuskHomes) or `depend` (if your plugin relies on HuskHomes) section in `plugin.yml` of your project.
+Add HuskHomes to your platform's plugin dependency metadata. Bukkit plugins use `softdepend` or `depend` in `plugin.yml`. Fand plugins that directly use HuskHomes Java API types must use `depends` in `fand-plugin.json`; `loadAfter` only controls order and does not grant class-loader visibility.
 
 ```yaml
 name: MyPlugin
@@ -94,6 +95,14 @@ author: William278
 description: 'A plugin that hooks with the HuskHomes API!'
 softdepend: # Or, use 'depend' here
   - HuskHomes
+```
+
+For Fand, use the lowercase plugin id:
+
+```json
+{
+  "depends": ["huskhomes"]
+}
 ```
 
 ## 3 Next steps

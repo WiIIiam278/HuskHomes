@@ -25,6 +25,9 @@ include(
         // Paper/Spigot
         'bukkit',
         'paper',
+
+        // Fand
+        'fand',
 )
 
 

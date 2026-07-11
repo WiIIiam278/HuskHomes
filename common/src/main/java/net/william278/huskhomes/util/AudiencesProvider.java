@@ -36,13 +36,16 @@ import java.util.UUID;
 public interface AudiencesProvider {
 
     /**
-     * Get the {@link Audiences} instance.
+     * Get the platform {@link Audiences} instance, when one is available.
      *
      * @return the {@link Audiences} instance
+     * @throws UnsupportedOperationException if the platform uses Adventure directly without a platform adapter
      * @since 4.8
      */
     @NotNull
-    AudienceProvider getAudiences();
+    default AudienceProvider getAudiences() {
+        throw new UnsupportedOperationException("This platform does not expose an Adventure AudienceProvider");
+    }
 
     /**
      * Get the {@link Audience} instance for the given {@link OnlineUser}.

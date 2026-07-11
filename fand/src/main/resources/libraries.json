@@ -1,0 +1,30 @@
+{
+  "repositories": [
+    "https://repo.maven.apache.org/maven2/"
+  ],
+  "libraries": [
+    "org.xerial:sqlite-jdbc:${sqlite_driver_version}",
+    "com.mysql:mysql-connector-j:${mysql_driver_version}",
+    "org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}",
+    "com.h2database:h2:${h2_driver_version}",
+    "org.postgresql:postgresql:${postgresql_driver_version}",
+    "redis.clients:jedis:${jedis_version}",
+    "org.apache.commons:commons-pool2:2.13.1"
+  ],
+  "sha256": {
+    "org.xerial:sqlite-jdbc:3.49.1.0": "5c8609d2ca341deb8c6f71778974b5ba4995c7d32d7c7c89d9392a3e72c39291",
+    "com.mysql:mysql-connector-j:9.3.0": "6c8e6692b521376d89bc5618c16cdeaf8c61854329f4fa25677ed08776c5bb76",
+    "com.google.protobuf:protobuf-java:4.29.0": "16901851ebe5e89fe88aaad3c26866373695bc2e30627bb8932847e2f5fc2e76",
+    "org.mariadb.jdbc:mariadb-java-client:3.5.3": "85c4ba2f221d0dfd439c26affbb294f784960763544263c65aba9c2c76858706",
+    "com.h2database:h2:2.3.232": "8dae62d22db8982c3dcb3826edb9c727c5d302063a67eef7d63d82de401f07d3",
+    "org.postgresql:postgresql:42.7.5": "69020b3bd20984543e817393f2e6c01a890ef2e37a77dd11d6d8508181d079ab",
+    "org.checkerframework:checker-qual:3.48.3": "443685b1b232803baaf803c15d6f5a425473c6f7b81c5f276dfcf93288e389a5",
+    "redis.clients:jedis:6.0.0": "649ab60fb183a0d41aee702c7e1093b0296c79d6c4a773768f6577a97864f245",
+    "org.slf4j:slf4j-api:1.7.36": "d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0",
+    "com.google.code.gson:gson:2.12.1": "ebee13d5fb7477cd7f1cc010e0c356df8ca80709715248da97f79e35ccb4fbec",
+    "com.google.errorprone:error_prone_annotations:2.36.0": "77440e270b0bc9a249903c5a076c36a722c4886ca4f42675f2903a1c53ed61a5",
+    "org.apache.commons:commons-pool2:2.13.1": "f77a5060d6936a9144023584232f9de3f2248f1abfe156e9d31795f18770674f",
+    "org.json:json:20250107": "85d4c1ab192d3117fd02c7fff1ec0fe63ade45cf56def7fe950ef060cf06e99f",
+    "redis.clients.authentication:redis-authx-core:0.1.1-beta2": "cc56edb08b3df8562cddac108dca61907d21cc4ad04de05e9f5d1b01058390af"
+  }
+}

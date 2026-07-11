@@ -39,3 +39,17 @@ HomeCreateCallback.EVENT.register((player, home) -> {
 });.
 ```
 </details>
+
+## Events on Fand
+> **Note:** Target the `huskhomes-fand` artifact described in the [[API]] introduction.
+
+Fand publishes every HuskHomes API event through the plugin event bus as a `FandHuskHomesEvent`. Its `event()` payload is one of the common event interfaces listed above; mutations and cancellation are applied to the operation being processed.
+
+```java
+context.events().subscribe(FandHuskHomesEvent.class, event -> {
+    if (event.event() instanceof IHomeCreateEvent homeCreate) {
+        homeCreate.setName(homeCreate.getName().toLowerCase(Locale.ROOT));
+        // homeCreate.setCancelled(true);
+    }
+});
+```

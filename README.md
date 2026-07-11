@@ -28,7 +28,7 @@
 
 **HuskHomes** is a powerful, intuitive and flexible teleportation plugin for _Minecraft: Java Edition_ servers. HuskHomes contains a meaty&mdash;but not bloated&mdash;set of player teleportation features, including set homes, warps, public homes, teleport requests, previous and offline position teleporting&mdash;and more. 
 
-HuskHomes can be used on your Spigot or Fabric server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!  
+HuskHomes can be used on your Spigot, Fabric, or Fand server, and with a MySQL Database even works cross-server, letting players teleport across your proxy (Bungee or Velocity) network!
 
 ## Features
 **⭐ Works cross-server** &mdash; Let players seamlessly teleport and set homes across your proxies network of servers using MySQL/MariaDB.

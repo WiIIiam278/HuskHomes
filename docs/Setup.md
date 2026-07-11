@@ -1,9 +1,9 @@
-This will walk you through installing HuskHomes on your Spigot or Fabric server, or proxy network of servers.
+This will walk you through installing HuskHomes on your Spigot, Fabric, or Fand server, or proxy network of servers.
 
 ## Requirements
 > **Note:** If the plugin fails to load, please check that you are not running an [incompatible version combination](Compatibility)
 
-* A Spigot (1.17.1+) or Fabric (latest Minecraft version) _Minecraft: Java Edition_ server running on Java 17+
+* A Spigot (1.17.1+), Fabric (latest Minecraft version), or Fand 0.7.2+ _Minecraft: Java Edition_ server. Fand requires Java 25.
 * (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB/PostgreSQL database
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 
@@ -11,12 +11,13 @@ This will walk you through installing HuskHomes on your Spigot or Fabric server,
 Download the correct jar file for your server from the [latest release page](https://github.com/WiIIiam278/HuskHomes/releases/latest):
 * the `HuskHomes-Paper` jar for Spigot or Paper servers
 * the `HuskHomes-Fabric` jar for Fabric servers
+* the `HuskHomes-Fand` jar for Fand servers
 
 ## Single-server Setup Instructions
-These instructions are for simply installing HuskHomes on one Spigot or Fabric server.
+These instructions are for simply installing HuskHomes on one supported server.
 
 ### 1. Install the jar
-- Place the plugin jar file in the `/plugins/` directory of your Spigot server, or the `/mods` directory of your Fabric server.
+- Place the plugin jar file in the `/plugins/` directory of your Spigot or Fand server, or the `/mods` directory of your Fabric server.
 ### 2. Restart the server and configure
 - Start, then stop your server to let HuskHomes generate the config file.
 - You can now edit the [config](Config-Files) and locales to your liking.
@@ -26,16 +27,16 @@ These instructions are for simply installing HuskHomes on one Spigot or Fabric s
 -----
 
 ## Multi-server Setup Instructions
-These instructions are for installing HuskHomes on multiple Spigot or Fabric servers and having them network together. A MySQL database (v8.0+) is required.
+These instructions are for installing HuskHomes on multiple supported servers and having them network together. A MySQL database (v8.0+) is required.
 
 ### 1. Install the jar
-- Place the plugin jar file in the `/plugins/` directory of each Spigot server, or the `/mods` directory of your Fabric server.
+- Place the plugin jar file in the `/plugins/` directory of each Spigot or Fand server, or the `/mods` directory of each Fabric server.
 - You do not need to install HuskHomes as a proxy plugin.
 ### 2. Restart the server and configure
 - Start, then stop every server to let HuskHomes generate the config file.
-- Advanced users: If you'd prefer, you can just create one config.yml file and create symbolic links in each `/plugins/HuskHomes/` (`/config/huskhomes/` on Fabric) folder to it to make updating it easier.
+- Advanced users: If you'd prefer, you can just create one config.yml file and create symbolic links in each `/plugins/HuskHomes/` (`/config/huskhomes/` on Fabric, `/plugins/huskhomes/` on Fand) folder to it to make updating it easier.
 ### 3. Configure servers to use cross-server mode
-- Navigate to the HuskHomes [config](Config-Files) file on each server (`~/plugins/HuskHomes/config.yml` on Spigot, `~/config/huskhomes/config.yml` on Fabric)
+- Navigate to the HuskHomes [config](Config-Files) file on each server (`~/plugins/HuskHomes/config.yml` on Spigot, `~/config/huskhomes/config.yml` on Fabric, `~/plugins/huskhomes/config.yml` on Fand)
 - Under `database`, set `type` to `MYSQL`, `MARIADB` or `POSTGRESQL` (depending on which type of database you wish to use)
 - Under `mysql`/`credentials`, enter the credentials of your MySQL, MariaDB or PostgreSQL database server.
 - Scroll down and look for the `cross_server` section. Set `enabled` to `true`.

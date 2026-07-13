@@ -69,7 +69,7 @@ locales:
   home_is_public: '<#6FFF00>☀ 公共</#6FFF00>'
   home_is_private: '<#FF9F0F>∅ プライベート</#FF9F0F>'
   warp_list_item: '<click:run_command:''/huskhomes:warp %2%''><hover:show_text:''<#00FB9A>%1%\n<gray>ℹ %3%</gray></#00FB9A>''>[%1%]</hover></click>'
-  command_list_item: '<#00FB9A><click:suggest_command:''/%1%''><hover:show_text:''<gray>Click to suggest command</gray>''>/%1%</hover></click></#00FB9A>   <gray><hover:show_text:''<#00FB9A>/%1%\n<gray>%3%</gray></#00FB9A>''>%2%</hover></gray>'
+  command_list_item: '<#00FB9A><click:suggest_command:''/%1%''><hover:show_text:''<gray>Click to suggest command</gray>''>/%1%</hover></click></#00FB9A>   <gray><hover:show_text:"<#00FB9A>/%1%\n<gray>%3%</gray></#00FB9A>">%2%</hover></gray>'
   list_item_divider: ' <gray>•</gray> '
   list_footer: '\n%1%<#00FB9A>ページ</#00FB9A> <#00FB9A>%2%</#00FB9A>/<#00FB9A>%3%</#00FB9A>%4%   %5%'
   list_previous_page_button: '<white><click:run_command:''%2% %1%''><hover:show_text:''<gray>前のページを表示</gray>''>◀</hover></click></white> '

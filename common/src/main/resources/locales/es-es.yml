@@ -69,7 +69,7 @@ locales:
   home_is_public: '<#6FFF00>☀ Pública</#6FFF00>'
   home_is_private: '<#FF9F0F>∅ Privada</#FF9F0F>'
   warp_list_item: '<click:run_command:''/huskhomes:warp %2%''><hover:show_text:''<#00FB9A>%1%\n<gray>Estado: %3%\n</gray><gray>ℹ %4%</gray></#00FB9A>''>[%1%]</hover></click>'
-  command_list_item: '<#00FB9A><click:suggest_command:''/%1%''><hover:show_text:''<gray>Clic para sugerir el comando</gray>''>/%1%</hover></click></#00FB9A>   <gray><hover:show_text:''<#00FB9A>/%1%\n<gray>%3%</gray></#00FB9A>''>%2%</hover></gray>'
+  command_list_item: '<#00FB9A><click:suggest_command:''/%1%''><hover:show_text:''<gray>Clic para sugerir el comando</gray>''>/%1%</hover></click></#00FB9A>   <gray><hover:show_text:"<#00FB9A>/%1%\n<gray>%3%</gray></#00FB9A>">%2%</hover></gray>'
   list_item_divider: ' <gray>•</gray> '
   list_footer: '\n%1%<#00FB9A>Página</#00FB9A> <#00FB9A>%2%</#00FB9A>/<#00FB9A>%3%</#00FB9A>%4%   %5%'
   list_previous_page_button: '<white><click:run_command:''%2% %1%''><hover:show_text:''<gray>Ver página anterior</gray>''>◀</hover></click></white> '

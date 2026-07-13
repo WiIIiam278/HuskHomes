@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.command;
 
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -37,7 +36,7 @@ import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.StatusLine;
-import net.william278.paginedown.PaginatedList;
+import net.william278.huskhomes.util.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -168,8 +167,8 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                     plugin.registerHooks(PluginHook.Register.ON_ENABLE, PluginHook.Register.AFTER_LOAD);
                     plugin.getLocales().getLocale("reload_complete").ifPresent(executor::sendMessage);
                 } catch (Throwable e) {
-                    executor.sendMessage(new MineDown(
-                            "[Error:](#ff3300) [Failed to reload the plugin. Check console for errors.](#ff7e5e)"
+                    executor.sendMessage(plugin.getLocales().format(
+                            "<#ff3300>Error:</#ff3300> <#ff7e5e>Failed to reload the plugin. Check console for errors.</#ff7e5e>"
                     ));
                     plugin.log(Level.SEVERE, "Failed to reload the plugin", e);
                 }

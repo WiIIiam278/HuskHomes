@@ -19,7 +19,7 @@
 
 package net.william278.huskhomes.command;
 
-import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
@@ -232,12 +232,12 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
      * @param otherViewer             If the viewer of the editor is not the homeowner
      * @param showTeleportButton      Whether to show the teleport "use" button
      * @param showPrivacyToggleButton Whether to show the home privacy toggle button
-     * @return List of {@link MineDown} messages to send to the editor that form the menu
+     * @return List of {@link Component} messages to send to the editor that form the menu
      */
     @NotNull
-    private List<MineDown> getHomeEditorWindow(@NotNull Home home, boolean otherViewer,
+    private List<Component> getHomeEditorWindow(@NotNull Home home, boolean otherViewer,
                                                boolean showTeleportButton, boolean showPrivacyToggleButton) {
-        final List<MineDown> messages = new ArrayList<>();
+        final List<Component> messages = new ArrayList<>();
         if (!otherViewer) {
             plugin.getLocales().getLocale("edit_home_menu_title", home.getName())
                     .ifPresent(messages::add);
@@ -288,7 +288,7 @@ public class EditHomeCommand extends SavedPositionCommand<Home> {
                                 .getRawLocale("edit_home_menu_privacy_button_"
                                         + (home.isPublic() ? "private" : "public"), home.getSafeIdentifier())
                                 .orElse("") : "")
-                .map(MineDown::new).ifPresent(messages::add);
+                .map(plugin.getLocales()::format).ifPresent(messages::add);
         plugin.getLocales().getLocale("edit_home_menu_meta_edit_buttons", home.getSafeIdentifier())
                 .ifPresent(messages::add);
         return messages;

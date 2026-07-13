@@ -26,7 +26,7 @@ import net.william278.huskhomes.user.CommandUser;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
 import net.william278.huskhomes.user.User;
-import net.william278.paginedown.PaginatedList;
+import net.william278.huskhomes.util.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

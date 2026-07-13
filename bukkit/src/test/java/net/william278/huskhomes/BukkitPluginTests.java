@@ -22,7 +22,8 @@ package net.william278.huskhomes;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.william278.huskhomes.command.Command;
 import net.william278.huskhomes.position.*;
 import net.william278.huskhomes.user.BukkitUser;
@@ -103,13 +104,17 @@ public class BukkitPluginTests {
         public void testMessageFormatting() {
             PlayerMock player = server.addPlayer();
 
-            final MineDown simpleLocale = plugin.getLocales()
+            final Component simpleLocale = plugin.getLocales()
                     .getLocale("error_in_game_only")
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
             final String simpleLocaleText = plugin.getLocales().getRawLocale("error_in_game_only")
                     .orElseThrow(() -> new IllegalStateException("Failed to load raw locale"));
             plugin.getOnlineUser(player).sendMessage(simpleLocale);
-            player.assertSaid(simpleLocaleText);
+            player.assertSaid(PlainTextComponentSerializer.plainText().serialize(simpleLocale));
+            Assertions.assertEquals(
+                    PlainTextComponentSerializer.plainText().serialize(plugin.getLocales().format(simpleLocaleText)),
+                    PlainTextComponentSerializer.plainText().serialize(simpleLocale)
+            );
         }
 
         @Test
@@ -117,7 +122,7 @@ public class BukkitPluginTests {
         public void testMessageDispatching() {
             final BukkitUser user = plugin.getOnlineUser(server.addPlayer());
 
-            final MineDown locale = plugin.getLocales()
+            final Component locale = plugin.getLocales()
                     .getLocale("teleporting_action_bar_warmup", Integer.toString(3))
                     .orElseThrow(() -> new IllegalStateException("Failed to load locale"));
             user.sendActionBar(locale);
@@ -140,7 +145,7 @@ public class BukkitPluginTests {
             final Map<String, String> rawLocales = plugin.getLocales().getRawLocales();
             BukkitUser user = plugin.getOnlineUser(server.addPlayer());
             rawLocales.forEach((key, value) -> {
-                Optional<MineDown> locale = plugin.getLocales().getLocale(key);
+                Optional<Component> locale = plugin.getLocales().getLocale(key);
                 Assertions.assertTrue(locale.isPresent());
                 user.sendMessage(locale.get());
             });

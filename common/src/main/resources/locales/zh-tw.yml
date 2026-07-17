@@ -203,4 +203,3 @@ locales:
   tpall_command_description: '將所有人傳送過來'
   huskhomes_command_description: '查看插件資訊並重新載入設定'
   teleporting_back_location_saved: 'back點變動已儲存'
-

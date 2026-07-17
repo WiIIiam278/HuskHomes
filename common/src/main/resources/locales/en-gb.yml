@@ -202,3 +202,4 @@ locales:
   tpaall_command_description: 'Request that everyone teleports to you'
   tpall_command_description: 'Teleport everyone to your position'
   huskhomes_command_description: 'View plugin information & reload configs'
+  teleporting_back_location_saved: 'Back location changes has been saved'

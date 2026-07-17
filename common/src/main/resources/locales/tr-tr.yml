@@ -202,3 +202,4 @@ locales:
   tpaall_command_description: 'Herkesin size ışınlanmasını ister'
   tpall_command_description: 'Herkesi konumunuza ışınlar'
   huskhomes_command_description: 'Eklenti bilgilerini görüntüleyin ve yapılandırmaları yeniden yükler'
+  teleporting_back_location_saved: 'Geri dönülecek konum kaydedildi.'

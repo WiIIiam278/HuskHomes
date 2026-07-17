@@ -113,6 +113,7 @@ public interface CommandProvider {
         commands.add(new SetSpawnCommand(getPlugin()));
         commands.add(new BackCommand(getPlugin()));
         commands.add(new HuskHomesCommand(getPlugin()));
+        commands.add(new SaveBackLocationCommand(getPlugin()));
 
         // Filter, sort, and register
         registerCommands(commands.stream()

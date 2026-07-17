@@ -34,16 +34,16 @@ import java.util.stream.Stream;
 @DisplayName("Saved Position Tests")
 public class SavedPositionTests {
 
-    // Map of positions - true if the position contains unsafe characters, false if not
+    // Map of positions - true if the position contains MiniMessage-unsafe characters, false if not
     private static final Map<String, Boolean> POSITION_UNSAFE_NAMES = Map.of(
             "TestPosition", false,
             "ExamplePos", false,
             "SafeName", false,
-            "[Unsafe]", true,
-            "Unsafe]", true,
-            "[Name](bad)", true,
-            "Unsafe[Name]", true,
-            "不安全(不安全)", true
+            "<red>Unsafe", true,
+            "Unsafe</red>", true,
+            "<hover:show_text:'bad'>Name</hover>", true,
+            "Name<bold>", true,
+            "不安全<#ff0000>", true
     );
 
     @DisplayName("Test Home Identifiers")

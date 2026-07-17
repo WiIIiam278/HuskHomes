@@ -19,7 +19,7 @@
 
 package net.william278.huskhomes.command;
 
-import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
@@ -139,11 +139,11 @@ public class EditWarpCommand extends SavedPositionCommand<Warp> {
      * Get a formatted warp editor chat window for a supplied {@link Warp}.
      *
      * @param warp The warp to display
-     * @return List of {@link MineDown} messages to send to the editor that form the menu
+     * @return List of {@link Component} messages to send to the editor that form the menu
      */
     @NotNull
-    private List<MineDown> getWarpEditorWindow(@NotNull Warp warp) {
-        final List<MineDown> messages = new ArrayList<>();
+    private List<Component> getWarpEditorWindow(@NotNull Warp warp) {
+        final List<Component> messages = new ArrayList<>();
         plugin.getLocales().getLocale("edit_warp_menu_title", warp.getName())
                 .ifPresent(messages::add);
 

@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,19 +30,8 @@ public interface DeleteAllWarpsCallback extends FabricEventCallback<IDeleteAllWa
 
     @NotNull
     Event<DeleteAllWarpsCallback> EVENT = EventFactory.createArrayBacked(DeleteAllWarpsCallback.class,
-            (listeners) -> (event) -> {
-                for (DeleteAllWarpsCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) ->
+                    FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     Function<CommandUser, IDeleteAllWarpsEvent> SUPPLIER = (deleter) ->

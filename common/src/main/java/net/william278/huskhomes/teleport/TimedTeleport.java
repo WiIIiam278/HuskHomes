@@ -19,7 +19,7 @@
 
 package net.william278.huskhomes.teleport;
 
-import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.config.Settings;
 import net.william278.huskhomes.event.ITeleportWarmupCancelledEvent;
@@ -180,7 +180,7 @@ public class TimedTeleport extends Teleport implements Runnable, Completable {
         return false;
     }
 
-    private void sendStatusMessage(@NotNull MineDown message) {
+    private void sendStatusMessage(@NotNull Component message) {
         teleporter.sendMessage(message, plugin.getSettings().getGeneral().getTeleportWarmupDisplay());
     }
 

@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.listener;
 
-import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskhomes.HuskHomes;
@@ -93,7 +92,7 @@ public abstract class EventListener {
                 if (userData.isIgnoringTeleports()) {
                     plugin.getLocales().getRawLocale("tpignore_on_notification", plugin.getLocales()
                             .getRawLocale("tpignore_toggle_button")
-                            .orElse("")).ifPresent(locale -> onlineUser.sendMessage(new MineDown(locale)));
+                            .orElse("")).ifPresent(locale -> onlineUser.sendMessage(plugin.getLocales().format(locale)));
                 }
             });
         });

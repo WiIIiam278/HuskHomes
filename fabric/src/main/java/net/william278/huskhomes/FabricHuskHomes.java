@@ -22,6 +22,7 @@ package net.william278.huskhomes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.pokeskies.fabricpluginmessaging.FabricPluginMessaging;
 import com.pokeskies.fabricpluginmessaging.PluginMessageEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,16 +38,29 @@ import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 //#else
 //$$ import net.kyori.adventure.platform.fabric.FabricServerAudiences;
 //#endif
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.WorldProperties;
+//#if MC>=260102
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.LevelData;
+//#else
+//$$ import net.minecraft.entity.Entity;
+//$$ import net.minecraft.registry.RegistryKey;
+//$$ import net.minecraft.registry.RegistryKeys;
+//$$ import net.minecraft.server.world.ServerWorld;
+//$$ import net.minecraft.util.Identifier;
+//$$ import net.minecraft.util.math.BlockPos;
+//$$ import net.minecraft.util.math.Vec3d;
+//$$ import net.minecraft.world.TeleportTarget;
+//$$ import net.minecraft.world.WorldProperties;
+//#endif
 import net.william278.desertwell.util.Version;
 import net.william278.huskhomes.api.FabricHuskHomesAPI;
 import net.william278.huskhomes.command.Command;
@@ -196,15 +210,31 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void setWorldSpawn(@NotNull Position position) {
-        final ServerWorld world = Adapter.adapt(position, minecraftServer);
+        //#if MC>=260102
+        final ServerLevel world = Adapter.adapt(position, minecraftServer);
+        //#else
+        //$$ final ServerWorld world = Adapter.adapt(position, minecraftServer);
+        //#endif
+
         if (world != null) {
-            //#if MC>=12111
-            world.setSpawnPoint(WorldProperties.SpawnPoint.create(
-                    world.getRegistryKey(),
-                    BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
+            //#if MC>=260102
+            world.setRespawnData(LevelData.RespawnData.of(
+                    world.getLevel().dimension(),
+                    new BlockPos(
+                            (int) Math.floor(position.getX()),
+                            (int) Math.floor(position.getY()),
+                            (int) Math.floor(position.getZ())
+                    ),
                     position.getYaw(),
                     0
             ));
+            //#elseif MC>=12111
+            //$$ world.setSpawnPoint(WorldProperties.SpawnPoint.create(
+            //$$        world.getRegistryKey(),
+            //$$        BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
+            //$$        position.getYaw(),
+            //$$        0
+            //$$ ));
             //#else
             //$$ world.setSpawnPos(
             //$$        BlockPos.ofFloored(position.getX(), position.getY(), position.getZ()),
@@ -255,7 +285,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     @NotNull
     public List<World> getWorlds() {
         final List<World> worlds = Lists.newArrayList();
-        minecraftServer.getWorlds().forEach(world -> worlds.add(Adapter.adapt(world)));
+        //#if MC>=260102
+        minecraftServer.getAllLevels().forEach(level -> worlds.add(Adapter.adapt(level)));
+        //#else
+        //$$ minecraftServer.getWorlds().forEach(world -> worlds.add(Adapter.adapt(world)));
+        //#endif
         return worlds;
     }
 
@@ -270,13 +304,25 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public String getServerType() {
         return String.format("fabric %s/%s", FabricLoader.getInstance()
                 .getModContainer("fabricloader").map(l -> l.getMetadata().getVersion().getFriendlyString())
-                .orElse("unknown"), minecraftServer.getVersion());
+                .orElse("unknown"),
+                //#if MC>=260102
+                minecraftServer.getServerVersion()
+                //#else
+                //$$ minecraftServer.getVersion()
+                //#endif
+        );
     }
 
     @Override
     @NotNull
     public Version getMinecraftVersion() {
-        return Version.fromString(minecraftServer.getVersion());
+        return Version.fromString(
+                //#if MC>=260102
+                minecraftServer.getServerVersion()
+                //#else
+                //$$ minecraftServer.getVersion()
+                //#endif
+        );
     }
 
     @Override
@@ -298,6 +344,11 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
 
     @Override
     public void setupPluginMessagingChannels() {
+        try {
+            FabricPluginMessaging.class.getMethod("initialize").invoke(null);
+        } catch (ReflectiveOperationException ignored) {
+            // Older mapped runtimes initialize this dependency via its own ModInitializer.
+        }
         PluginMessageEvent.EVENT.register((payload, context) -> {
             if (broker instanceof PluginMessageBroker messenger
                 && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
@@ -348,28 +399,69 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     public static class Adapter {
 
         @NotNull
-        public static Location adapt(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
-                                     float yaw, float pitch) {
+        public static Location adapt(
+                //#if MC>=260102
+                @NotNull Vec3 pos,
+                @NotNull ServerLevel world,
+                //#else
+                //$$ @NotNull Vec3d pos,
+                //$$ @NotNull net.minecraft.world.World world,
+                //#endif
+                float yaw, float pitch
+        ) {
+            //#if MC>=260102
+            double x = pos.get(Direction.Axis.X);
+            double y = pos.get(Direction.Axis.Y);
+            double z = pos.get(Direction.Axis.Z);
+            //#else
+            //$$ double x = pos.getX();
+            //$$ double y = pos.getY();
+            //$$ double z = pos.getZ();
+            //#endif
             return Position.at(
-                    pos.getX(), pos.getY(), pos.getZ(),
+                    x, y, z,
                     yaw, pitch,
                     adapt(world)
             );
         }
 
         @NotNull
-        public static Position adapt(@NotNull Vec3d pos, @NotNull net.minecraft.world.World world,
-                                     float yaw, float pitch, @NotNull String server) {
+        public static Position adapt(
+                //#if MC>=260102
+                @NotNull Vec3 pos,
+                @NotNull ServerLevel world,
+                //#else
+                //$$ @NotNull Vec3d pos,
+                //$$ @NotNull net.minecraft.world.World world,
+                //#endif
+                float yaw, float pitch,
+                @NotNull String server
+        ) {
             return Position.at(adapt(pos, world, yaw, pitch), server);
         }
 
         @NotNull
-        public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server,
-                                           @NotNull Consumer<Entity> runAfterTeleport) {
-            return new TeleportTarget(
-                    adapt(location.getWorld(), server),
-                    new Vec3d(location.getX(), location.getY(), location.getZ()),
-                    Vec3d.ZERO,
+        //#if MC>=260102
+        public static TeleportTransition adapt(@NotNull Location location, @NotNull MinecraftServer server,
+                                               @NotNull Consumer<Entity> runAfterTeleport) {
+        //#else
+        //$$ public static TeleportTarget adapt(@NotNull Location location, @NotNull MinecraftServer server,
+        //$$     @NotNull Consumer<Entity> runAfterTeleport) {
+        //#endif
+            //#if MC>=260102
+            Vec3 pos = new Vec3(location.getX(), location.getY(), location.getZ());
+            return new TeleportTransition(
+            //#else
+            //$$ Vec3d pos = new Vec3d(location.getX(), location.getY(), location.getZ());
+            //$$ return new TeleportTarget(
+            //#endif
+                    Objects.requireNonNull(adapt(location.getWorld(), server)),
+                    pos,
+                    //#if MC>=260102
+                    Vec3.ZERO,
+                    //#else
+                    //$$ Vec3d.ZERO,
+                    //#endif
                     location.getYaw(),
                     location.getPitch(),
                     runAfterTeleport::accept
@@ -377,21 +469,45 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
         }
 
         @Nullable
-        public static ServerWorld adapt(@NotNull World world, @NotNull MinecraftServer server) {
-            return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.tryParse(world.getName())));
+        //#if MC>=260102
+        public static ServerLevel adapt(@NotNull World world, @NotNull MinecraftServer server) {
+        //#else
+        //$$ public static ServerWorld adapt(@NotNull World world, @NotNull MinecraftServer server) {
+        //#endif
+            //#if MC>=260102
+            return server.getLevel(ResourceKey.create(Registries.DIMENSION,
+                    Objects.requireNonNull(Identifier.tryParse(world.getName()))));
+            //#else
+            //$$ return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier.tryParse(world.getName())));
+            //#endif
         }
 
         @Nullable
-        public static ServerWorld adapt(@NotNull Position position, @NotNull MinecraftServer server) {
+        //#if MC>=260102
+        public static ServerLevel adapt(@NotNull Position position, @NotNull MinecraftServer server) {
+        //#else
+        //$$ public static ServerWorld adapt(@NotNull Position position, @NotNull MinecraftServer server) {
+        //#endif
             return adapt(position.getWorld(), server);
         }
 
         @NotNull
-        public static World adapt(@NotNull net.minecraft.world.World world) {
+        public static World adapt(
+                //#if MC>=260102
+                @NotNull ServerLevel world
+                //#else
+                //$$ @NotNull net.minecraft.world.World world
+                //#endif
+        ) {
+            //#if MC>=260102
+            String name = world.getLevel().dimension().identifier().asString().replace("minecraft:", "");
+            //#else
+            //$$ String name = world.getRegistryKey().getValue().asMinimalString();
+            //#endif
             return World.from(
-                    world.getRegistryKey().getValue().asMinimalString(),
-                    UUID.nameUUIDFromBytes(world.getRegistryKey().getValue().asString().getBytes()),
-                    World.Environment.match(world.getRegistryKey().getValue().asMinimalString())
+                    name,
+                    UUID.nameUUIDFromBytes(name.getBytes()),
+                    World.Environment.match(name)
             );
         }
 

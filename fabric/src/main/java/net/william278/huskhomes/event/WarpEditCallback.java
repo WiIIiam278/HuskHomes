@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.user.CommandUser;
 import org.apache.commons.lang3.function.TriFunction;
@@ -31,19 +30,7 @@ public interface WarpEditCallback extends FabricEventCallback<IWarpEditEvent> {
 
     @NotNull
     Event<WarpEditCallback> EVENT = EventFactory.createArrayBacked(WarpEditCallback.class,
-            (listeners) -> (event) -> {
-                for (WarpEditCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) -> FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     TriFunction<Warp, Warp, CommandUser, IWarpEditEvent> SUPPLIER = (warp, original, editor) ->

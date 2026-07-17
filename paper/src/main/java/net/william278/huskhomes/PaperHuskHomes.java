@@ -21,6 +21,7 @@ package net.william278.huskhomes;
 
 import net.kyori.adventure.audience.Audience;
 import net.william278.huskhomes.listener.PaperEventListener;
+import net.william278.huskhomes.user.ConsoleUser;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,17 @@ public class PaperHuskHomes extends BukkitHuskHomes {
     @NotNull
     public PaperEventListener createListener() {
         return new PaperEventListener(this);
+    }
+
+    @Override
+    protected void createAudiences() {
+        // Paper provides Adventure natively; do not create adventure-platform-bukkit audiences.
+    }
+
+    @NotNull
+    @Override
+    public ConsoleUser getConsole() {
+        return new ConsoleUser(getServer().getConsoleSender());
     }
 
     @NotNull

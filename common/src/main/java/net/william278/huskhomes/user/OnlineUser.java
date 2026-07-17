@@ -19,7 +19,6 @@
 
 package net.william278.huskhomes.user;
 
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -91,13 +90,12 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     public abstract Map<String, Boolean> getPermissions();
 
     /**
-     * Dispatch a MineDown-formatted title or subtitle to the player.
+     * Dispatch a title or subtitle to the player.
      *
-     * @param mineDown the parsed {@link MineDown} to send
+     * @param message  the {@link Component} to send
      * @param subTitle whether to send the title as a subtitle ({@code true} for a subtitle, {@code false} for a title)
      */
-    public void sendTitle(@NotNull MineDown mineDown, boolean subTitle) {
-        final Component message = mineDown.toComponent();
+    public void sendTitle(@NotNull Component message, boolean subTitle) {
         getAudience().showTitle(Title.title(
                 subTitle ? Component.empty() : message,
                 subTitle ? message : Component.empty()
@@ -105,36 +103,26 @@ public abstract class OnlineUser extends User implements Teleportable, CommandUs
     }
 
     /**
-     * Dispatch a MineDown-formatted action bar message to this player.
+     * Dispatch an action bar message to this player.
      *
-     * @param mineDown the parsed {@link MineDown} to send
+     * @param message the {@link Component} to send
      */
-    public void sendActionBar(@NotNull MineDown mineDown) {
-        getAudience().sendActionBar(mineDown.toComponent());
-    }
-
-
-    /**
-     * Dispatch a MineDown-formatted chat message to this player.
-     *
-     * @param mineDown the parsed {@link MineDown} to send
-     */
-    public void sendMessage(@NotNull MineDown mineDown) {
-        getAudience().sendMessage(mineDown.toComponent());
+    public void sendActionBar(@NotNull Component message) {
+        getAudience().sendActionBar(message);
     }
 
     /**
-     * Dispatch a MineDown-formatted message to this player.
+     * Dispatch a message to this player.
      *
-     * @param mineDown the parsed {@link MineDown} to send
-     * @param slot     the {@link Locales.DisplaySlot} to send the message to
+     * @param message the {@link Component} to send
+     * @param slot    the {@link Locales.DisplaySlot} to send the message to
      */
-    public void sendMessage(@NotNull MineDown mineDown, @NotNull Locales.DisplaySlot slot) {
+    public void sendMessage(@NotNull Component message, @NotNull Locales.DisplaySlot slot) {
         switch (slot) {
-            case ACTION_BAR -> sendActionBar(mineDown);
-            case TITLE -> sendTitle(mineDown, false);
-            case SUBTITLE -> sendTitle(mineDown, true);
-            default -> sendMessage(mineDown);
+            case ACTION_BAR -> sendActionBar(message);
+            case TITLE -> sendTitle(message, false);
+            case SUBTITLE -> sendTitle(message, true);
+            default -> sendMessage(message);
         }
     }
 

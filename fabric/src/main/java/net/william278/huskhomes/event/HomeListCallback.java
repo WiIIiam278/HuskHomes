@@ -21,7 +21,6 @@ package net.william278.huskhomes.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ActionResult;
 import net.william278.huskhomes.position.Home;
 import net.william278.huskhomes.user.CommandUser;
 import org.apache.commons.lang3.function.TriFunction;
@@ -33,19 +32,7 @@ public interface HomeListCallback extends FabricEventCallback<IHomeListEvent> {
 
     @NotNull
     Event<HomeListCallback> EVENT = EventFactory.createArrayBacked(HomeListCallback.class,
-            (listeners) -> (event) -> {
-                for (HomeListCallback listener : listeners) {
-                    final ActionResult result = listener.invoke(event);
-                    if (event.isCancelled()) {
-                        return ActionResult.CONSUME;
-                    } else if (result != ActionResult.PASS) {
-                        event.setCancelled(true);
-                        return result;
-                    }
-                }
-
-                return ActionResult.PASS;
-            });
+            (listeners) -> (event) -> FabricEventCallback.invokeEvents(listeners, event));
 
     @NotNull
     TriFunction<List<Home>, CommandUser, Boolean, IHomeListEvent> SUPPLIER = (homes, viewer, publicHomes) ->

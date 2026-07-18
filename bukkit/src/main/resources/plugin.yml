@@ -20,3 +20,12 @@ libraries:
   - 'org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
   - 'com.h2database:h2:${h2_driver_version}'
+  # Adventure is not bundled in the jar (Paper provides it natively - see paper/build.gradle)
+  - 'net.kyori:adventure-text-minimessage:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-plain:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-legacy:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-gson:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-gson-legacy-impl:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-json-legacy-impl:${adventure_version}'
+  - 'net.kyori:adventure-nbt:${adventure_version}'
+  - 'net.kyori:adventure-text-serializer-bungeecord:${adventure_platform_version}'

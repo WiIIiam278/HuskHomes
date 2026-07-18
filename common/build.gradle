@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api 'net.kyori:adventure-text-minimessage:4.26.1'
+    api "net.kyori:adventure-text-minimessage:${adventure_version}"
     api 'net.william278:desertwell:2.0.7'
     api 'commons-io:commons-io:2.21.0'
     api 'org.apache.commons:commons-text:1.15.0'
@@ -18,8 +18,8 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:26.1.0'
     compileOnly 'com.google.guava:guava:33.5.0-jre'
-    compileOnly 'net.kyori:adventure-api:4.26.1'
-    compileOnly 'net.kyori:adventure-platform-api:4.4.1'
+    compileOnly "net.kyori:adventure-api:${adventure_version}"
+    compileOnly "net.kyori:adventure-platform-api:${adventure_platform_version}"
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2883'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'

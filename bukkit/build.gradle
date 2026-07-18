@@ -3,7 +3,7 @@ dependencies {
 
     implementation 'org.bstats:bstats-bukkit:3.2.1'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
-    implementation 'net.kyori:adventure-platform-bukkit:4.4.1'
+    implementation "net.kyori:adventure-platform-bukkit:${adventure_platform_version}"
     implementation 'net.william278.toilet:toilet-bukkit:1.1.0'
 
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
@@ -17,10 +17,10 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.42'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
-    testImplementation 'net.kyori:adventure-platform-bukkit:4.4.1'
-    testImplementation 'net.kyori:adventure-api:4.26.1'
-    testImplementation 'net.kyori:adventure-text-minimessage:4.26.1'
-    testImplementation 'net.kyori:adventure-text-serializer-plain:4.26.1'
+    testImplementation "net.kyori:adventure-platform-bukkit:${adventure_platform_version}"
+    testImplementation "net.kyori:adventure-api:${adventure_version}"
+    testImplementation "net.kyori:adventure-text-minimessage:${adventure_version}"
+    testImplementation "net.kyori:adventure-text-serializer-plain:${adventure_version}"
     testImplementation 'org.apache.commons:commons-text:1.15.0'
     testImplementation "redis.clients:jedis:${jedis_version}"
     testImplementation "org.xerial:sqlite-jdbc:${sqlite_driver_version}"

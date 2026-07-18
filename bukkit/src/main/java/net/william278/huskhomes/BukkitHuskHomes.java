@@ -76,6 +76,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @NoArgsConstructor
@@ -214,10 +216,14 @@ public class BukkitHuskHomes extends JavaPlugin implements HuskHomes, BukkitTask
         return String.format("%s/%s", getServer().getName(), getServer().getVersion());
     }
 
+    // Match the numeric version prefix; Paper reports versions like "26.2.build.62-beta" since 26.1
+    private static final Pattern NUMERIC_VERSION = Pattern.compile("^\\d+(\\.\\d+)+");
+
     @Override
     @NotNull
     public Version getMinecraftVersion() {
-        return Version.fromString(getServer().getBukkitVersion());
+        final Matcher version = NUMERIC_VERSION.matcher(getServer().getBukkitVersion());
+        return Version.fromString(version.find() ? version.group() : getServer().getBukkitVersion());
     }
 
     @Override

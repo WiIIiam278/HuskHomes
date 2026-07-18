@@ -111,6 +111,9 @@ jobs:
             1.21.6
             1.21.8
             1.21.11
+            26.1.1
+            26.1.2
+            26.2
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: WiIIiam278/mc-publish@hangar

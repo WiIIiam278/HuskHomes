@@ -536,7 +536,7 @@ public class MySqlDatabase extends Database {
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
                             UUID.fromString(resultSet.getString("home_uuid")),
-                            user,
+                            User.of(user.getUuid(), user.getName()),
                             resultSet.getBoolean("public")));
                 }
             }
@@ -710,7 +710,7 @@ public class MySqlDatabase extends Database {
                                     resultSet.getTimestamp("timestamp").toInstant(),
                                     resultSet.getString("tags")),
                             UUID.fromString(resultSet.getString("home_uuid")),
-                            user,
+                            User.of(user.getUuid(), user.getName()),
                             resultSet.getBoolean("public")));
                 }
             }

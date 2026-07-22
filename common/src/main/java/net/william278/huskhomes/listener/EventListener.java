@@ -86,7 +86,14 @@ public abstract class EventListener {
 
             // Set their ignoring requests state
             plugin.getDatabase().getUser(onlineUser.getUuid()).ifPresent(userData -> {
-                plugin.getSavedUsers().add(userData);
+                // Replace any stale cached entry for this user (e.g. left over from a prior session).
+                // Run on the main thread and re-check they're still online, in case this async DB
+                // fetch resolves after the player has already disconnected again (see #974)
+                plugin.runSync(() -> {
+                    if (plugin.getOnlineUserMap().containsKey(onlineUser.getUuid())) {
+                        plugin.getSavedUsers().put(onlineUser.getUuid(), userData);
+                    }
+                }, onlineUser);
 
                 // Send a reminder message if they are still ignoring requests
                 if (userData.isIgnoringTeleports()) {
@@ -105,6 +112,10 @@ public abstract class EventListener {
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser online) {
         plugin.getOnlineUserMap().remove(online.getUuid());
+
+        // Remove this user's cached saved data now, synchronously, so it can't race with (and be
+        // clobbered by) a subsequent rejoin's async cache repopulation (see #974)
+        plugin.getSavedUsers().remove(online.getUuid());
         online.removeInvulnerabilityIfPermitted();
 
         plugin.runAsync(() -> {

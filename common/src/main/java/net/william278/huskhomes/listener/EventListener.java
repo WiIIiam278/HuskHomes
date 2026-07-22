@@ -86,9 +86,14 @@ public abstract class EventListener {
 
             // Set their ignoring requests state
             plugin.getDatabase().getUser(onlineUser.getUuid()).ifPresent(userData -> {
-                // Replace any stale cached entry for this user (e.g. left over from a prior session)
-                plugin.getSavedUsers().removeIf(saved -> saved.getUserUuid().equals(onlineUser.getUuid()));
-                plugin.getSavedUsers().add(userData);
+                // Replace any stale cached entry for this user (e.g. left over from a prior session).
+                // Run on the main thread and re-check they're still online, in case this async DB
+                // fetch resolves after the player has already disconnected again (see #974)
+                plugin.runSync(() -> {
+                    if (plugin.getOnlineUserMap().containsKey(onlineUser.getUuid())) {
+                        plugin.getSavedUsers().put(onlineUser.getUuid(), userData);
+                    }
+                }, onlineUser);
 
                 // Send a reminder message if they are still ignoring requests
                 if (userData.isIgnoringTeleports()) {
@@ -107,6 +112,10 @@ public abstract class EventListener {
      */
     protected final void handlePlayerLeave(@NotNull OnlineUser online) {
         plugin.getOnlineUserMap().remove(online.getUuid());
+
+        // Remove this user's cached saved data now, synchronously, so it can't race with (and be
+        // clobbered by) a subsequent rejoin's async cache repopulation (see #974)
+        plugin.getSavedUsers().remove(online.getUuid());
         online.removeInvulnerabilityIfPermitted();
 
         plugin.runAsync(() -> {
@@ -115,9 +124,6 @@ public abstract class EventListener {
 
             // Remove this user's home cache
             plugin.getManager().homes().removeUserHomes(online);
-
-            // Remove this user's cached saved data
-            plugin.getSavedUsers().removeIf(saved -> saved.getUserUuid().equals(online.getUuid()));
 
             // Update global lists
             if (plugin.getSettings().getCrossServer().isEnabled()) {

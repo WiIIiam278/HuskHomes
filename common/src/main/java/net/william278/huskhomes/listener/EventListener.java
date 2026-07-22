@@ -86,6 +86,8 @@ public abstract class EventListener {
 
             // Set their ignoring requests state
             plugin.getDatabase().getUser(onlineUser.getUuid()).ifPresent(userData -> {
+                // Replace any stale cached entry for this user (e.g. left over from a prior session)
+                plugin.getSavedUsers().removeIf(saved -> saved.getUserUuid().equals(onlineUser.getUuid()));
                 plugin.getSavedUsers().add(userData);
 
                 // Send a reminder message if they are still ignoring requests
@@ -113,6 +115,9 @@ public abstract class EventListener {
 
             // Remove this user's home cache
             plugin.getManager().homes().removeUserHomes(online);
+
+            // Remove this user's cached saved data
+            plugin.getSavedUsers().removeIf(saved -> saved.getUserUuid().equals(online.getUuid()));
 
             // Update global lists
             if (plugin.getSettings().getCrossServer().isEnabled()) {

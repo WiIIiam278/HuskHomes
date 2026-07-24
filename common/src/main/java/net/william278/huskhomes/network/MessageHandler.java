@@ -25,8 +25,8 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.position.Warp;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.teleport.Teleport;
+import net.william278.huskhomes.teleport.TeleportRequest;
 import net.william278.huskhomes.user.OnlineUser;
-import net.william278.huskhomes.user.User;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +45,7 @@ public interface MessageHandler {
 
         Message.builder()
                 .type(Message.MessageType.UPDATE_USER_LIST)
-                .payload(Payload.userList(getPlugin().getOnlineUsers().stream().map(online -> (User) online).toList()))
+                .payload(Payload.userList(getPlugin().getLocalUserList()))
                 .target(message.getSourceServer(), Message.TargetType.SERVER).build()
                 .send(getBroker(), receiver);
     }
@@ -85,10 +85,21 @@ public interface MessageHandler {
     }
 
     default void handleTeleportRequest(@NotNull Message message, @NotNull OnlineUser receiver) {
-        message.getPayload().getTeleportRequest().ifPresent(
-                (request) -> getPlugin().getManager().requests()
-                        .sendLocalTeleportRequest(request, receiver)
-        );
+        message.getPayload().getTeleportRequest().ifPresent((request) -> {
+            getPlugin().getManager().requests().sendLocalTeleportRequest(request, receiver);
+
+            // Requests to vanished users are dropped without a reply, which tells the requester the user is
+            // online here. Reply as if they weren't found, matching how a same-server request behaves.
+            // /tpaall broadcasts to every player on every server, so it is exempt - it would spam the requester.
+            if (request.getStatus() == TeleportRequest.Status.IGNORED && receiver.isVanished()
+                    && !message.getTarget().equals(Message.TARGET_ALL)) {
+                Message.builder()
+                        .type(Message.MessageType.TELEPORT_REQUEST_RESPONSE)
+                        .payload(Payload.teleportRequest(request))
+                        .target(request.getRequesterName(), Message.TargetType.PLAYER)
+                        .build().send(getBroker(), receiver);
+            }
+        });
     }
 
     default void handleTeleportRequestResponse(@NotNull Message message, @NotNull OnlineUser receiver) {

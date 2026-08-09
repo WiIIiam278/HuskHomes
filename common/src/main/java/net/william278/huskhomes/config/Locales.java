@@ -58,6 +58,10 @@ public class Locales {
     // The raw set of locales loaded from yaml
     private Map<String, String> locales = Maps.newTreeMap();
 
+    static boolean isMineDownFormatted(@NotNull String content) {
+        return content.contains("Formatted in MineDown");
+    }
+
     @TestOnly
     @NotNull
     public Map<String, String> getRawLocales() {

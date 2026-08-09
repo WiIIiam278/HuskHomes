@@ -103,7 +103,7 @@ public interface ConfigProvider {
         if (Files.exists(path)) {
             try {
                 if (Locales.isMineDownFormatted(Files.readString(path, StandardCharsets.UTF_8))) {
-                    final Path backup = getAvailableBackupPath(path);
+                    final Path backup = path.resolveSibling(path.getFileName() + ".bak." + System.currentTimeMillis());
                     Files.move(path, backup);
                     getPlugin().log(Level.WARNING, "Detected a legacy MineDown-formatted locale file. It has been "
                             + "renamed to '" + backup.getFileName() + "'. Manually convert any custom messages to "
@@ -124,16 +124,6 @@ public interface ConfigProvider {
         } catch (Throwable e) {
             throw new IllegalStateException("An error occurred loading the locales (invalid lang code?)", e);
         }
-    }
-
-    @NotNull
-    private static Path getAvailableBackupPath(@NotNull Path path) {
-        Path backup = path.resolveSibling(path.getFileName() + ".bak");
-        int index = 1;
-        while (Files.exists(backup)) {
-            backup = path.resolveSibling(path.getFileName() + ".bak." + index++);
-        }
-        return backup;
     }
 
     @NotNull

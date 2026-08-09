@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.InputStream;
@@ -62,6 +63,32 @@ public class LocalesTests {
         englishLocales.getRawLocales().keySet().forEach(key -> assertTrue(
                 fileKeys.contains(key), "Locale key " + key + " is missing from " + file.getName()
         ));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "# Formatted in MineDown: https://github.com/WiIIiam278/MineDown",
+            "message: '[Hello](#00fb9a)'",
+            "message: '[Hello](gray)'",
+            "message: '[Hello](rainbow:20 underline)'",
+            "message: '[Hello](format=underline,bold)'",
+            "message: '[Hello](show_text=Hover text run_command=/hello)'"
+    })
+    @DisplayName("Test MineDown Locale Detection")
+    public void testMineDownLocaleDetection(@NotNull String locale) {
+        assertTrue(Locales.isMineDownFormatted(locale));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "message: '<#00fb9a>Hello</#00fb9a>'",
+            "message: '<gray><click:run_command:\"/hello\">[Hello]</click></gray>'",
+            "message: '[Documentation](https://example.com)'",
+            "message: 'Hello'"
+    })
+    @DisplayName("Test MiniMessage Locale Detection")
+    public void testMiniMessageLocaleDetection(@NotNull String locale) {
+        assertFalse(Locales.isMineDownFormatted(locale));
     }
 
     @NotNull

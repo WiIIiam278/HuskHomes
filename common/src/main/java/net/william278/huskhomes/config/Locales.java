@@ -33,6 +33,7 @@ import org.jetbrains.annotations.TestOnly;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Loaded locales used by the plugin to display styled messages.
@@ -54,9 +55,21 @@ public class Locales {
     protected static final String DEFAULT_LOCALE = "en-gb";
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final Pattern MINEDOWN_PATTERN = Pattern.compile(
+            "\\[[^\\]\\r\\n]+]\\([^\\r\\n)]*(?:#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?|\\b(?:black|dark_blue|"
+                    + "dark_green|dark_aqua|dark_red|dark_purple|gold|gray|dark_gray|blue|green|aqua|red|"
+                    + "light_purple|yellow|white|rainbow(?::\\d+)?|bold|italic|underline|strikethrough|obfuscated)\\b|"
+                    + "\\b(?:color|format|font|open_url|run_command|suggest_command|hover|show_text|show_entity|"
+                    + "show_item|insert)=)[^\\r\\n)]*\\)",
+            Pattern.CASE_INSENSITIVE
+    );
 
     // The raw set of locales loaded from yaml
     private Map<String, String> locales = Maps.newTreeMap();
+
+    static boolean isMineDownFormatted(@NotNull String content) {
+        return content.contains("Formatted in MineDown") || MINEDOWN_PATTERN.matcher(content).find();
+    }
 
     @TestOnly
     @NotNull

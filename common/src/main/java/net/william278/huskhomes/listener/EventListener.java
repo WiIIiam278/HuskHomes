@@ -310,7 +310,7 @@ public abstract class EventListener {
         if (!plugin.getSettings().getGeneral().isAlwaysRespawnAtSpawn()
                 && plugin.getSettings().getCrossServer().isEnabled()
                 && plugin.getSettings().getCrossServer().isGlobalRespawning()) {
-            plugin.getDatabase().setRespawnPosition(onlineUser, position);
+            plugin.runAsync(() -> plugin.getDatabase().setRespawnPosition(onlineUser, position));
         }
     }
 

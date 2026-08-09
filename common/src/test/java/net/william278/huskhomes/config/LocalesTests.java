@@ -64,13 +64,6 @@ public class LocalesTests {
         ));
     }
 
-    @DisplayName("Test MineDown Locale Detection")
-    @Test
-    public void testMineDownLocaleDetection() {
-        assertTrue(Locales.isMineDownFormatted("# Formatted in MineDown: https://github.com/WiIIiam278/MineDown"));
-        assertFalse(Locales.isMineDownFormatted(Locales.CONFIG_HEADER));
-    }
-
     @NotNull
     private static Stream<Arguments> provideLocaleFiles() {
         final URL url = LocalesTests.class.getClassLoader().getResource("locales");

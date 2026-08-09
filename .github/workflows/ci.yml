@@ -128,7 +128,7 @@ jobs:
             26.2
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
@@ -150,13 +150,14 @@ jobs:
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             1.21.1
           java: 21
       - name: 'Fabric 1.21.11: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
@@ -178,13 +179,14 @@ jobs:
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             1.21.11
           java: 21
       - name: 'Fabric 26.1.2: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
@@ -206,13 +208,14 @@ jobs:
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             26.1.2
           java: 25
       - name: 'Fabric 26.2: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         if: success() || failure()
         with:
           modrinth-id: J6U9o3JG
@@ -234,6 +237,7 @@ jobs:
           version: ${{ env.version_name }}
           version-type: alpha
           changelog: ${{ github.event.head_commit.message }}
+          environment: server
           loaders: |
             fabric
           game-versions: |

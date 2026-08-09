@@ -113,7 +113,7 @@ jobs:
             1.21.11
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -134,13 +134,14 @@ jobs:
           version: ${{ github.event.release.tag_name }}
           version-type: release
           changelog: ${{ github.event.release.body }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             1.21.1
           java: 21
       - name: 'Fabric 1.21.11: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -161,13 +162,14 @@ jobs:
           version: ${{ github.event.release.tag_name }}
           version-type: release
           changelog: ${{ github.event.release.body }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             1.21.11
           java: 21
       - name: 'Fabric 26.1.2: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -188,13 +190,14 @@ jobs:
           version: ${{ github.event.release.tag_name }}
           version-type: release
           changelog: ${{ github.event.release.body }}
+          environment: server
           loaders: |
             fabric
           game-versions: |
             26.1.2
           java: 25
       - name: 'Fabric 26.2: Publish to Modrinth & CurseForge 🧵'
-        uses: WiIIiam278/mc-publish@hangar
+        uses: Kira-NT/mc-publish@v3
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -215,6 +218,7 @@ jobs:
           version: ${{ github.event.release.tag_name }}
           version-type: release
           changelog: ${{ github.event.release.body }}
+          environment: server
           loaders: |
             fabric
           game-versions: |

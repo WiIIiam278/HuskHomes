@@ -145,7 +145,8 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
+          files: |
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.1.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -174,7 +175,8 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.11.jar
+          files: |
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.1.21.11.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -203,7 +205,8 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.26.1.2.jar
+          files: |
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.26.1.2.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha
@@ -232,7 +235,8 @@ jobs:
             plan | suggests | *
             impactor | suggests | *
             placeholder-api | suggests | *
-          files-primary: target/HuskHomes-Fabric-${{ env.version_name }}+mc.26.2.jar
+          files: |
+            target/HuskHomes-Fabric-${{ env.version_name }}+mc.26.2.jar
           name: HuskHomes (Fabric) v${{ env.version_name }}
           version: ${{ env.version_name }}
           version-type: alpha

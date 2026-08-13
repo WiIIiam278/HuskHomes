@@ -3,7 +3,7 @@ This will walk you through installing HuskHomes on your Spigot or Fabric server,
 ## Requirements
 > **Note:** If the plugin fails to load, please check that you are not running an [incompatible version combination](Compatibility)
 
-* A Spigot (1.17.1+) or Fabric (latest Minecraft version) _Minecraft: Java Edition_ server running on Java 17+
+* A Spigot (1.20.1+) or Fabric (latest Minecraft version) _Minecraft: Java Edition_ server running on Java 17+
 * (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB/PostgreSQL database
 * (For optional [[Redis support]]) A Redis database (v5.0+)
 

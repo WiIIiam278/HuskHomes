@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 /**
  * Uses MockBukkit to test the plugin on a mock Paper server implementing the Bukkit API.
  */
-@DisplayName("Bukkit Plugin Tests (1.17.1)")
+@DisplayName("Bukkit Plugin Tests (1.20.1)")
 public class BukkitPluginTests {
 
     private static ServerMock server;

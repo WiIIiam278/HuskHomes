@@ -29,6 +29,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.42'
 }
 
+java {
+    toolchain {
+        languageVersion = org.gradle.jvm.toolchain.JavaLanguageVersion.of(21)
+    }
+}
+
 shadowJar {
     dependencies {
         exclude(dependency('com.mojang:brigadier'))

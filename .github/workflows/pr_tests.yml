@@ -36,49 +36,50 @@ jobs:
       - name: 'Get Short Commit ID 📝'
         id: commit
         run: echo "short_id=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: 'Prepare Unverified PR Build Artifacts 📦'
+        env:
+          ARTIFACT_PREFIX: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}
+        run: |
+          mv target/HuskHomes-Paper-*.jar "target/${ARTIFACT_PREFIX}-Paper.jar"
+          mv target/HuskHomes-Fabric-*+mc.1.21.1.jar "target/${ARTIFACT_PREFIX}-Fabric-1.21.1.jar"
+          mv target/HuskHomes-Fabric-*+mc.1.21.11.jar "target/${ARTIFACT_PREFIX}-Fabric-1.21.11.jar"
+          mv target/HuskHomes-Fabric-*+mc.26.1.2.jar "target/${ARTIFACT_PREFIX}-Fabric-26.1.2.jar"
+          mv target/HuskHomes-Fabric-*+mc.26.2.jar "target/${ARTIFACT_PREFIX}-Fabric-26.2.jar"
       - name: 'Upload Unverified Paper PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Paper
-          path: |
-            target/HuskHomes-Paper-*.jar
-            !target/*-sources.jar
-            !target/*-javadoc.jar
+          path: target/UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Paper.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
       - name: 'Upload Unverified Fabric 1.21.1 PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-1.21.1
-          path: target/HuskHomes-Fabric-*+mc.1.21.1.jar
+          path: target/UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-1.21.1.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
       - name: 'Upload Unverified Fabric 1.21.11 PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-1.21.11
-          path: target/HuskHomes-Fabric-*+mc.1.21.11.jar
+          path: target/UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-1.21.11.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
       - name: 'Upload Unverified Fabric 26.1.2 PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-26.1.2
-          path: target/HuskHomes-Fabric-*+mc.26.1.2.jar
+          path: target/UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-26.1.2.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
       - name: 'Upload Unverified Fabric 26.2 PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-26.2
-          path: target/HuskHomes-Fabric-*+mc.26.2.jar
+          path: target/UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}-Fabric-26.2.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
       - name: 'Publish Test Report 📊'
         uses: mikepenz/action-junit-report@v6
         if: ${{ !cancelled() }}

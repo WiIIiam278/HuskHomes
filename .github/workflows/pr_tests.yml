@@ -16,9 +16,12 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: 'Checkout for CI 🛎'
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: 'Set up JDKs 21 & 25 📦'
         uses: actions/setup-java@v5
         with:
@@ -30,10 +33,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v6.3.0
       - name: 'Build with Gradle 🏗️'
         run: ./gradlew build --build-cache
-      - name: 'Upload PR Build Artifacts 📤'
+      - name: 'Upload Unverified PR Build Artifacts 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: HuskHomes-PR-${{ github.event.pull_request.number }}-attempt-${{ github.run_attempt }}
+          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-attempt-${{ github.run_attempt }}
           path: |
             target/HuskHomes-Paper-*.jar
             target/HuskHomes-Fabric-*.jar

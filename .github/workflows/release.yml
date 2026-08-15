@@ -15,27 +15,31 @@ jobs:
     steps:
       - name: 'Checkout for CI 🛎️'
         uses: actions/checkout@v6
-      - name: 'Set up JDK 21 📦'
+      - name: 'Set up JDKs 21 & 25 📦'
         uses: actions/setup-java@v5
         with:
-          java-version: '21'
+          java-version: |
+            21
+            25
           distribution: 'temurin'
       - name: 'Set up Gradle 📦'
         uses: gradle/actions/setup-gradle@v6.3.0
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/master' }}
       - name: 'Build with Gradle 🏗️'
+        id: build
         run: ./gradlew build test publish --build-cache
         env:
           RELEASES_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           RELEASES_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
         uses: mikepenz/action-junit-report@v6
-        if: success() || failure() # always run even if the previous step fails
+        if: ${{ !cancelled() }}
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: 'Publish to William278.net 🚀'
         uses: WiIIiam278/bones-publish-action@v1
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           api-key: ${{ secrets.BONES_API_KEY }}
           project: 'huskhomes'
@@ -58,8 +62,8 @@ jobs:
             Paper
             Fabric 1.21.1
             Fabric 1.21.11
-            fabric-26.1.2
-            fabric-26.2
+            Fabric 26.1.2
+            Fabric 26.2
           files: |
             target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
@@ -68,6 +72,7 @@ jobs:
             target/HuskHomes-Fabric-${{ github.event.release.tag_name }}+mc.26.2.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -79,6 +84,7 @@ jobs:
             plan | suggests | *
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
+          hangar-version-type: release
           files-primary: target/HuskHomes-Paper-${{ github.event.release.tag_name }}.jar
           name: HuskHomes (Spigot) v${{ github.event.release.tag_name }}
           version: ${{ github.event.release.tag_name }}
@@ -103,9 +109,13 @@ jobs:
             1.21.6
             1.21.8
             1.21.11
+            26.1.1
+            26.1.2
+            26.2
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -135,6 +145,7 @@ jobs:
           java: 21
       - name: 'Fabric 1.21.11: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -164,6 +175,7 @@ jobs:
           java: 21
       - name: 'Fabric 26.1.2: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -193,6 +205,7 @@ jobs:
           java: 25
       - name: 'Fabric 26.2: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false

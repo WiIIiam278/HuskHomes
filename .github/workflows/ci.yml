@@ -31,24 +31,29 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/master' }}
       - name: 'Build with Gradle 🏗️'
+        id: build
         run: ./gradlew build test publish --build-cache
         env:
           SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: 'Publish Test Report 📊'
         uses: mikepenz/action-junit-report@v6
-        if: success() || failure() # Continue on failure
+        if: ${{ !cancelled() }}
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: 'Fetch Version Name 📝'
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew properties --no-daemon --console=plain -q | grep "^version:" | awk '{printf $2}')"
         id: fetch-version
       - name: Get Version
+        id: export-version
+        if: ${{ !cancelled() && steps.fetch-version.outcome == 'success' }}
         run: |
           echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
       - name: 'Publish to William278.net 🚀'
         uses: WiIIiam278/bones-publish-action@v1
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           api-key: ${{ secrets.BONES_API_KEY }}
           project: 'huskhomes'
@@ -81,6 +86,7 @@ jobs:
             target/HuskHomes-Fabric-${{ env.version_name }}+mc.26.2.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -92,7 +98,7 @@ jobs:
             plan | suggests | *
           hangar-id: William278/HuskHomes
           hangar-token: ${{ secrets.HANGAR_API_KEY }}
-          hangar-version-type: Alpha
+          hangar-version-type: alpha
           files-primary: target/HuskHomes-Paper-${{ env.version_name }}.jar
           name: HuskHomes (Spigot) v${{ env.version_name }}
           version: ${{ env.version_name }}
@@ -123,7 +129,7 @@ jobs:
           java: 17
       - name: 'Fabric 1.21.1: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -153,7 +159,7 @@ jobs:
           java: 21
       - name: 'Fabric 1.21.11: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -183,7 +189,7 @@ jobs:
           java: 21
       - name: 'Fabric 26.1.2: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false
@@ -213,7 +219,7 @@ jobs:
           java: 25
       - name: 'Fabric 26.2: Publish to Modrinth & CurseForge 🧵'
         uses: Kira-NT/mc-publish@v3
-        if: success() || failure()
+        if: ${{ !cancelled() && steps.export-version.outcome == 'success' }}
         with:
           modrinth-id: J6U9o3JG
           modrinth-featured: false

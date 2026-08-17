@@ -40,50 +40,46 @@ jobs:
         env:
           ARTIFACT_TAG: PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}
         run: |
-          shopt -s nullglob
-          artifacts=(target/HuskHomes-Paper-*.jar target/HuskHomes-Fabric-*.jar)
-          artifact_count=0
-
-          for artifact in "${artifacts[@]}"; do
-            filename="${artifact##*/}"
-            case "$filename" in
-              *-sources.jar|*-javadoc.jar)
-                continue
-                ;;
-              HuskHomes-Paper-*.jar)
-                loader="Paper"
-                ;;
-              HuskHomes-Fabric-*+mc.*.jar)
-                game_version="${filename##*+mc.}"
-                loader="Fabric-${game_version%.jar}"
-                ;;
-              *)
-                echo "Unable to determine loader for $filename" >&2
-                exit 1
-                ;;
-            esac
-
-            destination="target/UNVERIFIED-HuskHomes-${loader}-${ARTIFACT_TAG}.jar"
-            if [[ -e "$destination" ]]; then
-              echo "Duplicate artifact destination: $destination" >&2
-              exit 1
-            fi
-            mv -- "$artifact" "$destination"
-            artifact_count=$((artifact_count + 1))
-          done
-
-          if (( artifact_count == 0 )); then
-            echo "No distributable PR build artifacts were found" >&2
-            exit 1
-          fi
-      - name: 'Upload Unverified PR Build Artifacts 📤'
+          mv target/HuskHomes-Paper-*.jar "target/UNVERIFIED-HuskHomes-Paper-${ARTIFACT_TAG}.jar"
+          mv target/HuskHomes-Fabric-*+mc.1.21.1.jar "target/UNVERIFIED-HuskHomes-Fabric-1.21.1-${ARTIFACT_TAG}.jar"
+          mv target/HuskHomes-Fabric-*+mc.1.21.11.jar "target/UNVERIFIED-HuskHomes-Fabric-1.21.11-${ARTIFACT_TAG}.jar"
+          mv target/HuskHomes-Fabric-*+mc.26.1.2.jar "target/UNVERIFIED-HuskHomes-Fabric-26.1.2-${ARTIFACT_TAG}.jar"
+          mv target/HuskHomes-Fabric-*+mc.26.2.jar "target/UNVERIFIED-HuskHomes-Fabric-26.2-${ARTIFACT_TAG}.jar"
+      - name: 'Upload Unverified Paper PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: UNVERIFIED-HuskHomes-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}
-          path: target/UNVERIFIED-HuskHomes-*.jar
+          path: target/UNVERIFIED-HuskHomes-Paper-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          archive: false
+      - name: 'Upload Unverified Fabric 1.21.1 PR Build Artifact 📤'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          path: target/UNVERIFIED-HuskHomes-Fabric-1.21.1-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
+          if-no-files-found: error
+          retention-days: 7
+          archive: false
+      - name: 'Upload Unverified Fabric 1.21.11 PR Build Artifact 📤'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          path: target/UNVERIFIED-HuskHomes-Fabric-1.21.11-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
+          if-no-files-found: error
+          retention-days: 7
+          archive: false
+      - name: 'Upload Unverified Fabric 26.1.2 PR Build Artifact 📤'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          path: target/UNVERIFIED-HuskHomes-Fabric-26.1.2-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
+          if-no-files-found: error
+          retention-days: 7
+          archive: false
+      - name: 'Upload Unverified Fabric 26.2 PR Build Artifact 📤'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          path: target/UNVERIFIED-HuskHomes-Fabric-26.2-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
+          if-no-files-found: error
+          retention-days: 7
+          archive: false
       - name: 'Publish Test Report 📊'
         uses: mikepenz/action-junit-report@v6
         if: ${{ !cancelled() }}

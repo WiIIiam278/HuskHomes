@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
-    id 'com.gradleup.shadow' version '9.0.0-beta17'
+    id 'com.gradleup.shadow' version '9.6.2-SNAPSHOT'
     id 'gg.essential.loom' version '1.15.50' apply false
     id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.3'

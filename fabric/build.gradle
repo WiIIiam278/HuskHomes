@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    def toiletFabricDep = "net.william278.toilet:toilet-fabric:1.1.0+$project.name"
+    def toiletFabricDep = "net.william278.toilet:toilet-fabric:1.1.2+$project.name"
 
     def bundledImplementation = { notation ->
         add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', include(notation))
@@ -32,6 +32,7 @@ dependencies {
     }
 
     bundledImplementation("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
+    bundledImplementation("net.kyori:adventure-text-minimessage:${fabric_minimessage_version}")
     bundledImplementation("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     bundledImplementation("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     bundledImplementation("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
@@ -61,7 +62,11 @@ dependencies {
 
     implementation include(project(path: ":common"))
     project(":common").configurations.api.dependencies.each { dependency ->
-        include(dependency)
+        // MiniMessage must match the Adventure API supplied by adventure-platform-fabric.
+        // Including the version declared by :common would bypass Gradle's version resolution.
+        if (!(dependency.group == 'net.kyori' && dependency.name == 'adventure-text-minimessage')) {
+            include(dependency)
+        }
     }
 }
 

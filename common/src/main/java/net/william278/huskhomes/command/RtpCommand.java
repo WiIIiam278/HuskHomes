@@ -171,14 +171,14 @@ public class RtpCommand extends Command implements UserListTabCompletable {
         if (!worldName.equals(teleporter.getPosition().getWorld().getName()) ||
                 (targetServer != null && !teleporter.getPosition().getServer().equals(targetServer))) {
             if (!worldName.equals(teleporter.getPosition().getWorld().getName()) &&
-                    !teleporter.hasPermission(getPermission(worldName))) {
+                    !executor.hasPermission(getPermission(worldName))) {
                 plugin.getLocales().getLocale("error_no_permission")
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();
             }
 
             if (targetServer != null && !teleporter.getPosition().getServer().equals(targetServer) &&
-                    !teleporter.hasPermission(getPermission(targetServer))) {
+                    !executor.hasPermission(getPermission(targetServer))) {
                 plugin.getLocales().getLocale("error_no_permission")
                         .ifPresent(executor::sendMessage);
                 return Optional.empty();

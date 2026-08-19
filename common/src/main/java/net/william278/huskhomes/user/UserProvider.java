@@ -41,7 +41,7 @@ public interface UserProvider {
     Map<String, List<User>> getGlobalUserList();
 
     @NotNull
-    Set<SavedUser> getSavedUsers();
+    Map<UUID, SavedUser> getSavedUsers();
 
     @NotNull
     OnlineUser getOnlineUser(@NotNull UUID uuid);
@@ -88,9 +88,7 @@ public interface UserProvider {
     }
 
     default Optional<SavedUser> getSavedUser(@NotNull User user) {
-        return getSavedUsers().stream()
-                .filter(savedUser -> savedUser.getUser().equals(user))
-                .findFirst();
+        return Optional.ofNullable(getSavedUsers().get(user.getUuid()));
     }
 
     default void editSavedUser(@NotNull User user, @NotNull Consumer<SavedUser> editor) {

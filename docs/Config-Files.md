@@ -150,6 +150,12 @@ cross_server:
     warp_name: Spawn
   # Whether player respawn positions should work cross-server. Docs: https://william278.net/docs/huskhomes/global-respawning/
   global_respawning: false
+  # How often (in seconds) to re-send this server's player list to the rest of the network,
+  # if it has changed. Toggling vanish doesn't fire a join or leave event, so without this a
+  # vanished staff member would stay visible in other servers' player lists (and tab
+  # completions) until the next player joins or leaves this server.
+  # Set to 0 to disable; the list will then only be sent on player join/leave.
+  user_list_refresh_seconds: 10
 # Random teleport (/rtp) settings.
 rtp:
   # Radial region around the /spawn position where players CAN be randomly teleported.

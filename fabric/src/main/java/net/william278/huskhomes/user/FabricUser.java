@@ -349,7 +349,11 @@ public class FabricUser extends OnlineUser {
         if (invulnerableTicks <= 0) {
             return;
         }
+        //#if MC>=260300
+        //$$ player.setPermanentlyInvulnerable(true);
+        //#else
         player.setInvulnerable(true);
+        //#endif
         //#if MC>=260000
         player.addTag(invulnerableTag);
         //#else
@@ -362,7 +366,11 @@ public class FabricUser extends OnlineUser {
     @Override
     public void removeInvulnerabilityIfPermitted() {
         if (this.hasInvulnerability()) {
+            //#if MC>=260300
+            //$$ player.setPermanentlyInvulnerable(false);
+            //#else
             player.setInvulnerable(false);
+            //#endif
         }
         //#if MC>=260000
         player.removeTag(invulnerableTag);

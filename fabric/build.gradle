@@ -22,7 +22,8 @@ repositories {
 }
 
 dependencies {
-    def toiletFabricDep = "net.william278.toilet:toilet-fabric:1.1.2+$project.name"
+    def toiletMinecraftVersion = findProperty('fabric_toilet_minecraft_version') ?: project.name
+    def toiletFabricDep = "net.william278.toilet:toilet-fabric:1.1.2+$toiletMinecraftVersion"
 
     def bundledImplementation = { notation ->
         add(isUnobfuscatedRuntime ? 'implementation' : 'modImplementation', include(notation))
@@ -71,7 +72,10 @@ dependencies {
 }
 
 if (isUnobfuscatedRuntime) {
-    def sharedJava = file('../src/main/java')
+    // 26.3 needs the version-conditional invulnerability API change.
+    def sharedJava = project.name == '26.3'
+            ? file("$buildDir/preprocessed/main/java")
+            : file('../src/main/java')
     def versionSpecificJava = file('src/main/java')
     def overriddenRelativePaths = versionSpecificJava.exists()
             ? fileTree(versionSpecificJava).matching { include '**/*.java' }.files.collect {

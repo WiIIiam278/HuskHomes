@@ -45,6 +45,7 @@ jobs:
           mv target/HuskHomes-Fabric-*+mc.1.21.11.jar "target/UNVERIFIED-HuskHomes-Fabric-1.21.11-${ARTIFACT_TAG}.jar"
           mv target/HuskHomes-Fabric-*+mc.26.1.2.jar "target/UNVERIFIED-HuskHomes-Fabric-26.1.2-${ARTIFACT_TAG}.jar"
           mv target/HuskHomes-Fabric-*+mc.26.2.jar "target/UNVERIFIED-HuskHomes-Fabric-26.2-${ARTIFACT_TAG}.jar"
+          mv target/HuskHomes-Fabric-*+mc.26.3.jar "target/UNVERIFIED-HuskHomes-Fabric-26.3-${ARTIFACT_TAG}.jar"
       - name: 'Upload Unverified Paper PR Build Artifact 📤'
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -77,6 +78,13 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           path: target/UNVERIFIED-HuskHomes-Fabric-26.2-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
+          if-no-files-found: error
+          retention-days: 7
+          archive: false
+      - name: 'Upload Unverified Fabric 26.3 PR Build Artifact 📤'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          path: target/UNVERIFIED-HuskHomes-Fabric-26.3-PR-${{ github.event.pull_request.number }}-${{ steps.commit.outputs.short_id }}.jar
           if-no-files-found: error
           retention-days: 7
           archive: false

@@ -22,6 +22,7 @@ package net.william278.huskhomes.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.PermissionCheckEvent;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -176,7 +177,11 @@ public class FabricCommand {
         return (context) -> {
             command.onExecuted(
                     resolveExecutor(context.getSource()),
-                    command.removeFirstArg(context.getInput().split(" "))
+                    context.getNodes().stream()
+                            .filter(node -> node.getNode() instanceof ArgumentCommandNode<?, ?>)
+                            .map(node -> context.getInput().substring(node.getRange().getStart(),
+                                    node.getRange().getEnd()).split(" "))
+                            .findFirst().orElseGet(() -> new String[0])
             );
             return 1;
         };
@@ -191,7 +196,7 @@ public class FabricCommand {
             return (context, builder) -> com.mojang.brigadier.suggestion.Suggestions.empty();
         }
         return (context, builder) -> {
-            final String[] args = command.removeFirstArg(context.getInput().split(" ", -1));
+            final String[] args = builder.getRemaining().split(" ", -1);
             provider.getSuggestions(resolveExecutor(context.getSource()), args).stream()
                     .map(suggestion -> {
                         final String completedArgs = String.join(" ", args);

@@ -109,8 +109,10 @@ jobs:
             fabric-1.21.11
             fabric-26.1.2
             fabric-26.2
+            fabric-26.3
           distro-groups: |
             paper
+            fabric
             fabric
             fabric
             fabric
@@ -121,12 +123,14 @@ jobs:
             Fabric 1.21.11
             Fabric 26.1.2
             Fabric 26.2
+            Fabric 26.3
           files: |
             target/HuskHomes-Paper-${{ steps.version.outputs.name }}.jar
             target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.1.21.1.jar
             target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.1.21.11.jar
             target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.26.1.2.jar
             target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.26.2.jar
+            target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.26.3.jar
       - name: 'Spigot: Publish to Modrinth & Hangar 🚰'
         uses: WiIIiam278/mc-publish@hangar
         if: ${{ !cancelled() && steps.version.outcome == 'success' }}
@@ -289,4 +293,34 @@ jobs:
             fabric
           game-versions: |
             26.2
+          java: 25
+      - name: 'Fabric 26.3: Publish to Modrinth & CurseForge 🧵'
+        uses: Kira-NT/mc-publish@v3
+        if: ${{ !cancelled() && steps.version.outcome == 'success' }}
+        with:
+          modrinth-id: J6U9o3JG
+          modrinth-featured: false
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 849217
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          dependencies: |
+            fabric-api | requires | *
+            dynmap | suggests | *
+            bluemap | suggests | *
+            pl3xmap | suggests | *
+            luckperms | suggests | *
+            plan | suggests | *
+            impactor | suggests | *
+            placeholder-api | suggests | *
+          files: |
+            target/HuskHomes-Fabric-${{ steps.version.outputs.name }}+mc.26.3.jar
+          name: HuskHomes (Fabric) v${{ steps.version.outputs.name }}
+          version: ${{ steps.version.outputs.name }}
+          version-type: ${{ steps.version.outputs.type }}
+          changelog: ${{ inputs.changelog }}
+          environment: server
+          loaders: |
+            fabric
+          game-versions: |
+            26.3
           java: 25

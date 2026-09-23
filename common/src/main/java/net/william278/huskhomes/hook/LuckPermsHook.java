@@ -30,6 +30,7 @@ import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.position.World;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ public class LuckPermsHook extends Hook {
 
     @Override
     public void load() {
-        this.api = LuckPermsProvider.get();
+        this.api = resolveApi();
     }
 
     @Override
@@ -57,9 +58,24 @@ public class LuckPermsHook extends Hook {
         this.api = null;
     }
 
+    @Nullable
+    private LuckPerms resolveApi() {
+        try {
+            return LuckPermsProvider.get();
+        } catch (IllegalStateException e) {
+            // The API isn't loaded yet (e.g. LuckPerms enables after HuskHomes on Fabric);
+            // it will be resolved lazily when first used
+            return null;
+        }
+    }
+
     @NotNull
     public List<Integer> getNumericalPermissions(@NotNull OnlineUser online, @NotNull String nodePrefix) {
-        final User user = api.getUserManager().getUser(online.getUuid());
+        final LuckPerms luckperms = this.api == null ? resolveApi() : this.api;
+        if (luckperms == null) {
+            return List.of();
+        }
+        final User user = luckperms.getUserManager().getUser(online.getUuid());
         if (user == null) {
             return List.of();
         }

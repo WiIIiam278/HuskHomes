@@ -33,6 +33,7 @@ import net.william278.huskhomes.position.Position;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +55,8 @@ public class Teleport implements Completable {
     protected final List<TransactionResolver.Action> actions;
     private final boolean async;
     protected final boolean updateLastPosition;
+    @Nullable
+    protected final Position sourcePosition;
 
     protected Teleport(@NotNull OnlineUser executor, @NotNull Teleportable teleporter, @NotNull Target target,
                        @NotNull Type type, boolean updateLastPosition,
@@ -69,6 +72,7 @@ public class Teleport implements Completable {
                 .map(command -> executor.hasPermission(command.getPermission())
                         && executor.hasPermission(command.getPermission("previous")))
                 .orElse(false);
+        this.sourcePosition = (teleporter instanceof OnlineUser online) ? online.getPosition() : null;
     }
 
     @NotNull
@@ -97,8 +101,9 @@ public class Teleport implements Completable {
             if (localTarget.isPresent()) {
                 fireEvent((event) -> {
                     performTransactions();
-                    if (updateLastPosition && canReturnToWorld(teleporter)) {
-                        plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
+                    if (updateLastPosition && sourcePosition != null
+                            && canReturnToWorld(sourcePosition)) {
+                        plugin.getDatabase().setLastPosition(teleporter, sourcePosition);
                     }
                     teleporter.teleportLocally(localTarget.get().getPosition(), async);
                     this.displayTeleportingComplete(teleporter);
@@ -123,8 +128,9 @@ public class Teleport implements Completable {
 
         fireEvent((event) -> {
             performTransactions();
-            if (updateLastPosition && canReturnToWorld(teleporter)) {
-                plugin.getDatabase().setLastPosition(teleporter, teleporter.getPosition());
+            if (updateLastPosition && sourcePosition != null
+                    && canReturnToWorld(sourcePosition)) {
+                plugin.getDatabase().setLastPosition(teleporter, sourcePosition);
             }
 
             final Position target = (Position) this.target;
@@ -166,8 +172,8 @@ public class Teleport implements Completable {
         }));
     }
 
-    private boolean canReturnToWorld(@NotNull OnlineUser user) {
-        return plugin.getSettings().getGeneral().getBackCommand().canReturnToWorld(user.getPosition().getWorld());
+    private boolean canReturnToWorld(@NotNull Position position) {
+        return plugin.getSettings().getGeneral().getBackCommand().canReturnToWorld(position.getWorld());
     }
 
     @NotNull

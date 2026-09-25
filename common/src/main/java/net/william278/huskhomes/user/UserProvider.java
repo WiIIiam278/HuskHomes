@@ -56,14 +56,14 @@ public interface UserProvider {
     default List<User> getUserList() {
         return Stream.concat(
                 getGlobalUserList().values().stream().flatMap(Collection::stream),
-                getOnlineUsers().stream().filter(o -> !o.isVanished())
+                List.copyOf(getOnlineUsers()).stream().filter(o -> !o.isVanished())
         ).distinct().sorted().toList();
     }
 
     default void setUserList(@NotNull String server, @NotNull List<User> players) {
         getGlobalUserList().values().forEach(list -> {
             list.removeAll(players);
-            list.removeAll(getOnlineUsers());
+            list.removeAll(List.copyOf(getOnlineUsers()));
         });
         getGlobalUserList().put(server, players);
     }

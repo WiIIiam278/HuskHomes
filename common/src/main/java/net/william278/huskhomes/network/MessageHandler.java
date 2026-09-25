@@ -31,6 +31,7 @@ import net.william278.huskhomes.util.TransactionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -45,7 +46,7 @@ public interface MessageHandler {
 
         Message.builder()
                 .type(Message.MessageType.UPDATE_USER_LIST)
-                .payload(Payload.userList(getPlugin().getOnlineUsers().stream().map(online -> (User) online).toList()))
+                .payload(Payload.userList(List.copyOf(getPlugin().getOnlineUsers()).stream().map(online -> (User) online).toList()))
                 .target(message.getSourceServer(), Message.TargetType.SERVER).build()
                 .send(getBroker(), receiver);
     }

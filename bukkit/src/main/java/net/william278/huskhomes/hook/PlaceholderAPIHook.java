@@ -75,6 +75,22 @@ public class PlaceholderAPIHook extends Hook {
 
             // Return the requested data
             final OnlineUser player = plugin.getOnlineUser(offlinePlayer.getPlayer());
+
+            // Indexed placeholders: homes_<n> and public_homes_<n> (1-based)
+            if (params.matches("homes_\\d+")) {
+                return getIndexedHome(
+                        plugin.getManager().homes().getUserHomes().getOrDefault(player.getName(), List.of()),
+                        params.substring("homes_".length())
+                );
+            }
+
+            if (params.matches("public_homes_\\d+")) {
+                return getIndexedHome(
+                        plugin.getManager().homes().getPublicHomes().getOrDefault(player.getName(), List.of()),
+                        params.substring("public_homes_".length())
+                );
+            }
+
             return switch (params) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
                         .getUserHomes()
@@ -108,6 +124,25 @@ public class PlaceholderAPIHook extends Hook {
         @NotNull
         private String getBooleanValue(final boolean bool) {
             return bool ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+        }
+
+        /**
+         * Resolves a 1-based index into a home list, returning an empty string
+         * (not null) when out of range so unused tab-completer slots resolve
+         * to blank rather than leaving the literal placeholder unparsed.
+         */
+        @NotNull
+        private String getIndexedHome(@NotNull List<String> homes, @NotNull String indexStr) {
+            final int index;
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                return "";
+            }
+            if (index < 1 || index > homes.size()) {
+                return "";
+            }
+            return homes.get(index - 1);
         }
 
     }

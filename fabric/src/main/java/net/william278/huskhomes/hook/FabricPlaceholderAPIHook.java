@@ -53,6 +53,25 @@ public class FabricPlaceholderAPIHook extends Hook {
         //#endif
     }
 
+    /**
+     * Resolves a 1-based index into a home list, returning an empty string
+     * (not null) when out of range so unused/padded lookups resolve to
+     * blank rather than surfacing as an invalid placeholder.
+     */
+    @NotNull
+    private String getIndexedHome(@NotNull List<String> homes, @NotNull String indexStr) {
+        final int index;
+        try {
+            index = Integer.parseInt(indexStr);
+        } catch (NumberFormatException e) {
+            return "";
+        }
+        if (index < 1 || index > homes.size()) {
+            return "";
+        }
+        return homes.get(index - 1);
+    }
+
     @Override
     public void load() {
         //#if MC>=260102
@@ -74,6 +93,23 @@ public class FabricPlaceholderAPIHook extends Hook {
             //#else
             //$$ final OnlineUser player = ((FabricHuskHomes) plugin).getOnlineUser(ctx.player());
             //#endif
+
+            // Indexed placeholders: homes_<n> and public_homes_<n> (1-based)
+            if (arg.matches("homes_\\d+")) {
+                return PlaceholderResult.value(getIndexedHome(
+                        plugin.getManager().homes().getUserHomes()
+                                .getOrDefault(player.getName(), List.of()),
+                        arg.substring("homes_".length())
+                ));
+            }
+
+            if (arg.matches("public_homes_\\d+")) {
+                return PlaceholderResult.value(getIndexedHome(
+                        plugin.getManager().homes().getPublicHomes()
+                                .getOrDefault(player.getName(), List.of()),
+                        arg.substring("public_homes_".length())
+                ));
+            }
 
             final String response = switch (arg) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()

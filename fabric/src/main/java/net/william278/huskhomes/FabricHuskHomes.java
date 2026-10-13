@@ -256,11 +256,6 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     }
 
     @Override
-    public boolean isDependencyAvailable(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name);
-    }
-
-    @Override
     @Nullable
     public InputStream getResource(@NotNull String name) {
         return this.modContainer.findPath(name)

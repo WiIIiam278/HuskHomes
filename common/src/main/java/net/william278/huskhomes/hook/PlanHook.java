@@ -69,8 +69,12 @@ public class PlanHook extends Hook {
     private void registerDataExtension() {
         try {
             ExtensionService.getInstance().register(new PlanDataExtension(plugin.getDatabase()));
-        } catch (IllegalStateException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             plugin.log(Level.SEVERE, "Failed to register HuskHomes Plan extension", e);
+        } catch (IllegalStateException e) {
+            // Expected if Plan is still enabling (e.g. on Fabric, where mod init order is
+            // undefined); the enable listener will register the extension once Plan is up
+            plugin.log(Level.INFO, "Plan is not ready yet; the HuskHomes extension will be registered when it enables");
         }
     }
 

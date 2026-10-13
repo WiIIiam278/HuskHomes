@@ -26,8 +26,10 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.william278.huskhomes.HuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 @PluginHook(
@@ -44,23 +46,47 @@ public class FabricImpactorEconomyHook extends EconomyHook {
 
     @Override
     public void load() {
-        this.economyService = EconomyService.instance();
-        if (this.economyService == null) {
-            throw new IllegalStateException("Impactor API is not available, No economy service has been registered!");
-        }
-        this.currency = this.economyService.currencies().primary();
+        this.economyService = resolveService();
+        this.currency = this.economyService == null ? null : this.economyService.currencies().primary();
     }
 
     @Override
     public void unload() {
         this.economyService = null;
+        this.currency = null;
+    }
+
+    @Nullable
+    private EconomyService resolveService() {
+        try {
+            return EconomyService.instance();
+        } catch (IllegalStateException | NoSuchElementException e) {
+            // The economy service may not have been registered yet (mod init order is
+            // undefined on Fabric); it will be resolved lazily when first used
+            return null;
+        }
+    }
+
+    @Nullable
+    private EconomyService getEconomyService() {
+        if (this.economyService == null) {
+            this.economyService = resolveService();
+            if (this.economyService != null) {
+                this.currency = this.economyService.currencies().primary();
+            }
+        }
+        return this.economyService;
     }
 
     @Override
     public double getPlayerBalance(@NotNull OnlineUser player) {
+        final EconomyService service = getEconomyService();
+        if (service == null) {
+            return BigDecimal.ZERO.doubleValue();
+        }
         try {
             //If no account is found, a new account will be generated instead.
-            final Account account = economyService.account(player.getUuid()).get();
+            final Account account = service.account(player.getUuid()).get();
             return account.balance().doubleValue();
         } catch (ExecutionException | InterruptedException e) {
             return BigDecimal.ZERO.doubleValue();
@@ -69,12 +95,16 @@ public class FabricImpactorEconomyHook extends EconomyHook {
 
     @Override
     public void changePlayerBalance(@NotNull OnlineUser player, double amount) {
+        final EconomyService service = getEconomyService();
+        if (service == null) {
+            return;
+        }
         if (amount == 0d) {
             return;
         }
         final Account account;
         try {
-            account = economyService.account(player.getUuid()).get();
+            account = service.account(player.getUuid()).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -89,6 +119,9 @@ public class FabricImpactorEconomyHook extends EconomyHook {
 
     @Override
     public String formatCurrency(double amount) {
+        if (currency == null) {
+            return String.valueOf(amount);
+        }
         return PlainTextComponentSerializer.plainText().serialize(currency.format(BigDecimal.valueOf(amount)));
     }
 }

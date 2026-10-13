@@ -121,7 +121,7 @@ public class FabricHuskHomes implements DedicatedServerModInitializer, HuskHomes
     private MinecraftServer minecraftServer;
     private Toilet toilet;
 
-    private final Set<SavedUser> savedUsers = Sets.newHashSet();
+    private final Map<UUID, SavedUser> savedUsers = Maps.newConcurrentMap();
     private final Set<UUID> currentlyOnWarmup = Sets.newConcurrentHashSet();
     private final Set<UUID> warmupDamagedUsers = Sets.newConcurrentHashSet();
     private final Map<UUID, OnlineUser> onlineUserMap = Maps.newHashMap();

@@ -262,7 +262,7 @@ public class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull String username, @NotNull Consumer<SavedUser> editor) {
-        plugin.getSavedUsers().stream()
+        plugin.getSavedUsers().values().stream()
                 .filter(u -> u.getUsername().equalsIgnoreCase(username)).findFirst()
                 .ifPresent(savedUser -> {
                     editor.accept(savedUser);
@@ -278,13 +278,10 @@ public class BaseHuskHomesAPI {
      * @since 4.0
      */
     public final void editUserData(@NotNull UUID uuid, @NotNull Consumer<SavedUser> editor) {
-        plugin.getSavedUsers().stream()
-                .filter(u -> u.getUserUuid().equals(uuid)).findFirst()
+        Optional.ofNullable(plugin.getSavedUsers().get(uuid))
                 .ifPresent(savedUser -> {
-                    if (savedUser.getUser().getUuid().equals(uuid)) {
-                        editor.accept(savedUser);
-                        saveUserData(savedUser);
-                    }
+                    editor.accept(savedUser);
+                    saveUserData(savedUser);
                 });
     }
 

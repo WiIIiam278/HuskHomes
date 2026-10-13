@@ -195,7 +195,7 @@ public class HomesManager {
     }
 
     public void removeUserHomes(@NotNull User user) {
-        userHomes.remove(user.getUuid().toString());
+        userHomes.remove(user.getName());
     }
 
     @NotNull

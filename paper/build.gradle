@@ -12,9 +12,9 @@ dependencies {
     compileOnly 'net.william278:desertwell:2.0.8'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.12.2'
-    compileOnly 'org.projectlombok:lombok:1.18.42'
+    compileOnly 'org.projectlombok:lombok:1.18.46'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.46'
 }
 
 shadowJar {

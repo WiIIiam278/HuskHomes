@@ -110,14 +110,14 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final String action = parseStringArg(args, 0).orElse("about");
+        final String action = parseStringArg(args, 0).orElse("about").toLowerCase(Locale.ENGLISH);
         if (SUB_COMMANDS.containsKey(action) && !executor.hasPermission(getPermission(action))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        switch (action.toLowerCase()) {
+        switch (action) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
             case "help" -> executor.sendMessage(
                     getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))
@@ -130,7 +130,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
                 ));
             }
             case "dump" -> {
-                if (!parseStringArg(args, 1).map(s -> s.equals("confirm")).orElse(false)) {
+                if (!parseStringArg(args, 1).map(s -> s.equalsIgnoreCase("confirm")).orElse(false)) {
                     getPlugin().getLocales().getLocale("system_dump_confirm").ifPresent(executor::sendMessage);
                     return;
                 }

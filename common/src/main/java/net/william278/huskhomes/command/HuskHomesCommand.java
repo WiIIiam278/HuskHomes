@@ -110,7 +110,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final String action = parseStringArg(args, 0).orElse("about");
+        final String action = parseStringArg(args, 0).orElse("about").toLowerCase();
         if (SUB_COMMANDS.containsKey(action) && !executor.hasPermission(getPermission(action))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);

@@ -117,7 +117,7 @@ public class HuskHomesCommand extends Command implements UserListTabCompletable 
             return;
         }
 
-        switch (action.toLowerCase()) {
+        switch (action) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
             case "help" -> executor.sendMessage(
                     getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))

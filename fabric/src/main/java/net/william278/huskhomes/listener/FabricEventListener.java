@@ -22,11 +22,7 @@ package net.william278.huskhomes.listener;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-//#if MC>=260102
 import net.minecraft.server.level.ServerPlayer;
-//#else
-//$$ import net.minecraft.server.network.ServerPlayerEntity;
-//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,11 +40,7 @@ public class FabricEventListener extends EventListener {
     public void register() {
         // Join event
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            //#if MC>=260102
             UUID uuid = handler.getPlayer().getUUID();
-            //#else
-            //$$ UUID uuid = handler.getPlayer().getUuid();
-            //#endif
             getPlugin().getOnlineUserMap().remove(uuid);
             super.handlePlayerJoin(getPlugin().getOnlineUser(handler.getPlayer()));
         });
@@ -60,30 +52,18 @@ public class FabricEventListener extends EventListener {
 
         // Death event
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
-            //#if MC>=260102
             if (entity instanceof ServerPlayer player) {
-            //#else
-            //$$ if (entity instanceof ServerPlayerEntity player) {
-            //#endif
                 super.handlePlayerDeath(getPlugin().getOnlineUser(player));
             }
         });
 
         // Damage event (to cancel teleport warmups)
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, amount, damage, blocked) -> {
-            //#if MC>=260102
             if (!(entity instanceof ServerPlayer player)) {
-            //#else
-            //$$ if (!(entity instanceof ServerPlayerEntity player)) {
-            //#endif
                 return;
             }
 
-            //#if MC>=260102
             UUID uuid = player.getUUID();
-            //#else
-            //$$ UUID uuid = player.getUuid();
-            //#endif
             // Cancel warmup on any "hurt" event during warmup, even if damage is blocked/absorbed
             if (!getPlugin().isWarmingUp(uuid) || amount <= 0) {
                 return;
@@ -93,11 +73,7 @@ public class FabricEventListener extends EventListener {
 
         // Respawn event
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            //#if MC>=260102
             UUID uuid = oldPlayer.getUUID();
-            //#else
-            //$$ UUID uuid = oldPlayer.getUuid();
-            //#endif
             getPlugin().getOnlineUserMap().remove(uuid);
             super.handlePlayerRespawn(getPlugin().getOnlineUser(newPlayer));
         });

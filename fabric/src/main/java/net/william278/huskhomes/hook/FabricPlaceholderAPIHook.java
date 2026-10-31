@@ -21,11 +21,7 @@ package net.william278.huskhomes.hook;
 
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
-//#if MC>=260102
 import net.minecraft.resources.Identifier;
-//#else
-//$$ import net.minecraft.util.Identifier;
-//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.user.OnlineUser;
 import net.william278.huskhomes.user.SavedUser;
@@ -46,20 +42,16 @@ public class FabricPlaceholderAPIHook extends Hook {
     @SuppressWarnings("SameParameterValue")
     @NotNull
     private Identifier createIdentifier(@NotNull String name) {
-        //#if MC>=260102
         return Identifier.fromNamespaceAndPath("huskhomes", name);
-        //#else
-        //$$ return Identifier.of("huskhomes", name);
-        //#endif
     }
 
     @Override
     public void load() {
-        //#if MC>=260102
+        //? if >=26.1.2 {
         Placeholders.registerServer(createIdentifier("player"), (ctx, arg) -> {
-        //#else
-        //$$ Placeholders.register(createIdentifier("player"), (ctx, arg) -> {
-        //#endif
+        //?} else {
+        /*Placeholders.register(createIdentifier("player"), (ctx, arg) -> {
+        *///?}
             if (!ctx.hasPlayer()) {
                 return PlaceholderResult.invalid("No player!");
             }
@@ -69,11 +61,11 @@ public class FabricPlaceholderAPIHook extends Hook {
             }
 
             assert ctx.player() != null;
-            //#if MC>=260000
+            //? if >=26 {
             final OnlineUser player = ((FabricHuskHomes) plugin).getOnlineUser(ctx.player().getUUID());
-            //#else
-            //$$ final OnlineUser player = ((FabricHuskHomes) plugin).getOnlineUser(ctx.player());
-            //#endif
+            //?} else {
+            /*final OnlineUser player = ((FabricHuskHomes) plugin).getOnlineUser(ctx.player());
+            *///?}
 
             final String response = switch (arg) {
                 case "homes_count" -> String.valueOf(plugin.getManager().homes()
@@ -108,11 +100,9 @@ public class FabricPlaceholderAPIHook extends Hook {
 
     @Override
     public void unload() {
-        //#if MC>=260102
         // Placeholder API 3.0.0+26.1 does not expose unregister methods.
-        //#else
-        //$$ Placeholders.remove(createIdentifier("player"));
-        //#endif
+        //? if <26.1.2
+        //Placeholders.remove(createIdentifier("player"));
     }
 
 }

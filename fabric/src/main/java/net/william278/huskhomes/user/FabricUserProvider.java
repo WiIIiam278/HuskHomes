@@ -19,11 +19,7 @@
 
 package net.william278.huskhomes.user;
 
-//#if MC>=260000
 import net.minecraft.server.level.ServerPlayer;
-//#else
-//$$ import net.minecraft.server.network.ServerPlayerEntity;
-//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,45 +31,25 @@ public interface FabricUserProvider extends UserProvider {
     @Override
     @NotNull
     default OnlineUser getOnlineUser(@NotNull UUID uuid) {
-        //#if MC>=260000
         return getOnlineUser(getPlugin().getMinecraftServer().getPlayerList().getPlayer(uuid));
-        //#else
-        //$$ return getOnlineUser(getPlugin().getMinecraftServer().getPlayerManager().getPlayer(uuid));
-        //#endif
     }
 
     @NotNull
     default FabricUser getOnlineUser(
-            //#if MC>=260000
             @Nullable ServerPlayer player
-            //#else
-            //$$ @Nullable ServerPlayerEntity player
-            //#endif
     ) {
         if (player == null) {
             throw new IllegalArgumentException("Player is not online");
         }
         FabricUser user = (FabricUser) getOnlineUserMap().get(
-                //#if MC>=260000
                 player.getUUID()
-                //#else
-                //$$ player.getUuid()
-                //#endif
         );
         if (user == null || user.getPlayer().isRemoved() ||
-                //#if MC>=260000
                 user.getPlayer().hasDisconnected()
-                //#else
-                //$$ user.getPlayer().isDisconnected()
-                //#endif
         ) {
             user = FabricUser.adapt(player, getPlugin());
             getOnlineUserMap().put(
-                    //#if MC>=260000
                     player.getUUID(),
-                    //#else
-                    //$$ player.getUuid(),
-                    //#endif
                     user
             );
             return user;

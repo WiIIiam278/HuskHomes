@@ -2,20 +2,13 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven { url 'https://maven.fabricmc.net/' }
-        maven { url 'https://maven.architectury.dev/' }
-        maven { url 'https://maven.minecraftforge.net' }
-        maven { url 'https://repo.william278.net/releases' }
-        maven { url 'https://repo.essential.gg/repository/maven-public' }
+        maven { url 'https://maven.kikugie.dev/releases' }
     }
+}
 
-    plugins {
-        def egtVersion = "0.7.0"
-        def loomVersion = "1.15.50"
-        id("gg.essential.defaults") version egtVersion
-        id("gg.essential.multi-version") version egtVersion
-        id("gg.essential.multi-version.root") version egtVersion
-        id("gg.essential.loom") version loomVersion
-    }
+plugins {
+    id 'dev.kikugie.stonecutter' version '0.9.8'
+    id 'dev.kikugie.loom-back-compat' version '0.4.3'
 }
 
 rootProject.name = 'HuskHomes'
@@ -25,20 +18,14 @@ include(
         // Paper/Spigot
         'bukkit',
         'paper',
+
+        // Fabric (versions are registered by Stonecutter below)
+        'fabric',
 )
 
-
-// Fabric
-include("fabric")
-project(":fabric").with {
-    projectDir = file("fabric/")
-    buildFileName = "root.gradle"
-}
-
-file('fabric').listFiles((FileFilter) ((File file) -> file.isDirectory() && file.name ==~ /(\d+)\.(\d+)(\.(\d+))?/)).each {
-    include("fabric:$it.name")
-    project(":fabric:$it.name").with {
-        projectDir = file("fabric/${it.name}")
-        buildFileName = '../build.gradle'
+stonecutter {
+    create(':fabric') {
+        versions '1.21.1', '1.21.11', '26.2', '26.3'
+        vcsVersion = '26.3'
     }
 }

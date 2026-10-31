@@ -50,6 +50,14 @@ To build HuskHomes, simply run the following in the root of the repository (buil
 ./gradlew clean build
 ```
 
+### Fabric versions
+Fabric versions are managed with [Stonecutter](https://stonecutter.kikugie.dev/). To work on a version other than 26.3:
+
+```bash
+./gradlew :fabric:"Set active project to 1.21.1"
+./gradlew :fabric:"Reset active project" # back to 26.3 before committing
+```
+
 ## License
 HuskHomes is licensed under the Apache 2.0 license.
 

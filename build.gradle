@@ -1,10 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta17'
-    id 'gg.essential.loom' version '1.15.50' apply false
-    id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.3'
     id 'maven-publish'
     id 'java'
@@ -58,7 +55,8 @@ publishing {
 }
 
 allprojects {
-    if (project.name == 'fabric') {
+    // Fabric projects are configured by fabric/build.gradle.kts
+    if (isFabricProject(project)) {
         return
     }
 
@@ -109,8 +107,7 @@ allprojects {
 }
 
 subprojects {
-    // Ignore root fabric project (no jars)
-    if (project.name == 'fabric') {
+    if (isFabricProject(project)) {
         return
     }
 
@@ -126,27 +123,6 @@ subprojects {
         archivesName = name
     }
 
-    // Fabric-specific configuration
-    if (project.parent?.name?.equals('fabric')) {
-        def isUnobfuscatedRuntime = isUnobfuscatedMinecraftVersion(project.name)
-        if (isUnobfuscatedRuntime) {
-            java {
-                toolchain {
-                    languageVersion = JavaLanguageVersion.of(25)
-                }
-            }
-            compileJava.options.release.set 25
-        } else {
-            java {
-                toolchain {
-                    languageVersion = JavaLanguageVersion.of(21)
-                }
-            }
-            compileJava.options.release.set 21
-        }
-        version += "+mc.${project.name}"
-    }
-
     jar {
         from(rootProject.file('LICENSE'))
     }
@@ -158,7 +134,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common', 'bukkit'].contains(project.name) || project.parent?.name?.equals('fabric')) {
+    if (['common', 'bukkit'].contains(project.name)) {
         java {
             withSourcesJar()
             withJavadocJar()
@@ -197,24 +173,6 @@ subprojects {
                     }
                 }
             }
-
-            if (project.parent?.name?.equals('fabric')) {
-                afterEvaluate {
-                    def publishedJarTask = tasks.named(project.ext.fabricRuntimeJarTaskName as String)
-                    publishing {
-                        publications {
-                            "mavenJavaFabric_${project.name.replace('.', '_')}"(MavenPublication) {
-                                groupId = 'net.william278.huskhomes'
-                                artifactId = 'huskhomes-fabric'
-                                version = "$rootProject.version+$project.name"
-                                artifact publishedJarTask
-                                artifact sourcesJar
-                                artifact javadocJar
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -244,7 +202,6 @@ def versionMetadata() {
     return '-' + grgit.head().abbreviatedId
 }
 
-static boolean isUnobfuscatedMinecraftVersion(String version) {
-    def parts = version.tokenize('.')
-    return !parts.isEmpty() && parts.first().isInteger() && parts.first().toInteger() >= 26
+static boolean isFabricProject(Project project) {
+    return project.path == ':fabric' || project.path.startsWith(':fabric:')
 }

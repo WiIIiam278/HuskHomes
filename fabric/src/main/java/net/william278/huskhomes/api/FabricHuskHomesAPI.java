@@ -19,20 +19,12 @@
 
 package net.william278.huskhomes.api;
 
-//#if MC>=260102
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.portal.TeleportTransition;
-//#else
-//$$ import net.minecraft.entity.Entity;
-//$$ import net.minecraft.server.network.ServerPlayerEntity;
-//$$ import net.minecraft.server.world.ServerWorld;
-//$$ import net.minecraft.util.math.Vec3d;
-//$$ import net.minecraft.world.TeleportTarget;
-//#endif
 import net.william278.huskhomes.FabricHuskHomes;
 import net.william278.huskhomes.config.Server;
 import net.william278.huskhomes.position.Location;
@@ -96,11 +88,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public OnlineUser adaptUser(
-            //#if MC>=260102
             @NotNull ServerPlayer player
-            //#else
-            //$$ @NotNull ServerPlayerEntity player
-            //#endif
     ) {
         return ((FabricHuskHomes) plugin).getOnlineUser(player);
     }
@@ -113,11 +101,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @NotNull
-    //#if MC>=260102
     public ServerPlayer getServerPlayerEntity(@NotNull OnlineUser user) {
-    //#else
-    //$$ public ServerPlayerEntity getServerPlayerEntity(@NotNull OnlineUser user) {
-    //#endif
         return ((FabricUser) user).getPlayer();
     }
 
@@ -129,11 +113,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @Nullable
-    //#if MC>=260102
     public ServerLevel getServerWorld(@NotNull World position) {
-    //#else    
-    //$$ public ServerWorld getServerWorld(@NotNull World position) {
-    //#endif
         return FabricHuskHomes.Adapter.adapt(position, ((FabricHuskHomes) plugin).getMinecraftServer());
     }
 
@@ -146,11 +126,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @Nullable
-    //#if MC>=260102
     public TeleportTransition getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
-    //#else
-    //$$ public TeleportTarget getTeleportTarget(@NotNull Location location, @NotNull Consumer<Entity> afterTeleport) {
-    //#endif
         return FabricHuskHomes.Adapter.adapt(location, ((FabricHuskHomes) plugin).getMinecraftServer(), afterTeleport);
     }
 
@@ -162,11 +138,7 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      * @since 4.7
      */
     @Nullable
-    //#if MC>=260102
     public TeleportTransition getTeleportTarget(@NotNull Location location) {
-    //#else
-    //$$ public TeleportTarget getTeleportTarget(@NotNull Location location) {
-    //#endif
         return getTeleportTarget(location, (entity) -> {
         });
     }
@@ -179,13 +151,13 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @Nullable
     public Location adaptLocation(
-            //#if MC>=260102
+            //? if >=26.1.2 {
             @NotNull Vec3 pos,
             @NotNull ServerLevel world,
-            //#else
-            //$$ @NotNull Vec3d pos,
-            //$$ @NotNull net.minecraft.world.World world,
-            //#endif
+            //?} else {
+            /*@NotNull Vec3 pos,
+            @NotNull net.minecraft.world.level.Level world,
+            *///?}
             float yaw, float pitch
     ) {
         return FabricHuskHomes.Adapter.adapt(pos, world, yaw, pitch);
@@ -205,13 +177,13 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public Position adaptPosition(
-            //#if MC>=260102
+            //? if >=26.1.2 {
             @NotNull Vec3 pos,
             @NotNull ServerLevel world,
-            //#else
-            //$$ @NotNull Vec3d pos,
-            //$$ @NotNull net.minecraft.world.World world,
-            //#endif
+            //?} else {
+            /*@NotNull Vec3 pos,
+            @NotNull net.minecraft.world.level.Level world,
+            *///?}
             float yaw, float pitch,
             @NotNull String server
     ) {
@@ -231,13 +203,13 @@ public class FabricHuskHomesAPI extends BaseHuskHomesAPI {
      */
     @NotNull
     public Position adaptPosition(
-            //#if MC>=260102
+            //? if >=26.1.2 {
             @NotNull Vec3 pos,
             @NotNull ServerLevel world,
-            //#else
-            //$$ @NotNull Vec3d pos,
-            //$$ @NotNull net.minecraft.world.World world,
-            //#endif
+            //?} else {
+            /*@NotNull Vec3 pos,
+            @NotNull net.minecraft.world.level.Level world,
+            *///?}
             float yaw, float pitch
     ) {
         return FabricHuskHomes.Adapter.adapt(pos, world, yaw, pitch, getServer());

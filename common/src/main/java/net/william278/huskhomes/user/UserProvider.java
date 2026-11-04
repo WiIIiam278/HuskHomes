@@ -52,11 +52,30 @@ public interface UserProvider {
         return getOnlineUserMap().values();
     }
 
+    /**
+     * Get the list of users online on this server, excluding those who are vanished.
+     *
+     * <p>This is the list broadcast to the rest of the network. Vanished users must be filtered out
+     * here, as the {@link User} objects sent over the network carry no vanish state and so cannot be
+     * filtered by the servers receiving them.
+     *
+     * @return this server's vanish-filtered user list
+     * @since 4.11
+     */
+    @NotNull
+    default List<User> getLocalUserList() {
+        return getOnlineUsers().stream()
+                .filter(online -> !online.isVanished())
+                .map(online -> (User) online)
+                .sorted()
+                .toList();
+    }
+
     @NotNull
     default List<User> getUserList() {
         return Stream.concat(
                 getGlobalUserList().values().stream().flatMap(Collection::stream),
-                getOnlineUsers().stream().filter(o -> !o.isVanished())
+                getLocalUserList().stream()
         ).distinct().sorted().toList();
     }
 

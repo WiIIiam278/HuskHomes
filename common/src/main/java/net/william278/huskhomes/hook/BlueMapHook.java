@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 @PluginHook(
@@ -49,8 +50,10 @@ import java.util.logging.Level;
 )
 public class BlueMapHook extends MapHook {
 
-    private Map<String, MarkerSet> publicHomesMarkerSets;
-    private Map<String, MarkerSet> warpsMarkerSets;
+    private final Consumer<BlueMapAPI> onEnableListener = this::onBlueMapEnable;
+    private final Consumer<BlueMapAPI> onDisableListener = this::onBlueMapDisable;
+    private volatile Map<String, MarkerSet> publicHomesMarkerSets;
+    private volatile Map<String, MarkerSet> warpsMarkerSets;
 
     public BlueMapHook(@NotNull HuskHomes plugin) {
         super(plugin);
@@ -58,27 +61,52 @@ public class BlueMapHook extends MapHook {
 
     @Override
     public void load() {
-        BlueMapAPI.onEnable(api -> {
-            this.publicHomesMarkerSets = new ConcurrentHashMap<>();
-            this.warpsMarkerSets = new ConcurrentHashMap<>();
+        // Listeners are invoked immediately if BlueMap is already enabled, and again on every BlueMap reload
+        BlueMapAPI.onEnable(onEnableListener);
+        BlueMapAPI.onDisable(onDisableListener);
+    }
 
-            for (World world : plugin.getWorlds()) {
-                this.editMapWorld(world, (mapWorld -> {
-                    final MarkerSet homeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
-                    final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
+    @Override
+    public void unload() {
+        BlueMapAPI.unregisterListener(onEnableListener);
+        BlueMapAPI.unregisterListener(onDisableListener);
 
-                    for (BlueMapMap map : mapWorld.getMaps()) {
-                        map.getMarkerSets().put(getPublicHomesKey(), homeMarkers);
-                        map.getMarkerSets().put(getWarpsKey(), warpsMarkers);
-                    }
+        // Only clear markers if BlueMap is still running; if it has already shut down, its markers are gone
+        if (BlueMapAPI.getInstance().isPresent()) {
+            super.unload();
+        }
+        this.publicHomesMarkerSets = null;
+        this.warpsMarkerSets = null;
+    }
 
-                    publicHomesMarkerSets.put(world.getName(), homeMarkers);
-                    warpsMarkerSets.put(world.getName(), warpsMarkers);
-                }));
-            }
+    private void onBlueMapEnable(@NotNull BlueMapAPI api) {
+        final Map<String, MarkerSet> homes = new ConcurrentHashMap<>();
+        final Map<String, MarkerSet> warps = new ConcurrentHashMap<>();
 
-            this.populateMap();
-        });
+        for (World world : plugin.getWorlds()) {
+            api.getWorld(world.getName()).ifPresent(mapWorld -> {
+                final MarkerSet homeMarkers = MarkerSet.builder().label(getPublicHomesMarkerSetName()).build();
+                final MarkerSet warpsMarkers = MarkerSet.builder().label(getWarpsMarkerSetName()).build();
+
+                for (BlueMapMap map : mapWorld.getMaps()) {
+                    map.getMarkerSets().put(getPublicHomesKey(), homeMarkers);
+                    map.getMarkerSets().put(getWarpsKey(), warpsMarkers);
+                }
+
+                homes.put(world.getName(), homeMarkers);
+                warps.put(world.getName(), warpsMarkers);
+            });
+        }
+
+        this.publicHomesMarkerSets = homes;
+        this.warpsMarkerSets = warps;
+        this.populateMap();
+    }
+
+    private void onBlueMapDisable(@NotNull BlueMapAPI api) {
+        // BlueMap discards its maps (and our marker sets) when it disables or reloads
+        this.publicHomesMarkerSets = null;
+        this.warpsMarkerSets = null;
     }
 
     @Override
@@ -108,16 +136,21 @@ public class BlueMapHook extends MapHook {
 
     @Override
     public void clearHomes(@NotNull User user) {
-        if (publicHomesMarkerSets != null) {
-            publicHomesMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().keySet()
+        final Map<String, MarkerSet> markerSets = publicHomesMarkerSets;
+        if (markerSets != null) {
+            markerSets.values().forEach(markerSet -> markerSet.getMarkers().keySet()
                     .removeIf(markerId -> markerId.startsWith(user.getUuid().toString())));
         }
     }
 
     @Override
     public void clearHomes(@NotNull String worldName) {
-        if (publicHomesMarkerSets != null) {
-            publicHomesMarkerSets.get(worldName).getMarkers().clear();
+        final Map<String, MarkerSet> markerSets = publicHomesMarkerSets;
+        if (markerSets != null) {
+            final MarkerSet markerSet = markerSets.get(worldName);
+            if (markerSet != null) {
+                markerSet.getMarkers().clear();
+            }
         }
     }
 
@@ -146,15 +179,20 @@ public class BlueMapHook extends MapHook {
 
     @Override
     public void clearWarps() {
-        if (warpsMarkerSets != null) {
-            warpsMarkerSets.values().forEach(markerSet -> markerSet.getMarkers().clear());
+        final Map<String, MarkerSet> markerSets = warpsMarkerSets;
+        if (markerSets != null) {
+            markerSets.values().forEach(markerSet -> markerSet.getMarkers().clear());
         }
     }
 
     @Override
     public void clearWarps(@NotNull String worldName) {
-        if (warpsMarkerSets != null) {
-            warpsMarkerSets.get(worldName).getMarkers().clear();
+        final Map<String, MarkerSet> markerSets = warpsMarkerSets;
+        if (markerSets != null) {
+            final MarkerSet markerSet = markerSets.get(worldName);
+            if (markerSet != null) {
+                markerSet.getMarkers().clear();
+            }
         }
     }
 
@@ -185,16 +223,26 @@ public class BlueMapHook extends MapHook {
 
     private void editPublicHomesMarkerSet(@NotNull World world, @NotNull ThrowingConsumer<MarkerSet> editor) {
         editMapWorld(world, (mapWorld -> {
-            if (publicHomesMarkerSets != null) {
-                editor.accept(publicHomesMarkerSets.get(world.getName()));
+            final Map<String, MarkerSet> markerSets = publicHomesMarkerSets;
+            if (markerSets == null) {
+                return;
+            }
+            final MarkerSet markerSet = markerSets.get(world.getName());
+            if (markerSet != null) {
+                editor.accept(markerSet);
             }
         }));
     }
 
     private void editWarpsMarkerSet(@NotNull World world, @NotNull ThrowingConsumer<MarkerSet> editor) {
         editMapWorld(world, (mapWorld -> {
-            if (warpsMarkerSets != null) {
-                editor.accept(warpsMarkerSets.get(world.getName()));
+            final Map<String, MarkerSet> markerSets = warpsMarkerSets;
+            if (markerSets == null) {
+                return;
+            }
+            final MarkerSet markerSet = markerSets.get(world.getName());
+            if (markerSet != null) {
+                editor.accept(markerSet);
             }
         }));
     }
